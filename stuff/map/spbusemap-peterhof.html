@@ -28,15 +28,16 @@
       box-shadow: 3px 3px 8px rgba(0, 0, 0, 1.0);
     }
   </style>
+
   <!--[if lt IE 9]>
-  <style>
+  <style type="text/css">
     h2 {
       width: 190px;
     }
   </style>
   <![endif]-->
   <!--[if gte IE 9]>
-  <style>
+  <style type="text/css">
     h2 {
       width: 200px;
     }
@@ -45,12 +46,15 @@
     }
   </style>
   <![endif]-->
+
 </head>
+
 <body onload="initM();">
 <!-- div style="width: 100%;" id="log"></div-->
 <div id="spbuSeMap" style="width: 600px; height: 600px; margin: 1;"></div>
 <script type="text/javascript" src="http://openlayers.org/dev/OpenLayers.js"></script>
 <script type="text/javascript">
+//<!--
   function initM() {
 
     // tuning
@@ -143,6 +147,7 @@
     map.addLayer(pois);
     map.addControl(new OpenLayers.Control.LayerSwitcher());
   }
+//-->
 </script>
 </body>
 </html>
