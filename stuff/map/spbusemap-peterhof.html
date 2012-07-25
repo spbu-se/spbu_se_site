@@ -54,6 +54,8 @@
   function initM() {
 
     // tuning
+    var pois;
+
     {
       function print(st) {
         //document.getElementById("log").innerHTML += ("" + st + "<br/>");
@@ -81,7 +83,10 @@
 
       var oocl = OpenLayers.Popup.prototype.onclick;
       OpenLayers.Popup.prototype.onclick = function (evt) {
-        this.toggle();
+        for(var i=0, len= pois.map.popups.length; i<len; i++) {
+            pois.map.removePopup(pois.map.popups[i]);
+        }
+
         oocl(evt);
       }
     }
@@ -130,7 +135,7 @@
     map.addLayer(tp);
 
     // points
-    var pois = new OpenLayers.Layer.Text("Точки на карте",
+    pois = new OpenLayers.Layer.Text("Точки на карте",
                     { location:"./spbusepoi.csv",
                       projection: map.displayProjection,
                       'autoSize': true
