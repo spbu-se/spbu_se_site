@@ -92,6 +92,7 @@
         for(var i=0, len= pois.map.popups.length; i<len; i++) {
             pois.map.removePopup(pois.map.popups[i]);
         }
+        pois.selectedFeature = null; //otherwise it shows again after clicking twice
 
         oocl(evt);
       }
