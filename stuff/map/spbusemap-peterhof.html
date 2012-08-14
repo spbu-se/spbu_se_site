@@ -4,153 +4,34 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <title>Матмех СПбГУ, ПУНК: карта</title>
 
+  <link rel="stylesheet" href="leaflet/leaflet.css" />
+  <!--[if lte IE 8]><link rel="stylesheet" href="leaflet/leaflet.ie.css" /><![endif]-->
   <style type="text/css">
-    p, h2 {
+    p, h2, h3 {
       font-family: Verdana,Lucida,Helvetica,Arial,sans-serif;
     }
-    h2 {
-      font-weight: bold;
-      font-size: 16px;
-      background-color: lightgrey;
-      color: black;
 
-      margin: 0px;
-      text-align: center;
-      border-radius: 3px;
-      width: 100%;
-    }
-    p {
-      font-size: 12px;
-    }
-
-    .olPopup {
-      border-radius: 6px;
-      border: none;
-      overflow: hidden;
-      box-shadow: 3px 3px 8px rgba(0, 0, 0, 1.0);
-    }
+   .leaflet-popup-content-wrapper {
+      border-radius: 10px; /* originally was 20, too much */
+   }
   </style>
-
-  <!--[if lt IE 9]>
+  <!--[if lte IE 7]>
   <style type="text/css">
-    h2 {
-      width: 190px;
+    .leaflet-popup-content {
+      margin: 0px 20px;
     }
   </style>
   <![endif]-->
-  <!--[if gte IE 9]>
-  <style type="text/css">
-    h2 {
-      width: 200px;
-    }
-    .olPopup {
-      box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.7); // WTF again...
-    }
-  </style>
-  <![endif]-->
-
 </head>
 
 <body onload="initM();">
 <!-- div style="width: 100%;" id="log"></div-->
 <div id="spbuSeMap" style="width: 600px; height: 600px; margin: 1;"></div>
-<script type="text/javascript" src="http://openlayers.org/dev/OpenLayers.js"></script>
-<script type="text/javascript">
-//<!--
-  function initM() {
 
-    // tuning
-    var pois;
+<script type="text/javascript" src="leaflet/leaflet.js"></script>
 
-    {
-      function print(st) {
-        //document.getElementById("log").innerHTML += ("" + st + "<br/>");
-      }
-     
-      var IE = (navigator.appName == 'Microsoft Internet Explorer');
-      print("IE: " + IE);
+<script type="text/javascript" src="geoinfo/matmex.geojson"></script>
 
-      var oldIE = false;
-      if(IE) {
-        var version = 999; // we assume a sane browser
-        if (navigator.appVersion.indexOf("MSIE") != -1)
-        // bah, IE again, lets downgrade version number
-        version = parseFloat(navigator.appVersion.split("MSIE")[1]);
-        if(version <= 7)
-          oldIE = true;
-      }
-      print("IE <= 7: " + oldIE);
-
-
-      if(!oldIE) {
-        OpenLayers.Popup.OPACITY = 0.8;
-        OpenLayers.Popup.BORDER = "1px solid darkgrey";
-      }
-
-      var oocl = OpenLayers.Popup.prototype.onclick;
-      OpenLayers.Popup.prototype.onclick = function (evt) {
-        for(var i=0, len= pois.map.popups.length; i<len; i++) {
-            pois.map.removePopup(pois.map.popups[i]);
-        }
-        pois.selectedFeature = null; //otherwise it shows again after clicking twice
-
-        oocl(evt);
-      }
-    }
-
-    var map = new OpenLayers.Map("spbuSeMap");
-    var mapnik         = new OpenLayers.Layer.OSM();
-    var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
-    var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
-    var position       = new OpenLayers.LonLat(29.82916,59.8815).transform( fromProjection, toProjection);
-    var zoom           = 15; 
-
-    // map
-    map.addLayer(mapnik);
-    map.setCenter(position, zoom );
-
-    // footpath
-    var fp = new OpenLayers.Layer.GML("Пешком до и от Матмеха", "spbusewalk.gpx", {
-	format: OpenLayers.Format.GPX,
-	style: {strokeColor: "blue", strokeWidth: 5, strokeOpacity: 0.5},
-	projection: map.displayProjection
-    });
-    map.addLayer(fp);
-
-    // autopath
-    var ap = new OpenLayers.Layer.GML("На автомобиле до и от Матмеха", "spbuseride.gpx", {
-	format: OpenLayers.Format.GPX,
-	style: {strokeColor: "red", strokeWidth: 5, strokeOpacity: 0.5},
-	projection: map.displayProjection
-    });
-    map.addLayer(ap);
-
-    // railpath
-    var rp = new OpenLayers.Layer.GML("На электричке до и от ПУНК СПбГУ", "spbuserail.gpx", {
-	format: OpenLayers.Format.GPX,
-	style: {strokeColor: "green", strokeWidth: 5, strokeOpacity: 0.5},
-	projection: map.displayProjection
-    });
-    map.addLayer(rp);
-
-    // trampath
-    var tp = new OpenLayers.Layer.GML("На трамвае №36 до Стрельны", "spbusetram.gpx", {
-	format: OpenLayers.Format.GPX,
-	style: {strokeColor: "yellow", strokeWidth: 5, strokeOpacity: 0.7, strokeDashstyle: "dash"},
-	projection: map.displayProjection
-    });
-    map.addLayer(tp);
-
-    // points
-    pois = new OpenLayers.Layer.Text("Точки на карте",
-                    { location:"./spbusepoi.csv",
-                      projection: map.displayProjection,
-                      'autoSize': true
-                    });
-    map.addLayer(pois);
-    map.addControl(new OpenLayers.Control.LayerSwitcher());
-  }
-//-->
-</script>
+<script type="text/javascript" src="scripts/spbumap.js"></script>
 </body>
 </html>
