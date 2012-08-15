@@ -5,7 +5,7 @@ initM = function() {
   map = L.map('spbuSeMap').setView([59.8815, 29.82916], 15);
   L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
-    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>'
+    attribution: 'Картографические данные: &copy; пользователи <a href="http://openstreetmap.org">OpenStreetMap</a>'
   }).addTo(map);
   L.geoJson([matmex], {
     style: function(feature) {
