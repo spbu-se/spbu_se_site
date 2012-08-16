@@ -13,35 +13,27 @@ initM = ->
     [matmex]
     {
       style: (feature)->
-        s = feature.properties && feature.properties.style
-        s = s ? {}
+        s = feature.properties?.style ? {}
 
-        if feature.properties
-          if feature.properties.building
-            s.weight = 2
-            s.fill = true
-            s.color = "#000000"
-            s.fillColor = "#B0DE5C"
-            s.fillOpacity = 0.4
-          s.opacity = 0.6;
-          if feature.properties.color
-            s.color = feature.properties.color
+        s.opacity = 0.6;
+        if feature.properties?.building == "yes"
+          s.weight = 2
+          s.fill = true
+          s.color = "#000000"
+          s.fillColor = "#B0DE5C"
+          s.fillOpacity = 0.4
+        if feature.properties?.color
+          s.color = feature.properties.color
       
         s
       ,
 
       onEachFeature: (feature, layer)->
-        layer.bindPopup(
-          if feature.properties
-            if feature.properties.popupContent
-              feature.properties.popupContent
-            else feature.properties.name
-          else ""
-        )
+        layer.bindPopup feature.properties?.popupContent ? feature.properties?.name ? ""
       ,
 
       pointToLayer: (feature, latlng)->
-        iurl = feature.properties && feature.properties.iconURL || 'images/map_marker.png'
+        iurl = feature.properties?.iconURL ? 'images/map_marker.png'
 
         icon = L.icon({
           iconUrl: iurl,
