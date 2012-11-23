@@ -1,3 +1,5 @@
+'use strict'
+
 initM = ->
   map = L.map('spbuSeMap').setView([59.8815, 29.82916], 15)
 
@@ -7,7 +9,7 @@ initM = ->
       maxZoom: 18,
       attribution: 'Картографические данные: &copy; пользователи <a href="http://openstreetmap.org">OpenStreetMap</a>'
     }
-  ).addTo(map);
+  ).addTo(map)
 
   L.geoJson(
     [matmex]
@@ -44,4 +46,9 @@ initM = ->
         L.marker latlng, {icon: icon}
     }
   ).addTo(map)
+
+  scale = L.control.scale()
+  scale.options.imperial = false # no need =)
+  scale.addTo(map)
+
   []

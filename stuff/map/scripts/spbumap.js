@@ -1,7 +1,9 @@
+'use strict';
+
 var initM;
 
 initM = function() {
-  var map;
+  var map, scale;
   map = L.map('spbuSeMap').setView([59.8815, 29.82916], 15);
   L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
@@ -42,5 +44,8 @@ initM = function() {
       });
     }
   }).addTo(map);
+  scale = L.control.scale();
+  scale.options.imperial = false;
+  scale.addTo(map);
   return [];
 };
