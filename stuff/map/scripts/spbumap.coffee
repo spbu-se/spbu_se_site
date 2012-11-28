@@ -3,11 +3,18 @@
 initM = ->
   map = L.map('spbuSeMap').setView([59.8815, 29.82916], 15)
 
+  # window.browser_too_old = true
+  if !(window.browser_too_old is undefined)
+    L.control.attribution(
+      position: 'topright',
+      prefix: '<a href="browser_too_old.html">Рекомендуем обновить браузер</a>',
+      attribution: null
+      ).addTo(map);
+
   L.tileLayer(
     'http://tile.openstreetmap.org/{z}/{x}/{y}.png'
     {
       maxZoom: 18,
-      attribution: 'Картографические данные: &copy; пользователи <a href="http://openstreetmap.org">OpenStreetMap</a>'
     }
   ).addTo(map)
 
