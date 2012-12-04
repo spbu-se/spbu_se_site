@@ -1,6 +1,6 @@
 'use strict'
 
-initM = ->
+@initM = ->
   map = L.map('spbuSeMap').setView([59.8815, 29.82916], 15)
 
   # window.browser_too_old = true
@@ -58,4 +58,4 @@ initM = ->
   scale.options.imperial = false # no need =)
   scale.addTo(map)
 
-  []
+  return
