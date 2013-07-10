@@ -6,6 +6,12 @@
 
   <link rel="stylesheet" href="leaflet/leaflet.css" />
   <!--[if lte IE 8]><link rel="stylesheet" href="leaflet/leaflet.ie.css" /><![endif]-->
+
+  <link rel="stylesheet" href="leafletlabel/leaflet.label.css" />
+  <link rel="stylesheet" href="markercluster/MarkerCluster.css" />
+  <link rel="stylesheet" href="markercluster/MarkerCluster.Default.css" />
+  <!--[if lte IE 8]><link rel="stylesheet" href="markercluster/MarkerCluster.Default.ie.css" /><![endif]-->
+
   <style type="text/css">
     p, h2, h3 {
       font-family: Verdana,Lucida,Helvetica,Arial,sans-serif;
@@ -13,6 +19,10 @@
 
    .leaflet-popup-content-wrapper {
       border-radius: 10px; /* originally was 20, too much */
+   }
+
+   .marker-cluster-small div, .marker-cluster, .marker-cluster-medium div {
+      background-color: rgba(0, 255, 255, 0.6);
    }
   </style>
   <!--[if lte IE 7]>
@@ -34,6 +44,8 @@
 <div id="spbuSeMap" style="width: 600px; height: 600px; margin: 1;"></div>
 
 <script type="text/javascript" src="leaflet/leaflet.js"></script>
+<script type="text/javascript" src="leafletlabel/leaflet.label.js"></script>
+<script type="text/javascript" src="markercluster/leaflet.markercluster.js"></script>
 
 <script type="text/javascript" src="geoinfo/matmex.geojson"></script>
 

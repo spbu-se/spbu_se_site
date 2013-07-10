@@ -18,7 +18,7 @@
     }
   ).addTo(map)
 
-  L.geoJson(
+  geoJsonLayer = L.geoJson(
     [matmex]
     {
       style: (feature)->
@@ -52,7 +52,16 @@
         })
         L.marker latlng, {icon: icon}
     }
-  ).addTo(map)
+  )
+
+  clusters = new L.MarkerClusterGroup
+    spiderfyOnMaxZoom: true
+    showCoverageOnHover: false
+    zoomToBoundsOnClick: true
+    maxClusterRadius: 15
+
+  clusters.addLayer geoJsonLayer
+  map.addLayer clusters
 
   scale = L.control.scale()
   scale.options.imperial = false # no need =)
