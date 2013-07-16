@@ -54,7 +54,10 @@ getXmlHttp = ()->
   
         pointToLayer: (feature, latlng)->
           iurl = feature.properties?.iconURL ? 'images/map_marker.png'
-  
+
+          if !(window.browser_too_old is undefined)
+            iurl = iurl.replace '.png', '.gif' # Sometimes helps in 32 bit IE6
+
           icon = L.icon({
             iconUrl: iurl,
             iconSize: [16, 16],

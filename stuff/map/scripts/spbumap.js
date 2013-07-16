@@ -66,6 +66,9 @@
           var icon, iurl, _ref, _ref1;
 
           iurl = (_ref = (_ref1 = feature.properties) != null ? _ref1.iconURL : void 0) != null ? _ref : 'images/map_marker.png';
+          if (!(window.browser_too_old === void 0)) {
+            iurl = iurl.replace('.png', '.gif');
+          }
           icon = L.icon({
             iconUrl: iurl,
             iconSize: [16, 16],
