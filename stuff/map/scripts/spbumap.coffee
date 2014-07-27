@@ -14,18 +14,17 @@ getXmlHttp = ()->
 
   # window.browser_too_old = true
   if !(window.browser_too_old is undefined)
-    L.control.attribution(
+    L.control.attribution
       position: 'topright',
       prefix: '<a href="browser_too_old.html">Рекомендуем обновить браузер</a>',
       attribution: null
-      ).addTo(map);
+    .addTo(map)
 
-  L.tileLayer(
-    'http://tile.openstreetmap.org/{z}/{x}/{y}.png'
-    {
-      maxZoom: 18,
-    }
-  ).addTo(map)
+  L
+  .tileLayer 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    maxZoom: 18,
+    attribution: 'Картографические данные: &copy; пользователи <a href="http://openstreetmap.org">OpenStreetMap</a>'
+  .addTo(map)
 
   gotgeojson = (text)->
     matmex = eval '(' + text + ')'
@@ -58,12 +57,12 @@ getXmlHttp = ()->
           if !(window.browser_too_old is undefined)
             iurl = iurl.replace '.png', '.gif' # Sometimes helps in 32 bit IE6
 
-          icon = L.icon({
+          icon = L.icon
             iconUrl: iurl,
             iconSize: [16, 16],
             iconAnchor: [8, 8],
             popupAnchor: [0, 0]
-          })
+
           L.marker latlng, {icon: icon}
       }
     )
@@ -79,10 +78,10 @@ getXmlHttp = ()->
   
     scale = L.control.scale()
     scale.options.imperial = false # no need =)
-    scale.addTo(map)
+    scale.addTo map
   
   xmlhttp = getXmlHttp()
-  xmlhttp.onreadystatechange = ()->
+  xmlhttp.onreadystatechange = ->
     if xmlhttp.readyState == 4 && xmlhttp.status == 200
       gotgeojson xmlhttp.responseText
   xmlhttp.open 'GET', "geoinfo/matmex.geojson" + "?0", true
