@@ -68,7 +68,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='/assets/img/favicon.png') }}" type="image/png">
     <!-- Quick CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/quick-website.css') }}" id="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/quick-website.min.css') }}" id="stylesheet">
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/animate.css/animate.min.css') }}">
     <!-- Font Awesome -->
@@ -230,7 +230,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- Google maps -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA74mo0V79zPcSWjgUMe9AdmLy3-ruPKLs"></script>
     <!-- Recaptcha -->
-    <script src='https://www.google.com/recaptcha/api.js'></script>
+    <script src='https://www.google.com/recaptcha/api.js' async defer></script>
     <!-- Quick JS -->
     <script src="{{ url_for('static', filename='/assets/js/quick-website.js') }}"></script>
     <!-- Feather Icons -->
