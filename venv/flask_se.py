@@ -4,9 +4,13 @@ from flask_frozen import Freezer
 import sys, os
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
+app.config['APPLICATION_ROOT'] = '/'
+app.config['FREEZER_RELATIVE_URLS'] = True
+app.config['FREEZER_DESTINATION'] = '../docs'
+
 freezer = Freezer(app)
 
-URL_PREFIX = "/new"
+URL_PREFIX = "/"
 
 @app.route(URL_PREFIX + '/')
 def index():
