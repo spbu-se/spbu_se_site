@@ -68,7 +68,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='/assets/img/favicon.png') }}" type="image/png">
     <!-- Quick CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/quick-website.min.css') }}" id="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/quick-website.css') }}" id="stylesheet">
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/animate.css/animate.min.css') }}">
     <!-- Font Awesome -->
@@ -145,16 +145,48 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 Поступающим
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="text-dark nav-link" href="{{ url_for('students') }}">
-                                Студентам
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="text-dark nav-link" href="https://oops.math.spbu.ru/SE/alumni" target="_blank">
-                                Выпускники
-                            </a>
-                        </li>
+                        <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                                <a class="text-dark nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                                    Студентам
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-md p-0">
+                                    <div class="list-group list-group-flush px-lg-4">
+                                        <a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Архив ВКР и курсовых работ</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                                <a class="text-dark nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                                    Выпускники
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-md p-0">
+                                    <div class="list-group list-group-flush px-lg-4">
+                                        <a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Архив ВКР</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <a href="https://oops.math.spbu.ru/SE/alumni" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Выпускники кафедры</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
                         <li class="nav-item">
                             <a class="text-dark nav-link" href="{{ url_for('contacts') }}">
                                 Контакты
