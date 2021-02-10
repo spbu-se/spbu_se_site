@@ -8,7 +8,7 @@ on:
     pull_request:
     push:
       branches:
-        -current
+        - current
 
     # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
