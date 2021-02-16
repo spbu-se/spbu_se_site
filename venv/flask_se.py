@@ -60,6 +60,10 @@ def department_staff():
 def department_staff2():
     return render_template('department_staff2.html')
 
+@app.route(URL_PREFIX + '/department/staff3.html')
+def department_staff3():
+    return render_template('department_staff3.html')
+
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "build":
         freezer.freeze()

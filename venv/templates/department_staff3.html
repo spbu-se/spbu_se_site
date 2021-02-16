@@ -1,0 +1,186 @@
+{% extends "base_dark.html" %}
+{% block title %}Сотрудники и преподаватели кафедры{% endblock %}
+{% block description %}Сотрудники и преподаватели кафедры Системного программирования Математико-механического факультета СПбГУ.{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main-back.jpg') }} );">
+        <!-- Container -->
+        <div class="container d-flex align-items-center text-center text-lg-left pt-5 pt-lg-6">
+            <div class="col px-0">
+                <div class="row row-grid align-items-center">
+                    <div class="col-lg-8 text-center text-lg-left">
+                        <!-- Heading -->
+                        <h1 class="text-white mb-1 text-">
+                            Сотрудники
+                        </h1>
+                        <h1 class="text-white mb-1">
+                            и преподаватели кафедры
+                        </h1>
+                        <!-- Text -->
+                        <p class="lead text-white opacity-8 mt-2 mb-0">
+                            Ведущие разработчики и опытные исследователи деляться своими знаниями и навыками с нашими студентами.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- SVG separator -->
+        <div class="shape-container shape-line shape-position-bottom">
+            <svg width="2560px" height="100px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" viewBox="0 0 2560 100" style="enable-background:new 0 0 2560 100;" xml:space="preserve" class="">
+                <polygon points="2560 0 2560 100 0 100"></polygon>
+            </svg>
+        </div>
+    </section>
+
+    <section class="slice" id="stuff">
+        <!-- Container -->
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-7">
+                    <span class="h6 pl-1">Имя и должность</span>
+                </div>
+                <div class="col-lg-3 pl-0">
+                    <span class="h6">Контакты</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
+                        <div class="card-body py-2">
+                            <div class="row">
+                                <div class="col-lg-2 align-self-center">
+                                    <div class="img-fluid">
+                                        <img alt="Ilya Zelenchuk" src="{{ url_for('static', filename='/assets/img/stuff/zelenchuk.jpg') }}" class="avatar rounded-circle avatar-lg">
+                                    </div>
+                                </div>
+                                <div class="col-lg-7 pl-0">
+                                    <h2 class="font-weight-normal mb-1">Зеленчук Илья Валерьевич</h2>
+                                    <p class="">Старший преподаватель</p>
+                                </div>
+                                <div class="col-lg-3 align-self-center">
+                                    <p class="mb-1">
+                                        <a href="mailto:ilya@hackerdom.ru">ilya@hackerdom.ru</a>
+                                    </p>
+                                    <p class="mb-0">
+                        <a href="https://t.me/Zelenchuk">@Zelenchuk</a> (Telegram)
+                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
+                        <div class="card-body py-2">
+                            <div class="row">
+                                <div class="col-lg-2 align-self-center">
+                                    <div class="img-fluid">
+                                        <img alt="Ilya Zelenchuk" src="{{ url_for('static', filename='/assets/img/stuff/zelenchuk.jpg') }}" class="avatar rounded-circle avatar-lg">
+                                    </div>
+                                </div>
+                                <div class="col-lg-7 pl-0">
+                                    <h2 class="font-weight-normal mb-1">Зеленчук Илья Валерьевич</h2>
+                                    <p class="">Старший преподаватель</p>
+                                </div>
+                                <div class="col-lg-3 align-self-center">
+                                    <p class="mb-1">
+                                        <a href="mailto:ilya@hackerdom.ru">ilya@hackerdom.ru</a>
+                                    </p>
+                                    <p class="mb-0">
+                        <a href="https://t.me/Zelenchuk">@Zelenchuk</a> (Telegram)
+                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
+                        <div class="card-body py-2">
+                            <div class="row">
+                                <div class="col-lg-2 align-self-center">
+                                    <div class="img-fluid">
+                                        <img alt="Ilya Zelenchuk" src="{{ url_for('static', filename='/assets/img/stuff/zelenchuk.jpg') }}" class="avatar rounded-circle avatar-lg">
+                                    </div>
+                                </div>
+                                <div class="col-lg-7 pl-0">
+                                    <h2 class="font-weight-normal mb-1">Зеленчук Илья Валерьевич</h2>
+                                    <p class="">Старший преподаватель</p>
+                                </div>
+                                <div class="col-lg-3 align-self-center">
+                                    <p class="mb-1">
+                                        <a href="mailto:ilya@hackerdom.ru">ilya@hackerdom.ru</a>
+                                    </p>
+                                    <p class="mb-0">
+                        <a href="https://t.me/Zelenchuk">@Zelenchuk</a> (Telegram)
+                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
+                        <div class="card-body py-2">
+                            <div class="row">
+                                <div class="col-lg-2 align-self-center">
+                                    <div class="img-fluid">
+                                        <img alt="Ilya Zelenchuk" src="{{ url_for('static', filename='/assets/img/stuff/zelenchuk.jpg') }}" class="avatar rounded-circle avatar-lg">
+                                    </div>
+                                </div>
+                                <div class="col-lg-7 pl-0">
+                                    <h2 class="font-weight-normal mb-1">Зеленчук Илья Валерьевич</h2>
+                                    <p class="">Старший преподаватель</p>
+                                </div>
+                                <div class="col-lg-3 align-self-center">
+                                    <p class="mb-1">
+                                        <a href="mailto:ilya@hackerdom.ru">ilya@hackerdom.ru</a>
+                                    </p>
+                                    <p class="mb-0">
+                        <a href="https://t.me/Zelenchuk">@Zelenchuk</a> (Telegram)
+                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
+                        <div class="card-body py-2">
+                            <div class="row">
+                                <div class="col-lg-2 align-self-center">
+                                    <div class="img-fluid">
+                                        <img alt="Ilya Zelenchuk" src="{{ url_for('static', filename='/assets/img/stuff/zelenchuk.jpg') }}" class="avatar rounded-circle avatar-lg">
+                                    </div>
+                                </div>
+                                <div class="col-lg-7 pl-0">
+                                    <h2 class="font-weight-normal mb-1">Зеленчук Илья Валерьевич</h2>
+                                    <p class="">Старший преподаватель</p>
+                                </div>
+                                <div class="col-lg-3 align-self-center">
+                                    <p class="mb-1">
+                                        <a href="mailto:ilya@hackerdom.ru">ilya@hackerdom.ru</a>
+                                    </p>
+                                    <p class="mb-0">
+                        <a href="https://t.me/Zelenchuk">@Zelenchuk</a> (Telegram)
+                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+{% endblock %}
