@@ -19,7 +19,7 @@
                         </h1>
                         <!-- Text -->
                         <p class="lead text-white opacity-8 mt-2 mb-0">
-                            Ведущие разработчики и опытные исследователи деляться своими знаниями и навыками с нашими студентами.
+                            Ведущие разработчики и опытные исследователи делятся своими знаниями и навыками с нашими студентами.
                         </p>
                     </div>
                 </div>
@@ -45,108 +45,22 @@
                     <span class="h6">Контакты</span>
                 </div>
             </div>
+            {% for person in staff %}
             <div class="row mb-4">
                 <div class="col-lg-3">
-                    <img alt="Ilya Zelenchuk" src="{{ url_for('static', filename='/assets/img/stuff/zelenchuk.jpg') }}" class="avatar  rounded-circle avatar-lg">
+                    <img alt="{{person.name}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.avatar) }}" class="avatar  rounded-circle avatar-lg">
                 </div>
-                <div class="col-lg-6" id="name">
-                    <p class="lead mb-0">Зеленчук Илья Валерьевич</p>
-                    <p class="text-sm">Старший преподаватель</p>
+                <div class="col-lg-6">
+                    <p class="lead mb-0">{{person.name}}</p>
+                    <p class="text-sm">{{person.position}}</p>
                 </div>
                 <div class="col-lg-3">
                     <p class="text-sm mb-0">
-                        <a href="mailto:ilya@hackerdom.ru">ilya@hackerdom.ru</a>
-                    </p>
-                    <p class="text-sm mb-0">
-                        <a href="https://t.me/Zelenchuk">@Zelenchuk</a> (Telegram)
+                        <a href="mailto:{{person.contacts}}">{{person.contacts}}</a>
                     </p>
                 </div>
             </div>
-            <div class="row mb-4">
-                <div class="col-lg-3">
-                    <img alt="Ilya Zelenchuk" src="{{ url_for('static', filename='/assets/img/stuff/zelenchuk.jpg') }}" class="avatar  rounded-circle avatar-lg">
-                </div>
-                <div class="col-lg-6" id="name">
-                    <p class="lead mb-0">Зеленчук Илья Валерьевич</p>
-                    <p class="text-sm">Старший преподаватель</p>
-                </div>
-                <div class="col-lg-3">
-                    <p class="text-sm mb-0">
-                        <a href="mailto:ilya@hackerdom.ru">ilya@hackerdom.ru</a>
-                    </p>
-                    <p class="text-sm mb-0">
-                        <a href="https://t.me/Zelenchuk">@Zelenchuk</a> (Telegram)
-                    </p>
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col-lg-3">
-                    <img alt="Ilya Zelenchuk" src="{{ url_for('static', filename='/assets/img/stuff/zelenchuk.jpg') }}" class="avatar  rounded-circle avatar-lg">
-                </div>
-                <div class="col-lg-6" id="name">
-                    <p class="lead mb-0">Зеленчук Илья Валерьевич</p>
-                    <p class="text-sm">Старший преподаватель</p>
-                </div>
-                <div class="col-lg-3">
-                    <p class="text-sm mb-0">
-                        <a href="mailto:ilya@hackerdom.ru">ilya@hackerdom.ru</a>
-                    </p>
-                    <p class="text-sm mb-0">
-                        <a href="https://t.me/Zelenchuk">@Zelenchuk</a> (Telegram)
-                    </p>
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col-lg-3">
-                    <img alt="Ilya Zelenchuk" src="{{ url_for('static', filename='/assets/img/stuff/zelenchuk.jpg') }}" class="avatar  rounded-circle avatar-lg">
-                </div>
-                <div class="col-lg-6" id="name">
-                    <p class="lead mb-0">Зеленчук Илья Валерьевич</p>
-                    <p class="text-sm">Старший преподаватель</p>
-                </div>
-                <div class="col-lg-3">
-                    <p class="text-sm mb-0">
-                        <a href="mailto:ilya@hackerdom.ru">ilya@hackerdom.ru</a>
-                    </p>
-                    <p class="text-sm mb-0">
-                        <a href="https://t.me/Zelenchuk">@Zelenchuk</a> (Telegram)
-                    </p>
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col-lg-3">
-                    <img alt="Ilya Zelenchuk" src="{{ url_for('static', filename='/assets/img/stuff/zelenchuk.jpg') }}" class="avatar  rounded-circle avatar-lg">
-                </div>
-                <div class="col-lg-6" id="name">
-                    <p class="lead mb-0">Зеленчук Илья Валерьевич</p>
-                    <p class="text-sm">Старший преподаватель</p>
-                </div>
-                <div class="col-lg-3">
-                    <p class="text-sm mb-0">
-                        <a href="mailto:ilya@hackerdom.ru">ilya@hackerdom.ru</a>
-                    </p>
-                    <p class="text-sm mb-0">
-                        <a href="https://t.me/Zelenchuk">@Zelenchuk</a> (Telegram)
-                    </p>
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col-lg-3">
-                    <img alt="Ilya Zelenchuk" src="{{ url_for('static', filename='/assets/img/stuff/zelenchuk.jpg') }}" class="avatar  rounded-circle avatar-lg">
-                </div>
-                <div class="col-lg-6" id="name">
-                    <p class="lead mb-0">Зеленчук Илья Валерьевич</p>
-                    <p class="text-sm">Старший преподаватель</p>
-                </div>
-                <div class="col-lg-3">
-                    <p class="text-sm mb-0">
-                        <a href="mailto:ilya@hackerdom.ru">ilya@hackerdom.ru</a>
-                    </p>
-                    <p class="text-sm mb-0">
-                        <a href="https://t.me/Zelenchuk">@Zelenchuk</a> (Telegram)
-                    </p>
-                </div>
-            </div>
+            {% endfor %}
 
         </div>
     </section>
