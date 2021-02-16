@@ -56,6 +56,10 @@ def master_software_engineering():
 def department_staff():
     return render_template('department_staff.html')
 
+@app.route(URL_PREFIX + '/department/staff2.html')
+def department_staff2():
+    return render_template('department_staff2.html')
+
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "build":
         freezer.freeze()
