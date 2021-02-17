@@ -36,40 +36,32 @@
     <section class="slice" id="stuff">
         <!-- Container -->
         <div class="container">
-            <div class="row">
-                <div class="col-lg-2"></div>
-                <div class="col-lg-7">
-                    <span class="h6 pl-1">Имя и должность</span>
-                </div>
-                <div class="col-lg-3 pl-0">
-                    <span class="h6">Контакты</span>
-                </div>
-            </div>
             {% for person in staff %}
-            <div class="row">
-                <div class="col-lg-12">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
                     <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
-                        <div class="card-body py-2">
-                            <div class="row">
-                                <div class="col-lg-2 align-self-center">
-                                    <img alt="{{person.name}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.avatar) }}" class="avatar rounded-circle avatar-lg">
+                        <div class="card-body py-3 row">
+                                <div class="col-lg-8">
+                                    <div class="media align-items-center">
+                                        <img alt="{{person.name}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.avatar) }}" class="avatar rounded-circle avatar-lg mr-4">
+
+                                        <div class="media-body">
+                                            <span class="h6">{{person.name}}</span><br>
+                                            <span class="h6 text-sm">{{person.position}}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-lg-7 pl-0 align-self-center">
-                                    <p class="lead mb-0">{{person.name}}</p>
-                                    <p class="text-sm mb-0">{{person.position}}</p>
-                                </div>
-                                <div class="col-lg-3 align-self-center">
+                                <div class="col-lg-4 align-self-center">
                                     <p class="mb-0">
-                                        <a href="mailto:{{person.contacts}}">{{person.contacts}}</a>
+                                        <i data-feather="mail"></i>
+                                        <a class="text-sm" href="mailto:{{person.contacts}}">{{person.contacts}}</a>
                                     </p>
                                 </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             {% endfor %}
-
         </div>
     </section>
 {% endblock %}
