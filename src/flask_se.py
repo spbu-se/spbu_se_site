@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from flask import Flask
 from flask import render_template
 from flask_frozen import Freezer
@@ -6,7 +8,7 @@ import sys, os
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 app.config['APPLICATION_ROOT'] = '/'
 app.config['FREEZER_RELATIVE_URLS'] = True
-app.config['FREEZER_DESTINATION'] = '../docs'
+app.config['FREEZER_DESTINATION'] = '../build'
 
 freezer = Freezer(app)
 
