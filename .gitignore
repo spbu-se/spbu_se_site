@@ -73,7 +73,7 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 # MacOS files.
-.DS_Store
+/**/.DS_Store
 
 # Do not track ZIP archives
 .zip
