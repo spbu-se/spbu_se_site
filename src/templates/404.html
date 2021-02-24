@@ -1,0 +1,35 @@
+{% extends "base_dark.html" %}
+{% block title %}Страница не найдена{% endblock %}
+{% block description %}Страница, которую вы ищите, не существует или была перемещена.{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice py-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='assets/img/main2.jpg')}});">
+        <!-- Container -->
+        <div class="container pt-5 pt-lg-7 pb-lg-9 pb-7">
+            <div class="row align-items-center justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="text-white">404</h1>
+                    <h1 class="text-white">Страница не найдена</h1>
+                    <p class="lead text-white opacity-8">
+                        Страница, которую вы ищите, не существует или была перемещена.
+                    </p>
+                    <div class="mt-5">
+                        <a class="btn btn-lg btn-warning" href="https://oops.math.spbu.ru/SE" target="_blank">
+                            <span class="btn-inner--text">Старая версия сайта</span>
+                            <span class="btn-inner--icon">
+                                <i data-feather="arrow-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- SVG Separator -->
+        <div class="shape-container shape-position-bottom">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" preserveAspectRatio="none">
+                <path d="M 0 0 c 0 0 200 50 500 50 s 500 -50 500 -50 v 101 h -1000 v -100 z"></path>
+            </svg>
+        </div>
+    </section>
+{% endblock %}

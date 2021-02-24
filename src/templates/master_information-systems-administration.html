@@ -1,0 +1,41 @@
+{% extends "base_dark.html" %}
+{% block title %}Математическое обеспечение и администрирование информационных систем (магистратура){% endblock %}
+{% block description %}02.04.03 «Математическое обеспечение и администрирование информационных систем» (магистратура). Кафедра Системного программирования Математико-механического факультета СПбГУ.{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice py-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg') }});">
+        <!-- Container -->
+        <div class="container pt-5 pt-lg-7 pb-lg-9 pb-7">
+            <div class="row align-items-center justify-content-center">
+                <div class="col-lg-11 text-center">
+                    <h1 class="text-white">Математическое обеспечение и администрирование информационных систем</h1>
+                    <p class="lead text-white opacity-8 mb-0">
+                        Магистратура
+                    </p>
+                    <p class="lead text-white opacity-8">
+                        Код образовательной программы - 02.04.03
+                    </p>
+                    <div class="mt-5">
+                        <p class="lead text-white opacity-8">
+                            Раздел находится в разработке
+                        </p>
+
+                        <a class="btn btn-lg btn-warning" href="https://oops.math.spbu.ru/SE" target="_blank">
+                            <span class="btn-inner--text">Старая версия сайта</span>
+                            <span class="btn-inner--icon">
+                                <i data-feather="arrow-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- SVG Separator -->
+        <div class="shape-container shape-position-bottom">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" preserveAspectRatio="none">
+                <path d="M 0 0 c 0 0 200 50 500 50 s 500 -50 500 -50 v 101 h -1000 v -100 z"></path>
+            </svg>
+        </div>
+    </section>
+{% endblock %}
