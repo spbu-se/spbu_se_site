@@ -8,7 +8,7 @@ import sys, os
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 app.config['APPLICATION_ROOT'] = '/'
 app.config['FREEZER_RELATIVE_URLS'] = True
-app.config['FREEZER_DESTINATION'] = '../build'
+app.config['FREEZER_DESTINATION'] = '../docs'
 
 freezer = Freezer(app)
 
