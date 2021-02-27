@@ -45,7 +45,16 @@ jobs:
             python -m pip install --upgrade pip
             pip install -r requirements.txt
 
-        # Run our unit tests
-        - name: Run frozen flask
+        # Run Flask Frozen
+        - name: Run Flask Frozen to build /docs/
           run: |
             python src/flask_se.py build
+
+       # Commit docs to gh-pages
+       - name: Push /docs/ to gh-pages
+         uses: Automattic/action-commit-to-branch@master
+         with:
+           branch: 'gh-pages'
+           commit_message: 'Update gh-pages /docs/'
+         env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
