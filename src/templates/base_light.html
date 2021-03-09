@@ -140,11 +140,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
                     <!-- Right navigation -->
                     <ul class="navbar-nav align-items-lg-center ml-lg-auto">
-                        <li class="nav-item">
-                            <a class="text-dark nav-link" href="{{ url_for('index') }}">
-                                Поступающим
-                            </a>
-                        </li>
+                        <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                                <a class="text-dark nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                                    Поступающим
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-md p-0">
+                                    <div class="list-group list-group-flush px-lg-4">
+                                        <a href="{{ url_for('index', _anchor='undergraduate') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Бакалавриат</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <a href="{{ url_for('index', _anchor='magistracy') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Магистратура</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
                         <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
                                 <a class="text-dark nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                                     Студентам
@@ -229,10 +249,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <polygon points="2560 0 2560 100 0 100"></polygon>
                 </svg>
             </div>
+
             <!-- Footer -->
-            <div class="container pt-4">
+            <div class="container pt-2">
                 <div class="row">
-                    <div class="col-lg-4 mb-5 mb-lg-0">
+                    <div class="col-lg-4 сщд-4 mb-5 mb-lg-0">
                         <!-- Theme's logo -->
                         <a href="{{ url_for('index') }}">
                             <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/logo.svg') }}" id="footer-logo">
@@ -240,34 +261,53 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <!-- Webpixels' mission -->
                         <p class="mt-4 text-sm opacity-8 pr-lg-4">Основанная профессором А.Н. Тереховым.</p>
                     </div>
-                    <div class="col-lg-5 col-6 col-sm-4 ml-lg-auto mb-5 mb-lg-0">
+                    <div class="col-lg-4 col-4 col-sm-4 mb-5 mb-lg-0">
                         <h6 class="heading mb-4">Контактная информация</h6>
                         <ul class="list-unstyled">
-                            <li><p class="text-sm opacity-8 mb-0">Телефон:<a href="tel:+78124287109">+7 (812) 428-71-09</a></p></li>
+                            <li><p class="text-sm opacity-8 mb-0">Телефон: <a href="tel:+78124287109">+7 (812) 428-71-09</a></p></li>
                             <li><p class="text-sm opacity-8 mb-0">Email: <a href="mailto:a.terekhov@spbu.ru">a.terekhov@spbu.ru</a></p></li>
-                           <li><p class="text-sm opacity-8 mb-0">Telegram: <a target="_blank" href="https://t.me/sysprog2020admission">@sysprog2020admission</a></p></li>
+                            <li><p class="text-sm opacity-8 mb-0">Telegram: <a target="_blank" href="https://t.me/sysprog2020admission">@sysprog2020admission</a></p></li>
                             <li><p class="text-sm opacity-8 mb-0">Старая версия сайта: <a target="_blank" href="https://oops.math.spbu.ru/SE">oops.math.spbu.ru/SE</a></p></li>
                         </ul>
                     </div>
-                    <div class="col-lg-2 col-6 col-sm-4 mb-5 mb-lg-0">
-                        <h6 class="heading mb-3">Меню</h6>
+                    <div class="col-lg-4 col-4 col-sm-4 mb-5 mb-lg-0">
+                        <h6 class="heading mb-3">Поступающим</h6>
                         <ul class="list-unstyled">
-                            <li><a href="{{ url_for('index') }}">Поступающим</a></li>
-                            <li><a href="{{ url_for('students') }}">Студентам</a></li>
-                            <li><a href="https://oops.math.spbu.ru/SE/alumni" target="_blank">Выпускники</a></li>
+                            <li><a href="{{ url_for('index', _anchor='undergraduate') }}">В бакалавриат</a></li>
+                            <li><a href="{{ url_for('index', _anchor='magistracy') }}">В магистратуру</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
+                        <h6 class="heading mb-3">Студентам</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot">Архив ВКР и курсовых работ</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
+                        <h6 class="heading mb-3">Выпускники</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot">Архив ВКР</a></li>
+                            <li><a href="https://oops.math.spbu.ru/SE/alumni">Выпускники кафедры</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
+                        <h6 class="heading mb-3">Кафедра</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="{{ url_for('department_staff') }}">Сотрудники</a></li>
                             <li><a href="{{ url_for('contacts') }}">Контакты</a></li>
                         </ul>
                     </div>
                 </div>
-                <hr class="divider divider-fade divider-dark my-4">
-                <div class="row align-items-center justify-content-md-between pb-4">
-                    <div class="col-md-10">
-                        <div class="copyright text-sm font-weight-bold text-center text-md-left">
-                            &copy; Кафедра системного программирования, Математико-механический факультет, СПбГУ, 1996-2021
+                <div class="row">
+                    <hr class="divider divider-fade divider-dark">
+                        <div class="col-lg-12">
+                            <div class="copyright text-sm font-weight-bold text-center text-md-left">
+                                &copy; Кафедра системного программирования, Математико-механический факультет, СПбГУ, 1996-2021
+                            </div>
                         </div>
-                    </div>
                 </div>
-            </div>
         </div>
     </footer>
     <!-- Core JS  -->
