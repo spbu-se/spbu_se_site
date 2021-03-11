@@ -39,7 +39,7 @@
             <div class="row row-grid justify-content-between align-items-center">
                 {% for person in staff %}
                 <div class="col-lg-6">
-                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-md-0">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
                         <div class="card-body">
                             <div class="media align-items-center">
                                 <img alt="{{person.name}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.avatar) }}" class="avatar rounded-circle avatar-lg mr-4">
