@@ -1,0 +1,413 @@
+{% extends "base_dark.html" %}
+{% block title %}Поступление в бакалавриат на кафедру Системного Программирования{% endblock %}
+{% block description %}Поступление в бакалавриат на кафедру Системного Программирования. Программы обучения, информация для поступающих, общежитие, отзывы студентов.{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice py-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
+        <!-- Container -->
+        <div class="container d-flex align-items-center text-center text-lg-left pt-5 pb-5 pt-lg-6">
+            <div class="col px-0">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 text-center text-lg-left">
+                        <!-- Heading -->
+                        <h1 class="text-white mb-1">
+                            Поступающим<br>в бакалавриат
+                        </h1>
+                    </div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-lg-8 text-center text-lg-left">
+                        <!-- Text -->
+                        <p class="lead text-white opacity-8 mt-2">
+                            Более 20 лет кафедра готовит высококвалифицированных ИТ-специалистов. Наши выпускники разрабатывают сложные ИТ-решения в крупнейших ИТ-компаниях, занимаются исследованиями в лабораториях по всему миру и открывают свои компании.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- SVG Separator -->
+        <div class="shape-container shape-position-bottom">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" preserveAspectRatio="none">
+                <path d="M 0 0 c 0 0 200 50 500 50 s 500 -50 500 -50 v 101 h -1000 v -100 z"></path>
+            </svg>
+        </div>
+    </section>
+
+    <section class="slice pt-0">
+        <div class="container position-relative zindex-100">
+            <div class="row ">
+                <div class="col-lg-6 pt-5 pb-7 pb-lg-0 pt-lg-0 mt-n9">
+                    <div class="card shadow-lg border-0" style="max-width: 100%;">
+                        <div class="card-body px-4 py-4 text-center text-md-left">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        Очно
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Форма обучения
+                                    </p>
+                                </div>
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        4 года
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Срок обучения
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 pt-5 pt-lg-0 mt-n9">
+                    <div class="card shadow-lg border-0" style="max-width: 100%;">
+                        <div class="card-body px-4 py-4 text-center text-md-left">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        Есть
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Общежитие
+                                    </p>
+                                </div>
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        Есть
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Военная кафедра
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-12 pt-3">
+                    <h2>Программы обучения</h2>
+                    <div>
+                        <p class="lead lh-480">
+                            Наши учебные программы составлены с учётом международного стандарта<br><a href="https://www.acm.org/binaries/content/assets/education/curricula-recommendations/cc2005-march06final.pdf" target="_blank"><u>ACM Computing Curricula</u></a>, лежащего в основе подобных программ мировых университетов
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-12">
+                    <div class="card-deck">
+                        <div class="card hover-translate-y-n3 hover-shadow-lg bg-light-dark shadow-lg rounded-lg border-0">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="h6 text-white">Программная инженерия</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="h6 font-weight-light text-muted">09.03.04</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="pt-2 pb-3">
+                                    <p class="text-white mb-0">Для тех, кто получает удовольствие от создания программных продуктов и хочет больше узнать о процессе создания ПО</p>
+                                </div>
+                            </div>
+                            <div class="card-footer border-0 delimiter-top">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-4 text-center text-lg-left pr-0">
+                                        <h4 class="mb-0 text-white">265</h4>
+                                        <p class="text-white text-sm opacity-8">Проходной балл 2020</p>
+                                    </div>
+                                    <div class="col-lg-4 text-center text-lg-left">
+                                        <h4 class="mb-0 text-white">30</h4>
+                                        <p class="text-white text-sm opacity-8">Мест (бюджет)</p>
+                                    </div>
+                                    <div class="col-lg-4 text-center text-lg-left pr-0">
+                                        <h4 class="mb-0 text-white">15</h4>
+                                        <p class="text-white text-sm opacity-8">Мест (контракт)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('bachelor_software_engineering') }}" class="stretched-link"></a>
+                        </div>
+                        <div class="card hover-translate-y-n3 hover-shadow-lg bg-light-dark shadow-lg rounded-lg border-0">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="h6 text-white">Технологии программирования</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="h6 font-weight-light text-muted">02.03.03</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="pt-2 pb-3">
+                                    <p class="text-white mb-0">Для тех, кто получает удовольствие от решения алгоритмических и технических задач и хочет больше узнать о современных задачах и способах их решения</p>
+                                </div>
+                            </div>
+                            <div class="card-footer border-0 delimiter-top">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-4 text-center text-lg-left pr-0">
+                                        <h4 class="mb-0 text-white">240</h4>
+                                        <p class="text-white text-sm opacity-8">Проходной балл 2020</p>
+                                    </div>
+                                    <div class="col-lg-4 text-center text-lg-left">
+                                        <h4 class="mb-0 text-white">60</h4>
+                                        <p class="text-white text-sm opacity-8">Мест (бюджет)</p>
+                                    </div>
+                                    <div class="col-lg-4 text-center text-lg-left pr-0">
+                                        <h4 class="mb-0 text-white">10</h4>
+                                        <p class="text-white text-sm opacity-8">Мест (контракт)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('bachelor_programming_technology') }}" class="stretched-link"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice bg-section-secondary" id="hostel">
+        <!-- SVG separator -->
+        <div class="shape-container shape-line shape-position-top shape-orientation-inverse">
+            <svg width="2560px" height="100px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" viewBox="0 0 2560 100" style="enable-background:new 0 0 2560 100;" xml:space="preserve" class="">
+                <polygon points="2560 0 2560 100 0 100"></polygon>
+            </svg>
+        </div>
+        <!-- Container -->
+        <div class="container">
+            <!-- Title -->
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-9 text-center">
+                    <h2>Общежития</h2>
+                    <div>
+                        <p class="lead lh-480">
+                            Иногородним студентам нашей кафедры предоставляются комфортные общежития в студгородке в 7 минутах ходьбы от матмеха. Более подробную информацию можно прочитать на <a href="https://students.spbu.ru/mmen-obwezhitija/5364-informatsiya-o-poselenii-pered-nachalom-uchebnogo-goda-2020.html" target="_blank">сайте СПбГУ</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row row-grid justify-content-between align-items-center">
+                <div class="col-lg-6">
+                    <div class="card hover-shadow-lg">
+                        <div id="map-custom" class="map-canvas rounded-left" data-lat="59.87996" data-lng="29.8305919" data-zoom="12" style="height: 500px;"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card hover-shadow-lg bg-dark border-0">
+                        <div class="d-flex p-5">
+                            <div class="pl-4">
+                                <h6 class="mb-0 text-muted">Математико-Механический факультет СПбГУ</h6>
+                                <h4 class="mb-4 text-white">Учебный корпус</h4>
+                                <p class="text-white">
+                                    Санкт-Петербург, Старый Петергоф, Университетский проспект, дом 28
+                                </p>
+
+                                <hr class="my-3">
+                                <h6 class="mb-0 text-muted">Петергофский кампус СПбГУ</h6>
+                                <h4 class="mb-4 text-white">Общежитие</h4>
+                                <p class="text-white">
+                                    Санкт-Петербург, Старый Петергоф, Ботаническая улица, дом 66, корпус 3
+                                </p>
+                                <div class="row">
+                                    <div class="col-lg-6 text-center text-sm-left">
+                                            <div>
+                                                <h3 class="mb-0 text-white">7 минут</h3>
+                                                <p class="text-muted">До учебного корпуса</p>
+                                            </div>
+                                    </div>
+                                    <div class="col-lg-6 text-center text-sm-left">
+                                            <div>
+                                                <h3 class="mb-0 text-white">1 час</h3>
+                                                <p class="text-muted">До метро</p>
+                                            </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="card hover-shadow-lg border-0">
+                        <figure>
+                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/campus-1.jpg') }}" class="card-img">
+                        </figure>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="card hover-shadow-lg border-0">
+                        <figure>
+                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/campus-2.jpg') }}" class="card-img">
+                        </figure>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card hover-shadow-lg">
+                        <figure>
+                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/campus-3.jpg') }}" class="card-img">
+                        </figure>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice">
+        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-7 text-center">
+                    <h2 class="mb-1">
+                        Отзывы студентов
+                    </h2>
+                    <div>
+                        <p class="lead lh-480">
+                            Отзывы студентов нашей кафедры о том, как им тут живется.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-grid justify-content-between align-items-center">
+                {% for student in students %}
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="{{student.name}}" src="{{ url_for('static', filename='/assets/img/reviews/' + student.avatar) }}" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">{{student.name}}</span><br>
+                                    <span class="h6 text-sm">{{student.position}}</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div>
+                                <p class="text-sm">{{student.review}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="slice bg-dark-info" id="diplomas">
+        <!-- SVG separator -->
+        <div class="shape-container shape-line shape-position-top shape-orientation-inverse">
+            <svg width="2560px" height="100px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" viewBox="0 0 2560 100" style="enable-background:new 0 0 2560 100;" xml:space="preserve" class="">
+                <polygon points="2560 0 2560 100 0 100"></polygon>
+            </svg>
+        </div>
+        <!-- Container -->
+        <div class="container">
+            <!-- Title -->
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="text-white">Курсовые и ВКР</h2>
+                    <div>
+                        <p class="lead lh-480 text-white">
+                            Некоторые курсовые и выпускные квалификационные работы (дипломы) выполненные нашими студентами
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {% for diploma in diplomas %}
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
+                        <div class="card-body py-3 row">
+                                <div class="col-lg-8">
+                                    <div class="media align-items-center">
+                                        <div class="media-body">
+                                            <span class="h6">{{diploma.author}}</span><br>
+                                            <span class="h6 text-sm">{{diploma.title}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 align-self-center">
+                                    <p class="mb-0">
+                                        <i data-feather="mail"></i>
+                                        <a class="text-sm" href="#">Текст</a>
+                                    </p>
+                                    <p class="mb-0">
+                                        <i data-feather="mail"></i>
+                                        <a class="text-sm" href="#">Презентация</a>
+                                    </p>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="row pt-4">
+                <div class="col-lg-12 pr-0 text-center">
+                    <a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot" target="_blank" class="btn btn-lg btn-secondary btn-icon mb-3 mb-lg-0">
+                        <span class="btn-inner--text">Архив ВКР и курсовых работ</span>
+                        <span class="btn-inner--icon">
+                            <i data-feather="arrow-right"></i>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice" id="stuff">
+        <!-- Container -->
+        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-7 text-center">
+                    <h2 class="mb-1">
+                        Наши преподаватели
+                    </h2>
+                    <div>
+                        <p class="lead lh-480">
+                            Ведущие разработчики и опытные исследователи делятся своими знаниями и навыками с нашими студентами
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-grid justify-content-between align-items-center">
+                {% for person in staff %}
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="{{person.name}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.avatar) }}" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">{{person.name}}</span><br>
+                                    <span class="h6 text-sm">{{person.position}}</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div class="">
+                                <i data-feather="mail"></i>
+                                <a class="text-sm" href="mailto:{{person.contacts3}}">{{person.contacts3}}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="row pt-2">
+                <div class="col-lg-12 pr-0 text-center">
+                    <a href="/department/staff.html" target="_blank" class="btn btn-lg btn-primary btn-icon mb-3 mb-lg-0">
+                        <span class="btn-inner--text">Преподаватели кафедры</span>
+                        <span class="btn-inner--icon">
+                            <i data-feather="arrow-right"></i>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -178,6 +178,45 @@ def department_staff2():
     ]
     return render_template('department_staff2.html', staff = staff)
 
+@app.route(URL_PREFIX + '/bachelor/admission.html')
+def bachelor_admission():
+    students = [
+        {"name": "Терехов Андрей Николаевич", "position": "Студент 2-го курса, Программная инженерия",
+         "review": "Очень крутое место", 'avatar': 'terekhov.jpg'},
+        {"name": "Граничин Олег Николаевич", "position": "Студент 4-го курса, Технология программирования",
+         'avatar': 'granichin.jpg', "review" : "На третьем курсе я уже начал заниматься наукой в лаборатории"},
+        {"name": "Кознов Дмитрий Владимирович", "position": "Студент 3-го курса, Программная инженерия",
+         'avatar': 'koznov.jpg', "review" : "Прохожу стажировку в Яндексе, отличные общежития. Все путем!"},
+        {"name": "Брыксин Тимофей Александрович", "position": "Студент 4-го курса, Программная инженерия",
+         'avatar': 'bryksin.jpg', 'review':'Все очень круто, если будут вопросы по поступлению, пишите мне'},
+        {"name": "Булычев Дмитрий Юрьевич", "position": "Студент 2-го курса, Программная инженерия",
+         'avatar': 'boulytchev.jpg', 'review':'Все очень круто, если будут вопросы по поступлению, пишите мне'},
+        {"name": "Литвинов Юрий Викторович", "position": "Студент 2-го курса, Программная инженерия",
+         'avatar': 'litvinov.jpg', 'review':'Все очень круто, если будут вопросы по поступлению, пишите мне'},
+    ]
+    diplomas = [
+        {"author": "Гогина Олеся Юрьевна", "title": "Анализ данных Snapchat на iOS"},
+        {"author": "Гуданова Варвара Сергеевна", "title": "Система распознавания меток игроков в робофутболе"},
+        {"author": "Камкова Екатерина Александровна", "title": "Симулятор Робофутбола"},
+        {"author": "Курбатова Зарина Идиевна", "title": "Автоматическая рекомендация имен методов в IntelliJ IDEA"},
+        {"author": "Поляков Александр Романович", "title": "Разработка системы для отладки ядра операционной системы"},
+    ]
+    staff = [
+        {"name": "Терехов Андрей Николаевич", "position": "Профессор, д.ф.-м.н., заведующий кафедрой",
+         "contacts": "a.terekhov@spbu.ru", "contacts2": "st003585@spbu.ru", "contacts3": "a.terekhov@spbu.ru",
+         'avatar': 'terekhov.jpg'},
+        {"name": "Граничин Олег Николаевич", "position": "Профессор, д.ф.-м.н.", "contacts": "o.granichin@spbu.ru",
+         "contacts2": "st007805@sbpu.ru", "contacts3": "o.granichin@spbu.ru", 'avatar': 'granichin.jpg'},
+        {"name": "Кознов Дмитрий Владимирович", "position": "Профессор, д.т.н.", "contacts": "dkoznov@yandex.ru",
+         "contacts2": "st008149@spbu.ru", "contacts3": "d.koznov@spbu.ru", 'avatar': 'koznov.jpg'},
+        {"name": "Брыксин Тимофей Александрович", "position": "Доцент, к.т.н.", "contacts": "timofey.bryksin@gmail.com",
+         "contacts2": "st006935@sbpu.ru", "contacts3": "t.bryksin@spbu.ru", 'avatar': 'bryksin.jpg'},
+        {"name": "Булычев Дмитрий Юрьевич", "position": "Доцент, к. ф.-м. н.", "contacts": "dboulytchev@gmail.com",
+         "contacts2": "st007252@sbpu.ru", "contacts3": "d.bylychev@spbu.ru", 'avatar': 'boulytchev.jpg'},
+        {"name": "Литвинов Юрий Викторович", "position": "Доцент, к.т.н.", "contacts": "yurii.litvinov@gmail.com",
+         "contacts2": "st007017@spbu.ru", "contacts3": "y.litvinov@spbu.ru", 'avatar': 'litvinov.jpg'},
+    ]
+    return render_template('bachelor_admission.html', students = students, diplomas=diplomas, staff=staff)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "build":
