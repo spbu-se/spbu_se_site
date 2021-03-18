@@ -1,40 +1,38 @@
 {% extends "base_dark.html" %}
-{% block title %}Контакты кафедры{% endblock %}
+{% block title %}Контакты кафедры Системного программирования{% endblock %}
 {% block description %}Контактная информация кафедры Системного программирования Математико-механического факультета СПбГУ.{% endblock %}
 
 {% block content %}
     <!-- Main content -->
     <section class="slice bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main-back.jpg') }} );">
         <!-- Container -->
-        <div class="container d-flex align-items-center text-center text-lg-left pt-5 pt-lg-6">
-            <div class="col px-0">
-                <div class="row align-items-center">
-                    <div class="col-lg-4 text-center text-lg-left">
-                        <!-- Heading -->
-                        <h1 class="text-white mb-1">
-                            Кафедра Системного Программирования
-                        </h1>
-                    </div>
+        <div class="container align-items-center pt-5 pt-lg-6" itemscope itemtype="http://schema.org/Organization">
+            <div class="row">
+                <div class="col-lg-4 text-center text-lg-left">
+                    <!-- Heading -->
+                    <h1 class="text-white mb-1" itemprop="legalName">
+                        Кафедра Системного Программирования
+                    </h1>
                 </div>
-                <div class="row align-items-center">
-                    <div class="col-lg-8 text-center text-lg-left">
-                        <!-- Text -->
-                        <p class="lead text-white opacity-8 mt-2 mb-0">
-                            СПбГУ, Математико-механический факультет
-                        </p>
-                        <p class="lead text-white opacity-8 mb-0">
-                            Санкт-Петербург, Университетский проспект, дом 28, 198504
-                        </p>
-                        <p class="lead text-white opacity-8 mb-0">
-                            Телефон: <a href="tel:+78124287109">+7 (812) 428-71-09</a>
-                        </p>
-                        <p class="lead text-white opacity-8 mb-0">
-                            Telegram: <a href="https://t.me/sysprog2020admission" target="_blank">@sysprog2020admission</a>
-                        </p>
-                        <p class="lead text-white opacity-8">
-                            Email: <a href="mailto:a.terekhov@spbu.ru" target="_blank">a.terekhov@spbu.ru</a>
-                        </p>
-                    </div>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-lg-8 text-center text-lg-left">
+                    <!-- Text -->
+                    <p class="lead text-white opacity-8 mt-2 mb-0">
+                        СПбГУ, Математико-механический факультет
+                    </p>
+                    <p class="lead text-white opacity-8 mb-0" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
+                        <span itemprop="addressLocality">Санкт-Петербург</span>, <span itemprop="streetAddress">Университетский проспект, дом 28</span>, <span itemprop="postalCode">198504</span>
+                    </p>
+                    <p class="lead text-white opacity-8 mb-0" >
+                        Телефон: <a href="tel:+78124287109" itemprop="telephone">+7 (812) 428-71-09</a>
+                    </p>
+                    <p class="lead text-white opacity-8 mb-0">
+                        Telegram: <a href="https://t.me/sysprog2020admission" target="_blank" itemprop="sameAs">@sysprog2020admission</a>
+                    </p>
+                    <p class="lead text-white opacity-8">
+                        Email: <a href="mailto:a.terekhov@spbu.ru" target="_blank" itemprop="email">a.terekhov@spbu.ru</a>
+                    </p>
                 </div>
             </div>
         </div>
