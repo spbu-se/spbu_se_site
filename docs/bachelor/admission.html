@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Готовим программистов высокой квалификации, способных решать любые задачи в самых разных областях информационных технологий. ">
+    <meta name="author" content="Илья Зеленчук">
+    <title>Поступление в бакалавриат на кафедру Системного Программирования</title>
+    <!-- Preloader -->
+    <style>
+        @keyframes hidePreloader {
+            0% {
+                width: 100%;
+                height: 100%;
+            }
+
+            100% {
+                width: 0;
+                height: 0;
+            }
+        }
+
+        body>div.preloader {
+            position: fixed;
+            background: white;
+            width: 100%;
+            height: 100%;
+            z-index: 1071;
+            opacity: 0;
+            transition: opacity .5s ease;
+            overflow: hidden;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body:not(.loaded)>div.preloader {
+            opacity: 1;
+        }
+
+        body:not(.loaded) {
+            overflow: hidden;
+        }
+
+        body.loaded>div.preloader {
+            animation: hidePreloader .5s linear .5s forwards;
+        }
+    </style>
+    <script>
+        window.addEventListener("load", function() {
+            setTimeout(function() {
+                document.querySelector('body').classList.add('loaded');
+            }, 100);
+        });
+    </script>
+
+    <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NGT2J3Z');</script>
+<!-- End Google Tag Manager -->
+
+    <!-- Favicon -->
+    <link rel="icon" href="../assets/img/favicon.png" type="image/png">
+    <!-- Quick CSS -->
+    <link rel="stylesheet" href="../assets/css/quick-website.min.css" id="stylesheet">
+    <!-- Page CSS -->
+    <link rel="stylesheet" href="../assets/libs/animate.css/animate.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../assets/libs/%40fortawesome/fontawesome-free/css/all.min.css ">
+</head>
+
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NGT2J3Z"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<!-- SPbU topbar (noscript) -->
+<!-- script type="text/javascript"> (function(){ var sc = document.createElement('script'); sc.type = 'text/javascript'; sc.async = true; sc.src = '//topbar.spbu.ru/loader.js'; var ls = document.getElementsByTagName('script')[0]; ls.parentNode.insertBefore(sc, ls); })(); </script -->
+<!-- End SPbU topbar (noscript) -->
+
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Загрузка...</span>
+        </div>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="modal-cookies" data-backdrop="false" aria-labelledby="modal-cookies" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-aside left-4 right-4 bottom-4">
+            <div class="modal-content bg-dark-dark">
+                <div class="modal-body">
+                    <!-- Text -->
+                    <p class="text-sm text-white mb-3">
+                        Продолжая использовать наш сайт, вы даете согласие на обработку файлов cookie, которые обеспечивают правильную работу сайта.
+                    </p>
+                    <!-- Buttons -->
+                    <button type="button" class="btn btn-sm btn-primary mr-2" data-dismiss="modal">Согласен</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header -->
+    <header class="header-transparent" id="header-main">
+
+        <!-- SPbU topbar (noscript) -->
+        <script type="text/javascript">
+
+var a = new XMLHttpRequest;
+a.open("GET", "//topbar.spbu.ru/index.php?domain=" + location.hostname, !0);
+a.send();
+a.onreadystatechange = function() {
+    if (4 == a.readyState)
+        if (200 != a.status)
+            console.log(a.status + ": " + a.statusText);
+        else {
+            var b = document.createElement("div");
+            b.innerHTML = a.responseText;
+            var c = document.getElementById("header-main").firstChild;
+            document.head.appendChild(b.children[0]);
+            document.getElementById("header-main").insertBefore(b.children[0], c);
+            document.getElementById("header-main").insertBefore(b.children[0], c);
+            document.getElementById("header-main").insertBefore(b.children[0], c);
+            document.getElementById("header-main").insertBefore(b.children[0], c);
+            c = document.createElement("script");
+            c.innerHTML = b.children[0].innerHTML;
+            document.body.appendChild(c);
+            document.getElementById("spbutopbar").style.removeProperty('background');
+            document.getElementById("spbutopbar").style.backgroundColor = 'transparent';
+        }
+}
+;
+        </script>
+        <!-- End SPbU topbar (noscript) -->
+
+        <!-- Navbar -->
+        <nav class="navbar navbar-main navbar-expand-lg navbar-dark" id="navbar-main">
+            <div class="container">
+                <!-- Brand -->
+                <div class="px-0 media d-flex w-100">
+
+                    <a href="../index.html">
+                        <figure>
+                            <img alt="Image placeholder" src="../assets/img/logo.svg" class="img-fluid">
+                        </figure>
+                    </a>
+                    <figure class="px-3">
+                        <img alt="Image placeholder" src="../assets/img/line-header.svg" class="img-fluid">
+                    </figure>
+                    <a class="pl-0" target="_blank" href="https://spbu.ru/">
+                        <figure>
+                            <img alt="Image placeholder" src="../assets/img/spbu-logo.svg" class="img-fluid">
+                        </figure>
+                    </a>
+
+                    <!-- Toggler -->
+                    <button class="navbar-toggler my-auto" type="button" data-toggle="collapse" data-target="#navbar-main-collapse" aria-controls="navbar-main-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                    <!-- Collapse -->
+                    <div class="collapse navbar-collapse navbar-collapse-overlay" id="navbar-main-collapse">
+                        <!-- Toggler -->
+                        <div class="position-relative">
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-main-collapse" aria-controls="navbar-main-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                                <i data-feather="x"></i>
+                            </button>
+                        </div>
+
+                        <!-- Right navigation -->
+                        <ul class="navbar-nav align-items-lg-center ml-lg-auto">
+                            <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                                <a class="nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                                    Поступающим
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-md p-0">
+                                    <div class="list-group list-group-flush px-lg-4">
+                                        <a href="../index.html#undergraduate" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Бакалавриат</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <a href="../index.html#magistracy" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Магистратура</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                                <a class="nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                                    Студентам
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-md p-0">
+                                    <div class="list-group list-group-flush px-lg-4">
+                                        <a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Архив ВКР и курсовых работ</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                                <a class="nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                                    Выпускники
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-md p-0">
+                                    <div class="list-group list-group-flush px-lg-4">
+                                        <a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Архив ВКР</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <a href="https://oops.math.spbu.ru/SE/alumni" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Выпускники кафедры</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                                <a class="nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                                    Кафедра
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-md p-0">
+                                    <div class="list-group list-group-flush px-lg-4">
+                                        <a href="../department/staff.html" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Сотрудники</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <a href="../contacts.html" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Контакты</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    
+    <!-- Main content -->
+    <section class="slice py-8 bg-dark bg-cover bg-size--cover" style="background-image: url(../assets/img/main2.jpg);">
+        <!-- Container -->
+        <div class="container d-flex align-items-center text-center text-lg-left pt-5 pb-5 pt-lg-6">
+            <div class="col px-0">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 text-center text-lg-left">
+                        <!-- Heading -->
+                        <h1 class="text-white mb-1">
+                            Поступающим в бакалавриат
+                        </h1>
+                    </div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-lg-9 text-center text-lg-left">
+                        <!-- Text -->
+                        <p class="lead text-white opacity-8 mt-2">
+                            Более 20 лет кафедра готовит программистов мирового уровня. Наши выпускники разрабатывают сложные современные программные продукты, занимаются исследованиями в лабораториях по всему миру и открывают свои компании.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- SVG Separator -->
+        <div class="shape-container shape-position-bottom">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" preserveAspectRatio="none">
+                <path d="M 0 0 c 0 0 200 50 500 50 s 500 -50 500 -50 v 101 h -1000 v -100 z"></path>
+            </svg>
+        </div>
+    </section>
+
+    <section class="slice pt-0">
+        <div class="container position-relative zindex-100">
+            <div class="row ">
+                <div class="col-lg-6 pt-5 pb-7 pb-lg-0 pt-lg-0 mt-n9">
+                    <div class="card shadow-lg border-0" style="max-width: 100%;">
+                        <div class="card-body px-4 py-4 text-center text-md-left">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        Очно
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Форма обучения
+                                    </p>
+                                </div>
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        4 года
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Срок обучения
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 pt-5 pt-lg-0 mt-n9">
+                    <div class="card shadow-lg border-0" style="max-width: 100%;">
+                        <div class="card-body px-4 py-4 text-center text-md-left">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        Есть
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Общежитие
+                                    </p>
+                                </div>
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        Есть
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Военная кафедра
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-12 pt-3">
+                    <h2>Программы обучения</h2>
+                    <div>
+                        <p class="lead lh-480">
+                            Наши учебные программы составлены с учётом международного стандарта<br><a href="https://www.acm.org/binaries/content/assets/education/curricula-recommendations/cc2005-march06final.pdf" target="_blank"><u>ACM Computing Curricula</u></a>, лежащего в основе подобных программ мировых университетов
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-12">
+                    <div class="card-deck">
+                        <div class="card hover-translate-y-n3 hover-shadow-lg bg-light-dark shadow-lg rounded-lg border-0">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="h6 text-white">Программная инженерия</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="h6 font-weight-light text-muted">09.03.04</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="pt-2 pb-3">
+                                    <p class="text-white mb-0">Для тех, кто получает удовольствие от создания программных продуктов и хочет больше узнать о процессе создания ПО</p>
+                                </div>
+                            </div>
+                            <div class="card-footer border-0 delimiter-top">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-4 text-center text-lg-left pr-0">
+                                        <h4 class="mb-0 text-white">265</h4>
+                                        <p class="text-white text-sm opacity-8">Проходной балл 2020</p>
+                                    </div>
+                                    <div class="col-lg-4 text-center text-lg-left">
+                                        <h4 class="mb-0 text-white">30</h4>
+                                        <p class="text-white text-sm opacity-8">Мест (бюджет)</p>
+                                    </div>
+                                    <div class="col-lg-4 text-center text-lg-left pr-0">
+                                        <h4 class="mb-0 text-white">15</h4>
+                                        <p class="text-white text-sm opacity-8">Мест (контракт)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="software-engineering.html" class="stretched-link"></a>
+                        </div>
+                        <div class="card hover-translate-y-n3 hover-shadow-lg bg-light-dark shadow-lg rounded-lg border-0">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="h6 text-white">Технологии программирования</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="h6 font-weight-light text-muted">02.03.03</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="pt-2 pb-3">
+                                    <p class="text-white mb-0">Для тех, кто получает удовольствие от решения алгоритмических и технических задач и хочет больше узнать о современных задачах и способах их решения</p>
+                                </div>
+                            </div>
+                            <div class="card-footer border-0 delimiter-top">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-4 text-center text-lg-left pr-0">
+                                        <h4 class="mb-0 text-white">240</h4>
+                                        <p class="text-white text-sm opacity-8">Проходной балл 2020</p>
+                                    </div>
+                                    <div class="col-lg-4 text-center text-lg-left">
+                                        <h4 class="mb-0 text-white">60</h4>
+                                        <p class="text-white text-sm opacity-8">Мест (бюджет)</p>
+                                    </div>
+                                    <div class="col-lg-4 text-center text-lg-left pr-0">
+                                        <h4 class="mb-0 text-white">10</h4>
+                                        <p class="text-white text-sm opacity-8">Мест (контракт)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="programming-technology.html" class="stretched-link"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice bg-section-secondary" id="hostel">
+        <!-- SVG separator -->
+        <div class="shape-container shape-line shape-position-top shape-orientation-inverse">
+            <svg width="2560px" height="100px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" viewBox="0 0 2560 100" style="enable-background:new 0 0 2560 100;" xml:space="preserve" class="">
+                <polygon points="2560 0 2560 100 0 100"></polygon>
+            </svg>
+        </div>
+        <!-- Container -->
+        <div class="container">
+            <!-- Title -->
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-9 text-center">
+                    <h2>Общежития</h2>
+                    <div>
+                        <p class="lead lh-480">
+                            Студентам нашей кафедры предоставляются комфортные общежития в студгородке. Оплата общежития для бюджетников составляет <a href="https://guestbook.spbu.ru/2-uncategorised/8523-skolko-stoit-prozhivanie-v-obshchezhitii-dlya-studenta-na-byudzhete.html#:~:text=%D0%94%D0%BB%D1%8F%20%D0%BE%D0%B1%D1%83%D1%87%D0%B0%D1%8E%D1%89%D0%B8%D1%85%D1%81%D1%8F%20%D0%B7%D0%B0%20%D1%81%D1%87%D0%B5%D1%82%20%D0%B1%D1%8E%D0%B4%D0%B6%D0%B5%D1%82%D0%BD%D1%8B%D1%85,%D0%BF%D0%BB%D0%B0%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B8%20%D0%B6%D0%B8%D0%BB%D1%8B%D1%85%20%D0%BF%D0%BE%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B9%20%D0%B2%20%D0%BE%D0%B1%D1%89%D0%B5%D0%B6%D0%B8%D1%82%D0%B8%D0%B8." target="_blank">примерно 300 рублей в месяц</a>, более подробную информацию о проживании в общежитии СПбГУ можно найти на <a href="https://students.spbu.ru/mmen-obwezhitija/5364-informatsiya-o-poselenii-pered-nachalom-uchebnogo-goda-2020.html" target="_blank">сайте СПбГУ</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row row-grid justify-content-between align-items-center">
+                <div class="col-lg-6">
+                    <div class="card hover-shadow-lg">
+                        <div id="map-custom" class="map-canvas rounded-left" data-lat="59.87996" data-lng="29.8305919" data-zoom="12" style="height: 500px;"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card hover-shadow-lg bg-dark border-0">
+                        <div class="d-flex p-5">
+                            <div class="pl-4">
+                                <h6 class="mb-0 text-muted">Математико-Механический факультет СПбГУ</h6>
+                                <h4 class="mb-4 text-white">Учебный корпус</h4>
+                                <p class="text-white">
+                                    Санкт-Петербург, Старый Петергоф, Университетский проспект, дом 28
+                                </p>
+
+                                <hr class="my-3">
+                                <h6 class="mb-0 text-muted">Петергофский кампус СПбГУ</h6>
+                                <h4 class="mb-4 text-white">Общежитие</h4>
+                                <p class="text-white">
+                                    Санкт-Петербург, Старый Петергоф, Ботаническая улица, дом 66, корпус 3
+                                </p>
+                                <div class="row">
+                                    <div class="col-lg-6 text-center text-sm-left">
+                                            <div>
+                                                <h3 class="mb-0 text-white">7 минут</h3>
+                                                <p class="text-muted">До учебного корпуса</p>
+                                            </div>
+                                    </div>
+                                    <div class="col-lg-6 text-center text-sm-left">
+                                            <div>
+                                                <h3 class="mb-0 text-white">1 час</h3>
+                                                <p class="text-muted">До метро</p>
+                                            </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="card hover-shadow-lg border-0">
+                        <figure>
+                            <img alt="Image placeholder" src="../assets/img/campus-1.jpg" class="card-img">
+                        </figure>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="card hover-shadow-lg border-0">
+                        <figure>
+                            <img alt="Image placeholder" src="../assets/img/campus-2.jpg" class="card-img">
+                        </figure>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card hover-shadow-lg">
+                        <figure>
+                            <img alt="Image placeholder" src="../assets/img/campus-3.jpg" class="card-img">
+                        </figure>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice">
+        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-8 text-center">
+                    <h2 class="mb-1">
+                        Отзывы студентов
+                    </h2>
+                    <div>
+                        <p class="lead lh-480">
+                            Отзывы наших студентов об обучении в мат-мехе СПбГУ. Вы можете им свободно написать и задать свои вопросы о поступлении, общежитиях и процессе обучения
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-grid justify-content-between align-items-center">
+                
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="Терехов Андрей Николаевич" src="../assets/img/reviews/terekhov.jpg" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">Терехов Андрей Николаевич</span><br>
+                                    <span class="h6 text-sm">Студент 2-го курса, Программная инженерия</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div>
+                                <p class="text-sm">Очень крутое место</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="Граничин Олег Николаевич" src="../assets/img/reviews/granichin.jpg" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">Граничин Олег Николаевич</span><br>
+                                    <span class="h6 text-sm">Студент 4-го курса, Технологии программирования</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div>
+                                <p class="text-sm">На третьем курсе я уже начал заниматься наукой в лаборатории</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="Кознов Дмитрий Владимирович" src="../assets/img/reviews/koznov.jpg" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">Кознов Дмитрий Владимирович</span><br>
+                                    <span class="h6 text-sm">Студент 3-го курса, Программная инженерия</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div>
+                                <p class="text-sm">Прохожу стажировку в Яндексе, отличные общежития. Все путем!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="Брыксин Тимофей Александрович" src="../assets/img/reviews/bryksin.jpg" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">Брыксин Тимофей Александрович</span><br>
+                                    <span class="h6 text-sm">Студент 4-го курса, Программная инженерия</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div>
+                                <p class="text-sm">Все очень круто, если будут вопросы по поступлению, пишите мне</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="Булычев Дмитрий Юрьевич" src="../assets/img/reviews/boulytchev.jpg" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">Булычев Дмитрий Юрьевич</span><br>
+                                    <span class="h6 text-sm">Студент 2-го курса, Программная инженерия</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div>
+                                <p class="text-sm">Все очень круто, если будут вопросы по поступлению, пишите мне</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="Литвинов Юрий Викторович" src="../assets/img/reviews/litvinov.jpg" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">Литвинов Юрий Викторович</span><br>
+                                    <span class="h6 text-sm">Студент 2-го курса, Программная инженерия</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div>
+                                <p class="text-sm">Все очень круто, если будут вопросы по поступлению, пишите мне</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <section class="slice bg-dark-info" id="diplomas">
+        <!-- SVG separator -->
+        <div class="shape-container shape-line shape-position-top shape-orientation-inverse">
+            <svg width="2560px" height="100px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" viewBox="0 0 2560 100" style="enable-background:new 0 0 2560 100;" xml:space="preserve" class="">
+                <polygon points="2560 0 2560 100 0 100"></polygon>
+            </svg>
+        </div>
+        <!-- Container -->
+        <div class="container">
+            <!-- Title -->
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="text-white">Курсовые и ВКР</h2>
+                    <div>
+                        <p class="lead lh-480 text-white">
+                            Начиная со второго курса наши студенты участвуют в исследованиях лабораторий и разработке реальных программных продуктов
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
+                        <div class="card-body py-3 row">
+                                <div class="col-lg-8">
+                                    <div class="media align-items-center">
+                                        <div class="media-body">
+                                            <span class="h6">Гогина Олеся Юрьевна</span><br>
+                                            <span class="h6 text-sm">Анализ данных Snapchat на iOS</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 align-self-center">
+                                    <p class="mb-0">
+                                        <i data-feather="file-text"></i>
+                                        <a class="text-sm" href="#">Текст</a>
+                                    </p>
+                                    <p class="mb-0">
+                                        <i data-feather="download"></i>
+                                        <a class="text-sm" href="#">Презентация</a>
+                                    </p>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
+                        <div class="card-body py-3 row">
+                                <div class="col-lg-8">
+                                    <div class="media align-items-center">
+                                        <div class="media-body">
+                                            <span class="h6">Гуданова Варвара Сергеевна</span><br>
+                                            <span class="h6 text-sm">Система распознавания меток игроков в робофутболе</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 align-self-center">
+                                    <p class="mb-0">
+                                        <i data-feather="file-text"></i>
+                                        <a class="text-sm" href="#">Текст</a>
+                                    </p>
+                                    <p class="mb-0">
+                                        <i data-feather="download"></i>
+                                        <a class="text-sm" href="#">Презентация</a>
+                                    </p>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
+                        <div class="card-body py-3 row">
+                                <div class="col-lg-8">
+                                    <div class="media align-items-center">
+                                        <div class="media-body">
+                                            <span class="h6">Камкова Екатерина Александровна</span><br>
+                                            <span class="h6 text-sm">Симулятор Робофутбола</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 align-self-center">
+                                    <p class="mb-0">
+                                        <i data-feather="file-text"></i>
+                                        <a class="text-sm" href="#">Текст</a>
+                                    </p>
+                                    <p class="mb-0">
+                                        <i data-feather="download"></i>
+                                        <a class="text-sm" href="#">Презентация</a>
+                                    </p>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
+                        <div class="card-body py-3 row">
+                                <div class="col-lg-8">
+                                    <div class="media align-items-center">
+                                        <div class="media-body">
+                                            <span class="h6">Курбатова Зарина Идиевна</span><br>
+                                            <span class="h6 text-sm">Автоматическая рекомендация имен методов в IntelliJ IDEA</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 align-self-center">
+                                    <p class="mb-0">
+                                        <i data-feather="file-text"></i>
+                                        <a class="text-sm" href="#">Текст</a>
+                                    </p>
+                                    <p class="mb-0">
+                                        <i data-feather="download"></i>
+                                        <a class="text-sm" href="#">Презентация</a>
+                                    </p>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
+                        <div class="card-body py-3 row">
+                                <div class="col-lg-8">
+                                    <div class="media align-items-center">
+                                        <div class="media-body">
+                                            <span class="h6">Поляков Александр Романович</span><br>
+                                            <span class="h6 text-sm">Разработка системы для отладки ядра операционной системы</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 align-self-center">
+                                    <p class="mb-0">
+                                        <i data-feather="file-text"></i>
+                                        <a class="text-sm" href="#">Текст</a>
+                                    </p>
+                                    <p class="mb-0">
+                                        <i data-feather="download"></i>
+                                        <a class="text-sm" href="#">Презентация</a>
+                                    </p>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+
+            <div class="row pt-4">
+                <div class="col-lg-12 pr-0 text-center">
+                    <a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot" target="_blank" class="btn btn-lg btn-secondary btn-icon mb-3 mb-lg-0">
+                        <span class="btn-inner--text">Архив ВКР и курсовых работ</span>
+                        <span class="btn-inner--icon">
+                            <i data-feather="arrow-right"></i>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice" id="stuff">
+        <!-- Container -->
+        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-7 text-center">
+                    <h2 class="mb-1">
+                        Наши преподаватели
+                    </h2>
+                    <div>
+                        <p class="lead lh-480">
+                            Ведущие разработчики и опытные исследователи делятся своими знаниями и навыками с нашими студентами
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-grid justify-content-between align-items-center">
+                
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="Терехов Андрей Николаевич" src="../assets/img/stuff/terekhov.jpg" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">Терехов Андрей Николаевич</span><br>
+                                    <span class="h6 text-sm">Профессор, д.ф.-м.н., заведующий кафедрой</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div class="">
+                                <i data-feather="mail"></i>
+                                <a class="text-sm" href="mailto:a.terekhov@spbu.ru">a.terekhov@spbu.ru</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="Граничин Олег Николаевич" src="../assets/img/stuff/granichin.jpg" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">Граничин Олег Николаевич</span><br>
+                                    <span class="h6 text-sm">Профессор, д.ф.-м.н.</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div class="">
+                                <i data-feather="mail"></i>
+                                <a class="text-sm" href="mailto:o.granichin@spbu.ru">o.granichin@spbu.ru</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="Кознов Дмитрий Владимирович" src="../assets/img/stuff/koznov.jpg" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">Кознов Дмитрий Владимирович</span><br>
+                                    <span class="h6 text-sm">Профессор, д.т.н.</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div class="">
+                                <i data-feather="mail"></i>
+                                <a class="text-sm" href="mailto:d.koznov@spbu.ru">d.koznov@spbu.ru</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="Брыксин Тимофей Александрович" src="../assets/img/stuff/bryksin.jpg" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">Брыксин Тимофей Александрович</span><br>
+                                    <span class="h6 text-sm">Доцент, к.т.н.</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div class="">
+                                <i data-feather="mail"></i>
+                                <a class="text-sm" href="mailto:t.bryksin@spbu.ru">t.bryksin@spbu.ru</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="Булычев Дмитрий Юрьевич" src="../assets/img/stuff/boulytchev.jpg" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">Булычев Дмитрий Юрьевич</span><br>
+                                    <span class="h6 text-sm">Доцент, к. ф.-м. н.</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div class="">
+                                <i data-feather="mail"></i>
+                                <a class="text-sm" href="mailto:d.bylychev@spbu.ru">d.bylychev@spbu.ru</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-body">
+                            <div class="media align-items-center">
+                                <img alt="Литвинов Юрий Викторович" src="../assets/img/stuff/litvinov.jpg" class="avatar rounded-circle avatar-lg mr-4">
+                                <div class="media-body">
+                                    <span class="h6">Литвинов Юрий Викторович</span><br>
+                                    <span class="h6 text-sm">Доцент, к.т.н.</span>
+                                </div>
+                            </div>
+                            <hr class="my-2">
+                            <div class="">
+                                <i data-feather="mail"></i>
+                                <a class="text-sm" href="mailto:y.litvinov@spbu.ru">y.litvinov@spbu.ru</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="row pt-2">
+                <div class="col-lg-12 pr-0 text-center">
+                    <a href="/department/staff.html" target="_blank" class="btn btn-lg btn-primary btn-icon mb-3 mb-lg-0">
+                        <span class="btn-inner--text">Преподаватели кафедры</span>
+                        <span class="btn-inner--icon">
+                            <i data-feather="arrow-right"></i>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <footer class="position-relative" id="footer-main">
+        <div class="footer pt-lg-7 footer-dark bg-dark">
+            <!-- SVG shape -->
+            <div class="shape-container shape-line shape-position-top shape-orientation-inverse">
+                <svg width="2560px" height="100px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" viewBox="0 0 2560 100" style="enable-background:new 0 0 2560 100;" xml:space="preserve" class="">
+                    <polygon points="2560 0 2560 100 0 100"></polygon>
+                </svg>
+            </div>
+
+            <!-- Footer -->
+            <div class="container pt-2" itemscope itemtype="http://schema.org/Organization">
+                <div class="row">
+                    <div class="col-lg-4 col-4 col-sm-4 mb-5 mb-lg-0">
+                        <!-- Theme's logo -->
+                        <a href="../index.html">
+                            <img class="img-fluid" alt="Логотип Кафедры Системного Программирования" src="../assets/img/logo.svg" id="footer-logo" itemprop="logo">
+                        </a>
+                        <!-- Webpixels' mission -->
+                        <p class="mt-4 text-sm opacity-8 pr-lg-4" itemprop="founder" itemscope itemtype="https://schema.org/Person">Основатель <span itemprop="name">профессор А.Н. Терехов.</span></p>
+                    </div>
+                    <div class="col-lg-4 col-4 col-sm-4 mb-5 mb-lg-0">
+                        <h6 class="heading mb-4">Контактная информация</h6>
+                        <ul class="list-unstyled">
+                            <span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
+                            <li><p class="text-sm opacity-8 mb-0"><span itemprop="postalCode">198504</span>, <span itemprop="addressLocality">Санкт-Петербург</span></p></li>
+                            <li><p class="text-sm opacity-8 mb-0"><span itemprop="streetAddress">Университетский проспект, дом 28</span></p></li>
+                            </span>
+                            <li><p class="text-sm opacity-8 mb-0">Телефон: <a href="tel:+78124287109" itemprop="telephone">+7 (812) 428-71-09</a></p></li>
+                            <li><p class="text-sm opacity-8 mb-0">Email: <a href="mailto:a.terekhov@spbu.ru" itemprop="email">a.terekhov@spbu.ru</a></p></li>
+                            <li><p class="text-sm opacity-8 mb-0">Telegram: <a target="_blank" href="https://t.me/sysprog2020admission" itemprop="sameAs">@sysprog2020admission</a></p></li>
+                            <li><p class="text-sm opacity-8 mb-0">Старая версия сайта: <a target="_blank" href="https://oops.math.spbu.ru/SE" itemprop="sameAs">oops.math.spbu.ru/SE</a></p></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4 col-4 col-sm-4 mb-5 mb-lg-0">
+                        <h6 class="heading mb-3">Поступающим</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="../index.html#undergraduate">В&nbsp;бакалавриат</a></li>
+                            <li><a href="../index.html#magistracy">В&nbsp;магистратуру</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
+                        <h6 class="heading mb-3">Студентам</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot">Архив ВКР и курсовых работ</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
+                        <h6 class="heading mb-3">Выпускники</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot">Архив ВКР</a></li>
+                            <li><a href="https://oops.math.spbu.ru/SE/alumni">Выпускники кафедры</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
+                        <h6 class="heading mb-3">Кафедра</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="../department/staff.html">Сотрудники</a></li>
+                            <li><a href="../contacts.html">Контакты</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <hr class="divider divider-fade divider-dark">
+                        <div class="col-lg-12">
+                            <div class="copyright text-sm font-weight-bold text-center text-md-left">
+                                &copy; <span itemprop="name">Кафедра системного программирования</span>, Математико-механический факультет, СПбГУ, 1996-2021
+                            </div>
+                        </div>
+                </div>
+        </div>
+        </div>
+    </footer>
+    <!-- Core JS  -->
+    <script src="../assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/libs/svg-injector/dist/svg-injector.min.js" async defer></script>
+    <script src="../assets/libs/feather-icons/dist/feather.min.js"></script>
+    <script src="../assets/libs/in-view/dist/in-view.min.js" async defer></script>
+    <script src="../assets/libs/sticky-kit/dist/sticky-kit.min.js" async defer></script>
+    <script src="../assets/libs/imagesloaded/imagesloaded.pkgd.min.js" async defer></script>
+    <script src="../assets/libs/bootstrap-notify/bootstrap-notify.min.js" async defer></script>
+    <script src="../assets/libs/autosize/dist/autosize.min.js" async defer></script>
+    <!-- Google maps -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA74mo0V79zPcSWjgUMe9AdmLy3-ruPKLs"></script>
+    <!-- Recaptcha -->
+    <!-- script src='https://www.google.com/recaptcha/api.js' async defer></script -->
+    <!-- Quick JS -->
+    <script src="../assets/js/quick-website.js"></script>
+    <!-- Feather Icons -->
+    <script>
+        feather.replace({
+            'width': '1em',
+            'height': '1em'
+        })
+    </script>
+</body>
+</html>

@@ -2,8 +2,11 @@
 {% block title %}Кафедра системного программирования СПбГУ{% endblock %}
 {% block description %}Кафедра Системного программирования Математико-механического факультета СПбГУ.{% endblock %}
 
-{% block content %}
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/"/>
+{% endblock %}
 
+{% block content %}
     <!-- Main content -->
     <section class="slice py-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main-back.jpg')}});">
         <!-- Container -->
