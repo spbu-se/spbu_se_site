@@ -77,7 +77,7 @@ def department_staff():
          'avatar': 'empty.jpg'},
         {"name": "Серов Михаил Александрович", "position": "Доцент", "contacts": "m.serov@spbu.ru",
          "contacts2": "st806019@spbu.ru", "contacts3": "m.serov@spbu.ru", 'avatar': 'empty.jpg'},
-        {"name": "Сысоев Сергей Сергеевич", "position": "Доцент, к. ф.-м. н.", "contacts": "sysoev@petroms.ru",
+        {"name": "Сысоев Сергей Сергеевич", "position": "Преподаватель-практик, к. ф.-м. н.", "contacts": "sysoev@petroms.ru",
          "contacts2": "st007983@spbu.ru", "contacts3": "s.s.sysoev@spbu.ru", 'avatar': 'empty.jpg'},
         {"name": "Баклановский Максим Викторович", "position": "Старший преподаватель",
          "contacts": "baklanovsky@gmail.com", "contacts2": "st007253@sbpu.ru", "contacts3": "m.baklanovsky@spbu.ru",
