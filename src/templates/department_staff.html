@@ -47,7 +47,7 @@
                     <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
                         <div class="card-body">
                             <div class="media align-items-center">
-                                <img alt="{{person.name}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.avatar) }}" class="avatar rounded-circle avatar-lg mr-4" itemprop="image">
+                                <img alt="{{person.name}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.avatar) }}" class="avatar rounded-circle avatar-lg mr-4" itemprop="image" loading="lazy">
                                 <div class="media-body">
                                     <span class="h6" itemprop="name">{{person.name}}</span><br>
                                     <span class="h6 text-sm" itemprop="jobTitle">{{person.position}}</span>
