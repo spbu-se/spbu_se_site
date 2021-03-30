@@ -155,6 +155,10 @@ def bachelor_admission():
     ]
     return render_template('bachelor_admission.html', students = students, diplomas=diplomas, staff=staff)
 
+@app.route('/frequently-asked-questions.html')
+def frequently_asked_questions():
+    return render_template('frequently_asked_questions.html')
+
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "build":
         freezer.freeze()

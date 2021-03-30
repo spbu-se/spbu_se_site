@@ -161,6 +161,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
+                                        <a href="{{ url_for('frequently_asked_questions') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Вопросы и ответы</small>
+                                                </div>
+                                            </div>
+                                        </a>
                                     </div>
                                 </div>
                             </li>
@@ -278,6 +286,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <ul class="list-unstyled">
                             <li><a href="{{ url_for('index', _anchor='undergraduate') }}">В&nbsp;бакалавриат</a></li>
                             <li><a href="{{ url_for('index', _anchor='magistracy') }}">В&nbsp;магистратуру</a></li>
+                            <li><a href="{{ url_for('frequently_asked_questions') }}">Вопросы и ответы</a></li>
                         </ul>
                     </div>
                 </div>
