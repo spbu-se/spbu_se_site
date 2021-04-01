@@ -159,6 +159,10 @@ def bachelor_admission():
 def frequently_asked_questions():
     return render_template('frequently_asked_questions.html')
 
+@app.route('/nooffer.html')
+def nooffer():
+    return render_template('nooffer.html')
+
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "build":
         freezer.freeze()
