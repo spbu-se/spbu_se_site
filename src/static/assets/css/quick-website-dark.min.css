@@ -78,7 +78,7 @@ hr {
   height: 0;
   overflow: visible; }
 
-h1, h2, h3, h4, h6 {
+h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
   margin-bottom: 0.66667rem; }
 
@@ -91,14 +91,16 @@ address {
   font-style: normal;
   line-height: inherit; }
 
-
+ol,
 ul,
 dl {
   margin-top: 0;
   margin-bottom: 1rem; }
 
-
-ul ul {
+ol ol,
+ul ul,
+ol ul,
+ul ol {
   margin-bottom: 0; }
 
 b,
@@ -194,11 +196,14 @@ button::-moz-focus-inner,
 progress {
   vertical-align: baseline; }
 
+template {
+  display: none; }
+
 [hidden] {
   display: none !important; }
 
-h1, h2, h3, h4, h6,
-.h1, .h2, .h3, .h4, .h6 {
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
   margin-bottom: 0.66667rem;
   font-family: inherit;
   font-weight: 600;
@@ -228,6 +233,9 @@ h4, .h4 {
   @media (max-width: 1200px) {
     h4, .h4 {
       font-size: calc(1.275rem + 0.3vw) ; } }
+
+h5, .h5 {
+  font-size: 1.25rem; }
 
 h6, .h6 {
   font-size: 1rem; }
@@ -376,7 +384,11 @@ pre {
     max-width: 91.66667%; }
   .col-lg-12 {
     flex: 0 0 100%;
-    max-width: 100%; } }
+    max-width: 100%; }
+  .order-lg-1 {
+    order: 1; }
+  .order-lg-2 {
+    order: 2; } }
 
 @media (min-width: 1200px) {
   .col-xl-4 {
@@ -996,6 +1008,9 @@ button.bg-dark:focus {
 .justify-content-between {
   justify-content: space-between !important; }
 
+.justify-content-around {
+  justify-content: space-around !important; }
+
 .align-items-center {
   align-items: center !important; }
 
@@ -1025,6 +1040,9 @@ button.bg-dark:focus {
 
 .w-100 {
   width: 100% !important; }
+
+.mt-0 {
+  margin-top: 0 !important; }
 
 .mb-0 {
   margin-bottom: 0 !important; }
@@ -1057,13 +1075,15 @@ button.bg-dark:focus {
 .ml-3 {
   margin-left: 1rem !important; }
 
-.mt-4 {
+.mt-4,
+.my-4 {
   margin-top: 1.5rem !important; }
 
 .mr-4 {
   margin-right: 1.5rem !important; }
 
-.mb-4 {
+.mb-4,
+.my-4 {
   margin-bottom: 1.5rem !important; }
 
 .ml-4 {
@@ -1120,7 +1140,7 @@ button.bg-dark:focus {
 .py-3 {
   padding-bottom: 1rem !important; }
 
-
+.pl-3,
 .px-3 {
   padding-left: 1rem !important; }
 
@@ -1158,6 +1178,9 @@ button.bg-dark:focus {
 
 .py-6 {
   padding-bottom: 4.5rem !important; }
+
+.pt-7 {
+  padding-top: 6rem !important; }
 
 .pb-7 {
   padding-bottom: 6rem !important; }
@@ -1215,6 +1238,8 @@ button.bg-dark:focus {
   
   .py-lg-6 {
     padding-bottom: 4.5rem !important; }
+  .pl-lg-6 {
+    padding-left: 4.5rem !important; }
   .pt-lg-7 {
     padding-top: 6rem !important; }
   .pb-lg-9 {
@@ -1841,6 +1866,48 @@ svg {
   width: 3rem;
   height: 3rem; }
 
+.icon-sm i, .icon-sm svg {
+  font-size: 1.14286rem; }
+
+.icon-sm:not(.icon-shape) svg {
+  width: 2rem;
+  height: 2rem; }
+
+.icon-shape {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  vertical-align: middle;
+  border-radius: 0.375rem;
+  width: 3rem;
+  height: 3rem; }
+  .icon-shape i {
+    font-size: 1.125rem; }
+  .icon-shape svg {
+    width: 1.2rem;
+    height: 1.2rem; }
+  .icon-shape.icon-sm {
+    width: 2rem;
+    height: 2rem; }
+    .icon-shape.icon-sm i {
+      font-size: 0.875rem; }
+    .icon-shape.icon-sm svg {
+      width: 0.8rem;
+      height: 0.8rem; }
+
+.icon-primary {
+  color: #0C66FF;
+  background-color: #cee0ff; }
+
+.icon-success {
+  color: #5cc9a7;
+  background-color: #def4ed; }
+
+.icon-warning {
+  color: #FFBE3D;
+  background-color: #fff2d8; }
+
 .jumbotron {
   position: relative; }
   .jumbotron:not([class*="rounded-"]) {
@@ -2071,15 +2138,15 @@ h1, h2, h3,
 .h1, .h2, .h3 {
   font-weight: 600; }
 
-h4, h6,
-.h4, .h6 {
+h4, h5, h6,
+.h4, .h5, .h6 {
   font-weight: 600; }
 
-h1 a, h2 a, h3 a, h4 a, h6 a,
-.h1 a, .h2 a, .h3 a, .h4 a, .h6 a {
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a,
+.h1 a, .h2 a, .h3 a, .h4 a, .h5 a, .h6 a {
   color: #E5E9F2; }
-  h1 a:hover, h2 a:hover, h3 a:hover, h4 a:hover, h6 a:hover,
-  .h1 a:hover, .h2 a:hover, .h3 a:hover, .h4 a:hover, .h6 a:hover {
+  h1 a:hover, h2 a:hover, h3 a:hover, h4 a:hover, h5 a:hover, h6 a:hover,
+  .h1 a:hover, .h2 a:hover, .h3 a:hover, .h4 a:hover, .h5 a:hover, .h6 a:hover {
     color: #0C66FF; }
 
 a {
@@ -2312,6 +2379,10 @@ section.slice {
   position: relative;
   padding-top: 4rem;
   padding-bottom: 4rem; }
+
+.slice-lg {
+  padding-top: 6rem;
+  padding-bottom: 6rem; }
 
 .slice:not(.border-top):not(.border-bottom):not(.delimiter-bottom):not([class*="bg-"]):not(.section-rotate) + .slice:not(.border-top):not(.border-bottom):not(.delimiter-top):not([class*="bg-"]) {
   padding-top: 0; }
