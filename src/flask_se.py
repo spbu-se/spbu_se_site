@@ -5,14 +5,24 @@ from flask import render_template
 from flask_frozen import Freezer
 from flask import redirect, url_for
 import sys, os
+from se_models import db, init_db
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
+
+# Flask configs
 app.config['APPLICATION_ROOT'] = '/'
 app.config['FREEZER_RELATIVE_URLS'] = True
 app.config['FREEZER_DESTINATION'] = '../docs'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///se.db'
 
+# Init Database
+db.app = app
+db.init_app(app)
+
+# Init Freezer
 freezer = Freezer(app)
 
+# Flask routes goes
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -164,7 +174,10 @@ def nooffer():
     return render_template('nooffer.html')
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "build":
-        freezer.freeze()
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "build":
+            freezer.freeze()
+        elif sys.argv[1] == "init_db":
+            init_db()
     else:
         app.run(port=5000)
