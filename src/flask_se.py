@@ -14,6 +14,7 @@ app.config['APPLICATION_ROOT'] = '/'
 app.config['FREEZER_RELATIVE_URLS'] = True
 app.config['FREEZER_DESTINATION'] = '../docs'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///se.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Init Database
 db.app = app
