@@ -1081,10 +1081,10 @@ var GoogleMapCustom = (function() {
         });
 
         google.maps.event.addListener(marker_mm, 'click', function() {
-            infowindow.open(map, marker_mm);
+            infowindow_mm.open(map, marker_mm);
         });
         google.maps.event.addListener(marker_d, 'click', function() {
-            infowindow.open(map, marker_d);
+            infowindow_d.open(map, marker_d);
         });
     }
 
