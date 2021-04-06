@@ -73,6 +73,5 @@ jobs:
         - name: Push to gh-pages
           uses: EndBug/add-and-commit@v7.0.0
           with:
-            add: './docs/ -f'
             branch: 'gh-pages'
             message: 'Update gh-pages /docs/'
