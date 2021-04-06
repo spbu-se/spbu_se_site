@@ -4,6 +4,7 @@
 .idea/
 venv/
 build/
+docs/
 
 # User-specific stuff
 .idea/**/workspace.xml

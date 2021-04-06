@@ -13,10 +13,10 @@ class Staff (db.Model):
     official_email = db.Column(db.String(255), unique=True, nullable=False)
     position = db.Column(db.String(255), nullable=False)
     science_degree = db.Column(db.String(255), nullable=True)
-    status = db.Column(db.Boolean, default=False, nullable=False)
+    still_working = db.Column(db.Boolean, default=False, nullable=False)
 
     def __repr__(self):
-        return '<Stuff %r>' % self.official_email
+        return '<Staff %r>' % self.official_email
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -35,10 +35,11 @@ class Users(db.Model):
     google_id = db.Column(db.String(255), nullable=True)
 
     def __repr__(self):
-        return '<Users %r>' % self.first_name
+        return '<Users %r %r %r>' % (self.last_name, self.first_name, self.middle_name)
 
 def init_db():
 
+    # Data
     users = [
         {'email' : 'a.terekhov@spbu.ru', 'first_name' : 'Андрей', 'last_name' : 'Терехов', 'middle_name' : 'Николаевич',
          'avatar_uri' : 'terekhov.jpg'},
@@ -89,5 +90,59 @@ def init_db():
         {'email': 'st013039@student.spbu.ru', 'first_name': 'Евгений', 'last_name': 'Моисеенко',
          'middle_name': 'Александрович', 'avatar_uri': 'empty.jpg'},
     ]
+    staff = [
+        {'position': 'Заведующий кафедрой, профессор', 'science_degree' : 'д.ф.-м.н.',
+         'official_email': 'a.terekhov@spbu.ru', 'still_working' : 1},
+        {'position': 'Профессор', 'science_degree': 'д.ф.-м.н.',
+         'official_email': 'o.granichin@spbu.ru', 'still_working': 1},
+        {'position': 'Профессор', 'science_degree': 'д.т.н.',
+         'official_email': 'd.koznov@spbu.ru', 'still_working': 1},
+        {'position': 'Доцент', 'science_degree': 'к.т.н.',
+         'official_email': 't.bryksin@spbu.ru', 'still_working': 1},
+        {'position': 'Доцент', 'science_degree': 'к.ф.-м.н.',
+         'official_email': 'd.bylychev@spbu.ru', 'still_working': 1},
+        {'position': 'Доцент', 'science_degree': 'к.т.н.',
+         'official_email': 'y.litvinov@spbu.ru', 'still_working': 1},
+        {'position': 'Доцент', 'science_degree': 'к.ф.-м.н.',
+         'official_email': 'd.lutsiv@spbu.ru', 'still_working': 1},
+        {'position': 'Доцент', 'science_degree' : 'к.ф.-м.н.',
+         'official_email' : 'k.romanovsky@spbu.ru', 'still_working': 1},
+        {'position': 'Доцент', 'official_email': 'm.serov@spbu.ru', 'still_working': 1},
+        {'position': 'Преподаватель-практик', 'science_degree': 'к.ф.-м.н.',
+         'official_email': 's.s.sysoev@spbu.ru', 'still_working': 1},
+        {'position': 'Старший преподаватель', 'official_email': 'm.baklanovsky@spbu.ru', 'still_working': 1},
+        {'position': 'Старший преподаватель', 'official_email': 'm.m.zhuravlev@spbu.ru', 'still_working': 1},
+        {'position': 'Старший преподаватель', 'official_email': 'i.zelenchuk@spbu.ru', 'still_working': 1},
+        {'position': 'Старший преподаватель', 'official_email': 'y.kirilenko@spbu.ru', 'still_working': 1},
+        {'position': 'Старший преподаватель', 'official_email': 'st035425@student.spbu.ru', 'still_working': 1},
+        {'position': 'Старший преподаватель', 'official_email': 'egor.k.kulikov@gmail.com', 'still_working': 1},
+        {'position': 'Старший преподаватель', 'official_email': 'd.mordvinov@spbu.ru', 'still_working': 1},
+        {'position': 'Старший преподаватель', 'official_email': 'm.nemeshev@spbu.ru', 'still_working': 1},
+        {'position': 'Старший преподаватель', 'official_email': 'stanislav.sartasov@spbu.ru', 'still_working': 1},
+        {'position': 'Старший преподаватель', 'science_degree': 'к.т.н.','official_email': 'm.n.smirnov@spbu.ru',
+         'still_working': 1},
+        {'position': 'Старший преподаватель', 'official_email': 'st036451@student.spbu.ru', 'still_working': 1},
+        {'position': 'Старший преподаватель', 'official_email': 's.shilov@spbu.ru', 'still_working': 1},
+        {'position': 'Инженер-исследователь', 'official_email': 'st013464@student.spbu.ru', 'still_working': 1},
+        {'position': 'Инженер-исследователь', 'official_email': 'st013039@student.spbu.ru', 'still_working': 1},
+    ]
+
+    # Init DB
+    db.session.commit() # https://stackoverflow.com/questions/24289808/drop-all-freezes-in-flask-with-sqlalchemy
+    db.drop_all()
+    db.create_all()
+
+    # Create users
+    for user in users:
+        u = Users(email=user['email'], password_hash = generate_password_hash(urandom(16).hex()), first_name = user['first_name'], last_name = user['last_name'],
+                  middle_name = user['middle_name'], avatar_uri = user['avatar_uri'])
+
+        db.session.add(u)
+        db.session.commit()
+        print (u)
+
+    # Create staff
+    for user in staff:
+        u = Users.query.filter_by(email=user['official_email']).first()
 
     return

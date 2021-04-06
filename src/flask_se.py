@@ -178,7 +178,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "build":
             freezer.freeze()
-        elif sys.argv[1] == "init_db":
+        elif sys.argv[1] == "init":
             init_db()
     else:
         app.run(port=5000)
