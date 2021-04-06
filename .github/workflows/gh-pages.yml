@@ -29,9 +29,16 @@ jobs:
         - name: Delete docs to avoid merge conflicts
           uses: EndBug/add-and-commit@v7.0.0
           with:
-            remove: 'docs -r'
+            remove: './docs -r'
             branch: 'gh-pages'
             message: 'Delete docs to avoid merge conflicts'
+        
+        - name: Delete src to avoid merge conflicts
+          uses: EndBug/add-and-commit@v7.0.0
+          with:
+            remove: './src -r'
+            branch: 'gh-pages'
+            message: 'Delete src to avoid merge conflicts'
         
         - name: Merge development -> gh-pages
           uses: devmasx/merge-branch@v1.3.1
