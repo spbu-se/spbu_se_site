@@ -34,6 +34,9 @@ class Users(db.Model):
     fb_id = db.Column(db.String(255), nullable=True)
     google_id = db.Column(db.String(255), nullable=True)
 
+    def __str__(self):
+        return f"{self.last_name} {self.first_name} {self.middle_name}"
+
     def __repr__(self):
         return '<Users %r %r %r>' % (self.last_name, self.first_name, self.middle_name)
 
@@ -92,39 +95,39 @@ def init_db():
     ]
     staff = [
         {'position': 'Заведующий кафедрой, профессор', 'science_degree' : 'д.ф.-м.н.',
-         'official_email': 'a.terekhov@spbu.ru', 'still_working' : 1},
+         'official_email': 'a.terekhov@spbu.ru', 'still_working' : True},
         {'position': 'Профессор', 'science_degree': 'д.ф.-м.н.',
-         'official_email': 'o.granichin@spbu.ru', 'still_working': 1},
+         'official_email': 'o.granichin@spbu.ru', 'still_working': True},
         {'position': 'Профессор', 'science_degree': 'д.т.н.',
-         'official_email': 'd.koznov@spbu.ru', 'still_working': 1},
+         'official_email': 'd.koznov@spbu.ru', 'still_working': True},
         {'position': 'Доцент', 'science_degree': 'к.т.н.',
-         'official_email': 't.bryksin@spbu.ru', 'still_working': 1},
+         'official_email': 't.bryksin@spbu.ru', 'still_working': True},
         {'position': 'Доцент', 'science_degree': 'к.ф.-м.н.',
-         'official_email': 'd.bylychev@spbu.ru', 'still_working': 1},
+         'official_email': 'd.bylychev@spbu.ru', 'still_working': True},
         {'position': 'Доцент', 'science_degree': 'к.т.н.',
-         'official_email': 'y.litvinov@spbu.ru', 'still_working': 1},
+         'official_email': 'y.litvinov@spbu.ru', 'still_working': True},
         {'position': 'Доцент', 'science_degree': 'к.ф.-м.н.',
-         'official_email': 'd.lutsiv@spbu.ru', 'still_working': 1},
+         'official_email': 'd.lutsiv@spbu.ru', 'still_working': True},
         {'position': 'Доцент', 'science_degree' : 'к.ф.-м.н.',
-         'official_email' : 'k.romanovsky@spbu.ru', 'still_working': 1},
-        {'position': 'Доцент', 'official_email': 'm.serov@spbu.ru', 'still_working': 1},
+         'official_email' : 'k.romanovsky@spbu.ru', 'still_working': True},
+        {'position': 'Доцент', 'official_email': 'm.serov@spbu.ru', 'still_working': True},
         {'position': 'Преподаватель-практик', 'science_degree': 'к.ф.-м.н.',
-         'official_email': 's.s.sysoev@spbu.ru', 'still_working': 1},
-        {'position': 'Старший преподаватель', 'official_email': 'm.baklanovsky@spbu.ru', 'still_working': 1},
-        {'position': 'Старший преподаватель', 'official_email': 'm.m.zhuravlev@spbu.ru', 'still_working': 1},
-        {'position': 'Старший преподаватель', 'official_email': 'i.zelenchuk@spbu.ru', 'still_working': 1},
-        {'position': 'Старший преподаватель', 'official_email': 'y.kirilenko@spbu.ru', 'still_working': 1},
-        {'position': 'Старший преподаватель', 'official_email': 'st035425@student.spbu.ru', 'still_working': 1},
-        {'position': 'Старший преподаватель', 'official_email': 'egor.k.kulikov@gmail.com', 'still_working': 1},
-        {'position': 'Старший преподаватель', 'official_email': 'd.mordvinov@spbu.ru', 'still_working': 1},
-        {'position': 'Старший преподаватель', 'official_email': 'm.nemeshev@spbu.ru', 'still_working': 1},
-        {'position': 'Старший преподаватель', 'official_email': 'stanislav.sartasov@spbu.ru', 'still_working': 1},
+         'official_email': 's.s.sysoev@spbu.ru', 'still_working': True},
+        {'position': 'Старший преподаватель', 'official_email': 'm.baklanovsky@spbu.ru', 'still_working': True},
+        {'position': 'Старший преподаватель', 'official_email': 'm.m.zhuravlev@spbu.ru', 'still_working': True},
+        {'position': 'Старший преподаватель', 'official_email': 'i.zelenchuk@spbu.ru', 'still_working': True},
+        {'position': 'Старший преподаватель', 'official_email': 'y.kirilenko@spbu.ru', 'still_working': True},
+        {'position': 'Старший преподаватель', 'official_email': 'st035425@student.spbu.ru', 'still_working': True},
+        {'position': 'Старший преподаватель', 'official_email': 'egor.k.kulikov@gmail.com', 'still_working': True},
+        {'position': 'Старший преподаватель', 'official_email': 'd.mordvinov@spbu.ru', 'still_working': True},
+        {'position': 'Старший преподаватель', 'official_email': 'm.nemeshev@spbu.ru', 'still_working': True},
+        {'position': 'Старший преподаватель', 'official_email': 'stanislav.sartasov@spbu.ru', 'still_working': True},
         {'position': 'Старший преподаватель', 'science_degree': 'к.т.н.','official_email': 'm.n.smirnov@spbu.ru',
-         'still_working': 1},
-        {'position': 'Старший преподаватель', 'official_email': 'st036451@student.spbu.ru', 'still_working': 1},
-        {'position': 'Старший преподаватель', 'official_email': 's.shilov@spbu.ru', 'still_working': 1},
-        {'position': 'Инженер-исследователь', 'official_email': 'st013464@student.spbu.ru', 'still_working': 1},
-        {'position': 'Инженер-исследователь', 'official_email': 'st013039@student.spbu.ru', 'still_working': 1},
+         'still_working': True},
+        {'position': 'Старший преподаватель', 'official_email': 'st036451@student.spbu.ru', 'still_working': True},
+        {'position': 'Старший преподаватель', 'official_email': 's.shilov@spbu.ru', 'still_working': True},
+        {'position': 'Инженер-исследователь', 'official_email': 'st013464@student.spbu.ru', 'still_working': True},
+        {'position': 'Инженер-исследователь', 'official_email': 'st013039@student.spbu.ru', 'still_working': True},
     ]
 
     # Init DB
@@ -144,5 +147,17 @@ def init_db():
     # Create staff
     for user in staff:
         u = Users.query.filter_by(email=user['official_email']).first()
+
+        if 'science_degree' in user:
+            s = Staff(position = user['position'], science_degree = user['science_degree'],
+                  official_email = user['official_email'], still_working = user['still_working'],
+                  users_id = u.id)
+        else:
+            s = Staff(position = user['position'], official_email = user['official_email'],
+                      still_working = user['still_working'], users_id = u.id)
+
+        db.session.add(s)
+        db.session.commit()
+        print (s)
 
     return
