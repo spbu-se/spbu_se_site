@@ -1014,6 +1014,81 @@ var GoogleMapCustom = (function() {
 })();
 
 //
+// Google maps for MM
+//
+
+var GoogleMapCustom = (function() {
+    var $map = document.getElementById('map-mm-dormitory'),
+        lat_mm,
+        lng_mm,
+        lat_d,
+        lng_d,
+        color,
+        zoom;
+
+    function initMap(map) {
+
+        // Faculty of Mathematics and Mechanics
+        lat_mm = 59.87996;
+        lng_mm = 29.8305919;
+
+        // Dormitory
+        lat_d = 59.87487;
+        lng_d = 29.8248978;
+
+        color = map.getAttribute('data-color');
+        zoom = map.getAttribute('data-zoom') ? parseInt(map.getAttribute('data-zoom')) : 12;
+
+        var myLatlng_mm = new google.maps.LatLng(lat_mm, lng_mm);
+        var myLatlng_d = new google.maps.LatLng(lat_d, lng_d);
+
+        var mapOptions = {
+            zoom: zoom,
+            scrollwheel: false,
+            center: myLatlng_mm,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            styles: [{"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"color":"#444444"}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2f2f2"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"all","stylers":[{"saturation":-100},{"lightness":45}]},{"featureType":"road.highway","elementType":"all","stylers":[{"visibility":"simplified"}]},{"featureType":"road.arterial","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"all","stylers":[{"color":color},{"visibility":"on"}]}]
+        }
+
+        map = new google.maps.Map(map, mapOptions);
+
+        var marker_mm = new google.maps.Marker({
+            position: myLatlng_mm,
+            map: map,
+            animation: google.maps.Animation.DROP,
+            title: 'Математико-механической факультет'
+        });
+
+        var marker_d = new google.maps.Marker({
+            position: myLatlng_d,
+            map: map,
+            animation: google.maps.Animation.DROP,
+            title: 'Петергофский кампус СПбГУ'
+        });
+
+        var contentString_mm = '<div class="info-window-content"><h5>Математико-Механический факультет, СПбГУ</h5>' +
+            '<p>Учебный корпус математико-механического факультета, СПбГУ</p></div>';
+
+        var contentString_d = '<div class="info-window-content"><h5>Петергофский кампус СПбГУ</h5>' +
+            '<p>Общежитие, СПбГУ</p></div>';
+
+        var infowindow = new google.maps.InfoWindow({
+            content: contentString_mm
+        });
+
+        google.maps.event.addListener(marker, 'click', function() {
+            infowindow.open(map, marker_mm);
+        });
+        google.maps.event.addListener(marker, 'click', function() {
+            infowindow.open(map, marker_d);
+        });
+    }
+
+    if (typeof($map) != 'undefined' && $map != null) {
+        google.maps.event.addDomListener(window, 'load', initMap($map));
+    }
+})();
+//
 // Google maps
 //
 

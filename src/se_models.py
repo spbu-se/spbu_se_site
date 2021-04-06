@@ -142,7 +142,6 @@ def init_db():
 
         db.session.add(u)
         db.session.commit()
-        print (u)
 
     # Create staff
     for user in staff:
@@ -158,6 +157,5 @@ def init_db():
 
         db.session.add(s)
         db.session.commit()
-        print (s)
 
     return
