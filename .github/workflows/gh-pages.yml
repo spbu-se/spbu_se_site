@@ -43,6 +43,7 @@ jobs:
             github_token: ${{ github.token }}
 
         - run: mkdir docs
+        - run: ls
         
         # Set up Python 3.6 environment
         - uses: actions/setup-python@v2
@@ -82,6 +83,7 @@ jobs:
         - name: Push to gh-pages
           uses: EndBug/add-and-commit@v7.0.0
           with:
+            add: '.'
             remove: './node_modules -r'
             branch: 'gh-pages'
             message: 'Update gh-pages /docs/'
