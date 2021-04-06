@@ -41,6 +41,8 @@ jobs:
             from_branch: ver2_dev
             target_branch: gh-pages
             github_token: ${{ github.token }}
+
+        - run: mkdir docs
         
         # Set up Python 3.6 environment
         - uses: actions/setup-python@v2
