@@ -61,8 +61,6 @@ jobs:
           run: |
             python src/flask_se.py build
             
-        - run: ls
-            
         # install npm and run script
         - name: install npm and run script
           uses: actions/setup-node@v2
@@ -83,7 +81,7 @@ jobs:
         - name: Push to gh-pages
           uses: EndBug/add-and-commit@v7.0.0
           with:
-            add: '.'
+            add: './docs/'
             remove: './node_modules -r'
             branch: 'gh-pages'
             message: 'Update gh-pages /docs/'
