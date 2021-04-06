@@ -55,7 +55,7 @@ jobs:
 
         - name: Initialize db
           run: |
-            python flask_se.py init
+            python src/flask_se.py init
         # Run Flask Frozen
         - name: Run Flask Frozen to build /docs/
           run: |
