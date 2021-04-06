@@ -44,6 +44,10 @@ jobs:
           run: |
             python -m pip install --upgrade pip
             pip install -r requirements.txt
+
+        - name: Initialize db
+          run: |
+            python flask_se.py init
         # Run Flask Frozen
         - name: Run Flask Frozen to build /docs/
           run: |
@@ -61,8 +65,8 @@ jobs:
         - run: npm install @nodelib/fs.scandir
         - run: npm init --yes
         #- run: node ./WebpConverter.js
-        #- run: npm i -g purgecss
-        #- run: purgecss --css docs/assets/css/*.css --content docs/*.html --safelist show --output docs/assets/css
+        - run: npm i -g purgecss
+        - run: purgecss --css docs/assets/css/*.css --content docs/*.html --content docs/master/*.html --content docs/bachelor/*.html --content docs/department/*.html --safelist show --output docs/assets/css
 
         # Commit docs to gh-pages
         - name: Push to gh-pages
