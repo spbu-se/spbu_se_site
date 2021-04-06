@@ -41,9 +41,6 @@ jobs:
             from_branch: ver2_dev
             target_branch: gh-pages
             github_token: ${{ github.token }}
-
-        - run: mkdir docs
-        - run: ls
         
         # Set up Python 3.6 environment
         - uses: actions/setup-python@v2
@@ -63,6 +60,9 @@ jobs:
         - name: Run Flask Frozen to build /docs/
           run: |
             python src/flask_se.py build
+            
+        - run: ls
+            
         # install npm and run script
         - name: install npm and run script
           uses: actions/setup-node@v2
