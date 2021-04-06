@@ -1072,14 +1072,18 @@ var GoogleMapCustom = (function() {
         var contentString_d = '<div class="info-window-content"><h5>Петергофский кампус СПбГУ</h5>' +
             '<p>Общежитие, СПбГУ</p></div>';
 
-        var infowindow = new google.maps.InfoWindow({
+        var infowindow_mm = new google.maps.InfoWindow({
             content: contentString_mm
         });
 
-        google.maps.event.addListener(marker, 'click', function() {
+        var infowindow_d = new google.maps.InfoWindow({
+            content: contentString_d
+        });
+
+        google.maps.event.addListener(marker_mm, 'click', function() {
             infowindow.open(map, marker_mm);
         });
-        google.maps.event.addListener(marker, 'click', function() {
+        google.maps.event.addListener(marker_d, 'click', function() {
             infowindow.open(map, marker_d);
         });
     }
