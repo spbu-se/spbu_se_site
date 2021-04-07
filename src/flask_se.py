@@ -117,6 +117,18 @@ def bachelor_admission():
         {"name": "Литвинов Юрий Викторович", "position": "Доцент, к.т.н.", "contacts": "yurii.litvinov@gmail.com",
          "contacts2": "st007017@spbu.ru", "contacts3": "y.litvinov@spbu.ru", 'avatar': 'litvinov.jpg'},
     ]
+
+    records = Staff.query.filter_by(still_working=True).limit(6).all()
+    staff = []
+
+    for s in records:
+        position = s.position
+        if s.science_degree:
+            position = position + ", " + s.science_degree
+
+        staff.append({'name' : s.users, 'position' : position, 'contacts' : s.official_email, 'avatar' : s.users.avatar_uri})
+
+
     return render_template('bachelor_admission.html', students = students, diplomas=diplomas, staff=staff)
 
 @app.route('/frequently-asked-questions.html')
