@@ -6,7 +6,7 @@ from flask import render_template
 from flask_frozen import Freezer
 from flask import redirect, url_for
 import sys, os
-from se_models import db, init_db, Staff, Users
+from se_models import db, init_db, Staff, Users, Thesis
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -138,6 +138,18 @@ def frequently_asked_questions():
 @app.route('/nooffer.html')
 def nooffer():
     return render_template('nooffer.html')
+
+@app.route('/theses.html')
+def theses_search():
+
+    records = Thesis.query.all()
+    return render_template('theses.html', theses=records)
+
+@app.route('/theses2.html')
+def theses_search2():
+
+    records = Thesis.query.all()
+    return render_template('theses.html', theses=records)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

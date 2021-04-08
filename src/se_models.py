@@ -4,16 +4,23 @@ from os import urandom
 
 db = SQLAlchemy()
 
+tag = db.Table('tag',
+               db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'), primary_key=True),
+               db.Column('thesis_id', db.Integer, db.ForeignKey('thesis.id'), primary_key=True)
+               )
+
 class Staff (db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    users_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    users = db.relationship("Users", backref=db.backref("users", uselist=False))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     official_email = db.Column(db.String(255), unique=True, nullable=False)
     position = db.Column(db.String(255), nullable=False)
     science_degree = db.Column(db.String(255), nullable=True)
     still_working = db.Column(db.Boolean, default=False, nullable=False)
+
+    supervisor = db.relationship("Thesis", backref=db.backref("supervisor"), foreign_keys = 'Thesis.supervisor_id')
+    adviser = db.relationship("Thesis", backref=db.backref("reviewer"), foreign_keys = 'Thesis.reviewer_id')
 
     def __repr__(self):
         return '<Staff %r>' % self.official_email
@@ -34,11 +41,55 @@ class Users(db.Model):
     fb_id = db.Column(db.String(255), nullable=True)
     google_id = db.Column(db.String(255), nullable=True)
 
+    staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
+
+    def get_name(self):
+        return f"{self.last_name} {self.first_name} {self.middle_name}"
+
     def __str__(self):
         return f"{self.last_name} {self.first_name} {self.middle_name}"
 
     def __repr__(self):
         return '<Users %r %r %r>' % (self.last_name, self.first_name, self.middle_name)
+
+# Coursework, diploma
+class Worktype (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(255), nullable=False)
+
+    thesis = db.relationship("Thesis", backref=db.backref("type", uselist=False))
+
+    def __repr__(self):
+        return '<WorkType %r>' % self.type
+
+class Thesis (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    type_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
+
+    name_ru = db.Column(db.String(512), nullable=False)
+    name_en = db.Column(db.String(512), nullable=False)
+    description = db.Column(db.String(4096), nullable=False)
+
+    text_uri = db.Column(db.String(512), nullable=True)
+    presentation_uri = db.Column(db.String(512), nullable=True)
+    supervisor_review_uri = db.Column(db.String(512), nullable=True)
+    reviewer_review_uri = db.Column(db.String(512), nullable=True)
+    source_uri = db.Column(db.String(512), nullable=True)
+
+    author = db.Column(db.String(512), nullable=False)
+    supervisor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
+    reviewer_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
+
+    publish_year = db.Column(db.Integer, nullable=False)
+    recomended = db.Column(db.Boolean, default=False, nullable=False)
+
+    tags = db.relationship('Tags', secondary=tag, lazy='subquery', backref=db.backref('thesis', lazy=True))
+
+class Tags(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False)
+
 
 def init_db():
 
@@ -129,6 +180,39 @@ def init_db():
         {'position': 'Инженер-исследователь', 'official_email': 'st013464@student.spbu.ru', 'still_working': True},
         {'position': 'Инженер-исследователь', 'official_email': 'st013039@student.spbu.ru', 'still_working': True},
     ]
+    wtypes = [
+        {'type' : 'Курсовая работа'},
+        {'type' : 'Бакалаврская ВКР'},
+        {'type' : 'Магистерская ВКР'},
+    ]
+    thesis = [
+        {
+            'name_ru' : 'Реализация расширенного препроцессора для проекта РуСи',
+            'name_en' : 'Implementing an Advanced Preprocessor for a RuC Project',
+            'description' : 'Языки программирования – область, которая активно развивается на протяжении всей истории развития IT, начиная с 50-х годов прошлого века. Наряду с ультрасовременными языками, основанными на последних разработках, такими как Swift или Kotlin, продолжается и развитие традиционных языков, существующих с 80-х годов прошлого века. Это в полной мере относится к языку C, простота и эффективность которого сделала его «фактическим стандартом» для программирования встроенных систем и систем реального времени.',
+            'text_uri' : 'Anikin_Egor_Georgievich_Bachelor_Thesis_2020_text.pdf',
+            'presentation_uri' : 'Anikin_Egor_Georgievich_Bachelor_Thesis_2020_slides.pdf',
+            'supervisor_review_uri' : 'Anikin_Egor_Georgievich_Bachelor_Thesis_2020_supervisor_review.pdf',
+            'reviewer_review_uri' : 'Anikin_Egor_Georgievich_Bachelor_Thesis_2020_ reviewer_review.pdf',
+            'author' : 'Аникин Егор Георгиевич',
+            'supervisor_id' : 1,
+            'reviewer_id' : 2,
+            'publish_year' : 2020
+        },
+        {
+            'name_ru': 'Изолированный запуск поставщиков типов для компилятора F#',
+            'name_en': 'Hosting F# type providers out-of-process',
+            'description': 'Современное программирование процветает на пространствах с большими данными и сложными задачами по их обработке. Можно наблюдать, что из-за распространенности многоядерных процессоров все чаще требуется писать параллельный код. Точно так же и в облач- ных системах важно уметь распределить выполнение задачи по парал- лельным потокам вычислений.',
+            'text_uri': 'Berezhnykh_Aleksey_Vladimirovich_Bachelor_Thesis_2020_text.pdf',
+            'presentation_uri': 'Berezhnykh_Aleksey_Vladimirovich_Bachelor_Thesis_2020_slides.pdf',
+            'supervisor_review_uri': 'Berezhnykh_Aleksey_Vladimirovich_Bachelor_Thesis_2020_supervisor_review.pdf',
+            'reviewer_review_uri': 'Berezhnykh_Aleksey_Vladimirovich_Bachelor_Thesis_2020_ reviewer_review.pdf',
+            'author': 'Бережных Алексей Владимирович',
+            'supervisor_id': 3,
+            'reviewer_id': 4,
+            'publish_year': 2020
+        },
+    ]
 
     # Init DB
     db.session.commit() # https://stackoverflow.com/questions/24289808/drop-all-freezes-in-flask-with-sqlalchemy
@@ -150,12 +234,30 @@ def init_db():
         if 'science_degree' in user:
             s = Staff(position = user['position'], science_degree = user['science_degree'],
                   official_email = user['official_email'], still_working = user['still_working'],
-                  users_id = u.id)
+                  user_id = u.id)
         else:
             s = Staff(position = user['position'], official_email = user['official_email'],
-                      still_working = user['still_working'], users_id = u.id)
+                      still_working = user['still_working'], user_id = u.id)
 
         db.session.add(s)
+        db.session.commit()
+
+    # Create WorkTypes
+    for w in wtypes:
+        wt = Worktype(type = w['type'])
+        db.session.add(wt)
+        db.session.commit()
+
+
+    # Create Thesis
+    for work in thesis:
+        t = Thesis(name_ru = work['name_ru'], name_en=work['name_en'], description=work['description'],
+                   text_uri=work['text_uri'], presentation_uri=work['presentation_uri'],
+                   supervisor_review_uri=work['supervisor_review_uri'], reviewer_review_uri=work['reviewer_review_uri'],
+                   author=work['author'], supervisor_id=work['supervisor_id'], reviewer_id=work['reviewer_id'],
+                   publish_year=work['publish_year'], type_id=2)
+
+        db.session.add(t)
         db.session.commit()
 
     return
