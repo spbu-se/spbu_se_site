@@ -182,6 +182,52 @@ Copyright 2020 Webpixels
 
 'use strict';
 
+var PopoverHover = (function() {
+
+	// Variables
+
+	var $popover = $('[data-toggle="popoverhover"]');
+
+
+	// Methods
+
+	function init($this) {
+		var popoverClass = '';
+
+		if ($this.data('color')) {
+			popoverClass = ' popover-' + $this.data('color');
+		}
+
+		var options = {
+			trigger: 'hover',
+			template:
+			'<div class="popover' + popoverClass + '" role="tooltip">'+
+				'<div class="arrow"></div>'+
+				'<h3 class="popover-header"></h3>' +
+				'<div class="popover-body"></div>' +
+				'<div class="popover-navigation">' +
+					'<button class="btn btn-primary" data-role="prev">« Prev</button>' +
+					'<button class="btn btn-primary" data-role="next">Next »</button>' +
+					'<button class="btn btn-primary" data-role="end">End tour</button>' +
+				'</div>' +
+			'</div>'
+		};
+
+		$this.popover(options);
+	}
+
+
+	// Events
+
+	if ($popover.length) {
+		$popover.each(function() {
+			init($(this));
+		});
+	}
+
+})();
+
+
 var Popover = (function() {
 
 	// Variables

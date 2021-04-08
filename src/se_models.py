@@ -62,10 +62,18 @@ class Worktype (db.Model):
     def __repr__(self):
         return '<WorkType %r>' % self.type
 
+# Courses
+class Courses(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+
+    thesis = db.relationship("Thesis", backref=db.backref('course', uselist=False))
+
 class Thesis (db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     type_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
 
     name_ru = db.Column(db.String(512), nullable=False)
     name_en = db.Column(db.String(512), nullable=False)
@@ -185,6 +193,28 @@ def init_db():
         {'type' : 'Бакалаврская ВКР'},
         {'type' : 'Магистерская ВКР'},
     ]
+    courses = [
+        {
+            'name' : 'Математическое обеспечение и администрирование информационных систем'
+        },
+        {
+            'name' : 'Программная инженерия'
+        }
+    ]
+    tags = [
+        {
+            'name' : 'Компилятор'
+        },
+        {
+            'name' : 'Android'
+        },
+        {
+            'name' : 'F#'
+        },
+        {
+            'name' : 'РуСи'
+        }
+    ]
     thesis = [
         {
             'name_ru' : 'Реализация расширенного препроцессора для проекта РуСи',
@@ -207,6 +237,7 @@ def init_db():
             'presentation_uri': 'Berezhnykh_Aleksey_Vladimirovich_Bachelor_Thesis_2020_slides.pdf',
             'supervisor_review_uri': 'Berezhnykh_Aleksey_Vladimirovich_Bachelor_Thesis_2020_supervisor_review.pdf',
             'reviewer_review_uri': 'Berezhnykh_Aleksey_Vladimirovich_Bachelor_Thesis_2020_ reviewer_review.pdf',
+            'source_uri': 'https://github.com/DedSec256/fsharp',
             'author': 'Бережных Алексей Владимирович',
             'supervisor_id': 3,
             'reviewer_id': 4,
@@ -248,14 +279,30 @@ def init_db():
         db.session.add(wt)
         db.session.commit()
 
+    # Create Courses
+    for course in courses:
+        c = Courses(name = course['name'])
+        db.session.add(c)
+        db.session.commit()
+
+    # Create Tags
+    for tag in tags:
+        t = Tags(name = tag['name'])
 
     # Create Thesis
     for work in thesis:
-        t = Thesis(name_ru = work['name_ru'], name_en=work['name_en'], description=work['description'],
+        if 'source_uri' in work:
+            t = Thesis(name_ru = work['name_ru'], name_en=work['name_en'], description=work['description'],
                    text_uri=work['text_uri'], presentation_uri=work['presentation_uri'],
                    supervisor_review_uri=work['supervisor_review_uri'], reviewer_review_uri=work['reviewer_review_uri'],
                    author=work['author'], supervisor_id=work['supervisor_id'], reviewer_id=work['reviewer_id'],
-                   publish_year=work['publish_year'], type_id=2)
+                   publish_year=work['publish_year'], type_id=2, course_id = 1, source_uri=work['source_uri'])
+        else:
+            t = Thesis(name_ru = work['name_ru'], name_en=work['name_en'], description=work['description'],
+                   text_uri=work['text_uri'], presentation_uri=work['presentation_uri'],
+                   supervisor_review_uri=work['supervisor_review_uri'], reviewer_review_uri=work['reviewer_review_uri'],
+                   author=work['author'], supervisor_id=work['supervisor_id'], reviewer_id=work['reviewer_id'],
+                   publish_year=work['publish_year'], type_id=2, course_id = 1)
 
         db.session.add(t)
         db.session.commit()
