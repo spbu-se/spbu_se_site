@@ -46,10 +46,10 @@
                             <p class="text-sm mb-0">Автор: <i>{{t.author}}</i></p>
                             <p class="text-sm mb-0">Руководитель: <i>{{t.supervisor.user.get_name()}}</i></p>
                             <p class="text-sm mb-0">
-                                <a href="{{ url_for('static', filename='/assets/thesis/texts/' + t.text_uri) }}"><i data-feather="file-text"></i> Текст работы</a>,
-                                <a href="{{ url_for('static', filename='/assets/thesis/presentations/' + t.presentation_uri) }}"><i data-feather="download"></i> Презентация</a>,
-                                <a href="{{ url_for('static', filename='/assets/thesis/reviews/' + t.supervisor_review_uri) }}">Отзыв руководителя</a>
-                                <a href="{{ url_for('static', filename='/assets/thesis/reviews/' + t.reviewer_review_uri) }}">Отзыв рецензента</a>
+                                <a href="{{ url_for('static', filename='/thesis/texts/' + t.text_uri) }}"><i data-feather="file-text"></i> Текст работы</a>,
+                                <a href="{{ url_for('static', filename='/thesis/presentations/' + t.presentation_uri) }}"><i data-feather="download"></i> Презентация</a>,
+                                <a href="{{ url_for('static', filename='/thesis/reviews/' + t.supervisor_review_uri) }}">Отзыв руководителя</a>
+                                <a href="{{ url_for('static', filename='/thesis/reviews/' + t.reviewer_review_uri) }}">Отзыв рецензента</a>
                             </p>
                         </div>
                     </div>

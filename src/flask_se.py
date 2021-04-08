@@ -126,7 +126,7 @@ def bachelor_admission():
         if s.science_degree:
             position = position + ", " + s.science_degree
 
-        staff.append({'name' : s.users, 'position' : position, 'contacts' : s.official_email, 'avatar' : s.users.avatar_uri})
+        staff.append({'name' : s.user, 'position' : position, 'contacts' : s.official_email, 'avatar' : s.user.avatar_uri})
 
 
     return render_template('bachelor_admission.html', students = students, diplomas=diplomas, staff=staff)
