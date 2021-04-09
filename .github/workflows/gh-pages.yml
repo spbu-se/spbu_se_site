@@ -73,8 +73,9 @@ jobs:
         - run: npm install @nodelib/fs.stat
         - run: npm install @nodelib/fs.walk
         - run: npm install @nodelib/fs.scandir
+        - run: npm install glob
         - run: npm init --yes
-        #- run: node ./WebpConverter.js
+        - run: node ./webpConverterScript.js
         - run: npm i -g purgecss
         - run: purgecss --css docs/assets/css/*.css --content src/templates/*.html --safelist show --output docs/assets/css
 
