@@ -17,6 +17,7 @@ app.config['FREEZER_DESTINATION'] = '../docs'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///se.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.urandom(16).hex()
+app.config['FREEZER_IGNORE_MIMETYPE_WARNINGS'] = True
 
 # Init Database
 db.app = app
