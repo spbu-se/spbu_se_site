@@ -92,11 +92,11 @@ class Thesis (db.Model):
     publish_year = db.Column(db.Integer, nullable=False)
     recomended = db.Column(db.Boolean, default=False, nullable=False)
 
-    tags = db.relationship('Tags', secondary=tag, lazy='subquery', backref=db.backref('thesis', lazy=True))
-
 class Tags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
+
+    tags = db.relationship('Thesis', secondary=tag, lazy='subquery', backref=db.backref('tags', lazy=True))
 
 
 def init_db():
@@ -189,6 +189,7 @@ def init_db():
         {'position': 'Инженер-исследователь', 'official_email': 'st013039@student.spbu.ru', 'still_working': True},
     ]
     wtypes = [
+        {'type': 'Все работы'},
         {'type' : 'Курсовая работа'},
         {'type' : 'Бакалаврская ВКР'},
         {'type' : 'Магистерская ВКР'},
@@ -227,7 +228,8 @@ def init_db():
             'author' : 'Аникин Егор Георгиевич',
             'supervisor_id' : 1,
             'reviewer_id' : 2,
-            'publish_year' : 2020
+            'publish_year' : 2020,
+            'type_id' : 2,
         },
         {
             'name_ru': 'Изолированный запуск поставщиков типов для компилятора F#',
@@ -241,7 +243,8 @@ def init_db():
             'author': 'Бережных Алексей Владимирович',
             'supervisor_id': 3,
             'reviewer_id': 4,
-            'publish_year': 2020
+            'publish_year': 2020,
+            'type_id' : 3
         },
     ]
 
@@ -285,9 +288,10 @@ def init_db():
         db.session.add(c)
         db.session.commit()
 
-    # Create Tags
     for tag in tags:
-        t = Tags(name = tag['name'])
+        t = Tags(name=tag['name'])
+        db.session.add(t)
+        db.session.commit()
 
     # Create Thesis
     for work in thesis:
@@ -296,15 +300,21 @@ def init_db():
                    text_uri=work['text_uri'], presentation_uri=work['presentation_uri'],
                    supervisor_review_uri=work['supervisor_review_uri'], reviewer_review_uri=work['reviewer_review_uri'],
                    author=work['author'], supervisor_id=work['supervisor_id'], reviewer_id=work['reviewer_id'],
-                   publish_year=work['publish_year'], type_id=2, course_id = 1, source_uri=work['source_uri'])
+                   publish_year=work['publish_year'], type_id=work['type_id'], course_id = 1, source_uri=work['source_uri'])
         else:
             t = Thesis(name_ru = work['name_ru'], name_en=work['name_en'], description=work['description'],
                    text_uri=work['text_uri'], presentation_uri=work['presentation_uri'],
                    supervisor_review_uri=work['supervisor_review_uri'], reviewer_review_uri=work['reviewer_review_uri'],
                    author=work['author'], supervisor_id=work['supervisor_id'], reviewer_id=work['reviewer_id'],
-                   publish_year=work['publish_year'], type_id=2, course_id = 1)
+                   publish_year=work['publish_year'], type_id=work['type_id'], course_id = 1)
 
         db.session.add(t)
         db.session.commit()
+
+        # Adds tags
+        records = Tags.query.all()
+        for tag in records:
+            t.tags.append(tag)
+            db.session.commit()
 
     return

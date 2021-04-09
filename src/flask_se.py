@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask
+from flask import Flask, request
 from flask import render_template
 from flask_frozen import Freezer
 from flask import redirect, url_for
+from se_forms import ThesisFilter
 import sys, os
-from se_models import db, init_db, Staff, Users, Thesis
+from se_models import db, init_db, Staff, Users, Thesis, Worktype
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -15,6 +16,7 @@ app.config['FREEZER_RELATIVE_URLS'] = True
 app.config['FREEZER_DESTINATION'] = '../docs'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///se.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.urandom(16).hex()
 
 # Init Database
 db.app = app
@@ -101,21 +103,6 @@ def bachelor_admission():
         {"author": "Курбатова Зарина Идиевна", "title": "Автоматическая рекомендация имен методов в IntelliJ IDEA"},
         {"author": "Поляков Александр Романович", "title": "Разработка системы для отладки ядра операционной системы"},
     ]
-    staff = [
-        {"name": "Терехов Андрей Николаевич", "position": "Профессор, д.ф.-м.н., заведующий кафедрой",
-         "contacts": "a.terekhov@spbu.ru", "contacts2": "st003585@spbu.ru", "contacts3": "a.terekhov@spbu.ru",
-         'avatar': 'terekhov.jpg'},
-        {"name": "Граничин Олег Николаевич", "position": "Профессор, д.ф.-м.н.", "contacts": "o.granichin@spbu.ru",
-         "contacts2": "st007805@sbpu.ru", "contacts3": "o.granichin@spbu.ru", 'avatar': 'granichin.jpg'},
-        {"name": "Кознов Дмитрий Владимирович", "position": "Профессор, д.т.н.", "contacts": "dkoznov@yandex.ru",
-         "contacts2": "st008149@spbu.ru", "contacts3": "d.koznov@spbu.ru", 'avatar': 'koznov.jpg'},
-        {"name": "Брыксин Тимофей Александрович", "position": "Доцент, к.т.н.", "contacts": "timofey.bryksin@gmail.com",
-         "contacts2": "st006935@sbpu.ru", "contacts3": "t.bryksin@spbu.ru", 'avatar': 'bryksin.jpg'},
-        {"name": "Булычев Дмитрий Юрьевич", "position": "Доцент, к. ф.-м. н.", "contacts": "dboulytchev@gmail.com",
-         "contacts2": "st007252@sbpu.ru", "contacts3": "d.bylychev@spbu.ru", 'avatar': 'boulytchev.jpg'},
-        {"name": "Литвинов Юрий Викторович", "position": "Доцент, к.т.н.", "contacts": "yurii.litvinov@gmail.com",
-         "contacts2": "st007017@spbu.ru", "contacts3": "y.litvinov@spbu.ru", 'avatar': 'litvinov.jpg'},
-    ]
 
     records = Staff.query.filter_by(still_working=True).limit(6).all()
     staff = []
@@ -141,8 +128,22 @@ def nooffer():
 @app.route('/theses.html')
 def theses_search():
 
+    filter = ThesisFilter()
+    filter.worktype.choices = [(worktype.id, worktype.type) for worktype in Worktype.query.all()]
+
     records = Thesis.query.all()
-    return render_template('theses.html', theses=records)
+    return render_template('theses.html', theses=records, filter=filter)
+
+@app.route('/fetch_theses')
+def fetch_theses():
+
+    worktype = request.args.get('worktype', default = 1, type = int)
+    if worktype > 1:
+        records = Thesis.query.filter_by(type_id=worktype).all()
+    else:
+        records = Thesis.query.all()
+
+    return render_template('fetch_theses.html', theses=records)
 
 @app.route('/theses2.html')
 def theses_search2():

@@ -36,7 +36,7 @@
     <section class="slice clients delimiter-top delimiter-bottom bg-section-secondary" id="theses">
         <div class="container">
             <div class="row row-grid">
-                <div class="col-lg-9">
+                <div class="col-lg-9" id="ThesisList">
                     {% for t in theses %}
                     <div class="card border-0">
                         <div class="card-header">
@@ -75,7 +75,7 @@
                                     {% endif %}
                                     {% if t.source_uri %}
                                     <a href="{{t.source_uri}}" target="_blank" class="text-reset">
-                                        <div class="icon icon-sm icon-shape bg-soft-info text-info" data-content="Реализация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                                        <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Реализация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                                             <i class="fas fa-file-archive"></i>
                                         </div>
                                     </a>
@@ -86,7 +86,12 @@
                         <div class="card-body pt-2">
                             <p class="text-sm mb-0">Автор: <i>{{t.author}}</i></p>
                             <p class="text-sm mb-0">Руководитель: <i>{{t.supervisor.user.get_name()}}</i></p>
-                            <p class="text-sm mb-0">Направление: <i>{{t.course.name}}</i></p>
+                            <p class="text-sm">Направление: <i>{{t.course.name}}</i></p>
+                            {% for tag in t.tags %}
+                            <a href="#" class="badge badge-info mr-2">
+                                {{ tag.name }}
+                            </a>
+                            {% endfor %}
                         </div>
                     </div>
                     {% endfor %}
@@ -102,12 +107,8 @@
                                     Тип работы
                                 </p>
                                 <div class="form-group">
-                                    <select class="custom-select pl-3">
-                                        <option selected value="0">Все работы</option>
-                                        <option value="1">Курсовые</option>
-                                        <option value="2">Бакалаврские ВКР</option>
-                                        <option value="3">Магистерские ВКР</option>
-                                    </select>
+                                    {{ filter.csrf_token }}
+                                    {{ filter.worktype(class_="custom-select pl-3") }}
                                 </div>
                             </div>
                         </div>
@@ -116,5 +117,30 @@
             </div>
         </div>
      </section>
+
+    <script>
+    let theses_list = document.getElementById('ThesisList');
+    let wt_select = document.getElementById('worktype');
+
+    function update() {
+
+        let params = new URLSearchParams();
+        let wt = wt_select.value;
+        if (wt > 1)
+        {
+            params.append('worktype', wt);
+        }
+        console.log(wt);
+        console.log('fetch_theses?' + params.toString());
+
+        fetch('fetch_theses?' + params.toString()).then(function(response){
+            response.text().then(function (text) {
+                theses_list.innerHTML = text;
+            });
+        });
+    }
+
+    wt_select.onchange = update;
+    </script>
 
 {% endblock %}
