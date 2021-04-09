@@ -149,7 +149,7 @@ def fetch_theses():
 def theses_search2():
 
     records = Thesis.query.all()
-    return render_template('theses.html', theses=records)
+    return render_template('theses2.html', theses=records)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
