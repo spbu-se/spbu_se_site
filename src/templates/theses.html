@@ -117,30 +117,4 @@
             </div>
         </div>
      </section>
-
-    <script>
-    let theses_list = document.getElementById('ThesisList');
-    let wt_select = document.getElementById('worktype');
-
-    function update() {
-
-        let params = new URLSearchParams();
-        let wt = wt_select.value;
-        if (wt > 1)
-        {
-            params.append('worktype', wt);
-        }
-        console.log(wt);
-        console.log('fetch_theses?' + params.toString());
-
-        fetch('fetch_theses?' + params.toString()).then(function(response){
-            response.text().then(function (text) {
-                theses_list.innerHTML = text;
-            });
-        });
-    }
-
-    wt_select.onchange = update;
-    </script>
-
 {% endblock %}
