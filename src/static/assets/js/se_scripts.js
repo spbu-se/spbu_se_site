@@ -4,7 +4,7 @@
 // Update theses list
 //
 
-function update() {
+function theses_update() {
 
     let theses_list = document.getElementById('ThesisList');
     let wt_select = document.getElementById('worktype');
@@ -27,5 +27,19 @@ function update() {
 // Toggle popover on hover
 $('[data-toggle="popoverhover"]').popover({ trigger: "hover" });
 
+// Select filters
 let wt_select = document.getElementById('worktype');
-wt_select.onchange = update;
+
+// Get fileters from URI
+var url_string = window.location.href
+var url = new URL(url_string);
+var worktype = url.searchParams.get("worktype");
+
+// Set filter to value from URI
+if (worktype && worktype <= wt_select.length && worktype > 0){
+    wt_select.value=worktype
+}
+
+// Update theses
+theses_update();
+wt_select.onchange = theses_update;

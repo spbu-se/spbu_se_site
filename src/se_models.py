@@ -66,6 +66,7 @@ class Worktype (db.Model):
 class Courses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
+    code = db.Column(db.String(15), nullable=False)
 
     thesis = db.relationship("Thesis", backref=db.backref('course', uselist=False))
 
@@ -76,10 +77,11 @@ class Thesis (db.Model):
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
 
     name_ru = db.Column(db.String(512), nullable=False)
-    name_en = db.Column(db.String(512), nullable=False)
-    description = db.Column(db.String(4096), nullable=False)
+    name_en = db.Column(db.String(512), nullable=True)
+    description = db.Column(db.String(4096), nullable=True)
 
     text_uri = db.Column(db.String(512), nullable=True)
+    old_text_uri = db.Column(db.String(512), nullable=True)
     presentation_uri = db.Column(db.String(512), nullable=True)
     supervisor_review_uri = db.Column(db.String(512), nullable=True)
     reviewer_review_uri = db.Column(db.String(512), nullable=True)
@@ -151,6 +153,8 @@ def init_db():
          'middle_name': 'Алексеевич', 'avatar_uri': 'empty.jpg'},
         {'email': 'st013039@student.spbu.ru', 'first_name': 'Евгений', 'last_name': 'Моисеенко',
          'middle_name': 'Александрович', 'avatar_uri': 'empty.jpg'},
+        {'email': 's.v.grigoriev@spbu.ru', 'first_name': 'Семен', 'last_name': 'Григорьев',
+         'middle_name': 'Вячеславович', 'avatar_uri': 'empty.jpg'},
     ]
     staff = [
         {'position': 'Заведующий кафедрой, профессор', 'science_degree' : 'д.ф.-м.н.',
@@ -187,6 +191,7 @@ def init_db():
         {'position': 'Старший преподаватель', 'official_email': 's.shilov@spbu.ru', 'still_working': True},
         {'position': 'Инженер-исследователь', 'official_email': 'st013464@student.spbu.ru', 'still_working': True},
         {'position': 'Инженер-исследователь', 'official_email': 'st013039@student.spbu.ru', 'still_working': True},
+        {'position': 'Доцент', 'official_email': 's.v.grigoriev@spbu.ru', 'science_degree': 'к.ф.-м.н.', 'still_working': False},
     ]
     wtypes = [
         {'type': 'Все работы'},
@@ -196,10 +201,12 @@ def init_db():
     ]
     courses = [
         {
-            'name' : 'Математическое обеспечение и администрирование информационных систем'
+            'name' : 'Математическое обеспечение и администрирование информационных систем',
+            'code' : '02.03.03'
         },
         {
-            'name' : 'Программная инженерия'
+            'name' : 'Программная инженерия',
+            'code' : '09.03.04'
         }
     ]
     tags = [
@@ -216,6 +223,8 @@ def init_db():
             'name' : 'РуСи'
         }
     ]
+
+    """
     thesis = [
         {
             'name_ru' : 'Реализация расширенного препроцессора для проекта РуСи',
@@ -247,6 +256,9 @@ def init_db():
             'type_id' : 3
         },
     ]
+    """
+
+    thesis = []
 
     # Init DB
     db.session.commit() # https://stackoverflow.com/questions/24289808/drop-all-freezes-in-flask-with-sqlalchemy
@@ -254,6 +266,7 @@ def init_db():
     db.create_all()
 
     # Create users
+    print ("Create users")
     for user in users:
         u = Users(email=user['email'], password_hash = generate_password_hash(urandom(16).hex()), first_name = user['first_name'], last_name = user['last_name'],
                   middle_name = user['middle_name'], avatar_uri = user['avatar_uri'])
@@ -262,6 +275,7 @@ def init_db():
         db.session.commit()
 
     # Create staff
+    print("Create staff")
     for user in staff:
         u = Users.query.filter_by(email=user['official_email']).first()
 
@@ -277,14 +291,16 @@ def init_db():
         db.session.commit()
 
     # Create WorkTypes
+    print("Create worktypes")
     for w in wtypes:
         wt = Worktype(type = w['type'])
         db.session.add(wt)
         db.session.commit()
 
     # Create Courses
+    print("Create courses")
     for course in courses:
-        c = Courses(name = course['name'])
+        c = Courses(name = course['name'], code = course['code'])
         db.session.add(c)
         db.session.commit()
 
@@ -294,6 +310,7 @@ def init_db():
         db.session.commit()
 
     # Create Thesis
+    print("Create thesis")
     for work in thesis:
         if 'source_uri' in work:
             t = Thesis(name_ru = work['name_ru'], name_en=work['name_en'], description=work['description'],

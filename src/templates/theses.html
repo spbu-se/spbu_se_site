@@ -37,64 +37,6 @@
         <div class="container">
             <div class="row row-grid">
                 <div class="col-lg-9" id="ThesisList">
-                    {% for t in theses %}
-                    <div class="card border-0">
-                        <div class="card-header">
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <h6 class="mb-0"><strong>{{ t.name_ru }} [{{ t.publish_year }}]</strong></h6>
-                                </div>
-                                <div class="col-auto ml-auto text-right">
-                                    {% if t.text_uri %}
-                                    <a href="{{ url_for('static', filename='/thesis/texts/' + t.text_uri) }}" class="text-reset">
-                                        <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Текст работы" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </div>
-                                    </a>
-                                    {% endif %}
-                                    {% if t.presentation_uri %}
-                                    <a href="{{ url_for('static', filename='/thesis/presentations/' + t.presentation_uri) }}" class="text-reset">
-                                        <div class="icon icon-sm icon-shape bg-soft-warning text-warning" data-content="Презентация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
-                                            <i class="fas fa-file-powerpoint"></i>
-                                        </div>
-                                    </a>
-                                    {% endif %}
-                                    {% if t.supervisor_review_uri %}
-                                    <a href="{{ url_for('static', filename='/thesis/reviews/' + t.supervisor_review_uri) }}" class="text-reset">
-                                        <div class="icon icon-sm icon-shape bg-soft-primary text-primary" data-content="Отзыв руководителя" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
-                                            <i class="fas fa-file-alt"></i>
-                                        </div>
-                                    </a>
-                                    {% endif %}
-                                    {% if t.supervisor_review_uri %}
-                                    <a href="{{ url_for('static', filename='/thesis/reviews/' + t.reviewer_review_uri) }}" class="text-reset">
-                                        <div class="icon icon-sm icon-shape bg-soft-primary text-primary" data-content="Отзыв рецензента" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
-                                            <i class="fas fa-file-alt"></i>
-                                        </div>
-                                    </a>
-                                    {% endif %}
-                                    {% if t.source_uri %}
-                                    <a href="{{t.source_uri}}" target="_blank" class="text-reset">
-                                        <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Реализация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
-                                            <i class="fas fa-file-archive"></i>
-                                        </div>
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body pt-2">
-                            <p class="text-sm mb-0">Автор: <i>{{t.author}}</i></p>
-                            <p class="text-sm mb-0">Руководитель: <i>{{t.supervisor.user.get_name()}}</i></p>
-                            <p class="text-sm">Направление: <i>{{t.course.name}}</i></p>
-                            {% for tag in t.tags %}
-                            <a href="#" class="badge badge-info mr-2">
-                                {{ tag.name }}
-                            </a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endfor %}
                 </div>
                 <div class="col-lg-3 ml-lg-auto">
                     <div data-toggle="sticky" data-sticky-offset="10">
