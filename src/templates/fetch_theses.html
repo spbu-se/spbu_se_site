@@ -14,7 +14,7 @@
                 </a>
                 {% endif %}
                 {% if t.presentation_uri %}
-                <a href="{{ url_for('static', filename='/thesis/presentations/' + t.presentation_uri) }}" class="text-reset">
+                <a href="{{ url_for('static', filename='/thesis/slides/' + t.presentation_uri) }}" class="text-reset">
                     <div class="icon icon-sm icon-shape bg-soft-warning text-warning" data-content="Презентация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                         <i class="fas fa-file-powerpoint"></i>
                     </div>
