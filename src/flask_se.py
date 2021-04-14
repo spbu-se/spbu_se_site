@@ -132,19 +132,20 @@ def theses_search():
     filter = ThesisFilter()
     filter.worktype.choices = [(worktype.id, worktype.type) for worktype in Worktype.query.all()]
 
-    records = Thesis.query.all()
-    return render_template('theses.html', theses=records, filter=filter)
+    return render_template('theses.html', filter=filter)
 
 @app.route('/fetch_theses')
 def fetch_theses():
 
     worktype = request.args.get('worktype', default = 1, type = int)
-    if worktype > 1:
-        records = Thesis.query.filter_by(type_id=worktype).all()
-    else:
-        records = Thesis.query.all()
+    page = request.args.get('page', default=1, type=int)
 
-    return render_template('fetch_theses.html', theses=records)
+    if worktype > 1:
+        records = Thesis.query.filter_by(type_id=worktype).paginate(per_page=10, page=page)
+    else:
+        records = Thesis.query.paginate(per_page=10, page=page)
+
+    return render_template('fetch_theses.html', theses=records, worktype=worktype)
 
 @app.route('/theses2.html')
 def theses_search2():
