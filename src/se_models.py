@@ -227,40 +227,6 @@ def init_db():
         }
     ]
 
-    """
-    thesis = [
-        {
-            'name_ru' : 'Реализация расширенного препроцессора для проекта РуСи',
-            'name_en' : 'Implementing an Advanced Preprocessor for a RuC Project',
-            'description' : 'Языки программирования – область, которая активно развивается на протяжении всей истории развития IT, начиная с 50-х годов прошлого века. Наряду с ультрасовременными языками, основанными на последних разработках, такими как Swift или Kotlin, продолжается и развитие традиционных языков, существующих с 80-х годов прошлого века. Это в полной мере относится к языку C, простота и эффективность которого сделала его «фактическим стандартом» для программирования встроенных систем и систем реального времени.',
-            'text_uri' : 'Anikin_Egor_Georgievich_Bachelor_Thesis_2020_text.pdf',
-            'presentation_uri' : 'Anikin_Egor_Georgievich_Bachelor_Thesis_2020_slides.pdf',
-            'supervisor_review_uri' : 'Anikin_Egor_Georgievich_Bachelor_Thesis_2020_supervisor_review.pdf',
-            'reviewer_review_uri' : 'Anikin_Egor_Georgievich_Bachelor_Thesis_2020_ reviewer_review.pdf',
-            'author' : 'Аникин Егор Георгиевич',
-            'supervisor_id' : 1,
-            'reviewer_id' : 2,
-            'publish_year' : 2020,
-            'type_id' : 2,
-        },
-        {
-            'name_ru': 'Изолированный запуск поставщиков типов для компилятора F#',
-            'name_en': 'Hosting F# type providers out-of-process',
-            'description': 'Современное программирование процветает на пространствах с большими данными и сложными задачами по их обработке. Можно наблюдать, что из-за распространенности многоядерных процессоров все чаще требуется писать параллельный код. Точно так же и в облач- ных системах важно уметь распределить выполнение задачи по парал- лельным потокам вычислений.',
-            'text_uri': 'Berezhnykh_Aleksey_Vladimirovich_Bachelor_Thesis_2020_text.pdf',
-            'presentation_uri': 'Berezhnykh_Aleksey_Vladimirovich_Bachelor_Thesis_2020_slides.pdf',
-            'supervisor_review_uri': 'Berezhnykh_Aleksey_Vladimirovich_Bachelor_Thesis_2020_supervisor_review.pdf',
-            'reviewer_review_uri': 'Berezhnykh_Aleksey_Vladimirovich_Bachelor_Thesis_2020_ reviewer_review.pdf',
-            'source_uri': 'https://github.com/DedSec256/fsharp',
-            'author': 'Бережных Алексей Владимирович',
-            'supervisor_id': 3,
-            'reviewer_id': 4,
-            'publish_year': 2020,
-            'type_id' : 3
-        },
-    ]
-    """
-
     thesis = []
 
     # Init DB
