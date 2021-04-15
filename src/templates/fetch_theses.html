@@ -67,10 +67,14 @@
       {% endif %}
 
       {% for curr_page in theses.iter_pages() %}
-      {% if curr_page != theses.page %}
-        <li class="page-item"><a class="page-link" href="{{ url_for ('theses_search', page=curr_page, worktype=worktype) }}">{{curr_page}}</a></li>
+      {% if curr_page %}
+        {% if curr_page != theses.page %}
+            <li class="page-item"><a class="page-link" href="{{ url_for ('theses_search', page=curr_page, worktype=worktype) }}">{{curr_page}}</a></li>
+        {% else %}
+        <li class="page-item active"><span class="page-link">{{curr_page}}<span class="sr-only">(current)</span></span></li>
+        {% endif %}
       {% else %}
-      <li class="page-item active"><span class="page-link">{{curr_page}}<span class="sr-only">(current)</span></span></li>
+        <li class="page-item"><span class="page-link"> ... </span></li>
       {% endif %}
       {% endfor %}
 
