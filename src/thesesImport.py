@@ -16,20 +16,33 @@ from urllib.parse import urlparse
 db.app = app
 db.init_app(app)
 
-urls = [
-    {'url' : 'https://oops.math.spbu.ru/SE/diploma/2020/index',
-     'base_url' : 'https://oops.math.spbu.ru/SE/diploma/2020/',
-     'course' : 'Математическое обеспечение и администрирование информационных систем',
-     'code' : '02.03.03',
-     'function' : 'function1'
-     }
-]
+# Download files?
+download = True
 
-for url_get in urls:
+def download_file(uri, safe_filename, save_path):
+
+    # Skip if download == false
+    if not download:
+        return
+
+    r = requests.get(uri, allow_redirects=True)
+    open(safe_filename, 'wb').write(r.content)
+    os.rename(safe_filename, save_path + safe_filename)
+
+# Get
+# https://oops.math.spbu.ru/SE/diploma/2020/index
+# Математическое обеспечение и администрирование информационных систем
+
+def get_2020_02_03_03():
+
     session = requests.session()
+    url = 'https://oops.math.spbu.ru/SE/diploma/2020/index'
+    base_url = 'https://oops.math.spbu.ru/SE/diploma/2020/'
+    course = 'Математическое обеспечение и администрирование информационных систем'
+    code = '02.03.03'
 
-    print (url_get['url'])
-    response = session.get(url_get['url'])
+    print (url)
+    response = session.get(url)
 
     if response.status_code != 200:
         print("Response statun != 200, error.")
@@ -38,7 +51,7 @@ for url_get in urls:
     soup = BeautifulSoup(response.text, "lxml")
 
     # Find header
-    header = soup.find_all(string=re.compile(url_get['code']))
+    header = soup.find_all(string=re.compile(code))
 
     # Find table
     table = header[0].find_next('table')
@@ -70,48 +83,39 @@ for url_get in urls:
                 extension = splitext(path)[1]
                 filename = author_en + '_Bachelor_Thesis_2020_text' + extension
                 text_uri = filename
-                if not os.path.isfile("static/tmp/texts/" + filename):
-                    r = requests.get(url_get['base_url'] + old_text_uri, allow_redirects=True)
-                    open(filename, 'wb').write(r.content)
-                    os.rename(filename, "static/tmp/texts/" + filename)
+                download_file(base_url + old_text_uri, filename, "static/tmp/texts/")
             else:
                 continue
 
             if (cols[5].find('a')):
-                presentation_uri = cols[5].find('a').get('href')
-                r = requests.get(url_get['base_url'] + presentation_uri, allow_redirects=True)
-                path = urlparse(presentation_uri).path
+                presentation_uri_d = cols[5].find('a').get('href')
+                path = urlparse(presentation_uri_d).path
                 extension = splitext(path)[1]
                 filename = author_en + '_Bachelor_Thesis_2020_slides' + extension
                 presentation_uri = filename
-                open(filename, 'wb').write(r.content)
-                os.rename(filename, "static/tmp/slides/" + filename)
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
             else:
                 continue
 
             if (cols[6].find('a')):
-                supervisor_review_uri = cols[6].find('a').get('href')
-                r = requests.get(url_get['base_url'] + supervisor_review_uri, allow_redirects=True)
-                path = urlparse(supervisor_review_uri).path
+                supervisor_review_uri_d = cols[6].find('a').get('href')
+                path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
                 filename = author_en + '_Bachelor_Thesis_2020_supervisor_review' + extension
                 supervisor_review_uri = filename
-                open(filename, 'wb').write(r.content)
-                os.rename(filename, "static/tmp/reviews/" + filename)
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
             else:
-                supervisor_review_uri = ''
+                continue
 
             if (cols[7].find('a')):
-                reviewer_review_uri = cols[7].find('a').get('href')
-                r = requests.get(url_get['base_url'] + reviewer_review_uri, allow_redirects=True)
-                path = urlparse(reviewer_review_uri).path
+                reviewer_review_uri_d = cols[7].find('a').get('href')
+                path = urlparse(reviewer_review_uri_d).path
                 extension = splitext(path)[1]
                 filename = author_en + '_Bachelor_Thesis_2020_reviewer_review' + extension
                 reviewer_review_uri = filename
-                open(filename, 'wb').write(r.content)
-                os.rename(filename, "static/tmp/reviews/" + filename)
+                download_file(base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/")
             else:
-                reviewer_review_uri = ''
+                continue
 
             if (cols[8].find('a')):
                 source_uri = cols[8].find('a').get('href')
@@ -142,3 +146,10 @@ for url_get in urls:
 
             db.session.add(t)
             db.session.commit()
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "noload":
+            download = False
+
+    get_2020_02_03_03()
