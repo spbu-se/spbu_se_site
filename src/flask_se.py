@@ -153,6 +153,13 @@ def theses_search2():
     records = Thesis.query.all()
     return render_template('theses2.html', theses=records)
 
+@app.route('/add')
+def add():
+    x = request.args.get('x', default=0, type=int)
+    y = request.args.get('y', default=0, type=int)
+
+    return render_template('add.html', result=x+y)
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "build":
