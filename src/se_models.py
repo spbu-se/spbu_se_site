@@ -157,6 +157,8 @@ def init_db():
          'middle_name': 'Вячеславович', 'avatar_uri': 'empty.jpg'},
         {'email': 'pimenov_aa_stub@spbu.ru', 'first_name': 'Александр', 'last_name': 'Пименов',
          'middle_name': 'Александрович', 'avatar_uri': 'empty.jpg'},
+        {'email': 's.salischev@spbu.ru', 'first_name': 'Сергей', 'last_name': 'Салищев',
+         'middle_name': 'Игоревич', 'avatar_uri': 'empty.jpg'},
     ]
     staff = [
         {'position': 'Заведующий кафедрой, профессор', 'science_degree' : 'д.ф.-м.н.',
@@ -195,6 +197,7 @@ def init_db():
         {'position': 'Инженер-исследователь', 'official_email': 'st013039@student.spbu.ru', 'still_working': True},
         {'position': 'Доцент', 'official_email': 's.v.grigoriev@spbu.ru', 'science_degree': 'к.ф.-м.н.', 'still_working': False},
         {'position': 'Старший преподаватель', 'official_email': 'pimenov_aa_stub@spbu.ru', 'still_working': False},
+        {'position': 'Старший преподаватель', 'official_email': 's.salischev@spbu.ru', 'still_working': False},
     ]
     wtypes = [
         {'type': 'Все работы'},
