@@ -62,6 +62,12 @@ function theses_update() {
     let startdate = startdate_select.value;
     let enddate = enddate_select.value;
 
+    // End date cannot be less than start date
+    if (enddate < startdate){
+        enddate = startdate;
+        enddate_select.value = startdate_select.value;
+    }
+
     params.append('startdate', startdate);
     params.append('enddate', enddate);
 
@@ -114,7 +120,7 @@ if (startdate){
 }
 
 if (enddate){
-    if (enddate_select.length > 0 && enddate >= enddate_select.options[enddate_select.length - 1].value && enddate <= enddate_select.options[0].value) {
+    if (enddate_select.length > 0 && enddate >= enddate_select.options[enddate_select.length - 1].value && enddate <= enddate_select.options[0].value && enddate >= startdate_select.value) {
         enddate_select.value=enddate;
     } else {
         enddate_select.value = enddate_select.options[0].value;

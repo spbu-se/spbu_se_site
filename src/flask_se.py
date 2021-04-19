@@ -151,6 +151,10 @@ def fetch_theses():
     startdate = request.args.get('startdate', default=dates[-1], type=int)
     enddate = request.args.get('enddate', default=dates[0], type=int)
 
+    # Check if end date less than start date
+    if enddate < startdate:
+        enddate = startdate
+
     records = Thesis.query.filter(Thesis.publish_year >= startdate).filter(Thesis.publish_year <= enddate)
 
     if worktype > 1:
@@ -158,7 +162,11 @@ def fetch_theses():
     else:
         records = records.paginate(per_page=10, page=page)
 
-    return render_template('fetch_theses.html', theses=records, worktype=worktype, startdate=startdate, enddate=enddate)
+    if len(records.items):
+        return render_template('fetch_theses.html', theses=records, worktype=worktype, startdate=startdate, enddate=enddate)
+    else:
+        return render_template('fetch_theses_blank.html')
+
 
 @app.route('/theses2.html')
 def theses_search2():
