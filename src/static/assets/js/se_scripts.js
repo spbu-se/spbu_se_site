@@ -5,9 +5,13 @@ function theses_load() {
     let theses_list = document.getElementById('ThesisList');
     let wt_select = document.getElementById('worktype');
     let page = url.searchParams.get("page");
+    let startdate_select = document.getElementById('startdate');
+    let enddate_select = document.getElementById('enddate');
 
     let params = new URLSearchParams();
     let wt = wt_select.value;
+    let startdate = startdate_select.value;
+    let enddate = enddate_select.value;
 
     // Page first
     if (page && page > 1){
@@ -18,6 +22,9 @@ function theses_load() {
     {
         params.append('worktype', wt);
     }
+
+    params.append('startdate', startdate);
+    params.append('enddate', enddate);
 
     fetch('fetch_theses?' + params.toString()).then(function(response){
 
@@ -41,6 +48,8 @@ function theses_update() {
 
     let theses_list = document.getElementById('ThesisList');
     let wt_select = document.getElementById('worktype');
+    let startdate_select = document.getElementById('startdate');
+    let enddate_select = document.getElementById('enddate');
 
     let params = new URLSearchParams();
     let wt = wt_select.value;
@@ -49,6 +58,12 @@ function theses_update() {
     {
         params.append('worktype', wt);
     }
+
+    let startdate = startdate_select.value;
+    let enddate = enddate_select.value;
+
+    params.append('startdate', startdate);
+    params.append('enddate', enddate);
 
     if (Array.from(params).length){
         window.history.pushState("", "", 'theses.html?' + params.toString());
@@ -72,16 +87,40 @@ function theses_update() {
 
 // Select filters
 let wt_select = document.getElementById('worktype');
+let startdate_select = document.getElementById('startdate');
+let enddate_select = document.getElementById('enddate');
 
 // Get fileters from URI
 let url_string = window.location.href
 let url = new URL(url_string);
 let worktype = url.searchParams.get("worktype");
 let page = url.searchParams.get("page");
+let startdate = url.searchParams.get("startdate");
+let enddate = url.searchParams.get("enddate");
 
 // Set filter to value from URI
 if (worktype && worktype <= wt_select.length && worktype > 0){
     wt_select.value=worktype;
+}
+
+if (startdate){
+    if (startdate_select.length > 0 && startdate >= startdate_select.options[startdate_select.length - 1].value && startdate <= startdate_select.options[0].value) {
+        startdate_select.value=startdate;
+    } else {
+        startdate_select.value = startdate_select.options[startdate_select.length - 1].value;
+    }
+} else {
+    startdate_select.value = startdate_select.options[startdate_select.length - 1].value;
+}
+
+if (enddate){
+    if (enddate_select.length > 0 && enddate >= enddate_select.options[enddate_select.length - 1].value && enddate <= enddate_select.options[0].value) {
+        enddate_select.value=enddate;
+    } else {
+        enddate_select.value = enddate_select.options[0].value;
+    }
+} else {
+    enddate_select.value = enddate_select.options[0].value;
 }
 
 // Load theses
@@ -89,3 +128,6 @@ theses_load();
 
 // Update theses
 wt_select.onchange = theses_update;
+startdate_select.onchange = theses_update;
+enddate_select.onchange = theses_update;
+

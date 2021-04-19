@@ -132,6 +132,11 @@ def theses_search():
     filter = ThesisFilter()
     filter.worktype.choices = [(worktype.id, worktype.type) for worktype in Worktype.query.all()]
 
+    dates = [theses.publish_year for theses in Thesis.query.with_entities(Thesis.publish_year).distinct()]
+    dates.sort(reverse=True)
+    filter.startdate.choices = dates
+    filter.enddate.choices = dates
+
     return render_template('theses.html', filter=filter)
 
 @app.route('/fetch_theses')
@@ -140,12 +145,20 @@ def fetch_theses():
     worktype = request.args.get('worktype', default = 1, type = int)
     page = request.args.get('page', default=1, type=int)
 
-    if worktype > 1:
-        records = Thesis.query.filter_by(type_id=worktype).paginate(per_page=10, page=page)
-    else:
-        records = Thesis.query.paginate(per_page=10, page=page)
+    dates = [theses.publish_year for theses in Thesis.query.with_entities(Thesis.publish_year).distinct()]
+    dates.sort(reverse=True)
 
-    return render_template('fetch_theses.html', theses=records, worktype=worktype)
+    startdate = request.args.get('startdate', default=dates[-1], type=int)
+    enddate = request.args.get('enddate', default=dates[0], type=int)
+
+    records = Thesis.query.filter(Thesis.publish_year >= startdate).filter(Thesis.publish_year <= enddate)
+
+    if worktype > 1:
+        records = records.filter_by(type_id=worktype).paginate(per_page=10, page=page)
+    else:
+        records = records.paginate(per_page=10, page=page)
+
+    return render_template('fetch_theses.html', theses=records, worktype=worktype, startdate=startdate, enddate=enddate)
 
 @app.route('/theses2.html')
 def theses_search2():
