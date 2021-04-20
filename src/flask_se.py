@@ -148,8 +148,12 @@ def fetch_theses():
     dates = [theses.publish_year for theses in Thesis.query.with_entities(Thesis.publish_year).distinct()]
     dates.sort(reverse=True)
 
-    startdate = request.args.get('startdate', default=dates[-1], type=int)
-    enddate = request.args.get('enddate', default=dates[0], type=int)
+    if dates:
+        startdate = request.args.get('startdate', default=dates[-1], type=int)
+        enddate = request.args.get('enddate', default=dates[0], type=int)
+    else:
+        startdate = 2020
+        enddate = 2020
 
     # Check if end date less than start date
     if enddate < startdate:
@@ -166,13 +170,6 @@ def fetch_theses():
         return render_template('fetch_theses.html', theses=records, worktype=worktype, startdate=startdate, enddate=enddate)
     else:
         return render_template('fetch_theses_blank.html')
-
-
-@app.route('/theses2.html')
-def theses_search2():
-
-    records = Thesis.query.all()
-    return render_template('theses2.html', theses=records)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

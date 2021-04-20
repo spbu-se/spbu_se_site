@@ -675,12 +675,12 @@ def get_2020_371():
             supervisor = cols[2].text
             supervisor_id = 1
             consultant = ''
-            old_text_uri = ''
-            text_uri = ''
-            presentation_uri = ''
-            supervisor_review_uri = ''
-            reviewer_review_uri = ''
-            source_uri = ''
+            old_text_uri = None
+            text_uri = None
+            presentation_uri = None
+            supervisor_review_uri = None
+            reviewer_review_uri = None
+            source_uri = None
             pablish_year = 2020
 
             print ("Add " + name_ru)
@@ -695,7 +695,7 @@ def get_2020_371():
                 text_uri = filename
                 download_file(base_url + old_text_uri, filename, "static/tmp/texts/")
             else:
-                text_uri = ''
+                text_uri = None
 
             if (len(data) > 1):
                 presentation_uri_d = data[1].get('href')
@@ -705,7 +705,7 @@ def get_2020_371():
                 presentation_uri = filename
                 download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
             else:
-                presentation_uri = ''
+                presentation_uri = None
 
             if (len(data) > 2):
                 supervisor_review_uri_d = data[2].get('href')
@@ -715,12 +715,12 @@ def get_2020_371():
                 supervisor_review_uri = filename
                 download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
             else:
-                supervisor_review_uri = ''
+                supervisor_review_uri = None
 
             if (len(data) > 3):
                 source_uri = data[3].get('href')
             else:
-                source_uri = ''
+                source_uri = None
 
             last_name = supervisor.split()[-3]
 
@@ -748,15 +748,131 @@ def get_2020_371():
             db.session.commit()
 
 
+# Get
+# https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020
+# Математическое обеспечение и администрирование информационных систем
+
+def get_report_2020_02_03_03():
+
+    session = requests.session()
+    url = 'https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020'
+    base_url = 'https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020/'
+    course = 'Математическое обеспечение и администрирование информационных систем'
+    code = '02.03.03'
+
+    print (url)
+    response = session.get(url)
+
+    if response.status_code != 200:
+        print("Response statun != 200, error.")
+        sys.exit(0)
+
+    soup = BeautifulSoup(response.text, "lxml")
+
+    # Find header
+    header = soup.find_all(string=re.compile(code))
+
+    # Find table
+    table = header[0].find_next('table')
+
+    for row in table.findAll("tr"):
+        cols = row.find_all('td')
+
+        # Check if we have data row
+        if (len(cols) == 9):
+            author = cols[0].text
+            author_en = translit(author, 'ru', reversed=True)
+            author_en = author_en.replace(" ", "_")
+            name_ru = cols[1].text
+            supervisor = cols[2].text
+            supervisor_id = 1
+            consultant = cols[3].text
+            old_text_uri = None
+            text_uri = None
+            presentation_uri = None
+            supervisor_review_uri = None
+            reviewer_review_uri = None
+            source_uri = None
+            publish_year = 2020
+
+            print ("Add " + name_ru)
+
+            if (cols[4].find('a')):
+                old_text_uri = cols[4].find('a').get('href')
+                path = urlparse(old_text_uri).path
+                extension = splitext(path)[1]
+                filename = author_en + '_Bachelor_Report_2020_text' + extension
+                text_uri = filename
+                download_file(base_url + old_text_uri, filename, "static/tmp/texts/")
+
+            if (cols[5].find('a')):
+                presentation_uri_d = cols[5].find('a').get('href')
+                path = urlparse(presentation_uri_d).path
+                extension = splitext(path)[1]
+                filename = author_en + '_Bachelor_Report_2020_slides' + extension
+                presentation_uri = filename
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
+
+            if (cols[6].find('a')):
+                supervisor_review_uri_d = cols[6].find('a').get('href')
+                path = urlparse(supervisor_review_uri_d).path
+                extension = splitext(path)[1]
+                filename = author_en + '_Bachelor_Report_2020_supervisor_review' + extension
+                supervisor_review_uri = filename
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
+
+            if (cols[7].find('a')):
+                reviewer_review_uri_d = cols[7].find('a').get('href')
+                path = urlparse(reviewer_review_uri_d).path
+                extension = splitext(path)[1]
+                filename = author_en + '_Bachelor_Report_2020_reviewer_review' + extension
+                reviewer_review_uri = filename
+                download_file(base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/")
+
+            if (cols[8].find('a')):
+                source_uri = cols[8].find('a').get('href')
+
+            # Try to get supervisor_id
+
+            if (supervisor.find('Сагунов') != -1):
+                last_name = 'Сагунов'
+            else:
+                last_name = supervisor.split()[-1]
+
+            q = Users.query.filter_by(last_name=last_name).first()
+            if q:
+                r = Staff.query.filter_by(user_id=q.id).first()
+                supervisor_id = r.id
+            else:
+                print ("Error, no " + supervisor)
+                sys.exit(1)
+
+            if source_uri:
+                t = Thesis(name_ru = name_ru, text_uri=text_uri, old_text_uri=base_url + old_text_uri, presentation_uri=presentation_uri,
+                   supervisor_review_uri=supervisor_review_uri, reviewer_review_uri=reviewer_review_uri,
+                   author=author, supervisor_id=supervisor_id, reviewer_id=2,
+                   publish_year=publish_year, type_id=2, course_id = 1, source_uri = source_uri)
+            else:
+                t = Thesis(name_ru = name_ru, text_uri=text_uri, old_text_uri=base_url + old_text_uri, presentation_uri=presentation_uri,
+                   supervisor_review_uri=supervisor_review_uri, reviewer_review_uri=reviewer_review_uri,
+                   author=author, supervisor_id=supervisor_id, reviewer_id=2,
+                   publish_year=publish_year, type_id=2, course_id = 1)
+
+
+            db.session.add(t)
+            db.session.commit()
+
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "load":
             download = True
 
-    get_2020_02_03_03()
-    get_2020_09_03_04()
-    get_2019_09_03_04()
-    get_2019_02_03_03()
-    get_2019_02_04_03()
-    get_2020_371()
+    #get_2020_02_03_03()
+    #get_2020_09_03_04()
+    #get_2019_09_03_04()
+    #get_2019_02_03_03()
+    #get_2019_02_04_03()
+    #get_2020_371()
+    get_report_2020_02_03_03()
