@@ -161,6 +161,8 @@ def init_db():
          'middle_name': 'Игоревич', 'avatar_uri': 'empty.jpg'},
         {'email': 'd.sagunov@spbu.ru', 'first_name': 'Данил', 'last_name': 'Сагунов',
          'middle_name': 'Георгиевич', 'avatar_uri': 'empty.jpg'},
+        {'email': 'g.chernyshev@spbu.ru', 'first_name': 'Георгий', 'last_name': 'Чернышев',
+         'middle_name': 'Алексеевич', 'avatar_uri': 'empty.jpg'},
     ]
     staff = [
         {'position': 'Заведующий кафедрой, профессор', 'science_degree' : 'д.ф.-м.н.',
@@ -201,7 +203,9 @@ def init_db():
         {'position': 'Старший преподаватель', 'official_email': 'pimenov_aa_stub@spbu.ru', 'still_working': False},
         {'position': 'Старший преподаватель', 'official_email': 's.salischev@spbu.ru', 'still_working': False},
         {'position': 'Ассистент', 'official_email': 'd.sagunov@spbu.ru', 'still_working': False},
+        {'position': 'Ассистент', 'official_email': 'g.chernyshev@spbu.ru', 'still_working': False},
     ]
+
     wtypes = [
         {'type': 'Все работы'},
         {'type' : 'Курсовая работа'},
@@ -214,6 +218,7 @@ def init_db():
         {'name': 'Математическое обеспечение и администрирование информационных систем (магистратура)', 'code': '02.04.03'},
         {'name': '371 группа (бакалавриат)', 'code': '371'},
         {'name': '343 группа (бакалавриат)', 'code': '343'},
+        {'name': '344 группа (бакалавриат)', 'code': '344'},
     ]
     tags = [
         {
