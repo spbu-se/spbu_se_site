@@ -260,103 +260,176 @@
         </div>
     </section>
 
-    <!-- section class="slice">
-        <div class="container">
-            <div class="row justify-content-center mb-4">
-                <div class="col-lg-8 text-center">
-                    <h2 class="mb-1">
-                        Отзывы студентов
-                    </h2>
-                    <div>
-                        <p class="lead lh-480">
-                            Отзывы наших студентов об обучении в мат-мехе СПбГУ. Вы можете им свободно написать и задать свои вопросы о поступлении, общежитиях и процессе обучения
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="row row-grid justify-content-between align-items-center">
-                {% for student in students %}
-                <div class="col-lg-6 my-2">
-                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
-                        <div class="card-body">
-                            <div class="media align-items-center">
-                                <img alt="{{student.name}}" src="{{ url_for('static', filename='/assets/img/reviews/' + student.avatar) }}" class="avatar rounded-circle avatar-lg mr-4">
-                                <div class="media-body">
-                                    <span class="h6">{{student.name}}</span><br>
-                                    <span class="h6 text-sm">{{student.position}}</span>
-                                </div>
-                            </div>
-                            <hr class="my-2">
-                            <div>
-                                <p class="text-sm">{{student.review}}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </section -->
 
-    <!-- section class="slice bg-dark-info" id="diplomas" -->
+    <section class="slice bg-dark-info" id="theses">
 
         <!-- Container -->
-        <!-- div class="container" -->
+        <div class="container">
             <!-- Title -->
-            <!-- div class="row justify-content-center text-center">
+            <div class="row justify-content-center text-center">
                 <div class="col-lg-8 text-center">
                     <h2 class="text-white">Курсовые и ВКР</h2>
                     <div>
                         <p class="lead lh-480 text-white">
-                            Начиная со второго курса наши студенты участвуют в исследованиях лабораторий и разработке реальных программных продуктов
+                            Начиная со второго курса наши студенты участвуют в исследованиях лабораторий и разработке реальных программных продуктов.
                         </p>
                     </div>
                 </div>
             </div>
-
-            {% for diploma in diplomas %}
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <div class="card shadow-lg border-0 mb-3" style="max-width: 100%;">
-                        <div class="card-body py-3 row">
-                                <div class="col-lg-8">
-                                    <div class="media align-items-center">
-                                        <div class="media-body">
-                                            <span class="h6">{{diploma.author}}</span><br>
-                                            <span class="h6 text-sm">{{diploma.title}}</span>
+            <div class="row justify-content-center pt-2">
+                <div class="col-lg-10" id="ThesisList">
+                    {% for t in theses %}
+                    <div class="card border-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h6 class="mb-0"><strong>{{ t.name_ru }} [{{ t.publish_year }}]</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    {% if t.text_uri %}
+                                    <a href="{{ url_for('static', filename='/thesis/texts/' + t.text_uri) }}" class="text-reset">
+                                        <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Текст работы" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                                            <i class="fas fa-file-pdf"></i>
                                         </div>
-                                    </div>
+                                    </a>
+                                    {% endif %}
+                                    {% if t.presentation_uri %}
+                                    <a href="{{ url_for('static', filename='/thesis/slides/' + t.presentation_uri) }}" class="text-reset">
+                                        <div class="icon icon-sm icon-shape bg-soft-warning text-warning" data-content="Презентация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                                            <i class="fas fa-file-powerpoint"></i>
+                                        </div>
+                                    </a>
+                                    {% endif %}
+                                    {% if t.supervisor_review_uri %}
+                                    <a href="{{ url_for('static', filename='/thesis/reviews/' + t.supervisor_review_uri) }}" class="text-reset">
+                                        <div class="icon icon-sm icon-shape bg-soft-primary text-primary" data-content="Отзыв руководителя" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                                            <i class="fas fa-file-alt"></i>
+                                        </div>
+                                    </a>
+                                    {% endif %}
+                                    {% if t.reviewer_review_uri %}
+                                    <a href="{{ url_for('static', filename='/thesis/reviews/' + t.reviewer_review_uri) }}" class="text-reset">
+                                        <div class="icon icon-sm icon-shape bg-soft-primary text-primary" data-content="Отзыв рецензента" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                                            <i class="fas fa-file-alt"></i>
+                                        </div>
+                                    </a>
+                                    {% endif %}
+                                    {% if t.source_uri %}
+                                    <a href="{{t.source_uri}}" target="_blank" class="text-reset">
+                                        <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Реализация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                                            <i class="fas fa-file-archive"></i>
+                                        </div>
+                                    </a>
+                                    {% endif %}
                                 </div>
-                                <div class="col-lg-4 align-self-center">
-                                    <p class="mb-0">
-                                        <i data-feather="file-text"></i>
-                                        <a class="text-sm" href="#">Текст</a>
-                                    </p>
-                                    <p class="mb-0">
-                                        <i data-feather="download"></i>
-                                        <a class="text-sm" href="#">Презентация</a>
-                                    </p>
-                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+        <p class="text-sm mb-0">Автор: <i>{{t.author}}</i></p>
+        <p class="text-sm mb-0">Руководитель: <i>{{t.supervisor.user.get_name()}}</i></p>
+        <p class="text-sm">Направление: <i>{{t.course.name}}</i></p>
+        {% for tag in t.tags %}
+        <a href="#" class="badge badge-info mr-2">
+            {{ tag.name }}
+        </a>
+        {% endfor %}
+    </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="row pt-2">
+                <div class="col-lg-12 pr-0 text-center">
+                    <a href="{{ url_for('theses_search') }}" class="btn btn-lg btn-secondary btn-icon mb-3 mb-lg-0">
+                        <span class="btn-inner--text">Архив курсовых и ВКР</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="slice" id="faq">
+        <!-- Container -->
+        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-8 text-center">
+                    <h2 class="mb-1">
+                        Вопросы и ответы про обучение
+                    </h2>
+                    <div>
+                        <p class="lead lh-480">
+                            Ответы на некоторые вопросы про обучение на кафедре системного программирования и в целом на мат-мехе СПбГУ. Даём краткие ответы.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="row row-grid justify-content-center">
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Где находятся общежития?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Петергоф, 7 минут пешком до учебного корпуса, до метро час. Подробнее <a href="{{ url_for('index', _anchor='mm_map') }}" target="_blank">тут</a>.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Стоимость общежития?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text"><a href="https://guestbook.spbu.ru/2-uncategorised/8523-skolko-stoit-prozhivanie-v-obshchezhitii-dlya-studenta-na-byudzhete.html#:~:text=%D0%94%D0%BB%D1%8F%20%D0%BE%D0%B1%D1%83%D1%87%D0%B0%D1%8E%D1%89%D0%B8%D1%85%D1%81%D1%8F%20%D0%B7%D0%B0%20%D1%81%D1%87%D0%B5%D1%82%20%D0%B1%D1%8E%D0%B4%D0%B6%D0%B5%D1%82%D0%BD%D1%8B%D1%85,%D0%BF%D0%BB%D0%B0%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B8%20%D0%B6%D0%B8%D0%BB%D1%8B%D1%85%20%D0%BF%D0%BE%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B9%20%D0%B2%20%D0%BE%D0%B1%D1%89%D0%B5%D0%B6%D0%B8%D1%82%D0%B8%D0%B8." target="_blank">~350 руб/мес для бюджетников</a>, ~1к для контрактников.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Какая стипендия?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Стандартная ~1.6к, социальная ~2.4к (сверху), <a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya.html" target="_blank">ПГАС</a> ~5-20к, повышенная социальная ~27к. И ещё есть разные стипендии за успехи в науке и учёбе: от частных фондов, государственные  (президентская, губернаторская, правительственная и т.д.). Эти стипендии очень разные, от 5к и сильно больше, бывают и по 40к. Тут уж как пойдёт.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Есть стажировки для студентов?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Выбор есть. Информации о стажировках в инфополе мат-меха очень много и уровень подготовки вполне позволяет на них претендовать. Это и широко известные компании, и интересные небольшие проекты. Кроме общих объявлений есть традиция приватных “инвайтов”. В чатики иногда заходят выпускники, приглашают напрямую. Ещё бывает, что в лабы приглашают тех, кто хорошо проявил себя на учёбе. В общем, варианты есть.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Есть физика?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Нет, физики нет. На Технологии программирования будет матфизика (3 курс), но это совсем не то, что было в школе.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Какие языки программирования будут?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Много разных. Надо различать курсы и проекты. На проектах вообще всё может случиться. По учёбе примерно следующее: обязательно будут С, ООП и параллельное программирование на Java/Kotlin и C#. Python для обработки изображений, данных, Машинное обучение (ML). Обязательно будет функциональное программирование, там Haskell, где-то Scala, OCaml, бывает F#.</p>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {% endfor %}
-
-            <div class="row pt-4">
+            <div class="row pt-2">
                 <div class="col-lg-12 pr-0 text-center">
-                    <a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot" target="_blank" class="btn btn-lg btn-secondary btn-icon mb-3 mb-lg-0">
-                        <span class="btn-inner--text">Архив ВКР и курсовых работ</span>
-                        <span class="btn-inner--icon">
-                            <i data-feather="arrow-right"></i>
-                        </span>
+                    <a href="{{ url_for('frequently_asked_questions') }}" class="btn btn-lg btn-primary btn-icon mb-3 mb-lg-0">
+                        <span class="btn-inner--text">Вопросы и ответы</span>
                     </a>
                 </div>
             </div>
-        </div-->
-    <!-- /section -->
+        </div>
+    </section>
 
-    <section class="slice" id="stuff">
+    <section class="slice bg-section-secondary" id="staff">
         <!-- Container -->
         <div class="container">
             <div class="row justify-content-center mb-4">
@@ -377,16 +450,16 @@
                     <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
                         <div class="card-body">
                             <div class="media align-items-center">
-                                <img alt="{{person.name}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.avatar) }}" class="avatar rounded-circle avatar-lg mr-4">
+                                <img alt="{{person.user}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.user.avatar_uri) }}" class="avatar rounded-circle avatar-lg mr-4">
                                 <div class="media-body">
-                                    <span class="h6">{{person.name}}</span><br>
+                                    <span class="h6">{{person.user}}</span><br>
                                     <span class="h6 text-sm">{{person.position}}</span>
                                 </div>
                             </div>
                             <hr class="my-2">
                             <div class="">
                                 <i data-feather="mail"></i>
-                                <a class="text-sm" href="mailto:{{person.contacts}}">{{person.contacts}}</a>
+                                <a class="text-sm" href="mailto:{{person.official_email}}">{{person.official_email}}</a>
                             </div>
                         </div>
                     </div>

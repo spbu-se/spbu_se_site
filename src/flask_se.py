@@ -6,6 +6,7 @@ from datetime import datetime
 from se_forms import ThesisFilter
 import sys, os
 from se_models import db, init_db, Staff, Users, Thesis, Worktype
+from  sqlalchemy.sql.expression import func
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -99,26 +100,11 @@ def bachelor_admission():
         {"name": "Литвинов Юрий Викторович", "position": "Студент 2-го курса, Программная инженерия",
          'avatar': 'litvinov.jpg', 'review':'Все очень круто, если будут вопросы по поступлению, пишите мне'},
     ]
-    diplomas = [
-        {"author": "Гогина Олеся Юрьевна", "title": "Анализ данных Snapchat на iOS"},
-        {"author": "Гуданова Варвара Сергеевна", "title": "Система распознавания меток игроков в робофутболе"},
-        {"author": "Камкова Екатерина Александровна", "title": "Симулятор Робофутбола"},
-        {"author": "Курбатова Зарина Идиевна", "title": "Автоматическая рекомендация имен методов в IntelliJ IDEA"},
-        {"author": "Поляков Александр Романович", "title": "Разработка системы для отладки ядра операционной системы"},
-    ]
 
-    records = Staff.query.filter_by(still_working=True).limit(6).all()
-    staff = []
-
-    for s in records:
-        position = s.position
-        if s.science_degree:
-            position = position + ", " + s.science_degree
-
-        staff.append({'name' : s.user, 'position' : position, 'contacts' : s.official_email, 'avatar' : s.user.avatar_uri})
-
-
-    return render_template('bachelor_admission.html', students = students, diplomas=diplomas, staff=staff)
+    records = Thesis.query.filter_by(recomended=True)
+    theses = records.order_by(func.random()).limit(4).all()
+    staff = Staff.query.filter_by(still_working=True).limit(6).all()
+    return render_template('bachelor_admission.html', students = students, theses=theses, staff=staff)
 
 @app.route('/frequently-asked-questions.html')
 def frequently_asked_questions():
