@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask, request
-from flask import render_template
+from flask import Flask, request, render_template, make_response, redirect, url_for
 from flask_frozen import Freezer
-from flask import redirect, url_for
+from datetime import datetime
 from se_forms import ThesisFilter
 import sys, os
 from se_models import db, init_db, Staff, Users, Thesis, Worktype
@@ -25,6 +24,9 @@ db.init_app(app)
 
 # Init Freezer
 freezer = Freezer(app)
+
+# Init Sitemap
+zero_days_ago = (datetime.now()).date().isoformat()
 
 # Flask routes goes
 @app.route('/')
@@ -170,6 +172,31 @@ def fetch_theses():
         return render_template('fetch_theses.html', theses=records, worktype=worktype, startdate=startdate, enddate=enddate)
     else:
         return render_template('fetch_theses_blank.html')
+
+
+@app.route('/sitemap.xml', methods=['GET'])
+@app.route('/Sitemap.xml', methods=['GET'])
+def sitemap():
+
+    """Generate sitemap.xml. Makes a list of urls and date modified."""
+    pages = []
+    skip_pages = ['/nooffer.html', '/fetch_theses', '/Sitemap.xml', '/sitemap.xml', '/404.html']
+
+    # static pages
+    for rule in app.url_map.iter_rules():
+
+        if rule.rule in skip_pages:
+            continue
+
+        if "GET" in rule.methods and len(rule.arguments) == 0:
+            pages.append(
+                ["https://se.math.spbu.ru" + str(rule.rule), zero_days_ago]
+            )
+
+    sitemap_xml = render_template('sitemap_template.xml', pages=pages)
+    response = make_response(sitemap_xml)
+    response.headers["Content-Type"] = "application/xml"
+    return response
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
