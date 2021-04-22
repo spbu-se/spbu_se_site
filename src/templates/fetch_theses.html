@@ -7,28 +7,28 @@
             </div>
             <div class="col-auto ml-auto text-right">
                 {% if t.text_uri %}
-                <a href="{{ url_for('static', filename='/thesis/texts/' + t.text_uri) }}" class="text-reset">
+                <a href="{{ url_for('static', filename='/thesis/texts/' + t.text_uri) }}" class="text-reset" target="_blank">
                     <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Текст работы" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                         <i class="fas fa-file-pdf"></i>
                     </div>
                 </a>
                 {% endif %}
                 {% if t.presentation_uri %}
-                <a href="{{ url_for('static', filename='/thesis/slides/' + t.presentation_uri) }}" class="text-reset">
+                <a href="{{ url_for('static', filename='/thesis/slides/' + t.presentation_uri) }}" class="text-reset" target="_blank">
                     <div class="icon icon-sm icon-shape bg-soft-warning text-warning" data-content="Презентация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                         <i class="fas fa-file-powerpoint"></i>
                     </div>
                 </a>
                 {% endif %}
                 {% if t.supervisor_review_uri %}
-                <a href="{{ url_for('static', filename='/thesis/reviews/' + t.supervisor_review_uri) }}" class="text-reset">
+                <a href="{{ url_for('static', filename='/thesis/reviews/' + t.supervisor_review_uri) }}" class="text-reset" target="_blank">
                     <div class="icon icon-sm icon-shape bg-soft-primary text-primary" data-content="Отзыв руководителя" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                         <i class="fas fa-file-alt"></i>
                     </div>
                 </a>
                 {% endif %}
                 {% if t.reviewer_review_uri %}
-                <a href="{{ url_for('static', filename='/thesis/reviews/' + t.reviewer_review_uri) }}" class="text-reset">
+                <a href="{{ url_for('static', filename='/thesis/reviews/' + t.reviewer_review_uri) }}" class="text-reset" target="_blank">
                     <div class="icon icon-sm icon-shape bg-soft-primary text-primary" data-content="Отзыв рецензента" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                         <i class="fas fa-file-alt"></i>
                     </div>

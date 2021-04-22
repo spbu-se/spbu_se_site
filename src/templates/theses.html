@@ -27,7 +27,7 @@
                             Курсовые и выпускные квалификационные работы студентов Кафедры Системного Программирования с 2009 по 2021 год.
                         </p>
                         <p class="lead text-white opacity-8 mt-2">
-                            Раздел находиться в разработке и на данный момент доступны работы только за 2019 - 2020 годы. Полный список работ доступен на <a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot" target="_blank">старой версии сайта</a>.
+                            Раздел находится в разработке и на данный момент доступны работы только за 2019 - 2020 годы. Полный список можно найти на <a href="https://oops.math.spbu.ru/SE/arhiv-diplomnyh-i-kursovyh-rabot" target="_blank">старой версии сайта</a>.
                         </p>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                             <div class="card-body px-3">
                                 {{ filter.csrf_token }}
                                 <p class="text-sm mb-0">
-                                    Тип работы
+                                    Тип
                                 </p>
                                 <div class="form-group">
                                     {{ filter.worktype(class_="custom-select pl-3") }}
@@ -60,10 +60,10 @@
                                 </p>
                                 <div class="form-group">
                                     <div class="row">
-                                        <div class="col-md-6 pr-1">
+                                        <div class="col-md-6 pr-md-1 pb-2 pb-md-0">
                                             {{ filter.startdate(class_="custom-select pl-3") }}
                                         </div>
-                                        <div class="col-md-6 pl-1">
+                                        <div class="col-md-6 pl-md-1">
                                             {{ filter.enddate(class_="custom-select pl-3") }}
                                         </div>
                                     </div>

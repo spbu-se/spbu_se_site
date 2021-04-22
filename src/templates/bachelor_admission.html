@@ -43,7 +43,7 @@
                             <div class="row align-items-center">
                                 <div class="col-lg-6">
                                     <h2 class="font-weight-normal text-center mb-0">
-                                        Очно
+                                        Очная
                                     </h2>
                                     <p class="text-center mb-0">
                                         Форма обучения
@@ -287,28 +287,28 @@
                                 </div>
                                 <div class="col-auto ml-auto text-right">
                                     {% if t.text_uri %}
-                                    <a href="{{ url_for('static', filename='/thesis/texts/' + t.text_uri) }}" class="text-reset">
+                                    <a href="{{ url_for('static', filename='/thesis/texts/' + t.text_uri) }}" class="text-reset" target="_blank">
                                         <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Текст работы" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                                             <i class="fas fa-file-pdf"></i>
                                         </div>
                                     </a>
                                     {% endif %}
                                     {% if t.presentation_uri %}
-                                    <a href="{{ url_for('static', filename='/thesis/slides/' + t.presentation_uri) }}" class="text-reset">
+                                    <a href="{{ url_for('static', filename='/thesis/slides/' + t.presentation_uri) }}" class="text-reset" target="_blank">
                                         <div class="icon icon-sm icon-shape bg-soft-warning text-warning" data-content="Презентация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                                             <i class="fas fa-file-powerpoint"></i>
                                         </div>
                                     </a>
                                     {% endif %}
                                     {% if t.supervisor_review_uri %}
-                                    <a href="{{ url_for('static', filename='/thesis/reviews/' + t.supervisor_review_uri) }}" class="text-reset">
+                                    <a href="{{ url_for('static', filename='/thesis/reviews/' + t.supervisor_review_uri) }}" class="text-reset" target="_blank">
                                         <div class="icon icon-sm icon-shape bg-soft-primary text-primary" data-content="Отзыв руководителя" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                                             <i class="fas fa-file-alt"></i>
                                         </div>
                                     </a>
                                     {% endif %}
                                     {% if t.reviewer_review_uri %}
-                                    <a href="{{ url_for('static', filename='/thesis/reviews/' + t.reviewer_review_uri) }}" class="text-reset">
+                                    <a href="{{ url_for('static', filename='/thesis/reviews/' + t.reviewer_review_uri) }}" class="text-reset" target="_blank">
                                         <div class="icon icon-sm icon-shape bg-soft-primary text-primary" data-content="Отзыв рецензента" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                                             <i class="fas fa-file-alt"></i>
                                         </div>
@@ -360,7 +360,7 @@
                     </h2>
                     <div>
                         <p class="lead lh-480">
-                            Ответы на некоторые вопросы про обучение на кафедре системного программирования и в целом на мат-мехе СПбГУ. Даём краткие ответы.
+                            Ответы на некоторые вопросы про обучение на кафедре системного программирования и на мат-мехе СПбГУ. Даём краткие ответы.
                         </p>
                     </div>
                 </div>
@@ -372,7 +372,7 @@
                             <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                                 <h5 class="h6" itemprop="name">Где находятся общежития?</h5>
                                 <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                                    <p itemprop="text">Петергоф, 7 минут пешком до учебного корпуса, до метро час. Подробнее <a href="{{ url_for('index', _anchor='mm_map') }}" target="_blank">тут</a>.</p>
+                                    <p itemprop="text">В Петергофе, 7 минут пешком до учебного корпуса, до метро час. Подробнее <a href="{{ url_for('index', _anchor='mm_map') }}" target="_blank">тут</a>.</p>
                                 </span>
                             </div>
                         </div>
@@ -380,7 +380,7 @@
                             <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                                 <h5 class="h6" itemprop="name">Стоимость общежития?</h5>
                                 <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                                    <p itemprop="text"><a href="https://guestbook.spbu.ru/2-uncategorised/8523-skolko-stoit-prozhivanie-v-obshchezhitii-dlya-studenta-na-byudzhete.html#:~:text=%D0%94%D0%BB%D1%8F%20%D0%BE%D0%B1%D1%83%D1%87%D0%B0%D1%8E%D1%89%D0%B8%D1%85%D1%81%D1%8F%20%D0%B7%D0%B0%20%D1%81%D1%87%D0%B5%D1%82%20%D0%B1%D1%8E%D0%B4%D0%B6%D0%B5%D1%82%D0%BD%D1%8B%D1%85,%D0%BF%D0%BB%D0%B0%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B8%20%D0%B6%D0%B8%D0%BB%D1%8B%D1%85%20%D0%BF%D0%BE%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B9%20%D0%B2%20%D0%BE%D0%B1%D1%89%D0%B5%D0%B6%D0%B8%D1%82%D0%B8%D0%B8." target="_blank">~350 руб/мес для бюджетников</a>, ~1к для контрактников.</p>
+                                    <p itemprop="text"><a href="https://guestbook.spbu.ru/2-uncategorised/8523-skolko-stoit-prozhivanie-v-obshchezhitii-dlya-studenta-na-byudzhete.html#:~:text=%D0%94%D0%BB%D1%8F%20%D0%BE%D0%B1%D1%83%D1%87%D0%B0%D1%8E%D1%89%D0%B8%D1%85%D1%81%D1%8F%20%D0%B7%D0%B0%20%D1%81%D1%87%D0%B5%D1%82%20%D0%B1%D1%8E%D0%B4%D0%B6%D0%B5%D1%82%D0%BD%D1%8B%D1%85,%D0%BF%D0%BB%D0%B0%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B8%20%D0%B6%D0%B8%D0%BB%D1%8B%D1%85%20%D0%BF%D0%BE%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B9%20%D0%B2%20%D0%BE%D0%B1%D1%89%D0%B5%D0%B6%D0%B8%D1%82%D0%B8%D0%B8." target="_blank">Примерно 350 руб/мес для бюджетников</a> и &mdash; 1к для контрактников.</p>
                                 </span>
                             </div>
                         </div>
@@ -388,7 +388,7 @@
                             <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                                 <h5 class="h6" itemprop="name">Какая стипендия?</h5>
                                 <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                                    <p itemprop="text">Стандартная ~1.6к, социальная ~2.4к (сверху), <a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya.html" target="_blank">ПГАС</a> ~5-20к, повышенная социальная ~27к. И ещё есть разные стипендии за успехи в науке и учёбе: от частных фондов, государственные  (президентская, губернаторская, правительственная и т.д.). Эти стипендии очень разные, от 5к и сильно больше, бывают и по 40к. Тут уж как пойдёт.</p>
+                                    <p itemprop="text">Стандартная примерно 1.6к, социальная &mdash; 2.4к (сверху), <a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya.html" target="_blank">ПГАС</a> &mdash; 5-20к, повышенная социальная &mdash; 27к. И ещё есть разные стипендии за успехи в науке и учёбе: от частных фондов, государственные  (президентская, губернаторская, правительственная и т.д.). Эти стипендии очень разные, от 5к и сильно больше, бывают и по 40к. Тут уж как пойдёт.</p>
                                 </span>
                             </div>
                         </div>
@@ -404,7 +404,7 @@
                             <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                                 <h5 class="h6" itemprop="name">Есть физика?</h5>
                                 <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                                    <p itemprop="text">Нет, физики нет. На Технологии программирования будет матфизика (3 курс), но это совсем не то, что было в школе.</p>
+                                    <p itemprop="text">Нет, физики нет. На направлении "Технологии программирования" будет матфизика (3 курс), но это совсем не то, что было в школе.</p>
                                 </span>
                             </div>
                         </div>
@@ -453,7 +453,7 @@
                                 <img alt="{{person.user}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.user.avatar_uri) }}" class="avatar rounded-circle avatar-lg mr-4">
                                 <div class="media-body">
                                     <span class="h6">{{person.user}}</span><br>
-                                    <span class="h6 text-sm">{{person.position}}</span>
+                                    <span class="h6 text-sm">{{person.position}}{% if person.science_degree %}, {{person.science_degree}} {% endif %} </span>
                                 </div>
                             </div>
                             <hr class="my-2">
