@@ -104,36 +104,38 @@ let page = url.searchParams.get("page");
 let startdate = url.searchParams.get("startdate");
 let enddate = url.searchParams.get("enddate");
 
-// Set filter to value from URI
-if (worktype && worktype <= wt_select.length && worktype > 0){
-    wt_select.value=worktype;
-}
+if (wt_select)
+{
+    // Set filter to value from URI
+    if (worktype && worktype <= wt_select.length && worktype > 0){
+        wt_select.value=worktype;
+    }
 
-if (startdate){
-    if (startdate_select.length > 0 && startdate >= startdate_select.options[startdate_select.length - 1].value && startdate <= startdate_select.options[0].value) {
-        startdate_select.value=startdate;
+    if (startdate){
+        if (startdate_select.length > 0 && startdate >= startdate_select.options[startdate_select.length - 1].value && startdate <= startdate_select.options[0].value) {
+            startdate_select.value=startdate;
+        } else {
+            startdate_select.value = startdate_select.options[startdate_select.length - 1].value;
+        }
     } else {
         startdate_select.value = startdate_select.options[startdate_select.length - 1].value;
     }
-} else {
-    startdate_select.value = startdate_select.options[startdate_select.length - 1].value;
-}
 
-if (enddate){
-    if (enddate_select.length > 0 && enddate >= enddate_select.options[enddate_select.length - 1].value && enddate <= enddate_select.options[0].value && enddate >= startdate_select.value) {
-        enddate_select.value=enddate;
+    if (enddate){
+        if (enddate_select.length > 0 && enddate >= enddate_select.options[enddate_select.length - 1].value && enddate <= enddate_select.options[0].value && enddate >= startdate_select.value) {
+            enddate_select.value=enddate;
+        } else {
+            enddate_select.value = enddate_select.options[0].value;
+        }
     } else {
         enddate_select.value = enddate_select.options[0].value;
     }
-} else {
-    enddate_select.value = enddate_select.options[0].value;
+
+    // Load theses
+    theses_load();
+
+    // Update theses
+    wt_select.onchange = theses_update;
+    startdate_select.onchange = theses_update;
+    enddate_select.onchange = theses_update;
 }
-
-// Load theses
-theses_load();
-
-// Update theses
-wt_select.onchange = theses_update;
-startdate_select.onchange = theses_update;
-enddate_select.onchange = theses_update;
-
