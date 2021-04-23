@@ -146,7 +146,7 @@ def init_db():
         {'email': 'm.n.smirnov@spbu.ru', 'first_name': 'Михаил', 'last_name': 'Смирнов',
          'middle_name': 'Николаевич', 'avatar_uri': 'smirnov.jpg'},
         {'email': 'st036451@student.spbu.ru', 'first_name': 'Артур', 'last_name': 'Ханов',
-         'middle_name': 'Рафаэльевич', 'avatar_uri': 'empty.jpg'},
+         'middle_name': 'Рафаэльевич', 'avatar_uri': 'khanov.jpg'},
         {'email': 's.shilov@spbu.ru', 'first_name': 'Сергей', 'last_name': 'Шилов',
          'middle_name': 'Юрьевич', 'avatar_uri': 'empty.jpg'},
         {'email': 'st013464@student.spbu.ru', 'first_name': 'Петр', 'last_name': 'Лозов',
