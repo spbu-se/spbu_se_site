@@ -38,6 +38,11 @@ def index():
 def indexhtml():
     return redirect(url_for('index'))
 
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('404.html'), 404
+
 @app.route('/404.html')
 def status_404():
     return render_template('404.html')
@@ -60,6 +65,18 @@ def bachelor_programming_technology():
 
 @app.route('/bachelor/software-engineering.html')
 def bachelor_software_engineering():
+
+    curriculum = [
+        {'Практикум на ЭВМ': 5, 'Дискретная математика': 5, 'Математический анализ': 7,
+         'Основы программирования': 3, 'Алгебра': 5, 'Групповая динамика и коммуникации': 2,
+         'Физическая культура и спорт': 0, 'Безопасность жизнедеятельности': 0, 'Иностранный язык': 3},
+
+        {' Практикум на ЭВМ' : 3, 'Цифровая культура' : 1, 'Дискретная математика':4,
+         'Математический анализ' : 5, 'Алгоритмы и структуры данных' : 2, 'Основы программирования' : 3,
+         'Физическая культура и спорт' : 0, 'Алгебра' : 2, 'Архитектура вычислительных систем': 3,
+         'Геометрия' : 4, 'Иностранный язык' : 3}
+    ]
+
     return render_template('bachelor_software-engineering.html')
 
 @app.route('/master/information-systems-administration.html')
