@@ -8,9 +8,9 @@
 
 {% block content %}
     <!-- Main content -->
-    <section class="slice py-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
+    <section class="slice pt-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
         <!-- Container -->
-        <div class="container pt-5 pt-lg-7 pb-lg-9 pb-2">
+        <div class="container align-items-center text-center text-lg-left pt-5 pt-lg-6">
             <div class="row align-items-center">
                 <div class="col-lg-12 text-center">
                     <h1 class="text-white">Бакалаврская программа "Программная инженерия"</h1>
@@ -19,41 +19,46 @@
                     </p>
                 </div>
             </div>
-            <div class="row align-items-center mt-3">
-                <div class="col-lg-12 text-center text-lg-left">
-                    <p class="lead text-white opacity-8">
-                        Программная инженерия &mdash; это дисциплина, основанная на математике и компьютинге (англ. computing), занимается разработкой систематических моделей и надежных методов производства высококачественного программного обеспечения. Она включает в себя такие разделы знаний, как информатика, технологии и средства разработки ПО, основы математики и инженерии, моделирование и проектирование ПО, управление программными проектами и другие.
-                    </p>
-                </div>
-            </div>
-            <div class="row mt-3">
+            <div class="row mt-5">
                 <div class="col-lg-12 text-center">
                     <a href="{{ url_for('bachelor_application') }}" class="btn btn-lg btn-primary btn-icon mb-3">
                         <span class="btn-inner--text">Как подать заявление</span>
                     </a>
                 </div>
-                        <!-- div class="col-lg-6">
-                            <a class="btn btn-lg btn-warning mb-3 w-100" href="https://cabinet.spbu.ru/Lists/1k_EntryLists/list_fccefbdb-ec17-4fff-8a86-de37a49ba7fd.html" target="_blank">
-                                <span class="btn-inner--text">Список абитуриентов</span>
-                                <span class="btn-inner--icon">
-                                    <i data-feather="arrow-right"></i>
-                                </span>
-                            </a>
-                        </div-->
             </div>
-        </div>
-        <!-- SVG Separator -->
-        <div class="shape-container shape-position-bottom">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" preserveAspectRatio="none">
-                <path d="M 0 0 c 0 0 200 50 500 50 s 500 -50 500 -50 v 101 h -1000 v -100 z"></path>
-            </svg>
         </div>
     </section>
 
-    <section class="slice pt-0">
-        <div class="container position-relative zindex-100">
+    <section class="slice" id="software-engineering">
+        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-7 text-center">
+                    <h1 class="mb-1">
+                        Программная инженерия
+                    </h1>
+                </div>
+            </div>
+            <div class="row align-items-center mt-3">
+                <div class="col-lg-12 text-center text-lg-left">
+                    <p class="lead opacity-8">
+                        Программная инженерия &mdash; это дисциплина, основанная на математике и компьютинге (англ. computing), занимается разработкой систематических моделей и надежных методов производства высококачественного программного обеспечения. Она включает в себя такие разделы знаний, как информатика, технологии и средства разработки ПО, основы математики и инженерии, моделирование и проектирование ПО, управление программными проектами и другие.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="container" id="applicants">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-7 text-center">
+                    <h1 class="mb-1">
+                        Информация для поступающих
+                    </h1>
+                </div>
+            </div>
             <div class="row ">
-                <div class="col-lg-6 pt-5 pb-7 pb-lg-0 pt-lg-0 mt-n10">
+                <div class="col-lg-6 pb-lg-0 pt-lg-0">
                     <div class="card shadow-lg border-0" style="max-width: 100%;">
                         <div class="card-body px-4 py-4 text-center text-md-left">
                             <div class="row align-items-center">
@@ -77,7 +82,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6 pt-5 pt-lg-0 mt-n10">
+                <div class="col-lg-6 pt-lg-0">
                     <div class="card shadow-lg border-0" style="max-width: 100%;">
                         <div class="card-body px-4 py-4 text-center text-md-left">
                             <div class="row align-items-center">
@@ -216,7 +221,7 @@
                 </div>
                 <div class="col-lg-5">
                     <div class="card border-0 shadow-lg rounded-lg">
-                        <div class="card-header py-4 px-3" id="heading-2-1">
+                        <div class="card-header py-4 px-3" id="heading-2-2">
                             <h6 class="mb-0 text-center">Поступление по олимпиаде</h6>
                         </div>
                         <div class="card-body px-3 pb-0 pt-0">
@@ -290,11 +295,43 @@
             <div class="row justify-content-center mb-4">
                 <div class="col-lg-7 text-center">
                     <h1 class="mb-1">
-                        Программа
+                        Учебный план
                     </h1>
                 </div>
             </div>
             <div class="row">
+                <div class="col-12 alert alert-success" role="alert">
+                    <strong>Первый курс</strong>
+                </div>
+            </div>
+            <div class="row row-grid">
+                {% for course in curricula1 %}
+                <div class="col-lg-6 px-1">
+                    <div class="card mb-2">
+                        <div class="p-3 d-flex">
+                            <h6 class="mb-0">{{course.discipline}}</h6>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="row mt-4">
+                <div class="col-12 alert alert-success" role="alert">
+                    <strong>Второй курс</strong>
+                </div>
+            </div>
+            <div class="row row-grid">
+                {% for course in curricula2 %}
+                <div class="col-lg-6 px-1">
+                    <div class="card mb-2">
+                        <div class="p-3 d-flex">
+                            <h6 class="mb-0">{{course.discipline}}</h6>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- div class="row">
                 <div class="mx-auto">
                     <table class="table-cards">
                         <tbody>
@@ -528,11 +565,11 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div -->
             <div class="row">
                 <div class="col-lg-12 pr-0 text-lg-right">
                     <a href="https://www.math.spbu.ru/ru/mmeh/PLANS/1/19_5080_090304bPrIng_19_06_04.pdf" target="_blank" class="btn btn-lg btn-primary btn-icon mb-3 mb-lg-0">
-                        <span class="btn-inner--text">Учебный план</span>
+                        <span class="btn-inner--text">Подробный учебный план</span>
                         <span class="btn-inner--icon">
                             <i data-feather="arrow-right"></i>
                         </span>

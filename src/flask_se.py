@@ -5,7 +5,7 @@ from flask_frozen import Freezer
 from datetime import datetime
 from se_forms import ThesisFilter
 import sys, os
-from se_models import db, init_db, Staff, Users, Thesis, Worktype
+from se_models import db, init_db, Staff, Users, Thesis, Worktype, Curriculum
 from  sqlalchemy.sql.expression import func
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
@@ -65,7 +65,17 @@ def bachelor_programming_technology():
 
 @app.route('/bachelor/software-engineering.html')
 def bachelor_software_engineering():
-    return render_template('bachelor_software-engineering.html')
+
+    records = Curriculum.query.filter(Curriculum.semestr<=2)
+    records = records.with_entities(Curriculum.discipline).distinct()
+    curricula1 = records.order_by(Curriculum.priority).all()
+
+    records = Curriculum.query.filter(Curriculum.semestr>=3)
+    records = records.filter(Curriculum.semestr<=4)
+    records = records.with_entities(Curriculum.discipline).distinct()
+    curricula2 = records.order_by(Curriculum.priority).all()
+
+    return render_template('bachelor_software-engineering.html', curricula1=curricula1, curricula2=curricula2)
 
 @app.route('/master/information-systems-administration.html')
 def master_information_systems_administration():
@@ -91,20 +101,7 @@ def department_staff():
 
 @app.route('/bachelor/admission.html')
 def bachelor_admission():
-    students = [
-        {"name": "Терехов Андрей Николаевич", "position": "Студент 2-го курса, Программная инженерия",
-         "review": "Очень крутое место", 'avatar': 'terekhov.jpg'},
-        {"name": "Граничин Олег Николаевич", "position": "Студент 4-го курса, Технологии программирования",
-         'avatar': 'granichin.jpg', "review" : "На третьем курсе я уже начал заниматься наукой в лаборатории"},
-        {"name": "Кознов Дмитрий Владимирович", "position": "Студент 3-го курса, Программная инженерия",
-         'avatar': 'koznov.jpg', "review" : "Прохожу стажировку в Яндексе, отличные общежития. Все путем!"},
-        {"name": "Брыксин Тимофей Александрович", "position": "Студент 4-го курса, Программная инженерия",
-         'avatar': 'bryksin.jpg', 'review':'Все очень круто, если будут вопросы по поступлению, пишите мне'},
-        {"name": "Булычев Дмитрий Юрьевич", "position": "Студент 2-го курса, Программная инженерия",
-         'avatar': 'boulytchev.jpg', 'review':'Все очень круто, если будут вопросы по поступлению, пишите мне'},
-        {"name": "Литвинов Юрий Викторович", "position": "Студент 2-го курса, Программная инженерия",
-         'avatar': 'litvinov.jpg', 'review':'Все очень круто, если будут вопросы по поступлению, пишите мне'},
-    ]
+    students = []
 
     records = Thesis.query.filter_by(recomended=True)
     if records.count():

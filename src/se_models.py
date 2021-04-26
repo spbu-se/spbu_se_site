@@ -106,6 +106,7 @@ class Curriculum(db.Model):
     discipline = db.Column(db.String(256), nullable=False)
     semestr = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(1024), nullable=True)
+    priority = db.Column(db.Integer, nullable=False, default=1)
 
 def init_db():
 
@@ -211,7 +212,6 @@ def init_db():
         {'position': 'Ассистент', 'official_email': 'd.sagunov@spbu.ru', 'still_working': False},
         {'position': 'Ассистент', 'official_email': 'g.chernyshev@spbu.ru', 'still_working': False},
     ]
-
     wtypes = [
         {'type': 'Все работы'},
         {'type' : 'Курсовая'},
@@ -239,6 +239,51 @@ def init_db():
         {
             'name' : 'РуСи'
         }
+    ]
+    curriculum = [
+        {'year': 2019, 'discipline': 'Практикум на ЭВМ', 'semestr': 1},
+        {'year': 2019, 'discipline': 'Дискретная математика', 'semestr': 1},
+        {'year': 2019, 'discipline': 'Математический анализ', 'semestr': 1},
+        {'year': 2019, 'discipline': 'Безопасность жизнедеятельности', 'semestr': 1},
+        {'year': 2019, 'discipline': 'Основы программирования', 'semestr': 1},
+        {'year': 2019, 'discipline': 'Групповая динамика и коммуникации', 'semestr': 1},
+        {'year': 2019, 'discipline': 'Физическая культура и спорт', 'semestr': 1, 'priority':3},
+        {'year': 2019, 'discipline': 'Алгебра', 'semestr': 1},
+        {'year': 2019, 'discipline': 'Иностранный язык', 'semestr': 1, 'priority' : 3},
+        {'year': 2019, 'discipline': 'Практикум на ЭВМ', 'semestr': 2},
+        {'year': 2019, 'discipline': 'Цифровая культура', 'semestr': 2},
+        {'year': 2019, 'discipline': 'Дискретная математика', 'semestr': 2},
+        {'year': 2019, 'discipline': 'Математический анализ', 'semestr': 2},
+        {'year': 2019, 'discipline': 'Алгоритмы и структуры данных', 'semestr': 2},
+        {'year': 2019, 'discipline': 'Основы программирования', 'semestr': 2},
+        {'year': 2019, 'discipline': 'Физическая культура и спорт', 'semestr': 2, 'priority': 3},
+        {'year': 2019, 'discipline': 'Алгебра', 'semestr': 2},
+        {'year': 2019, 'discipline': 'Архитектура вычислительных систем', 'semestr': 2},
+        {'year': 2019, 'discipline': 'Геометрия', 'semestr': 2},
+        {'year': 2019, 'discipline': 'Иностранный язык', 'semestr': 2, 'priority':3},
+        {'year': 2019, 'discipline': 'Введение в программную инженерию', 'semestr': 3},
+        {'year': 2019, 'discipline': 'Практикум на ЭВМ', 'semestr': 3},
+        {'year': 2019, 'discipline': 'История России', 'semestr': 3, 'priority': 3},
+        {'year': 2019, 'discipline': 'Математический анализ', 'semestr': 3},
+        {'year': 2019, 'discipline': 'Операционные системы', 'semestr': 3},
+        {'year': 2019, 'discipline': 'Алгоритмы и анализ сложности', 'semestr': 3},
+        {'year': 2019, 'discipline': 'Физическая культура и спорт', 'semestr': 3, 'priority': 3},
+        {'year': 2019, 'discipline': 'Язык эффективной коммуникации', 'semestr': 3},
+        {'year': 2019, 'discipline': 'Функциональное программирование', 'semestr': 3},
+        {'year': 2019, 'discipline': 'Инженерная экономика', 'semestr': 3, 'priority': 3},
+        {'year': 2019, 'discipline': 'Учебная практика (научноисследовательская работа)', 'semestr': 3},
+        {'year': 2019, 'discipline': 'Иностранный язык', 'semestr': 3, 'priority': 3},
+        {'year': 2019, 'discipline': 'Разработка программного обеспечения', 'semestr': 4},
+        {'year': 2019, 'discipline': 'Дифференциальные и разностные уравнения', 'semestr': 4},
+        {'year': 2019, 'discipline': 'Практикум на ЭВМ', 'semestr': 4},
+        {'year': 2019, 'discipline': 'Основы бизнеса', 'semestr': 4, 'priority': 3},
+        {'year': 2019, 'discipline': 'Человеко-машинное взаимодействие', 'semestr': 4},
+        {'year': 2019, 'discipline': 'Теория вероятностей и математическая статистика', 'semestr': 4},
+        {'year': 2019, 'discipline': 'Физическая культура и спорт', 'semestr': 4, 'priority': 3},
+        {'year': 2019, 'discipline': 'Вычислительная математика', 'semestr': 4},
+        {'year': 2019, 'discipline': 'Математическая логика', 'semestr': 4},
+        {'year': 2019, 'discipline': 'Учебная практика (научноисследовательская работа)', 'semestr': 4},
+        {'year': 2019, 'discipline': 'Иностранный язык', 'semestr': 4, 'priority': 3},
     ]
 
     thesis = []
@@ -284,6 +329,18 @@ def init_db():
     print("Create courses")
     for course in courses:
         c = Courses(name = course['name'], code = course['code'])
+        db.session.add(c)
+        db.session.commit()
+
+    # Create Curriculum
+    print ("Create curriculum")
+    for cur in curriculum:
+        if 'priority' in cur:
+            c = Curriculum(year = cur['year'], discipline = cur['discipline'], semestr = cur['semestr'],
+                           priority = cur['priority'])
+        else:
+            c = Curriculum(year = cur['year'], discipline = cur['discipline'], semestr = cur['semestr'])
+
         db.session.add(c)
         db.session.commit()
 
