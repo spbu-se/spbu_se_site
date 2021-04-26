@@ -100,6 +100,12 @@ class Tags(db.Model):
 
     tags = db.relationship('Thesis', secondary=tag, lazy='subquery', backref=db.backref('tags', lazy=True))
 
+class Curriculum(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    year = db.Column(db.Integer, nullable=False)
+    discipline = db.Column(db.String(256), nullable=False)
+    semestr = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.String(1024), nullable=True)
 
 def init_db():
 
