@@ -48,8 +48,8 @@
         </div>
     </section>
 
-    <section>
-        <div class="container" id="applicants">
+    <section id="applicants">
+        <div class="container">
             <div class="row justify-content-center mb-4">
                 <div class="col-lg-7 text-center">
                     <h2 class="mb-1">
@@ -290,7 +290,7 @@
         </div>
     </section>
 
-    <section class="slice">
+    <section class="slice" id="curriculum">
         <div class="container">
             <div class="row justify-content-center mb-4">
                 <div class="col-lg-7 text-center">
@@ -308,13 +308,7 @@
                 {% for course in curricula1 %}
                 <div class="col-lg-6 px-1 mt-1">
                     <div class="card mb-2">
-                        {% if course.type == 1 %}
-                        <div class="d-flex p-3 border-left border-primary rounded" style="border-width: 5px !important;">
-                        {% elif course.type == 2 %}
-                        <div class="d-flex p-3 border-left border-dark rounded" style="border-width: 5px !important;">
-                        {% else %}
-                        <div class="d-flex p-3 border-left border-secondary rounded" style="border-width: 5px !important;">
-                        {% endif %}
+                        <div class="d-flex p-3 border-left {% if course.type == 1 %} border-primary {% elif course.type == 2 %} border-danger {% else %} border-secondary {% endif %} rounded" style="border-width: 5px !important;">
                             <h6 class="mb-0">{{course.discipline}}</h6>
                         </div>
                     </div>
@@ -330,13 +324,7 @@
                 {% for course in curricula2 %}
                 <div class="col-lg-6 px-1 mt-1">
                     <div class="card mb-2">
-                        {% if course.type == 1 %}
-                        <div class="d-flex p-3 border-left border-primary rounded" style="border-width: 5px !important;">
-                        {% elif course.type == 2 %}
-                        <div class="d-flex p-3 border-left border-dark rounded" style="border-width: 5px !important;">
-                        {% else %}
-                        <div class="d-flex p-3 border-left border-secondary rounded" style="border-width: 5px !important;">
-                        {% endif %}
+                        <div class="d-flex p-3 border-left {% if course.type == 1 %} border-primary {% elif course.type == 2 %} border-danger {% else %} border-secondary {% endif %} rounded" style="border-width: 5px !important;">
                             <h6 class="mb-0">{{course.discipline}}</h6>
                         </div>
                     </div>
