@@ -33,9 +33,9 @@
         <div class="container">
             <div class="row justify-content-center mb-4">
                 <div class="col-lg-7 text-center">
-                    <h1 class="mb-1">
+                    <h2 class="mb-1">
                         Программная инженерия
-                    </h1>
+                    </h2>
                 </div>
             </div>
             <div class="row align-items-center mt-3">
@@ -52,9 +52,9 @@
         <div class="container" id="applicants">
             <div class="row justify-content-center mb-4">
                 <div class="col-lg-7 text-center">
-                    <h1 class="mb-1">
+                    <h2 class="mb-1">
                         Информация для поступающих
-                    </h1>
+                    </h2>
                 </div>
             </div>
             <div class="row ">
@@ -294,21 +294,27 @@
         <div class="container">
             <div class="row justify-content-center mb-4">
                 <div class="col-lg-7 text-center">
-                    <h1 class="mb-1">
+                    <h2 class="mb-1">
                         Учебный план
-                    </h1>
+                    </h2>
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 alert alert-success" role="alert">
-                    <strong>Первый курс</strong>
+                    <h5 class="mb-0 text-white"><strong>Первый курс</strong></h5>
                 </div>
             </div>
             <div class="row row-grid">
                 {% for course in curricula1 %}
-                <div class="col-lg-6 px-1">
+                <div class="col-lg-6 px-1 mt-1">
                     <div class="card mb-2">
-                        <div class="p-3 d-flex">
+                        {% if course.type == 1 %}
+                        <div class="d-flex p-3 border-left border-primary rounded" style="border-width: 5px !important;">
+                        {% elif course.type == 2 %}
+                        <div class="d-flex p-3 border-left border-dark rounded" style="border-width: 5px !important;">
+                        {% else %}
+                        <div class="d-flex p-3 border-left border-secondary rounded" style="border-width: 5px !important;">
+                        {% endif %}
                             <h6 class="mb-0">{{course.discipline}}</h6>
                         </div>
                     </div>
@@ -317,255 +323,27 @@
             </div>
             <div class="row mt-4">
                 <div class="col-12 alert alert-success" role="alert">
-                    <strong>Второй курс</strong>
+                    <h5 class="mb-0 text-white">Второй курс</h5>
                 </div>
             </div>
             <div class="row row-grid">
                 {% for course in curricula2 %}
-                <div class="col-lg-6 px-1">
+                <div class="col-lg-6 px-1 mt-1">
                     <div class="card mb-2">
-                        <div class="p-3 d-flex">
+                        {% if course.type == 1 %}
+                        <div class="d-flex p-3 border-left border-primary rounded" style="border-width: 5px !important;">
+                        {% elif course.type == 2 %}
+                        <div class="d-flex p-3 border-left border-dark rounded" style="border-width: 5px !important;">
+                        {% else %}
+                        <div class="d-flex p-3 border-left border-secondary rounded" style="border-width: 5px !important;">
+                        {% endif %}
                             <h6 class="mb-0">{{course.discipline}}</h6>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
-            <!-- div class="row">
-                <div class="mx-auto">
-                    <table class="table-cards">
-                        <tbody>
-                        <tr class="table-divider">
-                            <td class="align-middle"><h3 class="font-weight-normal text-nowrap">1 курс</h3></td>
-                            <td>
-                                <ul class="list-unstyled text-wrap">
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0 text-wrap">Интенсивное расширение кругозора по специальности</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0 text-wrap">Базовый цикл математических дисциплин и информатики</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">Основы низкоуровневого и объектно-ориентированного программирования</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">Формирование навыков самостоятельного обучения</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr class="table-divider">
-                            <td class="align-middle"><h3 class="font-weight-normal text-nowrap">2 курс</h3></td>
-                            <td>
-                                <ul class="list-unstyled text-wrap">
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">Развитие умения видеть проблемы и критически подходить к их обсуждению и решению</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">Основной цикл математических дисциплин и информатики
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">Знакомство с разнообразием технологий: параллельное программирование, анализ данных, функциональное программирование, инфраструктура программных проектов</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">Практический командный проект, направленный на самостоятельное погружение в новые технологии</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr class="table-divider">
-                            <td class="align-middle"><h3 class="font-weight-normal text-nowrap">3 курс</h3></td>
-                            <td>
-                                <ul class="list-unstyled text-wrap">
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">Развитие умения понимать ценность программных продуктов и обосновывать полезность собственных решений</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">Набор профессиональных дисциплин, расширяющий знания в конкретных областях
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">Самостоятельное изучение технологий при решении актуальных задач под руководством опытных консультантов</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">Практическая работа в исследовательском или промышленном проекте, завершающаяся презентацией проделанной работы с аргументацией принятых решений</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr class="table-divider">
-                            <td class="align-middle"><h3 class="font-weight-normal text-nowrap">4 курс</h3></td>
-                            <td>
-                                <ul class="list-unstyled text-wrap">
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">Возможность углубиться в научные исследования или промышленное программирование</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">Профильные дисциплины, дающие углублённые знания по конкретным технологиям и научным областям
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">
-                                                    Самостоятельный выбор и применение технологий под присмотром ведущих инженеров и исследователей
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="py-2">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
-                                                    <i data-feather="chevron-right"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="lead mb-0">
-                                                    Выпускная квалификационная работа на актуальную тему. Выполняется в исследовательских лабораториях или дружественных промышленных компаниях
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div -->
+
             <div class="row">
                 <div class="col-lg-12 pr-0 text-lg-right">
                     <a href="https://www.math.spbu.ru/ru/mmeh/PLANS/1/19_5080_090304bPrIng_19_06_04.pdf" target="_blank" class="btn btn-lg btn-primary btn-icon mb-3 mb-lg-0">
@@ -583,9 +361,9 @@
         <div class="container">
             <div class="row justify-content-center mb-4">
                 <div class="col-lg-7 text-center">
-                    <h1 class="">
+                    <h2 class="">
                         Поступление
-                    </h1>
+                    </h2>
                 </div>
             </div>
             <div class="row justify-content-center">
