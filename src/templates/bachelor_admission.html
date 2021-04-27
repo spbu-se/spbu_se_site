@@ -238,21 +238,21 @@
                 <div class="col-lg-3">
                     <div class="card hover-shadow-lg border-0">
                         <figure>
-                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/campus-1.jpg') }}" class="card-img">
+                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/campus-1.jpg') }}" class="card-img" loading="lazy">
                         </figure>
                     </div>
                 </div>
                 <div class="col-lg-3">
                     <div class="card hover-shadow-lg border-0">
                         <figure>
-                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/campus-2.jpg') }}" class="card-img">
+                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/campus-2.jpg') }}" class="card-img" loading="lazy">
                         </figure>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <div class="card hover-shadow-lg">
                         <figure>
-                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/campus-3.jpg') }}" class="card-img">
+                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/campus-3.jpg') }}" class="card-img" loading="lazy">
                         </figure>
                     </div>
                 </div>
@@ -450,7 +450,7 @@
                     <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
                         <div class="card-body">
                             <div class="media align-items-center">
-                                <img alt="{{person.user}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.user.avatar_uri) }}" class="avatar rounded-circle avatar-lg mr-4">
+                                <img alt="{{person.user}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.user.avatar_uri) }}" class="avatar rounded-circle avatar-lg mr-4" loading="lazy">
                                 <div class="media-body">
                                     <span class="h6">{{person.user}}</span><br>
                                     <span class="h6 text-sm">{{person.position}}{% if person.science_degree %}, {{person.science_degree}} {% endif %} </span>
