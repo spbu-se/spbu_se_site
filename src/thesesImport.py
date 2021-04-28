@@ -736,12 +736,12 @@ def get_2020_371():
                 t = Thesis(name_ru = name_ru, text_uri=text_uri, old_text_uri=base_url + old_text_uri, presentation_uri=presentation_uri,
                    supervisor_review_uri=supervisor_review_uri, reviewer_review_uri=reviewer_review_uri,
                    author=author, supervisor_id=supervisor_id, reviewer_id=2,
-                   publish_year=pablish_year, type_id=2, course_id = 4, source_uri = source_uri)
+                   publish_year=pablish_year, type_id=2, course_id = 2, source_uri = source_uri)
             else:
                 t = Thesis(name_ru = name_ru, text_uri=text_uri, old_text_uri=base_url + old_text_uri, presentation_uri=presentation_uri,
                    supervisor_review_uri=supervisor_review_uri, reviewer_review_uri=reviewer_review_uri,
                    author=author, supervisor_id=supervisor_id, reviewer_id=2,
-                   publish_year=pablish_year, type_id=2, course_id = 4)
+                   publish_year=pablish_year, type_id=2, course_id = 2)
 
 
             db.session.add(t)
@@ -953,7 +953,7 @@ def get_2019_371():
             t = Thesis(name_ru = name_ru, text_uri=text_uri, old_text_uri=base_url + old_text_uri, presentation_uri=presentation_uri,
                    supervisor_review_uri=supervisor_review_uri, reviewer_review_uri=reviewer_review_uri,
                    author=author, supervisor_id=supervisor_id, reviewer_id=2,
-                   publish_year=pablish_year, type_id=2, course_id = 4)
+                   publish_year=pablish_year, type_id=2, course_id = 2)
 
             db.session.add(t)
             db.session.commit()

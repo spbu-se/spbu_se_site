@@ -68,8 +68,11 @@ def bachelor_software_engineering():
 
     curricula1 = Curriculum.query.filter(Curriculum.study_year==1).order_by(Curriculum.type).all()
     curricula2 = Curriculum.query.filter(Curriculum.study_year==2).order_by(Curriculum.type).all()
+    curricula3 = Curriculum.query.filter(Curriculum.study_year == 3).order_by(Curriculum.type).all()
+    curricula4 = Curriculum.query.filter(Curriculum.study_year == 4).order_by(Curriculum.type).all()
 
-    return render_template('bachelor_software-engineering.html', curricula1=curricula1, curricula2=curricula2)
+    return render_template('bachelor_software-engineering.html', curricula1=curricula1, curricula2=curricula2,
+                           curricula3=curricula3, curricula4=curricula4)
 
 @app.route('/master/information-systems-administration.html')
 def master_information_systems_administration():

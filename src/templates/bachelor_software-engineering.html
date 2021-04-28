@@ -161,15 +161,15 @@
                                     <tbody>
                                     <tr>
                                         <td class="px-0">Информатика и ИКТ</td>
-                                        <td class="px-0 text-center">55</td>
+                                        <td class="px-0 text-center">66</td>
                                     </tr>
                                     <tr>
                                         <td class="px-0">Математика</td>
-                                        <td class="px-0 text-center">55</td>
+                                        <td class="px-0 text-center">68</td>
                                     </tr>
                                     <tr>
                                         <td class="px-0">Русский язык</td>
-                                        <td class="px-0 text-center">55</td>
+                                        <td class="px-0 text-center">65</td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -331,6 +331,39 @@
                 </div>
                 {% endfor %}
             </div>
+            <div class="row mt-4">
+                <div class="col-12 alert alert-success" role="alert">
+                    <h5 class="mb-0 text-white">Третий курс</h5>
+                </div>
+            </div>
+            <div class="row row-grid">
+                {% for course in curricula3 %}
+                <div class="col-lg-6 px-1 mt-1">
+                    <div class="card mb-2">
+                        <div class="d-flex p-3 border-left {% if course.type == 1 %} border-primary {% elif course.type == 2 %} border-danger {% else %} border-secondary {% endif %} rounded" style="border-width: 5px !important;">
+                            <h6 class="mb-0">{{course.discipline}}</h6>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="row mt-4">
+                <div class="col-12 alert alert-success" role="alert">
+                    <h5 class="mb-0 text-white">Четвертый курс</h5>
+                </div>
+            </div>
+            <div class="row row-grid">
+                {% for course in curricula4 %}
+                <div class="col-lg-6 px-1 mt-1">
+                    <div class="card mb-2">
+                        <div class="d-flex p-3 border-left {% if course.type == 1 %} border-primary {% elif course.type == 2 %} border-danger {% else %} border-secondary {% endif %} rounded" style="border-width: 5px !important;">
+                            <h6 class="mb-0">{{course.discipline}}</h6>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
 
             <div class="row">
                 <div class="col-lg-12 pr-0 text-lg-right">
