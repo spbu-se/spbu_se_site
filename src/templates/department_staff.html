@@ -45,7 +45,7 @@
                 {% for person in staff %}
                 <div class="col-lg-6 my-2" itemscope itemtype="http://schema.org/Person">
                     <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
-                        <div class="card-body">
+                        <div class="card-body pb-2">
                             <div class="media align-items-center">
                                 <img alt="{{person.name}}" src="{{ url_for('static', filename='/assets/img/stuff/' + person.avatar) }}" class="avatar rounded-circle avatar-lg mr-4" itemprop="image" loading="lazy">
                                 <div class="media-body">
@@ -53,10 +53,16 @@
                                     <span class="h6 text-sm" itemprop="jobTitle">{{person.position}}</span>
                                 </div>
                             </div>
-                            <hr class="my-2">
-                            <div class="">
-                                <i data-feather="mail"></i>
-                                <a class="text-sm" href="mailto:{{person.contacts}}" itemprop="email">{{person.contacts}}</a>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <i data-feather="mail"></i>
+                                    <a class="text-sm" href="mailto:{{person.contacts}}" itemprop="email">{{person.contacts}}</a>
+                                </div>
+                                <div class="col text-right">
+                                    <a href="{{ url_for ('theses_search', supervisor=person.id)}}" class="text-sm">Курсовые и ВКР</a>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -5,6 +5,7 @@ function theses_load() {
     let theses_list = document.getElementById('ThesisList');
     let wt_select = document.getElementById('worktype');
     let page = url.searchParams.get("page");
+    let supervisor = url.searchParams.get("supervisor");
     let startdate_select = document.getElementById('startdate');
     let enddate_select = document.getElementById('enddate');
 
@@ -16,6 +17,11 @@ function theses_load() {
     // Page first
     if (page && page > 1){
         params.append('page', page);
+    }
+
+    // Supervisor?
+    if (supervisor){
+        params.append('supervisor', supervisor);
     }
 
     if (wt > 1)
@@ -50,6 +56,7 @@ function theses_update() {
     let wt_select = document.getElementById('worktype');
     let startdate_select = document.getElementById('startdate');
     let enddate_select = document.getElementById('enddate');
+    let supervisor = url.searchParams.get("supervisor");
 
     let params = new URLSearchParams();
     let wt = wt_select.value;
@@ -57,6 +64,11 @@ function theses_update() {
     if (wt > 1)
     {
         params.append('worktype', wt);
+    }
+
+    // If supervisor?
+    if (supervisor){
+        params.append('supervisor', supervisor);
     }
 
     let startdate = startdate_select.value;

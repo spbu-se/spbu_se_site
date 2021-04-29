@@ -99,7 +99,8 @@ def department_staff():
         if s.science_degree:
             position = position + ", " + s.science_degree
 
-        staff.append({'name' : s.user, 'position' : position, 'contacts' : s.official_email, 'avatar' : s.user.avatar_uri})
+        staff.append({'name': s.user, 'position': position, 'contacts': s.official_email,
+                      'avatar': s.user.avatar_uri, 'id': s.id})
 
     return render_template('department_staff.html', staff = staff)
 
@@ -141,6 +142,7 @@ def fetch_theses():
 
     worktype = request.args.get('worktype', default = 1, type = int)
     page = request.args.get('page', default=1, type=int)
+    supervisor = request.args.get('supervisor', default=0, type=int)
 
     dates = [theses.publish_year for theses in Thesis.query.with_entities(Thesis.publish_year).distinct()]
     dates.sort(reverse=True)
@@ -158,13 +160,17 @@ def fetch_theses():
 
     records = Thesis.query.filter(Thesis.publish_year >= startdate).filter(Thesis.publish_year <= enddate)
 
+    if supervisor:
+        records = records.filter(Thesis.supervisor_id == supervisor)
+
     if worktype > 1:
         records = records.filter_by(type_id=worktype).paginate(per_page=10, page=page)
     else:
         records = records.paginate(per_page=10, page=page)
 
     if len(records.items):
-        return render_template('fetch_theses.html', theses=records, worktype=worktype, startdate=startdate, enddate=enddate)
+        return render_template('fetch_theses.html', theses=records, worktype=worktype, startdate=startdate,
+                               enddate=enddate, supervisor=supervisor)
     else:
         return render_template('fetch_theses_blank.html')
 
