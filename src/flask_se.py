@@ -61,15 +61,22 @@ def bachelor_application():
 
 @app.route('/bachelor/programming-technology.html')
 def bachelor_programming_technology():
-    return render_template('bachelor_programming-technology.html')
+
+    curricula1 = Curriculum.query.filter(Curriculum.course_id==1).filter(Curriculum.study_year==1).order_by(Curriculum.type).all()
+    curricula2 = Curriculum.query.filter(Curriculum.course_id==1).filter(Curriculum.study_year==2).order_by(Curriculum.type).all()
+    curricula3 = Curriculum.query.filter(Curriculum.course_id==1).filter(Curriculum.study_year == 3).order_by(Curriculum.type).all()
+    curricula4 = Curriculum.query.filter(Curriculum.course_id==1).filter(Curriculum.study_year == 4).order_by(Curriculum.type).all()
+
+    return render_template('bachelor_programming-technology.html', curricula1=curricula1, curricula2=curricula2,
+                           curricula3=curricula3, curricula4=curricula4)
 
 @app.route('/bachelor/software-engineering.html')
 def bachelor_software_engineering():
 
-    curricula1 = Curriculum.query.filter(Curriculum.study_year==1).order_by(Curriculum.type).all()
-    curricula2 = Curriculum.query.filter(Curriculum.study_year==2).order_by(Curriculum.type).all()
-    curricula3 = Curriculum.query.filter(Curriculum.study_year == 3).order_by(Curriculum.type).all()
-    curricula4 = Curriculum.query.filter(Curriculum.study_year == 4).order_by(Curriculum.type).all()
+    curricula1 = Curriculum.query.filter(Curriculum.course_id==2).filter(Curriculum.study_year==1).order_by(Curriculum.type).all()
+    curricula2 = Curriculum.query.filter(Curriculum.course_id==2).filter(Curriculum.study_year==2).order_by(Curriculum.type).all()
+    curricula3 = Curriculum.query.filter(Curriculum.course_id==2).filter(Curriculum.study_year == 3).order_by(Curriculum.type).all()
+    curricula4 = Curriculum.query.filter(Curriculum.course_id==2).filter(Curriculum.study_year == 4).order_by(Curriculum.type).all()
 
     return render_template('bachelor_software-engineering.html', curricula1=curricula1, curricula2=curricula2,
                            curricula3=curricula3, curricula4=curricula4)
