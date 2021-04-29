@@ -996,6 +996,72 @@ small,
     .list-group-flush > .list-group-item:last-child {
       border-bottom-width: 0; }
 
+.popover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1060;
+  display: block;
+  max-width: 276px;
+  font-family: "Nunito Sans", sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.7;
+  text-align: left;
+  text-align: start;
+  text-decoration: none;
+  text-shadow: none;
+  text-transform: none;
+  letter-spacing: normal;
+  word-break: normal;
+  word-spacing: normal;
+  white-space: normal;
+  line-break: auto;
+  font-size: 0.875rem;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(31, 45, 61, 0.05);
+  border-radius: 0.5rem;
+  box-shadow: 0px 0.5rem 2rem 0px rgba(31, 45, 61, 0.2); }
+
+.bs-popover-top {
+  margin-bottom: 0.5rem; }
+
+.bs-popover-right {
+  margin-left: 0.5rem; }
+
+.bs-popover-bottom {
+  margin-top: 0.5rem; }
+  .bs-popover-bottom .popover-header::before {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    display: block;
+    width: 1rem;
+    margin-left: -0.5rem;
+    content: "";
+    border-bottom: 1px solid #fff; }
+
+.bs-popover-left {
+  margin-right: 0.5rem; }
+
+.popover-header {
+  padding: 0.75rem 0.75rem;
+  margin-bottom: 0;
+  font-size: 1rem;
+  color: #E5E9F2;
+  background-color: #fff;
+  border-bottom: 1px solid #f2f2f2;
+  border-top-left-radius: calc(0.5rem - 1px);
+  border-top-right-radius: calc(0.5rem - 1px); }
+  .popover-header:empty {
+    display: none; }
+
+.popover-body {
+  padding: 0.75rem 0.75rem;
+  color: #C0CCDA; }
+
 @keyframes spinner-border {
   to {
     transform: rotate(360deg); } }
@@ -2216,6 +2282,12 @@ svg {
   text-align: center;
   font-size: 0.875rem;
   box-shadow: 0 0.125rem 0.25rem rgba(31, 45, 61, 0.08); }
+
+.popover {
+  border: 0; }
+
+.popover-header {
+  font-weight: 600; }
 
 .table thead th {
   padding-top: 0.75rem;
