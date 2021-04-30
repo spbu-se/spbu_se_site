@@ -94,6 +94,7 @@ def department_staff():
     records = Staff.query.filter_by(still_working=True).all()
     staff = []
 
+    # TODO: no need loop
     for s in records:
         position = s.position
         if s.science_degree:
@@ -135,6 +136,25 @@ def theses_search():
     filter.startdate.choices = dates
     filter.enddate.choices = dates
 
+    for sid in Thesis.query.with_entities(Thesis.supervisor_id).distinct().all():
+        staff = Staff.query.filter_by(id=sid[0]).first()
+        last_name = ""
+        initials = ""
+
+        if staff.user.last_name:
+            last_name = staff.user.last_name
+
+        if staff.user.first_name:
+            initials = initials + staff.user.first_name[0] + "."
+
+        if staff.user.middle_name:
+            initials = initials + staff.user.middle_name[0] + "."
+
+        filter.supervisor.choices.append((sid[0], last_name + " " + initials))
+        filter.supervisor.choices.sort(key=lambda tup: tup[1])
+
+    filter.supervisor.choices.insert(0, (0, "Все"))
+
     return render_template('theses.html', filter=filter)
 
 @app.route('/fetch_theses')
@@ -161,12 +181,18 @@ def fetch_theses():
     records = Thesis.query.filter(Thesis.publish_year >= startdate).filter(Thesis.publish_year <= enddate)
 
     if supervisor:
-        records = records.filter(Thesis.supervisor_id == supervisor)
+
+        # Check if supervisor exists
+        ids = Thesis.query.with_entities(Thesis.supervisor_id).distinct().all()
+        if [item for item in ids if item[0] == supervisor]:
+            records = records.filter(Thesis.supervisor_id == supervisor)
+        else:
+            supervisor = 0
 
     if worktype > 1:
-        records = records.filter_by(type_id=worktype).paginate(per_page=10, page=page)
+        records = records.filter_by(type_id=worktype).paginate(per_page=10, page=page, error_out=False)
     else:
-        records = records.paginate(per_page=10, page=page)
+        records = records.paginate(per_page=10, page=page, error_out=False)
 
     if len(records.items):
         return render_template('fetch_theses.html', theses=records, worktype=worktype, startdate=startdate,

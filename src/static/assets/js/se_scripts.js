@@ -5,7 +5,7 @@ function theses_load() {
     let theses_list = document.getElementById('ThesisList');
     let wt_select = document.getElementById('worktype');
     let page = url.searchParams.get("page");
-    let supervisor = url.searchParams.get("supervisor");
+    let supervisor_select = document.getElementById('supervisor');
     let startdate_select = document.getElementById('startdate');
     let enddate_select = document.getElementById('enddate');
 
@@ -20,8 +20,8 @@ function theses_load() {
     }
 
     // Supervisor?
-    if (supervisor){
-        params.append('supervisor', supervisor);
+    if (supervisor_select){
+        params.append('supervisor', supervisor_select.value);
     }
 
     if (wt > 1)
@@ -56,7 +56,7 @@ function theses_update() {
     let wt_select = document.getElementById('worktype');
     let startdate_select = document.getElementById('startdate');
     let enddate_select = document.getElementById('enddate');
-    let supervisor = url.searchParams.get("supervisor");
+    let supervisor_select = document.getElementById('supervisor');
 
     let params = new URLSearchParams();
     let wt = wt_select.value;
@@ -67,8 +67,8 @@ function theses_update() {
     }
 
     // If supervisor?
-    if (supervisor){
-        params.append('supervisor', supervisor);
+    if (supervisor_select){
+        params.append('supervisor', supervisor_select.value);
     }
 
     let startdate = startdate_select.value;
@@ -107,6 +107,7 @@ function theses_update() {
 let wt_select = document.getElementById('worktype');
 let startdate_select = document.getElementById('startdate');
 let enddate_select = document.getElementById('enddate');
+let supervisor_select = document.getElementById('supervisor');
 
 // Get fileters from URI
 let url_string = window.location.href
@@ -115,12 +116,23 @@ let worktype = url.searchParams.get("worktype");
 let page = url.searchParams.get("page");
 let startdate = url.searchParams.get("startdate");
 let enddate = url.searchParams.get("enddate");
+let supervisor = url.searchParams.get("supervisor");
 
 if (wt_select)
 {
     // Set filter to value from URI
     if (worktype && worktype <= wt_select.length && worktype > 0){
         wt_select.value=worktype;
+    }
+
+    if (supervisor){
+
+        // Check if this value exist
+        if (supervisor_select.innerHTML.indexOf('value="' + supervisor + '"') > -1){
+            supervisor_select.value=supervisor;
+        } else {
+            supervisor_select.value=0;
+        }
     }
 
     if (startdate){
@@ -150,4 +162,5 @@ if (wt_select)
     wt_select.onchange = theses_update;
     startdate_select.onchange = theses_update;
     enddate_select.onchange = theses_update;
+    supervisor_select.onchange = theses_update;
 }
