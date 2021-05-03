@@ -1148,6 +1148,103 @@ def get_2019_344():
             db.session.add(t)
             db.session.commit()
 
+# Add master thesis 2020
+# ПИ и МО
+
+def add_master_thesis_2020():
+
+    thesis = [
+       {'name_ru': 'Использование автоматов в интерпретаторе MACASM', 'text_uri':'_Master_Thesis_2020_text.pdf',
+   'presentation_uri':'_Master_Thesis_2020_slides.pdf', 'supervisor_review_uri': '_Master_Thesis_2020_supervisor_review.pdf',
+        'reviewer_review_uri':'_Master_Thesis_2020_reviewer_review.pdf', 'author': 'Соколова Полина Александровна',
+        'supervisor': 'Луцив', 'publish_year': 2020, 'type_id': 4, 'course_id': 7},
+       {'name_ru': 'Автоматическая калибровка внешних параметров широкоугольных камер в автомобильных системах кругового обзора',
+        'text_uri':'_Master_Thesis_2020_text.pdf', 'presentation_uri':'_Master_Thesis_2020_slides.pdf',
+        'supervisor_review_uri': '_Master_Thesis_2020_supervisor_review.pdf',
+        'reviewer_review_uri':'_Master_Thesis_2020_reviewer_review.pdf', 'author': 'Петров Алексей Андреевич',
+        'supervisor': 'Луцив', 'publish_year': 2020, 'type_id': 4, 'course_id': 7},
+       { 'name_ru': 'Эффективная разрешающая процедура для задачи выполнимости в теории номинальных систем типов с вариантностью',
+           'text_uri': '_Master_Thesis_2020_text.pdf', 'presentation_uri': '_Master_Thesis_2020_slides.pdf',
+           'supervisor_review_uri': '_Master_Thesis_2020_supervisor_review.pdf',
+           'reviewer_review_uri': '_Master_Thesis_2020_reviewer_review.pdf', 'author': 'Милова Наталья Андреевна',
+           'supervisor': 'Кознов', 'publish_year': 2020, 'type_id': 4, 'course_id': 7},
+       {
+           'name_ru': 'Веб-платформа предметно-ориентированного моделирования на базе REAL.NET',
+           'text_uri': '_Master_Thesis_2020_text.pdf', 'presentation_uri': '_Master_Thesis_2020_slides.pdf',
+           'supervisor_review_uri': '_Master_Thesis_2020_supervisor_review.pdf',
+           'reviewer_review_uri': '_Master_Thesis_2020_reviewer_review.pdf', 'author': 'Кузьмина Елизавета Владимировна',
+           'supervisor': 'Литвинов', 'publish_year': 2020, 'type_id': 4, 'course_id': 7},
+        {
+            'name_ru': 'Оценка параметров систем камер без использования калибровочных паттернов',
+            'text_uri': '_Master_Thesis_2020_text.pdf', 'presentation_uri': '_Master_Thesis_2020_slides.pdf',
+            'supervisor_review_uri': '_Master_Thesis_2020_supervisor_review.pdf',
+            'reviewer_review_uri': '_Master_Thesis_2020_reviewer_review.pdf',
+            'author': 'Синицын Даниил Дмитриевич',
+            'supervisor': 'Терехов', 'publish_year': 2020, 'type_id': 4, 'course_id': 3},
+        {
+            'name_ru': 'Синтез программ по спецификациям с множественными вызовами',
+            'text_uri': '_Master_Thesis_2020_text.pdf', 'presentation_uri': '_Master_Thesis_2020_slides.pdf',
+            'supervisor_review_uri': '_Master_Thesis_2020_supervisor_review.pdf',
+            'reviewer_review_uri': '_Master_Thesis_2020_reviewer_review.pdf',
+            'author': 'Мишенев Вадим Сергеевич',
+            'supervisor': 'Кознов', 'publish_year': 2020, 'type_id': 4, 'course_id': 3},
+        {
+            'name_ru': 'Система для расчета скоростей звука в особых областях по данным УЗИ–томографии',
+            'text_uri': '_Master_Thesis_2020_text.pdf', 'presentation_uri': '_Master_Thesis_2020_slides.pdf',
+            'supervisor_review_uri': '_Master_Thesis_2020_supervisor_review.pdf',
+            'reviewer_review_uri': '_Master_Thesis_2020_reviewer_review.pdf',
+            'author': 'Леонова Анна Васильевна',
+            'supervisor': 'Граничин', 'publish_year': 2020, 'type_id': 4, 'course_id': 3},
+        {
+            'name_ru': 'Поиск и кластеризация нечетких повторов в документации программного обеспечения',
+            'text_uri': '_Master_Thesis_2020_text.pdf', 'presentation_uri': '_Master_Thesis_2020_slides.pdf',
+            'supervisor_review_uri': '_Master_Thesis_2020_supervisor_review.pdf',
+            'reviewer_review_uri': '_Master_Thesis_2020_reviewer_review.pdf',
+            'author': 'Коновалова Ирина Михайловна',
+            'supervisor': 'Луцив', 'publish_year': 2020, 'type_id': 4, 'course_id': 3},
+        {
+            'name_ru': 'Анализ качества автодополнения кода в интегрированных средах разработки',
+            'text_uri': '_Master_Thesis_2020_text.pdf', 'presentation_uri': '_Master_Thesis_2020_slides.pdf',
+            'supervisor_review_uri': '_Master_Thesis_2020_supervisor_review.pdf',
+            'reviewer_review_uri': '_Master_Thesis_2020_reviewer_review.pdf',
+            'author': 'Калина Алексей Игоревич',
+            'supervisor': 'Луцив', 'publish_year': 2020, 'type_id': 4, 'course_id': 3},
+        {
+            'name_ru': 'Синхронизация в многопоточных МАК-обфусцированных программах',
+            'text_uri': '_Master_Thesis_2020_text.pdf', 'presentation_uri': '_Master_Thesis_2020_slides.pdf',
+            'supervisor_review_uri': '_Master_Thesis_2020_supervisor_review.pdf',
+            'reviewer_review_uri': '_Master_Thesis_2020_reviewer_review.pdf',
+            'author': 'Бабанов Пётр Андреевич',
+            'supervisor': 'Брыксин', 'publish_year': 2020, 'type_id': 4, 'course_id': 3},
+   ]
+
+    for t in thesis:
+       author_en = translit(t['author'], 'ru', reversed=True)
+       author_en = author_en.replace(" ", "_")
+       print (author_en + t['text_uri'])
+       print(author_en + t['presentation_uri'])
+       print(author_en + t['supervisor_review_uri'])
+       print(author_en + t['reviewer_review_uri'])
+
+       last_name = t['supervisor']
+       supervisor_id = 1
+
+       q = Users.query.filter_by(last_name=last_name).first()
+       if q:
+           r = Staff.query.filter_by(user_id=q.id).first()
+           supervisor_id = r.id
+       else:
+           print ("Error, no " + t['supervisor'])
+           sys.exit(1)
+
+       tt = Thesis(name_ru = t['name_ru'], text_uri=author_en + t['text_uri'], presentation_uri=author_en + t['presentation_uri'],
+                   supervisor_review_uri=author_en + t['supervisor_review_uri'], reviewer_review_uri=author_en + t['reviewer_review_uri'],
+                   author=t['author'], supervisor_id=supervisor_id, reviewer_id=2,
+                   publish_year=t['publish_year'], type_id=t['type_id'], course_id = t['course_id'])
+
+       db.session.add(tt)
+       db.session.commit()
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "load":
@@ -1163,3 +1260,4 @@ if __name__ == "__main__":
     get_2019_371()
     get_2019_343()
     get_2019_344()
+    add_master_thesis_2020()
