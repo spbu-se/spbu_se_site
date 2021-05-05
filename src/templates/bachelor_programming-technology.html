@@ -10,43 +10,55 @@
     <!-- Main content -->
     <section class="slice py-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
         <!-- Container -->
-        <div class="container pt-5 pt-lg-7 pb-lg-9 pb-7">
-            <div class="row align-items-center justify-content-center">
-                <div class="col-lg-8 text-center">
+        <div class="container align-items-center text-center text-lg-left pt-5 pt-lg-6">
+            <div class="row align-items-center">
+                <div class="col-lg-12 text-center">
                     <h1 class="text-white">Бакалаврская программа "Технологии программирования"</h1>
                     <p class="lead text-white opacity-8 mb-0">
                          Код образовательной программы &mdash; 02.03.03
                     </p>
-                    <div class="row mt-5 align-items-center justify-content-center">
-                        <div class="col-lg-6">
-                           <a href="{{ url_for('bachelor_application') }}" class="btn btn-lg btn-primary btn-icon mb-3 w-100">
-                                <span class="btn-inner--text">Как подать заявление</span>
-                            </a>
-                        </div>
-                        <!-- div class="col-lg-6">
-                            <a class="btn btn-lg btn-warning mb-3 w-100" href="https://cabinet.spbu.ru/Lists/1k_EntryLists/list_aee71347-a5fb-4523-8592-581d4740d79c.html" target="_blank">
-                                <span class="btn-inner--text">Список абитуриентов</span>
-                                <span class="btn-inner--icon">
-                                    <i data-feather="arrow-right"></i>
-                                </span>
-                            </a>
-                        </div -->
+                </div>
+            </div>
+                <div class="row mt-5">
+                    <div class="col-lg-12 text-center">
+                        <a href="{{ url_for('bachelor_application') }}" class="btn btn-lg btn-primary btn-icon mb-3">
+                            <span class="btn-inner--text">Как подать заявление</span>
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- SVG Separator -->
-        <div class="shape-container shape-position-bottom">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" preserveAspectRatio="none">
-                <path d="M 0 0 c 0 0 200 50 500 50 s 500 -50 500 -50 v 101 h -1000 v -100 z"></path>
-            </svg>
+    </section>
+
+ <section class="slice" id="programming-technology">
+        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-9 text-center">
+                    <h2 class="mb-1">
+                        Направление "Тенологии программирования"
+                    </h2>
+                </div>
+            </div>
+            <div class="row align-items-center mt-3">
+                <div class="col-lg-12 text-center text-lg-left">
+                    <p class="lead opacity-8">
+                        Направление "Технологии программирования" готовит квалифицированных программистов со знаниями математики, теоретической информатики и навыками исследовательской деятельности. Оно отличается большим выбором траекторий обучения — от грамотного технического специалиста до академического учёного, от архитектора до Data Scientist-а, причём курсы выбираете вы. Сильная техническая подготовка по программированию на младших курсах  (можно выбрать сложность программы и используемые технологии, от C++ до Python), хорошая математическая подготовка, углублённые курсы по выбору на старших курсах, практическая ориентированность программы делают из наших выпускников сильных разработчиков, способных работать в R&D-отделах крупных компаний и занимать руководящие посты.
+                    </p>
+                </div>
+            </div>
         </div>
     </section>
 
-   <section class="slice pt-0">
-        <div class="container position-relative zindex-100">
+   <section class="slice" id="applicants">
+        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-7 text-center">
+                    <h2 class="mb-1">
+                        Информация для поступающих
+                    </h2>
+                </div>
+            </div>
             <div class="row ">
-                <div class="col-lg-6 pt-5 pb-7 pb-lg-0 pt-lg-0 mt-n10">
+                <div class="col-lg-6 pb-lg-0 pt-lg-0">
                     <div class="card shadow-lg border-0" style="max-width: 100%;">
                         <div class="card-body px-4 py-4 text-center text-md-left">
                             <div class="row align-items-center">
@@ -70,7 +82,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6 pt-5 pt-lg-0 mt-n10">
+                <div class="col-lg-6 pt-lg-0">
                     <div class="card shadow-lg border-0" style="max-width: 100%;">
                         <div class="card-body px-4 py-4 text-center text-md-left">
                             <div class="row align-items-center">
@@ -149,15 +161,15 @@
                                     <tbody>
                                     <tr>
                                         <td class="px-0">Информатика и ИКТ</td>
-                                        <td class="px-0 text-center">55</td>
+                                        <td class="px-0 text-center">66</td>
                                     </tr>
                                     <tr>
                                         <td class="px-0">Математика</td>
-                                        <td class="px-0 text-center">55</td>
+                                        <td class="px-0 text-center">68</td>
                                     </tr>
                                     <tr>
                                         <td class="px-0">Русский язык</td>
-                                        <td class="px-0 text-center">55</td>
+                                        <td class="px-0 text-center">65</td>
                                     </tr>
                                     </tbody>
                                 </table>
