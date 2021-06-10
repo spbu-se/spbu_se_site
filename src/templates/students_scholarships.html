@@ -1,0 +1,99 @@
+{% extends "base_dark.html" %}
+{% block title %}Стипендии и гранты для студентов кафедры Системного программирования СПбГУ{% endblock %}
+{% block description %}Стипендии и гранты для учащихся кафедры Системного программирования СПбГУ{% endblock %}
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/department/staff.html"/>
+{% endblock %}
+
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main-back.jpg') }} );">
+        <!-- Container -->
+        <div class="container d-flex align-items-center text-center text-lg-left pt-5 pt-lg-6">
+            <div class="col px-0">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 text-center text-lg-left">
+                        <!-- Heading -->
+                        <h1 class="text-white mb-1 text-">
+                            Стипендии<br>и гранты для студентов кафедры
+                        </h1>
+                    </div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-lg-8 text-center text-lg-left">
+                        <!-- Text -->
+                        <p class="lead text-white opacity-8 mt-2 mb-0">
+                            Информация о стипендиях и грантах для учащихся на кафедре Системного программирования.
+                        </p>
+                        <p class="lead text-white opacity-8 mt-2 mb-0">
+                            Раздел находиться в разработке и содержит только частичную информация о стипендиях и грантах.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- SVG separator -->
+        <div class="shape-container shape-line shape-position-bottom">
+            <svg width="2560px" height="100px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" viewBox="0 0 2560 100" style="enable-background:new 0 0 2560 100;" xml:space="preserve" class="">
+                <polygon points="2560 0 2560 100 0 100"></polygon>
+            </svg>
+        </div>
+    </section>
+
+    <section class="slice" id="scholarships">
+        <!-- Container -->
+        <div class="container">
+            <div class="row row-grid justify-content-between align-items-center">
+                <div class="col-lg-12 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Государственная академическая стипендия</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p>~ 1 500 руб. в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            <p class="text-sm mb-0">Назначается всем студентам поступившим на первый курс. Последующая выплата производиться на основании результатов промежуточной аттестиации при условии отсутствия академической задолженности и оценки "удовлетворительно".</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <p><strong>Подавать заявку:</strong> не требуется, назначается автоматически, на основании успеваемости.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Повышенная академическая стипендия</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p>от 5 до 20 тыс. руб. в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            <p class="text-sm mb-0">Стипендия назначается студентам имеющим особые достижения в учебной, научно-исследовательской, общественной, культурно-творческой и спортивной деятельности.</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <p class="mb-0"><strong>Критерии отбора: </strong>описаны в документе <a href="https://students.spbu.ru/files/kriterii-MKN-v-20-21.xlsx" target="_blank">https://students.spbu.ru/files/kriterii-MKN-v-20-21.xlsx</a></p>
+                                    <p class="mb-0"><strong>Подавать заявку: </strong>прием заявок откроется в сентябре 2021 года.</p>
+                                    <p><strong>Дополнительная информация: </strong><a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya.html" target="_blank">https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya.html</a> </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

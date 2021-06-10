@@ -51,9 +51,13 @@ def status_404():
 def contacts():
     return render_template('contacts.html')
 
-@app.route('/students.html')
+@app.route('/students/index.html')
 def students():
     return render_template('students.html')
+
+@app.route('/students/scholarships.html')
+def scholarships():
+    return render_template('students_scholarships.html')
 
 @app.route('/bachelor/application.html')
 def bachelor_application():

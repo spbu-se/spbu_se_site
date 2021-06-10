@@ -509,7 +509,6 @@ def init_db():
         {'year': 2019, 'discipline': 'Управление проектами (по выбору)', 'study_year': 4,
          'type': 1, 'course_id': 1},
     ]
-
     curriculum2 = [
         {'year': 2019, 'discipline': 'Практикум на ЭВМ', 'semestr': 1, 'type': 1, 'course_id': 2, 'hard': 5},
         {'year': 2019, 'discipline': 'Дискретная математика', 'semestr': 1, 'type': 2, 'course_id': 2, 'hard': 5},
