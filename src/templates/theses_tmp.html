@@ -1,0 +1,98 @@
+{% extends "base_dark.html" %}
+{% block title %}Курсовые и выпускные квалификационные работы студентов Кафедры Системного Программирования{% endblock %}
+{% block description %}Список курсовых и выпускных квалификационных работ бакалавров и магистров Кафедры Системного программирования Математико-механического факультета СПбГУ.{% endblock %}
+
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/theses_tmp.html"/>
+{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice pt-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main-back.jpg')}});">
+        <!-- Container -->
+        <div class="container d-flex align-items-center text-center text-lg-left pt-5 pt-lg-6">
+            <div class="col px-0">
+                <div class="row align-items-center">
+                    <div class="col-lg-12 text-center">
+                        <!-- Heading -->
+                        <h1 class="text-white mb-1">
+                            Временные курсовые и выпускные квалификационные работы. Ожидают подтверждения!
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice clients delimiter-top delimiter-bottom bg-section-secondary" id="theses">
+        <div class="container">
+            <div class="row row-grid">
+                <div class="col-lg-9">
+                    {% for t in theses %}
+                    <div class="card border-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h6 class="mb-0"><strong>{{ t.name_ru }} [{{ t.publish_year }}]</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    {% if t.text_uri %}
+                                    <a href="{{ url_for('static', filename='/tmp/texts/' + t.text_uri) }}" class="text-reset" target="_blank">
+                                        <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Текст работы" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </div>
+                                    </a>
+                                    {% endif %}
+
+                                    {% if t.presentation_uri %}
+                                    <a href="{{ url_for('static', filename='/tmp/slides/' + t.presentation_uri) }}" class="text-reset" target="_blank">
+                                        <div class="icon icon-sm icon-shape bg-soft-warning text-warning" data-content="Презентация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                                            <i class="fas fa-file-powerpoint"></i>
+                                        </div>
+                                    </a>
+                                    {% endif %}
+
+                                    {% if t.supervisor_review_uri %}
+                                    <a href="{{ url_for('static', filename='/tmp/reviews/' + t.supervisor_review_uri) }}" class="text-reset" target="_blank">
+                                        <div class="icon icon-sm icon-shape bg-soft-primary text-primary" data-content="Отзыв руководителя" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                                            <i class="fas fa-file-alt"></i>
+                                        </div>
+                                    </a>
+                                    {% endif %}
+
+                                    {% if t.reviewer_review_uri %}
+                                    <a href="{{ url_for('static', filename='/tmp/reviews/' + t.reviewer_review_uri) }}" class="text-reset" target="_blank">
+                                        <div class="icon icon-sm icon-shape bg-soft-primary text-primary" data-content="Отзыв рецензента" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                                            <i class="fas fa-file-alt"></i>
+                                        </div>
+                                    </a>
+                                    {% endif %}
+
+                                    {% if t.source_uri %}
+                                    <a href="{{t.source_uri}}" target="_blank" class="text-reset">
+                                        <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Реализация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                                            <i class="fas fa-file-archive"></i>
+                                        </div>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            <p class="text-sm mb-0">Автор: <i>{{t.author}}</i></p>
+                            <p class="text-sm mb-0">Руководитель: <i>{{t.supervisor.user.get_name()}}</i></p>
+                            <p class="text-sm">Направление: <i>{{t.course.name}}</i></p>
+                            <a href="{{ url_for('theses_add_tmp', thesis_id=t.id) }}" class="btn btn-primary btn-lg">
+                                <span class="btn-inner--text">Добавить</span>
+                            </a>
+                            <a href="{{ url_for('theses_delete_tmp', thesis_id=t.id) }}" class="btn btn-warning btn-lg">
+                                <span class="btn-inner--text">Удалить</span>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+     </section>
+{% endblock %}

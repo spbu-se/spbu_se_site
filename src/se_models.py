@@ -94,6 +94,7 @@ class Thesis (db.Model):
 
     publish_year = db.Column(db.Integer, nullable=False)
     recomended = db.Column(db.Boolean, default=False, nullable=False)
+    temporary = db.Column(db.Boolean, default=False, nullable=False)
 
 class Tags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
