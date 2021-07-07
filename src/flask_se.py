@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask, request, render_template, make_response, redirect, url_for, jsonify
+from flask import Flask, request, render_template, make_response, redirect, url_for, jsonify, Response
 from flask_frozen import Freezer
-from werkzeug.utils import secure_filename
 
 import sys, os, json
 from datetime import datetime
@@ -10,20 +9,37 @@ from se_forms import ThesisFilter
 from os.path import splitext
 from transliterate import translit
 from urllib.parse import urlparse
+from sqlalchemy.sql.expression import func
+from werkzeug.exceptions import HTTPException
+
+from flask_admin import Admin, AdminIndexView
+from flask_admin.contrib.sqla import ModelView
+from flask_basicauth import BasicAuth
+
 from se_models import db, init_db, Staff, Users, Thesis, Worktype, Curriculum
-from  sqlalchemy.sql.expression import func
+
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
 # Flask configs
 app.config['APPLICATION_ROOT'] = '/'
+
+# Freezer config
 app.config['FREEZER_RELATIVE_URLS'] = True
 app.config['FREEZER_DESTINATION'] = '../docs'
+app.config['FREEZER_IGNORE_MIMETYPE_WARNINGS'] = True
+
+# SQLAlchimy config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///se.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.urandom(16).hex()
+
+# Secret for API
 app.config['SECRET_KEY_THESIS'] = os.urandom(16).hex()
-app.config['FREEZER_IGNORE_MIMETYPE_WARNINGS'] = True
+
+# Basci auth config
+app.config['BASIC_AUTH_USERNAME'] = 'se_staff'
+app.config['BASIC_AUTH_PASSWORD'] = app.config['SECRET_KEY_THESIS']
 
 # Init Database
 db.app = app
@@ -36,6 +52,41 @@ freezer = Freezer(app)
 
 # Init Sitemap
 zero_days_ago = (datetime.now()).date().isoformat()
+
+# Init BasicAuth
+basic_auth = BasicAuth(app)
+
+# Extend FlaskAdmin classes for BasicAuth (https://stackoverflow.com/questions/54834648/flask-basicauth-auth-required-decorator-for-flask-admin-views)
+"""
+The following three classes are inherited from their respective base class,
+and are customized, to make flask_admin compatible with BasicAuth.
+"""
+class AuthException(HTTPException):
+    def __init__(self, message):
+        super().__init__(message, Response(
+            "You could not be authenticated. Please refresh the page.", 401,
+            {'WWW-Authenticate': 'Basic realm="Login Required"'} ))
+
+class SeModelView(ModelView):
+    def is_accessible(self):
+        if not basic_auth.authenticate():
+            raise AuthException('Not authenticated.')
+        else:
+            return True
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(basic_auth.challenge())
+
+class SeAdminIndexView(AdminIndexView):
+    def is_accessible(self):
+        if not basic_auth.authenticate():
+            raise AuthException('Not authenticated.')
+        else:
+            return True
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(basic_auth.challenge())
+
+# Init Flask-admin
+admin = Admin(app, index_view=SeAdminIndexView())
 
 # Flask routes goes
 @app.route('/')
@@ -450,6 +501,10 @@ def sitemap():
     response = make_response(sitemap_xml)
     response.headers["Content-Type"] = "application/xml"
     return response
+
+# Add views to the Flask-admin
+admin.add_view(SeModelView(Users, db.session))
+admin.add_view(SeModelView(Staff, db.session))
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
