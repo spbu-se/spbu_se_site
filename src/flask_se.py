@@ -76,6 +76,41 @@ class SeModelView(ModelView):
     def inaccessible_callback(self, name, **kwargs):
         return redirect(basic_auth.challenge())
 
+class UsersModelView(ModelView):
+
+    column_exclude_list = ['password_hash']
+
+    def is_accessible(self):
+        if not basic_auth.authenticate():
+            raise AuthException('Not authenticated.')
+        else:
+            return True
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(basic_auth.challenge())
+
+class StaffModelView(ModelView):
+
+    form_choices = {
+        'science_degree': [
+            ('', ''),
+            ('д.ф.-м.н.', 'д.ф.-м.н.'),
+            ('д.т.н.', 'д.т.н.'),
+            ('к.ф.-м.н.', 'к.ф.-м.н.'),
+            ('к.т.н.', 'к.т.н.')
+        ]
+    }
+
+    column_exclude_list = ['supervisor', 'adviser']
+    form_excluded_columns = ['supervisor', 'adviser']
+
+    def is_accessible(self):
+        if not basic_auth.authenticate():
+            raise AuthException('Not authenticated.')
+        else:
+            return True
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(basic_auth.challenge())
+
 class SeAdminIndexView(AdminIndexView):
     def is_accessible(self):
         if not basic_auth.authenticate():
@@ -511,8 +546,9 @@ def sitemap():
     return response
 
 # Add views to the Flask-admin
-admin.add_view(SeModelView(Users, db.session))
-admin.add_view(SeModelView(Staff, db.session))
+admin.add_view(UsersModelView(Users, db.session))
+admin.add_view(StaffModelView(Staff, db.session))
+admin.add_view(SeModelView(Thesis, db.session))
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

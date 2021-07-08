@@ -23,7 +23,7 @@ class Staff (db.Model):
     adviser = db.relationship("Thesis", backref=db.backref("reviewer"), foreign_keys = 'Thesis.reviewer_id')
 
     def __repr__(self):
-        return '<Staff %r>' % self.official_email
+        return '<%r>' % self.official_email
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -50,7 +50,7 @@ class Users(db.Model):
         return f"{self.last_name} {self.first_name} {self.middle_name}"
 
     def __repr__(self):
-        return '<Users %r %r %r>' % (self.last_name, self.first_name, self.middle_name)
+        return '<%r %r %r>' % (self.last_name, self.first_name, self.middle_name)
 
 # Coursework, diploma
 class Worktype (db.Model):
@@ -60,7 +60,7 @@ class Worktype (db.Model):
     thesis = db.relationship("Thesis", backref=db.backref("type", uselist=False))
 
     def __repr__(self):
-        return '<WorkType %r>' % self.type
+        return '<%r>' % self.type
 
 # Courses
 class Courses(db.Model):
@@ -70,6 +70,9 @@ class Courses(db.Model):
 
     thesis = db.relationship("Thesis", backref=db.backref('course', uselist=False))
     curriculum = db.relationship("Curriculum", backref=db.backref('course', uselist=False))
+
+    def __repr__(self):
+        return '<%r>' % (self.name)
 
 class Thesis (db.Model):
     id = db.Column(db.Integer, primary_key=True)
