@@ -428,7 +428,15 @@ def post_theses():
                    temporary=True)
 
     db.session.add(t)
-    db.session.commit()
+
+    try:
+        db.session.commit()
+    except AssertionError as err:
+        db.session.rollback()
+        app.logger.error(err)
+    except Exception as err:
+        db.session.rollback()
+        app.logger.error(err)
 
     return jsonify(
         status=success_status,
