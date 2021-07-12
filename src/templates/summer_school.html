@@ -1,0 +1,224 @@
+{% extends "base_light.html" %}
+{% block title %}Летняя школа на мат-мехе СПбГУ (2021){% endblock %}
+{% block description %}Летняя проектная онлайн-школа программирования для обучающихся СПбГУ (2021, онлайн). Школа проводится с 12-го июля по 6-е августа.{% endblock %}
+
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/summer_school.html" />
+{% endblock %}
+
+{% block content %}
+     <!-- Main content -->
+<section xmlns="http://www.w3.org/1999/html">
+        <!-- Container -->
+        <div class="container d-flex align-items-center pt-5 pt-lg-6 pb-5 border-bottom">
+            <div class="col px-0">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <!-- Heading -->
+                        <h1 class="h2 mb-2">Летняя проектная онлайн-школа программирования для обучающихся СПбГУ (<strong>2021</strong>, онлайн).</h1>
+                        <!-- Text -->
+                        <p class="lead">Школа проводится с <strong>12-го июля по 6-е августа</strong>. 12 июля в 12:00 пройдёт открытие школы и презентация проектов. 6 августа презентации результатов проектов, подведение итогов и закрытие школы.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+</section>
+
+    <section class="slice slice-lg pb-0 pt-5">
+        <div class="container position-relative zindex-100 border-bottom">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="text-center">
+                        <h2 class="h2 mb-2">Проекты на летней школы</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-11 mx-auto">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="h5 mb-0 text-center">HwProj 2</h3>
+                            <p class="text-sm mb-2">
+                                Цель проекта — замена Blackboard или всяких гуглотаблиц для процесса поддержки обучения (сдачи домашек, выкладывания  материалов пар, отслеживания статуса и т.п.). Также большая часть функциональности разрабатываемой системы направлена на автоматизацию работы с учебными практиками — сбор и выдача тем, отслеживание прогресса, поддержка рецензирования текстов, поддержка защит практик. Проект разрабатывается уже давно, кода написано довольно много, но всё ещё не было попыток его внедрения, потому что уж очень многое (особенно во фронтенде и интеграции фронтенда с бекендом) надо доделать. Задачей летней школы будет сделать и развернуть минимальную полезную версию к началу осеннего семестра.
+                            </p>
+                            <p class="text-sm mb-2">
+                                Архитектурно проект представляет собой типичную современную информационную систему — микросервисная архитектура, микросервисы соединены шиной на RabbitMQ, взаимодействуют с фронтендом через шлюз на Ocelot (постепенно заменяем на Giraffe), каждый имеет свою БД. Фронтенд пишется на TypeScript с библиотеками React + MaterialUI.
+                            </p>
+                            <p class="text-sm mb-2">Проект критичен для кафедры системного программирования, поэтому ожидайте высокие требования по ходу работы и много славы в конце.</p>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="h6 mb-0">Технологии</h6>
+                            <p class="text-sm mb-0">C# (и немного F#), ASP.NET Core, Entity Framework Core, TypeScript, React, RabbitMQ</p>
+
+                            <h6 class="h6 mt-4 mb-0">Репозиторий</h6>
+                            <p class="text-sm mb-0"><a target="_blank" href="https://github.com/InteIIigeNET/HwProj-2.0.1">https://github.com/InteIIigeNET/HwProj-2.0.1</a></p>
+
+                            <h6 class="h6 mt-4 mb-0">Требования к кандидату</h6>
+                            <p class="text-sm mb-0">Навыки программирования под .NET, желательно владение веб-разработкой или большое желание её освоить. Приём в проект по собеседованию.</p>
+
+                            <h6 class="h6 mt-4 mb-0">Руководители</h6>
+                            <p class="text-sm mb-0">Бережных Алексей Владимирович, Литвинов Юрий Викторович</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="h5 mb-2 text-center">Конструктор вычислителей</h3>
+                            <p class="text-sm mb-2">
+                                Целью проекта является создание инструмента, иллюстрирующего различные вычислители, для использования его в учебном процессе на курсах “Программирование”, “Теория автоматов и формальных языков”, “Проектирование программного обеспечения”. Инструмент должен позволять преподавателю демонстрировать работу вычислителей, а студентам — экспериментировать с различными вычислителями, облегчать создание вычислителей, решающих конкретные задачи (например, автомата, разбирающего заданное регулярное выражение), в конечном итоге повышая уровень освоения материала.
+                            </p>
+                            <p class="text-sm mb-2">
+                                Также возможно применение разрабатываемого ПО в промышленных проектах с целью быстрой разработки конечных автоматов и генерации по ним кода.
+                            </p>
+                            <p class="text-sm mb-2">
+                                Минимальные полезные версии уже были разработаны в ходе учебных практик второго курса, в летней школе надо будет развивать уже существующие проекты.
+                            </p>
+                            <p class="text-sm mb-2">
+                                Подробное техническое задание: <a target="_blank" href="https://docs.google.com/document/d/1MG2lUpvM-c7l8idzfboZMIwJK24I4dQdTPD3zrPxhgU">https://docs.google.com/document/d/1MG2lUpvM-c7l8idzfboZMIwJK24I4dQdTPD3zrPxhgU</a>. На данный момент закончена Фаза 1 из ТЗ.
+                            </p>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="h6 mb-0">Технологии</h6>
+                            <p class="text-sm mb-2">
+                                У нас есть две версии проекта, одна десктопная, другая веб. Они развиваются независимо, в рамках летней школы можно заняться той, что больше нравится. Десктопная: C#, WPF, GraphX  Веб: TypeScript, React, Vis-Network.
+                            </p>
+
+                            <h6 class="h6 mt-4 mb-0">Репозиторий</h6>
+                            <p class="text-sm mb-0"><a target="_blank" href="https://github.com/spbu-se/WebAutomataConstructor">https://github.com/spbu-se/WebAutomataConstructor</a></p>
+                            <p class="text-sm mb-0"><a target="_blank" href="https://github.com/spbu-se/DesktopAutomataConstructor">https://github.com/spbu-se/DesktopAutomataConstructor</a></p>
+
+                            <h6 class="h6 mt-4 mb-0">Демо</h6>
+                            <p class="text-sm mb-0"><a target="_blank" href="https://spbu-se.github.io/WebAutomataConstructor/">Веб-версия</a></p>
+                            <p class="text-sm mb-0"><a target="_blank" href="https://drive.google.com/file/d/1wNLT50_zxLlvZY_OKSHR4TTCJ6I8YphO">Десктопная версия</a></p>
+
+                            <h6 class="h6 mt-4 mb-0">Требования к кандидату</h6>
+                            <p class="text-sm mb-0">Желание разбираться в чужом коде и писать много своего. Технологиям научим.</p>
+
+                            <h6 class="h6 mt-4 mb-0">Руководители</h6>
+                            <p class="text-sm mb-0">Плоскин Александр Евгеньевич (десктопная версия), Усманов Артур Радикович (веб-версия), Литвинов Юрий Викторович</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice slice-lg pb-0 pt-5">
+        <div class="container position-relative zindex-100">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="text-center">
+                        <h2 class="h2 mb-5">Программная инженерия и Технологии программирования</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="row row-grid justify-content-center">
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Сложно ли учиться на мат-мехе?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Плохой вопрос. Кому-то сложно, а кому-то нет.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Много математики? Хватит ли уровня ЕГЭ?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">На Программной инженерии поменьше и полегче, на Технологии программирования побольше, но всё равно не так, как на других направлениях мат-меха. В целом, уровня ЕГЭ для начала хватит. Главное — не забивать на учёбу.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Хочу программировать, куда идти?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Программная инженерия! Круче на мат-мехе не найдёшь. На Технологии программирования тоже есть шанс попасть в группу с сильной прогой, тогда будет очень хорошо. Если вдруг проги будет мало, всегда можно ходить на пары к другим преподавателям и в кружки всякие.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Есть физика?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Нет, физики нет. На Технологии программирования будет матфизика (3 курс), но это совсем не то, что было в школе.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Будут прикладные знания по программированию?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Будут, можно даже не сомневаться)</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Преподаватели хорошие?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">В основном, да, но есть, конечно, исключения.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Как со свободным временем?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Оно есть, его вполне достаточно. Отдохнуть/заняться спортом всегда будет возможность, но есть такое мнение: “На ПИ основная нагрузка — сидеть дома/в лабораториях/компаниях и кодить. То есть как бы времени много, но его не должно оставаться” (с).</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Сложно перевестись на ПИ/ТП?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">После первого семестра достаточно сложно (особенно на ПИ, ибо мест меньше), потом, конечно, полегче, но придётся закрывать академ.разницу.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Есть стажировки для студентов?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Выбор есть. Информации о стажировках в инфополе мат-меха очень много и уровень подготовки вполне позволяет на них претендовать. Это и широко известные компании, и интересные небольшие проекты. Кроме общих объявлений есть традиция приватных “инвайтов”. В чатики иногда заходят выпускники, приглашают напрямую. Ещё бывает, что в лабы приглашают тех, кто хорошо проявил себя на учёбе. В общем, варианты есть.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Какие языки программирования будут?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Много разных. Надо различать курсы и проекты. На проектах вообще всё может случиться. По учёбе примерно следующее: обязательно будут С, ООП и параллельное программирование на Java/Kotlin и C#. Python для обработки изображений, данных, Машинное обучение (ML). Обязательно будет функциональное программирование, там Haskell, где-то Scala, OCaml, бывает F#.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <!-- div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Что посмотреть перед учебой?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <span itemprop="text">
+                                        <p >На самом деле, я бы ничего не рекомендовал, потому что математическую литературу читать почти невозможно, если вам не преподавали математику определенным образом, а с прогой особых проблем не должно быть, но есть пара рекомендаций:</p>
+                                        <ol class="pl-3">
+                                            <li class="pb-3">
+                                        <span class="align-middle">CS 50 на русском на YouTube.</span>
+                                    </li>
+                                            <li class="pb-3">
+                                                <span class="align-middle"><a href="http://www-cs-students.stanford.edu/~blynn/gitmagic/intl/ru/" target="_blank">Волшебство Git</a>.</span>
+                                            </li>
+                                            <li class="pb-3">
+                                                <span class="align-middle">Курс на Stepik <a href="https://stepik.org/course/762/promo" target="_blank">Основы Linux</a>.</span>
+                                            </li>
+                                        </ol>
+                                    </span>
+                                </span>
+                            </div>
+                        </div -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

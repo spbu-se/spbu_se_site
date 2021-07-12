@@ -520,6 +520,11 @@ def theses_add_tmp():
 
     return redirect(url_for('theses_tmp'))
 
+@app.route('/summer_school.html')
+def summer_school():
+
+    return render_template('summer_school.html')
+
 @app.route('/sitemap.xml', methods=['GET'])
 @app.route('/Sitemap.xml', methods=['GET'])
 def sitemap():
