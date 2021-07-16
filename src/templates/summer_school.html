@@ -44,15 +44,21 @@
                                 {{proj.tech}}
                             </p>
                         </div>
+
                         <div class="card-body pt-0">
                             <h6 class="h6 mb-0">Репозиторий</h6>
                             <p class="text-sm mb-0">{{proj.repo | safe}}</p>
 
+                            {% if proj.demos %}
+                            <h6 class="h6 mb-0">Демо</h6>
+                            <p class="text-sm mb-0">{{proj.demos | safe}}</p>
+                            {% endif %}
+
                             <h6 class="h6 mt-4 mb-0">Требования к кандидату</h6>
-                            <p class="text-sm mb-0">{{proj.requirements}}</p>
+                            <p class="text-sm">{{proj.requirements}}</p>
 
                             <h6 class="h6 mt-4 mb-0">Руководители</h6>
-                            <p class="text-sm mb-0">{{proj.advisors}}</p>
+                            <p class="text-sm">{{proj.advisors}}</p>
                         </div>
                     </div>
                 </div>
