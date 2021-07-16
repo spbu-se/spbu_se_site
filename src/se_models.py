@@ -114,6 +114,17 @@ class Curriculum(db.Model):
 
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
 
+class SummerSchool(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    year = db.Column(db.Integer, default=2021, nullable=False)
+    project_name = db.Column(db.String(1024), nullable=False)
+    description = db.Column(db.String(2048), nullable=False)
+    tech = db.Column(db.String(1024), nullable=False)
+    repo = db.Column(db.String(1024), nullable=True)
+    demos = db.Column(db.String(1024), nullable=True)
+    advisors = db.Column(db.String(1024), nullable=False)
+    requirements = db.Column(db.String(1024), nullable=False)
+
 def init_db():
 
     # Data

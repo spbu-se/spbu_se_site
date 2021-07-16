@@ -25,79 +25,38 @@
 </section>
 
     <section class="slice slice-lg pb-0 pt-5">
-        <div class="container position-relative zindex-100 border-bottom">
+        <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="text-center">
-                        <h2 class="h2 mb-2">Проекты на летней школы</h2>
+                        <h2 class="h2 mb-2">Проекты летней школы</h2>
                     </div>
                 </div>
             </div>
+
             <div class="row">
-                <div class="col-lg-11 mx-auto">
-                    <div class="card">
+                {% for proj in projects %}
+                <div class="col-lg-6 my-2 d-flex align-items-stretch">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
                         <div class="card-header">
-                            <h3 class="h5 mb-0 text-center">HwProj 2</h3>
-                            <p class="text-sm mb-2">
-                                Цель проекта — замена Blackboard или всяких гуглотаблиц для процесса поддержки обучения (сдачи домашек, выкладывания  материалов пар, отслеживания статуса и т.п.). Также большая часть функциональности разрабатываемой системы направлена на автоматизацию работы с учебными практиками — сбор и выдача тем, отслеживание прогресса, поддержка рецензирования текстов, поддержка защит практик. Проект разрабатывается уже давно, кода написано довольно много, но всё ещё не было попыток его внедрения, потому что уж очень многое (особенно во фронтенде и интеграции фронтенда с бекендом) надо доделать. Задачей летней школы будет сделать и развернуть минимальную полезную версию к началу осеннего семестра.
+                            <h3 class="h5 mb-0 text-left"><strong>{{proj.project_name}}</strong></h3>
+                            <p class="text-sm mt-0">
+                                {{proj.tech}}
                             </p>
-                            <p class="text-sm mb-2">
-                                Архитектурно проект представляет собой типичную современную информационную систему — микросервисная архитектура, микросервисы соединены шиной на RabbitMQ, взаимодействуют с фронтендом через шлюз на Ocelot (постепенно заменяем на Giraffe), каждый имеет свою БД. Фронтенд пишется на TypeScript с библиотеками React + MaterialUI.
-                            </p>
-                            <p class="text-sm mb-2">Проект критичен для кафедры системного программирования, поэтому ожидайте высокие требования по ходу работы и много славы в конце.</p>
                         </div>
-                        <div class="card-body">
-                            <h6 class="h6 mb-0">Технологии</h6>
-                            <p class="text-sm mb-0">C# (и немного F#), ASP.NET Core, Entity Framework Core, TypeScript, React, RabbitMQ</p>
-
-                            <h6 class="h6 mt-4 mb-0">Репозиторий</h6>
-                            <p class="text-sm mb-0"><a target="_blank" href="https://github.com/InteIIigeNET/HwProj-2.0.1">https://github.com/InteIIigeNET/HwProj-2.0.1</a></p>
+                        <div class="card-body pt-0">
+                            <h6 class="h6 mb-0">Репозиторий</h6>
+                            <p class="text-sm mb-0">{{proj.repo | safe}}</p>
 
                             <h6 class="h6 mt-4 mb-0">Требования к кандидату</h6>
-                            <p class="text-sm mb-0">Навыки программирования под .NET, желательно владение веб-разработкой или большое желание её освоить. Приём в проект по собеседованию.</p>
+                            <p class="text-sm mb-0">{{proj.requirements}}</p>
 
                             <h6 class="h6 mt-4 mb-0">Руководители</h6>
-                            <p class="text-sm mb-0">Бережных Алексей Владимирович, Литвинов Юрий Викторович</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="h5 mb-2 text-center">Конструктор вычислителей</h3>
-                            <p class="text-sm mb-2">
-                                Целью проекта является создание инструмента, иллюстрирующего различные вычислители, для использования его в учебном процессе на курсах “Программирование”, “Теория автоматов и формальных языков”, “Проектирование программного обеспечения”. Инструмент должен позволять преподавателю демонстрировать работу вычислителей, а студентам — экспериментировать с различными вычислителями, облегчать создание вычислителей, решающих конкретные задачи (например, автомата, разбирающего заданное регулярное выражение), в конечном итоге повышая уровень освоения материала.
-                            </p>
-                            <p class="text-sm mb-2">
-                                Также возможно применение разрабатываемого ПО в промышленных проектах с целью быстрой разработки конечных автоматов и генерации по ним кода.
-                            </p>
-                            <p class="text-sm mb-2">
-                                Минимальные полезные версии уже были разработаны в ходе учебных практик второго курса, в летней школе надо будет развивать уже существующие проекты.
-                            </p>
-                            <p class="text-sm mb-2">
-                                Подробное техническое задание: <a target="_blank" href="https://docs.google.com/document/d/1MG2lUpvM-c7l8idzfboZMIwJK24I4dQdTPD3zrPxhgU">https://docs.google.com/document/d/1MG2lUpvM-c7l8idzfboZMIwJK24I4dQdTPD3zrPxhgU</a>. На данный момент закончена Фаза 1 из ТЗ.
-                            </p>
-                        </div>
-                        <div class="card-body">
-                            <h6 class="h6 mb-0">Технологии</h6>
-                            <p class="text-sm mb-2">
-                                У нас есть две версии проекта, одна десктопная, другая веб. Они развиваются независимо, в рамках летней школы можно заняться той, что больше нравится. Десктопная: C#, WPF, GraphX  Веб: TypeScript, React, Vis-Network.
-                            </p>
-
-                            <h6 class="h6 mt-4 mb-0">Репозиторий</h6>
-                            <p class="text-sm mb-0"><a target="_blank" href="https://github.com/spbu-se/WebAutomataConstructor">https://github.com/spbu-se/WebAutomataConstructor</a></p>
-                            <p class="text-sm mb-0"><a target="_blank" href="https://github.com/spbu-se/DesktopAutomataConstructor">https://github.com/spbu-se/DesktopAutomataConstructor</a></p>
-
-                            <h6 class="h6 mt-4 mb-0">Демо</h6>
-                            <p class="text-sm mb-0"><a target="_blank" href="https://spbu-se.github.io/WebAutomataConstructor/">Веб-версия</a></p>
-                            <p class="text-sm mb-0"><a target="_blank" href="https://drive.google.com/file/d/1wNLT50_zxLlvZY_OKSHR4TTCJ6I8YphO">Десктопная версия</a></p>
-
-                            <h6 class="h6 mt-4 mb-0">Требования к кандидату</h6>
-                            <p class="text-sm mb-0">Желание разбираться в чужом коде и писать много своего. Технологиям научим.</p>
-
-                            <h6 class="h6 mt-4 mb-0">Руководители</h6>
-                            <p class="text-sm mb-0">Плоскин Александр Евгеньевич (десктопная версия), Усманов Артур Радикович (веб-версия), Литвинов Юрий Викторович</p>
+                            <p class="text-sm mb-0">{{proj.advisors}}</p>
                         </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
         </div>
     </section>

@@ -15,9 +15,10 @@ from werkzeug.exceptions import HTTPException
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_basicauth import BasicAuth
+from flask_migrate import Migrate
 
-from se_models import db, init_db, Staff, Users, Thesis, Worktype, Curriculum
-
+from se_models import db, init_db, Staff, Users, Thesis, Worktype, Curriculum, SummerSchool
+from wtforms import TextAreaField
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -44,6 +45,9 @@ app.config['BASIC_AUTH_PASSWORD'] = app.config['SECRET_KEY_THESIS']
 # Init Database
 db.app = app
 db.init_app(app)
+
+# Init Migrate
+migrate = Migrate(app, db)
 
 app.logger.error('SECRET_KEY_THESIS: %s', str(app.config['SECRET_KEY_THESIS']))
 
@@ -85,6 +89,52 @@ class UsersModelView(ModelView):
             raise AuthException('Not authenticated.')
         else:
             return True
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(basic_auth.challenge())
+
+class SummerSchoolView(ModelView):
+
+    form_overrides = {
+        'description': TextAreaField,
+        'repo': TextAreaField,
+        'demos': TextAreaField
+    }
+
+    form_widget_args = {
+        'description': {
+            'rows': 10,
+            'style': 'font-family: monospace; width: 680px;'
+        },
+        'project_name': {
+            'style' : 'width: 680px;'
+        },
+        'tech': {
+            'rows': 3,
+            'style': 'font-family: monospace; width: 680px;'
+        },
+        'repo': {
+            'rows': 3,
+            'style': 'font-family: monospace; width: 680px;'
+        },
+        'demos': {
+            'rows': 3,
+            'style': 'font-family: monospace; width: 680px;'
+        },
+        'advisors': {
+            'rows': 2,
+            'style': 'font-family: monospace; width: 680px;'
+        },
+        'requirements': {
+            'rows': 3,
+            'style': 'font-family: monospace; width: 680px;'
+        },
+    }
+    def is_accessible(self):
+        if not basic_auth.authenticate():
+            raise AuthException('Not authenticated.')
+        else:
+            return True
+
     def inaccessible_callback(self, name, **kwargs):
         return redirect(basic_auth.challenge())
 
@@ -523,7 +573,8 @@ def theses_add_tmp():
 @app.route('/summer_school.html')
 def summer_school():
 
-    return render_template('summer_school.html')
+    projects = SummerSchool.query.filter_by(year=2021).all()
+    return render_template('summer_school.html', projects=projects)
 
 @app.route('/sitemap.xml', methods=['GET'])
 @app.route('/Sitemap.xml', methods=['GET'])
@@ -554,6 +605,7 @@ def sitemap():
 admin.add_view(UsersModelView(Users, db.session))
 admin.add_view(StaffModelView(Staff, db.session))
 admin.add_view(SeModelView(Thesis, db.session))
+admin.add_view(SummerSchoolView(SummerSchool, db.session))
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
