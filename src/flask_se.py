@@ -326,7 +326,7 @@ def fetch_theses():
     if enddate < startdate:
         enddate = startdate
 
-    records = Thesis.query.filter(Thesis.temporary == False).filter(Thesis.publish_year >= startdate).filter(Thesis.publish_year <= enddate)
+    records = Thesis.query.filter(Thesis.temporary == False).filter(Thesis.publish_year >= startdate).filter(Thesis.publish_year <= enddate).order_by(Thesis.publish_year.desc())
 
     if supervisor:
 
