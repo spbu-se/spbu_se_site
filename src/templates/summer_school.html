@@ -46,8 +46,10 @@
                         </div>
 
                         <div class="card-body pt-0">
+                            {% if proj.repo %}
                             <h6 class="h6 mb-0">Репозиторий</h6>
                             <p class="text-sm mb-0">{{proj.repo | safe}}</p>
+                            {% endif %}
 
                             {% if proj.demos %}
                             <h6 class="h6 mb-0">Демо</h6>

@@ -570,7 +570,7 @@ def theses_add_tmp():
 
     return redirect(url_for('theses_tmp'))
 
-@app.route('/summer_school.html')
+@app.route('/summer_school_2021.html')
 def summer_school():
 
     projects = SummerSchool.query.filter_by(year=2021).all()
