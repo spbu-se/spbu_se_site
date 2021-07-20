@@ -7,54 +7,6 @@
     <meta name="description" content="{% block description %}{% endblock %}">
     <meta name="author" content="Илья Зеленчук">
     <title>{% block title %}{% endblock %}</title>
-    <!-- Preloader -->
-    <style>
-        @keyframes hidePreloader {
-            0% {
-                width: 100%;
-                height: 100%;
-            }
-
-            100% {
-                width: 0;
-                height: 0;
-            }
-        }
-
-        body>div.preloader {
-            position: fixed;
-            background: white;
-            width: 100%;
-            height: 100%;
-            z-index: 1071;
-            opacity: 0;
-            transition: opacity .5s ease;
-            overflow: hidden;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        body:not(.loaded)>div.preloader {
-            opacity: 1;
-        }
-
-        body:not(.loaded) {
-            overflow: hidden;
-        }
-
-        body.loaded>div.preloader {
-            animation: hidePreloader .5s linear .5s forwards;
-        }
-    </style>
-    <script>
-        window.addEventListener("load", function() {
-            setTimeout(function() {
-                document.querySelector('body').classList.add('loaded');
-            }, 100);
-        });
-    </script>
 
     <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -67,7 +19,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='/assets/img/favicon.png') }}" type="image/png">
     <!-- Quick CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/min/quick-website.css') }}" id="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/min/quick-website.min.css') }}" id="stylesheet">
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/animate.css/animate.min.css') }}">
     <!-- Font Awesome -->
@@ -82,13 +34,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- SPbU topbar (noscript) -->
 <script type="text/javascript"> (function(){ var sc = document.createElement('script'); sc.type = 'text/javascript'; sc.async = true; sc.src = '//topbar.spbu.ru/loader.js'; var ls = document.getElementsByTagName('script')[0]; ls.parentNode.insertBefore(sc, ls); })(); </script>
 <!-- End SPbU topbar (noscript) -->
-
-    <!-- Preloader -->
-    <div class="preloader">
-        <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Загрузка...</span>
-        </div>
-    </div>
 
     <div class="fixed-bottom bg-dark-dark alert mb-0 cookiealert collapse" id="modal-cookies" role="alert">
     <!-- Text -->
