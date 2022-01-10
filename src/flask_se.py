@@ -17,7 +17,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_basicauth import BasicAuth
 from flask_migrate import Migrate
 
-from se_models import db, init_db, Staff, Users, Thesis, Worktype, Curriculum, SummerSchool
+from se_models import db, init_db, Staff, Users, Thesis, Worktype, Curriculum, SummerSchool, Courses
 from wtforms import TextAreaField
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
@@ -277,7 +277,22 @@ def nooffer():
 def theses_search():
 
     filter = ThesisFilter()
-    filter.worktype.choices = [(worktype.id, worktype.type) for worktype in Worktype.query.all()]
+
+    for sid in Thesis.query.with_entities(Thesis.type_id).distinct().all():
+        type = Worktype.query.filter_by(id=sid[0]).first()
+
+        filter.worktype.choices.append((sid[0], type.type))
+        filter.worktype.choices.sort(key=lambda tup: tup[1])
+
+    # filter.worktype.choices = [(worktype.id, worktype.type) for worktype in Worktype.query.all()]
+
+    for sid in Thesis.query.with_entities(Thesis.course_id).distinct().all():
+        course = Courses.query.filter_by(id=sid[0]).first()
+
+        filter.course.choices.append((sid[0], course.name))
+        filter.course.choices.sort(key=lambda tup: tup[1])
+
+    #filter.course.choices = [(course.id, course.name) for course in Courses.query.all()]
 
     dates = [theses.publish_year for theses in Thesis.query.filter(Thesis.temporary == False).with_entities(Thesis.publish_year).distinct()]
     dates.sort(reverse=True)
@@ -302,6 +317,8 @@ def theses_search():
         filter.supervisor.choices.sort(key=lambda tup: tup[1])
 
     filter.supervisor.choices.insert(0, (0, "Все"))
+    filter.course.choices.insert(0, (0, "Все"))
+    filter.worktype.choices.insert(0, (0, "Все"))
 
     return render_template('theses.html', filter=filter)
 
@@ -311,6 +328,7 @@ def fetch_theses():
     worktype = request.args.get('worktype', default = 1, type = int)
     page = request.args.get('page', default=1, type=int)
     supervisor = request.args.get('supervisor', default=0, type=int)
+    course = request.args.get('course', default=0, type=int)
 
     dates = [theses.publish_year for theses in Thesis.query.filter(Thesis.temporary == False).with_entities(Thesis.publish_year).distinct()]
     dates.sort(reverse=True)
@@ -319,8 +337,8 @@ def fetch_theses():
         startdate = request.args.get('startdate', default=dates[-1], type=int)
         enddate = request.args.get('enddate', default=dates[0], type=int)
     else:
-        startdate = 2020
-        enddate = 2020
+        startdate = 2021
+        enddate = 2021
 
     # Check if end date less than start date
     if enddate < startdate:
@@ -328,11 +346,18 @@ def fetch_theses():
 
     records = Thesis.query.filter(Thesis.temporary == False).filter(Thesis.publish_year >= startdate).filter(Thesis.publish_year <= enddate).order_by(Thesis.publish_year.desc())
 
+    if course:
+        # Check if course exists
+        records = records.filter(Thesis.course_id == course)
+
     if supervisor:
 
         # Check if supervisor exists
+        print (supervisor)
         ids = Thesis.query.with_entities(Thesis.supervisor_id).distinct().all()
+        print (ids)
         if [item for item in ids if item[0] == supervisor]:
+            print (456)
             records = records.filter(Thesis.supervisor_id == supervisor)
         else:
             supervisor = 0
@@ -343,8 +368,8 @@ def fetch_theses():
         records = records.paginate(per_page=10, page=page, error_out=False)
 
     if len(records.items):
-        return render_template('fetch_theses.html', theses=records, worktype=worktype, startdate=startdate,
-                               enddate=enddate, supervisor=supervisor)
+        return render_template('fetch_theses.html', theses=records, worktype=worktype, course=course,
+                               startdate=startdate, enddate=enddate, supervisor=supervisor)
     else:
         return render_template('fetch_theses_blank.html')
 

@@ -6,6 +6,7 @@ function theses_load() {
     let wt_select = document.getElementById('worktype');
     let page = url.searchParams.get("page");
     let supervisor_select = document.getElementById('supervisor');
+    let course_select = document.getElementById('course');
     let startdate_select = document.getElementById('startdate');
     let enddate_select = document.getElementById('enddate');
 
@@ -22,6 +23,11 @@ function theses_load() {
     // Supervisor?
     if (supervisor_select){
         params.append('supervisor', supervisor_select.value);
+    }
+
+    // Course?
+    if (course_select){
+        params.append('course', course_select.value);
     }
 
     if (wt > 1)
@@ -57,6 +63,7 @@ function theses_update() {
     let startdate_select = document.getElementById('startdate');
     let enddate_select = document.getElementById('enddate');
     let supervisor_select = document.getElementById('supervisor');
+    let course_select = document.getElementById('course');
 
     let params = new URLSearchParams();
     let wt = wt_select.value;
@@ -69,6 +76,11 @@ function theses_update() {
     // If supervisor?
     if (supervisor_select){
         params.append('supervisor', supervisor_select.value);
+    }
+
+    // If course?
+    if (course_select){
+        params.append('course', course_select.value);
     }
 
     let startdate = startdate_select.value;
@@ -108,6 +120,7 @@ let wt_select = document.getElementById('worktype');
 let startdate_select = document.getElementById('startdate');
 let enddate_select = document.getElementById('enddate');
 let supervisor_select = document.getElementById('supervisor');
+let course_select = document.getElementById('course');
 
 // Get fileters from URI
 let url_string = window.location.href
@@ -117,6 +130,7 @@ let page = url.searchParams.get("page");
 let startdate = url.searchParams.get("startdate");
 let enddate = url.searchParams.get("enddate");
 let supervisor = url.searchParams.get("supervisor");
+let course = url.searchParams.get("course");
 
 if (wt_select)
 {
@@ -132,6 +146,14 @@ if (wt_select)
             supervisor_select.value=supervisor;
         } else {
             supervisor_select.value=0;
+        }
+    }
+
+    if (course){
+        if (course_select.innerHTML.indexOf('value="' + course + '"') > -1){
+            course_select.value=course;
+        } else {
+            course_select.value=0;
         }
     }
 
@@ -163,4 +185,5 @@ if (wt_select)
     startdate_select.onchange = theses_update;
     enddate_select.onchange = theses_update;
     supervisor_select.onchange = theses_update;
+    course_select.onchange = theses_update;
 }
