@@ -9,6 +9,7 @@ tag = db.Table('tag',
                db.Column('thesis_id', db.Integer, db.ForeignKey('thesis.id'), primary_key=True)
                )
 
+
 class Staff (db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -24,6 +25,7 @@ class Staff (db.Model):
 
     def __repr__(self):
         return '<%r>' % self.official_email
+
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,6 +54,7 @@ class Users(db.Model):
     def __repr__(self):
         return '<%r %r %r>' % (self.last_name, self.first_name, self.middle_name)
 
+
 # Coursework, diploma
 class Worktype (db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -61,6 +64,7 @@ class Worktype (db.Model):
 
     def __repr__(self):
         return '<%r>' % self.type
+
 
 # Courses
 class Courses(db.Model):
@@ -73,6 +77,7 @@ class Courses(db.Model):
 
     def __repr__(self):
         return '<%r>' % (self.name)
+
 
 class Thesis (db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -99,10 +104,12 @@ class Thesis (db.Model):
     recomended = db.Column(db.Boolean, default=False, nullable=False)
     temporary = db.Column(db.Boolean, default=False, nullable=False)
 
+
 class Tags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
     tags = db.relationship('Thesis', secondary=tag, lazy='subquery', backref=db.backref('tags', lazy=True))
+
 
 class Curriculum(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -114,6 +121,7 @@ class Curriculum(db.Model):
 
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
 
+
 class SummerSchool(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     year = db.Column(db.Integer, default=2021, nullable=False)
@@ -124,6 +132,16 @@ class SummerSchool(db.Model):
     demos = db.Column(db.String(1024), nullable=True)
     advisors = db.Column(db.String(1024), nullable=False)
     requirements = db.Column(db.String(1024), nullable=False)
+
+
+class Grants(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(1024), nullable=False)
+    description = db.Column(db.String(2048), nullable=True)
+    amount = db.Column(db.String(2048), nullable=False)
+    submission = db.Column(db.String(2048), nullable=False)
+    contacts = db.Column(db.String(2048), nullable=True)
+
 
 def init_db():
 
@@ -680,5 +698,3 @@ def init_db():
         for tag in records:
             t.tags.append(tag)
             db.session.commit()
-
-    return
