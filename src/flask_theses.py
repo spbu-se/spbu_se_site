@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from flask import render_template, request, jsonify, redirect, url_for
 import json, os
 from se_forms import ThesisFilter
