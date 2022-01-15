@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, request, jsonify, redirect, url_for
-import json, os
-from se_forms import ThesisFilter
-from os.path import splitext
-from transliterate import translit
-from urllib.parse import urlparse
-from se_models import db, Staff, Users, Thesis, Worktype, Courses
+import json
 import logging
-from flask_config import SECRET_KEY_THESIS
+import os
+from os.path import splitext
+from urllib.parse import urlparse
+
+from flask import render_template, request, jsonify, redirect, url_for
+from transliterate import translit
+
+from flask_se_config import SECRET_KEY_THESIS
+from se_forms import ThesisFilter
+from se_models import db, Staff, Users, Thesis, Worktype, Courses
 
 log = logging.getLogger('flask_se.sub')
 

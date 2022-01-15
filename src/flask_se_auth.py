@@ -1,0 +1,147 @@
+# -*- coding: utf-8 -*-
+
+import os
+
+from PIL import Image
+
+from flask_login import login_user, login_required, logout_user, current_user, LoginManager
+from flask import make_response, session, request, flash, render_template, redirect, url_for
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from flask_se_config import secure_filename
+from se_models import db, Users
+
+# Global variables
+UPLOAD_FOLDER = 'static/images/avatars/'
+UPLOAD_TMP_FOLDER = 'static/tmp/avatars/'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+login_manager = LoginManager()
+
+# create an alias of login_required decorator
+login_required = login_required
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Users.query.get(int(user_id))
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def login_index():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = Users.query.filter_by(email=email).first()
+        if user:
+            if check_password_hash(user.password_hash, password):
+                login_user(user, remember=True)
+                return redirect(url_for('user_profile'))
+            else:
+                flash('Incorrect password, try again.', category='error')
+        else:
+            flash('Email does not exist.', category='error')
+
+    return render_template('auth/login.html', user=current_user)
+
+
+def register_basic():
+    if request.method == 'POST':
+        email = request.form.get('email').strip()
+        password = request.form.get('password')
+        first_name = request.form.get('first_name').strip()
+
+        user = Users.query.filter_by(email=email).first()
+        if user:
+            flash('Такой почтовый адрес уже зарегистрирован.', category='error')
+        elif len(email) < 5:
+            flash('Почтовый адрес должен быть больше чем 5 символов', category='error')
+        elif len(password) < 5:
+            flash('Пароль должен быть больше чем 5 символов', category='error')
+        elif len(first_name) < 1:
+            flash('Имя не может быть пустым')
+        else:
+            new_user = Users(email=email, first_name=first_name, password_hash=generate_password_hash(password, method='sha256'))
+            db.session.add(new_user)
+            db.session.commit()
+            login_user(new_user, remember=True)
+            return redirect(url_for('user_profile'))
+
+    return render_template("auth/register_basic.html", user=current_user)
+
+
+def password_recovery():
+    return render_template("password_recovery.html")
+
+
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
+@login_required
+def user_profile():
+    user = Users.query.filter_by(id=current_user.id).first()
+
+    if request.method == 'POST':
+        last_name = request.form.get('last_name').strip()
+        first_name = request.form.get('first_name').strip()
+        middle_name = request.form.get('middle_name').strip()
+
+        if first_name:
+            user.first_name = first_name
+            user.middle_name = middle_name
+            user.last_name = last_name
+            db.session.commit()
+
+    return render_template('auth/profile.html', user=user)
+
+
+@login_required
+def upload_avatar():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            new_filename = os.urandom(16).hex()
+            f, ext = os.path.splitext(filename)
+
+            if ext in ['.jpg', '.jpeg']:
+                file.save(os.path.join(UPLOAD_FOLDER + "/" + new_filename + ".jpg"))
+            else:
+                try:
+                    file.save(os.path.join(UPLOAD_TMP_FOLDER + "/" + new_filename + ext))
+                    with Image.open(UPLOAD_TMP_FOLDER + "/" + new_filename + ext) as im:
+                        rgb_im = im.convert('RGB')
+                        rgb_im.save(UPLOAD_FOLDER + "/" + new_filename + ".jpg")
+                        os.unlink(UPLOAD_TMP_FOLDER + "/" + new_filename + ext)
+                except OSError:
+                    print("cannot convert", new_filename + ".jpg")
+
+            user = Users.query.filter_by(id=current_user.id).first()
+
+            # If user have avatar -> remove it from disk
+            new_full_filename = new_filename + ".jpg"
+            if user.avatar_uri != 'empty.jpg':
+                if os.path.isfile(UPLOAD_FOLDER + "/" + user.avatar_uri):
+                    os.unlink(UPLOAD_FOLDER + "/" + user.avatar_uri)
+
+            user.avatar_uri=new_full_filename
+            db.session.commit()
+
+    return '', 204
+

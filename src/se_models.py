@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
 from os import urandom
+
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash
 
 db = SQLAlchemy()
 
@@ -29,7 +31,7 @@ class Staff (db.Model):
         return '<%r>' % self.official_email
 
 
-class Users(db.Model):
+class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     email = db.Column(db.String(255), unique=True, nullable=True)

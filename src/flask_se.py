@@ -1,24 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask, render_template, make_response, redirect, url_for, Response
-from flask_frozen import Freezer
-
-import sys, os
+import os
+import sys
 from datetime import datetime
 
-from sqlalchemy.sql.expression import func
-from werkzeug.exceptions import HTTPException
-
+from flask import Flask, render_template, make_response, redirect, url_for, Response
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_basicauth import BasicAuth
+from flask_frozen import Freezer
 from flask_migrate import Migrate
-
-from se_models import db, init_db, Staff, Users, Thesis, Worktype, Curriculum, SummerSchool, Courses
+from sqlalchemy.sql.expression import func
+from werkzeug.exceptions import HTTPException
 from wtforms import TextAreaField
 
-import flask_theses
-from flask_config import SECRET_KEY_THESIS
+import flask_se_theses
+from flask_se_config import SECRET_KEY_THESIS
+from se_models import db, init_db, Staff, Users, Thesis, Curriculum, SummerSchool
+from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, logout, login_required
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -33,7 +32,7 @@ app.config['FREEZER_IGNORE_MIMETYPE_WARNINGS'] = True
 # SQLAlchimy config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///se.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = os.urandom(16).hex()
+app.config['SECRET_KEY'] = "054ecf20415eadce9327ce5ac81fe946"
 
 # Secret for API
 app.config['SECRET_KEY_THESIS'] = SECRET_KEY_THESIS
@@ -43,12 +42,21 @@ app.config['BASIC_AUTH_USERNAME'] = 'se_staff'
 app.config['BASIC_AUTH_PASSWORD'] = app.config['SECRET_KEY_THESIS']
 
 # App add_url_rule
-app.add_url_rule('/theses.html', view_func=flask_theses.theses_search)
-app.add_url_rule('/fetch_theses', view_func=flask_theses.fetch_theses)
-app.add_url_rule('/post_theses', methods=['GET', 'POST'], view_func=flask_theses.post_theses)
-app.add_url_rule('/theses_tmp.html', view_func=flask_theses.theses_tmp)
-app.add_url_rule('/theses_delete_tmp', view_func=flask_theses.theses_delete_tmp)
-app.add_url_rule('/theses_add_tmp', view_func=flask_theses.theses_add_tmp)
+# Login
+app.add_url_rule('/login.html', methods=['GET', 'POST'], view_func=login_index)
+app.add_url_rule('/register_basic.html', methods=['GET', 'POST'], view_func=register_basic)
+app.add_url_rule('/password_recovery.html', methods=['GET', 'POST'], view_func=password_recovery)
+app.add_url_rule('/profile.html', methods=['GET', 'POST'], view_func=user_profile)
+app.add_url_rule('/upload_avatar', methods=['GET', 'POST'], view_func=upload_avatar)
+app.add_url_rule('/logout', methods=['GET'], view_func=logout)
+
+# Theses
+app.add_url_rule('/theses.html', view_func=flask_se_theses.theses_search)
+app.add_url_rule('/fetch_theses', view_func=flask_se_theses.fetch_theses)
+app.add_url_rule('/post_theses', methods=['GET', 'POST'], view_func=flask_se_theses.post_theses)
+app.add_url_rule('/theses_tmp.html', view_func=flask_se_theses.theses_tmp)
+app.add_url_rule('/theses_delete_tmp', view_func=flask_se_theses.theses_delete_tmp)
+app.add_url_rule('/theses_add_tmp', view_func=flask_se_theses.theses_add_tmp)
 
 
 # Init Database
@@ -65,6 +73,9 @@ freezer = Freezer(app)
 
 # Init Sitemap
 zero_days_ago = (datetime.now()).date().isoformat()
+
+# Init LoginManager
+login_manager.init_app(app)
 
 # Init BasicAuth
 basic_auth = BasicAuth(app)
