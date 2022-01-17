@@ -15,7 +15,7 @@ from werkzeug.exceptions import HTTPException
 from wtforms import TextAreaField
 
 import flask_se_theses
-from flask_se_config import SECRET_KEY_THESIS
+from flask_se_config import SECRET_KEY_THESIS, SECRET_KEY
 from se_models import db, init_db, Staff, Users, Thesis, Curriculum, SummerSchool
 from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, logout, vk_callback, login_required
 
@@ -32,7 +32,7 @@ app.config['FREEZER_IGNORE_MIMETYPE_WARNINGS'] = True
 # SQLAlchimy config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///se.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = "054ecf20415eadce9327ce5ac81fe946"
+app.config['SECRET_KEY'] = SECRET_KEY
 
 # Secret for API
 app.config['SECRET_KEY_THESIS'] = SECRET_KEY_THESIS

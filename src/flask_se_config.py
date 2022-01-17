@@ -4,6 +4,7 @@ import os
 import sys
 import re
 
+SECRET_KEY = os.urandom(16).hex()
 SECRET_KEY_THESIS = os.urandom(16).hex()
 
 PY2 = sys.version_info[0] == 2
