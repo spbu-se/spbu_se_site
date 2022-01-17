@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
+import requests
 
 from PIL import Image
 
 from flask_login import login_user, login_required, logout_user, current_user, LoginManager
 from flask import make_response, session, request, flash, render_template, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.exc import SQLAlchemyError
 
 from flask_se_config import secure_filename
 from se_models import db, Users
@@ -14,7 +17,7 @@ from se_models import db, Users
 # Global variables
 UPLOAD_FOLDER = 'static/images/avatars/'
 UPLOAD_TMP_FOLDER = 'static/tmp/avatars/'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'bmp', 'png', 'jpg', 'jpeg'}
 
 login_manager = LoginManager()
 
@@ -47,6 +50,61 @@ def login_index():
             flash('Email does not exist.', category='error')
 
     return render_template('auth/login.html', user=current_user)
+
+
+# https://vk.com/dev/authcode_flow_user
+def vk_callback():
+
+    user_code = request.args.get('code')
+
+    if not user_code:
+        return redirect(url_for('index'))
+
+    # Get access token
+    response = requests.get('https://oauth.vk.com/access_token?client_id=8051225&client_secret=ZPNX8y5nQmzGCghUKdJ9&redirect_uri=http://127.0.0.1:5000/vk_callback&code=' + user_code)
+    access_token_json = json.loads(response.text)
+
+    if "error" in access_token_json:
+        return redirect(url_for('index'))
+
+    vk_id = access_token_json['user_id']
+    access_token = access_token_json['access_token']
+    vk_email = access_token_json['email']
+
+    # Get user name
+    response = requests.get('https://api.vk.com/method/users.get?user_ids=' + str(vk_id) + '&fields=photo_100&access_token=' + str(access_token) + '&v=5.130')
+    vk_user = json.loads(response.text)
+
+    user = Users.query.filter_by(vk_id=vk_id).first()
+
+    # New user?
+    if user is None:
+        # Yes
+        try:
+            avatar_uri = os.urandom(16).hex()
+            avatar_uri = avatar_uri + ".jpg"
+
+            if 'photo_100' in vk_user['response'][0]:
+                r = requests.get(vk_user['response'][0]['photo_100'], allow_redirects=True)
+                open('static/images/avatars/' + avatar_uri, 'wb').write(r.content)
+
+            new_user = Users(last_name=vk_user['response'][0]['last_name'],
+                             first_name=vk_user['response'][0]['first_name'],
+                             avatar_uri=avatar_uri, email=vk_email,
+                             vk_id=vk_id)
+            db.session.add(new_user)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            error = str(e.__dict__['orig'])
+            print(error)
+            print("Ошибка при добавлении пользователя в БД")
+            return redirect(url_for('index'))
+
+        user = Users.query.filter_by(vk_id=vk_id).first()
+
+    login_user(user, remember=True)
+    return redirect(url_for('user_profile'))
 
 
 def register_basic():

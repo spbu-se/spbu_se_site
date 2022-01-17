@@ -17,7 +17,7 @@ from wtforms import TextAreaField
 import flask_se_theses
 from flask_se_config import SECRET_KEY_THESIS
 from se_models import db, init_db, Staff, Users, Thesis, Curriculum, SummerSchool
-from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, logout, login_required
+from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, logout, vk_callback, login_required
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -49,6 +49,8 @@ app.add_url_rule('/password_recovery.html', methods=['GET', 'POST'], view_func=p
 app.add_url_rule('/profile.html', methods=['GET', 'POST'], view_func=user_profile)
 app.add_url_rule('/upload_avatar', methods=['GET', 'POST'], view_func=upload_avatar)
 app.add_url_rule('/logout', methods=['GET'], view_func=logout)
+app.add_url_rule('/vk_callback', methods=['GET'], view_func=vk_callback)
+
 
 # Theses
 app.add_url_rule('/theses.html', view_func=flask_se_theses.theses_search)

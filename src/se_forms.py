@@ -9,3 +9,10 @@ class ThesisFilter(FlaskForm):
     supervisor = SelectField('supervisor', choices=[])
     startdate = SelectField('worktype', choices=[])
     enddate = SelectField('worktype', choices=[])
+
+class Lecture(FlaskForm):
+    worktype = SelectField('worktype', choices=[])
+    course = SelectField('course', choices=[])
+    supervisor = SelectField('supervisor', choices=[])
+    startdate = SelectField('worktype', choices=[])
+    enddate = SelectField('worktype', choices=[])
