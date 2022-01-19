@@ -41,7 +41,7 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_google
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
     scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
-    redirect_uri="http://127.0.0.1:5000/google_callback"
+    redirect_uri="https://se.math.spbu.ru/google_callback"
 )
 
 
@@ -81,7 +81,7 @@ def vk_callback():
         return redirect(url_for('index'))
 
     # Get access token
-    response = requests.get('https://oauth.vk.com/access_token?client_id=8051225&client_secret=ZPNX8y5nQmzGCghUKdJ9&redirect_uri=http://127.0.0.1:5000/vk_callback&code=' + user_code)
+    response = requests.get('https://oauth.vk.com/access_token?client_id=8051225&client_secret=ZPNX8y5nQmzGCghUKdJ9&redirect_uri=https://se.math.spbu.ru/vk_callback&code=' + user_code)
     access_token_json = json.loads(response.text)
 
     if "error" in access_token_json:
