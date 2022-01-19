@@ -20,7 +20,6 @@ def list_news():
     for post in news.items:
         ages.append(plural_hours(int(get_hours_since(post.created_on))))
 
-    print (ages)
     return render_template('news/news.html', news=news, ages=ages)
 
 
