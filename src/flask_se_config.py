@@ -3,6 +3,7 @@
 import os
 import sys
 import re
+from datetime import datetime
 
 SECRET_KEY = os.urandom(16).hex()
 SECRET_KEY_THESIS = os.urandom(16).hex()
@@ -51,3 +52,30 @@ def secure_filename(filename: str) -> str:
         filename = f"_{filename}"
 
     return filename
+
+
+# https://felx.me/2021/08/29/improving-the-hacker-news-ranking-algorithm.html
+def post_ranking_score(upvotes=1, age=0, views=1):
+    u = upvotes**0.8
+    a = (age + 2) ** 1.8
+    return (u/a) / (views + 1)
+
+
+def get_hours_since(date):
+    time_diff = datetime.utcnow() - date
+    return int(time_diff.total_seconds() / 3600)
+
+
+def plural_hours(n):
+    days = ['час', 'часа', 'часов']
+
+    if (n==0):
+        return 'меньше часа'
+    if n % 10 == 1 and n % 100 != 11:
+        p = 0
+    elif 2 <= n % 10 <= 4 and (n % 100 < 10 or n % 100 >= 20):
+        p = 1
+    else:
+        p = 2
+
+    return str(n) + ' ' + days[p]

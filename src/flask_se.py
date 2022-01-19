@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import pathlib
 import sys
 from datetime import datetime
 
@@ -10,14 +11,19 @@ from flask_admin.contrib.sqla import ModelView
 from flask_basicauth import BasicAuth
 from flask_frozen import Freezer
 from flask_migrate import Migrate
+from flask_apscheduler import APScheduler
 from sqlalchemy.sql.expression import func
 from werkzeug.exceptions import HTTPException
 from wtforms import TextAreaField
 
+
 import flask_se_theses
 from flask_se_config import SECRET_KEY_THESIS, SECRET_KEY
-from se_models import db, init_db, Staff, Users, Thesis, Curriculum, SummerSchool
-from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, logout, vk_callback, login_required
+from se_models import db, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, recalculate_post_rank
+from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, \
+    logout, vk_callback, google_login, google_callback, login_required
+from flask_se_news import list_news, get_post, submit_post, post_vote, delete_post
+
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -41,6 +47,7 @@ app.config['SECRET_KEY_THESIS'] = SECRET_KEY_THESIS
 app.config['BASIC_AUTH_USERNAME'] = 'se_staff'
 app.config['BASIC_AUTH_PASSWORD'] = app.config['SECRET_KEY_THESIS']
 
+
 # App add_url_rule
 # Login
 app.add_url_rule('/login.html', methods=['GET', 'POST'], view_func=login_index)
@@ -50,6 +57,8 @@ app.add_url_rule('/profile.html', methods=['GET', 'POST'], view_func=user_profil
 app.add_url_rule('/upload_avatar', methods=['GET', 'POST'], view_func=upload_avatar)
 app.add_url_rule('/logout', methods=['GET'], view_func=logout)
 app.add_url_rule('/vk_callback', methods=['GET'], view_func=vk_callback)
+app.add_url_rule('/google_login', methods=['GET'], view_func=google_login)
+app.add_url_rule('/google_callback', methods=['GET'], view_func=google_callback)
 
 
 # Theses
@@ -60,6 +69,14 @@ app.add_url_rule('/theses_tmp.html', view_func=flask_se_theses.theses_tmp)
 app.add_url_rule('/theses_delete_tmp', view_func=flask_se_theses.theses_delete_tmp)
 app.add_url_rule('/theses_add_tmp', view_func=flask_se_theses.theses_add_tmp)
 
+
+# News
+app.add_url_rule('/news/', view_func=list_news)
+app.add_url_rule('/news/index.html', view_func=list_news)
+app.add_url_rule('/news/item.html', view_func=get_post)
+app.add_url_rule('/news/submit.html', methods=['GET', 'POST'], view_func=submit_post)
+app.add_url_rule('/news/post_vote', methods=['GET', 'POST'], view_func=post_vote)
+app.add_url_rule('/news/delete', view_func=delete_post)
 
 # Init Database
 db.app = app
@@ -82,6 +99,8 @@ login_manager.init_app(app)
 # Init BasicAuth
 basic_auth = BasicAuth(app)
 
+# Init APScheduler
+scheduler = APScheduler()
 
 # Extend FlaskAdmin classes for BasicAuth (https://stackoverflow.com/questions/54834648/flask-basicauth-auth-required-decorator-for-flask-admin-views)
 """
@@ -372,4 +391,6 @@ if __name__ == "__main__":
         elif sys.argv[1] == "init":
             init_db()
     else:
+        scheduler.add_job(id='RecalculatePostRank', func=recalculate_post_rank, trigger="interval", seconds=3600)
+        scheduler.start()
         app.run(port=5000)

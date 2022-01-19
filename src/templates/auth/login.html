@@ -5,6 +5,23 @@
 {% block content %}
 <section class="slice pt-0">
     <div class="container">
+        <div class="row row-grid align-items-center justify-content-center pt-4">
+                <div class="col-12">
+                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                    {% if errors %}
+                    {%- for message in errors %}
+
+                    <div class="alert alert-info" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        {{message}}
+                    </div>
+                    {% endfor -%}
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
         <div class="row row-grid align-items-center pt-5">
             <!--текст слева-->
             <div class="col-12 col-md-6 col-lg-7 order-md-1 pr-md-5">
@@ -61,14 +78,14 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <a class="btn btn-block btn-neutral btn-icon px-2 mb-3 mb-sm-0"
-                               href="https://oauth.vk.com/authorize?client_id=8051225&display=page&redirect_uri=https://se.math.spbu.ru/vk_callback&scope=friends,email&response_type=code&v=5.130">
+                               href="https://oauth.vk.com/authorize?client_id=8051225&display=page&redirect_uri=http://127.0.0.1:5000/vk_callback&scope=friends,email&response_type=code&v=5.130">
                                 <span class="btn-inner--icon"><img src="/assets/img/login/vk.svg"
                                                                    alt="Image placeholder"></span>
                                 <span class="btn-inner--text">Вконтакте</span>
                             </a>
                         </div>
                         <div class="col-sm-6">
-                            <a href="{{ url_for('login_index') }}" class="btn btn-block btn-neutral btn-icon px-2">
+                            <a href="{{ url_for('google_login') }}" class="btn btn-block btn-neutral btn-icon px-2">
                                 <span class="btn-inner--icon"><img src="/assets/img/login/google.svg"
                                                                    alt="Image placeholder"></span>
                                 <span class="btn-inner--text">Google</span>

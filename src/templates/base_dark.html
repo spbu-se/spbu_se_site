@@ -225,6 +225,14 @@ a.onreadystatechange = function() {
                                                 </div>
                                             </div>
                                         </a>
+                                        <a href="{{ url_for('list_news') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Новости</small>
+                                                </div>
+                                            </div>
+                                        </a>
                                     </div>
                                 </div>
                             </li>
@@ -311,6 +319,7 @@ a.onreadystatechange = function() {
                         <ul class="list-unstyled">
                             <li><a href="{{ url_for('department_staff') }}">Сотрудники</a></li>
                             <li><a href="{{ url_for('contacts') }}">Контакты</a></li>
+                            <li><a href="{{ url_for('list_news') }}">Новости</a></li>
                         </ul>
                     </div>
                 </div>

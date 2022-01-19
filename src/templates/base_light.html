@@ -19,7 +19,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='/assets/img/favicon.png') }}" type="image/png">
     <!-- Quick CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/min/quick-website.css') }}" id="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/quick-website.css') }}" id="stylesheet">
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/animate.css/animate.min.css') }}">
     <!-- Font Awesome -->
@@ -190,6 +190,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
+                                        <a href="{{ url_for('list_news') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Новости</small>
+                                                </div>
+                                            </div>
+                                        </a>
                                     </div>
                                 </div>
                             </li>
@@ -273,6 +281,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <ul class="list-unstyled">
                             <li><a href="{{ url_for('department_staff') }}">Сотрудники</a></li>
                             <li><a href="{{ url_for('contacts') }}">Контакты</a></li>
+                            <li><a href="{{ url_for('list_news') }}">Новости</a></li>
                         </ul>
                     </div>
                 </div>

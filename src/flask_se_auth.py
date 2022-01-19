@@ -2,14 +2,20 @@
 
 import os
 import json
+import pathlib
+
 import requests
 
 from PIL import Image
 
 from flask_login import login_user, login_required, logout_user, current_user, LoginManager
-from flask import make_response, session, request, flash, render_template, redirect, url_for
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import make_response, session, request, flash, render_template, redirect, url_for, abort
+from google_auth_oauthlib.flow import Flow
+import google.auth.transport.requests
+from google.oauth2 import id_token
+from pip._vendor import cachecontrol
 from sqlalchemy.exc import SQLAlchemyError
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask_se_config import secure_filename
 from se_models import db, Users
@@ -20,9 +26,23 @@ UPLOAD_TMP_FOLDER = 'static/tmp/avatars/'
 ALLOWED_EXTENSIONS = {'bmp', 'png', 'jpg', 'jpeg'}
 
 login_manager = LoginManager()
+login_manager.login_view = "login_index"
 
 # create an alias of login_required decorator
 login_required = login_required
+
+
+# Google auth (https://github.com/code-specialist/flask_google_login/blob/main/app.py)
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+GOOGLE_CLIENT_ID = "593053078492-i6hf335m9hm0vtj23df62q09j07esbhu.apps.googleusercontent.com"
+client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_google.json")
+
+flow = Flow.from_client_secrets_file(
+    client_secrets_file=client_secrets_file,
+    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
+    redirect_uri="http://127.0.0.1:5000/google_callback"
+)
 
 
 @login_manager.user_loader
@@ -61,7 +81,7 @@ def vk_callback():
         return redirect(url_for('index'))
 
     # Get access token
-    response = requests.get('https://oauth.vk.com/access_token?client_id=8051225&client_secret=ZPNX8y5nQmzGCghUKdJ9&redirect_uri=https://se.math.spbu.ru/vk_callback&code=' + user_code)
+    response = requests.get('https://oauth.vk.com/access_token?client_id=8051225&client_secret=ZPNX8y5nQmzGCghUKdJ9&redirect_uri=http://127.0.0.1:5000/vk_callback&code=' + user_code)
     access_token_json = json.loads(response.text)
 
     if "error" in access_token_json:
@@ -99,7 +119,8 @@ def vk_callback():
             error = str(e.__dict__['orig'])
             print(error)
             print("Ошибка при добавлении пользователя в БД")
-            return redirect(url_for('index'))
+            flash(error, category='error')
+            return redirect(url_for('login_index'))
 
         user = Users.query.filter_by(vk_id=vk_id).first()
 
@@ -203,3 +224,60 @@ def upload_avatar():
 
     return '', 204
 
+
+def google_login():
+    authorization_url, state = flow.authorization_url()
+    session["state"] = state
+    return redirect(authorization_url)
+
+
+def google_callback():
+
+    flow.fetch_token(authorization_response=request.url)
+
+    if not session["state"] == request.args["state"]:
+        abort(500)  # State does not match!
+
+    credentials = flow.credentials
+    request_session = requests.session()
+    cached_session = cachecontrol.CacheControl(request_session)
+    token_request = google.auth.transport.requests.Request(session=cached_session)
+
+    id_info = id_token.verify_oauth2_token(
+        id_token=credentials._id_token,
+        request=token_request,
+        audience=GOOGLE_CLIENT_ID
+    )
+
+    user = Users.query.filter_by(google_id=id_info.get('sub')).first()
+
+    # New user?
+    if user is None:
+        # Yes
+        try:
+            avatar_uri = os.urandom(16).hex()
+            avatar_uri = avatar_uri + ".jpg"
+
+            if 'picture' in id_info:
+                r = requests.get(id_info.get('picture'), allow_redirects=True)
+                open('static/images/avatars/' + avatar_uri, 'wb').write(r.content)
+
+            new_user = Users(last_name=id_info.get('family_name'),
+                             first_name=id_info.get('given_name'),
+                             avatar_uri=avatar_uri,
+                             google_id=id_info.get('sub'),
+                             email=id_info.get('email'))
+            db.session.add(new_user)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            error = str(e.__dict__['orig'])
+            print(error)
+            print("Ошибка при добавлении пользователя в БД")
+            flash(error, category='error')
+            return redirect(url_for('login_index'))
+
+        user = Users.query.filter_by(google_id=id_info.get('sub')).first()
+
+    login_user(user, remember=True)
+    return redirect(url_for('user_profile'))

@@ -6,6 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash
 
+from flask_se_config import post_ranking_score, get_hours_since
+
 db = SQLAlchemy()
 
 tag = db.Table('tag',
@@ -48,6 +50,8 @@ class Users(db.Model, UserMixin):
     google_id = db.Column(db.String(255), nullable=True)
 
     staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
+    news = db.relationship("Posts", backref=db.backref("author", uselist=False))
+    all_user_votes = db.relationship('PostVote', back_populates='user')
 
     def get_name(self):
         return f"{self.last_name} {self.first_name} {self.middle_name}"
@@ -138,6 +142,41 @@ class SummerSchool(db.Model):
     requirements = db.Column(db.String(1024), nullable=False)
 
 
+class Posts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(db.String(2048), nullable=False)
+    uri = db.Column(db.String(1024), nullable=True)
+    domain = db.Column(db.String(512), nullable=True)
+    text = db.Column(db.String(4096), nullable=True)
+    votes = db.Column(db.Integer, nullable=False, default=1)
+    views = db.Column(db.Integer, nullable=False, default=1)
+
+    created_on = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+    updated_on = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), server_onupdate=db.func.now())
+
+    rank = db.Column(db.Float, nullable=False, default=post_ranking_score)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    all_news_votes = db.relationship('PostVote', back_populates='post')
+    
+
+class PostVote(db.Model):
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
+    user = db.relationship('Users', back_populates='all_user_votes')
+    post_id = db.Column(db.Integer, db.ForeignKey("posts.id"), primary_key=True)
+    post = db.relationship('Posts', back_populates='all_news_votes')
+    upvote = db.Column(db.Boolean, nullable=False)
+    timestamp = db.Column(db.DateTime, server_default=db.func.now())
+
+    def __repr__(self):
+        if self.upvote:
+            vote = 'Up'
+        else:
+            vote = 'Down'
+        return '<Vote - {}, from {} for {}>'.format(vote, self.user.get_name(), self.post.title)
+
+
 class Grants(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(1024), nullable=False)
@@ -145,6 +184,17 @@ class Grants(db.Model):
     amount = db.Column(db.String(2048), nullable=False)
     submission = db.Column(db.String(2048), nullable=False)
     contacts = db.Column(db.String(2048), nullable=True)
+
+
+def recalculate_post_rank():
+
+    posts = Posts.query.order_by(Posts.id.desc()).limit(100).all()
+
+    for post in posts:
+        age = get_hours_since(post.created_on)
+        post.rank = post_ranking_score(post.votes, age, post.views)
+
+    db.session.commit()
 
 
 def init_db():
@@ -615,6 +665,11 @@ def init_db():
     ]
 
     thesis = []
+    posts = [
+        {'title': 'Это пробная новость с URI', 'uri': 'https://se.math.spbu.ru/', 'author_id': 1},
+        {'title': 'Это пробная новость с текстом', 'text': 'Это моя первая новость, посмотрим, как она выглядит?',
+         'author_id': 2}
+    ]
 
     # Init DB
     db.session.commit() # https://stackoverflow.com/questions/24289808/drop-all-freezes-in-flask-with-sqlalchemy
@@ -672,6 +727,18 @@ def init_db():
 
         db.session.add(c)
         db.session.commit()
+
+    # Create News
+    print("Create news")
+    for cur in posts:
+        if 'uri' in cur:
+            c = Posts(title = cur['title'], uri = cur['uri'], domain='se.math.spbu.ru', author_id = cur['author_id'])
+        else:
+            c = Posts(title = cur['title'], text = cur['text'], author_id = cur['author_id'])
+
+        db.session.add(c)
+        db.session.commit()
+
 
     for tag in tags:
         t = Tags(name=tag['name'])
