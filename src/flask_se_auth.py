@@ -118,7 +118,7 @@ def vk_callback():
             db.session.rollback()
             error = str(e.__dict__['orig'])
             print(error)
-            print("Ошибка при добавлении пользователя в БД")
+            print("Can't add new user to the Database")
             flash(error, category='error')
             return redirect(url_for('login_index'))
 
@@ -273,7 +273,7 @@ def google_callback():
             db.session.rollback()
             error = str(e.__dict__['orig'])
             print(error)
-            print("Ошибка при добавлении пользователя в БД")
+            print("Can't add new user to Database")
             flash(error, category='error')
             return redirect(url_for('login_index'))
 
