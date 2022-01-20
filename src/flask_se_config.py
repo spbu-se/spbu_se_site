@@ -3,9 +3,10 @@
 import os
 import sys
 import re
+import pathlib
 from datetime import datetime
 
-SECRET_KEY = os.urandom(16).hex()
+SECRET_KEY = os.path.join(pathlib.Path(__file__).parent, "flask_se_secret.conf")
 SECRET_KEY_THESIS = os.urandom(16).hex()
 
 PY2 = sys.version_info[0] == 2

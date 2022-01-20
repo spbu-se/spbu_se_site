@@ -1,28 +1,24 @@
 # -*- coding: utf-8 -*-
 
-import os
-import pathlib
 import sys
 from datetime import datetime
 
-from flask import Flask, render_template, make_response, redirect, url_for, Response
-from flask_admin import Admin, AdminIndexView
-from flask_admin.contrib.sqla import ModelView
-from flask_basicauth import BasicAuth
+from flask import Flask, render_template, make_response, redirect, url_for
+from flask_admin import Admin
+from flask_apscheduler import APScheduler
 from flask_frozen import Freezer
 from flask_migrate import Migrate
-from flask_apscheduler import APScheduler
 from sqlalchemy.sql.expression import func
-from werkzeug.exceptions import HTTPException
-from wtforms import TextAreaField
 
 
 import flask_se_theses
 from flask_se_config import SECRET_KEY_THESIS, SECRET_KEY
 from se_models import db, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, recalculate_post_rank
 from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, \
-    logout, vk_callback, google_login, google_callback, login_required
+    logout, vk_callback, google_login, google_callback
 from flask_se_news import list_news, get_post, submit_post, post_vote, delete_post
+from flask_se_admin import SeAdminModelViewThesis, SeAdminIndexView, SeAdminModelViewUsers, \
+    SeAdminModelViewSummerSchool, SeAdminModelViewStaff
 
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
@@ -96,137 +92,16 @@ zero_days_ago = (datetime.now()).date().isoformat()
 # Init LoginManager
 login_manager.init_app(app)
 
-# Init BasicAuth
-basic_auth = BasicAuth(app)
-
 # Init APScheduler
 scheduler = APScheduler()
 
-# Extend FlaskAdmin classes for BasicAuth (https://stackoverflow.com/questions/54834648/flask-basicauth-auth-required-decorator-for-flask-admin-views)
-"""
-The following three classes are inherited from their respective base class,
-and are customized, to make flask_admin compatible with BasicAuth.
-"""
-class AuthException(HTTPException):
-
-    def __init__(self, message):
-        super().__init__(message, Response(
-            "You could not be authenticated. Please refresh the page.", 401,
-            {'WWW-Authenticate': 'Basic realm="Login Required"'} ))
-
-
-class SeModelView(ModelView):
-    def is_accessible(self):
-        if not basic_auth.authenticate():
-            raise AuthException('Not authenticated.')
-        else:
-            return True
-
-    def inaccessible_callback(self, name, **kwargs):
-        return redirect(basic_auth.challenge())
-
-
-class UsersModelView(ModelView):
-
-    column_exclude_list = ['password_hash']
-
-    def is_accessible(self):
-        if not basic_auth.authenticate():
-            raise AuthException('Not authenticated.')
-        else:
-            return True
-
-    def inaccessible_callback(self, name, **kwargs):
-        return redirect(basic_auth.challenge())
-
-
-class SummerSchoolView(ModelView):
-
-    form_overrides = {
-        'description': TextAreaField,
-        'repo': TextAreaField,
-        'demos': TextAreaField
-    }
-
-    form_widget_args = {
-        'description': {
-            'rows': 10,
-            'style': 'font-family: monospace; width: 680px;'
-        },
-        'project_name': {
-            'style': 'width: 680px;'
-        },
-        'tech': {
-            'rows': 3,
-            'style': 'font-family: monospace; width: 680px;'
-        },
-        'repo': {
-            'rows': 3,
-            'style': 'font-family: monospace; width: 680px;'
-        },
-        'demos': {
-            'rows': 3,
-            'style': 'font-family: monospace; width: 680px;'
-        },
-        'advisors': {
-            'rows': 2,
-            'style': 'font-family: monospace; width: 680px;'
-        },
-        'requirements': {
-            'rows': 3,
-            'style': 'font-family: monospace; width: 680px;'
-        },
-    }
-
-    def is_accessible(self):
-        if not basic_auth.authenticate():
-            raise AuthException('Not authenticated.')
-        else:
-            return True
-
-    def inaccessible_callback(self, name, **kwargs):
-        return redirect(basic_auth.challenge())
-
-
-class StaffModelView(ModelView):
-
-    form_choices = {
-        'science_degree': [
-            ('', ''),
-            ('д.ф.-м.н.', 'д.ф.-м.н.'),
-            ('д.т.н.', 'д.т.н.'),
-            ('к.ф.-м.н.', 'к.ф.-м.н.'),
-            ('к.т.н.', 'к.т.н.')
-        ]
-    }
-
-    column_exclude_list = ['supervisor', 'adviser']
-    form_excluded_columns = ['supervisor', 'adviser']
-
-    def is_accessible(self):
-        if not basic_auth.authenticate():
-            raise AuthException('Not authenticated.')
-        else:
-            return True
-
-    def inaccessible_callback(self, name, **kwargs):
-        return redirect(basic_auth.challenge())
-
-
-class SeAdminIndexView(AdminIndexView):
-    def is_accessible(self):
-        if not basic_auth.authenticate():
-            raise AuthException('Not authenticated.')
-        else:
-            return True
-
-    def inaccessible_callback(self, name, **kwargs):
-        return redirect(basic_auth.challenge())
-
-
 # Init Flask-admin
 admin = Admin(app, index_view=SeAdminIndexView())
-
+# Add views to the Flask-admin
+admin.add_view(SeAdminModelViewUsers(Users, db.session))
+admin.add_view(SeAdminModelViewStaff(Staff, db.session))
+admin.add_view(SeAdminModelViewThesis(Thesis, db.session))
+admin.add_view(SeAdminModelViewSummerSchool(SummerSchool, db.session))
 
 # Flask routes goes
 @app.route('/')
@@ -235,7 +110,7 @@ def index():
 
 
 @app.route('/index.html')
-def indexhtml():
+def index_html():
     return redirect(url_for('index'))
 
 
@@ -377,12 +252,6 @@ def sitemap():
     response.headers["Content-Type"] = "application/xml"
     return response
 
-
-# Add views to the Flask-admin
-admin.add_view(UsersModelView(Users, db.session))
-admin.add_view(StaffModelView(Staff, db.session))
-admin.add_view(SeModelView(Thesis, db.session))
-admin.add_view(SummerSchoolView(SummerSchool, db.session))
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

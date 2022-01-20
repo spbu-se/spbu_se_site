@@ -91,11 +91,8 @@ def fetch_theses():
     if supervisor:
 
         # Check if supervisor exists
-        print(supervisor)
         ids = Thesis.query.with_entities(Thesis.supervisor_id).distinct().all()
-        print(ids)
         if [item for item in ids if item[0] == supervisor]:
-            print (456)
             records = records.filter(Thesis.supervisor_id == supervisor)
         else:
             supervisor = 0

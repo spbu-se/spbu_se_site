@@ -57,13 +57,11 @@ def post_vote():
 
     if post.author.id == current_user.id:
         flash('Нельзя голосовать за свой пост!', category='error')
-        return redirect(url_for('list_news'))
+        return redirect(request.referrer)
 
     vote = PostVote.query.filter_by(
         user=current_user,
         post=post).first()
-
-    print(request.referrer)
 
     if vote:
         if vote.upvote != bool(int(action_vote)):
@@ -79,10 +77,10 @@ def post_vote():
             post.rank = post_ranking_score(post.votes, age, post.views)
             db.session.commit()
 
-            return redirect(url_for('list_news'))
+            return redirect(request.referrer)
         else:
             flash('Вы уже проголосовали за этот пост!', category='error')
-            return redirect(url_for('list_news'))
+            return redirect(request.referrer)
 
     vote = PostVote(user=current_user, post=post, upvote=bool(int(action_vote)))
 
@@ -97,7 +95,7 @@ def post_vote():
 
     db.session.add(vote)
     db.session.commit()
-    return redirect(url_for('list_news'))
+    return redirect(request.referrer)
 
 
 @login_required

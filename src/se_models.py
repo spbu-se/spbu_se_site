@@ -45,6 +45,8 @@ class Users(db.Model, UserMixin):
 
     avatar_uri = db.Column(db.String(512), default='empty.jpg', nullable=False)
 
+    role = db.Column(db.Integer, default=0, nullable=False)
+
     vk_id = db.Column(db.String(255), nullable=True)
     fb_id = db.Column(db.String(255), nullable=True)
     google_id = db.Column(db.String(255), nullable=True)
