@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import random
 from os.path import splitext
 from urllib.parse import urlparse
 
@@ -19,6 +20,11 @@ log = logging.getLogger('flask_se.sub')
 def theses_search():
 
     filter = ThesisFilter()
+    hints = ['"Максим" можно искать как Максим, максим, Макс* или *акс*.',
+             'Полнотекстовый поиск по названиям работ и авторам',
+             '"Дом" можно искать как дом, д?м или д*м']
+
+    hint = random.choice(hints)
 
     for sid in Thesis.query.with_entities(Thesis.type_id).distinct().all():
         type = Worktype.query.filter_by(id=sid[0]).first()
@@ -42,6 +48,9 @@ def theses_search():
         last_name = ""
         initials = ""
 
+        if not staff:
+            staff = Staff.query.filter_by(id=1).first()
+
         if staff.user.last_name:
             last_name = staff.user.last_name
 
@@ -58,7 +67,7 @@ def theses_search():
     filter.course.choices.insert(0, (0, "Все"))
     filter.worktype.choices.insert(0, (0, "Все"))
 
-    return render_template('theses.html', filter=filter)
+    return render_template('theses.html', filter=filter, hint=hint)
 
 
 def fetch_theses():
@@ -67,6 +76,7 @@ def fetch_theses():
     page = request.args.get('page', default=1, type=int)
     supervisor = request.args.get('supervisor', default=0, type=int)
     course = request.args.get('course', default=0, type=int)
+    search = request.args.get('search', default='', type=str)
 
     dates = [theses.publish_year for theses in Thesis.query.filter(Thesis.temporary == False).with_entities(Thesis.publish_year).distinct()]
     dates.sort(reverse=True)
@@ -75,14 +85,19 @@ def fetch_theses():
         startdate = request.args.get('startdate', default=dates[-1], type=int)
         enddate = request.args.get('enddate', default=dates[0], type=int)
     else:
-        startdate = 2021
-        enddate = 2021
+        startdate = 2007
+        enddate = 2022
 
     # Check if end date less than start date
     if enddate < startdate:
         enddate = startdate
 
-    records = Thesis.query.filter(Thesis.temporary == False).filter(Thesis.publish_year >= startdate).filter(Thesis.publish_year <= enddate).order_by(Thesis.publish_year.desc())
+    if search:
+        records = Thesis.query.msearch(search).filter(Thesis.temporary == False).filter(
+            Thesis.publish_year >= startdate).filter(Thesis.publish_year <= enddate).order_by(
+            Thesis.publish_year.desc())
+    else:
+        records = Thesis.query.filter(Thesis.temporary == False).filter(Thesis.publish_year >= startdate).filter(Thesis.publish_year <= enddate).order_by(Thesis.publish_year.desc())
 
     if course:
         # Check if course exists
@@ -104,7 +119,7 @@ def fetch_theses():
 
     if len(records.items):
         return render_template('fetch_theses.html', theses=records, worktype=worktype, course=course,
-                               startdate=startdate, enddate=enddate, supervisor=supervisor)
+                               startdate=startdate, enddate=enddate, supervisor=supervisor, search=search)
     else:
         return render_template('fetch_theses_blank.html')
 

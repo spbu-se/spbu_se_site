@@ -4,11 +4,13 @@ from os import urandom
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from flask_msearch import Search
 from werkzeug.security import generate_password_hash
 
 from flask_se_config import post_ranking_score, get_hours_since
 
 db = SQLAlchemy()
+search = Search()
 
 tag = db.Table('tag',
                db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'), primary_key=True),
@@ -34,6 +36,9 @@ class Staff (db.Model):
 
 
 class Users(db.Model, UserMixin):
+
+    __searchable__ = ['first_name', 'middle_name', 'last_name']
+
     id = db.Column(db.Integer, primary_key=True)
 
     email = db.Column(db.String(255), unique=True, nullable=True)
@@ -90,6 +95,9 @@ class Courses(db.Model):
 
 
 class Thesis (db.Model):
+
+    __searchable__ = ['name_ru', 'description', 'author']
+
     id = db.Column(db.Integer, primary_key=True)
 
     type_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)

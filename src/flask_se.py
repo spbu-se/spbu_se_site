@@ -13,7 +13,7 @@ from sqlalchemy.sql.expression import func
 
 import flask_se_theses
 from flask_se_config import SECRET_KEY_THESIS, SECRET_KEY
-from se_models import db, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, recalculate_post_rank
+from se_models import db, search, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, recalculate_post_rank
 from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, \
     logout, vk_callback, google_login, google_callback
 from flask_se_news import list_news, get_post, submit_post, post_vote, delete_post
@@ -33,7 +33,7 @@ app.config['FREEZER_IGNORE_MIMETYPE_WARNINGS'] = True
 
 # SQLAlchimy config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///se.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SECRET_KEY'] = SECRET_KEY
 
 # Secret for API
@@ -77,6 +77,10 @@ app.add_url_rule('/news/delete', view_func=delete_post)
 # Init Database
 db.app = app
 db.init_app(app)
+
+app.config['MSEARCH_BACKEND'] = 'whoosh'
+app.config['MSEARCH_ENABLE'] = True
+search.init_app(app)
 
 # Init Migrate
 migrate = Migrate(app, db)
@@ -262,4 +266,6 @@ if __name__ == "__main__":
     else:
         scheduler.add_job(id='RecalculatePostRank', func=recalculate_post_rank, trigger="interval", seconds=3600)
         scheduler.start()
+        search.create_index(Thesis, update=True)
+        search.create_index(Users, update=True)
         app.run(port=5000)

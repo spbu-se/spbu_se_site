@@ -62,14 +62,14 @@
   <ul class="pagination justify-content-center">
       {% if theses.has_prev %}
     <li class="page-item">
-      <a class="page-link" href="{{ url_for ('theses_search', page=theses.prev_num, worktype=worktype, startdate=startdate, enddate=enddate, supervisor=supervisor) }}" tabindex="-1" aria-disabled="true">Назад</a>
+      <a class="page-link" href="{{ url_for ('theses_search', page=theses.prev_num, worktype=worktype, startdate=startdate, enddate=enddate, supervisor=supervisor, course=course) }}" tabindex="-1" aria-disabled="true">Назад</a>
     </li>
       {% endif %}
 
       {% for curr_page in theses.iter_pages() %}
       {% if curr_page %}
         {% if curr_page != theses.page %}
-            <li class="page-item"><a class="page-link" href="{{ url_for ('theses_search', page=curr_page, worktype=worktype, startdate=startdate, enddate=enddate, supervisor=supervisor) }}">{{curr_page}}</a></li>
+            <li class="page-item"><a class="page-link" href="{{ url_for ('theses_search', page=curr_page, worktype=worktype, startdate=startdate, enddate=enddate, supervisor=supervisor, course=course, search=search) }}">{{curr_page}}</a></li>
         {% else %}
         <li class="page-item active"><span class="page-link">{{curr_page}}<span class="sr-only">(current)</span></span></li>
         {% endif %}
@@ -80,7 +80,7 @@
 
       {% if theses.has_next %}
     <li class="page-item">
-      <a class="page-link" href="{{ url_for ('theses_search', page=theses.next_num, worktype=worktype, startdate=startdate, enddate=enddate, supervisor=supervisor) }}">Вперед</a>
+      <a class="page-link" href="{{ url_for ('theses_search', page=theses.next_num, worktype=worktype, startdate=startdate, enddate=enddate, supervisor=supervisor, course=course, search=search) }}">Вперед</a>
     </li>
       {% endif %}
   </ul>

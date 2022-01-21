@@ -64,9 +64,15 @@ function theses_update() {
     let enddate_select = document.getElementById('enddate');
     let supervisor_select = document.getElementById('supervisor');
     let course_select = document.getElementById('course');
+    let search_field = document.getElementById('thesis_search_field');
 
     let params = new URLSearchParams();
     let wt = wt_select.value;
+
+    if (search_field)
+    {
+        params.append('search', search_field.value);
+    }
 
     if (wt > 1)
     {
@@ -115,6 +121,50 @@ function theses_update() {
     });
 }
 
+//
+// Search thesis by click button
+//
+function search_thesis()
+{
+    let theses_list = document.getElementById('ThesisList');
+    let params = new URLSearchParams();
+
+    // Text
+    if (search_field){
+        params.append('search', search_field.value);
+    }
+
+    // Clear filters
+    wt_select.value=0;
+    supervisor_select.value=0;
+    course_select.value=0;
+    startdate_select.value = startdate_select.options[startdate_select.length - 1].value;
+    enddate_select.value = enddate_select.options[0].value;
+
+    if (Array.from(params).length){
+        window.history.pushState("", "", 'theses.html?' + params.toString());
+    } else {
+        window.history.pushState("", "", 'theses.html');
+    }
+
+    fetch('fetch_theses?' + params.toString()).then(function(response){
+
+        if (!response.ok){
+            window.location.href = '/404.html'
+        } else {
+            response.text().then(function (text) {
+                theses_list.innerHTML = text;
+                $('[data-toggle="popoverhover"]').popover({ trigger: "hover" });
+            });
+        }
+    });
+}
+
+
+// Find search field
+let search_field = document.getElementById('thesis_search_field');
+let search_button = document.getElementById('thesis_search_button');
+
 // Select filters
 let wt_select = document.getElementById('worktype');
 let startdate_select = document.getElementById('startdate');
@@ -131,12 +181,32 @@ let startdate = url.searchParams.get("startdate");
 let enddate = url.searchParams.get("enddate");
 let supervisor = url.searchParams.get("supervisor");
 let course = url.searchParams.get("course");
+let search = url.searchParams.get("search");
+
+if (search_field && search_button)
+{
+    search_button.onclick = search_thesis;
+
+    search_field.addEventListener("keyup", function(event) {
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Trigger the button element with a click
+            search_button.click();
+        }
+    });
+}
 
 if (wt_select)
 {
     // Set filter to value from URI
     if (worktype && worktype <= wt_select.length && worktype > 0){
         wt_select.value=worktype;
+    }
+
+    if (search){
+        search_field.value=search;
     }
 
     if (supervisor){
