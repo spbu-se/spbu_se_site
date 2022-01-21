@@ -81,6 +81,8 @@ db.init_app(app)
 app.config['MSEARCH_BACKEND'] = 'whoosh'
 app.config['MSEARCH_ENABLE'] = True
 search.init_app(app)
+search.create_index(Thesis, update=True)
+search.create_index(Users, update=True)
 
 # Init Migrate
 migrate = Migrate(app, db)
@@ -98,6 +100,8 @@ login_manager.init_app(app)
 
 # Init APScheduler
 scheduler = APScheduler()
+scheduler.add_job(id='RecalculatePostRank', func=recalculate_post_rank, trigger="interval", seconds=3600)
+scheduler.start()
 
 # Init Flask-admin
 admin = Admin(app, index_view=SeAdminIndexView())
@@ -106,6 +110,7 @@ admin.add_view(SeAdminModelViewUsers(Users, db.session))
 admin.add_view(SeAdminModelViewStaff(Staff, db.session))
 admin.add_view(SeAdminModelViewThesis(Thesis, db.session))
 admin.add_view(SeAdminModelViewSummerSchool(SummerSchool, db.session))
+
 
 # Flask routes goes
 @app.route('/')
@@ -264,8 +269,4 @@ if __name__ == "__main__":
         elif sys.argv[1] == "init":
             init_db()
     else:
-        scheduler.add_job(id='RecalculatePostRank', func=recalculate_post_rank, trigger="interval", seconds=3600)
-        scheduler.start()
-        search.create_index(Thesis, update=True)
-        search.create_index(Users, update=True)
         app.run(port=5000)
