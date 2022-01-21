@@ -9,6 +9,7 @@ function theses_load() {
     let course_select = document.getElementById('course');
     let startdate_select = document.getElementById('startdate');
     let enddate_select = document.getElementById('enddate');
+    let search_field = document.getElementById('thesis_search_field');
 
     let params = new URLSearchParams();
     let wt = wt_select.value;
@@ -18,6 +19,11 @@ function theses_load() {
     // Page first
     if (page && page > 1){
         params.append('page', page);
+    }
+
+    if (search_field)
+    {
+        params.append('search', search_field.value);
     }
 
     // Supervisor?
@@ -200,9 +206,13 @@ if (search_field && search_button)
 
 if (wt_select)
 {
+
     // Set filter to value from URI
-    if (worktype && worktype <= wt_select.length && worktype > 0){
+    if (wt_select.innerHTML.indexOf('value="' + worktype + '"') > -1){
+        console.log(worktype);
         wt_select.value=worktype;
+    } else {
+        wt_select.value=0;
     }
 
     if (search){
