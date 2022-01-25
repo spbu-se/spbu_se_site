@@ -113,7 +113,7 @@ scheduler.add_job(id='RecalculatePostRank', func=recalculate_post_rank, trigger=
 scheduler.start()
 
 # Init Flask-admin
-admin = Admin(app, index_view=SeAdminIndexView())
+admin = Admin(app, index_view=SeAdminIndexView(), template_mode='bootstrap4')
 # Add views to the Flask-admin
 admin.add_view(SeAdminModelViewUsers(Users, db.session))
 admin.add_view(SeAdminModelViewStaff(Staff, db.session))
