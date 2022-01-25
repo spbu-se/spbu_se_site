@@ -187,15 +187,6 @@ class PostVote(db.Model):
         return '<Vote - {}, from {} for {}>'.format(vote, self.user.get_name(), self.post.title)
 
 
-class Grants(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(1024), nullable=False)
-    description = db.Column(db.String(2048), nullable=True)
-    amount = db.Column(db.String(2048), nullable=False)
-    submission = db.Column(db.String(2048), nullable=False)
-    contacts = db.Column(db.String(2048), nullable=True)
-
-
 def recalculate_post_rank():
 
     posts = Posts.query.order_by(Posts.id.desc()).limit(100).all()

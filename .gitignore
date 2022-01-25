@@ -83,3 +83,6 @@ fabric.properties
 
 # Do not track site DB files
 /**/se.db
+
+# Do not config file
+/**/flask_se_secret.conf

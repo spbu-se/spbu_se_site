@@ -10,7 +10,7 @@
     <!-- Main content -->
     <section class="slice bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main-back.jpg') }} );">
         <!-- Container -->
-        <div class="container d-flex align-items-center text-center text-lg-left pt-5 pt-lg-6">
+        <div class="container d-flex align-items-center text-center text-lg-left pt-3 pt-lg-4">
             <div class="col px-0">
                 <div class="row align-items-center">
                     <div class="col-lg-8 text-center text-lg-left">
@@ -24,11 +24,13 @@
                     <div class="col-lg-8 text-center text-lg-left">
                         <!-- Text -->
                         <p class="lead text-white opacity-8 mt-2 mb-0">
-                            Информация о стипендиях и грантах для учащихся на кафедре Системного программирования.
+                            Информация о стипендиях и грантах для учащихся на кафедре "Системного программирования" СПбГУ.
                         </p>
-                        <p class="lead text-white opacity-8 mt-2 mb-0">
-                            Раздел находиться в разработке и содержит только частичную информация о стипендиях и грантах.
-                        </p>
+                        <div class="media align-items-center pt-2">
+                            <div class="media-body">
+                                <span class="text-sm text-muted text-white">Последнее обновление 25.01.2022.</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -53,17 +55,17 @@
                                     <h6 class="mb-0"><strong>Государственная академическая стипендия</strong></h6>
                                 </div>
                                 <div class="col-auto ml-auto text-right">
-                                    <p>~ 1 500 руб. в месяц</p>
+                                    <p class="font-weight-bold"> 2 080 руб. в месяц</p>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body pt-2">
-                            <p class="text-sm mb-0">Назначается всем студентам поступившим на первый курс. Последующая выплата производиться на основании результатов промежуточной аттестиации при условии отсутствия академической задолженности и оценки "удовлетворительно".</p>
+                            <p class="mb-2">Назначается всем студентам поступившим на первый курс. Последующая выплата производится на основании результатов промежуточной аттестиации при условии отсутствия академической задолженности и оценки "удовлетворительно".</p>
+                            <p class="mb-0"><strong>Подавать заявку не требуется</strong>, назначается автоматически, на основании успеваемости.</p>
                         </div>
                         <div class="card-footer border-0 delimiter-top">
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <p><strong>Подавать заявку:</strong> не требуется, назначается автоматически, на основании успеваемости.</p>
+                            <div class="row">
+                                <div class="col d-flex justify-content-end align-items-center">
                                 </div>
                             </div>
                         </div>
@@ -80,14 +82,135 @@
                             </div>
                         </div>
                         <div class="card-body pt-2">
-                            <p class="text-sm mb-0">Стипендия назначается студентам имеющим особые достижения в учебной, научно-исследовательской, общественной, культурно-творческой и спортивной деятельности.</p>
+                            <p class="mb-2">Для студентов обучающихся по основным образовательным программам бакалавриата, специалитета и магистратуры.</p>
+                            <p class="mb-2">Стипендия назначается студентам имеющим особые достижения в учебной, научно-исследовательской, общественной, культурно-творческой и спортивной деятельности.</p>
+                            <p class="mb-0 text-danger">Внимание! Заявка подается до 31.01.2022</p>
                         </div>
                         <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="https://students.spbu.ru/files/Instrukcia-PGAS.pdf" target="_blank" class="btn btn-lg btn-soft-info btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Инструкция</span>
+                                        <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                    <a href="http://my.spbu.ru/" target="_blank" class="btn btn-lg btn-soft-success btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подать заявку</span>
+                                        <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                     <a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya.html" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                         <span class="btn-inner--text">Подробней</span>
+                                         <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
                             <div class="row align-items-center">
-                                <div class="col">
-                                    <p class="mb-0"><strong>Критерии отбора: </strong>описаны в документе <a href="https://students.spbu.ru/files/kriterii-MKN-v-20-21.xlsx" target="_blank">https://students.spbu.ru/files/kriterii-MKN-v-20-21.xlsx</a></p>
-                                    <p class="mb-0"><strong>Подавать заявку: </strong>прием заявок откроется в сентябре 2021 года.</p>
-                                    <p><strong>Дополнительная информация: </strong><a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya.html" target="_blank">https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya.html</a> </p>
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия Президента РФ для студентов (приоритетные направления)</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">7 000 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-0">Для:</p>
+                            <ul>
+                            <li>2, 3 курс бакалавриата;</li>
+                            <li>1 курс магистратуры;</li>
+                            </ul>
+                            <p class="mb-0">Наличие по результатам промежуточной аттестаций не менее 50% оценок «отлично» от общего количества полученных оценок при отсутствии оценок «удовлетворительно», полученных в течение года и отсутствие академической задолженности за весь период обучения;</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_1')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробней</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия Президента РФ для аспирантов (приоритетные направления)</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">14 000 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-2">Для аспирантов.</p>
+                            <p class="mb-0">Наличие по результатам промежуточной аттестаций не менее 50% оценок «отлично» от общего количества полученных оценок при отсутствии оценок «удовлетворительно», полученных в течение года и отсутствие академической задолженности за весь период обучения;</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_2')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробней</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия Президента РФ для студентов (все направления)</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">2 200 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-2">Для студентов бакалавриата, магистратуры и специалитета за исключением выпускных курсов очной формы обучения</p>
+                            <p class="mb-0">Наличие по результатам промежуточной аттестации не менее 50% оценок «отлично» от общего количества полученных оценок при отсутствии оценок «удовлетворительно», полученных в течение года, и отсутствие академической задолженности за весь период обучения.</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_3')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробней</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия Президента РФ для аспирантов (все направления)</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">4 500 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-2">Для аспирантов, за исключением выпускных курсов очной формы обучения</p>
+                            <p class="mb-0">Наличие по результатам промежуточной аттестации не менее 50% оценок «отлично» от общего количества полученных оценок при отсутствии оценок «удовлетворительно», полученных в течение года, и отсутствие академической задолженности за весь период обучения.</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_4')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробней</span>
+                                    </a>
                                 </div>
                             </div>
                         </div>

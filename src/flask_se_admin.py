@@ -110,3 +110,8 @@ class SeAdminModelViewStaff(SeAdminModelView):
     form_excluded_columns = ['supervisor', 'adviser']
 
     pass
+
+
+class SeAdminModelViewNews(SeAdminModelView):
+
+    pass

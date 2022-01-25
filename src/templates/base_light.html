@@ -19,7 +19,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='/assets/img/favicon.png') }}" type="image/png">
     <!-- Quick CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/quick-website.css') }}" id="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/min/quick-website.css') }}" id="stylesheet">
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/animate.css/animate.min.css') }}">
     <!-- Font Awesome -->
@@ -124,6 +124,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-md p-0">
                                     <div class="list-group list-group-flush px-lg-4">
+                                        <a href="{{ url_for('scholarships') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Стипендии и гранты</small>
+                                                </div>
+                                            </div>
+                                        </a>
                                         <a href="{{ url_for('summer_school') }}" class="list-group-item list-group-item-action" role="button">
                                             <div class="d-flex">
                                                 <!-- Media body -->
@@ -265,7 +273,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
                         <h6 class="heading mb-3">Студентам</h6>
                         <ul class="list-unstyled">
-                             <li><a href="{{ url_for('summer_school') }}">Летняя школа 2021</a></li>
+                            <li><a href="{{ url_for('scholarships') }}">Стипендии и гранты</a></li>
+                            <li><a href="{{ url_for('summer_school') }}">Летняя школа 2021</a></li>
                             <li><a href="{{ url_for('theses_search') }}">Архив курсовых и ВКР</a></li>
                         </ul>
                     </div>
