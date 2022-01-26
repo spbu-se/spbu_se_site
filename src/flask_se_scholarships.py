@@ -18,3 +18,18 @@ def get_scholarships_3():
 def get_scholarships_4():
     return render_template('scholarships/4.html')
 
+
+def get_scholarships_5():
+    return render_template('scholarships/5.html')
+
+
+def get_scholarships_6():
+    return render_template('scholarships/6.html')
+
+
+def get_scholarships_7():
+    return render_template('scholarships/7.html')
+
+
+def get_scholarships_8():
+    return render_template('scholarships/8.html')
