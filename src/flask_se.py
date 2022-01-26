@@ -257,7 +257,7 @@ def sitemap():
     """Generate sitemap.xml. Makes a list of urls and date modified."""
     pages = []
     skip_pages = ['/nooffer.html', '/fetch_theses', '/Sitemap.xml', '/sitemap.xml', '/404.html', '/post_theses',
-                  '/theses_tmp.html', '/theses_delete_tmp', '/theses_add_tmp']
+                  '/theses_tmp.html', '/theses_delete_tmp', '/theses_add_tmp', '/google_callback', '/vk_callback']
 
     # static pages
     for rule in app.url_map.iter_rules():

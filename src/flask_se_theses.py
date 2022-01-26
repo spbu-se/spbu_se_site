@@ -139,7 +139,9 @@ def post_theses():
     supervisor_review_filename = None
     reviewer_review_filename = None
 
-    type_id_string = ['', 'Bachelor_Report', 'Bachelor_Thesis', 'Master_Thesis']
+    type_id_string = ['', 'Bachelor_Report', 'Bachelor_Thesis', 'Master_Thesis',
+                      'Autumn_practice_2nd_year', 'Spring_practice_2nd_year', 'Autumn_practice_3rd_year',
+                      'Spring_practice_3rd_year']
 
     if 'thesis_text' in request.files:
         thesis_text = request.files['thesis_text']

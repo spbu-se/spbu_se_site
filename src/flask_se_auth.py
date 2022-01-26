@@ -9,7 +9,7 @@ import requests
 from PIL import Image
 
 from flask_login import login_user, login_required, logout_user, current_user, LoginManager
-from flask import make_response, session, request, flash, render_template, redirect, url_for, abort
+from flask import session, request, flash, render_template, redirect, url_for
 from google_auth_oauthlib.flow import Flow
 import google.auth.transport.requests
 from google.oauth2 import id_token
@@ -41,7 +41,7 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_google
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
     scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
-    redirect_uri="https://se.math.spbu.ru/google_callback"
+    redirect_uri="http://127.0.0.1:5000/google_callback"
 )
 
 
@@ -233,10 +233,15 @@ def google_login():
 
 def google_callback():
 
+    state = request.args.get('state', type=str)
+
+    if not state:
+        redirect(url_for('login_index'))
+
     flow.fetch_token(authorization_response=request.url)
 
     if not session["state"] == request.args["state"]:
-        abort(500)  # State does not match!
+        redirect(url_for('login_index')) # State does not match!
 
     credentials = flow.credentials
     request_session = requests.session()
