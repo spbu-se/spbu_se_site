@@ -21,7 +21,7 @@ from flask_se_admin import SeAdminModelViewThesis, SeAdminIndexView, SeAdminMode
     SeAdminModelViewSummerSchool, SeAdminModelViewStaff, SeAdminModelViewNews
 from flask_se_scholarships import get_scholarships_1, get_scholarships_2, get_scholarships_3, get_scholarships_4, \
     get_scholarships_5, get_scholarships_6, get_scholarships_7, get_scholarships_8, get_scholarships_9, \
-    get_scholarships_10
+    get_scholarships_10, get_scholarships_11
 
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
@@ -89,6 +89,7 @@ app.add_url_rule('/scholarships/7.html', view_func=get_scholarships_7)
 app.add_url_rule('/scholarships/8.html', view_func=get_scholarships_8)
 app.add_url_rule('/scholarships/9.html', view_func=get_scholarships_9)
 app.add_url_rule('/scholarships/10.html', view_func=get_scholarships_10)
+app.add_url_rule('/scholarships/11.html', view_func=get_scholarships_11)
 
 # Init Database
 db.app = app

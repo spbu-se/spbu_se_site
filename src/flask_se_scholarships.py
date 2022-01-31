@@ -41,3 +41,7 @@ def get_scholarships_9():
 
 def get_scholarships_10():
     return render_template('scholarships/10.html')
+
+
+def get_scholarships_11():
+    return render_template('scholarships/11.html')
