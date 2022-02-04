@@ -45,3 +45,11 @@ def get_scholarships_10():
 
 def get_scholarships_11():
     return render_template('scholarships/11.html')
+
+
+def get_scholarships_12():
+    return render_template('scholarships/12.html')
+
+
+def get_scholarships_13():
+    return render_template('scholarships/13.html')
