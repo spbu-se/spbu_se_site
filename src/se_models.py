@@ -18,6 +18,12 @@ tag = db.Table('tag',
                )
 
 
+diploma_themes_tag = db.Table('diploma_themes_tag',
+               db.Column('diploma_themes_tag_id', db.Integer, db.ForeignKey('diploma_themes_tags.id'), primary_key=True),
+               db.Column('diploma_themes_id', db.Integer, db.ForeignKey('diploma_themes.id'), primary_key=True)
+               )
+
+
 class Staff (db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -58,16 +64,41 @@ class Users(db.Model, UserMixin):
 
     staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
     news = db.relationship("Posts", backref=db.backref("author", uselist=False))
+    diploma_themes_supervisor = db.relationship("DiplomaThemes", backref=db.backref("supervisor", uselist=False), foreign_keys = 'DiplomaThemes.supervisor_id')
+    diploma_themes_consultant = db.relationship("DiplomaThemes", backref=db.backref("consultant", uselist=False), foreign_keys = 'DiplomaThemes.consultant_id')
+    diploma_themes_author = db.relationship("DiplomaThemes", backref=db.backref("author", uselist=False),
+                                                foreign_keys='DiplomaThemes.author_id')
+
     all_user_votes = db.relationship('PostVote', back_populates='user')
 
     def get_name(self):
         return f"{self.last_name} {self.first_name} {self.middle_name}"
 
     def __str__(self):
-        return f"{self.last_name} {self.first_name} {self.middle_name}"
+        full_name = ''
+        if self.last_name:
+            full_name = full_name + self.last_name
+
+        if self.first_name:
+            full_name = full_name + " " + self.first_name
+
+        if self.middle_name:
+            full_name = full_name + " " + self.middle_name
+
+        return full_name
 
     def __repr__(self):
-        return '<%r %r %r>' % (self.last_name, self.first_name, self.middle_name)
+        full_name = ''
+        if self.last_name:
+            full_name = full_name + self.last_name
+
+        if self.first_name:
+            full_name = full_name + " " + self.first_name
+
+        if self.middle_name:
+            full_name = full_name + " " + self.middle_name
+
+        return full_name
 
 
 # Coursework, diploma
@@ -174,8 +205,10 @@ class PostVote(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
     user = db.relationship('Users', back_populates='all_user_votes')
-    post_id = db.Column(db.Integer, db.ForeignKey("posts.id"), primary_key=True)
+
+    post_id = db.Column(db.Integer, db.ForeignKey("posts.id"))
     post = db.relationship('Posts', back_populates='all_news_votes')
+
     upvote = db.Column(db.Boolean, nullable=False)
     timestamp = db.Column(db.DateTime, server_default=db.func.now())
 
@@ -185,6 +218,52 @@ class PostVote(db.Model):
         else:
             vote = 'Down'
         return '<Vote - {}, from {} for {}>'.format(vote, self.user.get_name(), self.post.title)
+
+
+class DiplomaThemes(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(db.String(512), nullable=False)
+    description = db.Column(db.String(2048), nullable=True)
+    status = db.Column(db.Integer, default=0, nullable=False) # 0 - new, 1 - need update, 2 - approved
+    comment = db.Column(db.String(2048), nullable=True)
+
+    level_id = db.Column(db.Integer, db.ForeignKey('themes_level.id'))
+    level = db.relationship("ThemesLevel", back_populates="theme")
+
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
+    company = db.relationship('Company', back_populates='theme')
+
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    supervisor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    consultant_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+
+class DiplomaThemesTags(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False)
+    tags = db.relationship('DiplomaThemes', secondary=diploma_themes_tag, lazy='subquery', backref=db.backref('diploma_themes_tags', lazy=True))
+
+
+class ThemesLevel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    level = db.Column(db.String(512), nullable=False)
+    theme = db.relationship('DiplomaThemes', back_populates='level')
+
+    def __str__(self):
+        return f"{self.level}"
+
+class Company (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(512), nullable=False)
+    logo_uri = db.Column(db.String(512), nullable=True)
+
+    theme = db.relationship('DiplomaThemes', back_populates='company')
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 def recalculate_post_rank():
@@ -672,6 +751,48 @@ def init_db():
          'author_id': 2}
     ]
 
+    company = [
+        {'name': 'Raidix', 'logo_uri': 'raidix.png'},
+        {'name': 'Digital Design', 'logo_uri': 'digital_design.png'}
+    ]
+
+    themes_level = [
+        {'level': '2, 3 и 4 курс'},
+        {'level': '3 и 4 курс'},
+        {'level': 'бакалаврская ВКР'},
+        {'level': 'бакалаврская или магистерская ВКР'}
+    ]
+
+    d_themes = [
+        {'title': 'Изучение журналирования для all flash RAID массива',
+         'description': 'Журналирование позволяет решить проблему write-hole и порчу данных в случае сложных отказов системы. В рамках задачи предлагается изучить технологию журналирования в Linux dm-log. Исследование включает в себя функциональные возможности, параметры настройки, производительность при различных паттернах. Интегрирование с нашим RAID engine. Возможна исследование и реализация и различных подходов к журналирования внутри RAID engine а не сторонними средствами, для того чтобы получить более производительное решение.',
+         'level_id': 1,
+         'company_id': 1,
+         'supervisor_id': 5,
+         'consultant_id': 4,
+         'author_id': 4,
+         'status': 2
+         },
+        {'title': 'Оптимизация алгоритма адаптивного объединения запросов в RAID',
+         'description': 'При последовательной записи объединение запросов позволят решить проблему read-modify-write на RAID с контрольными суммами. Имеющийся алгоритм зависит от нескольких параметров и есть ряд наработок, которые позволяют автоматически подстраивать параметры в зависимости от нагрузки (размер ио, интенсивность, многопоточность), однако не справляется с некоторыми паттернами. В рамках работы необходимо изучить алгоритм адаптивного объединения, улучшить его или предложить альтернативный. Также предполагает изучения объединения запросов не только на искусственных паттернах.',
+         'level_id': 2,
+         'company_id': 1,
+         'supervisor_id': 5,
+         'consultant_id': 4,
+         'author_id': 3,
+         'status': 2
+         },
+        {'title': 'Изучение RAM кэша для RAID массива',
+         'description': 'В рамках работы планируется изучить технологии Open Cache Acceleration Software для реализации RAM cache или кэш на быстрых накопителях для нашего RAID engine. Изучение включает в себя функциональные возможности, параметры и настройку, производительность в различных конфигурациях и паттернах нагрузки. Внедрение технологии, ее улучшение и адаптация под наш RAID. Возможно изучение и сравнение с имеющимися технологиями кеширования в Linux такими как dm-cache, bcache. Возможно также углубление в изучение алгоритмов Read-Ahead.',
+         'level_id': 3,
+         'company_id': 2,
+         'supervisor_id': 5,
+         'consultant_id': 4,
+         'author_id': 4,
+         'status': 2
+         },
+    ]
+
     # Init DB
     db.session.commit() # https://stackoverflow.com/questions/24289808/drop-all-freezes-in-flask-with-sqlalchemy
     db.drop_all()
@@ -770,3 +891,33 @@ def init_db():
         for tag in records:
             t.tags.append(tag)
             db.session.commit()
+
+
+    # Create Companies
+    print("Create companies")
+    for cur in company:
+        c = Company(name=cur['name'], logo_uri=cur['logo_uri'])
+
+        db.session.add(c)
+        db.session.commit()
+
+
+    # Create ThemesLevels
+    print("Create diploma theme levels")
+    for cur in themes_level:
+        c = ThemesLevel(level=cur['level'])
+
+        db.session.add(c)
+        db.session.commit()
+
+
+    # Create DiplomaThems
+    print("Create diploma themes")
+    for cur in d_themes:
+        c = DiplomaThemes(title=cur['title'], description=cur['description'], level_id=cur['level_id'],
+                          company_id=cur['company_id'], supervisor_id=cur['supervisor_id'],
+                          consultant_id=cur['consultant_id'], author_id=cur['author_id'],
+                          status=cur['status'])
+
+        db.session.add(c)
+        db.session.commit()

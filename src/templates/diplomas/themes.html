@@ -1,0 +1,75 @@
+{% extends "base_dark.html" %}
+{% block title %}Сервис по предложению и выбору тем для учебных практик и ВКР{% endblock %}
+{% block description %}Сервис по предложению и выбору тем для учебных практик и ВКР{% endblock %}
+
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/diplomas/index.html" />
+{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice pt-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
+        <!-- Container -->
+        <div class="container align-items-center text-center text-lg-left pt-4 pt-lg-5">
+            <div class="row align-items-center">
+                <div class="col-lg-12 text-center">
+                    <h1 class="text-white">Актуальные темы для учебных практик и ВКР</h1>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col-lg-12 text-center">
+                    {% if user_themes_count %}
+                    <a href="{{ url_for('user_diplomas_index') }}" class="btn btn-lg btn-secondary btn-icon w-25">
+                        <span class="btn-inner--text">Мои темы ({{user_themes_count}})</span>
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('add_user_theme') }}" class="btn btn-lg btn-primary btn-icon w-25">
+                        <span class="btn-inner--text">Предложить свою тему</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+     <section class="slice clients delimiter-top delimiter-bottom bg-section-secondary" id="themes">
+        <div class="container">
+            <div class="row row-grid">
+                <div class="col-lg-9" id="ThemesList">
+                    {% for t in themes %}
+                    <div class="card border-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0"><a href="{{ url_for('get_theme', id=t.id) }}"><strong>{{t.title}}</strong></a></h5>
+            </div>
+                                 <div class="col-auto ml-auto text-right">
+                                     <a href="#" class="text-reset" target="_blank">
+                                         <img alt="Image placeholder" src="/images/logos/{{t.company.logo_uri}}" style="height: 50px">
+                                     </a>
+                                 </div>
+        </div>
+    </div>
+    <div class="card-body pt-2">
+        <p class="mb-0">Уровень: {{t.level.level}}</p>
+        <p class="mb-0">Компания: {{t.company.name}}</p>
+        <p class="mb-0">Руководитель: {{t.supervisor}}</p>
+        <p class="">Консультант: {{t.consultant}}</p>
+    </div>
+</div>
+                    {% endfor %}
+
+                </div>
+                <div class="col-lg-3 ml-lg-auto">
+                    <div data-toggle="sticky" data-sticky-offset="10">
+                        <div class="card">
+                            <div class="card-header px-3">
+                                <span class="h6 mb-0">Фильтры</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+     </section>
+
+{% endblock %}

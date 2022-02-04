@@ -2,6 +2,7 @@
 
 import sys
 from datetime import datetime
+import tzlocal
 
 from flask import Flask, render_template, make_response, redirect, url_for
 from flask_admin import Admin
@@ -13,15 +14,17 @@ from sqlalchemy.sql.expression import func
 
 import flask_se_theses
 from flask_se_config import SECRET_KEY_THESIS, SECRET_KEY
-from se_models import db, search, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, Posts, recalculate_post_rank
+from se_models import db, search, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, Posts, DiplomaThemes, recalculate_post_rank
 from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, \
     logout, vk_callback, google_login, google_callback
 from flask_se_news import list_news, get_post, submit_post, post_vote, delete_post
 from flask_se_admin import SeAdminModelViewThesis, SeAdminIndexView, SeAdminModelViewUsers, \
-    SeAdminModelViewSummerSchool, SeAdminModelViewStaff, SeAdminModelViewNews
+    SeAdminModelViewSummerSchool, SeAdminModelViewStaff, SeAdminModelViewNews, SeAdminModelViewDiplomaThemes, \
+    SeAdminModelViewReviewDiplomaThemes
 from flask_se_scholarships import get_scholarships_1, get_scholarships_2, get_scholarships_3, get_scholarships_4, \
     get_scholarships_5, get_scholarships_6, get_scholarships_7, get_scholarships_8, get_scholarships_9, \
     get_scholarships_10, get_scholarships_11
+from flask_se_diplomas import diplomas_index, get_theme, add_user_theme, user_diplomas_index, delete_theme, edit_user_theme
 
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
@@ -91,6 +94,16 @@ app.add_url_rule('/scholarships/9.html', view_func=get_scholarships_9)
 app.add_url_rule('/scholarships/10.html', view_func=get_scholarships_10)
 app.add_url_rule('/scholarships/11.html', view_func=get_scholarships_11)
 
+
+# Diplomas
+app.add_url_rule('/diplomas/index.html', view_func=diplomas_index)
+app.add_url_rule('/diplomas/theme.html', view_func=get_theme)
+app.add_url_rule('/diplomas/add_theme.html', methods=['GET', 'POST'], view_func=add_user_theme)
+app.add_url_rule('/diplomas/user_themes.html', view_func=user_diplomas_index)
+app.add_url_rule('/diplomas/delete_theme.html', view_func=delete_theme)
+app.add_url_rule('/diplomas/edit_theme.html', methods=['GET', 'POST'], view_func=edit_user_theme)
+
+
 # Init Database
 db.app = app
 db.init_app(app)
@@ -116,6 +129,7 @@ zero_days_ago = (datetime.now()).date().isoformat()
 login_manager.init_app(app)
 
 # Init APScheduler
+app.config['SCHEDULER_TIMEZONE'] = 'UTC'
 scheduler = APScheduler()
 scheduler.add_job(id='RecalculatePostRank', func=recalculate_post_rank, trigger="interval", seconds=3600)
 scheduler.start()
@@ -128,6 +142,8 @@ admin.add_view(SeAdminModelViewStaff(Staff, db.session))
 admin.add_view(SeAdminModelViewThesis(Thesis, db.session))
 admin.add_view(SeAdminModelViewSummerSchool(SummerSchool, db.session))
 admin.add_view(SeAdminModelViewNews(Posts, db.session))
+admin.add_view(SeAdminModelViewDiplomaThemes(DiplomaThemes, db.session, endpoint="diplomathemes"))
+admin.add_view(SeAdminModelViewReviewDiplomaThemes(DiplomaThemes, db.session, endpoint="reviewdiplomathemes", name="Review DiplomaThemes"))
 
 
 # Flask routes goes

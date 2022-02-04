@@ -1,0 +1,153 @@
+{% extends "base_dark.html" %}
+{% block title %}{{theme.title}}{% endblock %}
+{% block description %}{{theme.title}}{% endblock %}
+
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/diplomas/theme.html?id={{theme.id}}" />
+{% endblock %}
+
+{% block content %}
+     <!-- Main content -->
+<section class="slice bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
+        <!-- Container -->
+        <div class="container d-flex align-items-center pt-4 pt-lg-5">
+            <div class="col px-0">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <!-- Heading -->
+                        <h1 class="text-white h2 mb-2">{{theme.title}}</h1>
+                        <p class="text-white lead">Уровень темы: {{theme.level.level}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+</section>
+
+<section class="slice bg-section-secondary">
+    <div class="container">
+
+        <div class="row align-item-center">
+            <div class="col-lg-10 mx-auto">
+
+        {% if current_user.is_authenticated %}
+            {% if theme.author_id == current_user.id%}
+
+        <div class="row">
+                <div class="col-lg-2">
+                    <p class="lead font-weight-bold">Статус темы</p>
+                </div>
+                <div class="col-lg-10">
+                        {% if theme.status == 0 %}
+                <span class="badge badge-warning">На проверке</span>
+                <p class="pt-2">Данная тема находится на проверке у преподавателей кафедры. По итогам рассмотрения тема будет либо утверждена или вернется к вам на доработку с комментариями.</p>
+                {% elif theme.status == 1 %}
+                <span class="badge badge-danger">Требуется доработка</span>
+                <p class="pt-2">Результат проверки: {% if theme.comment %} {{theme.comment}} {% else %} Странно, тему отправили на доработку, но не указали комментарий. Так быть не должно, свяжитесь со мной для выяснения причин (телеграм @Zelenchuk) {% endif %}</p>
+                {% elif theme.status == 2 %}
+                <span class="badge badge-success">Одобрена</span>
+                <p class="pt-2">Ваша тема одобрена и доступна в общем списке актуальных тем</p>
+                {% endif %}
+                </div>
+            </div>
+        <hr class="divider divider-fade" />
+
+            {% endif %}
+        {% endif %}
+
+        <div class="row">
+                <div class="col-lg-2">
+                    <p class="lead font-weight-bold">Описание темы</p>
+                </div>
+                <div class="col-lg-10">
+                    <p class="lead">
+                        {{theme.description}}
+                    </p>
+                </div>
+            </div>
+        <hr class="divider divider-fade" />
+
+        <div class="row">
+                <div class="col-lg-2">
+                    <p class="lead font-weight-bold">Руководитель</p>
+                </div>
+                <div class="col-lg-10">
+                    <p class="lead">
+                        {% if theme.supervisor_id %}
+                            {{theme.supervisor}}
+                        {% else %}
+                            еще не назначен
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        <hr class="divider divider-fade" />
+
+        <div class="row">
+                <div class="col-lg-2">
+                    <p class="lead font-weight-bold">Консультант</p>
+                </div>
+                <div class="col-lg-10">
+                    <p class="lead">
+                        {% if theme.consultant_id %}
+                            {{theme.consultant}}
+                        {% else %}
+                            Консультант еще не назначен
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        <hr class="divider divider-fade" />
+
+        <div class="row">
+                <div class="col-lg-2">
+                    <p class="lead font-weight-bold">От кого</p>
+                </div>
+                <div class="col-lg-10">
+                    <p class="lead">
+                        {{theme.company.name}}
+                    </p>
+                </div>
+            </div>
+        <hr class="divider divider-fade" />
+
+        {% if current_user.is_authenticated %}
+            {% if theme.author_id == current_user.id%}
+        <div class="row pt-5">
+                <div class="col-lg-12 text-right">
+                    <a href="{{ url_for('edit_user_theme', theme_id=theme.id) }}" class="btn btn-lg btn-primary btn-icon">
+                        <span class="btn-inner--text">Редактировать</span>
+                    </a>
+                    <a href="#" data-toggle="modal" data-target="#exitModal" class="btn btn-lg btn-danger btn-icon">
+                        <span class="btn-inner--text">Удалить</span>
+                    </a>
+                </div>
+        </div>
+
+         <!-- Modal -->
+        <div class="modal fade" id="exitModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="ModalLabel">Подтверждение</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Вы точно хотите удалить эту тему'?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="{{url_for('delete_theme', theme_id=theme.id)}}" type="button" class="btn btn-secondary">Да, точно</a>
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+        {% endif %}
+        {% endif %}
+
+                </div>
+        </div>
+        </div>
+    </section>
+{% endblock %}

@@ -19,7 +19,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='/assets/img/favicon.png') }}" type="image/png">
     <!-- Quick CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/min/quick-website.css') }}" id="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/quick-website.css') }}" id="stylesheet">
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/animate.css/animate.min.css') }}">
     <!-- Font Awesome -->
@@ -153,31 +153,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             </li>
                         <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
                                 <a class="text-dark nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
-                                    Выпускники
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-md p-0">
-                                    <div class="list-group list-group-flush px-lg-4">
-                                        <a href="{{ url_for('theses_search') }}" class="list-group-item list-group-item-action" role="button">
-                                            <div class="d-flex">
-                                                <!-- Media body -->
-                                                <div class="ml-3">
-                                                    <small class="text-sm">Архив курсовых и ВКР</small>
-                                                </div>
-                                            </div>
-                                        </a>
-                                        <a href="https://oops.math.spbu.ru/SE/alumni" class="list-group-item list-group-item-action" role="button">
-                                            <div class="d-flex">
-                                                <!-- Media body -->
-                                                <div class="ml-3">
-                                                    <small class="text-sm">Выпускники кафедры</small>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                        <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
-                                <a class="text-dark nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                                     Кафедра
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-md p-0">
@@ -190,11 +165,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
+                                        <a href="https://oops.math.spbu.ru/SE/alumni" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Выпускники кафедры</small>
+                                                </div>
+                                            </div>
+                                        </a>
                                         <a href="{{ url_for('contacts') }}" class="list-group-item list-group-item-action" role="button">
                                             <div class="d-flex">
                                                 <!-- Media body -->
                                                 <div class="ml-3">
                                                     <small class="text-sm">Контакты</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                                <a class="text-dark nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                                    Сервисы
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-md p-0">
+                                    <div class="list-group list-group-flush px-lg-4">
+                                        <a href="{{ url_for('diplomas_index') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Темы практик и ВКР</small>
                                                 </div>
                                             </div>
                                         </a>
@@ -206,9 +206,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
+                                        <a href="{{ url_for('theses_search') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Архив курсовых и ВКР</small>
+                                                </div>
+                                            </div>
+                                        </a>
                                     </div>
                                 </div>
                             </li>
+
                         <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
                             {% if current_user.is_authenticated %}
                             <a href="{{ url_for('user_profile') }}" class="text-dark nav-link">
@@ -233,7 +242,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="footer pt-lg-7 footer-dark bg-dark">
             <!-- SVG shape -->
             <div class="shape-container shape-line shape-position-top shape-orientation-inverse">
-                <svg width="2560px" height="100px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" viewBox="0 0 2560 100" style="enable-background:new 0 0 2560 100;" xml:space="preserve" class="">
+                <svg width="2560px" height="100px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" viewBox="0 0 2560 100" style="enable-background:new 0 0 2560 100;" xml:space="preserve" class=" fill-section-secondary">
                     <polygon points="2560 0 2560 100 0 100"></polygon>
                 </svg>
             </div>
@@ -279,18 +288,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </ul>
                     </div>
                     <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
-                        <h6 class="heading mb-3">Выпускники</h6>
+                        <h6 class="heading mb-3">Сервисы</h6>
                         <ul class="list-unstyled">
+                            <li><a href="{{ url_for('diplomas_index') }}">Темы практик и ВКР</a></li>
+                            <li><a href="{{ url_for('list_news') }}">Новости</a></li>
                             <li><a href="{{ url_for('theses_search') }}">Архив курсовых и ВКР</a></li>
-                            <li><a href="https://oops.math.spbu.ru/SE/alumni" target="_blank">Выпускники кафедры</a></li>
                         </ul>
                     </div>
                     <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
                         <h6 class="heading mb-3">Кафедра</h6>
                         <ul class="list-unstyled">
                             <li><a href="{{ url_for('department_staff') }}">Сотрудники</a></li>
+                            <li><a href="https://oops.math.spbu.ru/SE/alumni" target="_blank">Выпускники кафедры</a></li>
                             <li><a href="{{ url_for('contacts') }}">Контакты</a></li>
-                            <li><a href="{{ url_for('list_news') }}">Новости</a></li>
+
                         </ul>
                     </div>
                 </div>
@@ -321,7 +332,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- Google maps -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA74mo0V79zPcSWjgUMe9AdmLy3-ruPKLs"></script>
     <!-- Quick JS -->
-    <script src="{{ url_for('static', filename='/assets/js/quick-website.js') }}"></script>
+    <script src="{{ url_for('static', filename='/assets/js/quick-website.min.js') }}"></script>
     <script src="{{ url_for('static', filename='/assets/js/se_scripts.js') }}"></script>
     <!-- Feather Icons -->
     <script>

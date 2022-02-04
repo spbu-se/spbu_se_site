@@ -8,6 +8,7 @@ from flask_login import current_user
 from wtforms import TextAreaField
 
 from flask_se_config import SECRET_KEY_THESIS
+from se_models import db
 
 
 # Base model view with access and inaccess methods
@@ -113,5 +114,64 @@ class SeAdminModelViewStaff(SeAdminModelView):
 
 
 class SeAdminModelViewNews(SeAdminModelView):
+
+    pass
+
+
+class SeAdminModelViewDiplomaThemes(SeAdminModelView):
+
+    form_overrides = {
+        'description': TextAreaField
+    }
+
+    form_widget_args = {
+        'description': {
+            'rows': 10,
+            'style': 'width: 100%;'
+        }
+    }
+
+    pass
+
+
+class SeAdminModelViewReviewDiplomaThemes(SeAdminModelView):
+
+    can_delete = False
+    column_list = ('status', 'comment', 'title', 'description', 'level', 'company')
+
+    form_overrides = {
+        'description': TextAreaField,
+        'comment': TextAreaField
+    }
+
+    form_widget_args = {
+        'description': {
+            'rows': 10,
+            'style': 'width: 100%;',
+            'readonly': True
+        },
+        'title': {
+            'readonly': True
+        },
+        'level': {
+            'disabled': True
+        },
+        'company': {
+            'disabled': True
+        },
+        'author': {
+            'readonly': True
+        },
+        'comment': {
+            'rows': 5,
+            'style': 'width: 100%;',
+        }
+    }
+
+    def get_query(self):
+        return self.session.query(self.model).filter(self.model.status < 2)
+
+    def get_count_query(self):
+        return self.session.query(db.func.count('*')).filter(self.model.status < 2)
 
     pass

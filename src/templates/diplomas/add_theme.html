@@ -1,0 +1,88 @@
+{% extends "base_light.html" %}
+{% block title %}Предложите своею тему{% endblock %}
+{% block description %}Предложите свою тему{% endblock %}
+
+{% block content %}
+<section class="">
+    <div class="container pb-3">
+    </div>
+</section>
+
+<section class="pt-6 bg-section-secondary">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <!-- Title -->
+                        <h1 class="h2 mb-2">
+                            Предложите свою тему
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <!-- Form -->
+
+                        <form method="POST" action="{{url_for('add_user_theme')}}">
+                            {{ form.csrf_token }}
+                            <!-- General information -->
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Название темы</label>
+                                        {{form.title(class_="form-control")}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Описание</label>
+                                        {{form.description(class_="form-control", data_toggle="autosize", rows="9")}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Уровень темы</label>
+                                        {{form.level(class_="form-control")}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Консультант</label>
+                                        {{form.consultant(class_="form-control", value=user.get_name(),readonly=true)}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="form-group">
+                                        <label class="form-control-label">От кого предлагается тема</label>
+                                        {{form.company(class_="form-control")}}
+                                        <label class="text-left badge badge-dot d-block form-control-label"><i class="bg-warning"></i>Если вашей компании или кафедры нет в списке, <a href="https://t.me/Zelenchuk" target="_blank">свяжитесь со мной</a>.</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-sm btn-primary">Предложить</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
