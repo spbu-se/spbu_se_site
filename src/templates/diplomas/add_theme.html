@@ -1,10 +1,10 @@
 {% extends "base_light.html" %}
-{% block title %}Предложите своею тему{% endblock %}
+{% block title %}Предложите свою тему{% endblock %}
 {% block description %}Предложите свою тему{% endblock %}
 
 {% block content %}
 <section class="">
-    <div class="container pb-3">
+    <div class="container">
     </div>
 </section>
 
@@ -42,8 +42,16 @@
                             <div class="row">
                                 <div class="col-md-10">
                                     <div class="form-group">
-                                        <label class="form-control-label">Описание</label>
+                                        <label class="form-control-label">Описание (для форматирования используется <a href="https://daringfireball.net/projects/markdown/basics" target="_blank">Markdown</a>)</label>
                                         {{form.description(class_="form-control", data_toggle="autosize", rows="9")}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Требования к студенту (для форматирования используется <a href="https://daringfireball.net/projects/markdown/basics" target="_blank">Markdown</a>)</label>
+                                        {{form.requirements(class_="form-control", rows="3")}}
                                     </div>
                                 </div>
                             </div>

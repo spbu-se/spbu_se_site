@@ -16,6 +16,7 @@ class ThesisFilter(FlaskForm):
 class UserAddTheme(FlaskForm):
     title = StringField('title', validators=[DataRequired()])
     description = StringField('description', widget=TextArea(), validators=[DataRequired()])
+    requirements = StringField('description', widget=TextArea())
     level = SelectField('level', choices=[])
     consultant = StringField('consultant')
     company = SelectField('company', choices=[])
@@ -25,6 +26,7 @@ class UserEditTheme(FlaskForm):
     comment = StringField('comment')
     title = StringField('title', validators=[DataRequired()])
     description = StringField('description', widget=TextArea(), validators=[DataRequired()])
+    requirements = StringField('description', widget=TextArea())
     level = SelectField('level', choices=[])
     consultant = StringField('consultant')
     company = SelectField('company', choices=[])

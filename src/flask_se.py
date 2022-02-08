@@ -9,6 +9,7 @@ from flask_admin import Admin
 from flask_apscheduler import APScheduler
 from flask_frozen import Freezer
 from flask_migrate import Migrate
+from flaskext.markdown import Markdown
 from sqlalchemy.sql.expression import func
 
 
@@ -130,6 +131,10 @@ zero_days_ago = (datetime.now()).date().isoformat()
 # Init LoginManager
 login_manager.init_app(app)
 
+# Init markdown
+Markdown(app)
+
+
 # Init APScheduler
 app.config['SCHEDULER_TIMEZONE'] = 'UTC'
 scheduler = APScheduler()
@@ -146,6 +151,8 @@ admin.add_view(SeAdminModelViewSummerSchool(SummerSchool, db.session))
 admin.add_view(SeAdminModelViewNews(Posts, db.session))
 admin.add_view(SeAdminModelViewDiplomaThemes(DiplomaThemes, db.session, endpoint="diplomathemes"))
 admin.add_view(SeAdminModelViewReviewDiplomaThemes(DiplomaThemes, db.session, endpoint="reviewdiplomathemes", name="Review DiplomaThemes"))
+
+
 
 
 # Flask routes goes

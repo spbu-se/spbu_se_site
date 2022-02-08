@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import markdown
+
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
 
@@ -55,6 +57,7 @@ def add_user_theme():
     if request.method == 'POST':
         title = request.form.get('title', type=str)
         description = request.form.get('description', type=str)
+        requirements = request.form.get('requirements', type=str)
         level = request.form.get('level', type=int)
         company = request.form.get('company', type=int)
 
@@ -85,8 +88,8 @@ def add_user_theme():
             flash("Уровень темы указан неверно")
             return render_template('diplomas/add_theme.html', form=add_theme, user=user)
 
-        c = DiplomaThemes(title=title, description=description, level_id=level, consultant_id=user.id,
-                          company_id=company, author_id=user.id)
+        c = DiplomaThemes(title=title, description=description, requirements=requirements, level_id=level,
+                          consultant_id=user.id, company_id=company, author_id=user.id)
         db.session.add(c)
         db.session.commit()
 
@@ -136,6 +139,7 @@ def edit_user_theme():
     edit_theme.comment.data = theme.comment
     edit_theme.title.data = theme.title
     edit_theme.description.data = theme.description
+    edit_theme.requirements.data = theme.requirements
     edit_theme.consultant.data = theme.consultant
     edit_theme.supervisor.data = theme.supervisor
     edit_theme.theme_id = theme.id
@@ -145,6 +149,7 @@ def edit_user_theme():
 
         title = request.form.get('title', type=str)
         description = request.form.get('description', type=str)
+        requirements = request.form.get('requirements', type=str)
         level = request.form.get('level', type=int)
         company = request.form.get('company', type=int)
 
@@ -177,6 +182,7 @@ def edit_user_theme():
 
         theme.title = title
         theme.description = description
+        theme.requirements = requirements
         theme.level_id = level
         theme.company_id = company
         theme.status = 0

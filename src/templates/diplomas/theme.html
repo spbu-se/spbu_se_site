@@ -55,15 +55,28 @@
         {% endif %}
 
         <div class="row">
-                <div class="col-lg-2">
-                    <p class="lead font-weight-bold">Описание темы</p>
-                </div>
-                <div class="col-lg-10">
-                    <p class="lead">
-                        {{theme.description}}
-                    </p>
-                </div>
+            <div class="col-lg-2">
+                <p class="lead font-weight-bold">Описание темы</p>
             </div>
+            <div class="col-lg-10">
+                <p class="lead">
+                    {{theme.description|markdown}}
+                </p>
+            </div>
+        </div>
+
+        <hr class="divider divider-fade" />
+
+        <div class="row">
+            <div class="col-lg-2">
+                <p class="lead font-weight-bold">Требования к студенту</p>
+            </div>
+            <div class="col-lg-10">
+                <p class="lead">
+                    {{theme.requirements|markdown}}
+                </p>
+            </div>
+        </div>
         <hr class="divider divider-fade" />
 
         <div class="row">

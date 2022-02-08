@@ -13,6 +13,7 @@ Flask-Admin==1.5.8
 Flask-APScheduler==1.12.3
 Flask-BasicAuth==0.2.0
 Flask-Login==0.5.0
+Flask-Markdown==0.3
 Flask-Migrate==3.0.1
 flask-msearch==0.2.9.2
 Flask-SQLAlchemy==2.5.1
@@ -23,10 +24,12 @@ google-auth-oauthlib==0.4.6
 greenlet==1.0.0
 html5lib==1.1
 idna==2.10
+importlib-metadata==4.10.1
 itsdangerous==1.1.0
 Jinja2==2.11.3
 lxml==4.6.3
 Mako==1.1.4
+Markdown==3.3.6
 MarkupSafe==1.1.1
 oauthlib==3.1.1
 Pillow==9.0.0
@@ -52,3 +55,4 @@ webencodings==0.5.1
 Werkzeug==1.0.1
 Whoosh==2.7.4
 WTForms==2.3.3
+zipp==3.7.0
