@@ -73,7 +73,7 @@
             </div>
             <div class="col-lg-10">
                 <p class="lead">
-                    {{theme.requirements|markdown}}
+                    {% if theme.requirements %} {{theme.requirements|markdown}} {% else %} Отсутсвуют. {% endif %}
                 </p>
             </div>
         </div>
