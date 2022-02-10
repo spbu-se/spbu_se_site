@@ -8,6 +8,7 @@ import requests
 
 from PIL import Image
 
+from flask import session
 from flask_login import login_user, login_required, logout_user, current_user, LoginManager
 from flask import session, request, flash, render_template, redirect, url_for
 from google_auth_oauthlib.flow import Flow
@@ -50,12 +51,40 @@ def load_user(user_id):
     return Users.query.get(int(user_id))
 
 
+@login_manager.unauthorized_handler
+def handle_needs_login():
+    flash("Для выполнения этого действия необходимо войти.")
+    return redirect(url_for('login_index', next=request.endpoint))
+
+
+def redirect_next_url(fallback):
+
+    if not session['next_url']:
+        redirect(fallback)
+
+    try:
+        dest_url = url_for(session['next_url'])
+        return redirect(dest_url)
+    except:
+        return redirect(fallback)
+
+
+
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def login_index():
+
+    next_url = request.args.get("next")
+
+    if next_url:
+        session['next_url'] = next_url
+    else:
+        session.pop('next_url', None)
+
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -63,7 +92,7 @@ def login_index():
         if user:
             if check_password_hash(user.password_hash, password):
                 login_user(user, remember=True)
-                return redirect(url_for('user_profile'))
+                return redirect_next_url(fallback=url_for('user_profile'))
             else:
                 flash('Incorrect password, try again.', category='error')
         else:
@@ -125,7 +154,7 @@ def vk_callback():
         user = Users.query.filter_by(vk_id=vk_id).first()
 
     login_user(user, remember=True)
-    return redirect(url_for('user_profile'))
+    return redirect_next_url(fallback=url_for('user_profile'))
 
 
 def register_basic():
@@ -171,11 +200,13 @@ def user_profile():
         last_name = request.form.get('last_name').strip()
         first_name = request.form.get('first_name').strip()
         middle_name = request.form.get('middle_name').strip()
+        how_to_contact = request.form.get('how_to_contact').strip()
 
         if first_name:
             user.first_name = first_name
             user.middle_name = middle_name
             user.last_name = last_name
+            user.how_to_contact = how_to_contact
             db.session.commit()
 
     return render_template('auth/profile.html', user=user)
@@ -285,4 +316,4 @@ def google_callback():
         user = Users.query.filter_by(google_id=id_info.get('sub')).first()
 
     login_user(user, remember=True)
-    return redirect(url_for('user_profile'))
+    return redirect_next_url(fallback=url_for('user_profile'))

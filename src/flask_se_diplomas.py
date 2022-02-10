@@ -51,15 +51,17 @@ def add_user_theme():
 
     user = current_user
     add_theme = UserAddTheme()
-    add_theme.level.choices = [(g.id, g.level) for g in ThemesLevel.query.order_by('id')]
+    add_theme.levels.choices = [(g.id, g.level) for g in ThemesLevel.query.order_by('id').all()]
     add_theme.company.choices = [(g.id, g.name) for g in Company.query.order_by('id')]
 
     if request.method == 'POST':
         title = request.form.get('title', type=str)
         description = request.form.get('description', type=str)
         requirements = request.form.get('requirements', type=str)
-        level = request.form.get('level', type=int)
+        levels = request.form.getlist('levels', type=int)
         company = request.form.get('company', type=int)
+
+        level_accepted = []
 
         if not title:
             flash("Заголовок у темы является обязательным полем.")
@@ -69,18 +71,22 @@ def add_user_theme():
             flash("Описание у темы является обязательным полем.")
             return render_template('diplomas/add_theme.html', form=add_theme, user=user)
 
-        if not level:
-            flash("Необходимо указать, для кого подходит тема.")
+        if not levels:
+            flash("Необходимо указать уровень темы.")
             return render_template('diplomas/add_theme.html', form=add_theme, user=user)
 
         if not company:
             flash("Необходимо указать, от кого предлагается тема.")
             return render_template('diplomas/add_theme.html', form=add_theme, user=user)
 
-        level_count = ThemesLevel.query.count()
+        themes_level = ThemesLevel.query.all()
         company_count = Company.query.count()
 
-        if level < 1 or level > level_count:
+        for tl in themes_level:
+            if tl.id in levels:
+                level_accepted.append(tl)
+
+        if not level_accepted:
             flash("Уровень темы указан неверно")
             return render_template('diplomas/add_theme.html', form=add_theme, user=user)
 
@@ -88,8 +94,10 @@ def add_user_theme():
             flash("Уровень темы указан неверно")
             return render_template('diplomas/add_theme.html', form=add_theme, user=user)
 
-        c = DiplomaThemes(title=title, description=description, requirements=requirements, level_id=level,
+        c = DiplomaThemes(title=title, description=description, requirements=requirements,
                           consultant_id=user.id, company_id=company, author_id=user.id)
+
+        c.levels = level_accepted
         db.session.add(c)
         db.session.commit()
 
@@ -132,9 +140,9 @@ def edit_user_theme():
         return redirect(url_for('diplomas_index'))
 
     edit_theme = UserEditTheme()
-    edit_theme.level.choices = [(g.id, g.level) for g in ThemesLevel.query.order_by('id')]
+    edit_theme.levels.choices = [(g.id, g.level) for g in ThemesLevel.query.order_by('id')]
     edit_theme.company.choices = [(g.id, g.name) for g in Company.query.order_by('id')]
-    edit_theme.level.data = str(theme.level_id)
+    edit_theme.levels.data = [c.id for c in theme.levels]
     edit_theme.company.data = str(theme.company_id)
     edit_theme.comment.data = theme.comment
     edit_theme.title.data = theme.title
@@ -150,8 +158,9 @@ def edit_user_theme():
         title = request.form.get('title', type=str)
         description = request.form.get('description', type=str)
         requirements = request.form.get('requirements', type=str)
-        level = request.form.get('level', type=int)
+        levels = request.form.getlist('levels', type=int)
         company = request.form.get('company', type=int)
+        level_accepted = []
 
         if not title:
             flash("Заголовок у темы является обязательным полем.")
@@ -161,20 +170,24 @@ def edit_user_theme():
             flash("Описание у темы является обязательным полем.")
             return render_template('diplomas/edit_theme.html', form=edit_theme, user=user)
 
-        if not level:
-            flash("Необходимо указать, для кого подходит тема.")
+        if not levels:
+            flash("Необходимо указать уровень темы.")
             return render_template('diplomas/edit_theme.html', form=edit_theme, user=user)
 
         if not company:
             flash("Необходимо указать, от кого предлагается тема.")
             return render_template('diplomas/edit_theme.html', form=edit_theme, user=user)
 
-        level_count = ThemesLevel.query.count()
+        themes_level = ThemesLevel.query.all()
         company_count = Company.query.count()
 
-        if level < 1 or level > level_count:
+        for tl in themes_level:
+            if tl.id in levels:
+                level_accepted.append(tl)
+
+        if not level_accepted:
             flash("Уровень темы указан неверно")
-            return render_template('diplomas/edit_theme.html', form=edit_theme, user=user)
+            return render_template('diplomas/add_theme.html', form=edit_theme, user=user)
 
         if company < 1 or company > company_count:
             flash("Уровень темы указан неверно")
@@ -183,7 +196,7 @@ def edit_user_theme():
         theme.title = title
         theme.description = description
         theme.requirements = requirements
-        theme.level_id = level
+        theme.levels = level_accepted
         theme.company_id = company
         theme.status = 0
         db.session.commit()

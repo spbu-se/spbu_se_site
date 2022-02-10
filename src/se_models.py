@@ -1,15 +1,28 @@
 # -*- coding: utf-8 -*-
 
 from os import urandom
+import shutil
 
+from pathlib import Path
+from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_msearch import Search
 from werkzeug.security import generate_password_hash
 
-from flask_se_config import post_ranking_score, get_hours_since
+from flask_se_config import post_ranking_score, get_hours_since, SQLITE_DATABASE_NAME, SQLITE_DATABASE_BACKUP_NAME
 
-db = SQLAlchemy()
+
+convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+
+metadata = MetaData(naming_convention=convention)
+db = SQLAlchemy(metadata=metadata)
 search = Search()
 
 tag = db.Table('tag',
@@ -22,6 +35,12 @@ diploma_themes_tag = db.Table('diploma_themes_tag',
                db.Column('diploma_themes_tag_id', db.Integer, db.ForeignKey('diploma_themes_tags.id'), primary_key=True),
                db.Column('diploma_themes_id', db.Integer, db.ForeignKey('diploma_themes.id'), primary_key=True)
                )
+
+
+diploma_themes_level = db.Table('diploma_themes_level',
+                 db.Column('themes_level_id', db.Integer, db.ForeignKey('themes_level.id'), primary_key=True),
+                 db.Column('diploma_themes_id', db.Integer, db.ForeignKey('diploma_themes.id'), primary_key=True)
+                 )
 
 
 class Staff (db.Model):
@@ -57,6 +76,7 @@ class Users(db.Model, UserMixin):
     avatar_uri = db.Column(db.String(512), default='empty.jpg', nullable=False)
 
     role = db.Column(db.Integer, default=0, nullable=False)
+    how_to_contact = db.Column(db.String(512), default='', nullable=True)
 
     vk_id = db.Column(db.String(255), nullable=True)
     fb_id = db.Column(db.String(255), nullable=True)
@@ -220,6 +240,17 @@ class PostVote(db.Model):
         return '<Vote - {}, from {} for {}>'.format(vote, self.user.get_name(), self.post.title)
 
 
+class ThemesLevel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    level = db.Column(db.String(512), nullable=False)
+#    theme = db.relationship('DiplomaThemes', back_populates='level')
+#    themes_id = db.Column(db.Integer, db.ForeignKey('diploma_themes.id'))
+
+    def __str__(self):
+        return f"{self.level}"
+
+
 class DiplomaThemes(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -229,8 +260,8 @@ class DiplomaThemes(db.Model):
     status = db.Column(db.Integer, default=0, nullable=False) # 0 - new, 1 - need update, 2 - approved
     comment = db.Column(db.String(2048), nullable=True)
 
-    level_id = db.Column(db.Integer, db.ForeignKey('themes_level.id'))
-    level = db.relationship("ThemesLevel", back_populates="theme")
+    levels = db.relationship('ThemesLevel', secondary=diploma_themes_level, lazy='subquery',
+                    backref=db.backref('diploma_themes', lazy=True), order_by=diploma_themes_level.c.themes_level_id)
 
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
     company = db.relationship('Company', back_populates='theme')
@@ -245,15 +276,6 @@ class DiplomaThemesTags(db.Model):
     name = db.Column(db.String(64), nullable=False)
     tags = db.relationship('DiplomaThemes', secondary=diploma_themes_tag, lazy='subquery', backref=db.backref('diploma_themes_tags', lazy=True))
 
-
-class ThemesLevel(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    level = db.Column(db.String(512), nullable=False)
-    theme = db.relationship('DiplomaThemes', back_populates='level')
-
-    def __str__(self):
-        return f"{self.level}"
 
 class Company (db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -758,16 +780,16 @@ def init_db():
     ]
 
     themes_level = [
-        {'level': '2, 3 и 4 курс'},
-        {'level': '3 и 4 курс'},
-        {'level': 'бакалаврская ВКР'},
-        {'level': 'бакалаврская или магистерская ВКР'}
+        {'level': '2 курс'},
+        {'level': '3 курс'},
+        {'level': 'Бакалаврская ВКР'},
+        {'level': 'Магистерская ВКР'}
     ]
 
     d_themes = [
         {'title': 'Изучение журналирования для all flash RAID массива',
          'description': 'Журналирование позволяет решить проблему write-hole и порчу данных в случае сложных отказов системы. В рамках задачи предлагается изучить технологию журналирования в Linux dm-log. Исследование включает в себя функциональные возможности, параметры настройки, производительность при различных паттернах. Интегрирование с нашим RAID engine. Возможна исследование и реализация и различных подходов к журналирования внутри RAID engine а не сторонними средствами, для того чтобы получить более производительное решение.',
-         'level_id': 1,
+         'levels': [1, 2],
          'company_id': 1,
          'supervisor_id': 5,
          'consultant_id': 4,
@@ -776,7 +798,7 @@ def init_db():
          },
         {'title': 'Оптимизация алгоритма адаптивного объединения запросов в RAID',
          'description': 'При последовательной записи объединение запросов позволят решить проблему read-modify-write на RAID с контрольными суммами. Имеющийся алгоритм зависит от нескольких параметров и есть ряд наработок, которые позволяют автоматически подстраивать параметры в зависимости от нагрузки (размер ио, интенсивность, многопоточность), однако не справляется с некоторыми паттернами. В рамках работы необходимо изучить алгоритм адаптивного объединения, улучшить его или предложить альтернативный. Также предполагает изучения объединения запросов не только на искусственных паттернах.',
-         'level_id': 2,
+         'levels': [1, 2, 3],
          'company_id': 1,
          'supervisor_id': 5,
          'consultant_id': 4,
@@ -785,7 +807,7 @@ def init_db():
          },
         {'title': 'Изучение RAM кэша для RAID массива',
          'description': 'В рамках работы планируется изучить технологии Open Cache Acceleration Software для реализации RAM cache или кэш на быстрых накопителях для нашего RAID engine. Изучение включает в себя функциональные возможности, параметры и настройку, производительность в различных конфигурациях и паттернах нагрузки. Внедрение технологии, ее улучшение и адаптация под наш RAID. Возможно изучение и сравнение с имеющимися технологиями кеширования в Linux такими как dm-cache, bcache. Возможно также углубление в изучение алгоритмов Read-Ahead.',
-         'level_id': 3,
+         'levels': [3, 4],
          'company_id': 2,
          'supervisor_id': 5,
          'consultant_id': 4,
@@ -793,6 +815,12 @@ def init_db():
          'status': 2
          },
     ]
+
+    # Check if db file already exists. If so, backup it
+    db_file = Path(SQLITE_DATABASE_NAME)
+    if db_file.is_file():
+        shutil.copyfile(SQLITE_DATABASE_NAME, SQLITE_DATABASE_BACKUP_NAME)
+
 
     # Init DB
     db.session.commit() # https://stackoverflow.com/questions/24289808/drop-all-freezes-in-flask-with-sqlalchemy
@@ -915,10 +943,14 @@ def init_db():
     # Create DiplomaThems
     print("Create diploma themes")
     for cur in d_themes:
-        c = DiplomaThemes(title=cur['title'], description=cur['description'], level_id=cur['level_id'],
+
+        c = DiplomaThemes(title=cur['title'], description=cur['description'],
                           company_id=cur['company_id'], supervisor_id=cur['supervisor_id'],
                           consultant_id=cur['consultant_id'], author_id=cur['author_id'],
                           status=cur['status'])
+
+        for tl_id in cur['levels']:
+            c.levels.append(ThemesLevel.query.filter_by(id=tl_id).first())
 
         db.session.add(c)
         db.session.commit()

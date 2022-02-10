@@ -16,7 +16,7 @@
                     <div class="col-lg-12 text-center">
                         <!-- Heading -->
                         <h1 class="text-white h2 mb-2">{{theme.title}}</h1>
-                        <p class="text-white lead">Уровень темы: {{theme.level.level}}</p>
+                        <p class="text-white lead">Уровень темы: {% if theme.levels %} {% for level in theme.levels %} {{level.level}} {% if not loop.last %} , {% endif %} {% endfor %} {% endif %}</p>
                     </div>
                 </div>
             </div>
@@ -49,42 +49,38 @@
                 {% endif %}
                 </div>
             </div>
-        <hr class="divider divider-fade" />
+        <hr class="divider divider-fade my-2" />
 
             {% endif %}
         {% endif %}
 
         <div class="row">
             <div class="col-lg-2">
-                <p class="lead font-weight-bold">Описание темы</p>
+                <p class="font-weight-bold">Описание темы</p>
             </div>
             <div class="col-lg-10">
-                <p class="lead">
                     {{theme.description|markdown}}
-                </p>
             </div>
         </div>
 
-        <hr class="divider divider-fade" />
+        <hr class="divider divider-fade my-2" />
 
         <div class="row">
             <div class="col-lg-2">
-                <p class="lead font-weight-bold">Требования к студенту</p>
+                <p class="font-weight-bold">Требования к студенту</p>
             </div>
             <div class="col-lg-10">
-                <p class="lead">
                     {% if theme.requirements %} {{theme.requirements|markdown}} {% else %} Отсутствуют. {% endif %}
-                </p>
             </div>
         </div>
-        <hr class="divider divider-fade" />
+        <hr class="divider divider-fade my-2" />
 
         <div class="row">
                 <div class="col-lg-2">
-                    <p class="lead font-weight-bold">Руководитель</p>
+                    <p class="font-weight-bold">Руководитель</p>
                 </div>
                 <div class="col-lg-10">
-                    <p class="lead">
+                    <p>
                         {% if theme.supervisor_id %}
                             {{theme.supervisor}}
                         {% else %}
@@ -93,44 +89,47 @@
                     </p>
                 </div>
             </div>
-        <hr class="divider divider-fade" />
+        <hr class="divider divider-fade my-2" />
 
         <div class="row">
                 <div class="col-lg-2">
-                    <p class="lead font-weight-bold">Консультант</p>
+                    <p class="font-weight-bold">Консультант</p>
                 </div>
                 <div class="col-lg-10">
-                    <p class="lead">
+                    <p class="mb-0">
                         {% if theme.consultant_id %}
                             {{theme.consultant}}
                         {% else %}
                             Консультант еще не назначен
                         {% endif %}
                     </p>
+                    {% if current_user.is_authenticated %}
+                    {% if theme.consultant.how_to_contact %} <p><small>Как связаться: {{theme.consultant.how_to_contact}}</small> </p>{% endif %}
+                    {% endif %}
                 </div>
             </div>
-        <hr class="divider divider-fade" />
+        <hr class="divider divider-fade my-2" />
 
         <div class="row">
                 <div class="col-lg-2">
-                    <p class="lead font-weight-bold">От кого</p>
+                    <p class="font-weight-bold">От кого</p>
                 </div>
                 <div class="col-lg-10">
-                    <p class="lead">
+                    <p>
                         {{theme.company.name}}
                     </p>
                 </div>
             </div>
-        <hr class="divider divider-fade" />
 
         {% if current_user.is_authenticated %}
             {% if theme.author_id == current_user.id%}
+                <hr class="divider divider-fade my-2" />
         <div class="row pt-5">
                 <div class="col-lg-12 text-right">
-                    <a href="{{ url_for('edit_user_theme', theme_id=theme.id) }}" class="btn btn-lg btn-primary btn-icon">
+                    <a href="{{ url_for('edit_user_theme', theme_id=theme.id) }}" class="btn btn btn-primary btn-icon">
                         <span class="btn-inner--text">Редактировать</span>
                     </a>
-                    <a href="#" data-toggle="modal" data-target="#exitModal" class="btn btn-lg btn-danger btn-icon">
+                    <a href="#" data-toggle="modal" data-target="#exitModal" class="btn btn btn-danger btn-icon">
                         <span class="btn-inner--text">Удалить</span>
                     </a>
                 </div>

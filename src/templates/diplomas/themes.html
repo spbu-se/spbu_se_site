@@ -24,7 +24,7 @@
                     </a>
                     {% endif %}
                     <a href="{{ url_for('add_user_theme') }}" class="btn btn-lg btn-primary btn-icon w-25">
-                        <span class="btn-inner--text">Предложить свою тему</span>
+                        <span class="btn-inner--text">Предложить тему</span>
                     </a>
                 </div>
             </div>
@@ -39,25 +39,24 @@
                     <div class="card border-0">
                         <div class="card-header">
                             <div class="row align-items-center">
-            <div class="col">
-                <h5 class="mb-0"><a href="{{ url_for('get_theme', id=t.id) }}"><strong>{{t.title}}</strong></a></h5>
-            </div>
-                                 <div class="col-auto ml-auto text-right">
-                                     <a href="#" class="text-reset" target="_blank">
-                                         <img alt="Image placeholder" src="/images/logos/{{t.company.logo_uri}}" style="height: 50px">
-                                     </a>
-                                 </div>
-        </div>
+                                <div class="col">
+                                    <h6 class="mb-0"><a href="{{ url_for('get_theme', id=t.id) }}" class="link text-primary"><strong>{{t.title}}</strong></a></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <a href="#" class="text-reset" target="_blank">
+                                        <img alt="Image placeholder" src="/images/logos/{{t.company.logo_uri}}" style="height: 50px">
+                                    </a>
+                                </div>
+                            </div>
     </div>
-    <div class="card-body pt-2">
-        <p class="mb-0">Уровень: {{t.level.level}}</p>
-        <p class="mb-0">Компания: {{t.company.name}}</p>
-        <p class="mb-0">Руководитель: {{t.supervisor}}</p>
-        <p class="">Консультант: {{t.consultant}}</p>
-    </div>
-</div>
+                        <div class="card-body pt-2">
+                            <p class="mb-0">Уровень: {% if t.levels %} {% for level in t.levels %} {{level.level}} {% if not loop.last %} , {% endif %} {% endfor %} {% endif %}</p>
+                            <p class="mb-0">Компания: {{t.company.name}}</p>
+                            <p class="mb-0">Руководитель: {{t.supervisor}}</p>
+                            <p class="">Консультант: {{t.consultant}} </p>
+                        </div>
+                    </div>
                     {% endfor %}
-
                 </div>
                 <div class="col-lg-3 ml-lg-auto">
                     <div data-toggle="sticky" data-sticky-offset="10">

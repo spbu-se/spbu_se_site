@@ -81,7 +81,12 @@
                                 <div class="col-md-10">
                                     <div class="form-group">
                                         <label class="form-control-label">Уровень темы</label>
-                                        {{form.level(class_="form-control")}}
+                                        {% for choice in form.levels %}
+                                        <div class="form-check">
+                                            {{ choice(class="form-check-input") }}
+                                            {{ choice.label(class="form-check-label") }}
+                                        </div>
+                                        {% endfor %}
                                     </div>
                                 </div>
                             </div>

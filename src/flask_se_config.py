@@ -8,6 +8,10 @@ from datetime import datetime
 
 SECRET_KEY = os.path.join(pathlib.Path(__file__).parent, "flask_se_secret.conf")
 SECRET_KEY_THESIS = os.urandom(16).hex()
+SQLITE_DATABASE_NAME = 'se.db'
+
+current_data = datetime.today().strftime('%Y-%m-%d')
+SQLITE_DATABASE_BACKUP_NAME = 'se_backup_' + current_data + '.db'
 
 PY2 = sys.version_info[0] == 2
 if PY2:

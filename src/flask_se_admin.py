@@ -8,7 +8,7 @@ from flask_login import current_user
 from wtforms import TextAreaField
 
 from flask_se_config import SECRET_KEY_THESIS
-from se_models import db
+from se_models import db, ThemesLevel
 
 
 # Base model view with access and inaccess methods
@@ -121,15 +121,21 @@ class SeAdminModelViewNews(SeAdminModelView):
 class SeAdminModelViewDiplomaThemes(SeAdminModelView):
 
     form_overrides = {
-        'description': TextAreaField
+        'description': TextAreaField,
+        'comment': TextAreaField
     }
 
     form_widget_args = {
         'description': {
             'rows': 10,
             'style': 'width: 100%;'
+        },
+        'comment': {
+            'rows': 4,
+            'style': 'width: 100%;'
         }
     }
+
 
     pass
 

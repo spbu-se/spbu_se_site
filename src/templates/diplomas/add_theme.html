@@ -24,58 +24,59 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-lg-10">
-                <div class="row">
-                    <div class="col-lg-12">
                         <!-- Form -->
 
                         <form method="POST" action="{{url_for('add_user_theme')}}">
                             {{ form.csrf_token }}
                             <!-- General information -->
-                            <div class="row">
-                                <div class="col-md-10">
+                            <div class="row pt-2">
+                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Название темы</label>
-                                        {{form.title(class_="form-control")}}
+                                        {{form.title(class_="form-control", placeholder=form.title.description)}}
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-10">
+                            <div class="row pt-2">
+                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Описание (для форматирования используется <a href="https://daringfireball.net/projects/markdown/basics" target="_blank">Markdown</a>)</label>
-                                        {{form.description(class_="form-control", data_toggle="autosize", rows="9")}}
+                                        {{form.description(class_="form-control", placeholder=form.description.description, data_toggle="autosize", rows="9")}}
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-10">
+                            <div class="row pt-2">
+                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Требования к студенту (для форматирования используется <a href="https://daringfireball.net/projects/markdown/basics" target="_blank">Markdown</a>)</label>
-                                        {{form.requirements(class_="form-control", rows="3")}}
+                                        {{form.requirements(class_="form-control", placeholder=form.requirements.description, rows="3")}}
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-10">
+                            <div class="row pt-2">
+                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Уровень темы</label>
-                                        {{form.level(class_="form-control")}}
+                                        {% for choice in form.levels %}
+                                        <div class="form-check">
+                                            {{ choice(class="form-check-input") }}
+                                            {{ choice.label(class="form-check-label") }}
+                                        </div>
+                                        {% endfor %}
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-10">
+                            <div class="row pt-2">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-control-label">Консультант</label>
-                                        {{form.consultant(class_="form-control", value=user.get_name(),readonly=true)}}
+                                        {{form.consultant(class_="form-control", value=user, readonly=true)}}
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-control-label">От кого предлагается тема</label>
-                                        {{form.company(class_="form-control")}}
+                                        {{form.company(class_="custom-select")}}
                                         <label class="text-left badge badge-dot d-block form-control-label"><i class="bg-warning mr-2"></i>Если вашей компании или кафедры нет в списке, <a href="https://t.me/Zelenchuk" target="_blank">свяжитесь со мной</a>.</label>
                                     </div>
                                 </div>
@@ -83,12 +84,10 @@
 
                             <!-- Buttons -->
                             <div class="mt-3">
-                                <button type="submit" class="btn btn-sm btn-primary">Предложить</button>
+                                <button type="submit" class="btn btn-sm btn-primary">Предложить тему</button>
                             </div>
                         </form>
                     </div>
-                </div>
-            </div>
         </div>
     </div>
 </section>
