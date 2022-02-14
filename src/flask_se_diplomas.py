@@ -7,7 +7,7 @@ from flask_login import current_user
 
 from flask_se_auth import login_required
 from se_forms import UserAddTheme, UserEditTheme, DiplomaThemesFilter
-from se_models import db, DiplomaThemes, ThemesLevel, Company, Staff
+from se_models import db, DiplomaThemes, ThemesLevel, Company, Staff, Users
 
 
 def diplomas_index():
@@ -27,21 +27,21 @@ def diplomas_index():
         if sid[0] is None:
             continue
 
-        staff = Staff.query.filter_by(id=sid[0]).first()
+        user = Users.query.filter_by(id=sid[0]).first()
         last_name = ""
         initials = ""
 
-        if not staff:
-            staff = Staff.query.filter_by(id=1).first()
+        if not user:
+            user = Users.query.filter_by(id=1).first()
 
-        if staff.user.last_name:
-            last_name = staff.user.last_name
+        if user.last_name:
+            last_name = user.last_name
 
-        if staff.user.first_name:
-            initials = initials + staff.user.first_name[0] + "."
+        if user.first_name:
+            initials = initials + user.first_name[0] + "."
 
-        if staff.user.middle_name:
-            initials = initials + staff.user.middle_name[0] + "."
+        if user.middle_name:
+            initials = initials + user.middle_name[0] + "."
 
         diploma_filter.supervisor.choices.append((sid[0], last_name + " " + initials))
         diploma_filter.supervisor.choices.sort(key=lambda tup: tup[1])
