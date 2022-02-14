@@ -47,7 +47,7 @@
     </div>
     <div class="card-body pt-2">
         <p class="mb-0">Уровень: {% if t.levels %} {% for level in t.levels %} {{level.level}} {% if not loop.last %} , {% endif %} {% endfor %} {% endif %}</p>
-        <p class="mb-0">Кто предлагает: {% if t.company.id == 1 %} {{t.author}} {% else %} {{t.company.name}} {% endif %}</p>
+        <p class="mb-0">Источник темы: {% if t.company.id == 1 %} {{t.author}} {% else %} {{t.company.name}} {% endif %}</p>
         <p class="mb-0">Руководитель: {% if t.supervisor_id %}{{t.supervisor}} {% else %} Еще не назначен {% endif %}</p>
         <p class="">Консультант: {{t.consultant}}</p>
     </div>
