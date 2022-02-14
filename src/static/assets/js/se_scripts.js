@@ -346,6 +346,12 @@ function themes_update() {
         params.append('company', themes_company_select.value);
     }
 
+    if (Array.from(params).length){
+        window.history.pushState("", "", 'index.html?' + params.toString());
+    } else {
+        window.history.pushState("", "", 'index.html');
+    }
+
     fetch('fetch_themes?' + params.toString()).then(function(response){
 
         if (!response.ok){
@@ -396,8 +402,8 @@ function diploma_themes_filter()
         }
 
         if (company > 0){
-            if (themes_company_select_select.innerHTML.indexOf('value="' + company + '"') > -1){
-                themes_company_select_select.value=course;
+            if (themes_company_select.innerHTML.indexOf('value="' + company + '"') > -1){
+                themes_company_select.value=company;
             }
         } else {
             themes_supervisor_select.value=0;
