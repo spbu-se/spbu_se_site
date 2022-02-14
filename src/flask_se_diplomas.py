@@ -6,20 +6,94 @@ from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
 
 from flask_se_auth import login_required
-from se_forms import UserAddTheme, UserEditTheme
-from se_models import db, DiplomaThemes, ThemesLevel, Company
+from se_forms import UserAddTheme, UserEditTheme, DiplomaThemesFilter
+from se_models import db, DiplomaThemes, ThemesLevel, Company, Staff
 
 
 def diplomas_index():
 
-    themes = DiplomaThemes.query.filter_by(status=2).all()
+    diploma_filter = DiplomaThemesFilter()
+
+    #themes = DiplomaThemes.query.filter_by(status=2).all()
     user_themes_count = 0
+
+    for sid in DiplomaThemes.query.with_entities(DiplomaThemes.company_id).distinct().all():
+        company = Company.query.filter_by(id=sid[0]).first()
+        diploma_filter.company.choices.append((sid[0], company.name))
+        diploma_filter.company.choices.sort(key=lambda tup: tup[1])
+
+    for sid in DiplomaThemes.query.with_entities(DiplomaThemes.supervisor_id).distinct().all():
+
+        if sid[0] is None:
+            continue
+
+        staff = Staff.query.filter_by(id=sid[0]).first()
+        last_name = ""
+        initials = ""
+
+        if not staff:
+            staff = Staff.query.filter_by(id=1).first()
+
+        if staff.user.last_name:
+            last_name = staff.user.last_name
+
+        if staff.user.first_name:
+            initials = initials + staff.user.first_name[0] + "."
+
+        if staff.user.middle_name:
+            initials = initials + staff.user.middle_name[0] + "."
+
+        diploma_filter.supervisor.choices.append((sid[0], last_name + " " + initials))
+        diploma_filter.supervisor.choices.sort(key=lambda tup: tup[1])
+
+    for sid in ThemesLevel.query.all():
+        diploma_filter.level.choices.append((sid.id, sid.level))
+        diploma_filter.level.choices.sort(key=lambda tup: tup[1])
+
+    diploma_filter.supervisor.choices.insert(0, (0, "Все"))
+    diploma_filter.level.choices.insert(0, (0, "Все"))
+    diploma_filter.company.choices.insert(0, (0, "Все"))
 
     if current_user.is_authenticated:
         user = current_user
         user_themes_count = DiplomaThemes.query.filter_by(author_id=user.id).count()
 
-    return render_template('diplomas/themes.html', themes=themes, user_themes_count=user_themes_count)
+    return render_template('diplomas/themes.html', user_themes_count=user_themes_count,
+                           diploma_filter=diploma_filter)
+
+
+def fetch_themes():
+
+    level = request.args.get('level', default=0, type = int)
+    page = request.args.get('page', default=1, type=int)
+    supervisor = request.args.get('supervisor', default=0, type=int)
+    company = request.args.get('company', default=0, type=int)
+
+    if company:
+        # Check if company exists
+        records = DiplomaThemes.query.filter(DiplomaThemes.company_id == company)
+    else:
+        records = DiplomaThemes.query.filter(DiplomaThemes.status == 2)
+
+    if supervisor:
+
+        # Check if supervisor exists
+        ids = DiplomaThemes.query.with_entities(DiplomaThemes.supervisor_id).distinct().all()
+        if [item for item in ids if item[0] == supervisor]:
+            records = records.filter(DiplomaThemes.supervisor_id == supervisor)
+        else:
+            supervisor = 0
+
+    if level:
+        records = records.filter(DiplomaThemes.levels.any(id=level)).paginate(per_page=10, page=page, error_out=False)
+    else:
+        records = records.paginate(per_page=10, page=page, error_out=False)
+
+    if len(records.items):
+        return render_template('diplomas/fetch_themes.html', themes=records, level=level, company=company,
+                               supervisor=supervisor)
+    else:
+        return render_template('diplomas/fetch_themes_blank.html')
 
 
 @login_required

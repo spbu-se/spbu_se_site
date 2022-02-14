@@ -41,6 +41,12 @@ class UserEditTheme(FlaskForm):
     status = StringField('status')
 
 
+class DiplomaThemesFilter(FlaskForm):
+    company = SelectField('company', choices=[])
+    level = SelectField('level', choices=[])
+    supervisor = SelectField('supervisor', choices=[])
+
+
 class Lecture(FlaskForm):
     worktype = SelectField('worktype', choices=[])
     course = SelectField('course', choices=[])

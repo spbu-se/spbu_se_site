@@ -60,11 +60,32 @@
                     </div>
                     {% endfor %}
                 </div>
-                <div class="col-lg-3 ml-lg-auto">
+                <div class="col-lg-3 ml-lg-auto" id="DiplomaThemesFilter">
                     <div data-toggle="sticky" data-sticky-offset="10">
                         <div class="card">
                             <div class="card-header px-3">
                                 <span class="h6 mb-0">Фильтры</span>
+                            </div>
+                            <div class="card-body px-3">
+                                {{ diploma_filter.csrf_token }}
+                                <p class="text-sm mb-0">
+                                    Руководитель
+                                </p>
+                                <div class="form-group">
+                                    {{ diploma_filter.supervisor(class_="custom-select pl-3") }}
+                                </div>
+                                <p class="text-sm mb-0">
+                                    Источник темы
+                                </p>
+                                <div class="form-group">
+                                    {{ diploma_filter.company(class_="custom-select pl-3") }}
+                                </div>
+                                <p class="text-sm mb-0">
+                                    Уровень темы
+                                </p>
+                                <div class="form-group">
+                                    {{ diploma_filter.level(class_="custom-select pl-3") }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -72,5 +93,4 @@
             </div>
         </div>
      </section>
-
 {% endblock %}

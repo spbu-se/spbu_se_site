@@ -267,3 +267,155 @@ if (wt_select)
     supervisor_select.onchange = theses_update;
     course_select.onchange = theses_update;
 }
+
+
+function themes_load() {
+
+    let themes_list = document.getElementById('ThemesList');
+
+    let themes_level_select = document.getElementById('level');
+    let themes_supervisor_select = document.getElementById('supervisor');
+    let themes_company_select = document.getElementById('company');
+
+    let page = url.searchParams.get("page");
+
+    let params = new URLSearchParams();
+
+    // Page first
+    if (page && page > 1){
+        params.append('page', page);
+    }
+
+    // Supervisor?
+    if (themes_supervisor_select){
+        params.append('supervisor', themes_supervisor_select.value);
+    }
+
+    // level?
+    if (themes_level_select){
+        params.append('level', themes_level_select.value);
+    }
+
+    if (themes_company_select)
+    {
+        params.append('company', themes_company_select.value);
+    }
+
+    fetch('fetch_themes?' + params.toString()).then(function(response){
+
+        if (!response.ok){
+            window.location.href = '/404.html'
+        } else {
+            response.text().then(function (text) {
+                themes_list.innerHTML = text;
+            });
+        }
+    });
+}
+
+
+function themes_update() {
+
+    let themes_list = document.getElementById('ThemesList');
+
+    let themes_level_select = document.getElementById('level');
+    let themes_supervisor_select = document.getElementById('supervisor');
+    let themes_company_select = document.getElementById('company');
+
+    let page = url.searchParams.get("page");
+
+    let params = new URLSearchParams();
+
+    // Page first
+    if (page && page > 1){
+        params.append('page', page);
+    }
+
+    // Supervisor?
+    if (themes_supervisor_select){
+        params.append('supervisor', themes_supervisor_select.value);
+    }
+
+    // level?
+    if (themes_level_select){
+        params.append('level', themes_level_select.value);
+    }
+
+    if (themes_company_select)
+    {
+        params.append('company', themes_company_select.value);
+    }
+
+    fetch('fetch_themes?' + params.toString()).then(function(response){
+
+        if (!response.ok){
+            window.location.href = '/404.html'
+        } else {
+            response.text().then(function (text) {
+                themes_list.innerHTML = text;
+            });
+        }
+    });
+}
+
+
+function diploma_themes_filter()
+{
+    // Select filters
+    let themes_level_select = document.getElementById('level');
+    let themes_supervisor_select = document.getElementById('supervisor');
+    let themes_company_select = document.getElementById('company');
+
+    // Get fileters from URI
+    let url_string = window.location.href
+    let url = new URL(url_string);
+
+    let level = url.searchParams.get("level");
+    let page = url.searchParams.get("page");
+    let supervisor = url.searchParams.get("supervisor");
+    let company = url.searchParams.get("company");
+
+    if (themes_level_select)
+    {
+
+        // Set filter to value from URI
+        if (level > 0){
+            if (themes_level_select.innerHTML.indexOf('value="' + level + '"') > -1){
+                themes_level_select.value=level;
+            }
+        } else {
+            themes_level_select.value=0;
+        }
+
+        if (supervisor > 0){
+            if (themes_supervisor_select.innerHTML.indexOf('value="' + supervisor + '"') > -1){
+                themes_supervisor_select.value=supervisor;
+            }
+        } else {
+            themes_supervisor_select.value=0;
+        }
+
+        if (company > 0){
+            if (themes_company_select_select.innerHTML.indexOf('value="' + company + '"') > -1){
+                themes_company_select_select.value=course;
+            }
+        } else {
+            themes_supervisor_select.value=0;
+        }
+    }
+
+    // Load themes
+    themes_load();
+
+    // Update themes
+    themes_level_select.onchange = themes_update;
+    themes_supervisor_select.onchange = themes_update;
+    themes_company_select.onchange = themes_update;
+}
+
+// This is Diploma Themes ?
+let diploma_themes_filter_element = document.getElementById('DiplomaThemesFilter');
+
+if (diploma_themes_filter_element){
+    diploma_themes_filter();
+}
