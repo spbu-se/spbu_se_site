@@ -43,15 +43,17 @@
                                     <h6 class="mb-0"><a href="{{ url_for('get_theme', id=t.id) }}" class="link text-primary"><strong>{{t.title}}</strong></a></h6>
                                 </div>
                                 <div class="col-auto ml-auto text-right">
-                                    <a href="#" class="text-reset" target="_blank">
-                                        <img alt="Image placeholder" src="/images/logos/{{t.company.logo_uri}}" style="height: 50px">
-                                    </a>
+                                    {% if t.company.id == 1 %}
+                                    <img alt="Image placeholder" src="/images/avatars/{{t.author.avatar_uri}}" class="avatar  rounded-circle" style="height: 50px">
+                                    {% else %}
+                                    <img alt="Image placeholder" src="/images/logos/{{t.company.logo_uri}}" style="height: 50px">
+                                    {% endif %}
                                 </div>
                             </div>
     </div>
                         <div class="card-body pt-2">
                             <p class="mb-0">Уровень: {% if t.levels %} {% for level in t.levels %} {{level.level}} {% if not loop.last %} , {% endif %} {% endfor %} {% endif %}</p>
-                            <p class="mb-0">Компания: {{t.company.name}}</p>
+                            <p class="mb-0">Кто предлагает: {% if t.company.id == 1 %} {{t.author}} {% else %} {{t.company.name}} {% endif %}</p>
                             <p class="mb-0">Руководитель: {{t.supervisor}}</p>
                             <p class="">Консультант: {{t.consultant}} </p>
                         </div>

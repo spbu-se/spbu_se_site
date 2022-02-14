@@ -54,7 +54,7 @@
                             {% endif %}
 
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Название темы</label>
                                         {{form.title(class_="form-control")}}
@@ -62,7 +62,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Описание</label>
                                         {{form.description(class_="form-control", data_toggle="autosize", rows="9")}}
@@ -70,7 +70,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Требования к студентам</label>
                                         {{form.requirements(class_="form-control", rows="3")}}
@@ -78,7 +78,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Уровень темы</label>
                                         {% for choice in form.levels %}
@@ -91,25 +91,23 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-control-label">Консультант</label>
                                         {{form.consultant(class_="form-control", value=user.get_name(),readonly=true)}}
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-control-label">От кого предлагается тема</label>
-                                        {{form.company(class_="form-control")}}
+                                        {{form.company(class_="form-control custom-select")}}
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Buttons -->
                             <div class="row">
-                                <div class="col-md-10 pt-3 text-right">
+                                <div class="col-md-12 pt-3 text-right">
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-sm btn-primary">Сохранить</button>
                                         <label class="pt-1 d-block form-control-label">Изменение темы приведет к ее повторной проверке.</label>
