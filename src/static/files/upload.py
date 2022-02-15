@@ -48,7 +48,7 @@ supervisor_review = 'Lunev-review.pdf'
 reviewer_review = 'Lunev-review-consultant.pdf'
 
 # URI API
-url = "http://127.0.0.1:5000/post_theses"
+url = "https://se.math.spbu.ru/post_theses"
 
 # Если нет презентации или отзыва, то просто закомментируйте нужное поле. 
 files = [
