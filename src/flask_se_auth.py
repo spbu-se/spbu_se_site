@@ -42,7 +42,7 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_google
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
     scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
-    redirect_uri="https://se.math.spbu.ru/google_callback"
+    redirect_uri="http://127.0.0.1:5000/google_callback"
 )
 
 
@@ -59,7 +59,7 @@ def handle_needs_login():
 
 def redirect_next_url(fallback):
 
-    if not session['next_url']:
+    if 'next_url' not in session:
         redirect(fallback)
 
     try:
@@ -282,7 +282,8 @@ def google_callback():
     id_info = id_token.verify_oauth2_token(
         id_token=credentials._id_token,
         request=token_request,
-        audience=GOOGLE_CLIENT_ID
+        audience=GOOGLE_CLIENT_ID,
+        clock_skew_in_seconds=60
     )
 
     user = Users.query.filter_by(google_id=id_info.get('sub')).first()
