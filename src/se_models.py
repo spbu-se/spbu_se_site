@@ -219,6 +219,9 @@ class Posts(db.Model):
     rank = db.Column(db.Float, nullable=False, default=post_ranking_score)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     all_news_votes = db.relationship('PostVote', back_populates='post')
+
+    type_id = db.Column(db.Integer, db.ForeignKey('post_type.id'))
+    type = db.relationship('PostType', back_populates='post')
     
 
 class PostVote(db.Model):
@@ -238,6 +241,18 @@ class PostVote(db.Model):
         else:
             vote = 'Down'
         return '<Vote - {}, from {} for {}>'.format(vote, self.user.get_name(), self.post.title)
+
+
+class PostType (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    type = db.Column(db.Integer, nullable=False, default=1)
+    name = db.Column(db.String(512), nullable=False)
+
+    post = db.relationship('Posts', back_populates='type')
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 class ThemesLevel(db.Model):

@@ -44,15 +44,32 @@
                                 <div class="col-auto icon icon-sm">
                                     <a href="{{url_for('post_vote', post_id=n.id, action_vote=1)}}" class="text-secondary" onmouseover="this.className='text-primary';" onmouseout="this.className='text-secondary';"><i data-feather="chevron-up" class="mb-n2 mr-0"></i></a>
                                     <p class="mb-0 text-center">{{n.votes}}</p>
-                                    <!-- a href="{{url_for('post_vote', post_id=n.id, action_vote=0)}}"  class="text-secondary" onmouseover="this.className='text-primary';" onmouseout="this.className='text-secondary';"><i data-feather="chevron-down" class="mt-n2 mr-0"></i></a-->
                                 </div>
                                 <div class="col-10 my-auto">
                                     {% if n.uri %}
                                     <h6 class="font-weight-light mb-0"><a href="{{ url_for ('get_post', post=n.id)}}" target="_blank">{{n.title}}</a>&nbsp;({{n.domain}})</h6>
-                                    <span class="text-sm text-muted">Опубликовано {{ ages[loop.index-1] }} назад</span>
+                                        {% if n.type.type == 1 %}
+                                            <span class="badge badge-success">{{n.type}}</span>
+                                        {% elif n.type.type == 2 %}
+                                            <span class="badge badge-danger">{{n.type}}</span>
+                                        {% elif n.type.type == 3 %}
+                                            <span class="badge badge-primary">{{n.type}}</span>
+                                        {% elif n.type.type == 4 %}
+                                            <span class="badge badge-dark">{{n.type}}</span>
+                                        {% endif %}
+                                    <span class="text-sm text-muted">опубликовано {{ ages[loop.index-1] }} назад</span>
                                     {% else %}
                                     <h6 class="font-weight-light mb-0"><a href="{{ url_for ('get_post', post=n.id)}}" target="_blank">{{n.title}}</a></h6>
-                                    <span class="text-sm text-muted">Опубликовано {{ ages[loop.index-1] }} назад</span>
+                                        {% if n.type.type == 1 %}
+                                            <span class="badge badge-success">{{n.type}}</span>
+                                        {% elif n.type.type == 2 %}
+                                            <span class="badge badge-danger">{{n.type}}</span>
+                                        {% elif n.type.type == 3 %}
+                                            <span class="badge badge-primary">{{n.type}}</span>
+                                        {% elif n.type.type == 4 %}
+                                            <span class="badge badge-dark">{{n.type}}</span>
+                                        {% endif %}
+                                    <span class="text-sm text-muted">опубликовано {{ ages[loop.index-1] }} назад</span>
                                     {% endif %}
                                 </div>
                                 <div class="col-1 text-right">
