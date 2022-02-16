@@ -2,6 +2,11 @@
 {% block title %}Редактирование темы{% endblock %}
 {% block description %}Редактирование темы{% endblock %}
 
+{% block head_links %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}" id="stylesheet">
+    {{ simplemde.js }}
+{% endblock %}
+
 {% block content %}
 <section class="">
     <div class="container pb-3">
@@ -64,16 +69,18 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Описание</label>
+                                        <label class="form-control-label">Описание (для форматирования используется <a href="https://daringfireball.net/projects/markdown/basics" target="_blank">Markdown</a>)</label>
                                         {{form.description(class_="form-control", data_toggle="autosize", rows="9")}}
+                                        {{ simplemde.load_id("description") }}
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Требования к студентам</label>
+                                        <label class="form-control-label">Требования к студенту (для форматирования используется <a href="https://daringfireball.net/projects/markdown/basics" target="_blank">Markdown</a>)</label>
                                         {{form.requirements(class_="form-control", rows="3")}}
+                                        {{ simplemde.load_id("requirements") }}
                                     </div>
                                 </div>
                             </div>

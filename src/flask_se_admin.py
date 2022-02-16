@@ -122,6 +122,7 @@ class SeAdminModelViewDiplomaThemes(SeAdminModelView):
 
     form_overrides = {
         'description': TextAreaField,
+        'requirements': TextAreaField,
         'comment': TextAreaField
     }
 
@@ -131,6 +132,10 @@ class SeAdminModelViewDiplomaThemes(SeAdminModelView):
             'style': 'width: 100%;'
         },
         'comment': {
+            'rows': 4,
+            'style': 'width: 100%;'
+        },
+        'requirements': {
             'rows': 4,
             'style': 'width: 100%;'
         }
@@ -147,12 +152,18 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelView):
 
     form_overrides = {
         'description': TextAreaField,
-        'comment': TextAreaField
+        'requirements': TextAreaField,
+        'comment': TextAreaField,
     }
 
     form_widget_args = {
         'description': {
             'rows': 10,
+            'style': 'width: 100%;',
+            'readonly': True
+        },
+        'requirements': {
+            'rows': 3,
             'style': 'width: 100%;',
             'readonly': True
         },

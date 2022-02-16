@@ -11,6 +11,7 @@ from flask_frozen import Freezer
 from flask_migrate import Migrate
 from flaskext.markdown import Markdown
 from sqlalchemy.sql.expression import func
+from flask_simplemde import SimpleMDE
 
 
 import flask_se_theses
@@ -155,7 +156,10 @@ admin.add_view(SeAdminModelViewNews(Posts, db.session))
 admin.add_view(SeAdminModelViewDiplomaThemes(DiplomaThemes, db.session, endpoint="diplomathemes"))
 admin.add_view(SeAdminModelViewReviewDiplomaThemes(DiplomaThemes, db.session, endpoint="reviewdiplomathemes", name="Review DiplomaThemes"))
 
-
+# Init SimpleMDE
+app.config['SIMPLEMDE_JS_IIFE'] = True
+app.config['SIMPLEMDE_USE_CDN'] = False
+SimpleMDE(app)
 
 
 # Flask routes goes

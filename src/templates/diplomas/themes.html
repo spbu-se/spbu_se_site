@@ -16,14 +16,16 @@
                     <h1 class="text-white">Актуальные темы для учебных практик и ВКР</h1>
                 </div>
             </div>
-            <div class="row mt-5">
-                <div class="col-lg-12 text-center">
-                    {% if user_themes_count %}
-                    <a href="{{ url_for('user_diplomas_index') }}" class="btn btn-lg btn-secondary btn-icon w-25">
+            <div class="row mt-5 d-flex justify-content-center">
+                {% if user_themes_count %}
+                <div class="col-md-3 pb-sm-2">
+                    <a href="{{ url_for('user_diplomas_index') }}" class="btn btn-lg btn-secondary btn-icon w-100">
                         <span class="btn-inner--text">Мои темы ({{user_themes_count}})</span>
                     </a>
-                    {% endif %}
-                    <a href="{{ url_for('add_user_theme') }}" class="btn btn-lg btn-primary btn-icon w-25">
+                </div>
+                {% endif %}
+                <div class="col-md-3">
+                    <a href="{{ url_for('add_user_theme') }}" class="btn btn-lg btn-primary btn-icon w-100">
                         <span class="btn-inner--text">Предложить тему</span>
                     </a>
                 </div>
