@@ -17,7 +17,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
 
     <!-- Favicon -->
-    <link rel="icon" href="{{ url_for('static', filename='/assets/img/favicon.png') }}" type="image/png">
+    <link rel="icon" href="{{ url_for('static', filename='assets/img/favicon.png') }}" type="image/png">
     <!-- Quick CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/quick-website.css') }}" id="stylesheet">
     <!-- Page CSS -->
@@ -25,8 +25,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/@fortawesome/fontawesome-free/css/all.min.css') }} ">
 
-    {% block head_links %}
-    {% endblock %}
+    <!-- Child template headers -->
+    {% block headers %}{% endblock %}
+
 </head>
 
 <body>
@@ -38,46 +39,59 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script type="text/javascript"> (function(){ var sc = document.createElement('script'); sc.type = 'text/javascript'; sc.async = true; sc.src = '//topbar.spbu.ru/loader.js'; var ls = document.getElementsByTagName('script')[0]; ls.parentNode.insertBefore(sc, ls); })(); </script>
 <!-- End SPbU topbar (noscript) -->
 
-<!-- Header -->
+    <div class="fixed-bottom bg-dark-dark alert mb-0 cookiealert collapse" id="modal-cookies" role="alert">
+    <!-- Text -->
+        <div class="container">
+            <div class="row align-items-center">
+                <p class="text-sm text-white mb-0 my-auto">
+                    Продолжая использовать наш сайт, вы даете согласие на обработку файлов cookie, которые обеспечивают правильную работу сайта.
+                </p>
+                <!-- Buttons -->
+                <button type="button" class="btn btn-sm btn-primary ml-0 mt-2 mt-lg-0 ml-lg-4 acceptcookies">Согласен</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
     <header class="header-transparent pt-5" id="header-main">
 
         <!-- Navbar -->
-        <nav class="navbar navbar-main navbar-expand-lg navbar-light border-bottom" id="navbar-main">
+        <nav class="navbar navbar-main navbar-expand-lg navbar-dark" id="navbar-main">
             <div class="container">
                 <!-- Brand -->
                 <div class="px-0 media d-flex w-100">
 
                     <a href="{{ url_for('index') }}">
                         <figure>
-                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/logo-black.svg') }}" class="img-fluid">
+                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/logo.svg') }}" class="img-fluid">
                         </figure>
                     </a>
                     <figure class="px-3">
-                        <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/line-header-black.svg') }}" class="img-fluid">
+                        <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/line-header.svg') }}" class="img-fluid">
                     </figure>
                     <a class="pl-0" target="_blank" href="https://spbu.ru/">
                         <figure>
-                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/spbu-logo-black.svg') }} " class="img-fluid">
+                            <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/spbu-logo.svg') }}" class="img-fluid">
                         </figure>
                     </a>
 
-                <!-- Toggler -->
-                <button class="navbar-toggler my-auto" type="button" data-toggle="collapse" data-target="#navbar-main-collapse" aria-controls="navbar-main-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <!-- Toggler -->
+                    <button class="navbar-toggler my-auto" type="button" data-toggle="collapse" data-target="#navbar-main-collapse" aria-controls="navbar-main-collapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <!-- Collapse -->
-                <div class="collapse navbar-collapse navbar-collapse-overlay" id="navbar-main-collapse">
-                    <!-- Toggler -->
-                    <div class="position-relative">
-                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-main-collapse" aria-controls="navbar-main-collapse" aria-expanded="false" aria-label="Toggle navigation">
-                            <i data-feather="x"></i>
-                        </button>
-                    </div>
+                    <!-- Collapse -->
+                    <div class="collapse navbar-collapse navbar-collapse-overlay" id="navbar-main-collapse">
+                        <!-- Toggler -->
+                        <div class="position-relative">
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-main-collapse" aria-controls="navbar-main-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                                <i data-feather="x"></i>
+                            </button>
+                        </div>
 
-                    <!-- Right navigation -->
-                    <ul class="navbar-nav align-items-lg-center ml-lg-auto">
-                        <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
-                                <a class="text-dark nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                        <!-- Right navigation -->
+                        <ul class="navbar-nav align-items-lg-center ml-lg-auto">
+                            <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                                <a class="nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                                     Поступающим
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-md p-0">
@@ -109,8 +123,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                     </div>
                                 </div>
                             </li>
-                        <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
-                                <a class="text-dark nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                            <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                                <a class="nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                                     Студентам
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-md p-0">
@@ -142,8 +156,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                     </div>
                                 </div>
                             </li>
-                        <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
-                                <a class="text-dark nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                            <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                                <a class="nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                                     Кафедра
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-md p-0">
@@ -156,7 +170,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
-                                        <a href="https://oops.math.spbu.ru/SE/alumni" class="list-group-item list-group-item-action" role="button">
+                                        <a href="https://oops.math.spbu.ru/SE/alumni" target="_blank" class="list-group-item list-group-item-action" role="button">
                                             <div class="d-flex">
                                                 <!-- Media body -->
                                                 <div class="ml-3">
@@ -172,11 +186,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
+
                                     </div>
                                 </div>
                             </li>
-                        <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
-                                <a class="text-dark nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+                            <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                                <a class="nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                                     Сервисы
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-md p-0">
@@ -209,21 +224,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 </div>
                             </li>
 
-                        <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+                            <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
                             {% if current_user.is_authenticated %}
-                            <a href="{{ url_for('user_profile') }}" class="text-dark nav-link">
+                            <a href="{{ url_for('user_profile') }}" class="nav-link">
                                     Профиль
                             </a>
 
                             {% else %}
-                            <a href="{{ url_for('login_index') }}" class="text-dark nav-link">
+                            <a href="{{ url_for('login_index') }}" class="nav-link">
                                     Вход
                             </a>
                             {% endif %}
                         </li>
-                    </ul>
+                        </ul>
+                    </div>
                 </div>
-            </div>
             </div>
         </nav>
     </header>
@@ -234,31 +249,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="footer pt-lg-7 footer-dark bg-dark">
             <!-- SVG shape -->
             <div class="shape-container shape-line shape-position-top shape-orientation-inverse">
-                <svg width="2560px" height="100px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" viewBox="0 0 2560 100" style="enable-background:new 0 0 2560 100;" xml:space="preserve" class=" fill-section-secondary">
+                <svg width="2560px" height="100px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" viewBox="0 0 2560 100" style="enable-background:new 0 0 2560 100;" xml:space="preserve" class="">
                     <polygon points="2560 0 2560 100 0 100"></polygon>
                 </svg>
             </div>
 
             <!-- Footer -->
-            <div class="container pt-2">
+            <div class="container pt-2" itemscope itemtype="http://schema.org/Organization" id="schema-organization">
                 <div class="row">
-                    <div class="col-lg-4 сщд-4 mb-5 mb-lg-0">
+                    <div class="col-lg-4 col-4 col-sm-4 mb-5 mb-lg-0">
                         <!-- Theme's logo -->
-                        <a href="{{ url_for('index') }}">
-                            <img class="img-fluid" alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/logo.svg') }}" id="footer-logo">
+                        <a href="{{ url_for('index') }}" itemprop="url">
+                            <img class="img-fluid" alt="Логотип Кафедры Системного Программирования" src="{{ url_for('static', filename='/assets/img/logo.svg') }}" id="footer-logo" itemprop="logo">
                         </a>
                         <!-- Webpixels' mission -->
-                        <p class="mt-4 text-sm opacity-8 pr-lg-4">Основанная профессором А.Н. Тереховым.</p>
+                        <p class="mt-4 text-sm opacity-8 pr-lg-4" itemprop="founder" itemscope itemtype="https://schema.org/Person">Основатель <span itemprop="name">профессор А.Н. Терехов.</span></p>
                     </div>
                     <div class="col-lg-4 col-4 col-sm-4 mb-5 mb-lg-0">
                         <h6 class="heading mb-4">Контактная информация</h6>
                         <ul class="list-unstyled">
-                            <li><p class="text-sm opacity-8 mb-0">198504, Санкт-Петербург</p></li>
-                            <li><p class="text-sm opacity-8 mb-0">Университетский проспект, дом 28</p></li>
-                            <li><p class="text-sm opacity-8 mb-0">Телефон: <a href="tel:+78124287109">+7 (812) 428-71-09</a></p></li>
-                            <li><p class="text-sm opacity-8 mb-0">Email: <a href="mailto:a.terekhov@spbu.ru">a.terekhov@spbu.ru</a></p></li>
-                            <li><p class="text-sm opacity-8 mb-0">Telegram: <a target="_blank" href="https://t.me/sysprog2020admission">@sysprog2020admission</a></p></li>
-                            <li><p class="text-sm opacity-8 mb-0">Старая версия сайта: <a target="_blank" href="https://oops.math.spbu.ru/SE">oops.math.spbu.ru/SE</a></p></li>
+                            <span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
+                            <li><p class="text-sm opacity-8 mb-0"><span itemprop="postalCode">198504</span>, <span itemprop="addressLocality">Санкт-Петербург</span></p></li>
+                            <li><p class="text-sm opacity-8 mb-0"><span itemprop="streetAddress">Университетский проспект, дом 28</span></p></li>
+                            </span>
+                            <li><p class="text-sm opacity-8 mb-0">Телефон: <a href="tel:+78124287109" itemprop="telephone">+7 (812) 428-71-09</a></p></li>
+                            <li><p class="text-sm opacity-8 mb-0">Email: <a href="mailto:a.terekhov@spbu.ru" itemprop="email">a.terekhov@spbu.ru</a></p></li>
+                            <li><p class="text-sm opacity-8 mb-0">Telegram: <a target="_blank" href="https://t.me/sysprog2020admission" itemprop="sameAs">@sysprog2020admission</a></p></li>
+                            <li><p class="text-sm opacity-8 mb-0">Старая версия сайта: <a target="_blank" href="https://oops.math.spbu.ru/SE" itemprop="sameAs">oops.math.spbu.ru/SE</a></p></li>
                         </ul>
                     </div>
                     <div class="col-lg-4 col-4 col-sm-4 mb-5 mb-lg-0">
@@ -293,7 +310,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <li><a href="{{ url_for('department_staff') }}">Сотрудники</a></li>
                             <li><a href="https://oops.math.spbu.ru/SE/alumni" target="_blank">Выпускники кафедры</a></li>
                             <li><a href="{{ url_for('contacts') }}">Контакты</a></li>
-
                         </ul>
                     </div>
                 </div>
@@ -304,7 +320,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 <a href="{{url_for('nooffer')}}" class="text-white">Данный сайт носит информационный характер и не является публичной офертой.</a>
                             </div>
                             <div class="copyright text-sm font-weight-bold text-center text-md-left">
-                                &copy; Кафедра системного программирования, Математико-механический факультет, СПбГУ, 1996-2021
+                                &copy; <span itemprop="name">Кафедра системного программирования</span>, Математико-механический факультет, СПбГУ, 1996-2021
                             </div>
                         </div>
                 </div>
@@ -319,12 +335,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <script src="{{ url_for('static', filename='/assets/libs/in-view/dist/in-view.min.js') }}" async defer></script>
     <script src="{{ url_for('static', filename='/assets/libs/sticky-kit/dist/sticky-kit.min.js') }}" async defer></script>
     <script src="{{ url_for('static', filename='/assets/libs/imagesloaded/imagesloaded.pkgd.min.js') }}" async defer></script>
-    <script src="{{ url_for('static', filename='/assets/libs/bootstrap-notify/bootstrap-notify.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='/assets/libs/bootstrap-notify/bootstrap-notify.min.js') }}" async defer></script>
     <script src="{{ url_for('static', filename='/assets/libs/autosize/dist/autosize.min.js') }}" async defer></script>
     <!-- Google maps -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA74mo0V79zPcSWjgUMe9AdmLy3-ruPKLs"></script>
+    <!-- Recaptcha -->
+    <!-- script src='https://www.google.com/recaptcha/api.js' async defer></script -->
     <!-- Quick JS -->
-    <script src="{{ url_for('static', filename='/assets/js/quick-website.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='/assets/js/quick-website.js') }}"></script>
     <script src="{{ url_for('static', filename='/assets/js/se_scripts.js') }}"></script>
     <!-- Feather Icons -->
     <script>
