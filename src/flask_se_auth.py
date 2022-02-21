@@ -266,6 +266,8 @@ def google_callback():
 
     state = request.args.get('state', type=str)
 
+    print(request.args.get('state'), session.get('_google_authlib_state_'))
+
     if not state:
         redirect(url_for('login_index'))
 

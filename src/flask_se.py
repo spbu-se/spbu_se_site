@@ -44,6 +44,7 @@ app.config['FREEZER_IGNORE_MIMETYPE_WARNINGS'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + SQLITE_DATABASE_NAME
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SECRET_KEY'] = SECRET_KEY
+app.config['SESSION_COOKIE_NAME'] = "se_session"
 
 # Secret for API
 app.config['SECRET_KEY_THESIS'] = SECRET_KEY_THESIS
