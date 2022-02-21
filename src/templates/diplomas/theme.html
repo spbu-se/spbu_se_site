@@ -58,11 +58,11 @@
                     {% if theme.author_id == current_user.id%}
                         <h6 class="">Статус</h6>
                         {% if theme.status == 0 %}
-                            <span class="badge badge-warning badge-pill" data-toggle="tooltip" data-placement="right" data-title="Идет проверка, по итогам тема будет утверждена или вернется к вам на доработку с комментариями.">На проверке</span>
+                            <span class="badge badge-warning badge-pill" data-toggle="tooltip" data-placement="right" data-title="Тема отправлена преподавателям и будет рассмотрена коллективом кафедры.">На проверке</span>
                         {% elif theme.status == 1 %}
                             <span class="badge badge-danger badge-pill" data-container="body" data-toggle="tooltip" data-placement="right" data-title="{% if theme.comment %} {{theme.comment}} {% else %} Странно, тему отправили на доработку, но не указали комментарий. Так быть не должно, свяжитесь со мной для выяснения причин (телеграм @Zelenchuk) {% endif %}">Требуется доработка</span>
                         {% elif theme.status == 2 %}
-                            <span class="badge badge-success badge-pill" data-container="body" data-toggle="tooltip" data-placement="right" data-title="Ваша тема одобрена и доступна в общем списке актуальных тем.">Одобрена</span>
+                            <span class="badge badge-success badge-pill" data-container="body" data-toggle="tooltip" data-placement="right" data-title="Ваша тема одобрена, ей назначен научный руководитель и она доступна в общем списке актуальных тем.">Одобрена</span>
                         {% endif %}
                         <hr class="my-2" />
                     {% endif %}
