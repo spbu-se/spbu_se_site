@@ -14293,11 +14293,13 @@ textarea[resize="horizontal"] {
   .form-stacked .form-control:focus {
     z-index: 2; }
 
+/*
 .header-transparent + section {
   padding-top: 7rem !important; }
 
 .header-transparent + .header-1 {
   padding-top: 14rem !important; }
+*/
 
 .header-account-page .btn-group-nav {
   position: relative;
