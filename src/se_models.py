@@ -105,7 +105,10 @@ class Users(db.Model, UserMixin):
         if self.middle_name:
             full_name = full_name + " " + self.middle_name
 
-        return full_name
+        if self.email:
+            return full_name + ' (' + self.email + ')'
+        else:
+            return full_name
 
     def __repr__(self):
         full_name = ''

@@ -5,7 +5,7 @@ from flask_admin import AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_login import current_user
 
-from wtforms import TextAreaField
+from wtforms import TextAreaField, SelectField
 
 from flask_se_config import SECRET_KEY_THESIS
 from se_models import db, ThemesLevel
@@ -154,7 +154,18 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelView):
         'description': TextAreaField,
         'requirements': TextAreaField,
         'comment': TextAreaField,
+        'status': SelectField
     }
+
+    form_args = dict(
+        status=dict(choices=[(0, 'На проверке'), (1, 'Требуется доработка'), (2, 'Одобрена')], coerce=int)
+    )
+
+    column_choices = {'status': [
+        (0, 'На проверке'),
+        (1, 'Требуется доработка'),
+        (2, 'Одобрена')
+    ]}
 
     form_widget_args = {
         'description': {

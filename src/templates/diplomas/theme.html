@@ -17,12 +17,7 @@
 
 {% block content %}
 
-<section class="">
-    <div class="container">
-    </div>
-</section>
-
-<section class="pt-6 bg-section-secondary">
+<section class="mt-7 pt-6 bg-section-secondary">
     <div class="container">
         <div class="row pb-4">
             <div class="col pl-4">
@@ -76,7 +71,7 @@
                 <h6 class="mb-0">Руководитель</h6>
                 <p class="text-sm">
                     {% if theme.supervisor_id %}
-                        {{theme.supervisor}}
+                        {{theme.supervisor.get_name()}}
                     {% else %}
                         еще не назначен
                     {% endif %}
@@ -87,7 +82,7 @@
                 <h6 class="mb-0">Консультант</h6>
                 <p class="text-sm">
                     {% if theme.consultant_id %}
-                        {{theme.consultant}}
+                        {{theme.consultant.get_name()}}
                     {% else %}
                         Консультант еще не назначен
                     {% endif %}
