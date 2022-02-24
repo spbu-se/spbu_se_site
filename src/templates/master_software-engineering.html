@@ -4,9 +4,9 @@
 
 {% block content %}
     <!-- Main content -->
-    <section class="slice py-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
+    <section class="slice pt-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
         <!-- Container -->
-        <div class="container pt-5 pt-lg-7 pb-lg-9 pb-7">
+        <div class="container pt-5 pt-lg-6 pb-lg-9 pb-7">
             <div class="row align-items-center justify-content-center">
                 <div class="col-lg-8 text-center">
                     <h1 class="text-white">Программная инженерия</h1>
@@ -16,13 +16,13 @@
                     <p class="lead text-white opacity-8">
                         Код образовательной программы - 09.04.04
                     </p>
-                    <div class="row mt-5 align-items-center justify-content-center">
-                        <div class="col-lg-6">
-                            <a href="{{ url_for('bachelor_application') }}" class="btn btn-lg btn-primary btn-icon mb-3 w-100">
-                                <span class="btn-inner--text">Как подать заявление</span>
-                            </a>
-                        </div>
-                    </div>
+                </div>
+            </div>
+            <div class="row pt-3 align-items-center justify-content-center">
+                <div class="col-lg-4">
+                    <a href="{{ url_for('bachelor_application') }}" class="btn btn-lg btn-primary btn-icon mb-3 w-100">
+                        <span class="btn-inner--text">Как подать заявление</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -87,7 +87,7 @@
                 </div>
             </div>
             <hr class="mt-0 mb-5">
-            <div class="row row-grid justify-content-around align-items-center" d="AdditionalInfo">
+            <div class="row row-grid justify-content-around align-items-center" id="AdditionalInfo">
                 <div class="col-lg-6 order-lg-2 ml-lg-auto pl-lg-6">
                     <!-- Heading -->
                     <h2 class="mt-4">Состав портфолио</h2>
@@ -155,7 +155,7 @@
         </div>
     </section>
 
-    <section class="slice" id="programm">
+    <section class="slice bg-section-secondary" id="programm">
         <div class="container">
             <div class="row justify-content-center mb-4">
                 <div class="col-lg-7 text-center">

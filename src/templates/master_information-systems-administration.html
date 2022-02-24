@@ -4,9 +4,9 @@
 
 {% block content %}
     <!-- Main content -->
-    <section class="slice py-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
+    <section class="slice pt-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
         <!-- Container -->
-        <div class="container pt-5 pt-lg-7 pb-lg-9 pb-7">
+        <div class="container pt-5 pt-lg-6 pb-lg-9 pb-7">
             <div class="row align-items-center justify-content-center">
                 <div class="col-lg-11 text-center">
                     <h1 class="text-white">Математическое обеспечение и администрирование информационных систем</h1>
@@ -16,13 +16,13 @@
                     <p class="lead text-white opacity-8">
                         Код образовательной программы - 02.04.03
                     </p>
-                    <div class="row mt-5 align-items-center justify-content-center">
-                        <div class="col-lg-6">
-                            <a href="{{ url_for('bachelor_application') }}" class="btn btn-lg btn-primary btn-icon mb-3 w-100">
-                                <span class="btn-inner--text">Как подать заявление</span>
-                            </a>
-                        </div>
-                    </div>
+                </div>
+            </div>
+            <div class="row pt-3 align-items-center justify-content-center">
+                <div class="col-lg-4">
+                    <a href="{{ url_for('bachelor_application') }}" class="btn btn-lg btn-primary btn-icon mb-3 w-100">
+                        <span class="btn-inner--text">Как подать заявление</span>
+                    </a>
                 </div>
             </div>
         </div>
