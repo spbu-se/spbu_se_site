@@ -3,46 +3,44 @@
 {% block title %}{{post.title}}{% endblock %}
 
 {% block content %}
-<section>
-    <div class="slice slice-sm">
-        <div class="container">
+<section class="mt-7 pt-6 bg-section-secondary">
+    <div class="container">
+        <div class="row row-grid align-items-center justify-content-center pt-4">
+            <div class="col-12">
+                {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                {% if errors %}
+                {%- for message in errors %}
 
-            <div class="row row-grid align-items-center justify-content-center pt-4">
-                <div class="col-12">
-                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
-                    {% if errors %}
-                    {%- for message in errors %}
+                <div class="alert alert-info" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
 
-                    <div class="alert alert-info" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        {{message}}
-                    </div>
+                    {{message}}
+                </div>
                     {% endfor -%}
                     {% endif %}
                     {% endwith %}
-                </div>
             </div>
-            <div class="row mb-4">
-                        <div class="col">
-                            <h5 class="align-right"></h5>
-                        </div>
-                        <div class="col-auto">
-                            <a href="{{url_for('submit_post')}}" class="btn btn-sm btn-outline-primary">Добавить новость
-                            </a>
-                        </div>
-                    </div>
-            <div class="row justify-content-center">
-                <div class="col-lg-12">
-
-                    <!-- Card -->
-                    <div class="card">
-                        <div class="list-group list-group-flush">
-                            <div class="list-group-item d-flex w-100 justify-content-between py-1">
-                                <div class="col-auto icon icon-sm">
-                                    <a href="{{url_for('post_vote', post_id=post.id, action_vote=1)}}" class="text-secondary" onmouseover="this.className='text-primary';" onmouseout="this.className='text-secondary';"><i data-feather="chevron-up" class="mb-n2 mr-0"></i></a>
-                                    <p class="mb-0 text-center">{{post.votes}}</p>
+        </div>
+        <div class="row mb-4">
+            <div class="col">
+                <h5 class="align-right"></h5>
+            </div>
+            <div class="col-auto">
+                <a href="{{url_for('submit_post')}}" class="btn btn-sm btn-outline-primary">Добавить новость
+                </a>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <!-- Card -->
+                <div class="card">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex w-100 justify-content-between py-1">
+                            <div class="col-auto icon icon-sm">
+                                <a href="{{url_for('post_vote', post_id=post.id, action_vote=1)}}" class="text-secondary" onmouseover="this.className='text-primary';" onmouseout="this.className='text-secondary';"><i data-feather="chevron-up" class="mb-n2 mr-0"></i></a>
+                                <p class="mb-0 text-center">{{post.votes}}</p>
                                     <!-- a href="{{url_for('post_vote', post_id=post.id, action_vote=0)}}"  class="text-secondary" onmouseover="this.className='text-primary';" onmouseout="this.className='text-secondary';"><i data-feather="chevron-down" class="mt-n2 mr-0"></i></a-->
                                 </div>
                                 <div class="col my-auto">
@@ -56,7 +54,6 @@
                 </div>
             </div>
         </div>
-    </div>
     </section>
 
 {% endblock %}

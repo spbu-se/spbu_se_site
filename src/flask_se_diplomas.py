@@ -120,6 +120,7 @@ def get_theme():
 
     return render_template('diplomas/theme.html', theme=theme)
 
+
 @login_required
 def add_user_theme():
 
