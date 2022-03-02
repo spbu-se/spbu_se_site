@@ -15,7 +15,7 @@ from flask_simplemde import SimpleMDE
 
 
 import flask_se_theses
-from flask_se_config import SECRET_KEY_THESIS, SECRET_KEY, SQLITE_DATABASE_NAME
+from flask_se_config import SECRET_KEY_THESIS, SECRET_KEY, SQLITE_DATABASE_NAME, plural_hours, get_hours_since
 from se_models import db, search, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, Posts, DiplomaThemes, recalculate_post_rank
 from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, \
     logout, vk_callback, google_login, google_callback
@@ -166,7 +166,14 @@ SimpleMDE(app)
 # Flask routes goes
 @app.route('/')
 def index():
-    return render_template('index.html')
+
+    ages = []
+    news = Posts.query.filter(Posts.type_id > 0).order_by(Posts.rank.desc()).limit(10).all()
+
+    for post in news:
+        ages.append(plural_hours(int(get_hours_since(post.created_on))))
+
+    return render_template('index.html', news=news, ages=ages)
 
 
 @app.route('/index.html')
