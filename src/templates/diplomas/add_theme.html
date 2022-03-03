@@ -23,13 +23,27 @@
                     <div class="form-group">
                         <h6 class="mb-0">Описание (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)</h6>
                         {{form.description(class_="form-control", placeholder=form.description.description, data_toggle="autosize", rows="9")}}
-                        {{ simplemde.load_id("description") }}
+                        <script>
+                        (function () {
+                            var simplemde = new SimpleMDE({
+                                spellChecker: false,
+                                element: document.getElementById("description"),
+                            });
+                        })();
+                        </script>
                     </div>
 
                     <div class="form-group">
                         <h6 class="mb-0">Требования к студенту (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)</h6>
                         {{form.requirements(class_="form-control", placeholder=form.requirements.description, rows="3")}}
-                        {{ simplemde.load_id("requirements") }}
+                        <script>
+                        (function () {
+                            var simplemde = new SimpleMDE({
+                                spellChecker: false,
+                                element: document.getElementById("requirements"),
+                            });
+                        })();
+                        </script>
                     </div>
                 </div>
                 <div class="col-lg-3 ml-lg-auto">
