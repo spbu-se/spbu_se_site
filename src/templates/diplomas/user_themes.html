@@ -47,11 +47,12 @@
                                 </div>
         </div>
     </div>
-    <div class="card-body pt-2">
+    <div class="card-body py-2">
         <p class="mb-0">Уровень: {% if t.levels %} {% for level in t.levels %} {{level.level}} {% if not loop.last %} , {% endif %} {% endfor %} {% endif %}</p>
-        <p class="mb-0">Источник темы: {% if t.company.id == 1 %} {{t.author}} {% else %} {{t.company.name}} {% endif %}</p>
-        <p class="mb-0">Руководитель: {% if t.supervisor_id %}{{t.supervisor}} {% else %} Еще не назначен {% endif %}</p>
-        <p class="">Консультант: {{t.consultant}}</p>
+        <p class="mb-0">Источник темы: {% if t.company.id == 1 %} {{t.author.get_name()}} {% else %} {{t.company.name}} {% endif %}</p>
+        <p class="mb-0">Руководитель: {% if t.supervisor_id %}{{t.supervisor.get_name()}} {% else %} Еще не назначен {% endif %}</p>
+        {% if t.supervisor_thesis %}<p class="mb-0">Руководитель ВКР: {{t.supervisor_thesis.get_name()}}</p> {% endif %}
+        <p class="">Консультант: {{t.consultant.get_name()}}</p>
     </div>
 
                         <div class="card-footer border-0 delimiter-top">

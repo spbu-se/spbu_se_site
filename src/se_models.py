@@ -85,6 +85,8 @@ class Users(db.Model, UserMixin):
     staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
     news = db.relationship("Posts", backref=db.backref("author", uselist=False))
     diploma_themes_supervisor = db.relationship("DiplomaThemes", backref=db.backref("supervisor", uselist=False), foreign_keys = 'DiplomaThemes.supervisor_id')
+    diploma_themes_thesis_supervisor = db.relationship("DiplomaThemes", backref=db.backref("supervisor_thesis", uselist=False),
+                                                foreign_keys='DiplomaThemes.supervisor_thesis_id')
     diploma_themes_consultant = db.relationship("DiplomaThemes", backref=db.backref("consultant", uselist=False), foreign_keys = 'DiplomaThemes.consultant_id')
     diploma_themes_author = db.relationship("DiplomaThemes", backref=db.backref("author", uselist=False),
                                                 foreign_keys='DiplomaThemes.author_id')
@@ -286,6 +288,7 @@ class DiplomaThemes(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     supervisor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    supervisor_thesis_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     consultant_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 

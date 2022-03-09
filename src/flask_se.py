@@ -257,7 +257,7 @@ def department_staff():
         if s.science_degree:
             position = position + ", " + s.science_degree
 
-        staff.append({'name': s.user, 'position': position, 'contacts': s.official_email,
+        staff.append({'name': s.user.get_name(), 'position': position, 'contacts': s.official_email,
                       'avatar': s.user.avatar_uri, 'id': s.id})
 
     return render_template('department_staff.html', staff = staff)

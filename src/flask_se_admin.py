@@ -120,6 +120,18 @@ class SeAdminModelViewNews(SeAdminModelView):
 
 class SeAdminModelViewDiplomaThemes(SeAdminModelView):
 
+    column_labels = dict(supervisor_thesis='Научный руководитель ВКР',
+                         supervisor="Научный руководитель учебных практик",
+                         comment="Комментарий (что необходимо исправить)",
+                         status="Статус темы",
+                         requirements="Требования к студенту",
+                         title='Название темы',
+                         description='Описание темы',
+                         company='Кто представляет тему',
+                         levels='Уровень темы',
+                         consultant="Консультант",
+                         author="Автор темы (кто предложил)")
+
     form_overrides = {
         'description': TextAreaField,
         'requirements': TextAreaField,
@@ -148,7 +160,18 @@ class SeAdminModelViewDiplomaThemes(SeAdminModelView):
 class SeAdminModelViewReviewDiplomaThemes(SeAdminModelView):
 
     can_delete = False
-    column_list = ('status', 'comment', 'title', 'description', 'level', 'company')
+    column_list = ('status', 'comment', 'title', 'description', 'requirements', 'levels', 'company')
+    column_labels = dict(supervisor_thesis='Научный руководитель ВКР',
+                         supervisor="Научный руководитель учебных практик",
+                         comment="Комментарий (что нужно исправить)",
+                         status="Статус темы",
+                         requirements="Требования к студенту",
+                         title='Название темы',
+                         description='Описание темы',
+                         company='Кто представляет тему',
+                         levels='Уровень темы',
+                         consultant="Консультант",
+                         author="Автор темы (кто предложил)")
 
     form_overrides = {
         'description': TextAreaField,
