@@ -39,12 +39,6 @@ os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 GOOGLE_CLIENT_ID = "593053078492-i6hf335m9hm0vtj23df62q09j07esbhu.apps.googleusercontent.com"
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_google.json")
 
-flow = Flow.from_client_secrets_file(
-    client_secrets_file=client_secrets_file,
-    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
-    redirect_uri="https://se.math.spbu.ru/google_callback"
-)
-
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -69,14 +63,15 @@ def redirect_next_url(fallback):
         return redirect(fallback)
 
 
-
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def login_index():
+
+    if current_user.is_authenticated:
+        return redirect(url_for('user_profile'))
 
     next_url = request.args.get("next")
 
@@ -257,24 +252,38 @@ def upload_avatar():
 
 
 def google_login():
-    authorization_url, state = flow.authorization_url()
+
+    flow = Flow.from_client_secrets_file(
+        client_secrets_file=client_secrets_file,
+        scopes=["https://www.googleapis.com/auth/userinfo.profile",
+                "https://www.googleapis.com/auth/userinfo.email",
+                "openid"]
+    )
+
+    flow.redirect_uri = url_for('google_callback', _external=True)
+    authorization_url, state = flow.authorization_url(access_type='offline',
+                                                      include_granted_scopes='true')
     session["state"] = state
     return redirect(authorization_url)
 
 
 def google_callback():
 
-    state = request.args.get('state', type=str)
-
+    state = session["state"]
     print(request.args.get('state'), session)
 
     if not state:
         redirect(url_for('login_index'))
 
-    flow.fetch_token(authorization_response=request.url)
+    flow = Flow.from_client_secrets_file(
+        client_secrets_file=client_secrets_file,
+        scopes=["https://www.googleapis.com/auth/userinfo.profile",
+                "https://www.googleapis.com/auth/userinfo.email",
+                "openid"]
+    )
 
-    if not session["state"] == request.args["state"]:
-        redirect(url_for('login_index')) # State does not match!
+    flow.redirect_uri = url_for('google_callback', _external=True)
+    flow.fetch_token(authorization_response=request.url)
 
     credentials = flow.credentials
     request_session = requests.session()
