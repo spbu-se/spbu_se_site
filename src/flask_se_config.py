@@ -13,6 +13,10 @@ SQLITE_DATABASE_NAME = 'se.db'
 current_data = datetime.today().strftime('%Y-%m-%d')
 SQLITE_DATABASE_BACKUP_NAME = 'se_backup_' + current_data + '.db'
 
+type_id_string = ['', 'Bachelor_Report', 'Bachelor_Thesis', 'Master_Thesis',
+                  'Autumn_practice_2nd_year', 'Spring_practice_2nd_year', 'Autumn_practice_3rd_year',
+                  'Spring_practice_3rd_year']
+
 PY2 = sys.version_info[0] == 2
 if PY2:
     text_type = unicode
@@ -96,3 +100,7 @@ def plural_hours(n):
         p = 2
 
     return str(n) + ' ' + hours[p]
+
+
+def get_thesis_type_id_string(id):
+    return type_id_string[id - 1]

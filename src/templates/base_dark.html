@@ -204,6 +204,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
+                                        <a href="{{ url_for('thesis_review_index') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Рецензирование практик и ВКР</small>
+                                                </div>
+                                            </div>
+                                        </a>
                                         <a href="{{ url_for('list_news') }}" class="list-group-item list-group-item-action" role="button">
                                             <div class="d-flex">
                                                 <!-- Media body -->
@@ -300,6 +308,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <h6 class="heading mb-3">Сервисы</h6>
                         <ul class="list-unstyled">
                             <li><a href="{{ url_for('diplomas_index') }}">Темы практик и ВКР</a></li>
+                            <li><a href="{{ url_for('thesis_review_index') }}">Рецензирование практик и ВКР</a></li>
                             <li><a href="{{ url_for('list_news') }}">Новости</a></li>
                             <li><a href="{{ url_for('theses_search') }}">Архив курсовых и ВКР</a></li>
                         </ul>

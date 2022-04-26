@@ -2,7 +2,6 @@
 
 import sys
 from datetime import datetime
-import tzlocal
 
 from flask import Flask, render_template, make_response, redirect, url_for
 from flask_admin import Admin
@@ -28,6 +27,8 @@ from flask_se_scholarships import get_scholarships_1, get_scholarships_2, get_sc
     get_scholarships_10, get_scholarships_11, get_scholarships_12, get_scholarships_13
 from flask_se_diplomas import diplomas_index, get_theme, add_user_theme, user_diplomas_index, delete_theme, \
     edit_user_theme, fetch_themes
+from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_thesis_on_review, \
+    delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review
 
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
@@ -109,6 +110,16 @@ app.add_url_rule('/diplomas/user_themes.html', view_func=user_diplomas_index)
 app.add_url_rule('/diplomas/delete_theme.html', view_func=delete_theme)
 app.add_url_rule('/diplomas/edit_theme.html', methods=['GET', 'POST'], view_func=edit_user_theme)
 app.add_url_rule('/diplomas/fetch_themes', view_func=fetch_themes)
+
+
+# Review thesis
+app.add_url_rule('/review/', methods=['GET'], view_func=thesis_review_index)
+app.add_url_rule('/review/submit', methods=['GET', 'POST'], view_func=submit_thesis_on_review)
+app.add_url_rule('/review/edit', methods=['GET', 'POST'], view_func=edit_thesis_on_review)
+app.add_url_rule('/review/delete', methods=['GET'], view_func=delete_thesis_on_review)
+app.add_url_rule('/review/review', methods=['GET'], view_func=review_thesis_on_review)
+app.add_url_rule('/review/reviewed', methods=['GET', 'POST'], view_func=review_submit_review)
+app.add_url_rule('/review/review_result', methods=['GET'], view_func=review_result_thesis_on_review)
 
 
 

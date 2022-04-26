@@ -1,0 +1,308 @@
+{% extends 'base_light.html' %}
+
+{% block title %}Рецензия на учебную/производственную практику{% endblock %}
+
+{% block content %}
+
+<section class="mt-7 pt-6 bg-section-secondary">
+    <div class="container">
+        {% with errors = get_flashed_messages(category_filter=["error"]) %}
+            {% if errors %}
+            <div class="row row-grid align-items-center justify-content-center pt-4">
+                <div class="col-12">
+                    {%- for message in errors %}
+                    <div class="alert alert-info" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        {{message}}
+                    </div>
+                    {% endfor -%}
+                </div>
+            </div>
+            {% endif %}
+            {% endwith %}
+        <div class="row mb-3 justify-content-center">
+            <div class="col-lg-9 col-md-9">
+                <h3 class="h1 text-center">Рецензирование</h3>
+                <div class="my-3 text-center">
+                    <p class="lh-180">
+
+                    </p>
+                </div>
+                <h5 class="my-3">Рецензируемая работа</h5>
+                <div class="card border-0">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="mb-0"><strong>{{ thesis.name_ru }}</strong></h6>
+                            </div>
+                            <div class="col-auto ml-auto text-right">
+                                    {% if thesis.text_uri %}
+                                    <a href="{{ url_for('static', filename='/thesis/onreview/' + thesis.text_uri) }}" class="text-reset" target="_blank">
+                                        <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Текст работы" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </div>
+                                    </a>
+                                    {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pt-2">
+                        <p class="text-sm mb-0">Автор: <i>{{thesis.author}}</i></p>
+                        <p class="text-sm">Направление: <i>{{thesis.course.name}}</i></p>
+                    </div>
+                </div>
+
+                <h5 class="mb-3">Общая информация</h5>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                    </div>
+                        <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label class="form-control-label">ФИО рецензента</label>
+                                <input class="form-control" type="text" value="{{user.get_name()}}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                        <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label class="form-control-label">Контактные данные рецензента</label>
+                                <input class="form-control" type="text" value="{{user.how_to_contact}}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{url_for('review_submit_review', thesis_review_id=thesis.id)}}" enctype="multipart/form-data">
+
+                    <h5 class="my-3">Текст отчёта (группа критериев О)</h5>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col">
+                                    <h6 class="mb-0"><strong>О1. Соответствие содержания и оформления предъявленным требованиям</strong></h6>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <p>Общая адекватность содержания и оформления текста. При сомнениях насчёт предъявляемых требований можно <a href="https://docs.google.com/document/d/1xWYVVVzD1EDo0SLj8elCQeFKLF4R9e-ZH-1f3P0KP_M" target="_blank">обратиться к документу</a>, где эти требования перечислены.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% for subfield in review_form.review_o1_radio_switcher %}
+
+                            <div class="custom-control custom-radio mb-3">
+                                {{ subfield(class='custom-control-input', disabled=True) }}
+                                {{ subfield.label(class='custom-control-label') }}
+                            </div>
+
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <p>Комментарий по критерию О1</p>
+                                {{ review_form.review_o1_comment(class='form-control', placeholder=review_form.review_o1_comment.data, data_toggle="autosize", rows="4", readonly=True) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col">
+                                    <h6 class="mb-0"><strong>О2. Умение работать с информацией, опубликованной в научных и иных источниках</strong></h6>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <p>Оцените качество обзора</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% for subfield in review_form.review_o2_radio_switcher %}
+
+                            <div class="custom-control custom-radio mb-3">
+                                {{ subfield(class='custom-control-input', disabled=True) }}
+                                {{ subfield.label(class='custom-control-label') }}
+                            </div>
+
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <p>Комментарий по критерию О2</p>
+                                {{ review_form.review_o2_comment(class='form-control', placeholder=review_form.review_o2_comment.data, data_toggle="autosize", rows="4", readonly=True) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="my-3">Теоретическая часть (группа критериев Т)</h5>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col">
+                                    <h6 class="mb-0"><strong>Т1. Обоснование принятых решений/Теоретический анализ</strong></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% for subfield in review_form.review_t1_radio_switcher %}
+
+                            <div class="custom-control custom-radio mb-3">
+                                {{ subfield(class='custom-control-input', disabled=True) }}
+                                {{ subfield.label(class='custom-control-label') }}
+                            </div>
+
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <p>Комментарий по критерию T1</p>
+                                {{ review_form.review_t1_comment(class='form-control', placeholder=review_form.review_t1_comment.data, data_toggle="autosize", rows="4", readonly=True) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col">
+                                    <h6 class="mb-0"><strong>Т2. Сравнение с аналогами</strong></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% for subfield in review_form.review_t2_radio_switcher %}
+
+                            <div class="custom-control custom-radio mb-3">
+                                {{ subfield(class='custom-control-input', disabled=True) }}
+                                {{ subfield.label(class='custom-control-label') }}
+                            </div>
+
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <p>Комментарий по критерию T2</p>
+                                {{ review_form.review_t2_comment(class='form-control', placeholder=review_form.review_t2_comment.data, data_toggle="autosize", rows="4", readonly=True) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="my-3">Практическая часть (группа критериев П)</h5>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col">
+                                    <h6 class="mb-0"><strong>П1. Качество практической части</strong></h6>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <p>Надо быстро посмотреть на репозиторий, ссылка на который должна быть в отчёте, и оценить его по данным критериям</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% for subfield in review_form.review_p1_radio_switcher %}
+
+                            <div class="custom-control custom-radio mb-3">
+                                {{ subfield(class='custom-control-input', disabled=True) }}
+                                {{ subfield.label(class='custom-control-label') }}
+                            </div>
+
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <p>Комментарий по критерию П1</p>
+                                {{ review_form.review_p1_comment(class='form-control', placeholder=review_form.review_p1_comment.data, data_toggle="autosize", rows="4", readonly=True) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col">
+                                    <h6 class="mb-0"><strong>П2. Качество проводимых измерений и постановки экспериментов</strong></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% for subfield in review_form.review_p2_radio_switcher %}
+
+                            <div class="custom-control custom-radio mb-3">
+                                {{ subfield(class='custom-control-input', disabled=True) }}
+                                {{ subfield.label(class='custom-control-label') }}
+                            </div>
+
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <p>Комментарий по критерию П2</p>
+                                {{ review_form.review_p2_comment(class='form-control', placeholder=review_form.review_p2_comment.data, data_toggle="autosize", rows="4", readonly=True) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="my-3">Резюме</h5>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <p>Общий комментарий к работе</p>
+                                {{ review_form.review_overall_comment(class='form-control', placeholder=review_form.review_overall_comment.data, data_toggle="autosize", rows="4", readonly=True) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col">
+                                    <h6 class="mb-0"><strong>Вердикт</strong></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% for subfield in review_form.review_verdict_radio_switcher %}
+
+                            <div class="custom-control custom-radio mb-3">
+                                {{ subfield(class='custom-control-input', disabled=True) }}
+                                {{ subfield.label(class='custom-control-label') }}
+                            </div>
+
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

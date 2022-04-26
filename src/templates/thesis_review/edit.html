@@ -1,0 +1,93 @@
+{% extends 'base_light_footer_white.html' %}
+
+{% block title %}Редактирование учебной практики или ВКР{% endblock %}
+
+{% block content %}
+
+<section class="mt-7 pt-6 bg-section-secondary">
+    <div class="container">
+        <div class="row row-grid align-items-center justify-content-center pt-4">
+            <div class="col-12">
+                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                    {% if errors %}
+                    {%- for message in errors %}
+
+                    <div class="alert alert-info" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        {{message}}
+                    </div>
+                    {% endfor -%}
+                    {% endif %}
+                    {% endwith %}
+                </div>
+        </div>
+        <div class="row justify-content-center pt-4">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <!-- Title -->
+                        <h3 class="mb-3">Редактирование</h3>
+                        <!-- Form -->
+
+                        <form method="POST" action="{{url_for('edit_thesis_on_review', thesis_review_id=thesis.id) }}" enctype="multipart/form-data">
+                            <!-- General information -->
+                            {{ form.csrf_token }}
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        {{ form.name_ru(class_="form-control", placeholder=form.name_ru.description) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        {{ form.author(class_="form-control", readonly="readonly") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        {{ form.type(class_="custom-select pl-3") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        {{ form.course(class_="custom-select pl-3") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <input type="file" name="thesis" id="thesis" class="custom-input-file" />
+                                        <label for="thesis">
+                                            <i data-feather="upload"></i>
+                                            <span>Выберите вашу работу (формат работы .PDF)</span>
+                                        </label>
+                                        <label class="form-control-label">Текущий файл: <a href="/thesis/onreview/{{thesis.text_uri}}">{{thesis.text_uri}}</a></label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!-- Buttons -->
+                            <div class="row ">
+                                <div class="col-md-8 my-3 text-lg-right">
+                                    <button type="submit" class="btn btn-sm btn-primary">Сохранить</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

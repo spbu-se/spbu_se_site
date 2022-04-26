@@ -100,6 +100,7 @@ def post_vote():
 
 @login_required
 def submit_post():
+
     if request.method == 'POST':
         title = request.form.get('title')
         post_uri = request.form.get('post_uri')

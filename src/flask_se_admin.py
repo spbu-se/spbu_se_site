@@ -10,13 +10,15 @@ from wtforms import TextAreaField, SelectField
 from flask_se_config import SECRET_KEY_THESIS
 from se_models import db, ThemesLevel
 
+ADMIN_ROLE_LEVEL = 5
+THESIS_ROLE_LEVEL = 2
 
 # Base model view with access and inaccess methods
 class SeAdminModelView(ModelView):
 
     def is_accessible(self):
         if current_user.is_authenticated:
-            if current_user.role > 1:
+            if current_user.role >= ADMIN_ROLE_LEVEL:
                 return True
         else:
             return False
@@ -38,7 +40,7 @@ class SeAdminIndexView(AdminIndexView):
 
     def is_accessible(self):
         if current_user.is_authenticated:
-            if current_user.role > 1:
+            if current_user.role >= THESIS_ROLE_LEVEL:
                 return True
         else:
             return False

@@ -59,6 +59,9 @@ class Staff (db.Model):
     def __repr__(self):
         return '<%r>' % self.official_email
 
+    def __str__(self):
+        return self.user.get_name()
+
 
 class Users(db.Model, UserMixin):
 
@@ -90,6 +93,8 @@ class Users(db.Model, UserMixin):
     diploma_themes_consultant = db.relationship("DiplomaThemes", backref=db.backref("consultant", uselist=False), foreign_keys = 'DiplomaThemes.consultant_id')
     diploma_themes_author = db.relationship("DiplomaThemes", backref=db.backref("author", uselist=False),
                                                 foreign_keys='DiplomaThemes.author_id')
+
+    thesises = db.relationship("Thesis", backref=db.backref("owner", uselist=False))
 
     all_user_votes = db.relationship('PostVote', back_populates='user')
 
@@ -134,7 +139,7 @@ class Worktype (db.Model):
     thesis = db.relationship("Thesis", backref=db.backref("type", uselist=False))
 
     def __repr__(self):
-        return '<%r>' % self.type
+        return self.type
 
 
 # Courses
@@ -171,12 +176,26 @@ class Thesis (db.Model):
     source_uri = db.Column(db.String(512), nullable=True)
 
     author = db.Column(db.String(512), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     supervisor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
     reviewer_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
 
     publish_year = db.Column(db.Integer, nullable=False)
     recomended = db.Column(db.Boolean, default=False, nullable=False)
     temporary = db.Column(db.Boolean, default=False, nullable=False)
+
+    # 0 - success review (or not needed)
+    # 1 - need to review
+    # 2 - on review (in progress)
+    # 3 - failed to review
+    review_status = db.Column(db.Integer, nullable=True, default=0)
+
+    review = db.relationship('ThesisReview', back_populates='thesis')
+
+
+class AreasOfStudy (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    area = db.Column(db.String(512), nullable=False)
 
 
 class Tags(db.Model):
@@ -308,6 +327,29 @@ class Company (db.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+
+class ThesisReview(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    thesis_id = db.Column(db.Integer, db.ForeignKey('thesis.id'))
+    thesis = db.relationship('Thesis', back_populates='review')
+
+    o1 = db.Column(db.Integer, nullable=True)
+    o1_comment = db.Column(db.String(1024), nullable=True)
+    o2 = db.Column(db.Integer, nullable=True)
+    o2_comment = db.Column(db.String(1024), nullable=True)
+    t1 = db.Column(db.Integer, nullable=True)
+    t1_comment = db.Column(db.String(1024), nullable=True)
+    t2 = db.Column(db.Integer, nullable=True)
+    t2_comment = db.Column(db.String(1024), nullable=True)
+    p1 = db.Column(db.Integer, nullable=True)
+    p1_comment = db.Column(db.String(1024), nullable=True)
+    p2 = db.Column(db.Integer, nullable=True)
+    p2_comment = db.Column(db.String(1024), nullable=True)
+
+    verdict = db.Column(db.Integer, nullable=False, default=0)
+    overall_comment = db.Column(db.String(1024), nullable=True)
 
 
 def recalculate_post_rank():
