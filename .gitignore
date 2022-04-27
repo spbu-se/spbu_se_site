@@ -86,3 +86,5 @@ fabric.properties
 
 # Do not config file
 /**/flask_se_secret.conf
+*/src/flask_se_secret.conf
+flask_se_secret.conf

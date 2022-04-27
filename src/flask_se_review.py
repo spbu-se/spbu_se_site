@@ -33,7 +33,6 @@ def thesis_review_index():
     form.status.choices = [(4, 'Все статусы'), (1, 'Требуется рецензия'), (2, 'На рецензии'),
                                (3, 'Требуется доработка'), (0, 'Работа зачтена')]
     form.worktype.choices.append((0, 'Все типы'))
-    form.areasofstudy.choices.append((0, 'Все направления'))
 
     for type in Worktype.query.filter(Worktype.id > 1).distinct().all():
         form.worktype.choices.append((type.id, type.type))
