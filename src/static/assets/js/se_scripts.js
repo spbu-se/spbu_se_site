@@ -172,6 +172,9 @@ let search_field = document.getElementById('thesis_search_field');
 let search_button = document.getElementById('thesis_search_button');
 
 // Select filters
+
+let thesis_search_filter = document.getElementById('ThesisSearchFilter');
+
 let wt_select = document.getElementById('worktype');
 let startdate_select = document.getElementById('startdate');
 let enddate_select = document.getElementById('enddate');
@@ -425,3 +428,115 @@ let diploma_themes_filter_element = document.getElementById('DiplomaThemesFilter
 if (diploma_themes_filter_element){
     diploma_themes_filter();
 }
+
+//
+// Thesis on review
+//
+
+function thesis_on_review_load() {
+
+    let themes_list = document.getElementById('ThemesList');
+
+    let themes_level_select = document.getElementById('level');
+    let themes_supervisor_select = document.getElementById('supervisor');
+    let themes_company_select = document.getElementById('company');
+
+    let page = url.searchParams.get("page");
+
+    let params = new URLSearchParams();
+
+    // Page first
+    if (page && page > 1){
+        params.append('page', page);
+    }
+
+    // Supervisor?
+    if (themes_supervisor_select){
+        params.append('supervisor', themes_supervisor_select.value);
+    }
+
+    // level?
+    if (themes_level_select){
+        params.append('level', themes_level_select.value);
+    }
+
+    if (themes_company_select)
+    {
+        params.append('company', themes_company_select.value);
+    }
+
+    fetch('fetch_themes?' + params.toString()).then(function(response){
+
+        if (!response.ok){
+            window.location.href = '/404.html'
+        } else {
+            response.text().then(function (text) {
+                themes_list.innerHTML = text;
+            });
+        }
+    });
+}
+
+
+function thesis_review_filter()
+{
+    // Select filters
+    let review_status_select = document.getElementById('status');
+    let review_worktype_select = document.getElementById('worktype');
+    let review_areasofstudy_select = document.getElementById('areasofstudy');
+
+    // Get fileters from URI
+    let url_string = window.location.href
+    let url = new URL(url_string);
+
+    let status = url.searchParams.get("status");
+    let page = url.searchParams.get("page");
+    let worktype = url.searchParams.get("worktype");
+    let areasofstudy = url.searchParams.get("areasofstudy");
+
+    if (review_status_select)
+    {
+        // Set filter to value from URI
+        if (status > 0){
+            if (review_status_select.innerHTML.indexOf('value="' + level + '"') > -1){
+                review_status_select.value=status;
+            }
+        } else {
+            review_status_select.value=0;
+        }
+
+        if (worktype > 0){
+            if (review_worktype_select.innerHTML.indexOf('value="' + worktype + '"') > -1){
+                review_worktype_select.value=supervisor;
+            }
+        } else {
+            review_worktype_select.value=0;
+        }
+
+        if (areasofstudy > 0){
+            if (review_areasofstudy_select.innerHTML.indexOf('value="' + areasofstudy + '"') > -1){
+                review_areasofstudy_select.value=company;
+            }
+        } else {
+            review_areasofstudy_select.value=0;
+        }
+    }
+
+    // Load themes
+     thesis_on_review_load();
+
+    // Update themes
+    review_status_select.onchange = thesis_on_review_update;
+    review_worktype_select.onchange = thesis_on_review_update;
+    review_areasofstudy_select.onchange = thesis_on_review_update;
+}
+
+
+// This is ThesisReview ?
+let thesis_review_filter_element = document.getElementById('ThesisReviewFilter');
+
+if (thesis_review_filter_element){
+    thesis_review_filter();
+}
+
+
