@@ -15,7 +15,7 @@ SQLITE_DATABASE_BACKUP_NAME = 'se_backup_' + current_data + '.db'
 
 type_id_string = ['', 'Bachelor_Report', 'Bachelor_Thesis', 'Master_Thesis',
                   'Autumn_practice_2nd_year', 'Spring_practice_2nd_year', 'Autumn_practice_3rd_year',
-                  'Spring_practice_3rd_year']
+                  'Spring_practice_3rd_year', 'Production_practice', 'Pre_graduate_practice']
 
 PY2 = sys.version_info[0] == 2
 if PY2:
