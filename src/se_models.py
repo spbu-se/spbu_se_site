@@ -174,6 +174,8 @@ class Thesis (db.Model):
     type_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
 
+    area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'), nullable=True)
+
     name_ru = db.Column(db.String(512), nullable=False)
     name_en = db.Column(db.String(512), nullable=True)
     description = db.Column(db.String(4096), nullable=True)
@@ -198,7 +200,7 @@ class Thesis (db.Model):
     # 1 - need to review
     # 2 - on review (in progress)
     # 3 - failed to review
-    review_status = db.Column(db.Integer, nullable=True, default=0)
+    review_status = db.Column(db.Integer, nullable=True, default=10)
 
     review = db.relationship('ThesisReview', back_populates='thesis')
 
@@ -206,6 +208,8 @@ class Thesis (db.Model):
 class AreasOfStudy (db.Model):
     id = db.Column(db.Integer, primary_key=True)
     area = db.Column(db.String(512), nullable=False)
+
+    thesis = db.relationship("Thesis", backref=db.backref('area', uselist=False))
 
 
 class Tags(db.Model):

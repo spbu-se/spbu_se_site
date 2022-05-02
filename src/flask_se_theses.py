@@ -304,7 +304,7 @@ def post_theses():
 
 def theses_tmp():
 
-    records = Thesis.query.filter_by(temporary=True).filter_by(review_status=0)
+    records = Thesis.query.filter_by(temporary=True).filter_by(review_status=10)
     return render_template('theses_tmp.html', theses=records)
 
 

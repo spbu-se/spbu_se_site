@@ -111,7 +111,7 @@ def submit_thesis_on_review():
             # Add to DB
             thesis = Thesis(name_ru=title, text_uri=thesis_filename_with_ext, author=author, author_id=user.id,
                             publish_year=str(todays_date.year),
-                            type_id=worktype, course_id=course, temporary=True, review_status=1)
+                            type_id=worktype, course_id=course, area_id=course, temporary=True, review_status=1)
             db.session.add(thesis)
             db.session.commit()
 
@@ -179,6 +179,7 @@ def edit_thesis_on_review():
         thesis_review.author = author
         thesis_review.type_id = worktype
         thesis_review.course_id = course
+        thesis_review.area_id = course
 
         # check if the post request has the file part
         if 'thesis' in request.files:
