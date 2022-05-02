@@ -269,10 +269,12 @@ def review_thesis_on_review():
     # Check if this users thesis.
     # User can't review it's own thesis.
     if thesis.author_id == user.id:
+        flash("Вы не можете рецензировать свою работу", 'error')
         return redirect(url_for('thesis_review_index'))
 
     # Check if user has a persmission
     if user.role < REVIEW_ROLE_LEVEL:
+        flash("У вас недостаточно прав для рецензирования", 'error')
         return redirect(url_for('thesis_review_index'))
 
     # Ok, we have thesis and user permission.
@@ -315,7 +317,7 @@ def review_submit_review():
     # Check if this users thesis.
     # User can't review it's own thesis.
     if thesis.author_id == user.id:
-        flash("Вы не можете рецензировать свою собственную работу", 'error')
+        flash("Вы не можете рецензировать свою работу", 'error')
         return redirect(url_for('thesis_review_index'))
 
     # Check if user has a permission
@@ -325,7 +327,7 @@ def review_submit_review():
 
     # Only status == 2 allow us to review this thesis.
     if thesis.review_status != 2:
-        flash("Работа не находиться на рецензировании", 'error')
+        flash("Работа не находится на рецензировании", 'error')
         return redirect (url_for('thesis_review_index'))
 
     # Ok, we can read the review form

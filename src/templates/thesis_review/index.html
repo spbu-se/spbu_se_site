@@ -24,7 +24,7 @@
         <div class="container">
             {% with errors = get_flashed_messages(category_filter=["error"]) %}
             {% if errors %}
-            <div class="row row-grid align-items-center justify-content-center pt-4">
+            <div class="row row-grid align-items-center justify-content-center py-1">
                 <div class="col-12">
                     {%- for message in errors %}
                     <div class="alert alert-info" role="alert">
@@ -38,7 +38,7 @@
             </div>
             {% endif %}
             {% endwith %}
-            <div class="row row-grid">
+            <div class="row row-grid mt-1">
                 <div class="col-lg-9" id="ThemesList">
                     {% for t in thesis %}
                     <div class="card border-0">
@@ -49,12 +49,15 @@
                                 </div>
                                 <div class="col-auto ml-auto text-right">
                                     {% if t.text_uri %}
+                                    {% if t.author_id == user.id or user.staff %}
                                     <a href="{{ url_for('static', filename='/thesis/onreview/' + t.text_uri) }}" class="text-reset" target="_blank">
                                         <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Текст работы" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                                             <i class="fas fa-file-pdf"></i>
                                         </div>
                                     </a>
                                     {% endif %}
+                                    {% endif %}
+
                                     {% if current_user.is_authenticated %}
                                         {% if t.author_id == user.id %}
 
@@ -99,11 +102,11 @@
                         </div>
                         <div class="card-body pt-2 pb-4">
                             {% if t.review_status == 0 %}
-                                <p class="text-sm mb-0">Статус: работа зачтена {% if t.author_id == user.id or user.staff %} (<i class="text-primary"><a href="{{url_for('review_result_thesis_on_review', thesis_review_id=t.id)}}">посмотреть рецензию</a></i>) {% endif %} </p>
+                                <p class="text-sm mb-0">Статус: Работа зачтена {% if t.author_id == user.id or user.staff %} (<i class="text-primary"><a href="{{url_for('review_result_thesis_on_review', thesis_review_id=t.id)}}">посмотреть рецензию</a></i>) {% endif %} </p>
                             {% elif t.review_status == 1 %}
                                 <p class="text-sm mb-0">Статус: <i >Требуется рецензия</i> {% if user.staff %} {% if t.author_id != user.id %} <a href="{{url_for('review_thesis_on_review', thesis_review_id=t.id)}}">(<i class="text-warning">взять на рецензию</i>)</a> {% endif %} {% endif %}</p>
                             {% elif t.review_status == 2 %}
-                                <p class="text-sm mb-0">Статус: {% if t.reviewer.user_id == user.id %} <a href="{{url_for('review_thesis_on_review', thesis_review_id=t.id)}}"><i>На рецензии...</i> (Рецензент: {{t.reviewer}})</a> {% else %} <i>на рецензии...</i> (Рецензент: {{t.reviewer}}) {% endif %} </p>
+                                <p class="text-sm mb-0">Статус: {% if t.reviewer.user_id == user.id %} <a href="{{url_for('review_thesis_on_review', thesis_review_id=t.id)}}"><i>На рецензии...</i></a> {% else %} <i>На рецензии...</i> {% endif %} </p>
                             {% elif t.review_status == 3 %}
                                 <p class="text-sm mb-0">Статус: Требуется доработка (<i class="text-primary"><a href="{{url_for('review_result_thesis_on_review', thesis_review_id=t.id)}}">посмотреть рецензию</a></i>)</p>
                             {% endif %}

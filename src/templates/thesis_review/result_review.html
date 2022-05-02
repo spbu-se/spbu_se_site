@@ -63,7 +63,7 @@
                         <div class="col">
                             <div class="form-group">
                                 <label class="form-control-label">ФИО рецензента</label>
-                                <input class="form-control" type="text" value="{{user.get_name()}}" readonly>
+                                <input class="form-control" type="text" value="{{thesis.reviewer}}" readonly>
                             </div>
                         </div>
                     </div>
@@ -71,7 +71,7 @@
                         <div class="col">
                             <div class="form-group">
                                 <label class="form-control-label">Контактные данные рецензента</label>
-                                <input class="form-control" type="text" value="{{user.how_to_contact}}" readonly>
+                                <input class="form-control" type="text" value="{{thesis.reviewer.user.how_to_contact}}" readonly>
                             </div>
                         </div>
                     </div>
