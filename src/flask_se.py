@@ -130,8 +130,8 @@ db.init_app(app)
 app.config['MSEARCH_BACKEND'] = 'whoosh'
 app.config['MSEARCH_ENABLE'] = True
 search.init_app(app)
-#search.create_index(Thesis, update=True)
-#search.create_index(Users, update=True)
+search.create_index(Thesis, update=True)
+search.create_index(Users, update=True)
 
 # Init Migrate
 migrate = Migrate(app, db, render_as_batch=True)
