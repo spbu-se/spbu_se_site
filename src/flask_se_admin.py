@@ -31,6 +31,10 @@ class SeAdminModelViewThesis(SeAdminModelView):
     pass
 
 
+class SeAdminModelViewReviewer(SeAdminModelView):
+    pass
+
+
 class SeAdminIndexView(AdminIndexView):
 
     @expose('/')

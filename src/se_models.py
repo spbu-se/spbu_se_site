@@ -95,6 +95,9 @@ class Users(db.Model, UserMixin):
                                                 foreign_keys='DiplomaThemes.author_id')
 
     thesises = db.relationship("Thesis", backref=db.backref("owner", uselist=False))
+    thesis_on_review_author = db.relationship("ThesisOnReview", backref=db.backref("author", uselist=False))
+
+    reviewer = db.relationship('Reviewer', back_populates='user')
 
     all_user_votes = db.relationship('PostVote', back_populates='user')
 
@@ -147,6 +150,7 @@ class Worktype (db.Model):
     type = db.Column(db.String(255), nullable=False)
 
     thesis = db.relationship("Thesis", backref=db.backref("type", uselist=False))
+    thesis_on_review = db.relationship("ThesisOnReview", backref=db.backref('worktype', uselist=False))
 
     def __repr__(self):
         return self.type
@@ -210,6 +214,7 @@ class AreasOfStudy (db.Model):
     area = db.Column(db.String(512), nullable=False)
 
     thesis = db.relationship("Thesis", backref=db.backref('area', uselist=False))
+    thesis_on_review = db.relationship("ThesisOnReview", backref=db.backref('area', uselist=False))
 
 
 class Tags(db.Model):
@@ -338,6 +343,7 @@ class Company (db.Model):
     logo_uri = db.Column(db.String(512), nullable=True)
 
     theme = db.relationship('DiplomaThemes', back_populates='company')
+    reviewer = db.relationship('Reviewer', back_populates='company')
 
     def __str__(self):
         return f"{self.name}"
@@ -348,6 +354,9 @@ class ThesisReview(db.Model):
 
     thesis_id = db.Column(db.Integer, db.ForeignKey('thesis.id'))
     thesis = db.relationship('Thesis', back_populates='review')
+
+    thesis_on_review_id = db.Column(db.Integer, db.ForeignKey('thesis_on_review.id'))
+    thesis_on_review = db.relationship('ThesisOnReview', back_populates='review')
 
     o1 = db.Column(db.Integer, nullable=True)
     o1_comment = db.Column(db.String(1024), nullable=True)
@@ -364,6 +373,49 @@ class ThesisReview(db.Model):
 
     verdict = db.Column(db.Integer, nullable=False, default=0)
     overall_comment = db.Column(db.String(1024), nullable=True)
+
+
+class Reviewer (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user = db.relationship('Users', back_populates='reviewer')
+
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=True)
+    company = db.relationship('Company', back_populates='reviewer')
+
+    reviewer = db.relationship('ThesisOnReview', back_populates='reviewer')
+
+    def __str__(self):
+        return self.user.get_name()
+
+
+class ThesisOnReview (db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    type_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
+    area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'), nullable=True)
+
+    name_ru = db.Column(db.String(512), nullable=False)
+
+    text_uri = db.Column(db.String(512), nullable=True)
+    presentation_uri = db.Column(db.String(512), nullable=True)
+    source_uri = db.Column(db.String(512), nullable=True)
+
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    reviewer_id = db.Column(db.Integer, db.ForeignKey('reviewer.id'), nullable=True)
+    reviewer = db.relationship('Reviewer', back_populates='reviewer')
+
+    supervisor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
+
+    # 0 - success review (or not needed)
+    # 1 - need to review
+    # 2 - on review (in progress)
+    # 3 - failed to review
+    review_status = db.Column(db.Integer, nullable=True, default=10)
+
+    review = db.relationship('ThesisReview', back_populates='thesis_on_review')
 
 
 def recalculate_post_rank():

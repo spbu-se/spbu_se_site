@@ -63,8 +63,8 @@ class AddThesisOnReview(FlaskForm):
     thesis = FileField()
     author = StringField('author', description='Ваше полное ФИО. Например, Иванов Иван Иванович')
     supervisor = SelectField('supervisor', choices=[])
-    worktype = SelectField('worktype', choices=[])
-    course = SelectField('course', choices=[])
+    type = SelectField('type', choices=[])
+    area = SelectField('area', choices=[])
 
 
 class EditThesisOnReview(FlaskForm):
@@ -73,7 +73,7 @@ class EditThesisOnReview(FlaskForm):
     author = StringField('author', description='Ваше полное ФИО. Например, Иванов Иван Иванович')
     supervisor = SelectField('supervisor', choices=[])
     type = SelectField('type', coerce=int, choices=[])
-    course = SelectField('course', coerce=int, choices=[])
+    area = SelectField('area', coerce=int, choices=[])
 
 
 # Misc

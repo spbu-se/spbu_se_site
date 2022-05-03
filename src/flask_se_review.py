@@ -11,7 +11,7 @@ from flask_se_config import secure_filename, get_thesis_type_id_string
 from flask_se_auth import login_required
 from se_forms import AddThesisOnReview, ThesisReviewFilter, EditThesisOnReview
 from se_review_forms import ReviewForm
-from se_models import db, Thesis, Worktype, AreasOfStudy, Staff, ThesisReview
+from se_models import db, Thesis, Worktype, AreasOfStudy, Staff, ThesisReview, ThesisOnReview, Reviewer
 
 
 # Global variables
@@ -44,7 +44,7 @@ def thesis_review_index():
 
     form.areasofstudy.choices.sort(key=lambda tup: tup[0])
 
-    thesis = Thesis.query.filter(Thesis.temporary == True).filter(Thesis.review_status >= 0).all()
+    thesis = ThesisOnReview.query.all()
     return render_template('thesis_review/index.html', review_filter=form, thesis=thesis, user=user)
 
 
@@ -53,26 +53,22 @@ def submit_thesis_on_review():
 
     user = current_user
     form = AddThesisOnReview()
+    author = user.get_name()
 
     if request.method == "POST":
         title = request.form.get('title').strip()
-        author = request.form.get('author').strip()
-        worktype = request.form.get('worktype', type=int)
-        course = request.form.get('course', type=int)
+        worktype = request.form.get('type', type=int)
+        area_of_study = request.form.get('area', type=int)
 
         if not title:
             flash ("Укажите название вашей работы", 'error')
-            return redirect(request.url)
-
-        if not author:
-            flash ("Укажите ФИО автора работы", 'error')
             return redirect(request.url)
 
         if worktype <= 0 or worktype > Worktype.query.distinct().count():
             flash ("Укажите тип работы", 'error')
             return redirect(request.url)
 
-        if course <= 0 or course > AreasOfStudy.query.distinct().count():
+        if area_of_study <= 0 or area_of_study > AreasOfStudy.query.distinct().count():
             flash ("Укажите направление вашего обучения", 'error')
             return redirect(request.url)
 
@@ -109,9 +105,8 @@ def submit_thesis_on_review():
             file.save(full_thesis_filename)
 
             # Add to DB
-            thesis = Thesis(name_ru=title, text_uri=thesis_filename_with_ext, author=author, author_id=user.id,
-                            publish_year=str(todays_date.year),
-                            type_id=worktype, course_id=course, area_id=course, temporary=True, review_status=1)
+            thesis = ThesisOnReview(name_ru=title, text_uri=thesis_filename_with_ext, author_id=user.id,
+                                    type_id=worktype, area_id=area_of_study, review_status=1)
             db.session.add(thesis)
             db.session.commit()
 
@@ -120,18 +115,18 @@ def submit_thesis_on_review():
             flash("Текст работы должен быть в формате .PDF", 'error')
             return redirect(request.url)
 
-    form.worktype.choices.append((0, "Выберите тип вашей работы"))
-    form.course.choices.append((0, "Выберите направление, по которому вы обучаетесь"))
+    form.type.choices.append((0, "Выберите тип вашей работы"))
+    form.area.choices.append((0, "Выберите направление, по которому вы обучаетесь"))
 
     for type in Worktype.query.filter(Worktype.id>1).distinct().all():
-        form.worktype.choices.append((type.id, type.type))
+        form.type.choices.append((type.id, type.type))
 
-    form.worktype.choices.sort(key=lambda tup: tup[0])
+    form.type.choices.sort(key=lambda tup: tup[0])
 
     for area in AreasOfStudy.query.filter(AreasOfStudy.id>1).distinct().all():
-        form.course.choices.append((area.id, area.area))
+        form.area.choices.append((area.id, area.area))
 
-    form.course.choices.sort(key=lambda tup: tup[0])
+    form.area.choices.sort(key=lambda tup: tup[0])
 
     return render_template('thesis_review/submit.html', filter=form, user=user)
 
@@ -145,41 +140,35 @@ def edit_thesis_on_review():
     if not thesis_review_id:
         return redirect(url_for('thesis_review_index'))
 
-    thesis_review = Thesis.query.filter_by(id=thesis_review_id).first_or_404()
+    thesis_review = ThesisOnReview.query.filter_by(id=thesis_review_id).first_or_404()
 
     if thesis_review.author_id != user.id:
         return redirect(url_for('thesis_review_index'))
 
     if request.method == "POST":
         title = request.form.get('name_ru', type=str)
-        author = request.form.get('author', type=str)
         worktype = request.form.get('type', type=int)
-        course = request.form.get('course', type=int)
+        area = request.form.get('area', type=int)
 
         if not title:
             flash("Укажите название вашей работы", 'error')
             return redirect(request.url)
 
-        if not author:
-            flash("Укажите ФИО автора работы", 'error')
-            return redirect(request.url)
-
         title = title.strip()
-        author = author.strip()
+        author = thesis_review.author.get_name()
 
         if worktype <= 0 or worktype > Worktype.query.distinct().count():
             flash("Укажите тип работы", 'error')
             return redirect(request.url)
 
-        if course <= 0 or course > AreasOfStudy.query.distinct().count():
+        if area <= 0 or area > AreasOfStudy.query.distinct().count():
             flash("Укажите направление вашего обучения", 'error')
             return redirect(request.url)
 
         thesis_review.name_ru = title
-        thesis_review.author = author
-        thesis_review.type_id = worktype
-        thesis_review.course_id = course
-        thesis_review.area_id = course
+        thesis_review.author_id = user.id
+        thesis_review.type_id = int(worktype)
+        thesis_review.area_id = int(area)
 
         # check if the post request has the file part
         if 'thesis' in request.files:
@@ -222,12 +211,15 @@ def edit_thesis_on_review():
     edit_thesis_onreview = EditThesisOnReview()
     edit_thesis_onreview.type.choices = [(g.id, g.type) for g in
                                              Worktype.query.filter(Worktype.id > 1).order_by('id')]
-    edit_thesis_onreview.course.choices = [(g.id, g.area) for g in
+    edit_thesis_onreview.area.choices = [(g.id, g.area) for g in
                                              AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by('id')]
 
     edit_thesis_onreview.type.default = int(thesis_review.type_id)
-    edit_thesis_onreview.course.default = int(thesis_review.course_id)
-    edit_thesis_onreview.process(name_ru=thesis_review.name_ru, author=thesis_review.author)
+    edit_thesis_onreview.area.default = int(thesis_review.area_id)
+    edit_thesis_onreview.process(name_ru=thesis_review.name_ru,
+                                 area=int(thesis_review.area_id),
+                                 type=thesis_review.type_id,
+                                 author=thesis_review.author.get_name())
 
     return render_template('thesis_review/edit.html', form=edit_thesis_onreview, user=user, thesis=thesis_review)
 
@@ -240,9 +232,10 @@ def delete_thesis_on_review():
     if not thesis_id:
         return redirect(url_for('thesis_review_index'))
 
-    thesis = Thesis.query.filter_by(id=thesis_id).first_or_404()
+    thesis = ThesisOnReview.query.filter_by(id=thesis_id).first_or_404()
 
     if thesis.author_id != current_user.id:
+        flash("Только автор может удалить свою работу", 'error')
         return redirect(url_for('thesis_review_index'))
 
     db.session.delete(thesis)
@@ -255,27 +248,22 @@ def delete_thesis_on_review():
 def review_thesis_on_review():
 
     user = current_user
-    user_staff = Staff.query.filter_by(user_id=user.id).first_or_404()
+    user_reviewer = Reviewer.query.filter_by(user_id=user.id).first_or_404()
     thesis_id = request.args.get('thesis_review_id', type=int)
     set_to_review = request.args.get('set_to_review', type=int, default=0)
 
-    if not user_staff:
+    if not user_reviewer:
         return redirect(url_for('thesis_review_index'))
 
     if not thesis_id:
         return redirect(url_for('thesis_review_index'))
 
-    thesis = Thesis.query.filter_by(id=thesis_id).first_or_404()
+    thesis = ThesisOnReview.query.filter_by(id=thesis_id).first_or_404()
 
     # Check if this users thesis.
     # User can't review it's own thesis.
     if thesis.author_id == user.id:
         flash("Вы не можете рецензировать свою работу", 'error')
-        return redirect(url_for('thesis_review_index'))
-
-    # Check if user has a persmission
-    if user.role < REVIEW_ROLE_LEVEL:
-        flash("У вас недостаточно прав для рецензирования", 'error')
         return redirect(url_for('thesis_review_index'))
 
     # Ok, we have thesis and user permission.
@@ -287,7 +275,7 @@ def review_thesis_on_review():
     # Set reviewer_id to user.id
     if (thesis.review_status == 1) and (set_to_review != 0):
         thesis.review_status = 2
-        thesis.reviewer_id = user_staff.id
+        thesis.reviewer_id = user_reviewer.id
         db.session.commit()
 
     review_form = ReviewForm()
@@ -298,32 +286,27 @@ def review_thesis_on_review():
 def review_submit_review():
 
     user = current_user
-    user_staff = Staff.query.filter_by(user_id=user.id).first_or_404()
+    user_reviewer = Reviewer.query.filter_by(user_id=user.id).first_or_404()
     thesis_id = request.args.get('thesis_review_id', type=int)
 
     if request.method != "POST":
         flash("Неверный метод, разрешается только метод POST", 'error')
         return redirect(url_for('thesis_review_index'))
 
-    if not user_staff:
-        flash("Вы не состоите в группе преподавателей", 'error')
+    if not user_reviewer:
+        flash("Вы не состоите в группе рецензентов", 'error')
         return redirect(url_for('thesis_review_index'))
 
     if not thesis_id:
         flash("Не указан идентификатор работы", 'error')
         return redirect(url_for('thesis_review_index'))
 
-    thesis = Thesis.query.filter_by(id=thesis_id).first_or_404()
+    thesis = ThesisOnReview.query.filter_by(id=thesis_id).first_or_404()
 
     # Check if this users thesis.
     # User can't review it's own thesis.
     if thesis.author_id == user.id:
         flash("Вы не можете рецензировать свою работу", 'error')
-        return redirect(url_for('thesis_review_index'))
-
-    # Check if user has a permission
-    if user.role < REVIEW_ROLE_LEVEL:
-        flash("У вас недостаточно прав для рецензирования", 'error')
         return redirect(url_for('thesis_review_index'))
 
     # Only status == 2 allow us to review this thesis.
@@ -353,7 +336,7 @@ def review_submit_review():
         flash("В рецензии есть пропущенные вопросы. Нужно ответить на все вопросы, поля с комментариями являются опциональными.", 'error')
         return redirect(url_for('review_thesis_on_review', thesis_review_id=thesis_id ))
 
-    review = ThesisReview(thesis_id=thesis.id, o1=o1, o1_comment=o1_comment,
+    review = ThesisReview(thesis_on_review_id=thesis.id, o1=o1, o1_comment=o1_comment,
                           o2=o2, o2_comment=o2_comment, t1=t1, t1_comment=t1_comment,
                           t2=t2, t2_comment=t2_comment, p1=p1, p1_comment=p1_comment,
                           p2=p2, p2_comment=p2_comment, verdict=verdict,
@@ -382,8 +365,8 @@ def review_result_thesis_on_review():
         flash("Не указан идентификатор работы", 'error')
         return redirect(url_for('thesis_review_index'))
 
-    thesis = Thesis.query.filter_by(id=thesis_id).first_or_404()
-    review = ThesisReview.query.filter_by(thesis_id=thesis_id).first_or_404()
+    thesis = ThesisOnReview.query.filter_by(id=thesis_id).first_or_404()
+    review = ThesisReview.query.filter_by(thesis_on_review_id=thesis_id).first_or_404()
 
     #if thesis.author_id != user.id:
     #    flash("Вы не можете просматривать рецензию на чужую работу", 'error')
