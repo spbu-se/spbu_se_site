@@ -181,3 +181,5 @@ class ReviewForm(FlaskForm):
                  ('0', verdict_label_0)
                  ]
     )
+
+    review_file = FileField()

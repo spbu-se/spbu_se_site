@@ -279,6 +279,27 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col">
+                                    <h6 class="mb-0"><strong>Ревью в форме файла</strong></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <input type="file" name="review_file" id="review_file" class="custom-input-file" disabled/>
+                                <label for="review_file">
+                                    <i data-feather="upload"></i>
+                                    <span>В формате .PDF (опционально)</span>
+                                </label>
+                                {% if review.review_file_uri %}<label class="form-control-label">Текущий файл: <a href="/onreview/reviews/{{review.review_file_uri}}">{{review.review_file_uri}}</a></label>{% else %} <label class="form-control-label">Файл не был загружен</label> {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card">
                         <div class="card-header">
                             <div class="row">

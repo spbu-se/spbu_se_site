@@ -2,6 +2,7 @@
 
 import os
 from datetime import date
+from pathlib import Path
 
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
@@ -16,6 +17,7 @@ from se_models import db, Thesis, Worktype, AreasOfStudy, Staff, ThesisReview, T
 
 # Global variables
 UPLOAD_FOLDER = 'static/thesis/onreview/'
+REVIEW_UPLOAD_FOLDER = 'static/onreview/reviews/'
 ALLOWED_EXTENSIONS = {'pdf'}
 REVIEW_ROLE_LEVEL = 3
 
@@ -116,7 +118,7 @@ def submit_thesis_on_review():
             return redirect(request.url)
 
     form.type.choices.append((0, "Выберите тип вашей работы"))
-    form.area.choices.append((0, "Выберите направление, по которому вы обучаетесь"))
+    form.area.choices.append((0, "Выберите направление обучения"))
 
     for type in Worktype.query.filter(Worktype.id>1).distinct().all():
         form.type.choices.append((type.id, type.type))
@@ -332,6 +334,35 @@ def review_submit_review():
         review_overall_comment = request.form['review_overall_comment']
         verdict = request.form['review_verdict_radio_switcher']
 
+        review_file_name = None
+
+        # check if the post request has the file part
+        if 'review_file' in request.files:
+            file = request.files['review_file']
+
+            # If the user does not select a file, the browser submits an
+            # empty file without a filename.
+
+            if file.filename != '':
+                if file and allowed_file(file.filename):
+                    if thesis.text_uri:
+                        filename = Path(thesis.text_uri).stem
+                        review_filename = filename + "_review"
+                        review_filename_with_ext = review_filename + ".pdf"
+
+                        full_filename = os.path.join(REVIEW_UPLOAD_FOLDER + "/" + review_filename_with_ext)
+
+                        # Check if file already exist
+                        if os.path.isfile(full_filename):
+                            filename = filename + '_' + str(os.urandom(8).hex())
+                            review_filename = filename + "_review"
+                            review_filename_with_ext = review_filename + ".pdf"
+
+                            full_filename = os.path.join(REVIEW_UPLOAD_FOLDER + "/" + review_filename_with_ext)
+
+                        review_file_name = review_filename_with_ext
+                        file.save(full_filename)
+
     except KeyError:
         flash("В рецензии есть пропущенные вопросы. Нужно ответить на все вопросы, поля с комментариями являются опциональными.", 'error')
         return redirect(url_for('review_thesis_on_review', thesis_review_id=thesis_id ))
@@ -340,7 +371,8 @@ def review_submit_review():
                           o2=o2, o2_comment=o2_comment, t1=t1, t1_comment=t1_comment,
                           t2=t2, t2_comment=t2_comment, p1=p1, p1_comment=p1_comment,
                           p2=p2, p2_comment=p2_comment, verdict=verdict,
-                          overall_comment=review_overall_comment)
+                          overall_comment=review_overall_comment,
+                          review_file_uri=review_file_name)
 
     # Review status = 0 (success)
     # Review status = 3 (Need to be fixed)
@@ -391,4 +423,5 @@ def review_result_thesis_on_review():
                              review_overall_comment=review.overall_comment,
                              review_verdict_radio_switcher=review.verdict)
 
-    return render_template('thesis_review/result_review.html', thesis=thesis, user=user, review_form=review_form)
+    return render_template('thesis_review/result_review.html', thesis=thesis, user=user, review_form=review_form,
+                           review=review)

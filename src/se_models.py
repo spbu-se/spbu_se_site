@@ -374,6 +374,8 @@ class ThesisReview(db.Model):
     verdict = db.Column(db.Integer, nullable=False, default=0)
     overall_comment = db.Column(db.String(1024), nullable=True)
 
+    review_file_uri = db.Column(db.String(512), nullable=True)
+
 
 class Reviewer (db.Model):
     id = db.Column(db.Integer, primary_key=True)
