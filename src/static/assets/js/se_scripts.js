@@ -4,7 +4,13 @@ function theses_load() {
 
     let theses_list = document.getElementById('ThesisList');
     let wt_select = document.getElementById('worktype');
+
+    // Get fileters from URI
+    let url_string = window.location.href
+    let url = new URL(url_string);
+
     let page = url.searchParams.get("page");
+
     let supervisor_select = document.getElementById('supervisor');
     let course_select = document.getElementById('course');
     let startdate_select = document.getElementById('startdate');
@@ -186,6 +192,7 @@ if (thesis_search_filter)
     // Get fileters from URI
     let url_string = window.location.href
     let url = new URL(url_string);
+
     let worktype = url.searchParams.get("worktype");
     let page = url.searchParams.get("page");
     let startdate = url.searchParams.get("startdate");
