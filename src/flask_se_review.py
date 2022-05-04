@@ -12,7 +12,8 @@ from flask_se_config import secure_filename, get_thesis_type_id_string
 from flask_se_auth import login_required
 from se_forms import AddThesisOnReview, ThesisReviewFilter, EditThesisOnReview
 from se_review_forms import ReviewForm
-from se_models import db, Thesis, Worktype, AreasOfStudy, Staff, ThesisReview, ThesisOnReview, Reviewer
+from se_models import db, Thesis, Worktype, AreasOfStudy, Staff, ThesisReview, ThesisOnReview, \
+    Reviewer, ThesisOnReviewWorktype
 
 
 # Global variables
@@ -34,9 +35,8 @@ def thesis_review_index():
 
     form.status.choices = [(4, 'Все статусы'), (1, 'Требуется рецензия'), (2, 'На рецензии'),
                                (3, 'Требуется доработка'), (0, 'Работа зачтена')]
-    form.worktype.choices.append((0, 'Все типы'))
 
-    for type in Worktype.query.filter(Worktype.id > 1).distinct().all():
+    for type in ThesisOnReviewWorktype.query.distinct().all():
         form.worktype.choices.append((type.id, type.type))
 
     form.worktype.choices.sort(key=lambda tup: tup[0])
@@ -48,6 +48,32 @@ def thesis_review_index():
 
     thesis = ThesisOnReview.query.all()
     return render_template('thesis_review/index.html', review_filter=form, thesis=thesis, user=user)
+
+
+def fetch_thesis_on_review():
+
+    user = current_user
+
+    status = request.args.get('status', default=4, type=int)
+    page = request.args.get('page', default=1, type=int)
+    worktype = request.args.get('worktype', default=1, type=int)
+    area = request.args.get('area', default=1, type=int)
+
+    if status == 4:
+        records = ThesisOnReview.query.filter(ThesisOnReview.id>0).order_by(ThesisOnReview.id.desc())
+    else:
+        records = ThesisOnReview.query.filter(ThesisOnReview.review_status==status).order_by(ThesisOnReview.id.desc())
+
+    if worktype > 1:
+        records = records.filter(ThesisOnReview.thesis_on_review_type_id==worktype)
+
+    if area > 1:
+        records = records.filter(ThesisOnReview.area_id==area).paginate(per_page=20, page=page, error_out=False)
+    else:
+        records = records.paginate(per_page=20, page=page, error_out=False)
+
+    return render_template('thesis_review/fetch_thesis_on_review.html', thesis=records, user=user, status=status,
+                           worktype=worktype, area=area)
 
 
 @login_required
@@ -66,7 +92,7 @@ def submit_thesis_on_review():
             flash ("Укажите название вашей работы", 'error')
             return redirect(request.url)
 
-        if worktype <= 0 or worktype > Worktype.query.distinct().count():
+        if worktype <= 0 or worktype > ThesisOnReviewWorktype.query.distinct().count():
             flash ("Укажите тип работы", 'error')
             return redirect(request.url)
 
@@ -108,7 +134,8 @@ def submit_thesis_on_review():
 
             # Add to DB
             thesis = ThesisOnReview(name_ru=title, text_uri=thesis_filename_with_ext, author_id=user.id,
-                                    type_id=worktype, area_id=area_of_study, review_status=1)
+                                    type_id=worktype, thesis_on_review_type_id=worktype,
+                                    area_id=area_of_study, review_status=1)
             db.session.add(thesis)
             db.session.commit()
 
@@ -120,7 +147,7 @@ def submit_thesis_on_review():
     form.type.choices.append((0, "Выберите тип вашей работы"))
     form.area.choices.append((0, "Выберите направление обучения"))
 
-    for type in Worktype.query.filter(Worktype.id>1).distinct().all():
+    for type in ThesisOnReviewWorktype.query.filter(ThesisOnReviewWorktype.id>1).distinct().all():
         form.type.choices.append((type.id, type.type))
 
     form.type.choices.sort(key=lambda tup: tup[0])
@@ -159,7 +186,7 @@ def edit_thesis_on_review():
         title = title.strip()
         author = thesis_review.author.get_name()
 
-        if worktype <= 0 or worktype > Worktype.query.distinct().count():
+        if worktype <= 0 or worktype > ThesisOnReviewWorktype.query.distinct().count():
             flash("Укажите тип работы", 'error')
             return redirect(request.url)
 
@@ -169,7 +196,7 @@ def edit_thesis_on_review():
 
         thesis_review.name_ru = title
         thesis_review.author_id = user.id
-        thesis_review.type_id = int(worktype)
+        thesis_review.thesis_on_review_type_id = int(worktype)
         thesis_review.area_id = int(area)
 
         # check if the post request has the file part
@@ -212,15 +239,15 @@ def edit_thesis_on_review():
 
     edit_thesis_onreview = EditThesisOnReview()
     edit_thesis_onreview.type.choices = [(g.id, g.type) for g in
-                                             Worktype.query.filter(Worktype.id > 1).order_by('id')]
+                                             ThesisOnReviewWorktype.query.filter(ThesisOnReviewWorktype.id > 1).order_by('id')]
     edit_thesis_onreview.area.choices = [(g.id, g.area) for g in
                                              AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by('id')]
 
-    edit_thesis_onreview.type.default = int(thesis_review.type_id)
+    edit_thesis_onreview.type.default = int(thesis_review.thesis_on_review_type_id)
     edit_thesis_onreview.area.default = int(thesis_review.area_id)
     edit_thesis_onreview.process(name_ru=thesis_review.name_ru,
                                  area=int(thesis_review.area_id),
-                                 type=thesis_review.type_id,
+                                 type=thesis_review.thesis_on_review_type_id,
                                  author=thesis_review.author.get_name())
 
     return render_template('thesis_review/edit.html', form=edit_thesis_onreview, user=user, thesis=thesis_review)

@@ -156,6 +156,17 @@ class Worktype (db.Model):
         return self.type
 
 
+# Thesis on review worktypes
+class ThesisOnReviewWorktype (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(255), nullable=False)
+
+    thesis_on_review = db.relationship("ThesisOnReview", backref=db.backref('thesis_on_review_worktype', uselist=False))
+
+    def __repr__(self):
+        return self.type
+
+
 # Courses
 class Courses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -398,6 +409,8 @@ class ThesisOnReview (db.Model):
 
     type_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
     area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'), nullable=True)
+
+    thesis_on_review_type_id = db.Column(db.Integer, db.ForeignKey('thesis_on_review_worktype.id'), nullable=True)
 
     name_ru = db.Column(db.String(512), nullable=False)
 

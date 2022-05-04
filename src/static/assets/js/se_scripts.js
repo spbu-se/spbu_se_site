@@ -167,108 +167,111 @@ function search_thesis()
 }
 
 
-// Find search field
-let search_field = document.getElementById('thesis_search_field');
-let search_button = document.getElementById('thesis_search_button');
-
 // Select filters
-
 let thesis_search_filter = document.getElementById('ThesisSearchFilter');
 
-let wt_select = document.getElementById('worktype');
-let startdate_select = document.getElementById('startdate');
-let enddate_select = document.getElementById('enddate');
-let supervisor_select = document.getElementById('supervisor');
-let course_select = document.getElementById('course');
-
-// Get fileters from URI
-let url_string = window.location.href
-let url = new URL(url_string);
-let worktype = url.searchParams.get("worktype");
-let page = url.searchParams.get("page");
-let startdate = url.searchParams.get("startdate");
-let enddate = url.searchParams.get("enddate");
-let supervisor = url.searchParams.get("supervisor");
-let course = url.searchParams.get("course");
-let search = url.searchParams.get("search");
-
-if (search_field && search_button)
-{
-    search_button.onclick = search_thesis;
-
-    search_field.addEventListener("keyup", function(event) {
-        // Number 13 is the "Enter" key on the keyboard
-        if (event.keyCode === 13) {
-            // Cancel the default action, if needed
-            event.preventDefault();
-            // Trigger the button element with a click
-            search_button.click();
-        }
-    });
-}
-
-if (wt_select)
+if (thesis_search_filter)
 {
 
-    // Set filter to value from URI
-    if (wt_select.innerHTML.indexOf('value="' + worktype + '"') > -1){
-        console.log(worktype);
-        wt_select.value=worktype;
-    } else {
-        wt_select.value=0;
+    // Find search field
+    let search_field = document.getElementById('thesis_search_field');
+    let search_button = document.getElementById('thesis_search_button');
+
+    let wt_select = document.getElementById('worktype');
+    let startdate_select = document.getElementById('startdate');
+    let enddate_select = document.getElementById('enddate');
+    let supervisor_select = document.getElementById('supervisor');
+    let course_select = document.getElementById('course');
+
+    // Get fileters from URI
+    let url_string = window.location.href
+    let url = new URL(url_string);
+    let worktype = url.searchParams.get("worktype");
+    let page = url.searchParams.get("page");
+    let startdate = url.searchParams.get("startdate");
+    let enddate = url.searchParams.get("enddate");
+    let supervisor = url.searchParams.get("supervisor");
+    let course = url.searchParams.get("course");
+    let search = url.searchParams.get("search");
+
+    if (search_field && search_button)
+    {
+        search_button.onclick = search_thesis;
+
+        search_field.addEventListener("keyup", function(event) {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // Trigger the button element with a click
+                search_button.click();
+            }
+        });
     }
 
-    if (search){
-        search_field.value=search;
-    }
+    if (wt_select)
+    {
 
-    if (supervisor){
-
-        // Check if this value exist
-        if (supervisor_select.innerHTML.indexOf('value="' + supervisor + '"') > -1){
-            supervisor_select.value=supervisor;
+        // Set filter to value from URI
+        if (wt_select.innerHTML.indexOf('value="' + worktype + '"') > -1){
+            console.log(worktype);
+            wt_select.value=worktype;
         } else {
-            supervisor_select.value=0;
+            wt_select.value=0;
         }
-    }
 
-    if (course){
-        if (course_select.innerHTML.indexOf('value="' + course + '"') > -1){
-            course_select.value=course;
-        } else {
-            course_select.value=0;
+        if (search){
+            search_field.value=search;
         }
-    }
 
-    if (startdate){
-        if (startdate_select.length > 0 && startdate >= startdate_select.options[startdate_select.length - 1].value && startdate <= startdate_select.options[0].value) {
-            startdate_select.value=startdate;
+        if (supervisor){
+
+            // Check if this value exist
+            if (supervisor_select.innerHTML.indexOf('value="' + supervisor + '"') > -1){
+                supervisor_select.value=supervisor;
+            } else {
+                supervisor_select.value=0;
+            }
+        }
+
+        if (course){
+            if (course_select.innerHTML.indexOf('value="' + course + '"') > -1){
+                course_select.value=course;
+            } else {
+                course_select.value=0;
+            }
+        }
+
+        if (startdate){
+            if (startdate_select.length > 0 && startdate >= startdate_select.options[startdate_select.length - 1].value && startdate <= startdate_select.options[0].value) {
+                startdate_select.value=startdate;
+            } else {
+                startdate_select.value = startdate_select.options[startdate_select.length - 1].value;
+            }
         } else {
             startdate_select.value = startdate_select.options[startdate_select.length - 1].value;
         }
-    } else {
-        startdate_select.value = startdate_select.options[startdate_select.length - 1].value;
-    }
 
-    if (enddate){
-        if (enddate_select.length > 0 && enddate >= enddate_select.options[enddate_select.length - 1].value && enddate <= enddate_select.options[0].value && enddate >= startdate_select.value) {
-            enddate_select.value=enddate;
+        if (enddate){
+            if (enddate_select.length > 0 && enddate >= enddate_select.options[enddate_select.length - 1].value && enddate <= enddate_select.options[0].value && enddate >= startdate_select.value) {
+                enddate_select.value=enddate;
+            } else {
+                enddate_select.value = enddate_select.options[0].value;
+            }
         } else {
             enddate_select.value = enddate_select.options[0].value;
         }
-    } else {
-        enddate_select.value = enddate_select.options[0].value;
+
+        // Load theses
+        theses_load();
+
+        // Update theses
+        wt_select.onchange = theses_update;
+        startdate_select.onchange = theses_update;
+        enddate_select.onchange = theses_update;
+        supervisor_select.onchange = theses_update;
+        course_select.onchange = theses_update;
     }
-
-    // Load theses
-    theses_load();
-
-    // Update theses
-    wt_select.onchange = theses_update;
-    startdate_select.onchange = theses_update;
-    enddate_select.onchange = theses_update;
-    supervisor_select.onchange = theses_update;
-    course_select.onchange = theses_update;
 }
 
 
@@ -280,6 +283,9 @@ function themes_load() {
     let themes_supervisor_select = document.getElementById('supervisor');
     let themes_company_select = document.getElementById('company');
 
+    // Get fileters from URI
+    let url_string = window.location.href
+    let url = new URL(url_string);
     let page = url.searchParams.get("page");
 
     let params = new URLSearchParams();
@@ -325,6 +331,9 @@ function themes_update() {
     let themes_supervisor_select = document.getElementById('supervisor');
     let themes_company_select = document.getElementById('company');
 
+    // Get fileters from URI
+    let url_string = window.location.href
+    let url = new URL(url_string);
     let page = url.searchParams.get("page");
 
     let params = new URLSearchParams();
@@ -435,12 +444,15 @@ if (diploma_themes_filter_element){
 
 function thesis_on_review_load() {
 
-    let themes_list = document.getElementById('ThemesList');
+    let thesis_on_review_el = document.getElementById('ThesisReviewList');
 
-    let themes_level_select = document.getElementById('level');
-    let themes_supervisor_select = document.getElementById('supervisor');
-    let themes_company_select = document.getElementById('company');
+    let thesis_on_review_status_select = document.getElementById('status');
+    let thesis_on_review_worktype_select = document.getElementById('worktype');
+    let thesis_on_review_area_select = document.getElementById('areasofstudy');
 
+    // Get fileters from URI
+    let url_string = window.location.href
+    let url = new URL(url_string);
     let page = url.searchParams.get("page");
 
     let params = new URLSearchParams();
@@ -451,32 +463,85 @@ function thesis_on_review_load() {
     }
 
     // Supervisor?
-    if (themes_supervisor_select){
-        params.append('supervisor', themes_supervisor_select.value);
+    if (thesis_on_review_worktype_select){
+        params.append('worktype', thesis_on_review_worktype_select.value);
     }
 
     // level?
-    if (themes_level_select){
-        params.append('level', themes_level_select.value);
+    if (thesis_on_review_status_select){
+        params.append('status', thesis_on_review_status_select.value);
     }
 
-    if (themes_company_select)
+    if (thesis_on_review_area_select)
     {
-        params.append('company', themes_company_select.value);
+        params.append('area', thesis_on_review_area_select.value);
     }
 
-    fetch('fetch_themes?' + params.toString()).then(function(response){
+    fetch('fetch_thesis_on_review?' + params.toString()).then(function(response){
 
         if (!response.ok){
             window.location.href = '/404.html'
         } else {
             response.text().then(function (text) {
-                themes_list.innerHTML = text;
+                thesis_on_review_el.innerHTML = text;
             });
         }
     });
 }
 
+
+function thesis_on_review_update() {
+
+    let thesis_on_review_el = document.getElementById('ThesisReviewList');
+
+    let thesis_on_review_status_select = document.getElementById('status');
+    let thesis_on_review_worktype_select = document.getElementById('worktype');
+    let thesis_on_review_area_select = document.getElementById('areasofstudy');
+
+    // Get fileters from URI
+    let url_string = window.location.href
+    let url = new URL(url_string);
+    let page = url.searchParams.get("page");
+
+    let params = new URLSearchParams();
+
+    // Page first
+    if (page && page > 1){
+        params.append('page', page);
+    }
+
+    // Supervisor?
+    if (thesis_on_review_worktype_select){
+        params.append('worktype', thesis_on_review_worktype_select.value);
+    }
+
+    // level?
+    if (thesis_on_review_status_select){
+        params.append('status', thesis_on_review_status_select.value);
+    }
+
+    if (thesis_on_review_area_select)
+    {
+        params.append('area', thesis_on_review_area_select.value);
+    }
+
+    if (Array.from(params).length){
+        window.history.pushState("", "", 'index.html?' + params.toString());
+    } else {
+        window.history.pushState("", "", 'index.html');
+    }
+
+    fetch('fetch_thesis_on_review?' + params.toString()).then(function(response){
+
+        if (!response.ok){
+            window.location.href = '/404.html'
+        } else {
+            response.text().then(function (text) {
+                thesis_on_review_el.innerHTML = text;
+            });
+        }
+    });
+}
 
 function thesis_review_filter()
 {
@@ -492,34 +557,31 @@ function thesis_review_filter()
     let status = url.searchParams.get("status");
     let page = url.searchParams.get("page");
     let worktype = url.searchParams.get("worktype");
-    let areasofstudy = url.searchParams.get("areasofstudy");
+    let areasofstudy = url.searchParams.get("area");
 
-    if (review_status_select)
-    {
-        // Set filter to value from URI
-        if (status > 0){
-            if (review_status_select.innerHTML.indexOf('value="' + level + '"') > -1){
-                review_status_select.value=status;
-            }
-        } else {
-            review_status_select.value=0;
+    // Set filter to value from URI
+    if (status >= 0){
+        if (review_status_select.innerHTML.indexOf('value="' + status + '"') > -1){
+            review_status_select.value=status;
         }
+    } else {
+        review_status_select.value=4;
+    }
 
-        if (worktype > 0){
-            if (review_worktype_select.innerHTML.indexOf('value="' + worktype + '"') > -1){
-                review_worktype_select.value=supervisor;
-            }
-        } else {
-            review_worktype_select.value=0;
+    if (worktype > 0){
+        if (review_worktype_select.innerHTML.indexOf('value="' + worktype + '"') > -1){
+            review_worktype_select.value=worktype;
         }
+    } else {
+        review_worktype_select.value=1;
+    }
 
-        if (areasofstudy > 0){
-            if (review_areasofstudy_select.innerHTML.indexOf('value="' + areasofstudy + '"') > -1){
-                review_areasofstudy_select.value=company;
-            }
-        } else {
-            review_areasofstudy_select.value=0;
+    if (areasofstudy > 0){
+        if (review_areasofstudy_select.innerHTML.indexOf('value="' + areasofstudy + '"') > -1){
+            review_areasofstudy_select.value=areasofstudy;
         }
+    } else {
+        review_areasofstudy_select.value=1;
     }
 
     // Load themes

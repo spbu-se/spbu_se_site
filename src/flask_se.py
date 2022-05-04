@@ -29,7 +29,8 @@ from flask_se_scholarships import get_scholarships_1, get_scholarships_2, get_sc
 from flask_se_diplomas import diplomas_index, get_theme, add_user_theme, user_diplomas_index, delete_theme, \
     edit_user_theme, fetch_themes
 from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_thesis_on_review, \
-    delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review
+    delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review, \
+    fetch_thesis_on_review
 
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
@@ -115,12 +116,16 @@ app.add_url_rule('/diplomas/fetch_themes', view_func=fetch_themes)
 
 # Review thesis
 app.add_url_rule('/review/', methods=['GET'], view_func=thesis_review_index)
+app.add_url_rule('/review/index.html', methods=['GET'], view_func=thesis_review_index)
 app.add_url_rule('/review/submit', methods=['GET', 'POST'], view_func=submit_thesis_on_review)
 app.add_url_rule('/review/edit', methods=['GET', 'POST'], view_func=edit_thesis_on_review)
 app.add_url_rule('/review/delete', methods=['GET'], view_func=delete_thesis_on_review)
 app.add_url_rule('/review/review', methods=['GET'], view_func=review_thesis_on_review)
 app.add_url_rule('/review/reviewed', methods=['GET', 'POST'], view_func=review_submit_review)
 app.add_url_rule('/review/review_result', methods=['GET'], view_func=review_result_thesis_on_review)
+app.add_url_rule('/review/fetch_thesis_on_review', methods=['GET'], view_func=fetch_thesis_on_review)
+
+
 
 
 
