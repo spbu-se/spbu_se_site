@@ -433,6 +433,12 @@ class ThesisOnReview (db.Model):
     review = db.relationship('ThesisReview', back_populates='thesis_on_review')
 
 
+class PromoCode (db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(512), nullable=False)
+
+
 def recalculate_post_rank():
 
     posts = Posts.query.order_by(Posts.id.desc()).limit(100).all()

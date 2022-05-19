@@ -13,7 +13,7 @@ from flask_se_auth import login_required
 from se_forms import AddThesisOnReview, ThesisReviewFilter, EditThesisOnReview
 from se_review_forms import ReviewForm
 from se_models import db, Thesis, Worktype, AreasOfStudy, Staff, ThesisReview, ThesisOnReview, \
-    Reviewer, ThesisOnReviewWorktype
+    Reviewer, ThesisOnReviewWorktype, PromoCode
 
 
 # Global variables
@@ -452,3 +452,47 @@ def review_result_thesis_on_review():
 
     return render_template('thesis_review/result_review.html', thesis=thesis, user=user, review_form=review_form,
                            review=review)
+
+
+@login_required
+def review_become_thesis_reviewer_ask():
+
+    user = current_user
+
+    promocode = request.args.get('code', type=str, default='')
+
+    promo = PromoCode.query.filter_by(code=promocode).first()
+
+    if not promo:
+        return redirect(url_for('index'))
+
+    reviewer = Reviewer.query.filter_by(user_id=user.id).first()
+
+    if reviewer:
+        return render_template('thesis_review/already_reviewer.html', user=user)
+
+    return render_template('thesis_review/become_reviewer.html', user=user)
+
+
+@login_required
+def review_become_thesis_reviewer_confirm():
+
+    user = current_user
+
+    promocode = request.args.get('code', type=str, default='')
+
+    promo = PromoCode.query.filter_by(code=promocode).first()
+
+    if not promo:
+        return redirect(url_for('index'))
+
+    reviewer = Reviewer.query.filter_by(user_id=user.id).first()
+
+    if reviewer:
+        return render_template('thesis_review/already_reviewer.html', user=user)
+
+    r = Reviewer(user_id=user.id)
+    db.session.add(r)
+    db.session.commit()
+
+    return render_template('thesis_review/become_reviewer_confirm.html', user=user)

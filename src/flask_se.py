@@ -30,7 +30,7 @@ from flask_se_diplomas import diplomas_index, get_theme, add_user_theme, user_di
     edit_user_theme, fetch_themes
 from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_thesis_on_review, \
     delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review, \
-    fetch_thesis_on_review
+    fetch_thesis_on_review, review_become_thesis_reviewer_ask
 
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
@@ -124,9 +124,7 @@ app.add_url_rule('/review/review', methods=['GET'], view_func=review_thesis_on_r
 app.add_url_rule('/review/reviewed', methods=['GET', 'POST'], view_func=review_submit_review)
 app.add_url_rule('/review/review_result', methods=['GET'], view_func=review_result_thesis_on_review)
 app.add_url_rule('/review/fetch_thesis_on_review', methods=['GET'], view_func=fetch_thesis_on_review)
-
-
-
+app.add_url_rule('/review/become_thesis_reviewer', methods=['GET'], view_func=review_become_thesis_reviewer_ask)
 
 
 # Init Database
