@@ -139,6 +139,7 @@ function theses_update() {
 function search_thesis()
 {
     let theses_list = document.getElementById('ThesisList');
+    let search_field = document.getElementById('thesis_search_field');
     let params = new URLSearchParams();
 
     // Text
