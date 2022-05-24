@@ -471,7 +471,7 @@ def review_become_thesis_reviewer_ask():
     if reviewer:
         return render_template('thesis_review/already_reviewer.html', user=user)
 
-    return render_template('thesis_review/become_reviewer.html', user=user)
+    return render_template('thesis_review/become_reviewer.html', user=user, promocode=promocode)
 
 
 @login_required

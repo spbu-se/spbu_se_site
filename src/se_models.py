@@ -439,6 +439,18 @@ class PromoCode (db.Model):
     code = db.Column(db.String(512), nullable=False)
 
 
+class Notification(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # 0 - Mail
+    type = db.Column(db.Integer, default=0, nullable=False)
+
+    recipient = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(512), nullable=True)
+    content = db.Column(db.String(8192), nullalbe=True)
+
+
 def recalculate_post_rank():
 
     posts = Posts.query.order_by(Posts.id.desc()).limit(100).all()
