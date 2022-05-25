@@ -451,6 +451,7 @@ class Notification(db.Model):
     content = db.Column(db.String(8192), nullable=True)
 
 
+
 def recalculate_post_rank():
 
     posts = Posts.query.order_by(Posts.id.desc()).limit(100).all()
