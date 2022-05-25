@@ -448,7 +448,7 @@ class Notification(db.Model):
 
     recipient = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(512), nullable=True)
-    content = db.Column(db.String(8192), nullalbe=True)
+    content = db.Column(db.String(8192), nullable=True)
 
 
 def recalculate_post_rank():
