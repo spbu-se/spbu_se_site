@@ -13,7 +13,7 @@ from flask_se_auth import login_required
 from se_forms import AddThesisOnReview, ThesisReviewFilter, EditThesisOnReview
 from se_review_forms import ReviewForm
 from se_models import db, Thesis, Worktype, AreasOfStudy, Staff, ThesisReview, ThesisOnReview, \
-    Reviewer, ThesisOnReviewWorktype, PromoCode
+    Reviewer, ThesisOnReviewWorktype, PromoCode, add_mail_notification
 
 
 # Global variables
@@ -139,13 +139,14 @@ def submit_thesis_on_review():
             db.session.add(thesis)
             db.session.commit()
 
+            flash("Ваша работа успешно загружена. Инофрмацию о начале и окончании рецензирования вы будете получать на почту", 'error')
             return redirect(url_for('thesis_review_index'))
         else:
             flash("Текст работы должен быть в формате .PDF", 'error')
             return redirect(request.url)
 
-    form.type.choices.append((0, "Выберите тип вашей работы"))
-    form.area.choices.append((0, "Выберите направление обучения"))
+    form.type.choices.append((0, "Тип работы"))
+    form.area.choices.append((0, "Направление обучения"))
 
     for type in ThesisOnReviewWorktype.query.filter(ThesisOnReviewWorktype.id>1).distinct().all():
         form.type.choices.append((type.id, type.type))
@@ -307,6 +308,10 @@ def review_thesis_on_review():
         thesis.reviewer_id = user_reviewer.id
         db.session.commit()
 
+        data = render_template('notification/thesis_on_review_get.html', thesis=thesis)
+        add_mail_notification(thesis.author_id, "[SE site] Ваша работа на рецензировании", data)
+
+
     review_form = ReviewForm()
     return render_template('thesis_review/review.html', thesis=thesis, user=user, review_form=review_form)
 
@@ -394,6 +399,7 @@ def review_submit_review():
         flash("В рецензии есть пропущенные вопросы. Нужно ответить на все вопросы, поля с комментариями являются опциональными.", 'error')
         return redirect(url_for('review_thesis_on_review', thesis_review_id=thesis_id ))
 
+    data = ""
     review = ThesisReview(thesis_on_review_id=thesis.id, o1=o1, o1_comment=o1_comment,
                           o2=o2, o2_comment=o2_comment, t1=t1, t1_comment=t1_comment,
                           t2=t2, t2_comment=t2_comment, p1=p1, p1_comment=p1_comment,
@@ -403,13 +409,17 @@ def review_submit_review():
 
     # Review status = 0 (success)
     # Review status = 3 (Need to be fixed)
-    if verdict:
+    if verdict != '0':
         thesis.review_status = 0
+        data = render_template('notification/thesis_on_review_success.html', thesis=thesis)
     else:
         thesis.review_status = 3
+        data = render_template('notification/thesis_on_review_failed.html', thesis=thesis)
 
     db.session.add(review)
     db.session.commit()
+
+    add_mail_notification(thesis.author_id, "[SE site] Результат рецензирования", data)
 
     return redirect(url_for('thesis_review_index'))
 

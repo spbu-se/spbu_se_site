@@ -7,8 +7,12 @@ import pathlib
 from datetime import datetime
 
 SECRET_KEY = os.path.join(pathlib.Path(__file__).parent, "flask_se_secret.conf")
+MAIL_PASSWORD_FILE = os.path.join(pathlib.Path(__file__).parent, "flask_se_mail.conf")
 SECRET_KEY_THESIS = os.urandom(16).hex()
 SQLITE_DATABASE_NAME = 'se.db'
+
+with open(MAIL_PASSWORD_FILE, 'r') as file:
+    MAIL_PASSWORD = file.read().rstrip()
 
 current_data = datetime.today().strftime('%Y-%m-%d')
 SQLITE_DATABASE_BACKUP_NAME = 'se_backup_' + current_data + '.db'

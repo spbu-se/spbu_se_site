@@ -5,6 +5,7 @@ import shutil
 
 from pathlib import Path
 from sqlalchemy import MetaData
+from flask import render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_msearch import Search
@@ -446,10 +447,9 @@ class Notification(db.Model):
     # 0 - Mail
     type = db.Column(db.Integer, default=0, nullable=False)
 
-    recipient = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipient = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     title = db.Column(db.String(512), nullable=True)
     content = db.Column(db.String(8192), nullable=True)
-
 
 
 def recalculate_post_rank():
@@ -460,6 +460,14 @@ def recalculate_post_rank():
         age = get_hours_since(post.created_on)
         post.rank = post_ranking_score(post.votes, age, post.views)
 
+    db.session.commit()
+
+
+def add_mail_notification(user_id, title, content):
+
+    n = Notification(recipient=user_id, title=title, content=content)
+
+    db.session.add(n)
     db.session.commit()
 
 
