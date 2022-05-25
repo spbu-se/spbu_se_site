@@ -139,7 +139,7 @@ def submit_thesis_on_review():
             db.session.add(thesis)
             db.session.commit()
 
-            flash("Ваша работа успешно загружена. Инофрмацию о начале и окончании рецензирования вы будете получать на почту", 'error')
+            flash("Ваша работа успешно загружена. Информацию о начале и окончании рецензирования вы будете получать на почту", 'error')
             return redirect(url_for('thesis_review_index'))
         else:
             flash("Текст работы должен быть в формате .PDF", 'error')
