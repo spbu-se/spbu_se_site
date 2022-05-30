@@ -359,9 +359,9 @@ def review_submit_review():
         t2 = request.form['review_t2_radio_switcher']
         t2_comment = request.form['review_t2_comment']
         p1 = request.form['review_p1_radio_switcher']
-        p1_comment = request.form['review_t2_comment']
+        p1_comment = request.form['review_p1_comment']
         p2 = request.form['review_p2_radio_switcher']
-        p2_comment = request.form['review_t2_comment']
+        p2_comment = request.form['review_p2_comment']
 
         review_overall_comment = request.form['review_overall_comment']
         verdict = request.form['review_verdict_radio_switcher']

@@ -56,7 +56,7 @@ def notification_send_mail():
             db.session.commit()
 
         except smtplib.SMTPRecipientsRefused:
-            print("All recipients were refused. Nobody got the mail.")
+            print("All recipients were refused. Nobody got the mail. User.email: {0}".format(user.email))
         except smtplib.SMTPDataError:
             print("The server didn’t accept the from_addr.")
         except smtplib.SMTPSenderRefused:
