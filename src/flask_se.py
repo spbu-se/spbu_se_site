@@ -2,6 +2,7 @@
 
 import sys
 from datetime import datetime
+import tzlocal
 
 from flask import Flask, render_template, make_response, redirect, url_for
 from flask_admin import Admin
@@ -15,19 +16,20 @@ from flask_simplemde import SimpleMDE
 
 import flask_se_theses
 from flask_se_config import SECRET_KEY_THESIS, SECRET_KEY, SQLITE_DATABASE_NAME, plural_hours, get_hours_since
-from se_models import db, search, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, Posts, \
-    DiplomaThemes, recalculate_post_rank, Reviewer
+from se_models import db, search, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, Posts, DiplomaThemes, recalculate_post_rank
 from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, \
     logout, vk_callback, google_login, google_callback
 from flask_se_news import list_news, get_post, submit_post, post_vote, delete_post
 from flask_se_admin import SeAdminModelViewThesis, SeAdminIndexView, SeAdminModelViewUsers, \
     SeAdminModelViewSummerSchool, SeAdminModelViewStaff, SeAdminModelViewNews, SeAdminModelViewDiplomaThemes, \
-    SeAdminModelViewReviewDiplomaThemes, SeAdminModelViewReviewer
+    SeAdminModelViewReviewDiplomaThemes
 from flask_se_scholarships import get_scholarships_1, get_scholarships_2, get_scholarships_3, get_scholarships_4, \
     get_scholarships_5, get_scholarships_6, get_scholarships_7, get_scholarships_8, get_scholarships_9, \
     get_scholarships_10, get_scholarships_11, get_scholarships_12, get_scholarships_13
 from flask_se_diplomas import diplomas_index, get_theme, add_user_theme, user_diplomas_index, delete_theme, \
     edit_user_theme, fetch_themes
+from flask_se_internships import add_internship, internships_index, page_internship, delete_internship, update_internship
+from se_models import db, Internships
 from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_thesis_on_review, \
     delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review, \
     fetch_thesis_on_review
@@ -128,6 +130,14 @@ app.add_url_rule('/review/fetch_thesis_on_review', methods=['GET'], view_func=fe
 
 
 
+# Internships
+app.add_url_rule('/internships/index', methods=['GET', 'POST'], view_func=internships_index)
+app.add_url_rule('/internships/add', methods=['GET', 'POST'], view_func=add_internship)
+app.add_url_rule('/internships/<int:id>', methods=['GET', 'POST'], view_func=page_internship)
+app.add_url_rule('/internships/<int:id>/delete', view_func=delete_internship)
+app.add_url_rule('/internships/<int:id>/update', methods=['GET', 'POST'], view_func=update_internship)
+
+
 
 # Init Database
 db.app = app
@@ -136,6 +146,8 @@ db.init_app(app)
 app.config['MSEARCH_BACKEND'] = 'whoosh'
 app.config['MSEARCH_ENABLE'] = True
 search.init_app(app)
+# search.create_index(Thesis, update=True)
+# search.create_index(Users, update=True)
 #search.create_index(Thesis, update=True)
 #search.create_index(Users, update=True)
 
@@ -171,7 +183,6 @@ admin.add_view(SeAdminModelViewStaff(Staff, db.session))
 admin.add_view(SeAdminModelViewThesis(Thesis, db.session))
 admin.add_view(SeAdminModelViewSummerSchool(SummerSchool, db.session))
 admin.add_view(SeAdminModelViewNews(Posts, db.session))
-admin.add_view(SeAdminModelViewReviewer(Reviewer, db.session))
 admin.add_view(SeAdminModelViewDiplomaThemes(DiplomaThemes, db.session, endpoint="diplomathemes"))
 admin.add_view(SeAdminModelViewReviewDiplomaThemes(DiplomaThemes, db.session, endpoint="reviewdiplomathemes", name="Review DiplomaThemes"))
 
