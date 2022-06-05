@@ -32,7 +32,7 @@ from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_t
     delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review, \
     fetch_thesis_on_review, review_become_thesis_reviewer_ask, review_become_thesis_reviewer_confirm
 from flask_se_internships import add_internship, internships_index, page_internship, delete_internship, \
-    update_internship
+    update_internship, fetch_internships
 from se_sendmail import notification_send_mail
 
 
@@ -139,6 +139,7 @@ app.add_url_rule('/internships/add', methods=['GET', 'POST'], view_func=add_inte
 app.add_url_rule('/internships/<int:id>', methods=['GET', 'POST'], view_func=page_internship)
 app.add_url_rule('/internships/<int:id>/delete', view_func=delete_internship)
 app.add_url_rule('/internships/<int:id>/update', methods=['GET', 'POST'], view_func=update_internship)
+app.add_url_rule('/internships/fetch_internships', methods=['GET'], view_func=fetch_internships)
 
 
 # Init Database
