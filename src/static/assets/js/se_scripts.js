@@ -608,7 +608,6 @@ function thesis_review_filter()
     review_areasofstudy_select.onchange = thesis_on_review_update;
 }
 
-
 // This is ThesisReview ?
 let thesis_review_filter_element = document.getElementById('ThesisReviewFilter');
 
@@ -617,3 +616,135 @@ if (thesis_review_filter_element){
 }
 
 
+// INTERNSHIPS
+
+function internships_load() {
+
+    let internships_list = document.getElementById('InternshipsList');
+
+    let internships_format_select = document.getElementById('format');
+    let internships_company_select = document.getElementById('company');
+
+    let url_string = window.location.href
+    let url = new URL(url_string)
+    let page = url.searchParams.get("page");
+
+    let params = new URLSearchParams();
+
+    // Page first
+    if (page && page > 1){
+        params.append('page', page);
+    }
+    if (internships_format_select){
+    params.append('format', internships_format_select.innerText);
+    }
+
+    if (internships_company_select){
+    params.append('company', internships_company_select.value);
+    }
+
+    fetch('fetch_internships?' + params.toString()).then(function(response){
+
+        if (!response.ok){
+            window.location.href = '/404.html'
+        } else {
+            response.text().then(function (text) {
+                internships_list.innerHTML = text;
+            });
+        }
+    });
+}
+
+
+function internships_update() {
+
+    let internships_list = document.getElementById('InternshipsList');
+
+    let internships_format_select = document.getElementById('format');
+    let internships_company_select = document.getElementById('company');
+
+    let url_string = window.location.href
+    let url = new URL(url_string);
+    let page = url.searchParams.get("page");
+
+    let params = new URLSearchParams();
+
+    if (page && page > 1){
+        params.append('page', page);
+    }
+
+    if (internships_format_select){
+        params.append('format', internships_format_select.value);
+    }
+
+    if (internships_company_select){
+        params.append('company', internships_company_select.value);
+    }
+
+    if (Array.from(params).length){
+        window.history.pushState("", "", 'internships_index.html?' + params.toString());
+    } else {
+        window.history.pushState("", "", 'internships_index.html');
+    }
+
+    fetch('fetch_internships?' + params.toString())
+    .then(function(response){
+        if (!response.ok){
+            window.location.href = '/404.html'
+        } else {
+            response.text().then(function (text) {
+                internships_list.innerHTML = text;
+            });
+        }
+    });
+}
+
+
+function internships_filter()
+{
+    let internships_format_select = document.getElementById('format');
+    let internships_company_select = document.getElementById('company');
+
+    // Get filters from URI
+    let url_string = window.location.href
+    let url = new URL(url_string);
+
+    let format = url.searchParams.get("format");
+    let company = url.searchParams.get("company");
+
+    if (internships_format_select)
+    {
+        if (format > 0){
+            if (internships_format_select.innerHTML.indexOf('value="' + format + '"') > -1){
+                internships_format_select.value=format;
+            }
+        } else {
+            internships_format_select.value=0;
+        }
+
+        if (company > 0){
+            if (internships_company_select.innerHTML.indexOf('value="' + company + '"') > -1){
+                internships_company_select.value=company;
+            }
+        } else {
+            internships_company_select.value=0;
+        }
+
+    }
+    // Set filter to value from URI
+
+
+    // Load internships
+    internships_load();
+
+    // Update internships
+    internships_format_select.onchange = internships_update;
+    internships_company_select.onchange = internships_update;
+}
+
+// This is Internship ?
+let internships_filter_element = document.getElementById('InternshipsFilter');
+
+if (internships_filter_element){
+    internships_filter();
+}

@@ -31,7 +31,10 @@ from flask_se_diplomas import diplomas_index, get_theme, add_user_theme, user_di
 from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_thesis_on_review, \
     delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review, \
     fetch_thesis_on_review, review_become_thesis_reviewer_ask, review_become_thesis_reviewer_confirm
+from flask_se_internships import add_internship, internships_index, page_internship, delete_internship, \
+    update_internship
 from se_sendmail import notification_send_mail
+
 
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
@@ -128,6 +131,14 @@ app.add_url_rule('/review/fetch_thesis_on_review', methods=['GET'], view_func=fe
 app.add_url_rule('/review/become_thesis_reviewer', methods=['GET'], view_func=review_become_thesis_reviewer_ask)
 app.add_url_rule('/review/become_thesis_reviewer_confirm', methods=['GET'],
                  view_func=review_become_thesis_reviewer_confirm)
+
+
+# Internships
+app.add_url_rule('/internships/index', methods=['GET', 'POST'], view_func=internships_index)
+app.add_url_rule('/internships/add', methods=['GET', 'POST'], view_func=add_internship)
+app.add_url_rule('/internships/<int:id>', methods=['GET', 'POST'], view_func=page_internship)
+app.add_url_rule('/internships/<int:id>/delete', view_func=delete_internship)
+app.add_url_rule('/internships/<int:id>/update', methods=['GET', 'POST'], view_func=update_internship)
 
 
 # Init Database

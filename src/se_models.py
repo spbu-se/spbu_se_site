@@ -3,6 +3,7 @@
 from os import urandom
 import shutil
 
+from datetime import datetime
 from pathlib import Path
 from sqlalchemy import MetaData
 from flask import render_template
@@ -42,6 +43,11 @@ diploma_themes_level = db.Table('diploma_themes_level',
                  db.Column('themes_level_id', db.Integer, db.ForeignKey('themes_level.id'), primary_key=True),
                  db.Column('diploma_themes_id', db.Integer, db.ForeignKey('diploma_themes.id'), primary_key=True)
                  )
+
+internships_format = db.Table('internships_format',
+             db.Column('internships_format_id', db.Integer, db.ForeignKey('internship_format.id'), primary_key=True),
+             db.Column('internships_id', db.Integer, db.ForeignKey('internships.id'), primary_key=True)
+             )
 
 
 class Staff (db.Model):
@@ -101,6 +107,8 @@ class Users(db.Model, UserMixin):
     reviewer = db.relationship('Reviewer', back_populates='user')
 
     all_user_votes = db.relationship('PostVote', back_populates='user')
+    internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False),
+                                        foreign_keys='Internships.author_id')
 
     def get_name(self):
         full_name = ''
@@ -143,6 +151,49 @@ class Users(db.Model, UserMixin):
             full_name = full_name + " " + self.middle_name
 
         return full_name
+
+
+class InternshipFormat(db.Model):
+    __tablename__ = 'internship_format'
+
+    id = db.Column(db.Integer, primary_key=True)
+    format = db.Column(db.String(100), nullable=False)
+
+    def __str__(self):
+        return "{self.format}"
+
+
+class InternshipCompany(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(512), nullable=False)
+    logo_uri = db.Column(db.String(512), nullable=True)
+    internship = db.relationship('Internships', back_populates='company')
+
+    def __str__(self):
+        return (self.name)
+
+
+class Internships (db.Model):
+    __tablename__ = 'internships'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    name_vacancy = db.Column(db.String(70), nullable=False)
+    salary = db.Column(db.String(30), nullable=False)
+    company = db.relationship('InternshipCompany', back_populates='internship')
+    company_id = db.Column(db.Integer, db.ForeignKey('internship_company.id'))
+    requirements = db.Column(db.Text, nullable=False)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
+    more_inf = db.Column(db.String, nullable=True) # ссылка на сайт
+    description = db.Column(db.String, nullable=True) # короткое описание того, чем нужно будет заниматься
+    location = db.Column(db.String(50), nullable=True)
+    format = db.relationship('InternshipFormat', secondary=internships_format, lazy='subquery',
+                           backref=db.backref('internship', lazy=True), order_by=internships_format.c.internships_format_id)
+
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    def __repr__(self):
+        return self.company
 
 
 # Coursework, diploma
