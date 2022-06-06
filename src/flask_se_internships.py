@@ -114,6 +114,7 @@ def delete_internship(id):
 
 @login_required
 def update_internship(id):
+
     upd_internship = AddInternship()
     upd_internship.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
     internship = Internships.query.get(id)
@@ -127,6 +128,7 @@ def update_internship(id):
         internship.location = request.form.get('location', type=str)
         internship.salary = request.form.get('salary', type=str)
         internship.more_inf = request.form.get('more_inf', type=str)
+
         try:
             db.session.commit()
             return redirect(url_for('internships_index'))

@@ -235,6 +235,7 @@ def edit_thesis_on_review():
                     flash("Текст работы должен быть в формате .PDF", 'error')
                     return redirect(request.url)
 
+        thesis_review.review_status = 1
         db.session.commit()
         return redirect(url_for('thesis_review_index'))
 
