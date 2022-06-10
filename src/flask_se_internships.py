@@ -77,11 +77,11 @@ def add_internship():
 
         company_id = InternshipCompany.query.with_entities(InternshipCompany.id).filter_by(name=company).distinct().first()
 
-
         internship = Internships(name_vacancy=name_vacancy, salary=salary, description=description, location=location,
                                  company_id=company_id[0], requirements=requirements, more_inf=more_inf, author_id=user.id)
 
         internship.format = format_list
+
         try:
             db.session.add(internship)
             db.session.commit()
@@ -118,7 +118,6 @@ def update_internship(id):
     upd_internship = AddInternship()
     upd_internship.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
     internship = Internships.query.get(id)
-
 
     if request.method == 'POST':
         internship.name_vacancy = request.form.get('name_vacancy', type=str)

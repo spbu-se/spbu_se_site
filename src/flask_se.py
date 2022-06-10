@@ -167,7 +167,7 @@ zero_days_ago = (datetime.now()).date().isoformat()
 login_manager.init_app(app)
 
 # Init markdown
-Markdown(app)
+Markdown(app, extensions=['tables'])
 
 
 # Init APScheduler
