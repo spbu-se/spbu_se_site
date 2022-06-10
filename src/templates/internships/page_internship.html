@@ -29,7 +29,7 @@
                          </div>
                         <div class="card-body pt-2">
                             <dl class="dl-horizontal">
-                                <dd>{{ internship.description }}</dd>
+                                <dd>{{ internship.description|markdown }}</dd>
                                                             </dl>
                         </div>
                     </div>
@@ -42,7 +42,7 @@
                             </div>
                          </div>
                         <div class="card-body pt-2">
-                            <p>{{ internship.requirements }}</p>
+                            <p>{{ internship.requirements|markdown }}</p>
                         </div>
                     </div>
 
@@ -79,9 +79,11 @@
                     </p>
                   {% endif %}
                     <hr class="my-2" />
+                    {% if internship.more_inf }}
                     <p class="text-sm">
-                        <a href={{ internship.more_inf }} class="btn btn-primary">Откликнуться </a>
+                        <a href="{{ internship.more_inf }}" class="btn btn-primary">Откликнуться </a>
                     </p>
+                    {% endif %}
                 </div>
 
             </div>
