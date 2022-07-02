@@ -46,6 +46,13 @@
                         </div>
 
                         <div class="card-body pt-0">
+
+                            {%  if proj.description %}
+
+                            <h6 class="h6 mb-0">Описание</h6>
+                            <p class="text-sm mb-0">{{proj.description | safe}}</p>
+                            {% endif %}
+
                             {% if proj.repo %}
                             <h6 class="h6 mb-0">Репозиторий</h6>
                             <p class="text-sm mb-0">{{proj.repo | safe}}</p>
