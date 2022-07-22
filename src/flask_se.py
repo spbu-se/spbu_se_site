@@ -3,7 +3,7 @@
 import sys
 from datetime import datetime
 
-from flask import Flask, render_template, make_response, redirect, url_for
+from flask import Flask, render_template, make_response, redirect, url_for, request
 from flask_admin import Admin
 from flask_apscheduler import APScheduler
 from flask_frozen import Freezer
@@ -324,6 +324,13 @@ def summer_school():
 
     projects = SummerSchool.query.filter_by(year=2021).all()
     return render_template('summer_school.html', projects=projects)
+
+
+@app.route('/summer_school_2022.html')
+def summer_school_2022():
+
+    projects = SummerSchool.query.filter_by(year=2022).all()
+    return render_template('summer_school_2022.html', projects=projects)
 
 
 @app.route('/sitemap.xml', methods=['GET'])

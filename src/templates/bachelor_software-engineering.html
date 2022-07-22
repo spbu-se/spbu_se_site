@@ -293,83 +293,23 @@
         </div>
     </section>
 
-    <section class="slice bg-section-secondary" id="curriculum">
-        <div class="container">
-            <div class="row justify-content-center mb-4">
-                <div class="col-lg-7 text-center">
-                    <h2 class="mb-1">
-                        Учебный план
-                    </h2>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12 alert alert-success" role="alert">
-                    <h5 class="mb-0 text-white"><strong>Первый курс</strong></h5>
-                </div>
-            </div>
-            <div class="row row-grid">
-                {% for course in curricula1 %}
-                <div class="col-lg-6 px-1 mt-1">
-                    <div class="card mb-2">
-                        <div class="d-flex p-3 border-left {% if course.type == 1 %} border-primary {% elif course.type == 2 %} border-danger {% else %} border-secondary {% endif %} rounded" style="border-width: 5px !important;">
-                            <h6 class="mb-0">{{course.discipline}}</h6>
+    <section class="slice" id="curriculum">
+        <div class="container-fluid">
+            <div class="jumbotron bg-light-secondary py-0 mb-0">
+                <div class="container">
+                    <div class="row justify-content-center mb-4">
+                        <div class="col-lg-7 text-center">
+                            <h2 class="mb-1">
+                                Учебный план
+                            </h2>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
-            </div>
-            <div class="row mt-4">
-                <div class="col-12 alert alert-success" role="alert">
-                    <h5 class="mb-0 text-white">Второй курс</h5>
+                <div class="mt-n4" style="height: 800px;">
+                {% include 'software_engineering_curriculum.html' %}
                 </div>
-            </div>
-            <div class="row row-grid">
-                {% for course in curricula2 %}
-                <div class="col-lg-6 px-1 mt-1">
-                    <div class="card mb-2">
-                        <div class="d-flex p-3 border-left {% if course.type == 1 %} border-primary {% elif course.type == 2 %} border-danger {% else %} border-secondary {% endif %} rounded" style="border-width: 5px !important;">
-                            <h6 class="mb-0">{{course.discipline}}</h6>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="row mt-4">
-                <div class="col-12 alert alert-success" role="alert">
-                    <h5 class="mb-0 text-white">Третий курс</h5>
-                </div>
-            </div>
-            <div class="row row-grid">
-                {% for course in curricula3 %}
-                <div class="col-lg-6 px-1 mt-1">
-                    <div class="card mb-2">
-                        <div class="d-flex p-3 border-left {% if course.type == 1 %} border-primary {% elif course.type == 2 %} border-danger {% else %} border-secondary {% endif %} rounded" style="border-width: 5px !important;">
-                            <h6 class="mb-0">{{course.discipline}}</h6>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="row mt-4">
-                <div class="col-12 alert alert-success" role="alert">
-                    <h5 class="mb-0 text-white">Четвертый курс</h5>
-                </div>
-            </div>
-            <div class="row row-grid">
-                {% for course in curricula4 %}
-                <div class="col-lg-6 px-1 mt-1">
-                    <div class="card mb-2">
-                        <div class="d-flex p-3 border-left {% if course.type == 1 %} border-primary {% elif course.type == 2 %} border-danger {% else %} border-secondary {% endif %} rounded" style="border-width: 5px !important;">
-                            <h6 class="mb-0">{{course.discipline}}</h6>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-
-            <div class="row">
-                <div class="col-lg-12 pr-0 pt-2 text-lg-right">
+                <div class="row">
+                <div class="col-lg-12 pr-7 pt-0 text-lg-right">
                     <a href="https://www.math.spbu.ru/ru/mmeh/PLANS/1/19_5080_090304bPrIng_19_06_04.pdf" target="_blank" class="btn btn-lg btn-primary btn-icon mb-3 mb-lg-0">
                         <span class="btn-inner--text">Подробный учебный план</span>
                         <span class="btn-inner--icon">
@@ -377,6 +317,7 @@
                         </span>
                     </a>
                 </div>
+            </div>
             </div>
         </div>
     </section>

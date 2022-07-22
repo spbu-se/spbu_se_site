@@ -19,14 +19,10 @@ def internships_index():
         internship_filter.company.choices.append((x[0], company.name))
         internship_filter.company.choices.sort(key=lambda tup: tup[1])
 
-
     for sid in InternshipFormat.query.all():
         internship_filter.format.choices.append((sid.id, sid.format))
 
-
     internship_filter.format.choices.insert(0, (0, "Все"))
-
-
     internship_filter.company.choices.insert(0, (0, "Все"))
 
     return render_template('internships/internships_index.html',
@@ -103,7 +99,9 @@ def page_internship(id):
 
 # @login_required
 def delete_internship(id):
+
     internship = Internships.query.get_or_404(id)
+
     try:
         db.session.delete(internship)
         db.session.commit()
