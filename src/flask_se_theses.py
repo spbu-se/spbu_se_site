@@ -207,16 +207,21 @@ def post_theses():
 
     # Try to get SuperVisor Id
 
-    print (supervisor)
+    with open("/tmp/flask_debug", "w") as fo:
+        fo.write(supervisor)
+
     q = Users.query.filter_by(last_name=supervisor).first()
 
     if q:
 
-        print (q.get_name())
+        with open("/tmp/flask_debug", "a") as fo:
+            fo.write(q.get_name())
+
         r = Staff.query.filter_by(user_id=q.id).first()
 
         if r:
-            print (r)
+            with open("/tmp/flask_debug", "a") as fo:
+                fo.write(r)
             supervisor_id = r.id
         else:
             return jsonify(
