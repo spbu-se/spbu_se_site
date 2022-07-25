@@ -206,7 +206,10 @@ def post_theses():
         )
 
     # Try to get SuperVisor Id
+
+    print (supervisor)
     q = Users.query.filter_by(last_name=supervisor).first()
+
     if q:
 
         print (q.get_name())
