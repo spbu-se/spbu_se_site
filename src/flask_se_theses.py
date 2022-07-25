@@ -209,11 +209,18 @@ def post_theses():
     q = Users.query.filter_by(last_name=supervisor).first()
     if q:
         r = Staff.query.filter_by(user_id=q.id).first()
-        supervisor_id = r.id
+
+        if r:
+            supervisor_id = r.id
+        else:
+            return jsonify(
+                status=error_status,
+                string='Can\'t find supervisor in staff: ' + str(supervisor)
+            )
     else:
         return jsonify(
             status=error_status,
-            string='Can\'t find supervisor: ' + str(supervisor)
+            string='Can\'t find supervisor in users: ' + str(supervisor)
         )
 
     author_en = translit(author, 'ru', reversed=True)
