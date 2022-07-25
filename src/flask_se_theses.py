@@ -209,7 +209,7 @@ def post_theses():
     q = Users.query.filter_by(last_name=supervisor).first()
     if q:
 
-        print (q)
+        print (q.get_name())
         r = Staff.query.filter_by(user_id=q.id).first()
 
         if r:
