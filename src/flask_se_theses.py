@@ -208,7 +208,7 @@ def post_theses():
     # Try to get SuperVisor Id
 
     with open("/tmp/flask_debug", "w") as fo:
-        fo.write(supervisor.decode('utf-8'))
+        fo.write(supervisor)
 
     q = Users.query.filter_by(last_name=supervisor).first()
 
