@@ -208,9 +208,12 @@ def post_theses():
     # Try to get SuperVisor Id
     q = Users.query.filter_by(last_name=supervisor).first()
     if q:
+
+        print (q)
         r = Staff.query.filter_by(user_id=q.id).first()
 
         if r:
+            print (r)
             supervisor_id = r.id
         else:
             return jsonify(
