@@ -1,0 +1,68 @@
+{% extends "base_light.html" %}
+
+{% block title %}Мой профиль{% endblock %}
+
+{% block content %}
+
+<section class="mt-7 pt-6 bg-section-secondary">
+        <div class="container">
+            <div class="row row-grid align-items-center justify-content-center pt-4">
+                <div class="col-12">
+                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                    {% if errors %}
+                    {%- for message in errors %}
+
+                    <div class="alert alert-info" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        {{message}}
+                    </div>
+                    {% endfor -%}
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="row">
+                  <div class="col">
+                <h5 class="align-right">Мой профиль</h5>
+            </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                <label for="usr">Фамилия:</label>
+                <input type="text" class="form-control" id="userLastName" placeholder="Карасева" name="username" disabled>
+            </div>
+                <div class="form-group">
+                <label for="usr">Имя:</label>
+                <input type="text" class="form-control" id="userFirstName" placeholder="Елизавета" name="username" disabled>
+            </div>
+                <div class="form-group">
+                <label for="usr">Отчество:</label>
+                <input type="text" class="form-control" id="userMiddleName" placeholder="Олеговна" name="username" disabled>
+            </div>
+                <div class="form-group">
+            <label for="usr">Выберите курс:</label>
+                <select class="form-control" id="CourseOfUser">
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                </select>
+            </div>
+                <div class="form-group">
+            <label for="usr">Выберите направление:</label>
+                <select class="form-control" id="AreaOfUser">
+                    <option>ТП</option>
+                    <option>.....</option>
+                </select>
+            </div>
+                <div class="col-auto">
+                <a href="{{url_for('submit_post')}}" class="btn btn-sm btn-outline-primary">Сохранить</a>
+            </div>
+            </div>
+        </div>
+</section>
+
+{% endblock %}
