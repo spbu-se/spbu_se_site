@@ -153,6 +153,14 @@ class Users(db.Model, UserMixin):
         return full_name
 
 
+class UserStudent(db.Model):
+    __tablename__ = 'user_student'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.relationship('user_student', backref=db.backref('users', uselist=False))
+    have_seen_fq = db.Column(db.Boolean, default=False)
+
+
 class InternshipFormat(db.Model):
     __tablename__ = 'internship_format'
 
