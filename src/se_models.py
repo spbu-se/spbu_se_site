@@ -14,7 +14,6 @@ from werkzeug.security import generate_password_hash
 
 from flask_se_config import post_ranking_score, get_hours_since, SQLITE_DATABASE_NAME, SQLITE_DATABASE_BACKUP_NAME
 
-
 convention = {
     "ix": 'ix_%(column_0_label)s',
     "uq": "uq_%(table_name)s_%(column_0_name)s",
@@ -32,25 +31,28 @@ tag = db.Table('tag',
                db.Column('thesis_id', db.Integer, db.ForeignKey('thesis.id'), primary_key=True)
                )
 
-
 diploma_themes_tag = db.Table('diploma_themes_tag',
-               db.Column('diploma_themes_tag_id', db.Integer, db.ForeignKey('diploma_themes_tags.id'), primary_key=True),
-               db.Column('diploma_themes_id', db.Integer, db.ForeignKey('diploma_themes.id'), primary_key=True)
-               )
-
+                              db.Column('diploma_themes_tag_id', db.Integer, db.ForeignKey('diploma_themes_tags.id'),
+                                        primary_key=True),
+                              db.Column('diploma_themes_id', db.Integer, db.ForeignKey('diploma_themes.id'),
+                                        primary_key=True)
+                              )
 
 diploma_themes_level = db.Table('diploma_themes_level',
-                 db.Column('themes_level_id', db.Integer, db.ForeignKey('themes_level.id'), primary_key=True),
-                 db.Column('diploma_themes_id', db.Integer, db.ForeignKey('diploma_themes.id'), primary_key=True)
-                 )
+                                db.Column('themes_level_id', db.Integer, db.ForeignKey('themes_level.id'),
+                                          primary_key=True),
+                                db.Column('diploma_themes_id', db.Integer, db.ForeignKey('diploma_themes.id'),
+                                          primary_key=True)
+                                )
 
 internships_format = db.Table('internships_format',
-             db.Column('internships_format_id', db.Integer, db.ForeignKey('internship_format.id'), primary_key=True),
-             db.Column('internships_id', db.Integer, db.ForeignKey('internships.id'), primary_key=True)
-             )
+                              db.Column('internships_format_id', db.Integer, db.ForeignKey('internship_format.id'),
+                                        primary_key=True),
+                              db.Column('internships_id', db.Integer, db.ForeignKey('internships.id'), primary_key=True)
+                              )
 
 
-class Staff (db.Model):
+class Staff(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -60,8 +62,8 @@ class Staff (db.Model):
     science_degree = db.Column(db.String(255), nullable=True)
     still_working = db.Column(db.Boolean, default=False, nullable=False)
 
-    supervisor = db.relationship("Thesis", backref=db.backref("supervisor"), foreign_keys = 'Thesis.supervisor_id')
-    adviser = db.relationship("Thesis", backref=db.backref("reviewer"), foreign_keys = 'Thesis.reviewer_id')
+    supervisor = db.relationship("Thesis", backref=db.backref("supervisor"), foreign_keys='Thesis.supervisor_id')
+    adviser = db.relationship("Thesis", backref=db.backref("reviewer"), foreign_keys='Thesis.reviewer_id')
 
     def __repr__(self):
         return '<%r>' % self.official_email
@@ -71,7 +73,6 @@ class Staff (db.Model):
 
 
 class Users(db.Model, UserMixin):
-
     __searchable__ = ['first_name', 'middle_name', 'last_name']
 
     id = db.Column(db.Integer, primary_key=True)
@@ -94,12 +95,15 @@ class Users(db.Model, UserMixin):
 
     staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
     news = db.relationship("Posts", backref=db.backref("author", uselist=False))
-    diploma_themes_supervisor = db.relationship("DiplomaThemes", backref=db.backref("supervisor", uselist=False), foreign_keys = 'DiplomaThemes.supervisor_id')
-    diploma_themes_thesis_supervisor = db.relationship("DiplomaThemes", backref=db.backref("supervisor_thesis", uselist=False),
-                                                foreign_keys='DiplomaThemes.supervisor_thesis_id')
-    diploma_themes_consultant = db.relationship("DiplomaThemes", backref=db.backref("consultant", uselist=False), foreign_keys = 'DiplomaThemes.consultant_id')
+    diploma_themes_supervisor = db.relationship("DiplomaThemes", backref=db.backref("supervisor", uselist=False),
+                                                foreign_keys='DiplomaThemes.supervisor_id')
+    diploma_themes_thesis_supervisor = db.relationship("DiplomaThemes",
+                                                       backref=db.backref("supervisor_thesis", uselist=False),
+                                                       foreign_keys='DiplomaThemes.supervisor_thesis_id')
+    diploma_themes_consultant = db.relationship("DiplomaThemes", backref=db.backref("consultant", uselist=False),
+                                                foreign_keys='DiplomaThemes.consultant_id')
     diploma_themes_author = db.relationship("DiplomaThemes", backref=db.backref("author", uselist=False),
-                                                foreign_keys='DiplomaThemes.author_id')
+                                            foreign_keys='DiplomaThemes.author_id')
 
     thesises = db.relationship("Thesis", backref=db.backref("owner", uselist=False))
     thesis_on_review_author = db.relationship("ThesisOnReview", backref=db.backref("author", uselist=False))
@@ -154,11 +158,29 @@ class Users(db.Model, UserMixin):
 
 
 class UserStudent(db.Model):
-    __tablename__ = 'user_student'
+    __tablename__ = 'user_students'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.relationship('user_student', backref=db.backref('users', uselist=False))
     have_seen_fq = db.Column(db.Boolean, default=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    # thesises = db.relationship('Thesis', backref='user_students')
+
+    def __repr__(self):
+        return self.user_id.get_name()
+
+
+class CurrentThesis(db.Model):
+    __tablename__ = 'current_thesises'
+
+    id = db.Column(db.Integer, primary_key=True)
+    course = db.Column(db.Integer, nullable=False)
+    area = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'))
+    title = db.Column(db.String(512), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __repr__(self):
+        return self.title
 
 
 class InternshipFormat(db.Model):
@@ -181,7 +203,7 @@ class InternshipCompany(db.Model):
         return (self.name)
 
 
-class Internships (db.Model):
+class Internships(db.Model):
     __tablename__ = 'internships'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -192,11 +214,12 @@ class Internships (db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey('internship_company.id'))
     requirements = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
-    more_inf = db.Column(db.String, nullable=True) # ссылка на сайт
-    description = db.Column(db.String, nullable=True) # короткое описание того, чем нужно будет заниматься
+    more_inf = db.Column(db.String, nullable=True)  # ссылка на сайт
+    description = db.Column(db.String, nullable=True)  # короткое описание того, чем нужно будет заниматься
     location = db.Column(db.String(50), nullable=True)
     format = db.relationship('InternshipFormat', secondary=internships_format, lazy='subquery',
-                           backref=db.backref('internship', lazy=True), order_by=internships_format.c.internships_format_id)
+                             backref=db.backref('internship', lazy=True),
+                             order_by=internships_format.c.internships_format_id)
 
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
@@ -205,7 +228,7 @@ class Internships (db.Model):
 
 
 # Coursework, diploma
-class Worktype (db.Model):
+class Worktype(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(255), nullable=False)
 
@@ -217,7 +240,7 @@ class Worktype (db.Model):
 
 
 # Thesis on review worktypes
-class ThesisOnReviewWorktype (db.Model):
+class ThesisOnReviewWorktype(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(255), nullable=False)
 
@@ -240,8 +263,7 @@ class Courses(db.Model):
         return '<%r>' % (self.name)
 
 
-class Thesis (db.Model):
-
+class Thesis(db.Model):
     __searchable__ = ['name_ru', 'description', 'author']
 
     id = db.Column(db.Integer, primary_key=True)
@@ -280,7 +302,7 @@ class Thesis (db.Model):
     review = db.relationship('ThesisReview', back_populates='thesis')
 
 
-class AreasOfStudy (db.Model):
+class AreasOfStudy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     area = db.Column(db.String(512), nullable=False)
 
@@ -336,10 +358,9 @@ class Posts(db.Model):
 
     type_id = db.Column(db.Integer, db.ForeignKey('post_type.id'))
     type = db.relationship('PostType', back_populates='post')
-    
+
 
 class PostVote(db.Model):
-
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
     user = db.relationship('Users', back_populates='all_user_votes')
 
@@ -357,7 +378,7 @@ class PostVote(db.Model):
         return '<Vote - {}, from {} for {}>'.format(vote, self.user.get_name(), self.post.title)
 
 
-class PostType (db.Model):
+class PostType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     type = db.Column(db.Integer, nullable=False, default=1)
@@ -373,8 +394,9 @@ class ThemesLevel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     level = db.Column(db.String(512), nullable=False)
-#    theme = db.relationship('DiplomaThemes', back_populates='level')
-#    themes_id = db.Column(db.Integer, db.ForeignKey('diploma_themes.id'))
+
+    #    theme = db.relationship('DiplomaThemes', back_populates='level')
+    #    themes_id = db.Column(db.Integer, db.ForeignKey('diploma_themes.id'))
 
     def __str__(self):
         return f"{self.level}"
@@ -386,11 +408,12 @@ class DiplomaThemes(db.Model):
     title = db.Column(db.String(512), nullable=False)
     description = db.Column(db.String(2048), nullable=True)
     requirements = db.Column(db.String(2048), nullable=True)
-    status = db.Column(db.Integer, default=0, nullable=False) # 0 - new, 1 - need update, 2 - approved
+    status = db.Column(db.Integer, default=0, nullable=False)  # 0 - new, 1 - need update, 2 - approved
     comment = db.Column(db.String(2048), nullable=True)
 
     levels = db.relationship('ThemesLevel', secondary=diploma_themes_level, lazy='subquery',
-                    backref=db.backref('diploma_themes', lazy=True), order_by=diploma_themes_level.c.themes_level_id)
+                             backref=db.backref('diploma_themes', lazy=True),
+                             order_by=diploma_themes_level.c.themes_level_id)
 
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
     company = db.relationship('Company', back_populates='theme')
@@ -404,10 +427,11 @@ class DiplomaThemes(db.Model):
 class DiplomaThemesTags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
-    tags = db.relationship('DiplomaThemes', secondary=diploma_themes_tag, lazy='subquery', backref=db.backref('diploma_themes_tags', lazy=True))
+    tags = db.relationship('DiplomaThemes', secondary=diploma_themes_tag, lazy='subquery',
+                           backref=db.backref('diploma_themes_tags', lazy=True))
 
 
-class Company (db.Model):
+class Company(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String(512), nullable=False)
@@ -448,7 +472,7 @@ class ThesisReview(db.Model):
     review_file_uri = db.Column(db.String(512), nullable=True)
 
 
-class Reviewer (db.Model):
+class Reviewer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -463,8 +487,7 @@ class Reviewer (db.Model):
         return self.user.get_name()
 
 
-class ThesisOnReview (db.Model):
-
+class ThesisOnReview(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     type_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
@@ -493,14 +516,12 @@ class ThesisOnReview (db.Model):
     review = db.relationship('ThesisReview', back_populates='thesis_on_review')
 
 
-class PromoCode (db.Model):
-
+class PromoCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(512), nullable=False)
 
 
 class Notification(db.Model):
-
     id = db.Column(db.Integer, primary_key=True)
 
     # 0 - Mail
@@ -512,7 +533,6 @@ class Notification(db.Model):
 
 
 def recalculate_post_rank():
-
     posts = Posts.query.order_by(Posts.id.desc()).limit(100).all()
 
     for post in posts:
@@ -523,7 +543,6 @@ def recalculate_post_rank():
 
 
 def add_mail_notification(user_id, title, content):
-
     n = Notification(recipient=user_id, title=title, content=content)
 
     db.session.add(n)
@@ -531,11 +550,10 @@ def add_mail_notification(user_id, title, content):
 
 
 def init_db():
-
     # Data
     users = [
-        {'email' : 'a.terekhov@spbu.ru', 'first_name' : 'Андрей', 'last_name' : 'Терехов', 'middle_name' : 'Николаевич',
-         'avatar_uri' : 'terekhov.jpg'},
+        {'email': 'a.terekhov@spbu.ru', 'first_name': 'Андрей', 'last_name': 'Терехов', 'middle_name': 'Николаевич',
+         'avatar_uri': 'terekhov.jpg'},
         {'email': 'o.granichin@spbu.ru', 'first_name': 'Олег', 'last_name': 'Граничин', 'middle_name': 'Николаевич',
          'avatar_uri': 'granichin.jpg'},
         {'email': 'd.koznov@spbu.ru', 'first_name': 'Дмитрий', 'last_name': 'Кознов', 'middle_name': 'Владимирович',
@@ -548,7 +566,8 @@ def init_db():
          'avatar_uri': 'litvinov.jpg'},
         {'email': 'd.lutsiv@spbu.ru', 'first_name': 'Дмитрий', 'last_name': 'Луцив', 'middle_name': 'Вадимович',
          'avatar_uri': 'luciv.jpg'},
-        {'email': 'k.romanovsky@spbu.ru', 'first_name': 'Константин', 'last_name': 'Романовский', 'middle_name': 'Юрьевич',
+        {'email': 'k.romanovsky@spbu.ru', 'first_name': 'Константин', 'last_name': 'Романовский',
+         'middle_name': 'Юрьевич',
          'avatar_uri': 'empty.jpg'},
         {'email': 'm.serov@spbu.ru', 'first_name': 'Михаил', 'last_name': 'Серов',
          'middle_name': 'Александрович', 'avatar_uri': 'empty.jpg'},
@@ -594,8 +613,8 @@ def init_db():
          'middle_name': 'Алексеевич', 'avatar_uri': 'empty.jpg'},
     ]
     staff = [
-        {'position': 'Заведующий кафедрой, профессор', 'science_degree' : 'д.ф.-м.н.',
-         'official_email': 'a.terekhov@spbu.ru', 'still_working' : True},
+        {'position': 'Заведующий кафедрой, профессор', 'science_degree': 'д.ф.-м.н.',
+         'official_email': 'a.terekhov@spbu.ru', 'still_working': True},
         {'position': 'Профессор', 'science_degree': 'д.ф.-м.н.',
          'official_email': 'o.granichin@spbu.ru', 'still_working': True},
         {'position': 'Профессор', 'science_degree': 'д.т.н.',
@@ -608,8 +627,8 @@ def init_db():
          'official_email': 'y.litvinov@spbu.ru', 'still_working': True},
         {'position': 'Доцент', 'science_degree': 'к.ф.-м.н.',
          'official_email': 'd.lutsiv@spbu.ru', 'still_working': True},
-        {'position': 'Доцент', 'science_degree' : 'к.ф.-м.н.',
-         'official_email' : 'k.romanovsky@spbu.ru', 'still_working': True},
+        {'position': 'Доцент', 'science_degree': 'к.ф.-м.н.',
+         'official_email': 'k.romanovsky@spbu.ru', 'still_working': True},
         {'position': 'Доцент', 'official_email': 'm.serov@spbu.ru', 'still_working': True},
         {'position': 'Преподаватель-практик', 'science_degree': 'к.ф.-м.н.',
          'official_email': 's.s.sysoev@spbu.ru', 'still_working': True},
@@ -622,13 +641,14 @@ def init_db():
         {'position': 'Старший преподаватель', 'official_email': 'd.mordvinov@spbu.ru', 'still_working': True},
         {'position': 'Старший преподаватель', 'official_email': 'm.nemeshev@spbu.ru', 'still_working': True},
         {'position': 'Старший преподаватель', 'official_email': 'stanislav.sartasov@spbu.ru', 'still_working': True},
-        {'position': 'Старший преподаватель', 'science_degree': 'к.т.н.','official_email': 'm.n.smirnov@spbu.ru',
+        {'position': 'Старший преподаватель', 'science_degree': 'к.т.н.', 'official_email': 'm.n.smirnov@spbu.ru',
          'still_working': True},
         {'position': 'Старший преподаватель', 'official_email': 'st036451@student.spbu.ru', 'still_working': True},
         {'position': 'Старший преподаватель', 'official_email': 's.shilov@spbu.ru', 'still_working': True},
         {'position': 'Инженер-исследователь', 'official_email': 'st013464@student.spbu.ru', 'still_working': True},
         {'position': 'Инженер-исследователь', 'official_email': 'st013039@student.spbu.ru', 'still_working': True},
-        {'position': 'Доцент', 'official_email': 's.v.grigoriev@spbu.ru', 'science_degree': 'к.ф.-м.н.', 'still_working': False},
+        {'position': 'Доцент', 'official_email': 's.v.grigoriev@spbu.ru', 'science_degree': 'к.ф.-м.н.',
+         'still_working': False},
         {'position': 'Старший преподаватель', 'official_email': 'pimenov_aa_stub@spbu.ru', 'still_working': False},
         {'position': 'Старший преподаватель', 'official_email': 's.salischev@spbu.ru', 'still_working': False},
         {'position': 'Ассистент', 'official_email': 'd.sagunov@spbu.ru', 'still_working': False},
@@ -636,14 +656,16 @@ def init_db():
     ]
     wtypes = [
         {'type': 'Все работы'},
-        {'type' : 'Курсовая'},
-        {'type' : 'Бакалаврская ВКР'},
-        {'type' : 'Магистерская ВКР'},
+        {'type': 'Курсовая'},
+        {'type': 'Бакалаврская ВКР'},
+        {'type': 'Магистерская ВКР'},
     ]
     courses = [
-        {'name': 'Математическое обеспечение и администрирование информационных систем (бакалавриат)', 'code' : '02.03.03'},
-        {'name': 'Программная инженерия (бакалавриат)', 'code' : '09.03.04'},
-        {'name': 'Математическое обеспечение и администрирование информационных систем (магистратура)', 'code': '02.04.03'},
+        {'name': 'Математическое обеспечение и администрирование информационных систем (бакалавриат)',
+         'code': '02.03.03'},
+        {'name': 'Программная инженерия (бакалавриат)', 'code': '09.03.04'},
+        {'name': 'Математическое обеспечение и администрирование информационных систем (магистратура)',
+         'code': '02.04.03'},
         {'name': '371 группа (бакалавриат)', 'code': '371'},
         {'name': '343 группа (бакалавриат)', 'code': '343'},
         {'name': '344 группа (бакалавриат)', 'code': '344'},
@@ -651,16 +673,16 @@ def init_db():
     ]
     tags = [
         {
-            'name' : 'Компилятор'
+            'name': 'Компилятор'
         },
         {
-            'name' : 'Android'
+            'name': 'Android'
         },
         {
-            'name' : 'F#'
+            'name': 'F#'
         },
         {
-            'name' : 'РуСи'
+            'name': 'РуСи'
         }
     ]
     curriculum = [
@@ -687,55 +709,81 @@ def init_db():
         {'year': 2019, 'discipline': 'Язык эффективной коммуникации', 'study_year': 2, 'type': 3, 'course_id': 2},
         {'year': 2019, 'discipline': 'Функциональное программирование', 'study_year': 2, 'type': 1, 'course_id': 2},
         {'year': 2019, 'discipline': 'Инженерная экономика', 'study_year': 2, 'type': 3, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Учебная практика (научно-исследовательская работа)', 'study_year': 2, 'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Учебная практика (научно-исследовательская работа)', 'study_year': 2, 'type': 1,
+         'course_id': 2},
         {'year': 2019, 'discipline': 'Иностранный язык', 'study_year': 2, 'type': 3, 'course_id': 2},
         {'year': 2019, 'discipline': 'Разработка программного обеспечения', 'study_year': 2, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Дифференциальные и разностные уравнения', 'study_year': 2, 'type': 2, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Дифференциальные и разностные уравнения', 'study_year': 2, 'type': 2,
+         'course_id': 2},
         {'year': 2019, 'discipline': 'Основы бизнеса', 'study_year': 2, 'type': 3, 'course_id': 2},
         {'year': 2019, 'discipline': 'Человеко-машинное взаимодействие', 'study_year': 2, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Теория вероятностей и математическая статистика', 'study_year': 2, 'type': 2, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Теория вероятностей и математическая статистика', 'study_year': 2, 'type': 2,
+         'course_id': 2},
         {'year': 2019, 'discipline': 'Вычислительная математика', 'study_year': 2, 'type': 1, 'course_id': 2},
         {'year': 2019, 'discipline': 'Математическая логика', 'study_year': 2, 'type': 1, 'course_id': 2},
         {'year': 2019, 'discipline': 'Компьютерные сети', 'study_year': 3, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Основы противодействия коррупции и экстремизму (онлайн-курс)', 'study_year': 3, 'type': 3, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Основы противодействия коррупции и экстремизму (онлайн-курс)', 'study_year': 3,
+         'type': 3, 'course_id': 2},
         {'year': 2019, 'discipline': 'Компьютерная графика', 'study_year': 3, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Обеспечение качества и тестирование программного обеспечения ', 'study_year': 3, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Теория автоматов и формальных языков ', 'study_year': 3, 'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Обеспечение качества и тестирование программного обеспечения ', 'study_year': 3,
+         'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Теория автоматов и формальных языков ', 'study_year': 3, 'type': 1,
+         'course_id': 2},
         {'year': 2019, 'discipline': 'Базы данных', 'study_year': 3, 'type': 1, 'course_id': 2},
         {'year': 2019, 'discipline': 'Производственная практика', 'study_year': 3, 'type': 1, 'course_id': 2},
         {'year': 2019, 'discipline': 'Трансляция языков программирования', 'study_year': 3, 'type': 1, 'course_id': 2},
         {'year': 2019, 'discipline': 'Иностранный язык', 'study_year': 3, 'type': 3, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Методы оптимизации и исследование операций', 'study_year': 3, 'type': 2, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Моделирование информационных процессов ', 'study_year': 3, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Основы педагогической деятельности (онлайн-курс)', 'study_year': 3, 'type': 3, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Методы оптимизации и исследование операций', 'study_year': 3, 'type': 2,
+         'course_id': 2},
+        {'year': 2019, 'discipline': 'Моделирование информационных процессов ', 'study_year': 3, 'type': 1,
+         'course_id': 2},
+        {'year': 2019, 'discipline': 'Основы педагогической деятельности (онлайн-курс)', 'study_year': 3, 'type': 3,
+         'course_id': 2},
         {'year': 2019, 'discipline': 'Теория графов', 'study_year': 3, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Социально-правовые вопросы программной инженерии', 'study_year': 3, 'type': 3, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Проектирование и архитектура программного обеспечения', 'study_year': 3, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Алгоритмы анализа графов (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Операционные системы и реализация языков программирования (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Реинжиниринг систем программирования (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Социально-правовые вопросы программной инженерии', 'study_year': 3, 'type': 3,
+         'course_id': 2},
+        {'year': 2019, 'discipline': 'Проектирование и архитектура программного обеспечения', 'study_year': 3,
+         'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Алгоритмы анализа графов (по выбору)', 'study_year': 3, 'type': 1,
+         'course_id': 2},
+        {'year': 2019, 'discipline': 'Операционные системы и реализация языков программирования (по выбору)',
+         'study_year': 3, 'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Реинжиниринг систем программирования (по выбору)', 'study_year': 3, 'type': 1,
+         'course_id': 2},
         {'year': 2019, 'discipline': 'Телекоммуникации (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Введение в специальность (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Системное программирование (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Введение в специальность (по выбору)', 'study_year': 3, 'type': 1,
+         'course_id': 2},
+        {'year': 2019, 'discipline': 'Системное программирование (по выбору)', 'study_year': 3, 'type': 1,
+         'course_id': 2},
         {'year': 2019, 'discipline': 'Преддипломная практика', 'study_year': 4, 'type': 1, 'course_id': 2},
         {'year': 2019, 'discipline': 'Интеллектуальные системы', 'study_year': 4, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Прикладные задачи теории вероятностей', 'study_year': 4, 'type': 2, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Прикладные задачи теории вероятностей', 'study_year': 4, 'type': 2,
+         'course_id': 2},
         {'year': 2019, 'discipline': 'Защита информации', 'study_year': 4, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Анализ требований к программному обеспечению', 'study_year': 4, 'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Анализ требований к программному обеспечению', 'study_year': 4, 'type': 1,
+         'course_id': 2},
         {'year': 2019, 'discipline': 'Управление программными проектами', 'study_year': 4, 'type': 1, 'course_id': 2},
         {'year': 2019, 'discipline': 'Иностранный язык', 'study_year': 4, 'type': 3, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Разработка приложений в СУБД (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Стохастическое программирование (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Разработка приложений в СУБД (по выбору)', 'study_year': 4, 'type': 1,
+         'course_id': 2},
+        {'year': 2019, 'discipline': 'Стохастическое программирование (по выбору)', 'study_year': 4, 'type': 1,
+         'course_id': 2},
         {'year': 2019, 'discipline': 'Введение в MS.NET (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Современные технологии разработки бизнес-приложений (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Современные технологии разработки бизнес-приложений (по выбору)', 'study_year': 4,
+         'type': 1, 'course_id': 2},
         {'year': 2019, 'discipline': 'Программная инженерия (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Системное программирование для современных платформ (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Системное программирование для современных платформ (по выбору)', 'study_year': 4,
+         'type': 1, 'course_id': 2},
         {'year': 2019, 'discipline': 'Основы менеджмента', 'study_year': 4, 'type': 3, 'course_id': 2},
         {'year': 2019, 'discipline': 'Философия (онлайн-курс)', 'study_year': 4, 'type': 3, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Практика разработки документации (на английском языке) (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Стохастическая оптимизация в информатике (на английском языке) (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Алгоритмические основы робототехники (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 2},
-        {'year': 2019, 'discipline': 'Статический анализ программ (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Практика разработки документации (на английском языке) (по выбору)',
+         'study_year': 4, 'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Стохастическая оптимизация в информатике (на английском языке) (по выбору)',
+         'study_year': 4, 'type': 1, 'course_id': 2},
+        {'year': 2019, 'discipline': 'Алгоритмические основы робототехники (по выбору)', 'study_year': 4, 'type': 1,
+         'course_id': 2},
+        {'year': 2019, 'discipline': 'Статический анализ программ (по выбору)', 'study_year': 4, 'type': 1,
+         'course_id': 2},
         {'year': 2019, 'discipline': 'Программирование', 'study_year': 1, 'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Информатика', 'study_year': 1, 'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Физическая культура и спорт', 'study_year': 1, 'type': 3, 'course_id': 1},
@@ -753,35 +801,49 @@ def init_db():
         {'year': 2019, 'discipline': 'Математический анализ', 'study_year': 2, 'type': 2, 'course_id': 1},
         {'year': 2019, 'discipline': 'Алгебра и теория чисел', 'study_year': 2, 'type': 2, 'course_id': 1},
         {'year': 2019, 'discipline': 'Геометрия и топология', 'study_year': 2, 'type': 2, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Язык эффективной коммуникации (онлайнкурс)', 'study_year': 2, 'type': 3, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Язык эффективной коммуникации (онлайнкурс)', 'study_year': 2, 'type': 3,
+         'course_id': 1},
         {'year': 2019, 'discipline': 'Дифференциальные уравнения', 'study_year': 2, 'type': 2, 'course_id': 1},
         {'year': 2019, 'discipline': 'Иностранный язык', 'study_year': 2, 'type': 3, 'course_id': 1},
         {'year': 2019, 'discipline': 'Операционные системы и оболочки', 'study_year': 2, 'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Базы данных и СУБД', 'study_year': 2, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Основы противодействия коррупции и экстремизму (онлайн-курс)', 'study_year': 2, 'type': 3, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Основы противодействия коррупции и экстремизму (онлайн-курс)', 'study_year': 2,
+         'type': 3, 'course_id': 1},
         {'year': 2019, 'discipline': 'Параллельное программирование', 'study_year': 2, 'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Архитектура ЭВМ', 'study_year': 2, 'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Математическая логика', 'study_year': 2, 'type': 2, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Структуры и алгоритмы компьютерной обработки данных', 'study_year': 2, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Методы вычислений и вычислительный практикум', 'study_year': 3, 'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Структуры и алгоритмы компьютерной обработки данных', 'study_year': 2, 'type': 1,
+         'course_id': 1},
+        {'year': 2019, 'discipline': 'Методы вычислений и вычислительный практикум', 'study_year': 3, 'type': 1,
+         'course_id': 1},
         {'year': 2019, 'discipline': 'Функциональный анализ', 'study_year': 3, 'type': 2, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Теория вероятностей и математическая статистика', 'study_year': 3, 'type': 2, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Теория вероятностей и математическая статистика', 'study_year': 3, 'type': 2,
+         'course_id': 1},
         {'year': 2019, 'discipline': 'Основы бизнеса (онлайн-курс)', 'study_year': 3, 'type': 3, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Теория формальных языков и трансляций', 'study_year': 3, 'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Теория формальных языков и трансляций', 'study_year': 3, 'type': 1,
+         'course_id': 1},
         {'year': 2019, 'discipline': 'Учебная практика 2', 'study_year': 3, 'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Математическая логика', 'study_year': 3, 'type': 2, 'course_id': 1},
         {'year': 2019, 'discipline': 'Математическая логика', 'study_year': 3, 'type': 2, 'course_id': 1},
         {'year': 2019, 'discipline': 'Иностранный язык', 'study_year': 3, 'type': 3, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Java-технологии. Часть 1 (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Алгоритмические языки параллельного программирования (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Java-технологии. Часть 1 (по выбору)', 'study_year': 3, 'type': 1,
+         'course_id': 1},
+        {'year': 2019, 'discipline': 'Алгоритмические языки параллельного программирования (по выбору)',
+         'study_year': 3, 'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Архитектура процессора (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Введение в компьютерную математику (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Введение в теорию параллельных вычислений (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Задачи и методы динамических систем (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Модели и методы хранения и поиска информации (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Введение в компьютерную математику (по выбору)', 'study_year': 3, 'type': 1,
+         'course_id': 1},
+        {'year': 2019, 'discipline': 'Введение в теорию параллельных вычислений (по выбору)', 'study_year': 3,
+         'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Задачи и методы динамических систем (по выбору)', 'study_year': 3, 'type': 1,
+         'course_id': 1},
+        {'year': 2019, 'discipline': 'Модели и методы хранения и поиска информации (по выбору)', 'study_year': 3,
+         'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Мультиагентные системы (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Основы компьютерной графики и обработки изображений (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Распараллеливание в OpenMP и интервальные вычисления (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Основы компьютерной графики и обработки изображений (по выбору)', 'study_year': 3,
+         'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Распараллеливание в OpenMP и интервальные вычисления (по выбору)',
+         'study_year': 3, 'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Теория логического вывода (по выбору)',
          'study_year': 3, 'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Хранение и управление данными (по выбору)',
@@ -804,13 +866,16 @@ def init_db():
          'study_year': 3, 'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Технология преобразования последовательных программ в параллельные (по выбору)',
          'study_year': 3, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Технология разработки программного обеспечения', 'study_year': 3, 'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Технология разработки программного обеспечения', 'study_year': 3, 'type': 1,
+         'course_id': 1},
         {'year': 2019, 'discipline': 'Основы педагогической деятельности (онлайнкурс)', 'study_year': 3, 'type': 3,
          'course_id': 1},
         {'year': 2019, 'discipline': 'Вычислительный практикум', 'study_year': 3, 'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Уравнения математической физики', 'study_year': 3, 'type': 2, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Информационный поиск в Internet (по выбору)', 'study_year': 3, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Параллельные алгоритмы численного моделирования (по выбору)', 'study_year': 3, 'type': 1,
+        {'year': 2019, 'discipline': 'Информационный поиск в Internet (по выбору)', 'study_year': 3, 'type': 1,
+         'course_id': 1},
+        {'year': 2019, 'discipline': 'Параллельные алгоритмы численного моделирования (по выбору)', 'study_year': 3,
+         'type': 1,
          'course_id': 1},
         {'year': 2019, 'discipline': 'Распределенные параллельные системы (по выбору)', 'study_year': 3, 'type': 1,
          'course_id': 1},
@@ -834,9 +899,11 @@ def init_db():
          'course_id': 1},
         {'year': 2019, 'discipline': 'Локальные сети и вычислительные системы (по выбору)', 'study_year': 3, 'type': 1,
          'course_id': 1},
-        {'year': 2019, 'discipline': 'Организация и дизайн современных компьютеров (по выбору)', 'study_year': 3, 'type': 1,
+        {'year': 2019, 'discipline': 'Организация и дизайн современных компьютеров (по выбору)', 'study_year': 3,
+         'type': 1,
          'course_id': 1},
-        {'year': 2019, 'discipline': 'Параллельные вычисления с использованием графических процессоров (по выбору)', 'study_year': 3, 'type': 1,
+        {'year': 2019, 'discipline': 'Параллельные вычисления с использованием графических процессоров (по выбору)',
+         'study_year': 3, 'type': 1,
          'course_id': 1},
         {'year': 2019, 'discipline': 'Программная инженерия (по выбору)', 'study_year': 3, 'type': 1,
          'course_id': 1},
@@ -849,7 +916,8 @@ def init_db():
         {'year': 2019, 'discipline': 'Экстремальные задачи (по выбору)', 'study_year': 3, 'type': 1,
          'course_id': 1},
 
-        {'year': 2019, 'discipline': 'Введение в компьютерное моделирование динамических систем', 'study_year': 4, 'type': 1,
+        {'year': 2019, 'discipline': 'Введение в компьютерное моделирование динамических систем', 'study_year': 4,
+         'type': 1,
          'course_id': 1},
         {'year': 2019, 'discipline': 'Теория вычислительных процессов и структур', 'study_year': 4,
          'type': 1,
@@ -861,7 +929,8 @@ def init_db():
          'type': 1,
          'course_id': 1},
         {'year': 2019, 'discipline': 'Иностранный язык', 'study_year': 4, 'type': 3, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Всплесковая обработка числовых потоков и распараллеливание (по выбору)', 'study_year': 4,
+        {'year': 2019, 'discipline': 'Всплесковая обработка числовых потоков и распараллеливание (по выбору)',
+         'study_year': 4,
          'type': 1,
          'course_id': 1},
         {'year': 2019, 'discipline': 'Конечно-автоматные модели. Анализ, синтез и оптимизация (по выбору)',
@@ -903,28 +972,44 @@ def init_db():
         {'year': 2019, 'discipline': 'Проектирование программного обеспечения (по выбору)',
          'study_year': 4, 'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Философия (онлайн-курс)', 'study_year': 4, 'type': 3, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Безопасность жизнедеятельности (онлайнкурс)', 'study_year': 4, 'type': 3, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Безопасность жизнедеятельности (онлайнкурс)', 'study_year': 4, 'type': 3,
+         'course_id': 1},
         {'year': 2019, 'discipline': 'Преддипломная практика', 'study_year': 4, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Администрирование информационных систем (на английском языке)', 'study_year': 4, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Интеллектуальные системы (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Администрирование информационных систем (на английском языке)', 'study_year': 4,
+         'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Интеллектуальные системы (по выбору)', 'study_year': 4, 'type': 1,
+         'course_id': 1},
         {'year': 2019, 'discipline': 'Квантовые компьютеры (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Параллельное программирование с использованием стандартных интерфейсов (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Практика разработки документации (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Распараллеливание алгоритмов в распределенных системах (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Стандарты параллельного программирования (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Компьютерное моделирование динамических систем (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Теория и практика параллельного программирования (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Математические основы искусственного интеллекта (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Системы искусственного интеллекта (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Алгоритмы компьютерного зрения (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Коммуникационные среды для параллельных систем (по выбору)', 'study_year': 4, 'type': 1, 'course_id': 1},
+        {'year': 2019,
+         'discipline': 'Параллельное программирование с использованием стандартных интерфейсов (по выбору)',
+         'study_year': 4, 'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Практика разработки документации (по выбору)', 'study_year': 4, 'type': 1,
+         'course_id': 1},
+        {'year': 2019, 'discipline': 'Распараллеливание алгоритмов в распределенных системах (по выбору)',
+         'study_year': 4, 'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Стандарты параллельного программирования (по выбору)', 'study_year': 4, 'type': 1,
+         'course_id': 1},
+        {'year': 2019, 'discipline': 'Компьютерное моделирование динамических систем (по выбору)', 'study_year': 4,
+         'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Теория и практика параллельного программирования (по выбору)', 'study_year': 4,
+         'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Математические основы искусственного интеллекта (по выбору)', 'study_year': 4,
+         'type': 1, 'course_id': 1},
+        {'year': 2019, 'discipline': 'Системы искусственного интеллекта (по выбору)', 'study_year': 4, 'type': 1,
+         'course_id': 1},
+        {'year': 2019, 'discipline': 'Алгоритмы компьютерного зрения (по выбору)', 'study_year': 4, 'type': 1,
+         'course_id': 1},
+        {'year': 2019, 'discipline': 'Коммуникационные среды для параллельных систем (по выбору)', 'study_year': 4,
+         'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Модели и архитектуры программ и знаний (по выбору)', 'study_year': 4,
          'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Распараллеливание в ОС UNIX (по выбору)', 'study_year': 4,
          'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Современные подходы к хранению, управлению и защите данных (по выбору)', 'study_year': 4,
+        {'year': 2019, 'discipline': 'Современные подходы к хранению, управлению и защите данных (по выбору)',
+         'study_year': 4,
          'type': 1, 'course_id': 1},
-        {'year': 2019, 'discipline': 'Технология синхронного распараллеливания в распределенных системах (по выбору)', 'study_year': 4,
+        {'year': 2019, 'discipline': 'Технология синхронного распараллеливания в распределенных системах (по выбору)',
+         'study_year': 4,
          'type': 1, 'course_id': 1},
         {'year': 2019, 'discipline': 'Управление проектами (по выбору)', 'study_year': 4,
          'type': 1, 'course_id': 1},
@@ -933,9 +1018,11 @@ def init_db():
         {'year': 2019, 'discipline': 'Практикум на ЭВМ', 'semestr': 1, 'type': 1, 'course_id': 2, 'hard': 5},
         {'year': 2019, 'discipline': 'Дискретная математика', 'semestr': 1, 'type': 2, 'course_id': 2, 'hard': 5},
         {'year': 2019, 'discipline': 'Математический анализ', 'semestr': 1, 'type': 2, 'course_id': 2, 'hard': 7},
-        {'year': 2019, 'discipline': 'Безопасность жизнедеятельности (онлайн-курс)', 'semestr': 1, 'type': 3, 'course_id': 2, 'hard': 0},
+        {'year': 2019, 'discipline': 'Безопасность жизнедеятельности (онлайн-курс)', 'semestr': 1, 'type': 3,
+         'course_id': 2, 'hard': 0},
         {'year': 2019, 'discipline': 'Основы программирования', 'semestr': 1, 'type': 1, 'course_id': 2, 'hard': 3},
-        {'year': 2019, 'discipline': 'Групповая динамика и коммуникации', 'semestr': 1, 'type': 3, 'course_id': 2, 'hard': 2},
+        {'year': 2019, 'discipline': 'Групповая динамика и коммуникации', 'semestr': 1, 'type': 3, 'course_id': 2,
+         'hard': 2},
         {'year': 2019, 'discipline': 'Физическая культура и спорт', 'semestr': 1, 'type': 3, 'course_id': 2, 'hard': 0},
         {'year': 2019, 'discipline': 'Алгебра', 'semestr': 1, 'type': 2, 'course_id': 2, 'hard': 5},
         {'year': 2019, 'discipline': 'Иностранный язык', 'semestr': 1, 'type': 3, 'course_id': 2, 'hard': 3},
@@ -943,14 +1030,17 @@ def init_db():
         {'year': 2019, 'discipline': 'Цифровая культура', 'semestr': 2, 'type': 3, 'course_id': 2, 'hard': 1},
         {'year': 2019, 'discipline': 'Дискретная математика', 'semestr': 2, 'type': 2, 'course_id': 2, 'hard': 4},
         {'year': 2019, 'discipline': 'Математический анализ', 'semestr': 2, 'type': 2, 'course_id': 2, 'hard': 5},
-        {'year': 2019, 'discipline': 'Алгоритмы и структуры данных', 'semestr': 2, 'type': 1, 'course_id': 2, 'hard': 2},
+        {'year': 2019, 'discipline': 'Алгоритмы и структуры данных', 'semestr': 2, 'type': 1, 'course_id': 2,
+         'hard': 2},
         {'year': 2019, 'discipline': 'Основы программирования', 'semestr': 2, 'type': 1, 'course_id': 2, 'hard': 3},
         {'year': 2019, 'discipline': 'Физическая культура и спорт', 'semestr': 2, 'type': 3, 'course_id': 2, 'hard': 0},
         {'year': 2019, 'discipline': 'Алгебра', 'semestr': 2, 'type': 2, 'course_id': 2, 'hard': 2},
-        {'year': 2019, 'discipline': 'Архитектура вычислительных систем', 'semestr': 2, 'type': 1, 'course_id': 2, 'hard': 3},
+        {'year': 2019, 'discipline': 'Архитектура вычислительных систем', 'semestr': 2, 'type': 1, 'course_id': 2,
+         'hard': 3},
         {'year': 2019, 'discipline': 'Геометрия', 'semestr': 2, 'type': 2, 'course_id': 2, 'hard': 4},
         {'year': 2019, 'discipline': 'Иностранный язык', 'semestr': 2, 'type': 3, 'course_id': 2, 'hard': 3},
-        {'year': 2019, 'discipline': 'Введение в программную инженерию', 'semestr': 3, 'type': 3, 'course_id': 2, 'hard': 3},
+        {'year': 2019, 'discipline': 'Введение в программную инженерию', 'semestr': 3, 'type': 3, 'course_id': 2,
+         'hard': 3},
         {'year': 2019, 'discipline': 'Практикум на ЭВМ', 'semestr': 3, 'type': 1, 'course_id': 2,
          'hard': 3},
         {'year': 2019, 'discipline': 'История России (онлайн-курс)', 'semestr': 3, 'type': 3, 'course_id': 2,
@@ -963,13 +1053,15 @@ def init_db():
          'hard': 4},
         {'year': 2019, 'discipline': 'Физическая культура и спорт', 'semestr': 3, 'type': 3, 'course_id': 2,
          'hard': 0},
-        {'year': 2019, 'discipline': 'Язык эффективной коммуникации (онлайн-курс)', 'semestr': 3, 'type': 3, 'course_id': 2,
+        {'year': 2019, 'discipline': 'Язык эффективной коммуникации (онлайн-курс)', 'semestr': 3, 'type': 3,
+         'course_id': 2,
          'hard': 1},
         {'year': 2019, 'discipline': 'Функциональное программирование', 'semestr': 3, 'type': 1, 'course_id': 2,
          'hard': 2},
         {'year': 2019, 'discipline': 'Инженерная экономика', 'semestr': 3, 'type': 3, 'course_id': 2,
          'hard': 2},
-        {'year': 2019, 'discipline': 'Учебная практика (научноисследовательская работа)', 'semestr': 3, 'type': 1, 'course_id': 2,
+        {'year': 2019, 'discipline': 'Учебная практика (научноисследовательская работа)', 'semestr': 3, 'type': 1,
+         'course_id': 2,
          'hard': 2},
         {'year': 2019, 'discipline': 'Иностранный язык', 'semestr': 3, 'type': 3, 'course_id': 2,
          'hard': 2},
@@ -983,7 +1075,8 @@ def init_db():
          'hard': 1},
         {'year': 2019, 'discipline': 'Человеко-машинное взаимодействие', 'semestr': 4, 'type': 1, 'course_id': 2,
          'hard': 1},
-        {'year': 2019, 'discipline': ' Теория вероятностей и математическая статистика', 'semestr': 4, 'type': 2, 'course_id': 2,
+        {'year': 2019, 'discipline': ' Теория вероятностей и математическая статистика', 'semestr': 4, 'type': 2,
+         'course_id': 2,
          'hard': 4},
         {'year': 2019, 'discipline': 'Физическая культура и спорт', 'semestr': 3, 'type': 3, 'course_id': 2,
          'hard': 0},
@@ -991,7 +1084,8 @@ def init_db():
          'hard': 3},
         {'year': 2019, 'discipline': ' Математическая логика', 'semestr': 4, 'type': 1, 'course_id': 2,
          'hard': 3},
-        {'year': 2019, 'discipline': 'Учебная практика (научно-исследовательская работа)', 'semestr': 4, 'type': 1, 'course_id': 2,
+        {'year': 2019, 'discipline': 'Учебная практика (научно-исследовательская работа)', 'semestr': 4, 'type': 1,
+         'course_id': 2,
          'hard': 3},
         {'year': 2019, 'discipline': 'Иностранный язык', 'semestr': 3, 'type': 3, 'course_id': 2,
          'hard': 2},
@@ -1014,6 +1108,18 @@ def init_db():
         {'level': '3 курс'},
         {'level': 'Бакалаврская ВКР'},
         {'level': 'Магистерская ВКР'}
+    ]
+
+    areas = [
+        {'area': 'Направление обучения'},
+        {'area': 'Технологии программирования'},
+        {'area': 'Программная инженерия'},
+        {'area': 'Математика и компьютерные науки'},
+        {'area': 'Механика и математическое моделирование'},
+        {'area': 'Прикладная математика, программирование и искусственный интеллект'},
+        {'area': 'Программная инженерия'},
+        {'area': 'Астрономия (специалитет)'},
+        {'area': 'Фундаментальная механика (специалитет)'}
     ]
 
     d_themes = [
@@ -1051,17 +1157,25 @@ def init_db():
     if db_file.is_file():
         shutil.copyfile(SQLITE_DATABASE_NAME, SQLITE_DATABASE_BACKUP_NAME)
 
-
     # Init DB
-    db.session.commit() # https://stackoverflow.com/questions/24289808/drop-all-freezes-in-flask-with-sqlalchemy
+    db.session.commit()  # https://stackoverflow.com/questions/24289808/drop-all-freezes-in-flask-with-sqlalchemy
     db.drop_all()
     db.create_all()
 
+    # Create areas
+    print("Create areas")
+    for area in areas:
+        a = AreasOfStudy(area=area['area'])
+
+        db.session.add(a)
+        db.session.commit()
+
     # Create users
-    print ("Create users")
+    print("Create users")
     for user in users:
-        u = Users(email=user['email'], password_hash = generate_password_hash(urandom(16).hex()), first_name = user['first_name'], last_name = user['last_name'],
-                  middle_name = user['middle_name'], avatar_uri = user['avatar_uri'])
+        u = Users(email=user['email'], password_hash=generate_password_hash(urandom(16).hex()),
+                  first_name=user['first_name'], last_name=user['last_name'],
+                  middle_name=user['middle_name'], avatar_uri=user['avatar_uri'])
 
         db.session.add(u)
         db.session.commit()
@@ -1072,12 +1186,12 @@ def init_db():
         u = Users.query.filter_by(email=user['official_email']).first()
 
         if 'science_degree' in user:
-            s = Staff(position = user['position'], science_degree = user['science_degree'],
-                  official_email = user['official_email'], still_working = user['still_working'],
-                  user_id = u.id)
+            s = Staff(position=user['position'], science_degree=user['science_degree'],
+                      official_email=user['official_email'], still_working=user['still_working'],
+                      user_id=u.id)
         else:
-            s = Staff(position = user['position'], official_email = user['official_email'],
-                      still_working = user['still_working'], user_id = u.id)
+            s = Staff(position=user['position'], official_email=user['official_email'],
+                      still_working=user['still_working'], user_id=u.id)
 
         db.session.add(s)
         db.session.commit()
@@ -1085,26 +1199,26 @@ def init_db():
     # Create WorkTypes
     print("Create worktypes")
     for w in wtypes:
-        wt = Worktype(type = w['type'])
+        wt = Worktype(type=w['type'])
         db.session.add(wt)
         db.session.commit()
 
     # Create Courses
     print("Create courses")
     for course in courses:
-        c = Courses(name = course['name'], code = course['code'])
+        c = Courses(name=course['name'], code=course['code'])
         db.session.add(c)
         db.session.commit()
 
     # Create Curriculum
-    print ("Create curriculum")
+    print("Create curriculum")
     for cur in curriculum:
         if 'type' in cur:
-            c = Curriculum(year = cur['year'], discipline = cur['discipline'], study_year = cur['study_year'],
-                           type = cur['type'], course_id = cur['course_id'])
+            c = Curriculum(year=cur['year'], discipline=cur['discipline'], study_year=cur['study_year'],
+                           type=cur['type'], course_id=cur['course_id'])
         else:
-            c = Curriculum(year = cur['year'], discipline = cur['discipline'], study_year = cur['study_year'],
-                           course_id = cur['course_id'])
+            c = Curriculum(year=cur['year'], discipline=cur['discipline'], study_year=cur['study_year'],
+                           course_id=cur['course_id'])
 
         db.session.add(c)
         db.session.commit()
@@ -1113,13 +1227,12 @@ def init_db():
     print("Create news")
     for cur in posts:
         if 'uri' in cur:
-            c = Posts(title = cur['title'], uri = cur['uri'], domain='se.math.spbu.ru', author_id = cur['author_id'])
+            c = Posts(title=cur['title'], uri=cur['uri'], domain='se.math.spbu.ru', author_id=cur['author_id'])
         else:
-            c = Posts(title = cur['title'], text = cur['text'], author_id = cur['author_id'])
+            c = Posts(title=cur['title'], text=cur['text'], author_id=cur['author_id'])
 
         db.session.add(c)
         db.session.commit()
-
 
     for tag in tags:
         t = Tags(name=tag['name'])
@@ -1130,17 +1243,20 @@ def init_db():
     print("Create thesis")
     for work in thesis:
         if 'source_uri' in work:
-            t = Thesis(name_ru = work['name_ru'], name_en=work['name_en'], description=work['description'],
-                   text_uri=work['text_uri'], presentation_uri=work['presentation_uri'],
-                   supervisor_review_uri=work['supervisor_review_uri'], reviewer_review_uri=work['reviewer_review_uri'],
-                   author=work['author'], supervisor_id=work['supervisor_id'], reviewer_id=work['reviewer_id'],
-                   publish_year=work['publish_year'], type_id=work['type_id'], course_id = 1, source_uri=work['source_uri'])
+            t = Thesis(name_ru=work['name_ru'], name_en=work['name_en'], description=work['description'],
+                       text_uri=work['text_uri'], presentation_uri=work['presentation_uri'],
+                       supervisor_review_uri=work['supervisor_review_uri'],
+                       reviewer_review_uri=work['reviewer_review_uri'],
+                       author=work['author'], supervisor_id=work['supervisor_id'], reviewer_id=work['reviewer_id'],
+                       publish_year=work['publish_year'], type_id=work['type_id'], course_id=1,
+                       source_uri=work['source_uri'])
         else:
-            t = Thesis(name_ru = work['name_ru'], name_en=work['name_en'], description=work['description'],
-                   text_uri=work['text_uri'], presentation_uri=work['presentation_uri'],
-                   supervisor_review_uri=work['supervisor_review_uri'], reviewer_review_uri=work['reviewer_review_uri'],
-                   author=work['author'], supervisor_id=work['supervisor_id'], reviewer_id=work['reviewer_id'],
-                   publish_year=work['publish_year'], type_id=work['type_id'], course_id = 1)
+            t = Thesis(name_ru=work['name_ru'], name_en=work['name_en'], description=work['description'],
+                       text_uri=work['text_uri'], presentation_uri=work['presentation_uri'],
+                       supervisor_review_uri=work['supervisor_review_uri'],
+                       reviewer_review_uri=work['reviewer_review_uri'],
+                       author=work['author'], supervisor_id=work['supervisor_id'], reviewer_id=work['reviewer_id'],
+                       publish_year=work['publish_year'], type_id=work['type_id'], course_id=1)
 
         db.session.add(t)
         db.session.commit()
@@ -1151,7 +1267,6 @@ def init_db():
             t.tags.append(tag)
             db.session.commit()
 
-
     # Create Companies
     print("Create companies")
     for cur in company:
@@ -1160,7 +1275,6 @@ def init_db():
         db.session.add(c)
         db.session.commit()
 
-
     # Create ThemesLevels
     print("Create diploma theme levels")
     for cur in themes_level:
@@ -1168,7 +1282,6 @@ def init_db():
 
         db.session.add(c)
         db.session.commit()
-
 
     # Create DiplomaThems
     print("Create diploma themes")
