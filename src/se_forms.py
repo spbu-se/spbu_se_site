@@ -83,3 +83,7 @@ class Lecture(FlaskForm):
     supervisor = SelectField('supervisor', choices=[])
     startdate = SelectField('worktype', choices=[])
     enddate = SelectField('worktype', choices=[])
+
+
+class CurrentCourseArea(FlaskForm):
+    area = SelectField('areasofstudy', choices=[])

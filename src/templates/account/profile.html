@@ -24,24 +24,37 @@
                 </div>
             </div>
             <div class="row">
-                  <div class="col">
+                <div class="col">
                 <h5 class="align-right">Мой профиль</h5>
-            </div>
+                </div>
             </div>
             <div class="row">
-                <div class="form-group">
+                <div class="col">
+                    <div class="form-group">
                 <label for="usr">Фамилия:</label>
                 <input type="text" class="form-control" id="userLastName" placeholder="Карасева" name="username" disabled>
             </div>
-                <div class="form-group">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
                 <label for="usr">Имя:</label>
                 <input type="text" class="form-control" id="userFirstName" placeholder="Елизавета" name="username" disabled>
             </div>
-                <div class="form-group">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
                 <label for="usr">Отчество:</label>
                 <input type="text" class="form-control" id="userMiddleName" placeholder="Олеговна" name="username" disabled>
             </div>
-                <div class="form-group">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
             <label for="usr">Выберите курс:</label>
                 <select class="form-control" id="CourseOfUser">
                     <option>2</option>
@@ -51,15 +64,22 @@
                     <option>6</option>
                 </select>
             </div>
-                <div class="form-group">
-            <label for="usr">Выберите направление:</label>
-                <select class="form-control" id="AreaOfUser">
-                    <option>ТП</option>
-                    <option>.....</option>
-                </select>
+                </div>
             </div>
-                <div class="col-auto">
-                <a href="{{url_for('submit_post')}}" class="btn btn-sm btn-outline-primary">Сохранить</a>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="usr">Выберите направление:</label>
+                        {{ review_filter.area(class_="custom-select pl-3") }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="col-auto">
+                        <a href="profile" class="btn btn-sm btn-outline-primary">Сохранить</a>
+                    </div>
+                </div>
             </div>
             </div>
         </div>
