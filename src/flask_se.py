@@ -36,7 +36,6 @@ from flask_se_internships import add_internship, internships_index, page_interns
 from se_sendmail import notification_send_mail
 
 
-
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
 # Flask configs

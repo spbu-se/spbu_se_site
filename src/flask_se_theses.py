@@ -207,15 +207,17 @@ def post_theses():
 
     # Try to get SuperVisor Id
     qq = Users.query.filter_by(last_name=supervisor).all()
-    r = ''
+    supervisor_id = ''
+
     if qq:
         for q in qq:
             r = Staff.query.filter_by(user_id=q.id).first()
 
             if r:
                 supervisor_id = r.id
+                continue
 
-        if not r:
+        if not supervisor_id:
             return jsonify(
                 status=error_status,
                 string='Can\'t find supervisor in staff: ' + str(supervisor)
