@@ -52,24 +52,22 @@
                     </div>
                 </div>
             </div>
+            <form method="POST" action="{{url_for('submit_course_area') }}">
+                 <!-- General information -->
+                 {{ form.csrf_token }}
+
             <div class="row">
                 <div class="col">
                     <div class="form-group">
-            <label for="usr">Выберите курс:</label>
-                <select class="form-control" id="CourseOfUser">
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                    <option>6</option>
-                </select>
-            </div>
+                        <label for="course">Выберите курс:</label>
+                        {{ review_filter.course(class_="custom-select pl-3") }}
+                    </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="usr">Выберите направление:</label>
+                        <label for="area">Выберите направление:</label>
                         {{ review_filter.area(class_="custom-select pl-3") }}
                     </div>
                 </div>
@@ -77,11 +75,11 @@
             <div class="row">
                 <div class="col">
                     <div class="col-auto">
-                        <a href="profile" class="btn btn-sm btn-outline-primary">Сохранить</a>
+                        <button type="submit" class="btn btn-sm btn-primary">Сохранить</button>
                     </div>
                 </div>
             </div>
-            </div>
+        </form>
         </div>
 </section>
 

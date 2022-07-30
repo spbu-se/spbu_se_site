@@ -86,7 +86,8 @@ class Lecture(FlaskForm):
 
 
 class CurrentCourseArea(FlaskForm):
-    area = SelectField('areasofstudy', choices=[])
+    area = SelectField('area', choices=[])
+    course = SelectField('course', choices=[])
     fname = StringField('users', default="", validators=[DataRequired()])
     mname = StringField('users', default="", validators=[DataRequired()])
     lname = StringField('users', default="", validators=[DataRequired()])
