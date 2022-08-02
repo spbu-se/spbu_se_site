@@ -199,7 +199,7 @@ def post_theses():
             string='Wrong type_id: ' + str(type_id)
         )
 
-    if course_id < 1 or course_id > 7:
+    if course_id < 1 or course_id > 8:
         return jsonify(
             status=error_status,
             string='Wrong course_id: ' + str(course_id)
