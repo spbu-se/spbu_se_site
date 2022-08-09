@@ -1,61 +1,42 @@
-{% extends "base_light.html" %}
+{% extends "account/base_account.html" %}
 
 {% block title %}Мой профиль{% endblock %}
 
-{% block content %}
+{% block content_account %}
 
-<section class="mt-7 pt-6 bg-section-secondary">
-        <div class="container">
-            <div class="row row-grid align-items-center justify-content-center pt-4">
-                <div class="col-12">
-                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
-                    {% if errors %}
-                    {%- for message in errors %}
-
-                    <div class="alert alert-info" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        {{message}}
-                    </div>
-                    {% endfor -%}
-                    {% endif %}
-                    {% endwith %}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                <h5 class="align-right">Мой профиль</h5>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
+    <div class="row">
+        <div class="col">
+            <h5 class="align-right">Мой профиль</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
                 <label for="usr">Фамилия:</label>
                 <input type="text" class="form-control" id="userLastName" placeholder="Карасева" name="username" disabled>
             </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
                 <label for="usr">Имя:</label>
                 <input type="text" class="form-control" id="userFirstName" placeholder="Елизавета" name="username" disabled>
             </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
                 <label for="usr">Отчество:</label>
                 <input type="text" class="form-control" id="userMiddleName" placeholder="Олеговна" name="username" disabled>
             </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-            <label for="usr">Выберите курс:</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <label for="usr">Выберите курс:</label>
                 <select class="form-control" id="CourseOfUser">
                     <option>2</option>
                     <option>3</option>
@@ -64,25 +45,39 @@
                     <option>6</option>
                 </select>
             </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label for="usr">Выберите направление:</label>
-                        {{ review_filter.area(class_="custom-select pl-3") }}
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="col-auto">
-                        <a href="profile" class="btn btn-sm btn-outline-primary">Сохранить</a>
-                    </div>
-                </div>
-            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <label for="usr">Выберите направление:</label>
+                {{ review_filter.area(class_="custom-select pl-3") }}
             </div>
         </div>
-</section>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="col-auto">
+                <a href="profile" class="btn btn-sm btn-outline-primary">Сохранить</a>
+            </div>
+        </div>
+    </div>
+    <div class="row row-grid align-items-center justify-content-center pt-4">
+        <div class="col-12">
+            {% with errors = get_flashed_messages(category_filter=["error"]) %}
+            {% if errors %}
+            {%- for message in errors %}
+
+            <div class="alert alert-info" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {{message}}
+            </div>
+            {% endfor -%}
+            {% endif %}
+            {% endwith %}
+        </div>
+    </div>
 
 {% endblock %}
