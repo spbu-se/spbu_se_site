@@ -43,10 +43,6 @@ def submit_course_area():
     for course in range(2, 7):
         form.course.choices.append(course)
 
-    form.fname = Users.query.filter(Users.id == user.id).distinct().first().first_name
-    form.mname = Users.query.filter(Users.id == user.id).distinct().first().middle_name
-    form.lname = Users.query.filter(Users.id == user.id).distinct().first().last_name
-
     return render_template('account/profile.html', review_filter=form, user=user, form=form)
 '''
 @login_required

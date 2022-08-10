@@ -29,26 +29,10 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col">
+                <div class="col-md-11">
                     <div class="form-group">
-                        <label for="usr">Фамилия:</label>
-                        <input type="text" class="form-control" id="userLastName" placeholder={{ form.lname }} name="username" disabled>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label for="usr">Имя:</label>
-                        <input type="text" class="form-control" id="userFirstName" placeholder={{ form.fname }} name="username" disabled>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label for="usr">Отчество:</label>
-                        <input type="text" class="form-control" id="userMiddleName" placeholder={{ form.mname }} name="username" disabled>
+                        <label for="usr">ФИО:</label>
+                        <p class="form-control" id="userFullName" name="username" disabled>{{user.get_name()}}</p>
                     </div>
                 </div>
             </div>
@@ -56,22 +40,23 @@
                  <!-- General information -->
                  {{ form.csrf_token }}
 
+                <div class="d-flex justify-content-between">
+
             <div class="row">
-                <div class="col">
+                <div class="col-auto">
                     <div class="form-group">
                         <label for="course">Выберите курс:</label>
                         {{ review_filter.course(class_="custom-select pl-3") }}
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col">
+                <div class="col-auto">
                     <div class="form-group">
                         <label for="area">Выберите направление:</label>
                         {{ review_filter.area(class_="custom-select pl-3") }}
                     </div>
                 </div>
             </div>
+        </div>
             <div class="row">
                 <div class="col">
                     <div class="col-auto">
