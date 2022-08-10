@@ -1,0 +1,88 @@
+{% extends "base_light.html" %}
+
+{% block content %}
+
+    <section class="mt-7 pt-6 bg-section-secondary">
+        <div class="container">
+            <div class="row row-grid align-items-center">
+                <div class="col-6 my-auto">
+                    <h3>Личный кабинет</h3>
+                </div>
+                <div class="col-5 my-auto text-right">
+                    <h5>Слугин Александр</h5>
+                </div>
+                <div class="col-1 my-auto">
+                    <img alt="name" src="{{ url_for('static', filename='/images/avatars/empty.jpg') }}" class="avatar rounded-circle avatar-md mr-4" itemprop="image" loading="lazy">
+                </div>
+            </div>
+
+
+            <div class="row row-grid">
+                <div class="col-md-3">
+
+                    <div id="accordion-1" class="accordion accordion-stacked">
+
+                        <div class="card">
+                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
+                                <h6 class="mb-0">Главная</h6>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
+                                <h6 class="mb-0">Справочник</h6>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
+                                <h6 class="mb-0">Профиль</h6>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header py-4" id="heading-1-1" data-toggle="collapse" role="button" data-target="#collapse-1-1" aria-expanded="false" aria-controls="collapse-1-1">
+                                <h6 class="mb-0" style="padding-right: 0.5rem">Учебная практика 2 курс</h6>
+                            </div>
+                            <div id="collapse-1-1" class="collapse" aria-labelledby="heading-1-1" data-parent="#accordion-1">
+                                <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
+                                    <nav class="nav flex-column">
+                                        <a class="nav-link" href="#">Выбор темы</a>
+                                        <a class="nav-link" href="#">Рабочий процесс</a>
+                                        <a class="nav-link" href="#">Подготовка к защите</a>
+                                        <a class="nav-link" href="#">Зашита</a>
+                                        <a class="nav-link" href="#">Материалы</a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header py-4" id="heading-1-2" data-toggle="collapse" role="button" data-target="#collapse-1-2" aria-expanded="false" aria-controls="collapse-1-1">
+                                <h6 class="mb-0" style="padding-right: 0.5rem">Учебная практика 3 курс</h6>
+                            </div>
+                            <div id="collapse-1-2" class="collapse" aria-labelledby="heading-1-2" data-parent="#accordion-1">
+                                <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
+                                    <nav class="nav flex-column">
+                                        <a class="nav-link" href="#">Выбор темы</a>
+                                        <a class="nav-link" href="#">Рабочий процесс</a>
+                                        <a class="nav-link" href="#">Подготовка к защите</a>
+                                        <a class="nav-link" href="#">Зашита</a>
+                                        <a class="nav-link" href="#">Материалы</a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+                <div class="col-md-9">
+                    {% block content_account %}{% endblock %}
+                </div>
+            </div>
+        </div>
+     </section>
+
+{% endblock %}
