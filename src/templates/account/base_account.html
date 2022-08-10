@@ -4,17 +4,32 @@
 
     <section class="mt-7 pt-6 bg-section-secondary">
         <div class="container">
+
             <div class="row row-grid align-items-center">
-                <div class="col-6 my-auto">
-                    <h3>Личный кабинет</h3>
-                </div>
-                <div class="col-5 my-auto text-right">
-                    <h5>Слугин Александр</h5>
-                </div>
-                <div class="col-1 my-auto">
-                    <img alt="name" src="{{ url_for('static', filename='/images/avatars/empty.jpg') }}" class="avatar rounded-circle avatar-md mr-4" itemprop="image" loading="lazy">
+                <div class="col-12 my-auto">
+                    <h3>Личный кабинет студента</h3>
                 </div>
             </div>
+
+            {% with errors = get_flashed_messages(category_filter=["error"]) %}
+            {% if errors %}
+            <div class="row row-grid align-items-center justify-content-center pt-4">
+                <div class="col-12">
+
+                    {%- for message in errors %}
+
+                    <div class="alert alert-info" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        {{message}}
+                    </div>
+                    {% endfor -%}
+
+                </div>
+            </div>
+            {% endif %}
+            {% endwith %}
 
 
             <div class="row row-grid">
@@ -36,7 +51,7 @@
 
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
-                                <h6 class="mb-0">Профиль</h6>
+                                <h6 class="mb-0">Профиль студента</h6>
                             </div>
                         </div>
 
