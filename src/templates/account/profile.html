@@ -4,68 +4,52 @@
 
 {% block content_account %}
 
-<section class="mt-7 pt-6 bg-section-secondary">
-        <div class="container">
-            <div class="row row-grid align-items-center justify-content-center pt-4">
-                <div class="col-12">
-                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
-                    {% if errors %}
-                    {%- for message in errors %}
+<div class="container">
 
-                    <div class="alert alert-info" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        {{message}}
-                    </div>
-                    {% endfor -%}
-                    {% endif %}
-                    {% endwith %}
+    <div class="row">
+        <div class="col">
+            <h5 class="align-right">Мой профиль</h5>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="form-group">
+                <label for="usr">ФИО:</label>
+                <p class="form-control" id="userFullName" name="username" disabled>{{user.get_name()}}</p>
+            </div>
+        </div>
+    </div>
+
+
+    <form method="POST" action="{{url_for('submit_course_area') }}">
+        <!-- General information -->
+        {{ form.csrf_token }}
+
+        <div class="row">
+            <div class="col-lg-3 col-md-4 col-12">
+                <div class="form-group">
+                    <label for="course">Выберите курс:</label>
+                    {{ review_filter.course(class_="custom-select pl-3") }}
                 </div>
             </div>
-            <div class="row">
-                <div class="col">
-                <h5 class="align-right">Мой профиль</h5>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-11">
-                    <div class="form-group">
-                        <label for="usr">ФИО:</label>
-                        <p class="form-control" id="userFullName" name="username" disabled>{{user.get_name()}}</p>
-                    </div>
-                </div>
-            </div>
-            <form method="POST" action="{{url_for('submit_course_area') }}">
-                 <!-- General information -->
-                 {{ form.csrf_token }}
 
-                <div class="d-flex justify-content-between">
-
-            <div class="row">
-                <div class="col-auto">
-                    <div class="form-group">
-                        <label for="course">Выберите курс:</label>
-                        {{ review_filter.course(class_="custom-select pl-3") }}
-                    </div>
-                </div>
-                <div class="col-auto">
-                    <div class="form-group">
-                        <label for="area">Выберите направление:</label>
-                        {{ review_filter.area(class_="custom-select pl-3") }}
-                    </div>
+            <div class="col-lg-9 col-md-8 col-12">
+                <div class="form-group">
+                    <label for="area">Выберите направление:</label>
+                    {{ review_filter.area(class_="custom-select pl-3") }}
                 </div>
             </div>
         </div>
-            <div class="row">
-                <div class="col">
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-sm btn-primary">Сохранить</button>
-                    </div>
-                </div>
+
+        <div class="row">
+            <div class="col">
+                <button type="submit" class="btn btn-sm btn-primary">Сохранить</button>
             </div>
-        </form>
         </div>
-</section>
+
+    </form>
+
+</div>
 
 {% endblock %}
