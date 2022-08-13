@@ -146,7 +146,7 @@ app.add_url_rule('/internships/fetch_internships', methods=['GET'], view_func=fe
 app.add_url_rule('/account', methods=['GET'], view_func=account_index)
 app.add_url_rule('/account/guide', methods=['GET'], view_func=guide)
 app.add_url_rule('/account/profile', methods=['GET', 'POST'], view_func=submit_course_area)
-app.add_url_rule('/account/choosing_topic', methods=['GET'], view_func=choosing_topic)
+app.add_url_rule('/account/choosing_topic', methods=['GET', 'POST'], view_func=choosing_topic)
 app.add_url_rule('/account/workflow', methods=['GET'], view_func=workflow)
 app.add_url_rule('/account/preparation_for_defense', methods=['GET'], view_func=preparation)
 app.add_url_rule('/account/defense', methods=['GET'], view_func=defense)

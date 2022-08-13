@@ -39,19 +39,19 @@
 
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
-                                <a href="/account"><h6 class="mb-0">Главная</h6></a>
+                                <a href="{{ url_for('account_index') }}"><h6 class="mb-0">Главная</h6></a>
                             </div>
                         </div>
 
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
-                                <a href="/account/guide"><h6 class="mb-0">Справочник</h6></a>
+                                <a href="{{ url_for('guide') }}"><h6 class="mb-0">Справочник</h6></a>
                             </div>
                         </div>
 
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
-                                <a href="/account/profile"><h6 class="mb-0">Профиль студента</h6></a>
+                                <a href="{{ url_for('submit_course_area') }}"><h6 class="mb-0">Профиль студента</h6></a>
                             </div>
                         </div>
 
@@ -62,11 +62,11 @@
                             <div id="collapse-1-1" class="collapse" aria-labelledby="heading-1-1" data-parent="#accordion-1">
                                 <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
                                     <nav class="nav flex-column">
-                                        <a class="nav-link" href="/account/choosing_topic">Выбор темы</a>
-                                        <a class="nav-link" href="/account/workflow">Рабочий процесс</a>
-                                        <a class="nav-link" href="/account/preparation_for_defense">Подготовка к защите</a>
-                                        <a class="nav-link" href="/account/defense">Защита</a>
-                                        <a class="nav-link" href="/account/materials">Материалы</a>
+                                        <a class="nav-link" href="{{ url_for('choosing_topic') }}">Выбор темы</a>
+                                        <a class="nav-link" href="{{ url_for('workflow') }}">Рабочий процесс</a>
+                                        <a class="nav-link" href="{{ url_for('preparation') }}">Подготовка к защите</a>
+                                        <a class="nav-link" href="{{ url_for('defense') }}">Защита</a>
+                                        <a class="nav-link" href="{{ url_for('materials') }}">Материалы</a>
                                     </nav>
                                 </div>
                             </div>
