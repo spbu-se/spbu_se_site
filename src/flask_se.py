@@ -34,7 +34,7 @@ from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_t
 from flask_se_internships import add_internship, internships_index, page_internship, delete_internship, \
     update_internship, fetch_internships
 from se_sendmail import notification_send_mail
-from flask_se_account import account_profile, submit_course_area, choosing_topic
+from flask_se_account import account_index,guide, submit_course_area, choosing_topic, workflow, preparation, defense, materials
 
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
@@ -143,9 +143,16 @@ app.add_url_rule('/internships/fetch_internships', methods=['GET'], view_func=fe
 
 
 # Account
+app.add_url_rule('/account', methods=['GET'], view_func=account_index)
+app.add_url_rule('/account/guide', methods=['GET'], view_func=guide)
 app.add_url_rule('/account/profile', methods=['GET', 'POST'], view_func=submit_course_area)
 app.add_url_rule('/account/choosing_topic', methods=['GET'], view_func=choosing_topic)
-#app.add_url_rule('/ccount/profile', methods=['GET'], view_func=submit_course_area)
+app.add_url_rule('/account/workflow', methods=['GET'], view_func=workflow)
+app.add_url_rule('/account/preparation_for_defense', methods=['GET'], view_func=preparation)
+app.add_url_rule('/account/defense', methods=['GET'], view_func=defense)
+app.add_url_rule('/account/materials', methods=['GET'], view_func=materials)
+
+
 
 
 # Init Database

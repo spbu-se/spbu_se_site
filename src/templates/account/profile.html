@@ -16,11 +16,10 @@
         <div class="col-12">
             <div class="form-group">
                 <label for="usr">ФИО:</label>
-                <p class="form-control" id="userFullName" name="username" disabled>{{user.get_name()}}</p>
+                <input type="text" class="form-control" name="username" value="{{user.get_name()}}" disabled>
             </div>
         </div>
     </div>
-
 
     <form method="POST" action="{{url_for('submit_course_area') }}">
         <!-- General information -->

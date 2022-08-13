@@ -42,6 +42,38 @@ def submit_course_area():
         form.course.choices.append(course)
 
     return render_template('account/profile.html', review_filter=form, user=user, form=form)
+
+
+@login_required
+def account_index():
+    return render_template('account/index.html')
+
+
+@login_required
+def guide():
+    return render_template('account/guide.html')\
+
+
 @login_required
 def choosing_topic():
-    return render_template('account/base_account.html', content_page="Hello")
+    return render_template('account/choosing_topic.html')
+
+
+@login_required
+def workflow():
+    return render_template('account/workflow.html')
+
+
+@login_required
+def preparation():
+    return render_template('account/preparation.html')
+
+
+@login_required
+def defense():
+    return render_template('account/defense.html')
+
+
+@login_required
+def materials():
+    return render_template('account/materials.html')
