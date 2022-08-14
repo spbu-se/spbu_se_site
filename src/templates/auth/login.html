@@ -3,12 +3,12 @@
 {% block title %}Авторизация на сайте кафедры Системного программирования{% endblock %}
 
 {% block content %}
-<section class="slice pt-0">
+<section class="slice mt-7 pt-6">
     <div class="container">
 
         {% with errors = get_flashed_messages(category_filter=["error"]) %}
         {% if errors %}
-        <div class="row row-grid align-items-center justify-content-center pt-7">
+        <div class="row row-grid align-items-center justify-content-center pt-4">
             <div class="col-12">
 
                 {%- for message in errors %}
@@ -25,7 +25,7 @@
         {% endif %}
         {% endwith %}
 
-        <div class="row row-grid align-items-center pt-5">
+        <div class="row row-grid align-items-center pt-4">
             <!--текст слева-->
             <div class="col-12 col-md-6 col-lg-7 order-md-1 pr-md-5">
                 <!-- Heading -->
