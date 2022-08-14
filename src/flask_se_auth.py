@@ -299,6 +299,8 @@ def google_callback():
 
     user = Users.query.filter_by(google_id=id_info.get('sub')).first()
 
+    print ("User: " + id_info.get('sub'))
+
     # New user?
     if user is None:
         # Yes
