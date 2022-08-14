@@ -5,8 +5,8 @@ from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
 
 from flask_se_auth import login_required
-from se_forms import CurrentCourseArea
-from se_models import AreasOfStudy, Users, CurrentThesis
+from se_forms import CurrentCourseArea, ChooseTopic
+from se_models import AreasOfStudy, Users, CurrentThesis, Staff, Worktype
 
 
 @login_required
@@ -56,7 +56,15 @@ def guide():
 
 @login_required
 def choosing_topic():
-    return render_template('account/choosing_topic.html')
+    form = ChooseTopic()
+
+    for supervisor in Staff.query.distinct().all():
+        form.staff.choices.append(supervisor.user.get_name())
+
+    for worktype in Worktype.query.distinct().all():
+        form.worktype.choices.append(worktype)
+
+    return render_template('account/choosing_topic.html', form=form)
 
 
 @login_required

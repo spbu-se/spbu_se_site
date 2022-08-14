@@ -84,7 +84,13 @@ class Lecture(FlaskForm):
     startdate = SelectField('worktype', choices=[])
     enddate = SelectField('worktype', choices=[])
 
-
+# Account forms
 class CurrentCourseArea(FlaskForm):
     area = SelectField('area', choices=[])
     course = SelectField('course', choices=[])
+
+
+class ChooseTopic(FlaskForm):
+    topic = StringField('topic', description='Например, реализация алгоритма контекстно-свободной достижимости на OpenCL')
+    staff = SelectField('staff', choices=[])
+    worktype = SelectField('worktype', choices=[])

@@ -161,7 +161,7 @@ class UserStudent(db.Model):
     __tablename__ = 'user_students'
 
     id = db.Column(db.Integer, primary_key=True)
-    have_seen_fq = db.Column(db.Boolean, default=False)
+    have_seen_faq = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     # thesises = db.relationship('Thesis', backref='user_students')
