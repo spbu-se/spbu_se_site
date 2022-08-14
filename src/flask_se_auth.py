@@ -89,9 +89,11 @@ def login_index():
                 login_user(user, remember=True)
                 return redirect_next_url(fallback=url_for('user_profile'))
             else:
-                flash('Incorrect password, try again.', category='error')
+                flash('Пара логин и пароль указаны неверно', category='error')
+                return render_template('auth/login.html', user=current_user)
         else:
-            flash('Email does not exist.', category='error')
+            flash('Пользователя с таким почтовым адресом нет', category='error')
+            return render_template('auth/login.html', user=current_user)
 
     return render_template('auth/login.html', user=current_user)
 
