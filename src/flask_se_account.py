@@ -5,18 +5,12 @@ from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
 
 from flask_se_auth import login_required
-from se_forms import CurrentCourseArea
-from se_models import AreasOfStudy, Users, CurrentThesis
+from se_forms import CurrentCourseArea, ChooseTopic
+from se_models import AreasOfStudy, Users, CurrentThesis, Staff, Worktype
 
 
 @login_required
 def account_profile():
-    user = current_user
-    return render_template('account/profile.html', user=user)
-
-
-@login_required
-def submit_course_area():
     user = current_user
     form = CurrentCourseArea()
     course = form.course
@@ -42,6 +36,46 @@ def submit_course_area():
         form.course.choices.append(course)
 
     return render_template('account/profile.html', review_filter=form, user=user, form=form)
+
+
 @login_required
-def choosing_topic():
-    return render_template('account/base_account.html', content_page="Hello")
+def account_index():
+    return render_template('account/index.html')
+
+
+@login_required
+def account_guide():
+    return render_template('account/guide.html')
+
+
+@login_required
+def account_choosing_topic():
+    form = ChooseTopic()
+
+    for supervisor in Staff.query.distinct().all():
+        form.staff.choices.append(supervisor.user.get_name())
+
+    for worktype in Worktype.query.distinct().all():
+        form.worktype.choices.append(worktype)
+
+    return render_template('account/choosing_topic.html', form=form)
+
+
+@login_required
+def account_workflow():
+    return render_template('account/account_workflow.html')
+
+
+@login_required
+def account_preparation():
+    return render_template('account/account_preparation.html')
+
+
+@login_required
+def account_thesis_defense():
+    return render_template('account/defense.html')
+
+
+@login_required
+def account_materials():
+    return render_template('account/account_materials.html')
