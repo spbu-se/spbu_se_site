@@ -64,6 +64,8 @@ class Staff(db.Model):
 
     supervisor = db.relationship("Thesis", backref=db.backref("supervisor"), foreign_keys='Thesis.supervisor_id')
     adviser = db.relationship("Thesis", backref=db.backref("reviewer"), foreign_keys='Thesis.reviewer_id')
+    #supervisor_current_thesis = db.relationship("CurrentThesis", backref=db.backref("supervisor_current_thesis"),
+     #                                           foreign_keys='CurrentThesis.supervisor_id')
 
     def __repr__(self):
         return '<%r>' % self.official_email
@@ -114,6 +116,8 @@ class Users(db.Model, UserMixin):
     internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False),
                                         foreign_keys='Internships.author_id')
 
+    user_student = db.relationship("UserStudent", backref=db.backref("user", uselist=False))
+
     def get_name(self):
         full_name = ''
         if self.last_name:
@@ -158,29 +162,32 @@ class Users(db.Model, UserMixin):
 
 
 class UserStudent(db.Model):
-    __tablename__ = 'user_students'
+    __tablename__ = 'user_student'
 
     id = db.Column(db.Integer, primary_key=True)
     have_seen_faq = db.Column(db.Boolean, default=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
-    # thesises = db.relationship('Thesis', backref='user_students')
+    thesises = db.relationship('CurrentThesis', backref=db.backref("user_student", uselist=False))
 
     def __repr__(self):
-        return self.user_id.get_name()
+        return self.user.get_name()
 
 
 class CurrentThesis(db.Model):
-    __tablename__ = 'current_thesises'
+    __tablename__ = 'current_thesis'
 
     id = db.Column(db.Integer, primary_key=True)
     course = db.Column(db.Integer, nullable=False)
     area = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'))
-    title = db.Column(db.String(512), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    title = db.Column(db.String(512), nullable=True)
+
+    author_id = db.Column(db.Integer, db.ForeignKey('user_student.id'))
+
+    # supervisor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
 
     def __repr__(self):
-        return self.title
+        return str(self.id) + str(self.course) + str(self.area)
 
 
 class InternshipFormat(db.Model):

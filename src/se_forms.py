@@ -84,6 +84,7 @@ class Lecture(FlaskForm):
     startdate = SelectField('worktype', choices=[])
     enddate = SelectField('worktype', choices=[])
 
+
 # Account forms
 class CurrentCourseArea(FlaskForm):
     area = SelectField('area', choices=[])

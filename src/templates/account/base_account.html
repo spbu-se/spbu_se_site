@@ -35,7 +35,7 @@
             <div class="row row-grid">
                 <div class="col-md-3">
 
-                    <div id="accordion-1" class="accordion accordion-stacked">
+                    <div id="accordion-1" class="accordion accordion-stacked mb-2">
 
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
@@ -51,17 +51,20 @@
 
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
-                                <a href="{{ url_for('account_profile') }}"><h6 class="mb-0">Профиль студента</h6></a>
+                                <a href="{{ url_for('account_new_thesis') }}"><h6 class="mb-0">Новая работа</h6></a>
                             </div>
                         </div>
 
+                        {% if user.user_student %}
+                        {% for practice in user.user_student[0].thesises %}
                         <div class="card">
-                            <div class="card-header py-4" id="heading-1-1" data-toggle="collapse" role="button" data-target="#collapse-1-1" aria-expanded="false" aria-controls="collapse-1-1">
-                                <h6 class="mb-0" style="padding-right: 0.5rem">Учебная практика 2 курс</h6>
+                            <div class="card-header py-4" id="{{ "heading-"+(practice.id|string()) }}" data-toggle="collapse" role="button" data-target="{{ "#collapse-"+(practice.id|string()) }}" aria-expanded="false" aria-controls="{{ "collapse-"+(practice.id|string()) }}">
+                                <h6 class="mb-0" style="padding-right: 0.5rem">Учебная практика {{ practice.course }} курс</h6>
                             </div>
-                            <div id="collapse-1-1" class="collapse" aria-labelledby="heading-1-1" data-parent="#accordion-1">
+                            <div id="{{ "collapse-"+(practice.id|string()) }}" class="collapse" aria-labelledby="{{ "heading-"+(practice.id|string()) }}" data-parent="#accordion-1">
                                 <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
                                     <nav class="nav flex-column">
+                                        <a class="nav-link" href="{{ url_for('account_data_for_practice', id=practice.id) }}">Настройки</a>
                                         <a class="nav-link" href="{{ url_for('account_choosing_topic') }}">Выбор темы</a>
                                         <a class="nav-link" href="{{ url_for('account_workflow') }}">Рабочий процесс</a>
                                         <a class="nav-link" href="{{ url_for('account_preparation') }}">Подготовка к защите</a>
@@ -71,6 +74,9 @@
                                 </div>
                             </div>
                         </div>
+                        {% endfor %}
+                        {% endif %}
+
 
                     </div>
 
