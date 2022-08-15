@@ -12,12 +12,6 @@ from se_models import AreasOfStudy, Users, CurrentThesis, Staff, Worktype
 @login_required
 def account_profile():
     user = current_user
-    return render_template('account/profile.html', user=user)
-
-
-@login_required
-def submit_course_area():
-    user = current_user
     form = CurrentCourseArea()
     course = form.course
 
@@ -50,12 +44,12 @@ def account_index():
 
 
 @login_required
-def guide():
-    return render_template('account/guide.html')\
+def account_guide():
+    return render_template('account/guide.html')
 
 
 @login_required
-def choosing_topic():
+def account_choosing_topic():
     form = ChooseTopic()
 
     for supervisor in Staff.query.distinct().all():
@@ -68,20 +62,20 @@ def choosing_topic():
 
 
 @login_required
-def workflow():
-    return render_template('account/workflow.html')
+def account_workflow():
+    return render_template('account/account_workflow.html')
 
 
 @login_required
-def preparation():
-    return render_template('account/preparation.html')
+def account_preparation():
+    return render_template('account/account_preparation.html')
 
 
 @login_required
-def defense():
+def account_thesis_defense():
     return render_template('account/defense.html')
 
 
 @login_required
-def materials():
-    return render_template('account/materials.html')
+def account_materials():
+    return render_template('account/account_materials.html')
