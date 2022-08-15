@@ -378,7 +378,7 @@ class DiplomaThemes(db.Model):
     title = db.Column(db.String(512), nullable=False)
     description = db.Column(db.String(2048), nullable=True)
     requirements = db.Column(db.String(2048), nullable=True)
-    status = db.Column(db.Integer, default=0, nullable=False) # 0 - new, 1 - need update, 2 - approved
+    status = db.Column(db.Integer, default=0, nullable=False) # 0 - new, 1 - need update, 2 - approved, 3 - archive
     comment = db.Column(db.String(2048), nullable=True)
 
     levels = db.relationship('ThemesLevel', secondary=diploma_themes_level, lazy='subquery',

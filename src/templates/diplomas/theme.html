@@ -58,6 +58,8 @@
                             <span class="badge badge-danger badge-pill" data-container="body" data-toggle="tooltip" data-placement="right" data-title="{% if theme.comment %} {{theme.comment}} {% else %} Странно, тему отправили на доработку, но не указали комментарий. Так быть не должно, свяжитесь со мной для выяснения причин (телеграм @Zelenchuk) {% endif %}">Требуется доработка</span>
                         {% elif theme.status == 2 %}
                             <span class="badge badge-success badge-pill" data-container="body" data-toggle="tooltip" data-placement="right" data-title="Ваша тема одобрена, ей назначен научный руководитель и она доступна в общем списке актуальных тем.">Одобрена</span>
+                        {% elif theme.status == 3 %}
+                            <span class="badge badge-primary badge-pill" data-container="body" data-toggle="tooltip" data-placement="right" data-title="Ваша тема в архиве. Чтобы отправить ее на проверку, внесите любые изменения и сохраните их.">В архиве</span>
                         {% endif %}
                         <hr class="my-2" />
                     {% endif %}
