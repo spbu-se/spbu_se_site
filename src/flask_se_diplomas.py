@@ -127,7 +127,7 @@ def add_user_theme():
     user = current_user
     add_theme = UserAddTheme()
     add_theme.levels.choices = [(g.id, g.level) for g in ThemesLevel.query.order_by('id').all()]
-    add_theme.company.choices = [(g.id, g.name) for g in Company.query.order_by('id')]
+    add_theme.company.choices = [(g.id, g.name) for g in Company.query.filter_by(status=0).order_by('id')]
 
     if request.method == 'POST':
         title = request.form.get('title', type=str)

@@ -404,6 +404,7 @@ class Company (db.Model):
 
     name = db.Column(db.String(512), nullable=False)
     logo_uri = db.Column(db.String(512), nullable=True)
+    status = db.Column(db.Integer, default=0, nullable=True)
 
     theme = db.relationship('DiplomaThemes', back_populates='company')
     reviewer = db.relationship('Reviewer', back_populates='company')
