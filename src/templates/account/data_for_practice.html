@@ -21,7 +21,7 @@
        </div>
     </div>
 
-    <form method="POST" action="{{url_for('account_data_for_practice') }}">
+    <form method="POST" action="{{url_for('account_data_for_practice', id=practice_id)}}">
         <!-- General information -->
         {{ form.csrf_token }}
 

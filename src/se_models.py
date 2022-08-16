@@ -179,7 +179,7 @@ class CurrentThesis(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     course = db.Column(db.Integer, nullable=False)
-    area = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'))
+    area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'))
     title = db.Column(db.String(512), nullable=True)
 
     author_id = db.Column(db.Integer, db.ForeignKey('user_student.id'))
@@ -187,7 +187,7 @@ class CurrentThesis(db.Model):
     # supervisor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
 
     def __repr__(self):
-        return str(self.id) + str(self.course) + str(self.area)
+        return self.title
 
 
 class InternshipFormat(db.Model):
@@ -313,9 +313,12 @@ class AreasOfStudy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     area = db.Column(db.String(512), nullable=False)
 
+    current_thesis = db.relationship("CurrentThesis", backref=db.backref('area', uselist=False))
     thesis = db.relationship("Thesis", backref=db.backref('area', uselist=False))
     thesis_on_review = db.relationship("ThesisOnReview", backref=db.backref('area', uselist=False))
 
+    def __repr__(self):
+        return self.area
 
 class Tags(db.Model):
     id = db.Column(db.Integer, primary_key=True)

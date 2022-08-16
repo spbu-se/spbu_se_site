@@ -15,28 +15,28 @@ def account_new_thesis():
     form = CurrentCourseArea()
 
     if request.method == "POST":
-        currentArea = request.form.get('area', type=str)
-        course = request.form.get('course', type=int)
-        new_thesis = CurrentThesis()
-        new_thesis.course = course
-        new_thesis.author_id = user.user_student[0].id
-        print(user.user_student[0].id)
-        currentArea_id = 0
-        for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).distinct().all():
-            if (area.area == currentArea):
-                currentArea_id = area.id
-        new_thesis.area = currentArea_id
+        current_area_id = request.form.get('area', type=int)
+        current_course = request.form.get('course', type=int)
+        if current_area_id == 0:
+            flash('Выберите направление.', category='error')
+        elif current_course == 0:
+            flash('Выберите курс.', category='error')
+        else:
+            new_thesis = CurrentThesis()
+            new_thesis.course = current_course
+            new_thesis.author_id = user.user_student[0].id
+            new_thesis.area_id = current_area_id
 
-        db.session.add(new_thesis)
-        db.session.commit()
+            db.session.add(new_thesis)
+            db.session.commit()
 
-    for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).distinct().all():
-        form.area.choices.append(area.area)
+    form.area.choices.append((0, 'Выберите направление'))
+    for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by('id').all():
+        form.area.choices.append((area.id, area.area))
 
-    form.area.choices.sort(key=lambda tup: tup[0])
-
+    form.course.choices.append((0, 'Выберите курс'))
     for course in range(2, 7):
-        form.course.choices.append(course)
+        form.course.choices.append((course, course))
 
     return render_template('account/profile.html', user=user, review_filter=form, form=form)
 
@@ -74,16 +74,31 @@ def account_data_for_practice():
 
     user = current_user
     form = CurrentCourseArea()
+    practice = CurrentThesis.query.filter_by(id=practice_id).first()
 
-    for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).distinct().all():
-        form.area.choices.append(area.area)
+    if request.method == "POST":
+        current_area_id = request.form.get('area', type=int)
+        current_course = request.form.get('course', type=int)
 
-    form.area.choices.sort(key=lambda tup: tup[0])
+        if current_area_id != practice.area_id:
+            practice.area_id = current_area_id
+            db.session.commit()
+        if current_course != practice.course:
+            practice.course = current_course
+            db.session.commit()
 
+
+    form.area.choices.append((practice_id, practice.area))
+    for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).filter(AreasOfStudy.id != practice.area.id).\
+            order_by('id').all():
+        form.area.choices.append((area.id, area.area))
+
+    form.course.choices.append((practice.course, practice.course))
     for course in range(2, 7):
-        form.course.choices.append(course)
+        if (course != practice.course):
+            form.course.choices.append((course, course))
 
-    return render_template('account/data_for_practice.html', user=user, form=form)
+    return render_template('account/data_for_practice.html', user=user, form=form, practice_id=practice_id)
 
 
 @login_required
