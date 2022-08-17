@@ -11,26 +11,6 @@
                 </div>
             </div>
 
-            {% with errors = get_flashed_messages(category_filter=["error"]) %}
-            {% if errors %}
-            <div class="row">
-                <div class="col-12">
-
-                    {%- for message in errors %}
-
-                    <div class="alert alert-info" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        {{message}}
-                    </div>
-                    {% endfor -%}
-
-                </div>
-            </div>
-            {% endif %}
-            {% endwith %}
-
             <div class="row row-grid">
                 <div class="col-md-3">
 
@@ -54,8 +34,7 @@
                             </div>
                         </div>
 
-                        {% if user.user_student %}
-                        {% for practice in user.user_student[0].thesises %}
+                        {% for practice in thesises %}
                         <div class="card">
                             <div class="card-header py-4" id="{{ "heading-"+(practice.id|string()) }}" data-toggle="collapse" role="button" data-target="{{ "#collapse-"+(practice.id|string()) }}" aria-expanded="false" aria-controls="{{ "collapse-"+(practice.id|string()) }}">
                                 <h6 class="mb-0" style="padding-right: 0.5rem">Учебная практика {{ practice.course }} курс</h6>
@@ -74,14 +53,35 @@
                             </div>
                         </div>
                         {% endfor %}
-                        {% endif %}
 
                     </div>
 
                 </div>
 
                 <div class="col-md-9">
+
+                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                    {% if errors %}
+                    <div class="row">
+                        <div class="col-12">
+
+                            {%- for message in errors %}
+
+                            <div class="alert alert-warning" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                {{message}}
+                            </div>
+                            {% endfor -%}
+
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
                     {% block content_account %}{% endblock %}
+
                 </div>
             </div>
         </div>
