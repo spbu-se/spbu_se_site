@@ -17,12 +17,12 @@ def diplomas_index():
     #themes = DiplomaThemes.query.filter_by(status=2).all()
     user_themes_count = 0
 
-    for sid in DiplomaThemes.query.with_entities(DiplomaThemes.company_id).distinct().all():
+    for sid in DiplomaThemes.query.with_entities(DiplomaThemes.company_id).filter_by(status=2).distinct().all():
         company = Company.query.filter_by(id=sid[0]).first()
         diploma_filter.company.choices.append((sid[0], company.name))
         diploma_filter.company.choices.sort(key=lambda tup: tup[1])
 
-    for sid in DiplomaThemes.query.with_entities(DiplomaThemes.supervisor_id).distinct().all():
+    for sid in DiplomaThemes.query.with_entities(DiplomaThemes.supervisor_id).filter_by(status=2).distinct().all():
 
         if sid[0] is None:
             continue
