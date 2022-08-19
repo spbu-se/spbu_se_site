@@ -170,7 +170,7 @@ class InternshipCompany(db.Model):
     internship = db.relationship('Internships', back_populates='company')
 
     def __str__(self):
-        return (self.name)
+        return self.name
 
 
 class Internships (db.Model):
