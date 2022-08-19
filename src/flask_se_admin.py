@@ -55,7 +55,7 @@ class SeAdminIndexView(AdminIndexView):
 
 class SeAdminModelViewUsers(SeAdminModelView):
 
-    column_exclude_list = ['password_hash']
+    column_exclude_list = ['password_hash', 'internship_author']
 
     pass
 
