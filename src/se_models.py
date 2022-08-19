@@ -193,7 +193,10 @@ class Internships (db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __repr__(self):
-        return self.company
+        return self.name_vacancy
+
+    def __self__(self):
+        return self.name_vacancy
 
 
 # Coursework, diploma
