@@ -15,45 +15,106 @@
     <div class="row">
         <div class="col">
             <p>Дедлайн по выбору темы: 15 сентября 2022</p>
-            <p>Выберите тему из доступных или предложите свою, затем согласуйте свой выбор с научным руководителем</p>
         </div>
     </div>
 
-    <form method="POST" action="{{url_for('account_choosing_topic') }}">
+    <form method="POST" action="{{url_for('account_choosing_topic', id=practice.id) }}">
         {{ form.csrf_token }}
 
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body pt-3">
+        {% if practice.title and not edit %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body pt-3">
 
-                        <h6>Выбрать тему</h6>
+                            <h6>Выбранная тема</h6>
+                            <h5>{{ practice.title }}</h5>
+                            <p>Научный руководитель: <b>{{practice.supervisor}}</b>
+                                <br>Тип работы: <b>{{practice.worktype}}</b></p>
 
-                        <div class="form-group">
-                            <label for="topic">Название темы</label>
-                            {{form.topic(class_="form-control", placeholder=form.topic.description)}}
-                        </div>
+                            <div class="row">
+                                <div class="col">
+                                    <input type="submit" class="btn btn-sm btn-primary" name="submit_button" value="Редактировать">
+                                </div>
+                                <div class="col d-flex justify-content-end">
+                                    <a data-toggle="modal" data-target="#deleteModal" class="btn btn-sm btn-outline-danger" href="#">Отказаться от темы</a>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="ModalLabel">Подтверждение</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Вы точно хотите отказаться от данной темы?
 
-                        <div class="form-group">
-                            <label for="staff">Научный руководитель</label>
-                            {{ form.staff(class_="custom-select pl-3") }}
-                        </div>
+                                                    {% if practice.title %}
+                                                        <br><b>{{practice.title}}</b>
+                                                    {% endif %}
+                                                </div>
 
-                        <div class="form-group">
-                            <label for="worktype">Тип работы</label>
-                            {{ form.worktype(class_="custom-select pl-3") }}
-                        </div>
-
-                        <div class="row">
-                            <div class="col">
-                                <button type="submit" class="btn btn-sm btn-primary">Сохранить</button>
+                                                <div class="modal-footer">
+                                                    <input type="submit" class="btn btn-secondary" name="submit_button" value="Да, отказываюсь!">
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        {% else %}
+            {%if not edit %}
+            <div class="row">
+                <div class="col">
+                    <p>Выберите тему из доступных или предложите свою, затем согласуйте свой выбор с научным руководителем</p>
+                </div>
+            </div>
+            {% endif %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body pt-3">
+
+                            {%if edit %}
+                            <h6>Редактирование темы</h6>
+                            {% else %}
+                            <h6>Выбрать тему</h6>
+                            {% endif %}
+
+                            <div class="form-group">
+                                <label for="topic">Название темы</label>
+                                {{form.topic(class_="form-control", placeholder=form.topic.description)}}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="staff">Научный руководитель</label>
+                                {{ form.staff(class_="custom-select pl-3") }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="worktype">Тип работы</label>
+                                {{ form.worktype(class_="custom-select pl-3") }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+                                    <input type="submit" class="btn btn-sm btn-primary" name="submit_button" value="Сохранить">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
 
     </form>
 
@@ -69,7 +130,6 @@
             <a class="btn btn-primary btn-block" href="/diplomas/add_theme.html" target="_blank" role="button">Предложить тему</a>
         </div>
     </div>
-
 
 </div>
 

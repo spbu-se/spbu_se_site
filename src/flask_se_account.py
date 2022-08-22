@@ -109,32 +109,63 @@ def account_data_for_practice():
 
 @login_required
 def account_choosing_topic():
-    user = current_user
+    current_thesis_id = request.args.get('id', type=int)
+    if not current_thesis_id:
+        return redirect(url_for('account_index'))
+
     form = ChooseTopic()
+    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
 
+    edit = False
     if request.method == "POST":
-        topic = request.form.get('topic', type=str)
-        supervisor = request.form.get('staff', type=str)
-        worktype = request.form.get('worktype', type=str)
+        if request.form['submit_button'] == 'Сохранить':
+            topic = request.form.get('topic', type=str)
+            supervisor_id = request.form.get('staff', type=int)
+            worktype_id = request.form.get('worktype', type=int)
 
-        supervisor_id = 1
-        for staff in Staff.query.distinct().all():
-            if (staff.user.get_name() == supervisor):
-                supervisor_id = staff.user.id
+            if not topic:
+                flash('Введите название темы.', category='error')
+            elif len(topic) <= 7:
+                flash('Слишком короткое название темы.', category='error')
+            elif not supervisor_id:
+                flash('Выберите научного руководителя.', category='error')
+            elif not worktype_id:
+                flash('Выберите тип работы.', category='error')
+            else:
+                current_thesis.title = topic
+                current_thesis.supervisor_id = supervisor_id
+                current_thesis.worktype_id = worktype_id
 
-        print(topic)
-        print(supervisor_id)
-        print(worktype)
+                db.session.commit()
+                edit = False
 
-    form.staff.choices.append('Выберите научного руководителя')
-    for supervisor in Staff.query.filter_by(still_working=1).all():
-        form.staff.choices.append(supervisor.user.get_name())
+        elif request.form['submit_button'] == 'Редактировать':
+            edit = True
 
-    form.worktype.choices.append('Выберите тип работы')
-    for worktype in Worktype.query.all():
-        form.worktype.choices.append(worktype)
+        elif request.form['submit_button'] == 'Да, отказываюсь!':
+            current_thesis.title = None
+            current_thesis.supervisor_id = None
+            current_thesis.worktype_id = None
 
-    return render_template('account/choosing_topic.html', thesises=get_list_of_thesises(), form=form)
+            db.session.commit()
+
+    if current_thesis.title:
+        form.topic.data = current_thesis.title
+        form.staff.choices.append((current_thesis.supervisor_id, current_thesis.supervisor))
+        form.worktype.choices.append((current_thesis.worktype_id, current_thesis.worktype))
+        for supervisor in Staff.query.filter_by(still_working=True).filter(Staff.id != current_thesis.supervisor_id).all():
+            form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
+        for worktype in Worktype.query.filter(Worktype.id > 1).filter(Worktype.id != current_thesis.worktype_id).all():
+            form.worktype.choices.append((worktype.id, worktype.type))
+    else:
+        form.staff.choices.append((0, 'Выберите научного руководителя'))
+        for supervisor in Staff.query.filter_by(still_working=True).all():
+            form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
+        form.worktype.choices.append((0, 'Выберите тип работы'))
+        for worktype in Worktype.query.filter(Worktype.id > 1).all():
+            form.worktype.choices.append((worktype.id, worktype.type))
+
+    return render_template('account/choosing_topic.html', thesises=get_list_of_thesises(), form=form, practice=current_thesis, edit=edit)
 
 
 @login_required
@@ -161,6 +192,6 @@ def get_list_of_thesises():
     user = current_user
 
     if not user.user_student:
-        return redirect(url_for('user_profile'))
+        return [] #redirect(url_for('user_profile'))
 
     return [thesis for thesis in user.user_student[0].thesises if thesis.deleted == False]

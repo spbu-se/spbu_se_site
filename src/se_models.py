@@ -64,8 +64,7 @@ class Staff(db.Model):
 
     supervisor = db.relationship("Thesis", backref=db.backref("supervisor"), foreign_keys='Thesis.supervisor_id')
     adviser = db.relationship("Thesis", backref=db.backref("reviewer"), foreign_keys='Thesis.reviewer_id')
-    #supervisor_current_thesis = db.relationship("CurrentThesis", backref=db.backref("supervisor_current_thesis"),
-     #                                           foreign_keys='CurrentThesis.supervisor_id')
+    current_thesises = db.relationship("CurrentThesis", backref=db.backref("supervisor"))
 
     def __repr__(self):
         return '<%r>' % self.official_email
@@ -178,13 +177,15 @@ class CurrentThesis(db.Model):
     __tablename__ = 'current_thesis'
 
     id = db.Column(db.Integer, primary_key=True)
-    course = db.Column(db.Integer, nullable=False)
-    area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'))
-    title = db.Column(db.String(512), nullable=True)
-    deleted = db.Column(db.Boolean, default=False)
     author_id = db.Column(db.Integer, db.ForeignKey('user_student.id'))
+    course = db.Column(db.Integer, nullable=False)
+    area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'), nullable=True)
 
-    # supervisor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
+    title = db.Column(db.String(512), nullable=True)
+    supervisor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
+    worktype_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=True)
+
+    deleted = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return self.title
@@ -241,6 +242,7 @@ class Worktype(db.Model):
 
     thesis = db.relationship("Thesis", backref=db.backref("type", uselist=False))
     thesis_on_review = db.relationship("ThesisOnReview", backref=db.backref('worktype', uselist=False))
+    current_thesis = db.relationship("CurrentThesis", backref=db.backref("worktype"))
 
     def __repr__(self):
         return self.type

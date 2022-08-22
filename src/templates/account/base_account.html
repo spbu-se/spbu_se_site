@@ -28,12 +28,6 @@
                             </div>
                         </div>
 
-                        <div class="card">
-                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
-                                <a href="{{ url_for('account_new_thesis') }}"><h6 class="mb-0">Новая работа</h6></a>
-                            </div>
-                        </div>
-
                         {% for practice in thesises %}
                         <div class="card">
                             <div class="card-header py-4" id="{{ "heading-"+(practice.id|string()) }}" data-toggle="collapse" role="button" data-target="{{ "#collapse-"+(practice.id|string()) }}" aria-expanded="false" aria-controls="{{ "collapse-"+(practice.id|string()) }}">
@@ -43,7 +37,7 @@
                                 <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
                                     <nav class="nav flex-column">
                                         <a class="nav-link" href="{{ url_for('account_data_for_practice', id=practice.id) }}">Настройки</a>
-                                        <a class="nav-link" href="{{ url_for('account_choosing_topic') }}">Выбор темы</a>
+                                        <a class="nav-link" href="{{ url_for('account_choosing_topic', id=practice.id) }}">Выбор темы</a>
                                         <a class="nav-link" href="{{ url_for('account_workflow') }}">Рабочий процесс</a>
                                         <a class="nav-link" href="{{ url_for('account_preparation') }}">Подготовка к защите</a>
                                         <a class="nav-link" href="{{ url_for('account_thesis_defense') }}">Защита</a>
@@ -53,6 +47,12 @@
                             </div>
                         </div>
                         {% endfor %}
+
+                        <div class="card">
+                            <div class="py-3 px-4 mb-0" style="background-color: transparent; border-bottom: 1px solid #eaecf3;">
+                                <a class="btn btn-sm btn-primary btn-block" href="{{ url_for('account_new_thesis') }}" role="button">Новая работа</a>
+                            </div>
+                        </div>
 
                     </div>
 
