@@ -74,7 +74,7 @@ def notification_send_diploma_themes_on_review():
     if not diploma_themes_on_review_count:
         return
 
-    recipients = ['ilya@hackerdom.ru', 'dnet@inbox.ru']
+    recipients = ['ilya@hackerdom.ru', 'y.litvinov@spbu.ru']
     message = MIMEMultipart('alternative')
     message["Subject"] = '[SE site] Есть неодобренные темы учебных практик и ВКР'
     message["From"] = MAIL_DEFAULT_SENDER
