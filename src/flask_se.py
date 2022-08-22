@@ -174,7 +174,7 @@ app.config['SCHEDULER_TIMEZONE'] = 'UTC'
 scheduler = APScheduler()
 scheduler.add_job(id='RecalculatePostRank', func=recalculate_post_rank, trigger="interval", seconds=3600)
 scheduler.add_job(id='SendMailNotification', func=notification_send_mail, trigger="interval", seconds=10)
-scheduler.add_job(id='SendDiplomaThemesOnReviewNotification', func=notification_send_diploma_themes_on_review, trigger="interval", seconds=60)
+scheduler.add_job(id='SendDiplomaThemesOnReviewNotification', func=notification_send_diploma_themes_on_review, trigger="interval", seconds=86400)
 scheduler.start()
 
 # Init Flask-admin
