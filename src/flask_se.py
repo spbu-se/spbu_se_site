@@ -33,7 +33,7 @@ from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_t
     fetch_thesis_on_review, review_become_thesis_reviewer_ask, review_become_thesis_reviewer_confirm
 from flask_se_internships import add_internship, internships_index, page_internship, delete_internship, \
     update_internship, fetch_internships
-from se_sendmail import notification_send_mail
+from se_sendmail import notification_send_mail, notification_send_diploma_themes_on_review
 
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
@@ -174,6 +174,7 @@ app.config['SCHEDULER_TIMEZONE'] = 'UTC'
 scheduler = APScheduler()
 scheduler.add_job(id='RecalculatePostRank', func=recalculate_post_rank, trigger="interval", seconds=3600)
 scheduler.add_job(id='SendMailNotification', func=notification_send_mail, trigger="interval", seconds=10)
+scheduler.add_job(id='SendDiplomaThemesOnReviewNotification', func=notification_send_diploma_themes_on_review, trigger="interval", seconds=600)
 scheduler.start()
 
 # Init Flask-admin
