@@ -3,7 +3,6 @@
 import smtplib, ssl
 
 from se_models import db, Notification, Users, DiplomaThemes
-from flask import render_template
 from flask_se_config import MAIL_PASSWORD
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -81,7 +80,10 @@ def notification_send_diploma_themes_on_review():
     message["From"] = MAIL_DEFAULT_SENDER
     message['To'] = ", ".join(recipients)
 
-    data = render_template('notification/diploma_themes_on_review_count.html', count=diploma_themes_on_review_count)
+    data = '''
+    Сейчас на сайте {0} тем находятся на проверке (<a href="https://se.math.spbu.ru/admin/reviewdiplomathemes/" target="_blank">Проверка тем</a>).
+    '''.format(diploma_themes_on_review_count)
+
     part1 = MIMEText(data, 'plain')
     part2 = MIMEText(data, 'html')
     message.attach(part1)
