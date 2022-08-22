@@ -70,6 +70,8 @@ def notification_send_diploma_themes_on_review():
 
     diploma_themes_on_review_count = DiplomaThemes.query.filter_by(status=0).count()
 
+    print ("Invoke notification_send_diploma_themes_on_review = " + str(diploma_themes_on_review_count))
+
     if not diploma_themes_on_review_count:
         return
 
