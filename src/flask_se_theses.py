@@ -124,6 +124,29 @@ def fetch_theses():
         return render_template('fetch_theses_blank.html')
 
 
+# Download thesis link
+def download_thesis():
+
+    thesis_id = request.args.get('thesis_id', default=0, type=int)
+
+    if not thesis_id:
+        return redirect('theses_search')
+
+    thesis = Thesis.query.filter_by(id=thesis_id)
+
+    if not thesis:
+        return redirect('theses_search')
+
+    if not thesis.text_uri:
+        return redirect('theses_search')
+
+    # Increment counter
+    thesis.download_thesis = thesis.download_thesis + 1
+    db.session.commit()
+
+    return redirect(url_for('static', filename='/thesis/texts/' + thesis.text_uri))
+
+
 def post_theses():
 
     error_status = 500

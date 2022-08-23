@@ -274,6 +274,9 @@ class Thesis (db.Model):
 
     review = db.relationship('ThesisReview', back_populates='thesis')
 
+    download_thesis = db.Column(db.Integer, default=0, nullable=True)
+    download_presentation = db.Column(db.Integer, default=0, nullable=True)
+
 
 class AreasOfStudy (db.Model):
     id = db.Column(db.Integer, primary_key=True)
