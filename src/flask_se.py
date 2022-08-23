@@ -80,6 +80,7 @@ app.add_url_rule('/post_theses', methods=['GET', 'POST'], view_func=flask_se_the
 app.add_url_rule('/theses_tmp.html', view_func=flask_se_theses.theses_tmp)
 app.add_url_rule('/theses_delete_tmp', view_func=flask_se_theses.theses_delete_tmp)
 app.add_url_rule('/theses_add_tmp', view_func=flask_se_theses.theses_add_tmp)
+app.add_url_rule('/thesis_download', view_func=flask_se_theses.download_thesis)
 
 
 # News

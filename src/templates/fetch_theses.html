@@ -7,7 +7,7 @@
             </div>
             <div class="col-auto ml-auto text-right">
                 {% if t.text_uri %}
-                <a href="{{ url_for('static', filename='/thesis/texts/' + t.text_uri) }}" class="text-reset" target="_blank">
+                <a href="{{ url_for('download_thesis', t.id) }}" class="text-reset" target="_blank">
                     <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Текст работы" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                         <i class="fas fa-file-pdf"></i>
                     </div>
