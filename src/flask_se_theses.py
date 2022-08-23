@@ -132,7 +132,7 @@ def download_thesis():
     if not thesis_id:
         return redirect('theses_search')
 
-    thesis = Thesis.query.filter_by(id=thesis_id)
+    thesis = Thesis.query.filter_by(id=thesis_id).first()
 
     if not thesis:
         return redirect('theses_search')
