@@ -74,11 +74,14 @@ def notification_send_diploma_themes_on_review():
     if not diploma_themes_on_review_count:
         return
 
-    recipients = ['ilya@hackerdom.ru', 'y.litvinov@spbu.ru']
+    # Add recipients here!
+    recipients = ['y.litvinov@spbu.ru']
+    
     message = MIMEMultipart('alternative')
     message["Subject"] = '[SE site] Есть неодобренные темы учебных практик и ВКР'
     message["From"] = MAIL_DEFAULT_SENDER
-    message['To'] = ", ".join(recipients)
+    message['To'] = "ilya@hackerdom.ru"
+    message['CC'] = ", ".join(recipients)
 
     data = '''
     Сейчас на сайте {0} тем находятся на проверке (<a href="https://se.math.spbu.ru/admin/reviewdiplomathemes/" target="_blank">Проверка тем</a>).
