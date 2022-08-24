@@ -84,7 +84,6 @@ class Lecture(FlaskForm):
     course = SelectField('course', choices=[])
     supervisor = SelectField('supervisor', choices=[])
     startdate = SelectField('worktype', choices=[])
-    enddate = SelectField('worktype', choices=[])
 
 
 class AddInternship(FlaskForm):

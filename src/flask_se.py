@@ -28,7 +28,7 @@ from flask_se_scholarships import get_scholarships_1, get_scholarships_2, get_sc
     get_scholarships_10, get_scholarships_11, get_scholarships_12, get_scholarships_13
 from flask_se_diplomas import diplomas_index, get_theme, add_user_theme, user_diplomas_index, delete_theme, \
     edit_user_theme, fetch_themes
-from flask_se_internships import add_internship, internships_index, page_internship, delete_internship, update_internship
+from flask_se_internships import add_internship, fetch_internships, internships_index, page_internship, delete_internship, update_internship
 from se_models import db, Internships
 from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_thesis_on_review, \
     delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review, \
@@ -132,6 +132,7 @@ app.add_url_rule('/review/fetch_thesis_on_review', methods=['GET'], view_func=fe
 
 # Internships
 app.add_url_rule('/internships/index', methods=['GET', 'POST'], view_func=internships_index)
+app.add_url_rule('/internships/fetch_internships', methods=['GET'], view_func=fetch_internships)
 app.add_url_rule('/internships/add', methods=['GET', 'POST'], view_func=add_internship)
 app.add_url_rule('/internships/<int:id>', methods=['GET', 'POST'], view_func=page_internship)
 app.add_url_rule('/internships/<int:id>/delete', view_func=delete_internship)
@@ -360,4 +361,4 @@ if __name__ == "__main__":
         elif sys.argv[1] == "init":
             init_db()
     else:
-        app.run(port=5000)
+        app.run(port=5000, debug=True)

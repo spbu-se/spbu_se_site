@@ -47,10 +47,7 @@
                     </div>
 
 
-                    {% if internship.author_id == user.id %}
-                        <a href="/internships/{{ internship.id }}/delete" class="btn btn-primary">Удалить</a>
-                        <a href="/internships/{{ internship.id }}/update" class="btn btn-primary">Редактировать</a>
-                    {% endif %}
+
 
                 </div>
                 <div class="col item mt-7">
@@ -77,11 +74,16 @@
                     <p class="text-sm">
                         {{internship.salary}}
                     </p>
+                   <hr class="my-2" />
                   {% endif %}
-                    <hr class="my-2" />
-                    <p class="text-sm">
-                        <a href={{ internship.more_inf }} class="btn btn-primary">Откликнуться </a>
-                    </p>
+                  {% if internship.author_id == user.id %}
+                        <a href="/internships/{{ internship.id }}/delete" class="btn btn-outline-danger btn-xs">Удалить</a>
+                        <a href="/internships/{{ internship.id }}/update" class="btn btn-outline-primary btn-xs">Редактировать</a>
+                    {% endif %}
+{#                    <hr class="my-2" />#}
+{#                    <p class="text-sm">#}
+{#                        <a href={{ internship.more_inf }} class="btn btn-primary">Откликнуться </a>#}
+{#                    </p>#}
                 </div>
 
             </div>
