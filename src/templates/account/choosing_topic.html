@@ -21,7 +21,7 @@
     <form method="POST" action="{{url_for('account_choosing_topic', id=practice.id) }}">
         {{ form.csrf_token }}
 
-        {% if practice.title and not edit %}
+        {% if practice.title %}
             <div class="row">
                 <div class="col-12">
                     <div class="card">
@@ -71,23 +71,17 @@
                 </div>
             </div>
         {% else %}
-            {%if not edit %}
             <div class="row">
                 <div class="col">
-                    <p>Выберите тему из доступных или предложите свою, затем согласуйте свой выбор с научным руководителем</p>
+                    <p>Выберите тему из <a href="/diplomas/index.html">доступных</a> или <a href="/diplomas/add_theme.html">предложите свою</a>, затем согласуйте свой выбор с научным руководителем</p>
                 </div>
             </div>
-            {% endif %}
+
             <div class="row">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body pt-3">
-
-                            {%if edit %}
-                            <h6>Редактирование темы</h6>
-                            {% else %}
                             <h6>Выбрать тему</h6>
-                            {% endif %}
 
                             <div class="form-group">
                                 <label for="topic">Название темы</label>
@@ -117,19 +111,6 @@
         {% endif %}
 
     </form>
-
-    <div class="row mb-2">
-        <div class="col-xl-4 col-lg-3 col-md-2 col-sm-1 col-0"></div>
-        <div class="col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12">
-            <a class="btn btn-success btn-block" href="/diplomas/index.html" target="_blank" role="button">Доступные темы</a>
-        </div>
-    </div>
-    <div class="row mb-2">
-        <div class="col-xl-4 col-lg-3 col-md-2 col-sm-1 col-0"></div>
-        <div class="col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12">
-            <a class="btn btn-primary btn-block" href="/diplomas/add_theme.html" target="_blank" role="button">Предложить тему</a>
-        </div>
-    </div>
 
 </div>
 

@@ -28,20 +28,20 @@
                             </div>
                         </div>
 
-                        {% for practice in thesises %}
+                        {% for thesis in thesises %}
                         <div class="card">
-                            <div class="card-header py-4" id="{{ "heading-"+(practice.id|string()) }}" data-toggle="collapse" role="button" data-target="{{ "#collapse-"+(practice.id|string()) }}" aria-expanded="false" aria-controls="{{ "collapse-"+(practice.id|string()) }}">
-                                <h6 class="mb-0" style="padding-right: 0.5rem">Учебная практика {{ practice.course }} курс</h6>
+                            <div class="card-header py-4" id="{{ "heading-"+(thesis.id|string()) }}" data-toggle="collapse" role="button" data-target="{{ "#collapse-"+(thesis.id|string()) }}" aria-expanded={% if practice and practice.id == thesis.id %}"true"{% else %}"false"{% endif %} aria-controls="{{ "collapse-"+(thesis.id|string()) }}">
+                                <h6 class="mb-0" style="padding-right: 0.5rem">Учебная практика {{ thesis.course }} курс</h6>
                             </div>
-                            <div id="{{ "collapse-"+(practice.id|string()) }}" class="collapse" aria-labelledby="{{ "heading-"+(practice.id|string()) }}" data-parent="#accordion-1">
+                            <div id="{{ "collapse-"+(thesis.id|string()) }}" class={% if practice and practice.id == thesis.id %}"collapse show"{% else %}"collapse"{% endif %} aria-labelledby="{{ "heading-"+(thesis.id|string()) }}" data-parent="#accordion-1">
                                 <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
                                     <nav class="nav flex-column">
-                                        <a class="nav-link" href="{{ url_for('account_data_for_practice', id=practice.id) }}">Настройки</a>
-                                        <a class="nav-link" href="{{ url_for('account_choosing_topic', id=practice.id) }}">Выбор темы</a>
-                                        <a class="nav-link" href="{{ url_for('account_workflow') }}">Рабочий процесс</a>
-                                        <a class="nav-link" href="{{ url_for('account_preparation') }}">Подготовка к защите</a>
-                                        <a class="nav-link" href="{{ url_for('account_thesis_defense') }}">Защита</a>
-                                        <a class="nav-link" href="{{ url_for('account_materials') }}">Материалы</a>
+                                        <a class="nav-link" href="{{ url_for('account_choosing_topic', id=thesis.id) }}">Выбор темы</a>
+                                        <a class="nav-link" href="{{ url_for('account_workflow', id=thesis.id) }}">Рабочий процесс</a>
+                                        <a class="nav-link" href="{{ url_for('account_preparation', id=thesis.id) }}">Подготовка к защите</a>
+                                        <a class="nav-link" href="{{ url_for('account_thesis_defense', id=thesis.id) }}">Защита</a>
+                                        <a class="nav-link" href="{{ url_for('account_materials', id=thesis.id) }}">Материалы</a>
+                                        <a class="nav-link" href="{{ url_for('account_data_for_practice', id=thesis.id) }}">Настройки</a>
                                     </nav>
                                 </div>
                             </div>
