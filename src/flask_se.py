@@ -27,7 +27,7 @@ from flask_se_scholarships import get_scholarships_1, get_scholarships_2, get_sc
     get_scholarships_5, get_scholarships_6, get_scholarships_7, get_scholarships_8, get_scholarships_9, \
     get_scholarships_10, get_scholarships_11, get_scholarships_12, get_scholarships_13
 from flask_se_diplomas import diplomas_index, get_theme, add_user_theme, user_diplomas_index, delete_theme, \
-    edit_user_theme, fetch_themes
+    edit_user_theme, fetch_themes, archive_theme, unarchive_theme
 from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_thesis_on_review, \
     delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review, \
     fetch_thesis_on_review, review_become_thesis_reviewer_ask, review_become_thesis_reviewer_confirm
@@ -116,6 +116,8 @@ app.add_url_rule('/diplomas/user_themes.html', view_func=user_diplomas_index)
 app.add_url_rule('/diplomas/delete_theme.html', view_func=delete_theme)
 app.add_url_rule('/diplomas/edit_theme.html', methods=['GET', 'POST'], view_func=edit_user_theme)
 app.add_url_rule('/diplomas/fetch_themes', view_func=fetch_themes)
+app.add_url_rule('/diplomas/archive_theme', view_func=archive_theme)
+app.add_url_rule('/diplomas/unarchive_theme', view_func=unarchive_theme)
 
 
 # Review thesis

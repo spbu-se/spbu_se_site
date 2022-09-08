@@ -14,7 +14,7 @@
                                 </div>
                             </div>
     </div>
-                        <div class="card-body pt-2">
+                        <div class="card-body py-2">
                             {% set ns = namespace(found = false) %}
                             <p class="mb-0">Уровень: {% if t.levels %} {% for level in t.levels %}{% if 'ВКР' in level.level %} {% set ns.found = true %} {% endif %}{{level.level}}{% if not loop.last %}, {% endif %} {% endfor %} {% endif %}</p>
                             <p class="mb-0">Источник темы: {% if t.company.id == 1 %} {{t.author}} {% else %} {{t.company.name}} {% endif %}</p>

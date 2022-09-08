@@ -113,7 +113,7 @@
                 </p>
 
                 {% if current_user.is_authenticated %}
-                    {% if theme.author_id == current_user.id%}
+                    {% if theme.author_id == current_user.id %}
                         <hr class="my-2" />
                         <h6 class="">Управление</h6>
                         <a href="{{ url_for('edit_user_theme', theme_id=theme.id) }}" class="btn btn-xs btn-primary">
@@ -145,6 +145,79 @@
                                     </div>
         {% endif %}
         {% endif %}
+
+                    {% if current_user.is_authenticated %}
+                    {% if theme.author_id == current_user.id %}
+                    {% if theme.status != 3 %}
+
+                        <hr class="my-2" />
+                        <h6 class="">Архив</h6>
+                        <p class="text-sm">Если тема уже выбрана или более не актуальна, уберите ее в архив.
+                            <a href="#" data-toggle="modal" data-target="#archiveModal" class="btn btn-xs btn-secondary">
+                                <span class="btn-inner--text">Убрать в архив</span>
+                            </a>
+                        </p>
+
+         <!-- Modal -->
+        <div class="modal fade" id="archiveModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel2" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="ModalLabel2">Подтверждение</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Вы всегда сможете вернуть и опубликовать тему из архива. Убрать текущую тему в архив?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="{{url_for('archive_theme', theme_id=theme.id)}}" type="button" class="btn btn-secondary">Да, убрать</a>
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+        {% endif %}
+        {% endif %}
+        {% endif %}
+
+                    {% if current_user.is_authenticated %}
+                    {% if theme.author_id == current_user.id %}
+                    {% if theme.status == 3 %}
+
+                        <hr class="my-2" />
+                        <h6 class="">Архив</h6>
+                        <p class="text-sm">Ваша тема в архиве, хотите ее вернуть и опубликовать?
+                            <a href="#" data-toggle="modal" data-target="#archiveModal2" class="btn btn-xs btn-secondary">
+                                <span class="btn-inner--text">Вернуть тему из архива</span>
+                            </a>
+                        </p>
+
+         <!-- Modal -->
+        <div class="modal fade" id="archiveModal2" tabindex="-1" role="dialog" aria-labelledby="ModalLabel3" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="ModalLabel3">Подтверждение</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Вернуть текущую тему из архива?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="{{url_for('unarchive_theme', theme_id=theme.id)}}" type="button" class="btn btn-secondary">Да, вернуть</a>
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+        {% endif %}
+        {% endif %}
+        {% endif %}
+
 
             </div>
         </div>

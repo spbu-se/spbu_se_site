@@ -279,3 +279,41 @@ def edit_user_theme():
         return redirect(url_for('user_diplomas_index'))
 
     return render_template('diplomas/edit_theme.html', form=edit_theme, user=user)
+
+
+@login_required
+def archive_theme():
+
+    theme_id = request.args.get('theme_id', type=int)
+
+    if not theme_id:
+        return redirect(url_for('diplomas_index'))
+
+    theme = DiplomaThemes.query.filter_by(id=theme_id).first_or_404()
+
+    if theme.author.id != current_user.id:
+        return redirect(url_for('diplomas_index'))
+
+    theme.status = 3
+    db.session.commit()
+
+    return redirect(url_for('get_theme', id=theme.id))
+
+
+@login_required
+def unarchive_theme():
+
+    theme_id = request.args.get('theme_id', type=int)
+
+    if not theme_id:
+        return redirect(url_for('diplomas_index'))
+
+    theme = DiplomaThemes.query.filter_by(id=theme_id).first_or_404()
+
+    if theme.author.id != current_user.id:
+        return redirect(url_for('diplomas_index'))
+
+    theme.status = 0
+    db.session.commit()
+
+    return redirect(url_for('get_theme', id=theme.id))
