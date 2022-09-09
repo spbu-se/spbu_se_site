@@ -1326,9 +1326,10 @@ def get_2022_271():
 
             last_name = supervisor.split()[-3]
 
-            q = Users.query.filter_by(last_name=last_name).first()
-            if q:
-                r = Staff.query.filter_by(user_id=q.id).first()
+            #q = Users.query.filter_by(last_name=last_name).first()
+            print (last_name)
+            r = Staff.query.join(Staff.user).filter(Users.last_name==last_name).first()
+            if r:
                 supervisor_id = r.id
             else:
                 print ("Error, no " + supervisor)
@@ -1427,9 +1428,10 @@ def get_2022_371():
 
             last_name = supervisor.split()[-3]
 
-            q = Users.query.filter_by(last_name=last_name).first()
-            if q:
-                r = Staff.query.filter_by(user_id=q.id).first()
+            #q = Users.query.filter_by(last_name=last_name).first()
+            print (last_name)
+            r = Staff.query.join(Staff.user).filter(Users.last_name==last_name).first()
+            if r:
                 supervisor_id = r.id
             else:
                 print ("Error, no " + supervisor)
