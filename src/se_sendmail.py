@@ -75,7 +75,7 @@ def notification_send_diploma_themes_on_review():
         return
 
     # Add recipients here!
-    recipients = ['y.litvinov@spbu.ru']
+    recipients = ['y.litvinov@spbu.ru', 'dluciv@gmail.com', 'stanislav.sartasov@gmail.com']
     
     message = MIMEMultipart('alternative')
     message["Subject"] = '[SE site] Есть неодобренные темы учебных практик и ВКР'
