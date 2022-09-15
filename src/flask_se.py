@@ -137,11 +137,11 @@ app.add_url_rule('/review/become_thesis_reviewer_confirm', methods=['GET'],
 
 # Internships
 app.add_url_rule('/internships/index', methods=['GET', 'POST'], view_func=internships_index)
+app.add_url_rule('/internships/fetch_internships', methods=['GET'], view_func=fetch_internships)
 app.add_url_rule('/internships/add', methods=['GET', 'POST'], view_func=add_internship)
 app.add_url_rule('/internships/<int:id>', methods=['GET', 'POST'], view_func=page_internship)
 app.add_url_rule('/internships/<int:id>/delete', view_func=delete_internship)
 app.add_url_rule('/internships/<int:id>/update', methods=['GET', 'POST'], view_func=update_internship)
-app.add_url_rule('/internships/fetch_internships', methods=['GET'], view_func=fetch_internships)
 
 
 # Init Database
