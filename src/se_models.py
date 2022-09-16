@@ -106,6 +106,7 @@ class Users(db.Model, UserMixin):
     diploma_themes_author = db.relationship("DiplomaThemes", backref=db.backref("author", uselist=False),
                                             foreign_keys='DiplomaThemes.author_id')
 
+    current_thesises = db.relationship('CurrentThesis', backref=db.backref("user", uselist=False))
     thesises = db.relationship("Thesis", backref=db.backref("owner", uselist=False))
     thesis_on_review_author = db.relationship("ThesisOnReview", backref=db.backref("author", uselist=False))
 
@@ -114,8 +115,6 @@ class Users(db.Model, UserMixin):
     all_user_votes = db.relationship('PostVote', back_populates='user')
     internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False),
                                         foreign_keys='Internships.author_id')
-
-    user_student = db.relationship("UserStudent", backref=db.backref("user", uselist=False))
 
     def get_name(self):
         full_name = ''
@@ -160,24 +159,11 @@ class Users(db.Model, UserMixin):
         return full_name
 
 
-class UserStudent(db.Model):
-    __tablename__ = 'user_student'
-
-    id = db.Column(db.Integer, primary_key=True)
-    have_seen_faq = db.Column(db.Boolean, default=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-    thesises = db.relationship('CurrentThesis', backref=db.backref("user_student", uselist=False))
-
-    def __repr__(self):
-        return self.user.get_name()
-
-
 class CurrentThesis(db.Model):
     __tablename__ = 'current_thesis'
 
     id = db.Column(db.Integer, primary_key=True)
-    author_id = db.Column(db.Integer, db.ForeignKey('user_student.id'))
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     course = db.Column(db.Integer, nullable=False)
     area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'), nullable=True)
 

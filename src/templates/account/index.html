@@ -12,24 +12,7 @@
         </div>
     </div>
 
-    <form method="POST" action="{{url_for('account_index') }}">
-        {% if userIsStudent %}
-        <h6>Вы уже студент!</h6>
-        <div class="row">
-            <div class="col">
-                <button type="submit" class="btn btn-sm btn-primary" disabled>Я студент!</button>
-            </div>
-        </div>
-        {% else %}
-        <div class="row">
-            <div class="col">
-                <button type="submit" class="btn btn-sm btn-primary">Я студент!</button>
-            </div>
-        </div>
-        {% endif %}
-
-    </form>
-
+    
 </div>
 
 {% endblock %}

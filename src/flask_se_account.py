@@ -6,25 +6,12 @@ from flask_login import current_user
 
 from flask_se_auth import login_required
 from se_forms import CurrentCourseArea, ChooseTopic
-from se_models import AreasOfStudy, Users, CurrentThesis, Staff, Worktype, UserStudent, db
+from se_models import AreasOfStudy, CurrentThesis, Staff, Worktype, db
 
 
 @login_required
 def account_index():
-    user = current_user
-
-    if request.method == "POST":
-        user_student = UserStudent()
-        user_student.user_id = user.id
-
-        db.session.add(user_student)
-        db.session.commit()
-
-    userIsStudent = False
-    if len(user.user_student) >= 1:
-        userIsStudent = True
-
-    return render_template('account/index.html', thesises=get_list_of_thesises(), userIsStudent=userIsStudent)
+    return render_template('account/index.html', thesises=get_list_of_thesises())
 
 
 @login_required
@@ -47,7 +34,7 @@ def account_new_thesis():
         else:
             new_thesis = CurrentThesis()
             new_thesis.course = current_course
-            new_thesis.author_id = user.user_student[0].id
+            new_thesis.author_id = user.id
             new_thesis.area_id = current_area_id
 
             db.session.add(new_thesis)
@@ -62,7 +49,9 @@ def account_new_thesis():
     for course in range(2, 7):
         form.course.choices.append((course, course))
 
-    return render_template('account/new_practice.html', thesises=get_list_of_thesises(), user=user, review_filter=form, form=form)
+    return render_template('account/new_practice.html', thesises=get_list_of_thesises(), user=user, review_filter=form,
+                           form=form)
+
 
 
 @login_required
@@ -72,7 +61,7 @@ def account_choosing_topic():
         return redirect(url_for('account_index'))
 
     current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
-    if not current_thesis:
+    if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
     form = ChooseTopic()
@@ -125,7 +114,7 @@ def account_edit_theme():
         return redirect(url_for('account_index'))
 
     current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
-    if not current_thesis:
+    if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
     form = ChooseTopic()
@@ -170,7 +159,7 @@ def account_workflow():
         return redirect(url_for('account_index'))
 
     current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
-    if not current_thesis:
+    if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
     return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis)
@@ -183,7 +172,7 @@ def account_preparation():
         return redirect(url_for('account_index'))
 
     current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
-    if not current_thesis:
+    if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
     return render_template('account/preparation.html', thesises=get_list_of_thesises(), practice=current_thesis)
@@ -196,7 +185,7 @@ def account_thesis_defense():
         return redirect(url_for('account_index'))
 
     current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
-    if not current_thesis:
+    if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
     return render_template('account/defense.html', thesises=get_list_of_thesises(), practice=current_thesis)
@@ -209,7 +198,7 @@ def account_materials():
         return redirect(url_for('account_index'))
 
     current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
-    if not current_thesis:
+    if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
     return render_template('account/materials.html', thesises=get_list_of_thesises(), practice=current_thesis)
@@ -222,7 +211,7 @@ def account_data_for_practice():
         return redirect(url_for('account_index'))
 
     current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
-    if not current_thesis:
+    if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
     user = current_user
@@ -263,8 +252,4 @@ def account_data_for_practice():
 
 def get_list_of_thesises():
     user = current_user
-
-    if not user.user_student:
-        return [] #redirect(url_for('user_profile'))
-
-    return [thesis for thesis in user.user_student[0].thesises if thesis.deleted == False]
+    return [thesis for thesis in user.current_thesises if thesis.deleted == False]
