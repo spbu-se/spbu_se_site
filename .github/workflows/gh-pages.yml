@@ -46,7 +46,7 @@ jobs:
         # Set up Python 3.6 environment
         - uses: actions/setup-python@v2
           with:
-              python-version: '3.x'
+              python-version: '3.8.0'
               
         # Install dependencies
         - name: Install dependencies
