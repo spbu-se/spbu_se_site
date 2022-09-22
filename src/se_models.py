@@ -116,6 +116,8 @@ class Users(db.Model, UserMixin):
     internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False),
                                         foreign_keys='Internships.author_id')
 
+    notifications = db.relationship('NotificationCurrentThesises', backref=db.backref("user", uselist=False))
+
     def get_name(self):
         full_name = ''
         if self.last_name:
@@ -175,6 +177,18 @@ class CurrentThesis(db.Model):
 
     def __repr__(self):
         return self.title
+
+
+class NotificationCurrentThesises(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    content = db.Column(db.String(512), nullable=False)
+    time = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    viewed = db.Column(db.Boolean, default=False, nullable=False)
+
+    def __repr__(self):
+        return self.content
 
 
 class InternshipFormat(db.Model):

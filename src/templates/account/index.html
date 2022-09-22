@@ -12,6 +12,41 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col">
+            <ul class="nav nav-tabs mb-3">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Новые уведомления</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Все уведомления</a>
+                </li>
+            </ul>
+
+            {% for notification in notifications %}
+
+            <div class="card mb-2">
+                <div class="card-body pt-3 pb-2">
+                    <div class="row">
+                        <div class="col">
+                            {{ notification }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            {{ notification.time.strftime("%H:%M %d.%m.%Y")}}
+                        </div>
+                        <div class="col d-flex justify-content-end">
+                            Прочитано
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {% endfor %}
+        </div>
+    </div>
     
 </div>
 

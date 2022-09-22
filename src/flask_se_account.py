@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
-
+from datetime import datetime
 
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
 
 from flask_se_auth import login_required
 from se_forms import CurrentCourseArea, ChooseTopic
-from se_models import AreasOfStudy, CurrentThesis, Staff, Worktype, db
+from se_models import AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationCurrentThesises, db
 
 
 @login_required
 def account_index():
-    return render_template('account/index.html', thesises=get_list_of_thesises())
+    user = current_user
+    notifications = user.notifications
+
+    print(datetime.utcnow())
+
+    return render_template('account/index.html', thesises=get_list_of_thesises(), notifications=notifications)
 
 
 @login_required
