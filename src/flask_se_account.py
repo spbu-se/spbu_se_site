@@ -8,8 +8,33 @@ from flask_login import current_user
 from sqlalchemy import desc
 
 from flask_se_auth import login_required
-from se_forms import CurrentCourseArea, ChooseTopic
-from se_models import AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationCurrentThesises, db
+from se_forms import CurrentCourseArea, ChooseTopic, DeadlineTemp
+from se_models import AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationAccount, Deadline, db
+
+
+@login_required
+def account_temp_deadline():
+
+    form = DeadlineTemp()
+
+    if request.method == "POST":
+        deadline = Deadline()
+        deadline.course = request.form.get('course')
+        deadline.area_id = request.form.get('area')
+        deadline.choose_topic = datetime.strptime(request.form.get('choose_topic'), "%Y-%m-%dT%H:%M")
+
+        db.session.add(deadline)
+        db.session.commit()
+
+    form.area.choices.append((0, 'Выберите направление'))
+    for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by('id').all():
+        form.area.choices.append((area.id, area.area))
+
+    form.course.choices.append((0, 'Выберите курс'))
+    for course in range(2, 7):
+        form.course.choices.append((course, course))
+
+    return render_template('account/temp_deadline.html', form=form)
 
 
 @login_required
@@ -19,7 +44,7 @@ def account_temp():
         recipient_id = request.form.get('recipient')
         content = request.form.get('content')
         if recipient_id and content:
-            new_notification = NotificationCurrentThesises()
+            new_notification = NotificationAccount()
             new_notification.recipient_id = recipient_id
             new_notification.content = content
 
@@ -37,12 +62,12 @@ def account_index():
     if not type_notifications:
         type_notifications = "new"
 
-    notifications = NotificationCurrentThesises.query.filter_by(recipient_id=user.id).order_by(desc(NotificationCurrentThesises.time)).all()
+    notifications = NotificationAccount.query.filter_by(recipient_id=user.id).order_by(desc(NotificationAccount.time)).all()
 
     if request.method == "POST":
         if request.form['read_button']:
             notification_id = request.form['read_button']
-            notification = NotificationCurrentThesises.query.filter_by(id=notification_id).first()
+            notification = NotificationAccount.query.filter_by(id=notification_id).first()
             notification.viewed = True
 
             db.session.commit()

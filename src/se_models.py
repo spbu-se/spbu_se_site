@@ -180,7 +180,7 @@ class CurrentThesis(db.Model):
         return self.title
 
 
-class NotificationCurrentThesises(db.Model):
+class NotificationAccount(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -190,6 +190,20 @@ class NotificationCurrentThesises(db.Model):
 
     def __repr__(self):
         return self.content
+
+
+class Deadline(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    course = db.Column(db.Integer, nullable=False)
+    area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'), nullable=False)
+
+    choose_topic = db.Column(db.DateTime, nullable=True)
+    submit_work_for_review = db.Column(db.DateTime, nullable=True)
+    upload_reviews = db.Column(db.DateTime, nullable=True)
+
+    pre_defense = db.Column(db.DateTime, nullable=True)
+    defense = db.Column(db.DateTime, nullable=True)
 
 
 class InternshipFormat(db.Model):

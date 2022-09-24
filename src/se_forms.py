@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SelectMultipleField, widgets
+from wtforms import SelectField, StringField, SelectMultipleField, DateTimeField, widgets
 from flask_wtf.file import FileField, FileRequired
 from wtforms.widgets import TextArea
 from wtforms.validators import DataRequired
@@ -95,3 +95,9 @@ class ChooseTopic(FlaskForm):
     topic = StringField('topic', description='Например, реализация алгоритма контекстно-свободной достижимости на OpenCL')
     staff = SelectField('staff', choices=[])
     worktype = SelectField('worktype', choices=[])
+
+class DeadlineTemp(FlaskForm):
+    area = SelectField('area', choices=[])
+    course = SelectField('course', choices=[])
+
+    choose_topic = DateTimeField('choose_topic', format="%Y-%m-%d %H:%M")

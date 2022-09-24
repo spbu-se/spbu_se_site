@@ -38,7 +38,7 @@ from flask_se_internships import add_internship, internships_index, page_interns
 from se_sendmail import notification_send_mail
 from flask_se_account import account_index, account_guide, account_new_thesis, account_choosing_topic, \
     account_workflow, account_preparation, account_thesis_defense, account_materials, account_data_for_practice, \
-    account_edit_theme, account_temp
+    account_edit_theme, account_temp, account_temp_deadline
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -157,6 +157,7 @@ app.add_url_rule('/account/preparation_for_defense', methods=['GET'], view_func=
 app.add_url_rule('/account/defense', methods=['GET'], view_func=account_thesis_defense)
 app.add_url_rule('/account/account_materials', methods=['GET'], view_func=account_materials)
 app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=account_temp)
+app.add_url_rule('/temp_deadline', methods=['GET', 'POST'], view_func=account_temp_deadline)
 
 
 # Init Database
