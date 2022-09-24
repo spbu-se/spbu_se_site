@@ -8,13 +8,35 @@ from flask_se_auth import login_required
 from se_forms import CurrentCourseArea, ChooseTopic
 from se_models import AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationCurrentThesises, db
 
+@login_required
+def account_temp():
+
+    if request.method == "POST":
+        recipient_id = request.form.get('recipient')
+        content = request.form.get('content')
+        if recipient_id and content:
+            new_notification = NotificationCurrentThesises()
+            new_notification.recipient_id = recipient_id
+            new_notification.content = content
+
+            db.session.add(new_notification)
+            db.session.commit()
+
+    return render_template('account/temp.html')
+
 
 @login_required
 def account_index():
     user = current_user
     notifications = user.notifications
 
-    print(datetime.utcnow())
+    if request.method == "POST":
+        if request.form['read_button']:
+            notification_id = request.form['read_button']
+            notification = NotificationCurrentThesises.query.filter_by(id=notification_id).first()
+            notification.viewed = True
+
+            db.session.commit()
 
     return render_template('account/index.html', thesises=get_list_of_thesises(), notifications=notifications)
 

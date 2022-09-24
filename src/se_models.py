@@ -5,6 +5,8 @@ import shutil
 
 from datetime import datetime
 from pathlib import Path
+
+import pytz
 from sqlalchemy import MetaData
 from flask import render_template
 from flask_sqlalchemy import SQLAlchemy
@@ -184,7 +186,7 @@ class NotificationCurrentThesises(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     content = db.Column(db.String(512), nullable=False)
-    time = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    time = db.Column(db.DateTime, default=datetime.now(pytz.timezone("Europe/Moscow")))
     viewed = db.Column(db.Boolean, default=False, nullable=False)
 
     def __repr__(self):

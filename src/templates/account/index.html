@@ -23,31 +23,61 @@
                 </li>
             </ul>
 
-            {% for notification in notifications %}
+            <form name="read_buttons_form" method="POST" action="{{ url_for('account_index') }}">
+                <input id="hiddenReadButton" type="hidden" name="read_button" value="0"/>
 
-            <div class="card mb-2">
-                <div class="card-body pt-3 pb-2">
-                    <div class="row">
-                        <div class="col">
-                            {{ notification }}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            {{ notification.time.strftime("%H:%M %d.%m.%Y")}}
-                        </div>
-                        <div class="col d-flex justify-content-end">
-                            Прочитано
-                        </div>
-                    </div>
+                {% for notification in notifications %}
+                {% if not notification.viewed %}
+                <div class="card mb-2">
+                    <div class="card-body pt-3 pb-3">
 
+                        <div class="row">
+                            <div class="col">
+                                {{ notification }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                {{ notification.time.strftime("%H:%M %d.%m.%Y")}}
+                            </div>
+                            <div class="col d-flex justify-content-end">
+                                <a href="" onClick="document.getElementById('hiddenReadButton').value = {{notification.id}}; read_buttons_form.submit(); return false;">
+                                    <span id="span{{notification.id}}" class="badge btn-secondary" style="display: inline-block;"
+                                      onmouseover="changeBadge('span{{notification.id}}');"
+                                      onmouseout="changeBadgeBack('span{{notification.id}}');">
+                                    Не прочитано
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-            </div>
+                {% endif %}
+                {% endfor %}
 
-            {% endfor %}
+            </form>
         </div>
     </div>
     
 </div>
+
+<script type="text/javascript">
+    function changeBadge(id)
+    {
+        span = document.getElementById(id);
+        let widthSpan = span.offsetWidth;
+        span.textContent = 'Прочитано';
+        span.style.width = widthSpan.toString() + "px";
+        span.className = "badge btn-success";
+    }
+    function changeBadgeBack(id)
+    {
+        span = document.getElementById(id);
+        span.textContent = 'Не прочитано';
+        span.className = "badge btn-secondary";
+    }
+</script>
 
 {% endblock %}
