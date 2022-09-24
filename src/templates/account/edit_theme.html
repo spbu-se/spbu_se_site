@@ -12,12 +12,6 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col">
-            <p>Дедлайн по выбору темы: 15 сентября 2022</p>
-        </div>
-    </div>
-
     <form method="POST" action="{{url_for('account_edit_theme', id=practice.id) }}">
         {{ form.csrf_token }}
 

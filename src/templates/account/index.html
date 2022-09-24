@@ -49,11 +49,13 @@
 
                         <div class="row">
                             <div class="col">
-                                {{ notification.time | datatime_convert }}
+                                <span class="badge badge-secondary">
+                                    {{ notification.time | datatime_convert }}
+                                </span>
                             </div>
                             <div class="col d-flex justify-content-end">
                                 <a href="" onClick="document.getElementById('hiddenReadButton').value = {{notification.id}}; read_buttons_form.submit(); return false;">
-                                    <span id="span{{notification.id}}" class="badge btn-secondary" style="display: inline-block;"
+                                    <span id="span{{notification.id}}" class="badge btn-primary" style="display: inline-block;"
                                       onmouseover="changeBadge('span{{notification.id}}');"
                                       onmouseout="changeBadgeBack('span{{notification.id}}');">
                                     Не прочитано
@@ -78,7 +80,9 @@
 
                             <div class="row">
                                 <div class="col">
-                                    {{ notification.time | datatime_convert }}
+                                    <span class="badge badge-secondary">
+                                        {{ notification.time | datatime_convert }}
+                                    </span>
                                 </div>
                                 {% if notification.viewed %}
                                 <div class="col d-flex justify-content-end">
@@ -89,7 +93,7 @@
                                 {% else %}
                                 <div class="col d-flex justify-content-end">
                                     <a href="" onClick="document.getElementById('hiddenReadButton').value = {{notification.id}}; read_buttons_form.submit(); return false;">
-                                        <span id="span{{notification.id}}" class="badge btn-secondary" style="display: inline-block;"
+                                        <span id="span{{notification.id}}" class="badge btn-primary" style="display: inline-block;"
                                           onmouseover="changeBadge('span{{notification.id}}');"
                                           onmouseout="changeBadgeBack('span{{notification.id}}');">
                                         Не прочитано
@@ -122,7 +126,7 @@
     {
         span = document.getElementById(id);
         span.textContent = 'Не прочитано';
-        span.className = "badge btn-secondary";
+        span.className = "badge btn-primary";
     }
 </script>
 

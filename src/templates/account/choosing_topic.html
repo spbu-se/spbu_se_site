@@ -12,11 +12,21 @@
         </div>
     </div>
 
+    {% if deadline %}
     <div class="row">
         <div class="col">
-            <p>Дедлайн по выбору темы: 15 сентября 2022</p>
+            {% if practice.title %}
+            <p>Дедлайн по выбору темы: {{ deadline[0] }}</p>
+            {% elif deadline[1] == "danger" %}
+            <p>Дедлайн по выбору темы: <span class="text-danger">{{ deadline[0] }}</span></p>
+            {% elif deadline[1] == "warning" %}
+            <p>Дедлайн по выбору темы: <span class="text-warning">{{ deadline[0] }}</span></p>
+            {% else %}
+            <p>Дедлайн по выбору темы: {{ deadline[0] }}</p>
+            {% endif %}
         </div>
     </div>
+    {% endif %}
 
     <form method="POST" action="{{url_for('account_choosing_topic', id=practice.id) }}">
         {{ form.csrf_token }}

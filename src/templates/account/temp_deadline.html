@@ -33,6 +33,25 @@
                                 {{ form.choose_topic(class="form-control flatpickr-input flatpickr-mobile", type="datetime-local", placeholder="Select date and time") }}
                             </div>
 
+                            <div class="form-group">
+                                <label for="submit_work_for_review">Дедлайн на отправку работы на рецензирование:</label>
+                                {{ form.submit_work_for_review(class="form-control flatpickr-input flatpickr-mobile", type="datetime-local", placeholder="Select date and time") }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="upload_reviews">Дедлайн на загрузку отзывов:</label>
+                                {{ form.upload_reviews(class="form-control flatpickr-input flatpickr-mobile", type="datetime-local", placeholder="Select date and time") }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="pre_defense">Время предзащиты:</label>
+                                {{ form.pre_defense(class="form-control flatpickr-input flatpickr-mobile", type="datetime-local", placeholder="Select date and time") }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="defense">Время защиты:</label>
+                                {{ form.defense(class="form-control flatpickr-input flatpickr-mobile", type="datetime-local", placeholder="Select date and time") }}
+                            </div>
 
                             <div class="row">
                                 <div class="col">

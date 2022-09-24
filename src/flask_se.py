@@ -214,7 +214,7 @@ SimpleMDE(app)
 
 
 @app.template_filter('datatime_convert')
-def datetime_convert(value, format="%H:%M %d.%m.%Y"):
+def datetime_convert(value, format="%d.%m.%Y %H:%M"):
     return value.replace(tzinfo=pytz.UTC).astimezone(tz.tzlocal()).strftime(format)
 
 
