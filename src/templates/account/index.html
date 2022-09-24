@@ -15,17 +15,27 @@
     <div class="row">
         <div class="col">
             <ul class="nav nav-tabs mb-3">
+                {% if type_notifications == "new" %}
                 <li class="nav-item">
-                    <a class="nav-link active" href="#">Новые уведомления</a>
+                    <a class="nav-link active" href="{{ url_for('account_index', notifications='new') }}">Новые уведомления</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Все уведомления</a>
+                    <a class="nav-link" href="{{ url_for('account_index', notifications='all') }}">Все уведомления</a>
                 </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('account_index', notifications='new') }}">Новые уведомления</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('account_index', notifications='all') }}">Все уведомления</a>
+                </li>
+                {% endif %}
             </ul>
 
-            <form name="read_buttons_form" method="POST" action="{{ url_for('account_index') }}">
+            <form name="read_buttons_form" method="POST" action="{{ url_for('account_index', notifications=type_notifications) }}">
                 <input id="hiddenReadButton" type="hidden" name="read_button" value="0"/>
 
+                {% if type_notifications == "new" %}
                 {% for notification in notifications %}
                 {% if not notification.viewed %}
                 <div class="card mb-2">
@@ -39,7 +49,7 @@
 
                         <div class="row">
                             <div class="col">
-                                {{ notification.time.strftime("%H:%M %d.%m.%Y")}}
+                                {{ notification.time | datatime_convert }}
                             </div>
                             <div class="col d-flex justify-content-end">
                                 <a href="" onClick="document.getElementById('hiddenReadButton').value = {{notification.id}}; read_buttons_form.submit(); return false;">
@@ -56,7 +66,43 @@
                 </div>
                 {% endif %}
                 {% endfor %}
+                {% else %}
+                    {% for notification in notifications %}
+                    <div class="card mb-2">
+                        <div class="card-body pt-3 pb-3">
+                            <div class="row">
+                                <div class="col">
+                                    {{ notification }}
+                                </div>
+                            </div>
 
+                            <div class="row">
+                                <div class="col">
+                                    {{ notification.time | datatime_convert }}
+                                </div>
+                                {% if notification.viewed %}
+                                <div class="col d-flex justify-content-end">
+                                    <span class="badge badge-success" style="display: inline-block; width: 103px">
+                                        Прочитано
+                                    </span>
+                                </div>
+                                {% else %}
+                                <div class="col d-flex justify-content-end">
+                                    <a href="" onClick="document.getElementById('hiddenReadButton').value = {{notification.id}}; read_buttons_form.submit(); return false;">
+                                        <span id="span{{notification.id}}" class="badge btn-secondary" style="display: inline-block;"
+                                          onmouseover="changeBadge('span{{notification.id}}');"
+                                          onmouseout="changeBadgeBack('span{{notification.id}}');">
+                                        Не прочитано
+                                        </span>
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
             </form>
         </div>
     </div>

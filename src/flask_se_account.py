@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
+import pytz
+from dateutil import tz
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
+from sqlalchemy import desc
 
 from flask_se_auth import login_required
 from se_forms import CurrentCourseArea, ChooseTopic
 from se_models import AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationCurrentThesises, db
+
 
 @login_required
 def account_temp():
@@ -28,7 +32,12 @@ def account_temp():
 @login_required
 def account_index():
     user = current_user
-    notifications = user.notifications
+
+    type_notifications = request.args.get('notifications', type=str)
+    if not type_notifications:
+        type_notifications = "new"
+
+    notifications = NotificationCurrentThesises.query.filter_by(recipient_id=user.id).order_by(desc(NotificationCurrentThesises.time)).all()
 
     if request.method == "POST":
         if request.form['read_button']:
@@ -38,7 +47,8 @@ def account_index():
 
             db.session.commit()
 
-    return render_template('account/index.html', thesises=get_list_of_thesises(), notifications=notifications)
+    return render_template('account/index.html', thesises=get_list_of_thesises(), notifications=notifications,
+                           type_notifications=type_notifications)
 
 
 @login_required

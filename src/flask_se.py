@@ -3,6 +3,8 @@
 import sys
 from datetime import datetime
 
+import pytz
+from dateutil import tz
 from flask import Flask, render_template, make_response, redirect, url_for, request
 from flask_admin import Admin
 from flask_apscheduler import APScheduler
@@ -37,7 +39,6 @@ from se_sendmail import notification_send_mail
 from flask_se_account import account_index, account_guide, account_new_thesis, account_choosing_topic, \
     account_workflow, account_preparation, account_thesis_defense, account_materials, account_data_for_practice, \
     account_edit_theme, account_temp
-
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -158,8 +159,6 @@ app.add_url_rule('/account/account_materials', methods=['GET'], view_func=accoun
 app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=account_temp)
 
 
-
-
 # Init Database
 db.app = app
 db.init_app(app)
@@ -211,6 +210,11 @@ admin.add_view(SeAdminModelViewReviewDiplomaThemes(DiplomaThemes, db.session, en
 app.config['SIMPLEMDE_JS_IIFE'] = True
 app.config['SIMPLEMDE_USE_CDN'] = False
 SimpleMDE(app)
+
+
+@app.template_filter('datatime_convert')
+def datetime_convert(value, format="%H:%M %d.%m.%Y"):
+    return value.replace(tzinfo=pytz.UTC).astimezone(tz.tzlocal()).strftime(format)
 
 
 # Flask routes goes
