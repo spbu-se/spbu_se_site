@@ -206,6 +206,16 @@ class Deadline(db.Model):
     defense = db.Column(db.DateTime, nullable=True)
 
 
+class ThesisReport(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    was_done = db.Column(db.String(2048), nullable=True)
+    planned_to_do = db.Column(db.String(2048), nullable=True)
+    coursework_id = db.Column(db.Integer, db.ForeignKey('current_thesis.id'))
+
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+
 class InternshipFormat(db.Model):
     __tablename__ = 'internship_format'
 
@@ -336,6 +346,7 @@ class AreasOfStudy(db.Model):
 
     def __repr__(self):
         return self.area
+
 
 class Tags(db.Model):
     id = db.Column(db.Integer, primary_key=True)

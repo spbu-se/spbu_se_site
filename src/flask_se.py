@@ -152,7 +152,7 @@ app.add_url_rule('/account/new', methods=['GET', 'POST'], view_func=account_new_
 app.add_url_rule('/account/data_for_practice', methods=['GET', 'POST'], view_func=account_data_for_practice)
 app.add_url_rule('/account/choosing_topic', methods=['GET', 'POST'], view_func=account_choosing_topic)
 app.add_url_rule('/account/edit_theme', methods=['GET', 'POST'], view_func=account_edit_theme)
-app.add_url_rule('/account/account_workflow', methods=['GET'], view_func=account_workflow)
+app.add_url_rule('/account/account_workflow', methods=['GET', 'POST'], view_func=account_workflow)
 app.add_url_rule('/account/preparation_for_defense', methods=['GET'], view_func=account_preparation)
 app.add_url_rule('/account/defense', methods=['GET'], view_func=account_thesis_defense)
 app.add_url_rule('/account/account_materials', methods=['GET'], view_func=account_materials)

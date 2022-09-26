@@ -2,6 +2,11 @@
 
 {% block title %}Рабочий процесс{% endblock %}
 
+{% block head_links %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}" id="stylesheet">
+    {{ simplemde.js }}
+{% endblock %}
+
 {% block content_account %}
 
 <div class="container">
@@ -11,7 +16,51 @@
             <h5 class="align-right">Рабочий процесс</h5>
         </div>
     </div>
+    <div class="row">
+         <div class="col">
+             <article>
+                 <h6>Форма для отправки отчета</h6>
+             </article>
+         </div>
+     </div>
+    <div class="container">
+        <form method="POST" action="{{url_for('account_workflow', id=practice.id)}}">
+            {{ form.csrf_token }}
+            <input id="csrf_token" name="csrf_token" type="hidden" value="IjFlODYzMGM3OGJhOGJmZDMwNmE0YWJiODkyMjkyN2U1ZDliMWMwMDEi.Yy__0A.-a2HDsftJTasLBHG084ksWFYZ34">
+            <div class="row row-grid">
+                <div class="col-lg-9">
+                    <div class="form-group">
+                        <h6 class="mb-0">Что было сделано? (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)</h6>
+                        {{form.was_done(class_="form-control", placeholder=form.was_done.description, rows="3")}}
+                        <script>
+                        (function () {
+                            var simplemde = new SimpleMDE({
+                                spellChecker: false,
+                                element: document.getElementById("was_done"),
+                            });
+                        })();
+                        </script>
+                    </div>
 
+                    <div class="form-group">
+                        <h6 class="mb-0">Что планируется сделать? (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)</h6>
+                        {{form.planned_to_do(class_="form-control", placeholder=form.planned_to_do.description, rows="3")}}
+                        <script>
+                        (function () {
+                            var simplemde = new SimpleMDE({
+                                spellChecker: false,
+                                element: document.getElementById("planned_to_do"),
+                            });
+                        })();
+                        </script>
+                    </div>
+                </div>
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary w-100">Отправить отчет</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 {% endblock %}

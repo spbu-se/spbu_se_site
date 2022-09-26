@@ -106,3 +106,8 @@ class DeadlineTemp(FlaskForm):
     upload_reviews = DateTimeField('upload_reviews')
     pre_defense = DateTimeField('pre_defense')
     defense = DateTimeField('defense')
+
+
+class UserAddReport(FlaskForm):
+    was_done = StringField('was_done', description='Например: Провел сравнение моего проекта с аналогами. Проанализировал результаты.', widget=TextArea())
+    planned_to_do = StringField('planned_to_do', description='Например: Изучить MySQL, составить схему баз данных для проекта.', widget=TextArea())

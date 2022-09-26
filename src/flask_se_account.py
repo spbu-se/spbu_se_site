@@ -8,9 +8,8 @@ from flask_login import current_user
 from sqlalchemy import desc
 
 from flask_se_auth import login_required
-from se_forms import CurrentCourseArea, ChooseTopic, DeadlineTemp
-from se_models import AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationAccount, Deadline, db
-
+from se_forms import CurrentCourseArea, ChooseTopic, DeadlineTemp, UserAddReport
+from se_models import AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationAccount, Deadline, db, ThesisReport
 
 formatDateTime = "%d.%m.%Y %H:%M"
 
@@ -186,7 +185,6 @@ def account_new_thesis():
                            form=form)
 
 
-
 @login_required
 def account_choosing_topic():
     current_thesis_id = request.args.get('id', type=int)
@@ -248,7 +246,8 @@ def account_choosing_topic():
     for worktype in Worktype.query.filter(Worktype.id > 1).all():
         form.worktype.choices.append((worktype.id, worktype.type))
 
-    return render_template('account/choosing_topic.html', thesises=get_list_of_thesises(), form=form, practice=current_thesis, deadline=deadline_choose_topic)
+    return render_template('account/choosing_topic.html', thesises=get_list_of_thesises(), form=form,
+                           practice=current_thesis, deadline=deadline_choose_topic)
 
 
 @login_required
@@ -306,7 +305,30 @@ def account_workflow():
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
-    return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis)
+    user = current_user
+    add_report = UserAddReport()
+
+    if request.method == 'POST':
+        was_done = request.form.get('was_done', type=str)
+        planned_to_do = request.form.get('planned_to_do', type=str)
+
+        if not was_done:
+            flash('''Поле "уже сделано" является обязательным!''', category='error')
+            #return render_template('account/workflow.html', form=add_report, practice=current_thesis, user=user)
+        elif not planned_to_do:
+            flash('''Поле "планируется сделать" является обязательным!''', category='error')
+            #return render_template('account/workflow.html', form=add_report, practice=current_thesis, user=user)
+        else:
+            c = ThesisReport(was_done=was_done, planned_to_do=planned_to_do, coursework_id=current_thesis_id,
+                             author_id=user.id)
+            db.session.add(c)
+            flash('Отчет отправлен!', category='error')
+            db.session.commit()
+        return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
+                           form=add_report, user=user)
+
+    return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
+                           form=add_report, user=user)
 
 
 @login_required
