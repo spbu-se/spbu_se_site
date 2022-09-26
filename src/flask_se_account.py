@@ -313,19 +313,16 @@ def account_workflow():
         planned_to_do = request.form.get('planned_to_do', type=str)
 
         if not was_done:
-            flash('''Поле "уже сделано" является обязательным!''', category='error')
-            #return render_template('account/workflow.html', form=add_report, practice=current_thesis, user=user)
+            flash('Поле "Что было сделано?" является обязательным!', category='error')
         elif not planned_to_do:
-            flash('''Поле "планируется сделать" является обязательным!''', category='error')
-            #return render_template('account/workflow.html', form=add_report, practice=current_thesis, user=user)
+            flash('Поле "Что планируется сделать?" является обязательным!', category='error')
         else:
             c = ThesisReport(was_done=was_done, planned_to_do=planned_to_do, coursework_id=current_thesis_id,
                              author_id=user.id)
+
             db.session.add(c)
-            flash('Отчет отправлен!', category='error')
             db.session.commit()
-        return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
-                           form=add_report, user=user)
+            flash('Отчет отправлен!', category='success')
 
     return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
                            form=add_report, user=user)

@@ -181,7 +181,6 @@ class CurrentThesis(db.Model):
 
 
 class NotificationAccount(db.Model):
-
     id = db.Column(db.Integer, primary_key=True)
     recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     content = db.Column(db.String(512), nullable=False)
@@ -193,7 +192,6 @@ class NotificationAccount(db.Model):
 
 
 class Deadline(db.Model):
-
     id = db.Column(db.Integer, primary_key=True)
     course = db.Column(db.Integer, nullable=False)
     area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'), nullable=False)
@@ -209,11 +207,11 @@ class Deadline(db.Model):
 class ThesisReport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    was_done = db.Column(db.String(2048), nullable=True)
-    planned_to_do = db.Column(db.String(2048), nullable=True)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     coursework_id = db.Column(db.Integer, db.ForeignKey('current_thesis.id'))
 
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    was_done = db.Column(db.String(2048), nullable=True)
+    planned_to_do = db.Column(db.String(2048), nullable=True)
 
 
 class InternshipFormat(db.Model):
