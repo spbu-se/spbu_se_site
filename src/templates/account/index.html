@@ -42,20 +42,20 @@
                     <div class="card-body pt-3 pb-3">
 
                         <div class="row">
-                            <div class="col">
+                            <div class="col mb-2">
                                 {{ notification }}
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col">
-                                <span class="badge badge-secondary">
+                                <span class="badge btn-link disabled pl-0" style="display: inline-block;">
                                     {{ notification.time | datatime_convert }}
                                 </span>
                             </div>
                             <div class="col d-flex justify-content-end">
                                 <a href="" onClick="document.getElementById('hiddenReadButton').value = {{notification.id}}; read_buttons_form.submit(); return false;">
-                                    <span id="span{{notification.id}}" class="badge btn-primary" style="display: inline-block;"
+                                    <span id="span{{notification.id}}" class="badge btn-secondary" style="display: inline-block;"
                                       onmouseover="changeBadge('span{{notification.id}}');"
                                       onmouseout="changeBadgeBack('span{{notification.id}}');">
                                     Не прочитано
@@ -73,27 +73,27 @@
                     <div class="card mb-2">
                         <div class="card-body pt-3 pb-3">
                             <div class="row">
-                                <div class="col">
+                                <div class="col mb-2">
                                     {{ notification }}
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
-                                    <span class="badge badge-secondary">
-                                        {{ notification.time | datatime_convert }}
+                                    <span class="badge btn-link disabled pl-0" style="display: inline-block;">
+                                    {{ notification.time | datatime_convert }}
                                     </span>
                                 </div>
                                 {% if notification.viewed %}
                                 <div class="col d-flex justify-content-end">
-                                    <span class="badge badge-success" style="display: inline-block; width: 103px">
+                                    <a><span class="badge btn-success disabled" style="display: inline-block; width: 103px">
                                         Прочитано
-                                    </span>
+                                    </span></a>
                                 </div>
                                 {% else %}
                                 <div class="col d-flex justify-content-end">
                                     <a href="" onClick="document.getElementById('hiddenReadButton').value = {{notification.id}}; read_buttons_form.submit(); return false;">
-                                        <span id="span{{notification.id}}" class="badge btn-primary" style="display: inline-block;"
+                                        <span id="span{{notification.id}}" class="badge btn-secondary" style="display: inline-block;"
                                           onmouseover="changeBadge('span{{notification.id}}');"
                                           onmouseout="changeBadgeBack('span{{notification.id}}');">
                                         Не прочитано
@@ -126,7 +126,7 @@
     {
         span = document.getElementById(id);
         span.textContent = 'Не прочитано';
-        span.className = "badge btn-primary";
+        span.className = "badge btn-secondary";
     }
 </script>
 
