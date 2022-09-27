@@ -6,23 +6,6 @@
 
 <div class="container">
 
-    {% with messages = get_flashed_messages(category_filter=["success"]) %}
-    {% if messages %}
-        <div class="row">
-            <div class="col-12">
-                {%- for message in messages %}
-                <div class="alert alert-success" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    {{message}}
-                </div>
-                {% endfor -%}
-            </div>
-        </div>
-    {% endif %}
-    {% endwith %}
-
     <div class="row">
         <div class="col">
             <h5 class="align-right">Настройки</h5>

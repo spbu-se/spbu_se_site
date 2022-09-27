@@ -16,6 +16,11 @@
             <h5 class="align-right">Рабочий процесс</h5>
         </div>
     </div>
+    <div class="row">
+        <div class="col">
+            <p>Отчитывайтесь о проделанной работе и дальнейших планах научному руководителю</p>
+        </div>
+    </div>
     <form method="POST" action="{{url_for('account_workflow', id=practice.id)}}">
         {{ form.csrf_token }}
         <div class="row">
@@ -41,7 +46,6 @@
                                         })();
                                         </script>
                                     </div>
-
                                     <div class="form-group">
                                         <h6 class="mb-0">Что планируется сделать? (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)</h6>
                                         {{form.planned_to_do(class_="form-control", placeholder=form.planned_to_do.description, rows="3")}}
@@ -61,8 +65,10 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </form>
+
 </div>
 
 {% endblock %}

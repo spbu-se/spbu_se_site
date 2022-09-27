@@ -9,6 +9,23 @@
 <section class="mt-7 pt-6 bg-section-secondary">
     <div class="container">
 
+        {% with errors = get_flashed_messages(category_filter=["error"]) %}
+        {% if errors %}
+        <div class="row">
+            <div class="col-12">
+                {%- for message in errors %}
+                <div class="alert alert-warning" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    {{message}}
+                </div>
+                {% endfor -%}
+            </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
         <form method="POST" action="{{url_for('account_temp_deadline') }}">
             {{ form.csrf_token }}
 
