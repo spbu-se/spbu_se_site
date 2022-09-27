@@ -211,9 +211,9 @@ class ThesisReport(db.Model):
 
     was_done = db.Column(db.String(2048), nullable=True)
     planned_to_do = db.Column(db.String(2048), nullable=True)
-    coursework_id = db.Column(db.Integer, db.ForeignKey('current_thesis.id'))
-
+    current_thesis_id = db.Column(db.Integer, db.ForeignKey('current_thesis.id'))
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    time = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class InternshipFormat(db.Model):

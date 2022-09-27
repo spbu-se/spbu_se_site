@@ -109,5 +109,10 @@ class DeadlineTemp(FlaskForm):
 
 
 class UserAddReport(FlaskForm):
-    was_done = StringField('was_done', description='Например: Провел сравнение моего проекта с аналогами. Проанализировал результаты.', widget=TextArea())
-    planned_to_do = StringField('planned_to_do', description='Например: Изучить MySQL, составить схему баз данных для проекта.', widget=TextArea())
+    was_done = StringField('was_done', description='Например: Провел сравнение моего проекта с аналогами. '
+                                                   'Составил таблицу, проанализировал результаты. Сформулировал, чем '
+                                                   'мой проект лучше остальных. и занес в текст введения полученную'
+                                                   ' информацию.', widget=TextArea())
+    planned_to_do = StringField('planned_to_do', description='Например: В ближайшее время планирую дописать введение, '
+                                                             'изучить MySQL по курсам на Stepik, составить схему баз '
+                                                             'данных для моего проекта.', widget=TextArea())

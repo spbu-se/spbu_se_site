@@ -306,7 +306,7 @@ def account_workflow():
         return redirect(url_for('account_index'))
 
     user = current_user
-    add_report = UserAddReport()
+    add_thesis_report = UserAddReport()
 
     if request.method == 'POST':
         was_done = request.form.get('was_done', type=str)
@@ -314,21 +314,21 @@ def account_workflow():
 
         if not was_done:
             flash('''Поле "уже сделано" является обязательным!''', category='error')
-            #return render_template('account/workflow.html', form=add_report, practice=current_thesis, user=user)
         elif not planned_to_do:
             flash('''Поле "планируется сделать" является обязательным!''', category='error')
-            #return render_template('account/workflow.html', form=add_report, practice=current_thesis, user=user)
+        elif len(was_done) <= 10:
+            flash("Слишком короткое описание вашей работы, напишите подробнее!", category='error')
+        elif len(planned_to_do) <= 10:
+            flash("Слишком короткое описание дальнейших планов, напишите подробнее!", category='error')
         else:
-            c = ThesisReport(was_done=was_done, planned_to_do=planned_to_do, coursework_id=current_thesis_id,
-                             author_id=user.id)
-            db.session.add(c)
+            new_report = ThesisReport(was_done=was_done, planned_to_do=planned_to_do,
+                                      current_thesis_id=current_thesis_id, author_id=user.id, time=datetime.now())
+            db.session.add(new_report)
             flash('Отчет отправлен!', category='error')
             db.session.commit()
-        return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
-                           form=add_report, user=user)
 
     return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
-                           form=add_report, user=user)
+                           form=add_thesis_report, user=user)
 
 
 @login_required
