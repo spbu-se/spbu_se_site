@@ -3,6 +3,8 @@
 import sys
 from datetime import datetime
 
+import pytz
+from dateutil import tz
 from flask import Flask, render_template, make_response, redirect, url_for, request
 from flask_admin import Admin
 from flask_apscheduler import APScheduler
@@ -33,8 +35,12 @@ from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_t
     fetch_thesis_on_review, review_become_thesis_reviewer_ask, review_become_thesis_reviewer_confirm
 from flask_se_internships import add_internship, internships_index, page_internship, delete_internship, \
     update_internship, fetch_internships
-from se_sendmail import notification_send_mail, notification_send_diploma_themes_on_review
 
+from se_sendmail import notification_send_mail, notification_send_diploma_themes_on_review
+from flask_se_account import account_index, account_guide, account_new_thesis, account_choosing_topic, \
+    account_workflow, account_preparation, account_thesis_defense, account_materials, account_data_for_practice, \
+    account_edit_theme, account_temp, account_temp_deadline
+    
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -144,6 +150,21 @@ app.add_url_rule('/internships/<int:id>/delete', view_func=delete_internship)
 app.add_url_rule('/internships/<int:id>/update', methods=['GET', 'POST'], view_func=update_internship)
 
 
+# Account
+app.add_url_rule('/account', methods=['GET', 'POST'], view_func=account_index)
+app.add_url_rule('/account/guide', methods=['GET'], view_func=account_guide)
+app.add_url_rule('/account/new', methods=['GET', 'POST'], view_func=account_new_thesis)
+app.add_url_rule('/account/data_for_practice', methods=['GET', 'POST'], view_func=account_data_for_practice)
+app.add_url_rule('/account/choosing_topic', methods=['GET', 'POST'], view_func=account_choosing_topic)
+app.add_url_rule('/account/edit_theme', methods=['GET', 'POST'], view_func=account_edit_theme)
+app.add_url_rule('/account/account_workflow', methods=['GET', 'POST'], view_func=account_workflow)
+app.add_url_rule('/account/preparation_for_defense', methods=['GET'], view_func=account_preparation)
+app.add_url_rule('/account/defense', methods=['GET'], view_func=account_thesis_defense)
+app.add_url_rule('/account/account_materials', methods=['GET'], view_func=account_materials)
+app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=account_temp)
+app.add_url_rule('/temp_deadline', methods=['GET', 'POST'], view_func=account_temp_deadline)
+
+
 # Init Database
 db.app = app
 db.init_app(app)
@@ -196,6 +217,11 @@ admin.add_view(SeAdminModelViewReviewDiplomaThemes(DiplomaThemes, db.session, en
 app.config['SIMPLEMDE_JS_IIFE'] = True
 app.config['SIMPLEMDE_USE_CDN'] = False
 SimpleMDE(app)
+
+
+@app.template_filter('datatime_convert')
+def datetime_convert(value, format="%d.%m.%Y %H:%M"):
+    return value.replace(tzinfo=pytz.UTC).astimezone(tz.tzlocal()).strftime(format)
 
 
 # Flask routes goes

@@ -1,0 +1,104 @@
+{% extends "base_light.html" %}
+
+{% block content %}
+
+    <section class="mt-7 pt-6 bg-section-secondary">
+        <div class="container">
+
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h2>Написание учебных практик и ВКР</h2>
+                </div>
+            </div>
+
+            <div class="row row-grid">
+                <div class="col-md-3">
+
+                    <div id="accordion-1" class="accordion accordion-stacked mb-2">
+
+                        <div class="card">
+                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
+                                <a href="{{ url_for('account_index') }}"><h6 class="mb-0">Главная</h6></a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
+                                <a href="{{ url_for('account_guide') }}"><h6 class="mb-0">Справочник</h6></a>
+                            </div>
+                        </div>
+
+                        {% for thesis in thesises %}
+                        <div class="card">
+                            <div class="card-header py-4" id="{{ "heading-"+(thesis.id|string()) }}" data-toggle="collapse" role="button" data-target="{{ "#collapse-"+(thesis.id|string()) }}" aria-expanded={% if practice and practice.id == thesis.id %}"true"{% else %}"false"{% endif %} aria-controls="{{ "collapse-"+(thesis.id|string()) }}">
+                                <h6 class="mb-0" style="padding-right: 0.5rem">Учебная практика {{ thesis.course }} курс</h6>
+                            </div>
+                            <div id="{{ "collapse-"+(thesis.id|string()) }}" class={% if practice and practice.id == thesis.id %}"collapse show"{% else %}"collapse"{% endif %} aria-labelledby="{{ "heading-"+(thesis.id|string()) }}" data-parent="#accordion-1">
+                                <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
+                                    <nav class="nav flex-column">
+                                        <a class="nav-link" href="{{ url_for('account_choosing_topic', id=thesis.id) }}">Выбор темы</a>
+                                        <a class="nav-link" href="{{ url_for('account_workflow', id=thesis.id) }}">Рабочий процесс</a>
+                                        <a class="nav-link" href="{{ url_for('account_preparation', id=thesis.id) }}">Подготовка к защите</a>
+                                        <a class="nav-link" href="{{ url_for('account_thesis_defense', id=thesis.id) }}">Защита</a>
+                                        <a class="nav-link" href="{{ url_for('account_materials', id=thesis.id) }}">Материалы</a>
+                                        <a class="nav-link" href="{{ url_for('account_data_for_practice', id=thesis.id) }}">Настройки</a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <div class="card">
+                            <div class="py-3 px-4 mb-0" style="background-color: transparent; border-bottom: 1px solid #eaecf3;">
+                                <a class="btn btn-sm btn-primary btn-block" href="{{ url_for('account_new_thesis') }}" role="button">Новая работа</a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-9">
+
+                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                    {% if errors %}
+                    <div class="row">
+                        <div class="col-12">
+                            {%- for message in errors %}
+                            <div class="alert alert-warning" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                {{message}}
+                            </div>
+                            {% endfor -%}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% with messages = get_flashed_messages(category_filter=["success"]) %}
+                    {% if messages %}
+                        <div class="row">
+                            <div class="col-12">
+                                {%- for message in messages %}
+                                <div class="alert alert-success" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    {{message}}
+                                </div>
+                                {% endfor -%}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% block content_account %}{% endblock %}
+
+                </div>
+            </div>
+        </div>
+     </section>
+
+{% endblock %}

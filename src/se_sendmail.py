@@ -62,7 +62,7 @@ def notification_send_mail():
         except smtplib.SMTPSenderRefused:
             print("The server didn’t accept the from_addr.")
         except smtplib.SMTPNotSupportedError:
-            print ("SMTPUTF8 was given in the mail_options but is not supported by the server.")
+            print("SMTPUTF8 was given in the mail_options but is not supported by the server.")
 
 
 def notification_send_diploma_themes_on_review():
