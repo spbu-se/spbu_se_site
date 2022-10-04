@@ -6,7 +6,7 @@ from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
 
 from flask_se_auth import login_required
-from se_internship_forms import AddInternship, InternshipsFilter
+from se_forms import AddInternship, InternshipsFilter
 from se_models import db, Internships, InternshipFormat, InternshipCompany
 
 
@@ -23,6 +23,7 @@ def internships_index():
         internship_filter.format.choices.append((sid.id, sid.format))
 
     internship_filter.format.choices.insert(0, (0, "Все"))
+
     internship_filter.company.choices.insert(0, (0, "Все"))
 
     return render_template('internships/internships_index.html',
@@ -33,8 +34,8 @@ def internships_index():
 def add_internship():
 
     user = current_user
-    add_internship = AddInternship()
-    add_internship.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
+    add_intern = AddInternship()
+    add_intern.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
 
     if request.method == 'POST':
         name_vacancy = request.form.get('name_vacancy', type=str)
@@ -56,15 +57,15 @@ def add_internship():
 
         if not name_vacancy:
             flash("Пожалуйста, укажите название вакансии.")
-            return render_template('internships/add_internship.html', form=add_internship, user=user)
+            return render_template('internships/add_internship.html', form=add_intern, user=user)
 
         if not format:
             flash("Пожалуйста, выберите формат стажировки.")
-            return render_template('internships/add_internship.html', form=add_internship, user=user)
+            return render_template('internships/add_internship.html', form=add_intern, user=user)
 
         if not company:
             flash("Пожалуйста, укажите название компании")
-            return render_template('internships/add_internship.html', form=add_internship, user=user)
+            return render_template('internships/add_internship.html', form=add_intern, user=user)
 
         if not db.session.query(InternshipCompany.id).filter_by(name=company).scalar():
             company_entity = InternshipCompany(name=company)
@@ -77,7 +78,6 @@ def add_internship():
                                  company_id=company_id[0], requirements=requirements, more_inf=more_inf, author_id=user.id)
 
         internship.format = format_list
-
         try:
             db.session.add(internship)
             db.session.commit()
@@ -85,50 +85,65 @@ def add_internship():
         except:
             return "Что-то пошло не так"
 
-    return render_template('internships/add_internship.html', form=add_internship, user=user)
+    return render_template('internships/add_internship.html', form=add_intern, user=user)
 
 
 def page_internship(id):
-
     user = current_user
-
     internship = Internships.query.filter_by(id=id).first()
-
     return render_template("internships/page_internship.html", internship=internship, user=user)
 
 
 # @login_required
 def delete_internship(id):
-
     internship = Internships.query.get_or_404(id)
-
+    user = current_user
     try:
         db.session.delete(internship)
         db.session.commit()
         return redirect(url_for('internships_index'))
     except:
-           "При удалении стажировки произошла ошибка"
+        flash("При удалении стажировки произошла ошибка.")
+        return render_template("internships/page_internship.html", internship=internship, user=user)
+
 
 
 @login_required
 def update_internship(id):
-
     upd_internship = AddInternship()
     upd_internship.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
     internship = Internships.query.get(id)
 
     if request.method == 'POST':
+
         internship.name_vacancy = request.form.get('name_vacancy', type=str)
         internship.description = request.form.get('description', type=str)
         internship.requirements = request.form.get('requirements', type=str)
-        internship.company = request.form.get('company', type=str)
         internship.location = request.form.get('location', type=str)
         internship.salary = request.form.get('salary', type=str)
         internship.more_inf = request.form.get('more_inf', type=str)
+        company = request.form.get('company', type=str)
+        format = request.form.getlist('format', type=int)
 
+        format_list = []
+
+        int_format = InternshipFormat.query.all()
+
+        for f in int_format:
+            if f.id in format:
+                format_list.append(f)
+
+        if not db.session.query(InternshipCompany.id).filter_by(name=company).scalar():
+            company_entity = InternshipCompany(name=company)
+            db.session.add(company_entity)
+            db.session.commit()
+
+        company_id = InternshipCompany.query.with_entities(InternshipCompany.id).filter_by(name=company).distinct().first()
+        internship.format = format_list
+        internship.company_id = company_id[0]
         try:
             db.session.commit()
-            return redirect(url_for('internships_index'))
+            return redirect(url_for('page_internship', id=internship.id))
         except:
             return "Что-то пошло не так"
     else:

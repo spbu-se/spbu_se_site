@@ -231,7 +231,7 @@ class InternshipCompany(db.Model):
     internship = db.relationship('Internships', back_populates='company')
 
     def __str__(self):
-        return (self.name)
+        return self.name
 
 
 class Internships(db.Model):
@@ -255,7 +255,10 @@ class Internships(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __repr__(self):
-        return self.company
+        return self.name_vacancy
+
+    def __self__(self):
+        return self.name_vacancy
 
 
 # Coursework, diploma
@@ -332,6 +335,9 @@ class Thesis(db.Model):
     review_status = db.Column(db.Integer, nullable=True, default=10)
 
     review = db.relationship('ThesisReview', back_populates='thesis')
+
+    download_thesis = db.Column(db.Integer, default=0, nullable=True)
+    download_presentation = db.Column(db.Integer, default=0, nullable=True)
 
 
 class AreasOfStudy(db.Model):
@@ -444,7 +450,8 @@ class DiplomaThemes(db.Model):
     title = db.Column(db.String(512), nullable=False)
     description = db.Column(db.String(2048), nullable=True)
     requirements = db.Column(db.String(2048), nullable=True)
-    status = db.Column(db.Integer, default=0, nullable=False)  # 0 - new, 1 - need update, 2 - approved
+    status = db.Column(db.Integer, default=0, nullable=False) # 0 - new, 1 - need update, 2 - approved, 3 - archive
+    
     comment = db.Column(db.String(2048), nullable=True)
 
     levels = db.relationship('ThemesLevel', secondary=diploma_themes_level, lazy='subquery',
@@ -472,6 +479,7 @@ class Company(db.Model):
 
     name = db.Column(db.String(512), nullable=False)
     logo_uri = db.Column(db.String(512), nullable=True)
+    status = db.Column(db.Integer, default=0, nullable=True)
 
     theme = db.relationship('DiplomaThemes', back_populates='company')
     reviewer = db.relationship('Reviewer', back_populates='company')

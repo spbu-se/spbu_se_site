@@ -124,6 +124,29 @@ def fetch_theses():
         return render_template('fetch_theses_blank.html')
 
 
+# Download thesis link
+def download_thesis():
+
+    thesis_id = request.args.get('thesis_id', default=0, type=int)
+
+    if not thesis_id:
+        return redirect('theses_search')
+
+    thesis = Thesis.query.filter_by(id=thesis_id).first()
+
+    if not thesis:
+        return redirect('theses_search')
+
+    if not thesis.text_uri:
+        return redirect('theses_search')
+
+    # Increment counter
+    thesis.download_thesis = thesis.download_thesis + 1
+    db.session.commit()
+
+    return redirect(url_for('static', filename='/thesis/texts/' + thesis.text_uri))
+
+
 def post_theses():
 
     error_status = 500
@@ -199,7 +222,7 @@ def post_theses():
             string='Wrong type_id: ' + str(type_id)
         )
 
-    if course_id < 1 or course_id > 7:
+    if course_id < 1 or course_id > 8:
         return jsonify(
             status=error_status,
             string='Wrong course_id: ' + str(course_id)
@@ -207,15 +230,17 @@ def post_theses():
 
     # Try to get SuperVisor Id
     qq = Users.query.filter_by(last_name=supervisor).all()
-    r = ''
+    supervisor_id = ''
+
     if qq:
         for q in qq:
             r = Staff.query.filter_by(user_id=q.id).first()
 
             if r:
                 supervisor_id = r.id
+                continue
 
-        if not r:
+        if not supervisor_id:
             return jsonify(
                 status=error_status,
                 string='Can\'t find supervisor in staff: ' + str(supervisor)

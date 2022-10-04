@@ -29,16 +29,18 @@ from flask_se_scholarships import get_scholarships_1, get_scholarships_2, get_sc
     get_scholarships_5, get_scholarships_6, get_scholarships_7, get_scholarships_8, get_scholarships_9, \
     get_scholarships_10, get_scholarships_11, get_scholarships_12, get_scholarships_13
 from flask_se_diplomas import diplomas_index, get_theme, add_user_theme, user_diplomas_index, delete_theme, \
-    edit_user_theme, fetch_themes
+    edit_user_theme, fetch_themes, archive_theme, unarchive_theme
 from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_thesis_on_review, \
     delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review, \
     fetch_thesis_on_review, review_become_thesis_reviewer_ask, review_become_thesis_reviewer_confirm
 from flask_se_internships import add_internship, internships_index, page_internship, delete_internship, \
     update_internship, fetch_internships
-from se_sendmail import notification_send_mail
+
+from se_sendmail import notification_send_mail, notification_send_diploma_themes_on_review
 from flask_se_account import account_index, account_guide, account_new_thesis, account_choosing_topic, \
     account_workflow, account_preparation, account_thesis_defense, account_materials, account_data_for_practice, \
     account_edit_theme, account_temp, account_temp_deadline
+    
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -84,6 +86,7 @@ app.add_url_rule('/post_theses', methods=['GET', 'POST'], view_func=flask_se_the
 app.add_url_rule('/theses_tmp.html', view_func=flask_se_theses.theses_tmp)
 app.add_url_rule('/theses_delete_tmp', view_func=flask_se_theses.theses_delete_tmp)
 app.add_url_rule('/theses_add_tmp', view_func=flask_se_theses.theses_add_tmp)
+app.add_url_rule('/thesis_download', view_func=flask_se_theses.download_thesis)
 
 
 # News
@@ -119,6 +122,8 @@ app.add_url_rule('/diplomas/user_themes.html', view_func=user_diplomas_index)
 app.add_url_rule('/diplomas/delete_theme.html', view_func=delete_theme)
 app.add_url_rule('/diplomas/edit_theme.html', methods=['GET', 'POST'], view_func=edit_user_theme)
 app.add_url_rule('/diplomas/fetch_themes', view_func=fetch_themes)
+app.add_url_rule('/diplomas/archive_theme', view_func=archive_theme)
+app.add_url_rule('/diplomas/unarchive_theme', view_func=unarchive_theme)
 
 
 # Review thesis
@@ -138,11 +143,11 @@ app.add_url_rule('/review/become_thesis_reviewer_confirm', methods=['GET'],
 
 # Internships
 app.add_url_rule('/internships/index', methods=['GET', 'POST'], view_func=internships_index)
+app.add_url_rule('/internships/fetch_internships', methods=['GET'], view_func=fetch_internships)
 app.add_url_rule('/internships/add', methods=['GET', 'POST'], view_func=add_internship)
 app.add_url_rule('/internships/<int:id>', methods=['GET', 'POST'], view_func=page_internship)
 app.add_url_rule('/internships/<int:id>/delete', view_func=delete_internship)
 app.add_url_rule('/internships/<int:id>/update', methods=['GET', 'POST'], view_func=update_internship)
-app.add_url_rule('/internships/fetch_internships', methods=['GET'], view_func=fetch_internships)
 
 
 # Account
@@ -193,6 +198,7 @@ app.config['SCHEDULER_TIMEZONE'] = 'UTC'
 scheduler = APScheduler()
 scheduler.add_job(id='RecalculatePostRank', func=recalculate_post_rank, trigger="interval", seconds=3600)
 scheduler.add_job(id='SendMailNotification', func=notification_send_mail, trigger="interval", seconds=10)
+scheduler.add_job(id='SendDiplomaThemesOnReviewNotification', func=notification_send_diploma_themes_on_review, trigger="interval", seconds=86400)
 scheduler.start()
 
 # Init Flask-admin

@@ -29,7 +29,7 @@
                          </div>
                         <div class="card-body pt-2">
                             <dl class="dl-horizontal">
-                                <dd>{{ internship.description|markdown }}</dd>
+                                <dd>{{ internship.description }}</dd>
                                                             </dl>
                         </div>
                     </div>
@@ -42,15 +42,12 @@
                             </div>
                          </div>
                         <div class="card-body pt-2">
-                            <p>{{ internship.requirements|markdown }}</p>
+                            <p>{{ internship.requirements }}</p>
                         </div>
                     </div>
 
 
-                    {% if internship.author_id == user.id %}
-                        <a href="/internships/{{ internship.id }}/delete" class="btn btn-primary">Удалить</a>
-                        <a href="/internships/{{ internship.id }}/update" class="btn btn-primary">Редактировать</a>
-                    {% endif %}
+
 
                 </div>
                 <div class="col item mt-7">
@@ -77,16 +74,23 @@
                     <p class="text-sm">
                         {{internship.salary}}
                     </p>
+                   <hr class="my-2" />
                   {% endif %}
-                    <hr class="my-2" />
-                    {% if internship.more_inf %}
-                    <p class="text-sm">
-                        <a href="{{ internship.more_inf }}" target="_blank" class="btn btn-primary">Подробности</a>
-                    </p>
+                  {% if internship.author_id == user.id %}
+                        <a href="/internships/{{ internship.id }}/delete" class="btn btn-outline-danger btn-xs">Удалить</a>
+                        <a href="/internships/{{ internship.id }}/update" class="btn btn-outline-primary btn-xs">Редактировать</a>
                     {% endif %}
+{#                    <hr class="my-2" />#}
+{#                    <p class="text-sm">#}
+{#                        <a href={{ internship.more_inf }} class="btn btn-primary">Откликнуться </a>#}
+{#                    </p>#}
                 </div>
 
             </div>
         </div>
      </section>
 {% endblock %}
+
+
+
+

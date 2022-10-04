@@ -84,6 +84,7 @@ def submit_thesis_on_review():
     author = user.get_name()
 
     if request.method == "POST":
+
         title = request.form.get('title').strip()
         worktype = request.form.get('type', type=int)
         area_of_study = request.form.get('area', type=int)

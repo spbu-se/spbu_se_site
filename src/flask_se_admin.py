@@ -11,6 +11,7 @@ from flask_se_config import SECRET_KEY_THESIS
 from se_models import db, ThemesLevel
 
 ADMIN_ROLE_LEVEL = 5
+REVIEW_ROLE_LEVEL = 3
 THESIS_ROLE_LEVEL = 2
 
 # Base model view with access and inaccess methods
@@ -31,7 +32,18 @@ class SeAdminModelViewThesis(SeAdminModelView):
     pass
 
 
-class SeAdminModelViewReviewer(SeAdminModelView):
+class SeAdminModelViewReviewer(ModelView):
+
+    def is_accessible(self):
+        if current_user.is_authenticated:
+            if current_user.role >= REVIEW_ROLE_LEVEL:
+                return True
+        else:
+            return False
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('login_index'))
+
     pass
 
 
@@ -55,7 +67,7 @@ class SeAdminIndexView(AdminIndexView):
 
 class SeAdminModelViewUsers(SeAdminModelView):
 
-    column_exclude_list = ['password_hash']
+    column_exclude_list = ['password_hash', 'internship_author']
 
     pass
 
@@ -163,7 +175,7 @@ class SeAdminModelViewDiplomaThemes(SeAdminModelView):
     pass
 
 
-class SeAdminModelViewReviewDiplomaThemes(SeAdminModelView):
+class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
 
     can_delete = False
     column_list = ('status', 'comment', 'title', 'description', 'requirements', 'levels', 'company')

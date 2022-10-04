@@ -86,6 +86,23 @@ class Lecture(FlaskForm):
     enddate = SelectField('worktype', choices=[])
 
 
+class AddInternship(FlaskForm):
+    requirements = StringField('requirements', widget=TextArea())
+    company = StringField('company')
+    name_vacancy = StringField('name_vacancy')
+    salary = StringField('salary')
+    location = StringField('location')
+    more_inf = StringField('more_inf')
+    description = StringField('description', widget=TextArea())
+    format = MultiCheckboxField('format', coerce=int)
+
+
+class InternshipsFilter(FlaskForm):
+    format = SelectField('format', choices=[])
+    company = SelectField('company', choices=[])
+    language = SelectField('language', choices=[])
+    
+
 # Account forms
 class CurrentCourseArea(FlaskForm):
     area = SelectField('area', choices=[])

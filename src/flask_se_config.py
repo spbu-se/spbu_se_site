@@ -11,8 +11,13 @@ MAIL_PASSWORD_FILE = os.path.join(pathlib.Path(__file__).parent, "flask_se_mail.
 SECRET_KEY_THESIS = os.urandom(16).hex()
 SQLITE_DATABASE_NAME = 'se.db'
 
-with open(MAIL_PASSWORD_FILE, 'r') as file:
-    MAIL_PASSWORD = file.read().rstrip()
+if os.path.exists(MAIL_PASSWORD_FILE):
+    with open(MAIL_PASSWORD_FILE, 'r') as file:
+        MAIL_PASSWORD = file.read().rstrip()
+else:
+    print ("There is no MAIL_PASSWORD_FILE, generate random MAIL_PASSWORD")
+    MAIL_PASSWORD = os.urandom(16).hex()
+
 
 current_data = datetime.today().strftime('%Y-%m-%d')
 SQLITE_DATABASE_BACKUP_NAME = 'se_backup_' + current_data + '.db'
