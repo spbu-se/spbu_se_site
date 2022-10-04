@@ -206,12 +206,13 @@ class Deadline(db.Model):
 
 class ThesisReport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    current_thesis_id = db.Column(db.Integer, db.ForeignKey('current_thesis.id'))
+
     was_done = db.Column(db.String(2048), nullable=True)
     planned_to_do = db.Column(db.String(2048), nullable=True)
-    current_thesis_id = db.Column(db.Integer, db.ForeignKey('current_thesis.id'))
     time = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 class InternshipFormat(db.Model):
     __tablename__ = 'internship_format'

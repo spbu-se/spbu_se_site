@@ -12,6 +12,79 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body py-3">
+                    <a href="{{url_for('submit_thesis_on_review')}}">Отправить работу на рецензирование</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body py-3">
+
+                    <h6>Отзывы</h6>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <input type="file" name="thesis" id="thesis" class="custom-input-file" />
+                                <label for="thesis">
+                                    <i data-feather="upload"></i>
+                                    <span>Загрузить отзыв научного руководителя (в формате .PDF)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <input type="file" name="thesis" id="thesis" class="custom-input-file" />
+                                <label for="thesis">
+                                    <i data-feather="upload"></i>
+                                    <span>Загрузить отзыв консультанта (в формате .PDF)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="submit" class="btn btn-sm btn-primary" name="submit_button" value="Сохранить">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body py-3">
+
+                    <h6>Презентация</h6>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <input type="file" name="thesis" id="thesis" class="custom-input-file" />
+                                <label for="thesis">
+                                    <i data-feather="upload"></i>
+                                    <span>Загрузить презентацию</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="submit" class="btn btn-sm btn-primary" name="submit_button" value="Сохранить">
+
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

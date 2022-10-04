@@ -247,7 +247,7 @@ def account_choosing_topic():
             db.session.commit()
 
     form.staff.choices.append((0, 'Выберите научного руководителя'))
-    for supervisor in Staff.query.filter_by(still_working=True).all():
+    for supervisor in Staff.query.all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
     form.worktype.choices.append((0, 'Выберите тип работы'))
     for worktype in Worktype.query.filter(Worktype.id > 1).all():
@@ -293,7 +293,7 @@ def account_edit_theme():
     form.topic.data = current_thesis.title
     form.staff.choices.append((current_thesis.supervisor_id, current_thesis.supervisor))
     form.worktype.choices.append((current_thesis.worktype_id, current_thesis.worktype))
-    for supervisor in Staff.query.filter_by(still_working=True).filter(Staff.id != current_thesis.supervisor_id).all():
+    for supervisor in Staff.query.filter(Staff.id != current_thesis.supervisor_id).all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
     for worktype in Worktype.query.filter(Worktype.id > 1).filter(Worktype.id != current_thesis.worktype_id).all():
         form.worktype.choices.append((worktype.id, worktype.type))
@@ -313,7 +313,7 @@ def account_workflow():
         return redirect(url_for('account_index'))
 
     user = current_user
-    add_thesis_report = UserAddReport()
+    add_thesis_report_form = UserAddReport()
 
     if request.method == 'POST':
         was_done = request.form.get('was_done', type=str)
@@ -331,11 +331,11 @@ def account_workflow():
             new_report = ThesisReport(was_done=was_done, planned_to_do=planned_to_do,
                                       current_thesis_id=current_thesis_id, author_id=user.id, time=datetime.now())
             db.session.add(new_report)
-            flash('Отчет отправлен!', category='success')
             db.session.commit()
+            flash('Отчет отправлен!', category='success')
 
     return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
-                           form=add_thesis_report, user=user)
+                           form=add_thesis_report_form, user=user)
 
 
 @login_required
