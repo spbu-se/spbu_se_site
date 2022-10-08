@@ -337,7 +337,7 @@ def add_new_report():
         elif not planned_to_do:
             flash('Поле "Что планируется сделать?" является обязательным!', category='error')
         elif len(was_done) <= 10:
-            flash("Слишком короткое описание вашей работы, напишите подробнее!", category='error')
+            flash("Слишком короткое описание проделанной работы, напишите подробнее!", category='error')
         elif len(planned_to_do) <= 10:
             flash("Слишком короткое описание дальнейших планов, напишите подробнее!", category='error')
         else:
