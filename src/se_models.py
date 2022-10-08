@@ -175,6 +175,7 @@ class CurrentThesis(db.Model):
     worktype_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=True)
 
     deleted = db.Column(db.Boolean, default=False)
+    reports = db.relationship('ThesisReport', backref=db.backref('practice'))
 
     def __repr__(self):
         return self.title
