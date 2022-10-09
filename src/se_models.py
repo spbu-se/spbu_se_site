@@ -49,6 +49,11 @@ internships_format = db.Table('internships_format',
              db.Column('internships_id', db.Integer, db.ForeignKey('internships.id'), primary_key=True)
              )
 
+internships_tag = db.Table('internships_tag',
+             db.Column('internships_tag_id', db.Integer, db.ForeignKey('internship_tag.id'), primary_key=True),
+             db.Column('internships_id', db.Integer, db.ForeignKey('internships.id'), primary_key=True)
+             )
+
 
 class Staff (db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -163,6 +168,12 @@ class InternshipFormat(db.Model):
 
     def __str__(self):
         return "{self.format}"
+
+class InternshipTag(db.Model):
+    __tablename__ = 'internship_format'
+
+    id = db.Column(db.Integer, primary_key=True)
+    tag = db.Column(db.String(100), nullable=False)
 
 
 class InternshipCompany(db.Model):
@@ -611,6 +622,11 @@ def init_db():
     internship_formats = [
         {'format': 'Очно'},
         {'format': 'Дистанционно'}
+    ]
+    internships_tag = [
+        {'tag': 'C'},
+        {'tag': 'C++'},
+        {'tag': 'C#'}
     ]
     courses = [
         {'name': 'Математическое обеспечение и администрирование информационных систем (бакалавриат)', 'code' : '02.03.03'},
@@ -1167,3 +1183,8 @@ def init_db():
         db.session.add(c)
         db.session.commit()
 
+    for cur in internship_tags:
+        t = InternshipTag(format=cur['tag'])
+
+        db.session.add(t)
+        db.session.commit()
