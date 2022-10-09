@@ -364,6 +364,19 @@ def account_workflow():
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
+    return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis)
+
+
+@login_required
+def add_new_report():
+    current_thesis_id = request.args.get('id', type=int)
+    if not current_thesis_id:
+        return redirect(url_for('account_index'))
+
+    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    if not current_thesis or current_thesis.deleted:
+        return redirect(url_for('account_index'))
+
     user = current_user
     add_thesis_report_form = UserAddReport()
 
@@ -376,7 +389,7 @@ def account_workflow():
         elif not planned_to_do:
             flash('Поле "Что планируется сделать?" является обязательным!', category='error')
         elif len(was_done) <= 10:
-            flash("Слишком короткое описание вашей работы, напишите подробнее!", category='error')
+            flash("Слишком короткое описание проделанной работы, напишите подробнее!", category='error')
         elif len(planned_to_do) <= 10:
             flash("Слишком короткое описание дальнейших планов, напишите подробнее!", category='error')
         else:
@@ -386,8 +399,22 @@ def account_workflow():
             db.session.commit()
             flash('Отчет отправлен!', category='success')
 
-    return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
+    return render_template('account/new_report.html', thesises=get_list_of_thesises(), practice=current_thesis,
                            form=add_thesis_report_form, user=user)
+
+
+@login_required
+def reports_preview():
+    current_thesis_id = request.args.get('id', type=int)
+    if not current_thesis_id:
+        return redirect(url_for('account_index'))
+
+    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    if not current_thesis or current_thesis.deleted:
+        return redirect(url_for('account_index'))
+
+    return render_template('account/reports_preview.html', thesises=get_list_of_thesises(),
+                           reports=get_list_of_reports(current=current_thesis), practice=current_thesis)
 
 
 @login_required
@@ -481,3 +508,9 @@ def account_data_for_practice():
 def get_list_of_thesises():
     user = current_user
     return [thesis for thesis in user.current_thesises if thesis.deleted == False]
+
+
+def get_list_of_reports(current):
+    user = current_user
+    practice = CurrentThesis.query.filter(CurrentThesis.author_id == user.id).filter(CurrentThesis.id == current.id).first()
+    return [report for report in current.reports]
