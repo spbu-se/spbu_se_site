@@ -5,7 +5,6 @@ from flask_login import current_user
 from sqlalchemy import desc
 from datetime import datetime
 from pytz import timezone
-from dateutil import tz
 
 from flask_se_auth import login_required
 from se_forms import CurrentCourseArea, ChooseTopic, DeadlineTemp, UserAddReport, AddNewCurrentThesis
@@ -364,7 +363,18 @@ def account_workflow():
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
-    return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis)
+    if request.method == "POST":
+        if request.form['delete_button']:
+            report_id = request.form['delete_button']
+            report = ThesisReport.query.filter_by(id=report_id).first()
+
+            db.session.delete(report)
+            db.session.commit()
+            flash('Отчёт удален!', category='success')
+
+    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).order_by(desc(ThesisReport.time)).all()
+    return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
+                           reports=reports)
 
 
 @login_required
@@ -397,25 +407,10 @@ def account_add_new_report():
                                       current_thesis_id=current_thesis_id, author_id=user.id)
             db.session.add(new_report)
             db.session.commit()
-            flash('Отчет отправлен!', category='success')
+            return redirect(url_for('account_workflow', id=current_thesis_id))
 
     return render_template('account/new_report.html', thesises=get_list_of_thesises(), practice=current_thesis,
                            form=add_thesis_report_form, user=user)
-
-
-@login_required
-def account_reports_preview():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('account_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('account_index'))
-
-    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).order_by(desc(ThesisReport.time)).all()
-    return render_template('account/reports_preview.html', thesises=get_list_of_thesises(), reports=reports,
-                           practice=current_thesis)
 
 
 @login_required
@@ -481,8 +476,9 @@ def account_data_for_practice():
                     current_thesis.area_id = current_area_id
                 if current_course != current_thesis.course:
                     current_thesis.course = current_course
-                flash('Изменения сохранены', category='success')
+
                 db.session.commit()
+                flash('Изменения сохранены', category='success')
 
         elif request.form['submit_button'] == 'Да, удалить!':
             current_thesis.deleted = True
@@ -508,4 +504,4 @@ def account_data_for_practice():
 
 def get_list_of_thesises():
     user = current_user
-    return [thesis for thesis in user.current_thesises if thesis.deleted == False]
+    return [thesis for thesis in user.current_thesises if not thesis.deleted]

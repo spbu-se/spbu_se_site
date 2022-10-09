@@ -16,29 +16,68 @@
             <h5 class="align-right">Отчётность</h5>
         </div>
     </div>
+
     <div class="row">
         <div class="col">
             <p>Здесь вы можете рассказать о своей работе над проектом!</p>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body py-3">
-            <div class="row">
-                <div class="col-7">
-                    <a href="{{url_for('account_reports_preview', id=practice.id)}}" class="btn btn-secondary btn-icon my-2">
-                        <span class="btn-inner--icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-book text-primary"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                        </span>
-                        <span class="btn-inner--text">Просмотреть предыдущие отчеты</span>
-                    </a>
-                </div>
-                <div class="col-5">
-                    <a href="{{url_for('account_add_new_report', id=practice.id)}}" class="btn btn-primary my-2 ml-0 ml-sm-3">Создать новый отчет</a>
-                </div>
-            </div>
+    <div class="row mb-3">
+        <div class="col text-center">
+            <a href="{{url_for('account_add_new_report', id=practice.id)}}" class="btn btn-primary">Создать новый отчёт</a>
         </div>
     </div>
+
+    <form name="delete_buttons_form" method="POST" action="{{ url_for('account_workflow', id=practice.id) }}">
+        <input id="hiddenDeleteButton" type="hidden" name="delete_button" value="0"/>
+        {% if reports %}
+        <h6>Отправленные отчёты</h6>
+        <div id="accordion-2" class="accordion accordion-stacked mb-2">
+            {% for report in reports %}
+            <div class="card">
+                <div class="card-header py-4" id="{{ 'heading-'+(practice.id|string())+'-'+(report.id|string()) }}" data-toggle="collapse" role="button" data-target="{{ '#collapse-'+(practice.id|string())+'-'+(report.id|string()) }}" aria-expanded="false" aria-controls="{{ 'collapse-'+(practice.id|string())+'-'+(report.id|string()) }}">
+                    <h6 class="mb-0"><i data-feather="file-text" class="mr-3"></i>Отчёт за {{ report.time | datatime_convert }}</h6>
+                </div>
+                <div id="{{ 'collapse-'+(report.practice.id|string())+'-'+(report.id|string()) }}" class="collapse" aria-labelledby="{{ 'heading-'+(report.practice.id|string())+'-'+(report.id|string()) }}" data-parent="#accordion-2">
+                    <div class="card-body py-0">
+                        <h6>Было сделано</h6>
+                        <p>{{report.was_done}}</p>
+                        <h6>Планируется сделать</h6>
+                        <p>{{report.planned_to_do}}</p>
+                        <div class="row mb-3">
+                            <div class="col d-flex justify-content-end">
+                                <a data-toggle="modal" data-target="{{ '#deleteModal'+(report.id|string()) }}" class="btn btn-sm btn-outline-danger" href="#">Удалить отчёт</a>
+                            </div>
+                            <!-- Modal -->
+                            <div class="modal fade" id="{{ 'deleteModal'+(report.id|string()) }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="ModalLabel">Подтверждение</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Вы точно хотите удалить <b>отчёт за {{ report.time | datatime_convert }}</b>?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a class="btn btn-secondary" onClick="document.getElementById('hiddenDeleteButton').value = {{report.id}}; delete_buttons_form.submit(); return false;">Да, удалить!</a>
+                                            <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </form>
 
 </div>
 
