@@ -21,7 +21,7 @@
             <p>Опишите проделанную работу и дальнейшие планы, чтобы научный руководитель знал о текущем состоянии вашей ВКР.</p>
         </div>
     </div>
-    <form method="POST" action="{{url_for('add_new_report', id=practice.id)}}">
+    <form method="POST" action="{{url_for('account_add_new_report', id=practice.id)}}">
         {{ form.csrf_token }}
 
         <div class="row">

@@ -368,7 +368,7 @@ def account_workflow():
 
 
 @login_required
-def add_new_report():
+def account_add_new_report():
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
         return redirect(url_for('account_index'))
@@ -394,7 +394,7 @@ def add_new_report():
             flash("Слишком короткое описание дальнейших планов, напишите подробнее!", category='error')
         else:
             new_report = ThesisReport(was_done=was_done, planned_to_do=planned_to_do,
-                                      current_thesis_id=current_thesis_id, author_id=user.id, time=datetime.now())
+                                      current_thesis_id=current_thesis_id, author_id=user.id)
             db.session.add(new_report)
             db.session.commit()
             flash('Отчет отправлен!', category='success')
@@ -404,7 +404,7 @@ def add_new_report():
 
 
 @login_required
-def reports_preview():
+def account_reports_preview():
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
         return redirect(url_for('account_index'))
@@ -413,8 +413,9 @@ def reports_preview():
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
-    return render_template('account/reports_preview.html', thesises=get_list_of_thesises(),
-                           reports=get_list_of_reports(current=current_thesis), practice=current_thesis)
+    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).order_by(desc(ThesisReport.time)).all()
+    return render_template('account/reports_preview.html', thesises=get_list_of_thesises(), reports=reports,
+                           practice=current_thesis)
 
 
 @login_required
@@ -508,9 +509,3 @@ def account_data_for_practice():
 def get_list_of_thesises():
     user = current_user
     return [thesis for thesis in user.current_thesises if thesis.deleted == False]
-
-
-def get_list_of_reports(current):
-    user = current_user
-    practice = CurrentThesis.query.filter(CurrentThesis.author_id == user.id).filter(CurrentThesis.id == current.id).first()
-    return [report for report in current.reports]

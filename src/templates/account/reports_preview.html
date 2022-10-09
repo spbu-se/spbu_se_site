@@ -2,11 +2,6 @@
 
 {% block title %}Рабочий процесс{% endblock %}
 
-{% block head_links %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}" id="stylesheet">
-    {{ simplemde.js }}
-{% endblock %}
-
 {% block content_account %}
 
 <div class="container">
@@ -22,37 +17,35 @@
         </div>
     </div>
 
-    {% for report in reports %}
-    <div class="card">
-        <div class="card-header py-4" id="{{ "heading-"+(report.practice.id|string())+(report.id|string()) }}" data-toggle="collapse" role="button" data-target="{{ "#collapse-"+(report.practice.id|string())+(report.id|string()) }}" aria-expanded={% if practice and practice.id == report.practice.id %}"true"{% else %}"false"{% endif %} aria-controls="{{ "collapse-"+(report.practice.id|string())+(report.id|string()) }}">
-        <h6 class="mb-0" style="padding-right: 0.5rem">Отчет за {{ report.time | datatime_convert }}</h6>
-    </div>
-    <div id="{{ "collapse-"+(report.practice.id|string())+(report.id|string()) }}" class="collapse" aria-expanded="false" aria-labelledby="{{ "heading-"+(report.practice.id|string())+(report.id|string()) }}">
-    <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
-        <nav class="nav flex-column">
-            <h6>Было сделано</h6>
-            <p>{{report.was_done}}</p>
-            <h6>Планируется сделать</h6>
-            <p>{{report.planned_to_do}}</p>
-        </nav>
-    </div>
-</div>
-</div>
-{% endfor %}
-
-    <div class="card">
-        <div class="card-body py-3">
-    <div class="container">
-            <div class="row">
-                <div class="col-7">
-                    <a href="/account" class="btn btn-secondary btn-icon my-2">Вернуться на главную</a>
-                </div>
-                <div class="col-5">
-                    <a href="{{url_for('add_new_report', id=practice.id)}}" class="btn btn-primary my-2 ml-0 ml-sm-3">Создать новый отчет</a>
+    <div id="accordion-2" class="accordion accordion-stacked mb-2">
+        {% for report in reports %}
+        <div class="card">
+            <div class="card-header py-4" id="{{ "heading-"+(practice.id|string())+"-"+(report.id|string()) }}" data-toggle="collapse" role="button" data-target="{{ "#collapse-"+(practice.id|string())+"-"+(report.id|string()) }}" aria-expanded="false" aria-controls="{{ "collapse-"+(practice.id|string())+"-"+(report.id|string()) }}">
+                <h6 class="mb-0">Отчёт за {{ report.time | datatime_convert }}</h6>
+            </div>
+            <div id="{{ "collapse-"+(report.practice.id|string())+"-"+(report.id|string()) }}" class="collapse" aria-labelledby="{{ "heading-"+(report.practice.id|string())+"-"+(report.id|string()) }}" data-parent="#accordion-2">
+                <div class="card-body py-0">
+                    <h6>Было сделано</h6>
+                    <p>{{report.was_done}}</p>
+                    <h6>Планируется сделать</h6>
+                    <p>{{report.planned_to_do}}</p>
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
+
+    <div class="card">
+        <div class="card-body py-3">
+            <div class="row">
+                <div class="col-7">
+                    <a href="{{url_for('account_index')}}"  class="btn btn-secondary btn-icon my-2">Вернуться на главную</a>
+                </div>
+                <div class="col-5">
+                    <a href="{{url_for('account_add_new_report', id=practice.id)}}" class="btn btn-primary my-2 ml-0 ml-sm-3">Создать новый отчет</a>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
