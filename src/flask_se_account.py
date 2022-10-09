@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-
 import pytz
-from dateutil import tz
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
 from sqlalchemy import desc
+from datetime import datetime
+from pytz import timezone
+from dateutil import tz
 
 from flask_se_auth import login_required
-from se_forms import CurrentCourseArea, ChooseTopic, DeadlineTemp, UserAddReport
+from se_forms import CurrentCourseArea, ChooseTopic, DeadlineTemp, UserAddReport, AddNewCurrentThesis
 from se_models import AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationAccount, Deadline, db, ThesisReport
 
 formatDateTime = "%d.%m.%Y %H:%M"
@@ -37,67 +37,102 @@ def account_temp_deadline():
             current_thesises = CurrentThesis.query.filter_by(course=course).filter_by(area_id=area_id).all()
 
             if request.form.get('choose_topic'):
-                new_deadline = datetime.strptime(request.form.get('choose_topic'), "%Y-%m-%dT%H:%M")
-                if deadline.choose_topic != new_deadline:
+                new_deadline = datetime.strptime(request.form.get('choose_topic'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
+                if not deadline.choose_topic or \
+                        deadline.choose_topic and deadline.choose_topic.replace(tzinfo=pytz.UTC) != new_deadline:
+                    first_word = ""
+                    if not deadline.choose_topic:
+                        first_word = "Назначен"
+                    elif deadline.choose_topic.replace(tzinfo=pytz.UTC) != new_deadline:
+                        first_word = "Изменён"
+
                     deadline.choose_topic = new_deadline
                     for currentThesis in current_thesises:
                         notification = NotificationAccount()
                         notification.recipient_id = currentThesis.author_id
-                        notification.content = "Назначен дедлайн на выбор темы для " + str(course) + " курса направления " \
-                                               + AreasOfStudy.query.filter_by(id=area_id).first().area + \
-                                               " " + new_deadline.strftime(formatDateTime)
+                        notification.content = first_word + " дедлайн на выбор темы для " + str(course) + " курса направления " \
+                                                + AreasOfStudy.query.filter_by(id=area_id).first().area + \
+                                                " " + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК"
 
                         db.session.add(notification)
 
             if request.form.get('submit_work_for_review'):
-                new_deadline = datetime.strptime(request.form.get('submit_work_for_review'), "%Y-%m-%dT%H:%M")
-                if deadline.submit_work_for_review != new_deadline:
+                new_deadline = datetime.strptime(request.form.get('submit_work_for_review'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
+                if not deadline.submit_work_for_review or \
+                        deadline.submit_work_for_review and deadline.submit_work_for_review.replace(tzinfo=pytz.UTC) != new_deadline:
+                    first_word = ""
+                    if not deadline.submit_work_for_review:
+                        first_word = "Назначен"
+                    elif deadline.submit_work_for_review.replace(tzinfo=pytz.UTC) != new_deadline:
+                        first_word = "Изменён"
+
                     deadline.submit_work_for_review = new_deadline
                     for currentThesis in current_thesises:
                         notification = NotificationAccount()
                         notification.recipient_id = currentThesis.author_id
-                        notification.content = "Назначен дедлайн на отправку работы на рецензирования для " + str(course) +\
-                                               " курса направления " + AreasOfStudy.query.filter_by(id=area_id).first().area +\
-                                               " " + new_deadline.strftime(formatDateTime)
+                        notification.content = first_word + " дедлайн на отправку работы для рецензирования для " + str(course) + \
+                                                " курса направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
+                                                " " + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК"
 
                         db.session.add(notification)
 
             if request.form.get('upload_reviews'):
-                new_deadline = datetime.strptime(request.form.get('upload_reviews'), "%Y-%m-%dT%H:%M")
-                if deadline.upload_reviews != new_deadline:
+                new_deadline = datetime.strptime(request.form.get('upload_reviews'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
+                if not deadline.upload_reviews or \
+                        deadline.upload_reviews and deadline.upload_reviews.replace(tzinfo=pytz.UTC) != new_deadline:
+                    first_word = ""
+                    if not deadline.upload_reviews:
+                        first_word = "Назначен"
+                    elif deadline.upload_reviews.replace(tzinfo=pytz.UTC) != new_deadline:
+                        first_word = "Изменён"
+
                     deadline.upload_reviews = new_deadline
                     for currentThesis in current_thesises:
                         notification = NotificationAccount()
                         notification.recipient_id = currentThesis.author_id
-                        notification.content = "Назначен дедлайн на загрузку отзывов для " + str(course) + \
-                                               " курса направления " + AreasOfStudy.query.filter_by(id=area_id).first().area +\
-                                               " " + new_deadline.strftime(formatDateTime)
+                        notification.content = first_word + " дедлайн на загрузку отзывов для " + str(course) + \
+                                                " курса направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
+                                                " " + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК"
 
                         db.session.add(notification)
 
             if request.form.get('pre_defense'):
-                new_deadline = datetime.strptime(request.form.get('pre_defense'), "%Y-%m-%dT%H:%M")
-                if deadline.pre_defense != new_deadline:
+                new_deadline = datetime.strptime(request.form.get('pre_defense'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
+                if not deadline.pre_defense or \
+                        deadline.pre_defense and deadline.pre_defense.replace(tzinfo=pytz.UTC) != new_deadline:
+                    first_word = ""
+                    if not deadline.pre_defense:
+                        first_word = "Назначено"
+                    elif deadline.pre_defense.replace(tzinfo=pytz.UTC) != new_deadline:
+                        first_word = "Изменёно"
+
                     deadline.pre_defense = new_deadline
                     for currentThesis in current_thesises:
                         notification = NotificationAccount()
                         notification.recipient_id = currentThesis.author_id
-                        notification.content = "Назначено время предзащиты для " + str(course) + " курса направления "\
+                        notification.content = first_word + " время предзащиты для " + str(course) + " курса направления " \
                                                 + AreasOfStudy.query.filter_by(id=area_id).first().area + " " + \
-                                               new_deadline.strftime(formatDateTime)
+                                                new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК"
 
                         db.session.add(notification)
 
             if request.form.get('defense'):
-                new_deadline = datetime.strptime(request.form.get('defense'), "%Y-%m-%dT%H:%M")
-                if deadline.defense != new_deadline:
+                new_deadline = datetime.strptime(request.form.get('defense'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
+                if not deadline.defense or \
+                        deadline.defense and deadline.defense.replace(tzinfo=pytz.UTC) != new_deadline:
+                    first_word = ""
+                    if not deadline.defense:
+                        first_word = "Назначено"
+                    elif deadline.defense.replace(tzinfo=pytz.UTC) != new_deadline:
+                        first_word = "Изменёно"
+
                     deadline.defense = new_deadline
                     for currentThesis in current_thesises:
                         notification = NotificationAccount()
                         notification.recipient_id = currentThesis.author_id
-                        notification.content = "Назначено время защиты для " + str(course) + " курса направления " + \
-                                               AreasOfStudy.query.filter_by(id=area_id).first().area + " " + \
-                                               new_deadline.strftime(formatDateTime)
+                        notification.content = first_word + " время защиты для " + str(course) + " курса направления " + \
+                                                AreasOfStudy.query.filter_by(id=area_id).first().area + " " + \
+                                                new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК"
 
                         db.session.add(notification)
 
@@ -116,7 +151,6 @@ def account_temp_deadline():
 
 @login_required
 def account_temp():
-
     if request.method == "POST":
         recipient_id = request.form.get('recipient')
         content = request.form.get('content')
@@ -139,8 +173,6 @@ def account_index():
     if not type_notifications:
         type_notifications = "new"
 
-    notifications = NotificationAccount.query.filter_by(recipient_id=user.id).order_by(desc(NotificationAccount.time)).all()
-
     if request.method == "POST":
         if request.form['read_button']:
             notification_id = request.form['read_button']
@@ -149,8 +181,13 @@ def account_index():
 
             db.session.commit()
 
+    notifications = NotificationAccount.query.filter_by(recipient_id=user.id).order_by(
+        desc(NotificationAccount.time)).all()
+    notifications_not_viewed = NotificationAccount.query.filter_by(recipient_id=user.id).filter_by(viewed=False). \
+        order_by(desc(NotificationAccount.time)).all()
+
     return render_template('account/index.html', thesises=get_list_of_thesises(), notifications=notifications,
-                           type_notifications=type_notifications)
+                           notifications_not_viewed=notifications_not_viewed, type_notifications=type_notifications)
 
 
 @login_required
@@ -161,19 +198,19 @@ def account_guide():
 @login_required
 def account_new_thesis():
     user = current_user
-    form = CurrentCourseArea()
+    form = AddNewCurrentThesis()
 
     if request.method == "POST":
         current_area_id = request.form.get('area', type=int)
-        current_course = request.form.get('course', type=int)
-        if current_area_id == 0:
+        current_worktype_id = request.form.get('worktype', type=int)
+        if current_worktype_id == 0:
+            flash('Выберите тип работы.', category='error')
+        elif current_area_id == 0:
             flash('Выберите направление.', category='error')
-        elif current_course == 0:
-            flash('Выберите курс.', category='error')
         else:
             new_thesis = CurrentThesis()
-            new_thesis.course = current_course
             new_thesis.author_id = user.id
+            new_thesis.worktype_id = current_worktype_id
             new_thesis.area_id = current_area_id
 
             db.session.add(new_thesis)
@@ -184,9 +221,9 @@ def account_new_thesis():
     for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by('id').all():
         form.area.choices.append((area.id, area.area))
 
-    form.course.choices.append((0, 'Выберите курс'))
-    for course in range(2, 7):
-        form.course.choices.append((course, course))
+    form.worktype.choices.append((0, 'Выберите тип работы'))
+    for worktype in Worktype.query.filter(Worktype.id > 1).all():
+        form.worktype.choices.append((worktype.id, worktype.type))
 
     return render_template('account/new_practice.html', thesises=get_list_of_thesises(), user=user, review_filter=form,
                            form=form)
@@ -202,24 +239,10 @@ def account_choosing_topic():
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
-    deadline = Deadline.query.filter_by(course=current_thesis.course).filter_by(area_id=current_thesis.area_id).first()
-
-    deadline_choose_topic = tuple()
-    if deadline:
-        if (deadline.choose_topic - datetime.utcnow()).days < 3:
-            deadline_choose_topic = (deadline.choose_topic.strftime(formatDateTime), "danger")
-        elif (deadline.choose_topic - datetime.utcnow()).days < 7:
-            deadline_choose_topic = (deadline.choose_topic.strftime(formatDateTime), "warning")
-        else:
-            deadline_choose_topic = (deadline.choose_topic.strftime(formatDateTime), "usually")
-
-    form = ChooseTopic()
-
     if request.method == "POST":
         if request.form['submit_button'] == 'Сохранить':
             topic = request.form.get('topic', type=str)
             supervisor_id = request.form.get('staff', type=int)
-            worktype_id = request.form.get('worktype', type=int)
 
             if not topic:
                 flash('Введите название темы.', category='error')
@@ -227,12 +250,9 @@ def account_choosing_topic():
                 flash('Слишком короткое название темы.', category='error')
             elif not supervisor_id:
                 flash('Выберите научного руководителя.', category='error')
-            elif not worktype_id:
-                flash('Выберите тип работы.', category='error')
             else:
                 current_thesis.title = topic
                 current_thesis.supervisor_id = supervisor_id
-                current_thesis.worktype_id = worktype_id
 
                 db.session.commit()
 
@@ -242,19 +262,58 @@ def account_choosing_topic():
         elif request.form['submit_button'] == 'Да, отказываюсь!':
             current_thesis.title = None
             current_thesis.supervisor_id = None
-            current_thesis.worktype_id = None
 
             db.session.commit()
 
+    deadline = Deadline.query.filter_by(course=current_thesis.course).filter_by(area_id=current_thesis.area_id).first()
+
+    # (time, word for time, text-color)
+    remaining_time = tuple()
+    if deadline:
+        if deadline.choose_topic < datetime.utcnow():
+            remaining_time = (-1, "", "")
+        elif (deadline.choose_topic - datetime.utcnow()).seconds // 60 < 60:
+            minutes = (deadline.choose_topic - datetime.utcnow()).seconds // 60
+            if minutes in {1, 21, 31, 41, 51}:
+                remaining_time = (minutes, "минута", "danger")
+            elif minutes % 10 in {2, 3, 4} and minutes % 100 // 10 != 1:
+                remaining_time = (minutes, "минуты", "danger")
+            else:
+                remaining_time = (minutes, "минут", "danger")
+        elif (deadline.choose_topic - datetime.utcnow()).days < 1:
+            hours = (deadline.choose_topic - datetime.utcnow()).seconds // 3600
+            if hours in {1, 21}:
+                remaining_time = (hours, "час", "danger")
+            elif hours in {2, 3, 4, 22, 23, 24}:
+                remaining_time = (hours, "часа", "danger")
+            else:
+                remaining_time = (hours, "часов", "danger")
+        else:
+            days = (deadline.choose_topic - datetime.utcnow()).days
+            word_for_time = ""
+            if days % 100 // 10 == 1:
+                word_for_time = "дней"
+            elif days % 10 == 1:
+                word_for_time = "день"
+            elif days % 10 in {2, 3, 4}:
+                word_for_time = "дня"
+            else:
+                word_for_time = "дней"
+
+            if days < 3:
+                remaining_time = (days, word_for_time, "danger")
+            elif days < 7:
+                remaining_time = (days, word_for_time, "warning")
+            else:
+                remaining_time = (days, word_for_time, "body")
+
+    form = ChooseTopic()
     form.staff.choices.append((0, 'Выберите научного руководителя'))
     for supervisor in Staff.query.all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
-    form.worktype.choices.append((0, 'Выберите тип работы'))
-    for worktype in Worktype.query.filter(Worktype.id > 1).all():
-        form.worktype.choices.append((worktype.id, worktype.type))
 
     return render_template('account/choosing_topic.html', thesises=get_list_of_thesises(), form=form,
-                           practice=current_thesis, deadline=deadline_choose_topic)
+                           practice=current_thesis, deadline=deadline, remaining_time=remaining_time)
 
 
 @login_required
@@ -272,7 +331,6 @@ def account_edit_theme():
         if request.form['submit_button'] == 'Сохранить':
             topic = request.form.get('topic', type=str)
             supervisor_id = request.form.get('staff', type=int)
-            worktype_id = request.form.get('worktype', type=int)
 
             if not topic:
                 flash('Введите название темы.', category='error')
@@ -280,23 +338,17 @@ def account_edit_theme():
                 flash('Слишком короткое название темы.', category='error')
             elif not supervisor_id:
                 flash('Выберите научного руководителя.', category='error')
-            elif not worktype_id:
-                flash('Выберите тип работы.', category='error')
             else:
                 current_thesis.title = topic
                 current_thesis.supervisor_id = supervisor_id
-                current_thesis.worktype_id = worktype_id
 
                 db.session.commit()
                 return redirect(url_for('account_choosing_topic', id=current_thesis_id))
 
     form.topic.data = current_thesis.title
     form.staff.choices.append((current_thesis.supervisor_id, current_thesis.supervisor))
-    form.worktype.choices.append((current_thesis.worktype_id, current_thesis.worktype))
     for supervisor in Staff.query.filter(Staff.id != current_thesis.supervisor_id).all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
-    for worktype in Worktype.query.filter(Worktype.id > 1).filter(Worktype.id != current_thesis.worktype_id).all():
-        form.worktype.choices.append((worktype.id, worktype.type))
 
     return render_template('account/edit_theme.html', thesises=get_list_of_thesises(), form=form,
                            practice=current_thesis)
@@ -414,7 +466,10 @@ def account_data_for_practice():
             order_by('id').all():
         form.area.choices.append((area.id, area.area))
 
-    form.course.choices.append((current_thesis.course, current_thesis.course))
+    if not current_thesis.course:
+        form.course.choices.append((0, "Выберите курс"))
+    else:
+        form.course.choices.append((current_thesis.course, current_thesis.course))
     for course in range(2, 7):
         if course != current_thesis.course:
             form.course.choices.append((course, course))

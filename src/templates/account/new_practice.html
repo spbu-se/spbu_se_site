@@ -26,16 +26,16 @@
         {{ form.csrf_token }}
 
         <div class="row">
-            <div class="col-lg-3 col-md-4 col-12">
+            <div class="col-md-4 col-12">
                 <div class="form-group">
-                    <label for="course">Курс:</label>
-                    {{ review_filter.course(class_="custom-select pl-3") }}
+                    <label for="worktype">Тип работы:</label>
+                    {{ review_filter.worktype(class_="custom-select pl-3") }}
                 </div>
             </div>
 
-            <div class="col-lg-9 col-md-8 col-12">
+            <div class="col-md-8 col-12">
                 <div class="form-group">
-                    <label for="area">Направление:</label>
+                    <label for="area">Направление обучения:</label>
                     {{ review_filter.area(class_="custom-select pl-3") }}
                 </div>
             </div>
