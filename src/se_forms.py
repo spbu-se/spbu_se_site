@@ -88,7 +88,7 @@ class Lecture(FlaskForm):
 
 class AddInternship(FlaskForm):
     requirements = StringField('requirements', widget=TextArea())
-    company = StringField('company')
+    company = SelectField('company', choices=[])
     name_vacancy = StringField('name_vacancy')
     salary = StringField('salary')
     location = StringField('location')

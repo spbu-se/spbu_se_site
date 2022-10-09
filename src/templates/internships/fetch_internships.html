@@ -1,13 +1,13 @@
 {% for i in internships.items %}
     <div class="card">
         <div class="card-body pt-2">
+                {% if i.more_inf %}
+                  <h4 class = "text mt-3"> <a href="{{ i.more_inf }}" target="_blank">  <strong> {{i.name_vacancy}} </strong> </a></h4>
+                {% else %}
                 <h4 class = "text mt-3"> <a href="/internships/{{ i.id }}" target="_blank">  <strong> {{i.name_vacancy}} </strong> </a></h4>
+                {% endif %}
                 <p style="font-size: 100%" class="text m-0">{{i.company}}</p>
                 <p style="font-size: 100%"  class="text mb-1 mt-0"> {{i.location}}</p>
-                {% if i.more_inf %}
-                  <a href="{{ i.more_inf }} " target="_blank" class="btn btn-primary btn-sm">На сайт компании</a>
-                {% endif %}
-
         </div>
 
     </div>
