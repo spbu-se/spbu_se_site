@@ -19,14 +19,14 @@
   <ul class="pagination justify-content-center">
       {% if internships.has_prev %}
     <li class="page-item">
-      <a class="page-link" href="{{ url_for ('internships_index', format=format, company=company) }}" tabindex="-1" aria-disabled="true">Назад</a>
+      <a class="page-link" href="{{ url_for ('internships_index', format=format, company=company, tag=tag) }}" tabindex="-1" aria-disabled="true">Назад</a>
     </li>
       {% endif %}
 
       {% for curr_page in internships.iter_pages() %}
       {% if curr_page %}
         {% if curr_page != internships.page %}
-            <li class="page-item"><a class="page-link" href="{{ url_for ('internships_index', page=curr_page, format=format, company=company) }}">{{curr_page}}</a></li>
+            <li class="page-item"><a class="page-link" href="{{ url_for ('internships_index', page=curr_page, format=format, company=company, tag=tag) }}">{{curr_page}}</a></li>
         {% else %}
         <li class="page-item active"><span class="page-link">{{curr_page}}<span class="sr-only">(current)</span></span></li>
         {% endif %}
@@ -37,7 +37,7 @@
 
       {% if internships.has_next %}
     <li class="page-item">
-      <a class="page-link" href="{{ url_for ('internships_index', page=internships.next_num, format=format, company=company) }}">Вперед</a>
+      <a class="page-link" href="{{ url_for ('internships_index', page=internships.next_num, format=format, company=company, tag=tag) }}">Вперед</a>
     </li>
       {% endif %}
   </ul>

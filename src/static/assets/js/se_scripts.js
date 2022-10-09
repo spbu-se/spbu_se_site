@@ -619,6 +619,7 @@ function internships_load() {
 
     let internships_format_select = document.getElementById('format');
     let internships_company_select = document.getElementById('company');
+    let internships_tag_select = document.getElementById('tag');
 
     let url_string = window.location.href
     let url = new URL(url_string)
@@ -636,6 +637,10 @@ function internships_load() {
 
     if (internships_company_select){
     params.append('company', internships_company_select.value);
+    }
+
+    if (internships_tag_select){
+    params.append('tag', internships_tag_select.innerText);
     }
 
     fetch('fetch_internships?' + params.toString()).then(function(response){
@@ -657,6 +662,7 @@ function internships_update() {
 
     let internships_format_select = document.getElementById('format');
     let internships_company_select = document.getElementById('company');
+    let internships_tag_select = document.getElementById('tag');
 
     let url_string = window.location.href
     let url = new URL(url_string);
@@ -674,6 +680,10 @@ function internships_update() {
 
     if (internships_company_select){
         params.append('company', internships_company_select.value);
+    }
+
+    if (internships_tag_select){
+        params.append('tag', internships_tag_select.value);
     }
 
     if (Array.from(params).length){
@@ -699,6 +709,7 @@ function internships_filter()
 {
     let internships_format_select = document.getElementById('format');
     let internships_company_select = document.getElementById('company');
+    let internships_tag_select = document.getElementById('tag');
 
     // Get filters from URI
     let url_string = window.location.href
@@ -706,6 +717,7 @@ function internships_filter()
 
     let format = url.searchParams.get("format");
     let company = url.searchParams.get("company");
+    let tag = url.searchParams.get("tag");
 
     if (internships_format_select)
     {
@@ -715,6 +727,14 @@ function internships_filter()
             }
         } else {
             internships_format_select.value=0;
+        }
+
+        if (tag > 0){
+            if (internships_tag_select.innerHTML.indexOf('value="' + tag + '"') > -1){
+                internships_tag_select.value=tag;
+            }
+        } else {
+            internships_tag_select.value=0;
         }
 
         if (company > 0){
@@ -735,6 +755,7 @@ function internships_filter()
     // Update internships
     internships_format_select.onchange = internships_update;
     internships_company_select.onchange = internships_update;
+    internships_tag_select.onchange = internships_update;
 }
 
 // This is Internship ?

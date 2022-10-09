@@ -95,10 +95,12 @@ class AddInternship(FlaskForm):
     more_inf = StringField('more_inf')
     description = StringField('description', widget=TextArea())
     format = MultiCheckboxField('format', coerce=int)
+    tag = StringField('tag')
 
 
 class InternshipsFilter(FlaskForm):
     format = SelectField('format', choices=[])
     company = SelectField('company', choices=[])
     language = SelectField('language', choices=[])
+    tag = SelectField('tag', choices=[])
 

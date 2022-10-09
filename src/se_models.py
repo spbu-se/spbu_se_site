@@ -170,7 +170,7 @@ class InternshipFormat(db.Model):
         return "{self.format}"
 
 class InternshipTag(db.Model):
-    __tablename__ = 'internship_format'
+    __tablename__ = 'internship_tag'
 
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(100), nullable=False)
@@ -623,7 +623,7 @@ def init_db():
         {'format': 'Очно'},
         {'format': 'Дистанционно'}
     ]
-    internships_tag = [
+    internship_tags = [
         {'tag': 'C'},
         {'tag': 'C++'},
         {'tag': 'C#'}
@@ -1183,8 +1183,9 @@ def init_db():
         db.session.add(c)
         db.session.commit()
 
+    print("Create internship tags")
     for cur in internship_tags:
-        t = InternshipTag(format=cur['tag'])
+        t = InternshipTag(tag=cur['tag'])
 
         db.session.add(t)
         db.session.commit()

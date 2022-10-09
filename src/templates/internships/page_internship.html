@@ -59,6 +59,8 @@
 
                    <h6 class="mb-0">Формат</h6>
                    <p class="text-sm">{% if internship.format %} {% for f in internship.format %} {{f.format}}{% if not loop.last %}, {% endif %} {% endfor %} {% endif %}</p>
+                    <h6 class="mb-0">Стек технологий</h6>
+                   <p class="text-sm">{% if internship.tag %} {% for t in internship.tag %} {{t.tag}}{% if not loop.last %}, {% endif %} {% endfor %} {% endif %}</p>
                   {% if internship.location != NULL %}
                         <hr class="my-2" />
 
