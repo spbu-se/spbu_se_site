@@ -180,13 +180,12 @@ def fetch_internships():
         records = Internships.query.order_by(Internships.id.desc())
 
     if format:
-        records = records.filter(Internships.format.any(id=format)).paginate(per_page=10, page=page, error_out=False)
+        records = records.filter(Internships.format.any(id=format))
 
     if tag:
-        records = records.filter(Internships.tag.any(id=tag)).paginate(per_page=10, page=page, error_out=False)
-        
-    if not format and not tag:
-        records = records.paginate(per_page=10, page=page, error_out=False)
+        records = records.filter(Internships.tag.any(id=tag))
+
+    records = records.paginate(per_page=10, page=page, error_out=False)
 
     if len(records.items):
         return render_template('internships/fetch_internships.html', internships=records, format=format, company=company, tag=tag)
