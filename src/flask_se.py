@@ -129,7 +129,6 @@ app.add_url_rule('/review/fetch_thesis_on_review', methods=['GET'], view_func=fe
 
 
 
-
 # Internships
 app.add_url_rule('/internships/index', methods=['GET', 'POST'], view_func=internships_index)
 app.add_url_rule('/internships/fetch_internships', methods=['GET'], view_func=fetch_internships)

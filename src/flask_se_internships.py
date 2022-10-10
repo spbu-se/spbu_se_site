@@ -44,6 +44,7 @@ def add_internship():
     add_intern = AddInternship()
     add_intern.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
     add_intern.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by('id').all()]
+    add_intern.company.choices = [(g.id, g.name) for g in InternshipCompany.query.order_by('id')]
 
     if request.method == 'POST':
         name_vacancy = request.form.get('name_vacancy', type=str)
@@ -122,10 +123,15 @@ def delete_internship(id):
 
 @login_required
 def update_internship(id):
-    upd_internship = AddInternship()
+    internship = Internships.query.get(id)
+    if not internship:
+        return redirect(url_for('internships_index'))
+    upd_internship = AddInternship(obj=internship)
+
+    # upd_internship = AddInternship()
     upd_internship.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
     upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by('id').all()]
-    internship = Internships.query.get(id)
+    upd_internship.format.data = [c.id for c in internship.format]
 
     if request.method == 'POST':
 
