@@ -95,7 +95,7 @@ class AddInternship(FlaskForm):
     more_inf = StringField('more_inf')
     description = StringField('description', widget=TextArea())
     format = MultiCheckboxField('format', coerce=int)
-    tag = MultiCheckboxField('tag', coerce=int)
+    tag = StringField('tag')
 
 
 class InternshipsFilter(FlaskForm):
