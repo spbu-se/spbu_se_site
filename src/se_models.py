@@ -175,6 +175,9 @@ class InternshipTag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(100), nullable=False)
 
+    def __str__(self):
+        return "{self.tag}"
+
 
 class InternshipCompany(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -201,6 +204,9 @@ class Internships (db.Model):
     location = db.Column(db.String(50), nullable=True)
     format = db.relationship('InternshipFormat', secondary=internships_format, lazy='subquery',
                            backref=db.backref('internship', lazy=True), order_by=internships_format.c.internships_format_id)
+    tag = db.relationship('InternshipTag', secondary=internships_tag, lazy='subquery',
+                             backref=db.backref('internship', lazy=True),
+                             order_by=internships_tag.c.internships_tag_id)
 
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 

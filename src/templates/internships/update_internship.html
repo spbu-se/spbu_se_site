@@ -36,9 +36,13 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <div class="form-group">
-                        <h6 class="mb-0">Стек технологий (через запятую)</h6>
-                        {{form.tag(value=internship.tag, class_="form-control")}}
+                    <h6 class="mb-0">Технология</h6>
+                        {% for choice in form.tag %}
+                            <div class="form-check">
+                                {{ choice(class="text-sm form-check-input") }}
+                                {{ choice.label(class="text-sm form-check-label") }}
+                            </div>
+                        {% endfor %}
                     </div>
                     <div class="form-group">
                         <h6 class="mb-0">Ссылка на сайт компании(если есть)</h6>

@@ -719,7 +719,7 @@ function internships_filter()
     let company = url.searchParams.get("company");
     let tag = url.searchParams.get("tag");
 
-    if (internships_format_select)
+    if (internships_format_select || internships_tag_select)
     {
         if (format > 0){
             if (internships_format_select.innerHTML.indexOf('value="' + format + '"') > -1){

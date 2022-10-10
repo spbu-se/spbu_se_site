@@ -22,7 +22,8 @@ def internships_index():
     for sid in InternshipFormat.query.all():
         internship_filter.format.choices.append((sid.id, sid.format))
 
-    internship_filter.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.all()]
+    for sid in InternshipTag.query.all():
+        internship_filter.tag.choices.append((sid.id, sid.tag))
 
     internship_filter.tag.choices.insert(0, (0, "Все"))
 
@@ -51,9 +52,14 @@ def add_internship():
         salary = request.form.get('salary', type=str)
         more_inf = request.form.get('more_inf', type=str)
         format = request.form.getlist('format', type=int)
-        tags = request.form.get('tag', type=str)
+        tags = request.form.getlist('tag', type=int)
 
-        tag_list = [t for t in InternshipTag.query.all() if t.tag in tags]
+        tag_list = []
+        int_tag = InternshipTag.query.all()
+        
+        for t in int_tag:
+            if t.id in tags:
+                tag_list.append(t)
 
         format_list = []
         int_format = InternshipFormat.query.all()
@@ -133,9 +139,14 @@ def update_internship(id):
         internship.more_inf = request.form.get('more_inf', type=str)
         company = request.form.get('company', type=str)
         format = request.form.getlist('format', type=int)
-        tags = request.form.get('tag', type=str)
+        tags = request.form.getlist('tag', type=int)
 
-        tag_list = [t for t in InternshipTag.query.all() if t.tag in tags]
+        tag_list = []
+        int_tag = InternshipTag.query.all()
+        
+        for t in int_tag:
+            if t.id in tags:
+                tag_list.append(t)
 
         format_list = []
         int_format = InternshipFormat.query.all()
