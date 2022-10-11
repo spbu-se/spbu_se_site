@@ -516,7 +516,7 @@ def account_preparation():
                     # Check if file already exist
                     if os.path.isfile(full_presentation_filename):
                         presentation_filename = presentation_filename + '_' + str(os.urandom(8).hex())
-                        presentationfilename_with_ext = presentation_filename + '.pdf'
+                        presentation_filename_with_ext = presentation_filename + '.pdf'
                         full_presentation_filename = os.path.join(PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
 
                     presentation_file.save(full_presentation_filename)
