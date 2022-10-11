@@ -42,9 +42,9 @@
                 <div id="{{ 'collapse-'+(report.practice.id|string())+'-'+(report.id|string()) }}" class="collapse" aria-labelledby="{{ 'heading-'+(report.practice.id|string())+'-'+(report.id|string()) }}" data-parent="#accordion-2">
                     <div class="card-body py-0">
                         <h6>Было сделано</h6>
-                        <p>{{report.was_done}}</p>
+                        {{report.was_done|markdown}}
                         <h6>Планируется сделать</h6>
-                        <p>{{report.planned_to_do}}</p>
+                        {{report.planned_to_do|markdown}}
                         <div class="row mb-3">
                             <div class="col d-flex justify-content-end">
                                 <a data-toggle="modal" data-target="{{ '#deleteModal'+(report.id|string()) }}" class="btn btn-sm btn-outline-danger" href="#">Удалить отчёт</a>
