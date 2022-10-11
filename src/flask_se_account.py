@@ -1,16 +1,31 @@
 # -*- coding: utf-8 -*-
+
+import os
 import pytz
+from datetime import date
+
+import werkzeug
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
 from sqlalchemy import desc
 from datetime import datetime
 from pytz import timezone
+from transliterate import translit
 
 from flask_se_auth import login_required
+from flask_se_config import get_thesis_type_id_string
 from se_forms import CurrentCourseArea, ChooseTopic, DeadlineTemp, UserAddReport, AddNewCurrentThesis
 from se_models import AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationAccount, Deadline, db, ThesisReport
 
+# Global variables
 formatDateTime = "%d.%m.%Y %H:%M"
+REVIEW_UPLOAD_FOLDER = 'static/currentThesis/reviews/'
+PRESENTATION_UPLOAD_FOLDER = 'static/currentThesis/slides/'
+ALLOWED_EXTENSIONS = {'pdf'}
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @login_required
@@ -422,6 +437,102 @@ def account_preparation():
     current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
+
+    if request.method == 'POST':
+        if 'submit_review_button' in request.form:
+            supervisor_review_file = werkzeug.datastructures.FileStorage()
+            consultant_review_file = werkzeug.datastructures.FileStorage()
+            if 'supervisor_review' in request.files:
+                supervisor_review_file = request.files['supervisor_review']
+            if 'consultant_review' in request.files:
+                consultant_review_file = request.files['consultant_review']
+
+            if supervisor_review_file.filename == '' and consultant_review_file.filename == '':
+                flash('Вы не загрузили отзыв.', category='error')
+            elif supervisor_review_file and not allowed_file(supervisor_review_file.filename) or \
+                    consultant_review_file and not allowed_file(consultant_review_file.filename):
+                flash("Текст отзывов должен быть в формате .PDF", category='error')
+            else:
+                author_en = translit(current_user.get_name(), 'ru', reversed=True)
+                author_en = author_en.replace(" ", "_")
+
+                if supervisor_review_file:
+                    review_filename = author_en + '_' + get_thesis_type_id_string(current_thesis.worktype_id)
+
+                    review_filename = review_filename + '_' + str(date.today().year) + '_supervisor_review'
+                    review_filename_with_ext = review_filename + '.pdf'
+                    full_review_filename = os.path.join(REVIEW_UPLOAD_FOLDER + review_filename_with_ext)
+
+                    # Check if file already exist
+                    if os.path.isfile(full_review_filename):
+                        review_filename = review_filename + '_' + str(os.urandom(8).hex())
+                        review_filename_with_ext = review_filename + '.pdf'
+                        full_review_filename = os.path.join(REVIEW_UPLOAD_FOLDER + review_filename_with_ext)
+
+                    supervisor_review_file.save(full_review_filename)
+
+                    current_thesis.supervisor_review_uri = review_filename_with_ext
+                    db.session.commit()
+                    flash('Отзыв научного руководителя успешно загружен!', category='success')
+
+                if consultant_review_file:
+                    review_filename = author_en + '_' + get_thesis_type_id_string(current_thesis.worktype_id)
+
+                    review_filename = review_filename + '_' + str(date.today().year) + '_reviewer_review'
+                    review_filename_with_ext = review_filename + '.pdf'
+                    full_review_filename = os.path.join(REVIEW_UPLOAD_FOLDER + review_filename_with_ext)
+
+                    # Check if file already exist
+                    if os.path.isfile(full_review_filename):
+                        review_filename = review_filename + '_' + str(os.urandom(8).hex())
+                        review_filename_with_ext = review_filename + '.pdf'
+                        full_review_filename = os.path.join(REVIEW_UPLOAD_FOLDER + review_filename_with_ext)
+
+                    consultant_review_file.save(full_review_filename)
+
+                    current_thesis.reviewer_review_uri = review_filename_with_ext
+                    db.session.commit()
+                    flash('Отзыв консультанта успешно загружен!', category='success')
+
+        elif 'submit_presentation_button' in request.form:
+            presentation_file = werkzeug.datastructures.FileStorage()
+            if 'presentation' in request.files:
+                presentation_file = request.files['presentation']
+
+            if presentation_file.filename == '':
+                flash('Вы не загрузили презентацию.', category='error')
+            elif presentation_file and not allowed_file(presentation_file.filename):
+                flash("Презентация должна быть в формате .PDF", category='error')
+            else:
+                if presentation_file:
+                    author_en = translit(current_user.get_name(), 'ru', reversed=True)
+                    author_en = author_en.replace(" ", "_")
+                    presentation_filename = author_en + '_' + get_thesis_type_id_string(current_thesis.worktype_id)
+
+                    presentation_filename = presentation_filename + '_' + str(date.today().year) + '_slides'
+                    presentation_filename_with_ext = presentation_filename + '.pdf'
+                    full_presentation_filename = os.path.join(PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
+
+                    # Check if file already exist
+                    if os.path.isfile(full_presentation_filename):
+                        presentation_filename = presentation_filename + '_' + str(os.urandom(8).hex())
+                        presentationfilename_with_ext = presentation_filename + '.pdf'
+                        full_presentation_filename = os.path.join(PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
+
+                    presentation_file.save(full_presentation_filename)
+
+                    current_thesis.presentation_uri = presentation_filename_with_ext
+                    db.session.commit()
+                    flash('Презентация успешно загружена!', category='success')
+        elif 'delete_presentation_button' in request.form:
+            current_thesis.presentation_uri = None
+            db.session.commit()
+        elif 'delete_reviewer_review_button' in request.form:
+            current_thesis.reviewer_review_uri = None
+            db.session.commit()
+        elif 'delete_supevisor_review_button' in request.form:
+            current_thesis.supervisor_review_uri = None
+            db.session.commit()
 
     return render_template('account/preparation.html', thesises=get_list_of_thesises(), practice=current_thesis)
 

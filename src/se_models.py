@@ -174,6 +174,10 @@ class CurrentThesis(db.Model):
     supervisor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
     worktype_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
 
+    supervisor_review_uri = db.Column(db.String(512), nullable=True)
+    reviewer_review_uri = db.Column(db.String(512), nullable=True)
+    presentation_uri = db.Column(db.String(512), nullable=True)
+
     deleted = db.Column(db.Boolean, default=False)
     reports = db.relationship('ThesisReport', backref=db.backref('practice'))
 
@@ -704,6 +708,12 @@ def init_db():
         {'type': 'Курсовая'},
         {'type': 'Бакалаврская ВКР'},
         {'type': 'Магистерская ВКР'},
+        {'type': 'Практика осенняя, 2 курс'},
+        {'type': 'Практика весеняя, 2 курс'},
+        {'type': 'Практика осенняя, 3 курс'},
+        {'type': 'Практика весеняя, 3 курс'},
+        {'type': 'Производственная практика'},
+        {'type': 'Преддипломная практика'},
     ]
     courses = [
         {'name': 'Математическое обеспечение и администрирование информационных систем (бакалавриат)',
