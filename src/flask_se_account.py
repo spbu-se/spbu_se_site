@@ -422,6 +422,7 @@ def account_add_new_report():
                                       current_thesis_id=current_thesis_id, author_id=user.id)
             db.session.add(new_report)
             db.session.commit()
+            flash('Отчёт успешно отправлен!', category='success')
             return redirect(url_for('account_workflow', id=current_thesis_id))
 
     return render_template('account/new_report.html', thesises=get_list_of_thesises(), practice=current_thesis,

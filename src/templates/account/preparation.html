@@ -29,7 +29,7 @@
 
                         {% if practice.supervisor_review_uri %}
                         <div class="row px-2 mt-2">
-                            <div class="col-11">
+                            <div class="col-10">
                                 <a href="{{ url_for('static', filename='/currentThesis/reviews/' + practice.supervisor_review_uri) }}" target="_blank">
                                     <div class="icon icon-sm icon-shape bg-soft-primary text-primary mr-2">
                                         <i class="fas fa-file-alt"></i>
@@ -37,7 +37,7 @@
                                     Отзыв научного руководителя
                                 </a>
                             </div>
-                            <div class="col-1">
+                            <div class="col-2">
                                 <div class="text-right" data-content="Удалить отзыв научного руководителя" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                                     <a data-toggle="modal" data-target="#deleteSupervisorReviewModal"  class="text-danger" href="#"><i data-feather="trash-2"></i></a>
                                 </div>
@@ -66,7 +66,7 @@
                         {% endif %}
                         {% if practice.reviewer_review_uri %}
                         <div class="row px-2 mt-2">
-                            <div class="col-11">
+                            <div class="col-10">
                                 <a href="{{ url_for('static', filename='/currentThesis/reviews/' + practice.reviewer_review_uri) }}" target="_blank">
                                     <div class="icon icon-sm icon-shape bg-soft-primary text-primary mr-2">
                                         <i class="fas fa-file-alt"></i>
@@ -74,7 +74,7 @@
                                     Отзыв консультанта
                                 </a>
                             </div>
-                            <div class="col-1">
+                            <div class="col-2">
                                 <div class="text-right" data-content="Удалить отзыв научного руководителя" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                                     <a data-toggle="modal" data-target="#deleteReviewerReviewModal"  class="text-danger" href="#"><i data-feather="trash-2"></i></a>
                                 </div>
@@ -146,7 +146,7 @@
                         <h6 class="mb-0">Презентация</h6>
                         {% if practice.presentation_uri %}
                         <div class="row px-2 mt-2">
-                            <div class="col-11">
+                            <div class="col-10">
                                 <a href="{{ url_for('static', filename='/currentThesis/slides/' + practice.presentation_uri) }}" target="_blank">
                                     <div class="icon icon-sm icon-shape bg-soft-warning text-warning mr-2">
                                         <i class="fas fa-file-powerpoint"></i>
@@ -154,7 +154,7 @@
                                     Презентация
                                 </a>
                             </div>
-                            <div class="col-1">
+                            <div class="col-2">
                                 <div class="text-right" data-content="Удалить отзыв научного руководителя" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
                                     <a data-toggle="modal" data-target="#deletePresentationModal"  class="text-danger" href="#"><i data-feather="trash-2"></i></a>
                                 </div>
