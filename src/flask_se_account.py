@@ -236,7 +236,7 @@ def account_new_thesis():
         form.area.choices.append((area.id, area.area))
 
     form.worktype.choices.append((0, 'Выберите тип работы'))
-    for worktype in Worktype.query.filter(Worktype.id > 1).all():
+    for worktype in Worktype.query.filter(Worktype.id > 2).all():
         form.worktype.choices.append((worktype.id, worktype.type))
 
     return render_template('account/new_practice.html', thesises=get_list_of_thesises(), user=user, review_filter=form,
