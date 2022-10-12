@@ -20,7 +20,7 @@
                     <a class="nav-link active" href="{{ url_for('account_index', notifications='new') }}">Непрочитанные уведомления</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('account_index', notifications='all') }}">Все уведомления</a>
+                    <a class="nav-link" href="{{ url_for('account_index', notifications='all') }}" onclick="return true;">Все уведомления</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
@@ -138,6 +138,21 @@
         span.textContent = 'Не прочитано';
         span.className = "badge btn-secondary";
     }
+
+    let position = 0;
+    document.querySelectorAll('.nav-link').forEach(element =>
+    {
+        element.addEventListener('click', () => { localStorage[position] = window.scrollY });
+    });
+
+    window.addEventListener('load', e =>
+    {
+        if (localStorage[position])
+        {
+            window.scrollTo(0, localStorage[position]);
+            localStorage[position] = 0;
+        }
+    });
 </script>
 
 {% endblock %}

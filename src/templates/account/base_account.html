@@ -17,23 +17,23 @@
                     <div id="accordion-1" class="accordion accordion-stacked mb-2">
 
                         <div class="card">
-                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
+                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
                                 <a href="{{ url_for('account_index') }}"><h6 class="mb-0">Главная</h6></a>
                             </div>
                         </div>
 
                         <div class="card">
-                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent; border-bottom: 1px solid #eaecf3;">
+                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
                                 <a href="{{ url_for('account_guide') }}"><h6 class="mb-0">Справочник</h6></a>
                             </div>
                         </div>
 
                         {% for thesis in thesises %}
                         <div class="card">
-                            <div class="card-header py-4" id="{{ "heading-"+(thesis.id|string()) }}" data-toggle="collapse" role="button" data-target="{{ "#collapse-"+(thesis.id|string()) }}" aria-expanded={% if practice and practice.id == thesis.id %}"true"{% else %}"false"{% endif %} aria-controls="{{ "collapse-"+(thesis.id|string()) }}">
+                            <div class="card-header py-4" id="{{ 'heading-'+(thesis.id|string()) }}" data-toggle="collapse" role="button" data-target="{{ '#collapse-'+(thesis.id|string()) }}" aria-expanded={% if practice and practice.id == thesis.id %}"true"{% else %}"false"{% endif %} aria-controls="{{ 'collapse-'+(thesis.id|string()) }}">
                                 <h6 class="mb-0" style="padding-right: 0.5rem">{{ thesis.worktype.type }}</h6>
                             </div>
-                            <div id="{{ "collapse-"+(thesis.id|string()) }}" class={% if practice and practice.id == thesis.id %}"collapse show"{% else %}"collapse"{% endif %} aria-labelledby="{{ "heading-"+(thesis.id|string()) }}" data-parent="#accordion-1">
+                            <div id="{{ 'collapse-'+(thesis.id|string()) }}" class={% if practice and practice.id == thesis.id %}"collapse show"{% else %}"collapse"{% endif %} aria-labelledby="{{ 'heading-'+(thesis.id|string()) }}" data-parent="#accordion-1">
                                 <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
                                     <nav class="nav flex-column">
                                         <a class="nav-link" href="{{ url_for('account_choosing_topic', id=thesis.id) }}">Выбор темы</a>
@@ -49,7 +49,7 @@
                         {% endfor %}
 
                         <div class="card">
-                            <div class="py-3 px-4 mb-0" style="background-color: transparent; border-bottom: 1px solid #eaecf3;">
+                            <div class="py-3 px-4 mb-0" style="background-color: transparent;">
                                 <a class="btn btn-sm btn-primary btn-block" href="{{ url_for('account_new_thesis') }}" role="button">Новая работа</a>
                             </div>
                         </div>
