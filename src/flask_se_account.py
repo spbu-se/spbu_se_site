@@ -7,7 +7,7 @@ from datetime import date
 import werkzeug
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
-from sqlalchemy import desc
+from sqlalchemy import desc, asc
 from datetime import datetime
 from pytz import timezone
 from transliterate import translit
@@ -15,7 +15,7 @@ from transliterate import translit
 from flask_se_auth import login_required
 from flask_se_config import get_thesis_type_id_string
 from se_forms import ChooseTopic, DeadlineTemp, UserAddReport, CurrentWorktypeArea
-from se_models import AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationAccount, Deadline, db, ThesisReport
+from se_models import Users, AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationAccount, Deadline, db, ThesisReport
 
 # Global variables
 formatDateTime = "%d.%m.%Y %H:%M"
@@ -329,7 +329,7 @@ def account_choosing_topic():
 
     form = ChooseTopic()
     form.staff.choices.append((0, 'Выберите научного руководителя'))
-    for supervisor in Staff.query.all():
+    for supervisor in Staff.query.join(Users, Staff.user_id==Users.id).order_by(asc(Users.last_name)).all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
 
     return render_template('account/choosing_topic.html', thesises=get_list_of_thesises(), form=form,
