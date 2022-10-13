@@ -59,13 +59,6 @@ internships_tag = db.Table('internships_tag',
              )
 
 
-internships_format = db.Table('internships_format',
-                              db.Column('internships_format_id', db.Integer, db.ForeignKey('internship_format.id'),
-                                        primary_key=True),
-                              db.Column('internships_id', db.Integer, db.ForeignKey('internships.id'), primary_key=True)
-                              )
-
-
 class Staff(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
