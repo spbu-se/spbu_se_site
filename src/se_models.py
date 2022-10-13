@@ -167,7 +167,6 @@ class CurrentThesis(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    course = db.Column(db.Integer, nullable=True)
     area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'), nullable=True)
 
     title = db.Column(db.String(512), nullable=True)
