@@ -70,6 +70,10 @@
                 {% elif t.status == 2 %}
                 <span class="badge badge-success badge-pill">Одобрена</span>
                 <p class="pt-2">Ваша тема одобрена, ей назначен научный руководитель и она доступна в общем списке актуальных тем.</p>
+
+                {% elif t.status == 3 %}
+                <span class="badge badge-primary badge-pill">В архиве</span>
+                <p class="pt-2">Ваша тема в архиве. Чтобы отправить ее на проверку, внесите любые изменения и сохраните их.</p>
                 {% endif %}
             </div>
         </div>

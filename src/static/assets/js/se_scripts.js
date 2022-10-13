@@ -139,6 +139,14 @@ function theses_update() {
 function search_thesis()
 {
     let theses_list = document.getElementById('ThesisList');
+    let search_field = document.getElementById('thesis_search_field');
+    let supervisor_select = document.getElementById('supervisor');
+    let wt_select = document.getElementById('worktype');
+    let course_select = document.getElementById('course');
+    let startdate_select = document.getElementById('startdate');
+    let enddate_select = document.getElementById('enddate');
+
+
     let params = new URLSearchParams();
 
     // Text
@@ -603,7 +611,6 @@ function thesis_review_filter()
     review_areasofstudy_select.onchange = thesis_on_review_update;
 }
 
-
 // This is ThesisReview ?
 let thesis_review_filter_element = document.getElementById('ThesisReviewFilter');
 
@@ -763,3 +770,4 @@ let internships_filter_element = document.getElementById('InternshipsFilter');
 
 if (internships_filter_element){
     internships_filter();}
+

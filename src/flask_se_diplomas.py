@@ -17,12 +17,12 @@ def diplomas_index():
     #themes = DiplomaThemes.query.filter_by(status=2).all()
     user_themes_count = 0
 
-    for sid in DiplomaThemes.query.with_entities(DiplomaThemes.company_id).distinct().all():
+    for sid in DiplomaThemes.query.with_entities(DiplomaThemes.company_id).filter_by(status=2).distinct().all():
         company = Company.query.filter_by(id=sid[0]).first()
         diploma_filter.company.choices.append((sid[0], company.name))
         diploma_filter.company.choices.sort(key=lambda tup: tup[1])
 
-    for sid in DiplomaThemes.query.with_entities(DiplomaThemes.supervisor_id).distinct().all():
+    for sid in DiplomaThemes.query.with_entities(DiplomaThemes.supervisor_id).filter_by(status=2).distinct().all():
 
         if sid[0] is None:
             continue
@@ -71,9 +71,9 @@ def fetch_themes():
 
     if company:
         # Check if company exists
-        records = DiplomaThemes.query.filter(DiplomaThemes.company_id == company)
+        records = DiplomaThemes.query.filter(DiplomaThemes.company_id == company).order_by(DiplomaThemes.id.desc())
     else:
-        records = DiplomaThemes.query.filter(DiplomaThemes.status == 2)
+        records = DiplomaThemes.query.filter(DiplomaThemes.status == 2).order_by(DiplomaThemes.id.desc())
 
     if supervisor:
 
@@ -127,7 +127,7 @@ def add_user_theme():
     user = current_user
     add_theme = UserAddTheme()
     add_theme.levels.choices = [(g.id, g.level) for g in ThemesLevel.query.order_by('id').all()]
-    add_theme.company.choices = [(g.id, g.name) for g in Company.query.order_by('id')]
+    add_theme.company.choices = [(g.id, g.name) for g in Company.query.filter_by(status=0).order_by('id')]
 
     if request.method == 'POST':
         title = request.form.get('title', type=str)
@@ -279,3 +279,41 @@ def edit_user_theme():
         return redirect(url_for('user_diplomas_index'))
 
     return render_template('diplomas/edit_theme.html', form=edit_theme, user=user)
+
+
+@login_required
+def archive_theme():
+
+    theme_id = request.args.get('theme_id', type=int)
+
+    if not theme_id:
+        return redirect(url_for('diplomas_index'))
+
+    theme = DiplomaThemes.query.filter_by(id=theme_id).first_or_404()
+
+    if theme.author.id != current_user.id:
+        return redirect(url_for('diplomas_index'))
+
+    theme.status = 3
+    db.session.commit()
+
+    return redirect(url_for('get_theme', id=theme.id))
+
+
+@login_required
+def unarchive_theme():
+
+    theme_id = request.args.get('theme_id', type=int)
+
+    if not theme_id:
+        return redirect(url_for('diplomas_index'))
+
+    theme = DiplomaThemes.query.filter_by(id=theme_id).first_or_404()
+
+    if theme.author.id != current_user.id:
+        return redirect(url_for('diplomas_index'))
+
+    theme.status = 0
+    db.session.commit()
+
+    return redirect(url_for('get_theme', id=theme.id))

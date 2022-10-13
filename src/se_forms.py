@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 
 from flask_wtf import FlaskForm
 
-from wtforms import SelectField, StringField, SelectMultipleField, widgets
+from wtforms import SelectField, StringField, SelectMultipleField, DateTimeField, widgets, validators
+
 from flask_wtf.file import FileField, FileRequired
 from wtforms import SelectField, StringField, SelectMultipleField, RadioField, widgets
 from wtforms.widgets import TextArea
@@ -84,6 +86,7 @@ class Lecture(FlaskForm):
     course = SelectField('course', choices=[])
     supervisor = SelectField('supervisor', choices=[])
     startdate = SelectField('worktype', choices=[])
+    enddate = SelectField('worktype', choices=[])
 
 
 class AddInternship(FlaskForm):
@@ -104,3 +107,38 @@ class InternshipsFilter(FlaskForm):
     language = SelectField('language', choices=[])
     tag = SelectField('tag', choices=[])
 
+    
+# Account forms
+class AddNewCurrentThesis(FlaskForm):
+    area = SelectField('area', choices=[])
+    worktype = SelectField('worktype', choices=[])
+
+
+class CurrentCourseArea(FlaskForm):
+    area = SelectField('area', choices=[])
+    course = SelectField('course', choices=[])
+
+
+class ChooseTopic(FlaskForm):
+    topic = StringField('topic', description='Например, реализация алгоритма контекстно-свободной достижимости на OpenCL')
+    staff = SelectField('staff', choices=[])
+
+
+class DeadlineTemp(FlaskForm):
+    area = SelectField('area', choices=[], validators=[validators.Optional()])
+    course = SelectField('course', choices=[], validators=[validators.Optional()])
+    choose_topic = DateTimeField('choose_topic')
+    submit_work_for_review = DateTimeField('submit_work_for_review')
+    upload_reviews = DateTimeField('upload_reviews')
+    pre_defense = DateTimeField('pre_defense')
+    defense = DateTimeField('defense')
+
+
+class UserAddReport(FlaskForm):
+    was_done = StringField('was_done', description='Например: Провел сравнение моего проекта с аналогами. '
+                                                   'Составил таблицу, проанализировал результаты. Сформулировал, чем '
+                                                   'мой проект лучше остальных. и занес в текст введения полученную'
+                                                   ' информацию.', widget=TextArea())
+    planned_to_do = StringField('planned_to_do', description='Например: В ближайшее время планирую дописать введение, '
+                                                             'изучить MySQL по курсам на Stepik, составить схему баз '
+                                                             'данных для моего проекта.', widget=TextArea())

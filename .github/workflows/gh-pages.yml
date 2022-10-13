@@ -7,7 +7,7 @@ on:
     # Triggers the workflow on push or pull request events but only for the current branch
     push:
       branches:
-        - ver2_dev
+        - account
 
     # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
@@ -24,7 +24,7 @@ jobs:
         # Checks-out to branch ver2_dev
         - uses: actions/checkout@v2
           with:
-            ref: 'ver2_dev'
+            ref: 'account'
             
         - uses: dawidd6/action-delete-branch@v3
           with:
@@ -46,21 +46,16 @@ jobs:
         # Set up Python 3.6 environment
         - uses: actions/setup-python@v2
           with:
-              python-version: '3.x'
+              python-version: '3.8.0'
               
         # Install dependencies
         - name: Install dependencies
           run: |
             python -m pip install --upgrade pip
             pip install -r requirements.txt
-
         - name: Initialize db
           run: |
             python src/flask_se.py init
-        # Run Flask Frozen
-        - name: Run Flask Frozen to build /docs/
-          run: |
-            python src/flask_se.py build
             
         # install npm and run script
         - name: install npm and run script
@@ -75,7 +70,6 @@ jobs:
         - run: npm install @nodelib/fs.scandir
         - run: npm install glob
         - run: npm init --yes
-        - run: node ./webpConverterScript.js
         - run: npm i -g purgecss
         - run: purgecss --css docs/assets/css/*.css --content src/templates/*.html --safelist show --output docs/assets/css
 

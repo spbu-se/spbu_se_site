@@ -89,9 +89,11 @@ def login_index():
                 login_user(user, remember=True)
                 return redirect_next_url(fallback=url_for('user_profile'))
             else:
-                flash('Incorrect password, try again.', category='error')
+                flash('Пара логин и пароль указаны неверно', category='error')
+                return render_template('auth/login.html', user=current_user)
         else:
-            flash('Email does not exist.', category='error')
+            flash('Пользователя с таким почтовым адресом нет', category='error')
+            return render_template('auth/login.html', user=current_user)
 
     return render_template('auth/login.html', user=current_user)
 
@@ -111,9 +113,12 @@ def vk_callback():
     if "error" in access_token_json:
         return redirect(url_for('index'))
 
+    print (access_token_json)
+
     vk_id = access_token_json['user_id']
     access_token = access_token_json['access_token']
     vk_email = access_token_json['email']
+
 
     # Get user name
     response = requests.get('https://api.vk.com/method/users.get?user_ids=' + str(vk_id) + '&fields=photo_100&access_token=' + str(access_token) + '&v=5.130')

@@ -88,3 +88,6 @@ fabric.properties
 /**/flask_se_secret.conf
 */src/flask_se_secret.conf
 flask_se_secret.conf
+/**/flask_se_mail.conf
+*/src/flask_se_mail.conf
+flask_se_mail.conf

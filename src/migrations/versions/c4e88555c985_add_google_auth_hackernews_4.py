@@ -43,13 +43,13 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('post_vote',
-    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('author_id', sa.Integer(), nullable=False),
     sa.Column('post_id', sa.Integer(), nullable=False),
     sa.Column('upvote', sa.Boolean(), nullable=False),
     sa.Column('timestamp', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('user_id', 'post_id')
+    sa.ForeignKeyConstraint(['author_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('author_id', 'post_id')
     )
     # ### end Alembic commands ###
 

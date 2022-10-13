@@ -22,15 +22,9 @@ def internships_index():
     for sid in InternshipFormat.query.all():
         internship_filter.format.choices.append((sid.id, sid.format))
 
-    #for sid in InternshipTag.query.all():
-    #    internship_filter.tag.choices.append((sid.id, sid.tag))
-
     internship_filter.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.all()]
-
     internship_filter.tag.choices.insert(0, (0, "Все"))
-
     internship_filter.format.choices.insert(0, (0, "Все"))
-
     internship_filter.company.choices.insert(0, (0, "Все"))
 
     return render_template('internships/internships_index.html',
@@ -46,6 +40,7 @@ def add_internship():
     add_intern.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by('id').all()]
     add_intern.company.choices = [(g.id, g.name) for g in InternshipCompany.query.order_by('id')]
 
+
     if request.method == 'POST':
         name_vacancy = request.form.get('name_vacancy', type=str)
         description = request.form.get('description', type=str)
@@ -55,12 +50,14 @@ def add_internship():
         salary = request.form.get('salary', type=str)
         more_inf = request.form.get('more_inf', type=str)
         format = request.form.getlist('format', type=int)
+
         tags = request.form.get('tag', type=str)
 
         list_of_tags = list(map(lambda x: x.strip(), tags.split(',')))
         tag_list = [t for t in InternshipTag.query.all() if t.tag in list_of_tags]
 
         format_list = []
+
         int_format = InternshipFormat.query.all()
 
         for f in int_format:
@@ -91,6 +88,7 @@ def add_internship():
 
         internship.format = format_list
         internship.tag = tag_list
+
         try:
             db.session.add(internship)
             db.session.commit()
@@ -123,6 +121,7 @@ def delete_internship(id):
 
 @login_required
 def update_internship(id):
+
     internship = Internships.query.get(id)
     if not internship:
         return redirect(url_for('internships_index'))
@@ -132,6 +131,7 @@ def update_internship(id):
     upd_internship.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
     upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by('id').all()]
     upd_internship.format.data = [c.id for c in internship.format]
+
 
     if request.method == 'POST':
 
@@ -143,12 +143,14 @@ def update_internship(id):
         internship.more_inf = request.form.get('more_inf', type=str)
         company = request.form.get('company', type=str)
         format = request.form.getlist('format', type=int)
+
         tags = request.form.get('tag', type=str)
 
         list_of_tags = tags.split(',')
         tag_list = [t for t in InternshipTag.query.all() if t.tag in list_of_tags]
 
         format_list = []
+
         int_format = InternshipFormat.query.all()
 
         for f in int_format:
@@ -163,6 +165,7 @@ def update_internship(id):
         company_id = InternshipCompany.query.with_entities(InternshipCompany.id).filter_by(name=company).distinct().first()
         internship.format = format_list
         internship.tag = tag_list
+
         internship.company_id = company_id[0]
         try:
             db.session.commit()
@@ -197,3 +200,4 @@ def fetch_internships():
         return render_template('internships/fetch_internships.html', internships=records, format=format, company=company, tag=tag)
     else:
         return render_template('internships/fetch_internships_blank.html')
+

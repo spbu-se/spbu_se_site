@@ -4,7 +4,9 @@ import sys
 from datetime import datetime
 import tzlocal
 
-from flask import Flask, render_template, make_response, redirect, url_for
+import pytz
+from dateutil import tz
+from flask import Flask, render_template, make_response, redirect, url_for, request
 from flask_admin import Admin
 from flask_apscheduler import APScheduler
 from flask_frozen import Freezer
@@ -27,13 +29,18 @@ from flask_se_scholarships import get_scholarships_1, get_scholarships_2, get_sc
     get_scholarships_5, get_scholarships_6, get_scholarships_7, get_scholarships_8, get_scholarships_9, \
     get_scholarships_10, get_scholarships_11, get_scholarships_12, get_scholarships_13
 from flask_se_diplomas import diplomas_index, get_theme, add_user_theme, user_diplomas_index, delete_theme, \
-    edit_user_theme, fetch_themes
-from flask_se_internships import add_internship, fetch_internships, internships_index, page_internship, delete_internship, update_internship
-from se_models import db, Internships
+    edit_user_theme, fetch_themes, archive_theme, unarchive_theme
+
 from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_thesis_on_review, \
     delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review, \
-    fetch_thesis_on_review
+    fetch_thesis_on_review, review_become_thesis_reviewer_ask, review_become_thesis_reviewer_confirm
+from flask_se_internships import add_internship, internships_index, page_internship, delete_internship, \
+    update_internship, fetch_internships
 
+from se_sendmail import notification_send_mail, notification_send_diploma_themes_on_review
+from flask_se_account import account_index, account_guide, account_new_thesis, account_choosing_topic, \
+    account_add_new_report, account_preparation, account_thesis_defense, account_materials, account_data_for_practice, \
+    account_edit_theme, account_temp, account_temp_deadline, account_workflow
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -79,6 +86,7 @@ app.add_url_rule('/post_theses', methods=['GET', 'POST'], view_func=flask_se_the
 app.add_url_rule('/theses_tmp.html', view_func=flask_se_theses.theses_tmp)
 app.add_url_rule('/theses_delete_tmp', view_func=flask_se_theses.theses_delete_tmp)
 app.add_url_rule('/theses_add_tmp', view_func=flask_se_theses.theses_add_tmp)
+app.add_url_rule('/thesis_download', view_func=flask_se_theses.download_thesis)
 
 
 # News
@@ -114,6 +122,8 @@ app.add_url_rule('/diplomas/user_themes.html', view_func=user_diplomas_index)
 app.add_url_rule('/diplomas/delete_theme.html', view_func=delete_theme)
 app.add_url_rule('/diplomas/edit_theme.html', methods=['GET', 'POST'], view_func=edit_user_theme)
 app.add_url_rule('/diplomas/fetch_themes', view_func=fetch_themes)
+app.add_url_rule('/diplomas/archive_theme', view_func=archive_theme)
+app.add_url_rule('/diplomas/unarchive_theme', view_func=unarchive_theme)
 
 
 # Review thesis
@@ -126,7 +136,9 @@ app.add_url_rule('/review/review', methods=['GET'], view_func=review_thesis_on_r
 app.add_url_rule('/review/reviewed', methods=['GET', 'POST'], view_func=review_submit_review)
 app.add_url_rule('/review/review_result', methods=['GET'], view_func=review_result_thesis_on_review)
 app.add_url_rule('/review/fetch_thesis_on_review', methods=['GET'], view_func=fetch_thesis_on_review)
-
+app.add_url_rule('/review/become_thesis_reviewer', methods=['GET'], view_func=review_become_thesis_reviewer_ask)
+app.add_url_rule('/review/become_thesis_reviewer_confirm', methods=['GET'],
+                 view_func=review_become_thesis_reviewer_confirm)
 
 
 # Internships
@@ -137,6 +149,21 @@ app.add_url_rule('/internships/<int:id>', methods=['GET', 'POST'], view_func=pag
 app.add_url_rule('/internships/<int:id>/delete', view_func=delete_internship)
 app.add_url_rule('/internships/<int:id>/update', methods=['GET', 'POST'], view_func=update_internship)
 
+
+# Account
+app.add_url_rule('/account', methods=['GET', 'POST'], view_func=account_index)
+app.add_url_rule('/account/guide', methods=['GET'], view_func=account_guide)
+app.add_url_rule('/account/new', methods=['GET', 'POST'], view_func=account_new_thesis)
+app.add_url_rule('/account/data_for_practice', methods=['GET', 'POST'], view_func=account_data_for_practice)
+app.add_url_rule('/account/choosing_topic', methods=['GET', 'POST'], view_func=account_choosing_topic)
+app.add_url_rule('/account/edit_theme', methods=['GET', 'POST'], view_func=account_edit_theme)
+app.add_url_rule('/account/account_add_new_report', methods=['GET', 'POST'], view_func=account_add_new_report)
+app.add_url_rule('/account/workflow', methods=['GET', 'POST'], view_func=account_workflow)
+app.add_url_rule('/account/preparation_for_defense', methods=['GET', 'POST'], view_func=account_preparation)
+app.add_url_rule('/account/defense', methods=['GET'], view_func=account_thesis_defense)
+app.add_url_rule('/account/account_materials', methods=['GET'], view_func=account_materials)
+app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=account_temp)
+app.add_url_rule('/temp_deadline', methods=['GET', 'POST'], view_func=account_temp_deadline)
 
 
 # Init Database
@@ -166,13 +193,15 @@ zero_days_ago = (datetime.now()).date().isoformat()
 login_manager.init_app(app)
 
 # Init markdown
-Markdown(app)
+Markdown(app, extensions=['tables'])
 
 
 # Init APScheduler
 app.config['SCHEDULER_TIMEZONE'] = 'UTC'
 scheduler = APScheduler()
 scheduler.add_job(id='RecalculatePostRank', func=recalculate_post_rank, trigger="interval", seconds=3600)
+scheduler.add_job(id='SendMailNotification', func=notification_send_mail, trigger="interval", seconds=10)
+scheduler.add_job(id='SendDiplomaThemesOnReviewNotification', func=notification_send_diploma_themes_on_review, trigger="interval", seconds=86400)
 scheduler.start()
 
 # Init Flask-admin
@@ -190,6 +219,11 @@ admin.add_view(SeAdminModelViewReviewDiplomaThemes(DiplomaThemes, db.session, en
 app.config['SIMPLEMDE_JS_IIFE'] = True
 app.config['SIMPLEMDE_USE_CDN'] = False
 SimpleMDE(app)
+
+
+@app.template_filter('datatime_convert')
+def datetime_convert(value, format="%d.%m.%Y %H:%M"):
+    return value.replace(tzinfo=pytz.UTC).astimezone(tz.tzlocal()).strftime(format)
 
 
 # Flask routes goes
@@ -321,6 +355,13 @@ def summer_school():
 
     projects = SummerSchool.query.filter_by(year=2021).all()
     return render_template('summer_school.html', projects=projects)
+
+
+@app.route('/summer_school_2022.html')
+def summer_school_2022():
+
+    projects = SummerSchool.query.filter_by(year=2022).all()
+    return render_template('summer_school_2022.html', projects=projects)
 
 
 @app.route('/sitemap.xml', methods=['GET'])

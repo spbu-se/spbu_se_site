@@ -13,7 +13,7 @@ from flask_se_auth import login_required
 from se_forms import AddThesisOnReview, ThesisReviewFilter, EditThesisOnReview
 from se_review_forms import ReviewForm
 from se_models import db, Thesis, Worktype, AreasOfStudy, Staff, ThesisReview, ThesisOnReview, \
-    Reviewer, ThesisOnReviewWorktype
+    Reviewer, ThesisOnReviewWorktype, PromoCode, add_mail_notification
 
 
 # Global variables
@@ -84,20 +84,21 @@ def submit_thesis_on_review():
     author = user.get_name()
 
     if request.method == "POST":
+
         title = request.form.get('title').strip()
         worktype = request.form.get('type', type=int)
         area_of_study = request.form.get('area', type=int)
 
         if not title:
-            flash ("Укажите название вашей работы", 'error')
+            flash("Укажите название вашей работы", 'error')
             return redirect(request.url)
 
         if worktype <= 0 or worktype > ThesisOnReviewWorktype.query.distinct().count():
-            flash ("Укажите тип работы", 'error')
+            flash("Укажите тип работы", 'error')
             return redirect(request.url)
 
         if area_of_study <= 0 or area_of_study > AreasOfStudy.query.distinct().count():
-            flash ("Укажите направление вашего обучения", 'error')
+            flash("Укажите направление вашего обучения", 'error')
             return redirect(request.url)
 
         # check if the post request has the file part
@@ -139,13 +140,14 @@ def submit_thesis_on_review():
             db.session.add(thesis)
             db.session.commit()
 
+            flash("Ваша работа успешно загружена. Информацию о начале и окончании рецензирования вы будете получать на почту", 'error')
             return redirect(url_for('thesis_review_index'))
         else:
             flash("Текст работы должен быть в формате .PDF", 'error')
             return redirect(request.url)
 
-    form.type.choices.append((0, "Выберите тип вашей работы"))
-    form.area.choices.append((0, "Выберите направление обучения"))
+    form.type.choices.append((0, "Тип работы"))
+    form.area.choices.append((0, "Направление обучения"))
 
     for type in ThesisOnReviewWorktype.query.filter(ThesisOnReviewWorktype.id>1).distinct().all():
         form.type.choices.append((type.id, type.type))
@@ -234,6 +236,7 @@ def edit_thesis_on_review():
                     flash("Текст работы должен быть в формате .PDF", 'error')
                     return redirect(request.url)
 
+        thesis_review.review_status = 1
         db.session.commit()
         return redirect(url_for('thesis_review_index'))
 
@@ -307,6 +310,10 @@ def review_thesis_on_review():
         thesis.reviewer_id = user_reviewer.id
         db.session.commit()
 
+        data = render_template('notification/thesis_on_review_get.html', thesis=thesis)
+        add_mail_notification(thesis.author_id, "[SE site] Ваша работа на рецензировании", data)
+
+
     review_form = ReviewForm()
     return render_template('thesis_review/review.html', thesis=thesis, user=user, review_form=review_form)
 
@@ -354,9 +361,9 @@ def review_submit_review():
         t2 = request.form['review_t2_radio_switcher']
         t2_comment = request.form['review_t2_comment']
         p1 = request.form['review_p1_radio_switcher']
-        p1_comment = request.form['review_t2_comment']
+        p1_comment = request.form['review_p1_comment']
         p2 = request.form['review_p2_radio_switcher']
-        p2_comment = request.form['review_t2_comment']
+        p2_comment = request.form['review_p2_comment']
 
         review_overall_comment = request.form['review_overall_comment']
         verdict = request.form['review_verdict_radio_switcher']
@@ -394,6 +401,7 @@ def review_submit_review():
         flash("В рецензии есть пропущенные вопросы. Нужно ответить на все вопросы, поля с комментариями являются опциональными.", 'error')
         return redirect(url_for('review_thesis_on_review', thesis_review_id=thesis_id ))
 
+    data = ""
     review = ThesisReview(thesis_on_review_id=thesis.id, o1=o1, o1_comment=o1_comment,
                           o2=o2, o2_comment=o2_comment, t1=t1, t1_comment=t1_comment,
                           t2=t2, t2_comment=t2_comment, p1=p1, p1_comment=p1_comment,
@@ -403,13 +411,17 @@ def review_submit_review():
 
     # Review status = 0 (success)
     # Review status = 3 (Need to be fixed)
-    if verdict:
+    if verdict != '0':
         thesis.review_status = 0
+        data = render_template('notification/thesis_on_review_success.html', thesis=thesis)
     else:
         thesis.review_status = 3
+        data = render_template('notification/thesis_on_review_failed.html', thesis=thesis)
 
     db.session.add(review)
     db.session.commit()
+
+    add_mail_notification(thesis.author_id, "[SE site] Результат рецензирования", data)
 
     return redirect(url_for('thesis_review_index'))
 
@@ -452,3 +464,47 @@ def review_result_thesis_on_review():
 
     return render_template('thesis_review/result_review.html', thesis=thesis, user=user, review_form=review_form,
                            review=review)
+
+
+@login_required
+def review_become_thesis_reviewer_ask():
+
+    user = current_user
+
+    promocode = request.args.get('code', type=str, default='')
+
+    promo = PromoCode.query.filter_by(code=promocode).first()
+
+    if not promo:
+        return redirect(url_for('index'))
+
+    reviewer = Reviewer.query.filter_by(user_id=user.id).first()
+
+    if reviewer:
+        return render_template('thesis_review/already_reviewer.html', user=user)
+
+    return render_template('thesis_review/become_reviewer.html', user=user, promocode=promocode)
+
+
+@login_required
+def review_become_thesis_reviewer_confirm():
+
+    user = current_user
+
+    promocode = request.args.get('code', type=str, default='')
+
+    promo = PromoCode.query.filter_by(code=promocode).first()
+
+    if not promo:
+        return redirect(url_for('index'))
+
+    reviewer = Reviewer.query.filter_by(user_id=user.id).first()
+
+    if reviewer:
+        return render_template('thesis_review/already_reviewer.html', user=user)
+
+    r = Reviewer(user_id=user.id)
+    db.session.add(r)
+    db.session.commit()
+
+    return render_template('thesis_review/become_reviewer_confirm.html', user=user)

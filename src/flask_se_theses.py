@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*-
 
 import json
 import logging
@@ -124,6 +124,29 @@ def fetch_theses():
         return render_template('fetch_theses_blank.html')
 
 
+# Download thesis link
+def download_thesis():
+
+    thesis_id = request.args.get('thesis_id', default=0, type=int)
+
+    if not thesis_id:
+        return redirect('theses_search')
+
+    thesis = Thesis.query.filter_by(id=thesis_id).first()
+
+    if not thesis:
+        return redirect('theses_search')
+
+    if not thesis.text_uri:
+        return redirect('theses_search')
+
+    # Increment counter
+    thesis.download_thesis = thesis.download_thesis + 1
+    db.session.commit()
+
+    return redirect(url_for('static', filename='/thesis/texts/' + thesis.text_uri))
+
+
 def post_theses():
 
     error_status = 500
@@ -199,21 +222,33 @@ def post_theses():
             string='Wrong type_id: ' + str(type_id)
         )
 
-    if course_id < 1 or course_id > 7:
+    if course_id < 1 or course_id > 8:
         return jsonify(
             status=error_status,
             string='Wrong course_id: ' + str(course_id)
         )
 
     # Try to get SuperVisor Id
-    q = Users.query.filter_by(last_name=supervisor).first()
-    if q:
-        r = Staff.query.filter_by(user_id=q.id).first()
-        supervisor_id = r.id
+    qq = Users.query.filter_by(last_name=supervisor).all()
+    supervisor_id = ''
+
+    if qq:
+        for q in qq:
+            r = Staff.query.filter_by(user_id=q.id).first()
+
+            if r:
+                supervisor_id = r.id
+                continue
+
+        if not supervisor_id:
+            return jsonify(
+                status=error_status,
+                string='Can\'t find supervisor in staff: ' + str(supervisor)
+            )
     else:
         return jsonify(
             status=error_status,
-            string='Can\'t find supervisor: ' + str(supervisor)
+            string='Can\'t find supervisor in users: ' + str(supervisor)
         )
 
     author_en = translit(author, 'ru', reversed=True)
