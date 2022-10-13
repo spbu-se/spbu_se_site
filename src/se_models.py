@@ -14,6 +14,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_msearch import Search
 from werkzeug.security import generate_password_hash
+from datetime import datetime
+
 
 from flask_se_config import post_ranking_score, get_hours_since, SQLITE_DATABASE_NAME, SQLITE_DATABASE_BACKUP_NAME
 
@@ -42,11 +44,20 @@ diploma_themes_tag = db.Table('diploma_themes_tag',
                               )
 
 diploma_themes_level = db.Table('diploma_themes_level',
-                                db.Column('themes_level_id', db.Integer, db.ForeignKey('themes_level.id'),
-                                          primary_key=True),
-                                db.Column('diploma_themes_id', db.Integer, db.ForeignKey('diploma_themes.id'),
-                                          primary_key=True)
-                                )
+              db.Column('themes_level_id', db.Integer, db.ForeignKey('themes_level.id'), primary_key=True),
+              db.Column('diploma_themes_id', db.Integer, db.ForeignKey('diploma_themes.id'), primary_key=True)
+              )
+
+internships_format = db.Table('internships_format',
+             db.Column('internships_format_id', db.Integer, db.ForeignKey('internship_format.id'), primary_key=True),
+             db.Column('internships_id', db.Integer, db.ForeignKey('internships.id'), primary_key=True)
+             )
+
+internships_tag = db.Table('internships_tag',
+             db.Column('internships_tag_id', db.Integer, db.ForeignKey('internship_tag.id'), primary_key=True),
+             db.Column('internships_id', db.Integer, db.ForeignKey('internships.id'), primary_key=True)
+             )
+
 
 internships_format = db.Table('internships_format',
                               db.Column('internships_format_id', db.Integer, db.ForeignKey('internship_format.id'),
@@ -68,6 +79,7 @@ class Staff(db.Model):
     supervisor = db.relationship("Thesis", backref=db.backref("supervisor"), foreign_keys='Thesis.supervisor_id')
     adviser = db.relationship("Thesis", backref=db.backref("reviewer"), foreign_keys='Thesis.reviewer_id')
     current_thesises = db.relationship("CurrentThesis", backref=db.backref("supervisor"))
+
 
     def __repr__(self):
         return '<%r>' % self.official_email
@@ -116,8 +128,8 @@ class Users(db.Model, UserMixin):
     reviewer = db.relationship('Reviewer', back_populates='user')
 
     all_user_votes = db.relationship('PostVote', back_populates='user')
-    internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False),
-                                        foreign_keys='Internships.author_id')
+    internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False), foreign_keys='Internships.author_id')
+
 
     def get_name(self):
         full_name = ''
@@ -131,6 +143,9 @@ class Users(db.Model, UserMixin):
             full_name = full_name + " " + self.middle_name
 
         return full_name
+
+        return "{self.last_name} {self.first_name} {self.middle_name}"
+
 
     def __str__(self):
         full_name = ''
@@ -160,6 +175,26 @@ class Users(db.Model, UserMixin):
             full_name = full_name + " " + self.middle_name
 
         return full_name
+
+
+class InternshipFormat(db.Model):
+    __tablename__ = 'internship_format'
+
+    id = db.Column(db.Integer, primary_key=True)
+    format = db.Column(db.String(100), nullable=False)
+
+    def __str__(self):
+        return "{self.format}"
+
+
+class InternshipTag(db.Model):
+    __tablename__ = 'internship_tag'
+
+    id = db.Column(db.Integer, primary_key=True)
+    tag = db.Column(db.String(100), nullable=False)
+
+    def __str__(self):
+        return "{self.tag}"
 
 
 class CurrentThesis(db.Model):
@@ -219,16 +254,6 @@ class ThesisReport(db.Model):
     time = db.Column(db.DateTime, default=datetime.utcnow)
 
 
-class InternshipFormat(db.Model):
-    __tablename__ = 'internship_format'
-
-    id = db.Column(db.Integer, primary_key=True)
-    format = db.Column(db.String(100), nullable=False)
-
-    def __str__(self):
-        return "{self.format}"
-
-
 class InternshipCompany(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(512), nullable=False)
@@ -236,10 +261,11 @@ class InternshipCompany(db.Model):
     internship = db.relationship('Internships', back_populates='company')
 
     def __str__(self):
-        return self.name
+        return (self.name)
 
 
 class Internships(db.Model):
+
     __tablename__ = 'internships'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -250,12 +276,15 @@ class Internships(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey('internship_company.id'))
     requirements = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
-    more_inf = db.Column(db.String, nullable=True)  # ссылка на сайт
-    description = db.Column(db.String, nullable=True)  # короткое описание того, чем нужно будет заниматься
+
+    more_inf = db.Column(db.String, nullable=True) # ссылка на сайт
+    description = db.Column(db.String, nullable=True) # короткое описание того, чем нужно будет заниматься
     location = db.Column(db.String(50), nullable=True)
     format = db.relationship('InternshipFormat', secondary=internships_format, lazy='subquery',
+                           backref=db.backref('internship', lazy=True), order_by=internships_format.c.internships_format_id)
+    tag = db.relationship('InternshipTag', secondary=internships_tag, lazy='subquery',
                              backref=db.backref('internship', lazy=True),
-                             order_by=internships_format.c.internships_format_id)
+                             order_by=internships_tag.c.internships_tag_id)
 
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
@@ -434,7 +463,7 @@ class PostType(db.Model):
     post = db.relationship('Posts', back_populates='type')
 
     def __str__(self):
-        return f"{self.name}"
+        return "{self.name}"
 
 
 class ThemesLevel(db.Model):
@@ -446,7 +475,7 @@ class ThemesLevel(db.Model):
     #    themes_id = db.Column(db.Integer, db.ForeignKey('diploma_themes.id'))
 
     def __str__(self):
-        return f"{self.level}"
+        return "{self.level}"
 
 
 class DiplomaThemes(db.Model):
@@ -490,7 +519,7 @@ class Company(db.Model):
     reviewer = db.relationship('Reviewer', back_populates='company')
 
     def __str__(self):
-        return f"{self.name}"
+        return "{self.name}"
 
 
 class ThesisReview(db.Model):
@@ -714,6 +743,16 @@ def init_db():
         {'type': 'Практика весеняя, 3 курс'},
         {'type': 'Производственная практика'},
         {'type': 'Преддипломная практика'},
+    ]
+
+    internship_formats = [
+        {'format': 'Очно'},
+        {'format': 'Дистанционно'}
+    ]
+    internship_tags = [
+        {'tag': 'C'},
+        {'tag': 'C++'},
+        {'tag': 'C#'}
     ]
     courses = [
         {'name': 'Математическое обеспечение и администрирование информационных систем (бакалавриат)',
@@ -1207,6 +1246,7 @@ def init_db():
          },
     ]
 
+
     # Check if db file already exists. If so, backup it
     db_file = Path(SQLITE_DATABASE_NAME)
     if db_file.is_file():
@@ -1351,4 +1391,20 @@ def init_db():
             c.levels.append(ThemesLevel.query.filter_by(id=tl_id).first())
 
         db.session.add(c)
+        db.session.commit()
+
+    # Create InternshipsFormat
+    print("Create internship formats")
+    print("Create addinternship formats")
+    for cur in internship_formats:
+        c = InternshipFormat(format=cur['format'])
+
+        db.session.add(c)
+        db.session.commit()
+
+    print("Create internship tags")
+    for cur in internship_tags:
+        t = InternshipTag(tag=cur['tag'])
+
+        db.session.add(t)
         db.session.commit()
