@@ -104,14 +104,9 @@ class InternshipsFilter(FlaskForm):
     
 
 # Account forms
-class AddNewCurrentThesis(FlaskForm):
-    area = SelectField('area', choices=[])
+class CurrentWorktypeArea(FlaskForm):
     worktype = SelectField('worktype', choices=[])
-
-
-class CurrentCourseArea(FlaskForm):
     area = SelectField('area', choices=[])
-    course = SelectField('course', choices=[])
 
 
 class ChooseTopic(FlaskForm):
@@ -121,7 +116,7 @@ class ChooseTopic(FlaskForm):
 
 class DeadlineTemp(FlaskForm):
     area = SelectField('area', choices=[], validators=[validators.Optional()])
-    course = SelectField('course', choices=[], validators=[validators.Optional()])
+    worktype = SelectField('worktype', choices=[], validators=[validators.Optional()])
     choose_topic = DateTimeField('choose_topic')
     submit_work_for_review = DateTimeField('submit_work_for_review')
     upload_reviews = DateTimeField('upload_reviews')

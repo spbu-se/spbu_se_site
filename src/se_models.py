@@ -198,7 +198,7 @@ class NotificationAccount(db.Model):
 
 class Deadline(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    course = db.Column(db.Integer, nullable=False)
+    worktype_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
     area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'), nullable=False)
 
     choose_topic = db.Column(db.DateTime, nullable=True)
@@ -274,6 +274,7 @@ class Worktype(db.Model):
     thesis = db.relationship("Thesis", backref=db.backref("type", uselist=False))
     thesis_on_review = db.relationship("ThesisOnReview", backref=db.backref('worktype', uselist=False))
     current_thesis = db.relationship("CurrentThesis", backref=db.backref("worktype"))
+    deadline = db.relationship("Deadline", backref=db.backref('worktype', uselist=False))
 
     def __repr__(self):
         return self.type
