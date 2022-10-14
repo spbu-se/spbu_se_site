@@ -367,7 +367,8 @@ def account_edit_theme():
 
     form.topic.data = current_thesis.title
     form.staff.choices.append((current_thesis.supervisor_id, current_thesis.supervisor))
-    for supervisor in Staff.query.filter(Staff.id != current_thesis.supervisor_id).all():
+    for supervisor in Staff.query.join(Users, Staff.user_id == Users.id).filter(Staff.id != current_thesis.supervisor_id)\
+            .order_by(asc(Users.last_name)).all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
 
     return render_template('account/edit_theme.html', thesises=get_list_of_thesises(), form=form,

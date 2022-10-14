@@ -98,6 +98,7 @@ class Users(db.Model, UserMixin):
     google_id = db.Column(db.String(255), nullable=True)
 
     staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
+    staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
     news = db.relationship("Posts", backref=db.backref("author", uselist=False))
     diploma_themes_supervisor = db.relationship("DiplomaThemes", backref=db.backref("supervisor", uselist=False),
                                                 foreign_keys='DiplomaThemes.supervisor_id')
