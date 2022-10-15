@@ -53,8 +53,8 @@ def add_internship():
 
         tags = request.form.get('tag', type=str)
 
-        list_of_tags = list(map(lambda x: x.strip(), tags.split(',')))
-        tag_list = [t for t in InternshipTag.query.all() if t.tag in list_of_tags]
+        list_of_tags = list(map(lambda x: x.strip().upper(), tags.split(',')))
+        tag_list = [t for t in InternshipTag.query.all() if t.tag.upper() in list_of_tags]
 
         format_list = []
 
@@ -146,8 +146,8 @@ def update_internship(id):
 
         tags = request.form.get('tag', type=str)
 
-        list_of_tags = tags.split(',')
-        tag_list = [t for t in InternshipTag.query.all() if t.tag in list_of_tags]
+        list_of_tags = list(map(lambda x: x.strip().upper(), tags.split(',')))
+        tag_list = [t for t in InternshipTag.query.all() if t.tag.upper() in list_of_tags]
 
         format_list = []
 
