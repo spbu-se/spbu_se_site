@@ -38,7 +38,7 @@ def add_internship():
     add_intern = AddInternship()
     add_intern.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
     add_intern.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by('id').all()]
-    add_intern.company.choices = [(g.id, g.name) for g in InternshipCompany.query.order_by('id')]
+    #add_intern.company.choices = [(g.id, g.name) for g in InternshipCompany.query.order_by('id')]
 
 
     if request.method == 'POST':
@@ -53,8 +53,18 @@ def add_internship():
 
         tags = request.form.get('tag', type=str)
 
-        list_of_tags = list(map(lambda x: x.strip().upper(), tags.split(',')))
-        tag_list = [t for t in InternshipTag.query.all() if t.tag.upper() in list_of_tags]
+        tag_list = []
+        list_of_tags = list(map(lambda x: x.strip(), tags.split(',')))
+        for t in list_of_tags:
+            is_finded = False
+            for posb_tag in InternshipTag.query.all():
+                if posb_tag.tag.upper() == t.upper():
+                    is_finded = True
+                    tag_list.append(posb_tag)
+                    break
+            if not is_finded:
+                flash("Тег " + t + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить.")
+                return  render_template('internships/add_internship.html', form=add_intern, user=user)
 
         format_list = []
 
@@ -143,11 +153,20 @@ def update_internship(id):
         internship.more_inf = request.form.get('more_inf', type=str)
         company = request.form.get('company', type=str)
         format = request.form.getlist('format', type=int)
-
         tags = request.form.get('tag', type=str)
 
-        list_of_tags = list(map(lambda x: x.strip().upper(), tags.split(',')))
-        tag_list = [t for t in InternshipTag.query.all() if t.tag.upper() in list_of_tags]
+        tag_list = []
+        list_of_tags = list(map(lambda x: x.strip(), tags.split(',')))
+        for t in list_of_tags:
+            is_finded = False
+            for posb_tag in InternshipTag.query.all():
+                if posb_tag.tag.upper() == t.upper():
+                    is_finded = True
+                    tag_list.append(posb_tag)
+                    break
+            if not is_finded:
+                flash("Тег " + t + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить.")
+                return  render_template('internships/add_internship.html', form=add_intern, user=user)
 
         format_list = []
 
