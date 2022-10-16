@@ -139,6 +139,7 @@ def update_internship(id):
 
     upd_internship.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
     upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by('id').all()]
+    upd_internship.tag.data = ''.join([t.tag + ', ' for t in internship.tag]).strip(", ")
     upd_internship.format.data = [c.id for c in internship.format]
 
 
