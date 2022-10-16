@@ -22,7 +22,7 @@ def internships_index():
     for sid in InternshipFormat.query.all():
         internship_filter.format.choices.append((sid.id, sid.format))
 
-    internship_filter.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.all()]
+    internship_filter.tag.choices = [(y.id, y.tag) for x in Internships.query.all() for y in x.tag]
     internship_filter.tag.choices.insert(0, (0, "Все"))
     internship_filter.format.choices.insert(0, (0, "Все"))
     internship_filter.company.choices.insert(0, (0, "Все"))
@@ -38,7 +38,7 @@ def add_internship():
     add_intern = AddInternship()
     add_intern.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
     add_intern.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by('id').all()]
-    #add_intern.company.choices = [(g.id, g.name) for g in InternshipCompany.query.order_by('id')]
+    add_intern.company.choices = [(g.id, g.name) for g in InternshipCompany.query.order_by('id')]
 
 
     if request.method == 'POST':
@@ -137,7 +137,6 @@ def update_internship(id):
         return redirect(url_for('internships_index'))
     upd_internship = AddInternship(obj=internship)
 
-    # upd_internship = AddInternship()
     upd_internship.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
     upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by('id').all()]
     upd_internship.format.data = [c.id for c in internship.format]
