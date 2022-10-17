@@ -132,6 +132,7 @@ def delete_internship(id):
 @login_required
 def update_internship(id):
 
+    user = current_user
     internship = Internships.query.get(id)
     if not internship:
         return redirect(url_for('internships_index'))
@@ -166,7 +167,7 @@ def update_internship(id):
                     break
             if not is_finded:
                 flash("Тег " + t + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить.")
-                return  render_template('internships/add_internship.html', form=add_intern, user=user)
+                return  render_template('internships/add_internship.html', form=upd_internship, user=user)
 
         format_list = []
 
