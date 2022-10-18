@@ -26,11 +26,11 @@ def writing_thesis_thesis():
 
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(request.url)
+        return redirect(url_for('writing_thesis_index'))
 
-    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    current_thesis = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(id=current_thesis_id).first()
     if not current_thesis:
-        return redirect(request.url)
+        return redirect(url_for('writing_thesis_index'))
 
     reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).order_by(desc(ThesisReport.time)).all()
 

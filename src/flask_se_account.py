@@ -255,7 +255,7 @@ def account_choosing_topic():
     if not current_thesis_id:
         return redirect(url_for('account_index'))
 
-    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
@@ -342,7 +342,7 @@ def account_edit_theme():
     if not current_thesis_id:
         return redirect(url_for('account_index'))
 
-    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
@@ -381,7 +381,7 @@ def account_workflow():
     if not current_thesis_id:
         return redirect(url_for('account_index'))
 
-    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
@@ -405,7 +405,7 @@ def account_add_new_report():
     if not current_thesis_id:
         return redirect(url_for('account_index'))
 
-    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
@@ -442,7 +442,7 @@ def account_preparation():
     if not current_thesis_id:
         return redirect(url_for('account_index'))
 
-    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
@@ -551,7 +551,7 @@ def account_thesis_defense():
     if not current_thesis_id:
         return redirect(url_for('account_index'))
 
-    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
@@ -564,7 +564,7 @@ def account_materials():
     if not current_thesis_id:
         return redirect(url_for('account_index'))
 
-    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
@@ -577,7 +577,7 @@ def account_data_for_practice():
     if not current_thesis_id:
         return redirect(url_for('account_index'))
 
-    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
 
