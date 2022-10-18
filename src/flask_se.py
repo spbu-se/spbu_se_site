@@ -39,8 +39,9 @@ from flask_se_internships import add_internship, internships_index, page_interns
 
 from se_sendmail import notification_send_mail, notification_send_diploma_themes_on_review
 from flask_se_account import account_index, account_guide, account_new_thesis, account_choosing_topic, \
-    account_add_new_report, account_preparation, account_thesis_defense, account_materials, account_data_for_practice, \
+    account_add_new_report, account_preparation, account_thesis_defense, account_data_for_practice, \
     account_edit_theme, account_temp, account_temp_deadline, account_workflow
+from flask_se_writing_thesis_staff import writing_thesis_index, writing_thesis_thesis, writing_thesis_reports
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -161,9 +162,14 @@ app.add_url_rule('/account/account_add_new_report', methods=['GET', 'POST'], vie
 app.add_url_rule('/account/workflow', methods=['GET', 'POST'], view_func=account_workflow)
 app.add_url_rule('/account/preparation_for_defense', methods=['GET', 'POST'], view_func=account_preparation)
 app.add_url_rule('/account/defense', methods=['GET'], view_func=account_thesis_defense)
-app.add_url_rule('/account/account_materials', methods=['GET'], view_func=account_materials)
 app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=account_temp)
 app.add_url_rule('/temp_deadline', methods=['GET', 'POST'], view_func=account_temp_deadline)
+
+
+# Writing_thesis_staff
+app.add_url_rule('/writing_thesis_staff', methods=['GET', 'POST'], view_func=writing_thesis_index)
+app.add_url_rule('/writing_thesis_staff/thesis', methods=['GET', 'POST'], view_func=writing_thesis_thesis)
+app.add_url_rule('/writing_thesis_staff/reports', methods=['GET', 'POST'], view_func=writing_thesis_reports)
 
 
 # Init Database
