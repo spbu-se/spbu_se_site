@@ -64,7 +64,7 @@ def diplomas_index():
 
 def fetch_themes():
 
-    level = request.args.get('level', default=0, type = int)
+    level = request.args.get('level', default=0, type=int)
     page = request.args.get('page', default=1, type=int)
     supervisor = request.args.get('supervisor', default=0, type=int)
     company = request.args.get('company', default=0, type=int)

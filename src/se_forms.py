@@ -2,8 +2,11 @@
 from datetime import datetime
 
 from flask_wtf import FlaskForm
+
 from wtforms import SelectField, StringField, SelectMultipleField, DateTimeField, widgets, validators
+
 from flask_wtf.file import FileField, FileRequired
+from wtforms import SelectField, StringField, SelectMultipleField, RadioField, widgets
 from wtforms.widgets import TextArea
 from wtforms.validators import DataRequired
 
@@ -88,21 +91,23 @@ class Lecture(FlaskForm):
 
 class AddInternship(FlaskForm):
     requirements = StringField('requirements', widget=TextArea())
-    company = StringField('company')
+    company = SelectField('company', choices=[])
     name_vacancy = StringField('name_vacancy')
     salary = StringField('salary')
     location = StringField('location')
     more_inf = StringField('more_inf')
     description = StringField('description', widget=TextArea())
     format = MultiCheckboxField('format', coerce=int)
+    tag = StringField('tag')
 
 
 class InternshipsFilter(FlaskForm):
     format = SelectField('format', choices=[])
     company = SelectField('company', choices=[])
     language = SelectField('language', choices=[])
-    
+    tag = SelectField('tag', choices=[])
 
+    
 # Account forms
 class CurrentWorktypeArea(FlaskForm):
     worktype = SelectField('worktype', choices=[])

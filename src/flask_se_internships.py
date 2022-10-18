@@ -7,7 +7,7 @@ from flask_login import current_user
 
 from flask_se_auth import login_required
 from se_forms import AddInternship, InternshipsFilter
-from se_models import db, Internships, InternshipFormat, InternshipCompany
+from se_models import db, Internships, InternshipFormat, InternshipCompany, InternshipTag
 
 
 def internships_index():
@@ -22,8 +22,9 @@ def internships_index():
     for sid in InternshipFormat.query.all():
         internship_filter.format.choices.append((sid.id, sid.format))
 
+    internship_filter.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.all()]
+    internship_filter.tag.choices.insert(0, (0, "Все"))
     internship_filter.format.choices.insert(0, (0, "Все"))
-
     internship_filter.company.choices.insert(0, (0, "Все"))
 
     return render_template('internships/internships_index.html',
@@ -36,6 +37,9 @@ def add_internship():
     user = current_user
     add_intern = AddInternship()
     add_intern.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
+    add_intern.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by('id').all()]
+    add_intern.company.choices = [(g.id, g.name) for g in InternshipCompany.query.order_by('id')]
+
 
     if request.method == 'POST':
         name_vacancy = request.form.get('name_vacancy', type=str)
@@ -46,6 +50,11 @@ def add_internship():
         salary = request.form.get('salary', type=str)
         more_inf = request.form.get('more_inf', type=str)
         format = request.form.getlist('format', type=int)
+
+        tags = request.form.get('tag', type=str)
+
+        list_of_tags = list(map(lambda x: x.strip(), tags.split(',')))
+        tag_list = [t for t in InternshipTag.query.all() if t.tag in list_of_tags]
 
         format_list = []
 
@@ -78,6 +87,8 @@ def add_internship():
                                  company_id=company_id[0], requirements=requirements, more_inf=more_inf, author_id=user.id)
 
         internship.format = format_list
+        internship.tag = tag_list
+
         try:
             db.session.add(internship)
             db.session.commit()
@@ -110,9 +121,17 @@ def delete_internship(id):
 
 @login_required
 def update_internship(id):
-    upd_internship = AddInternship()
-    upd_internship.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
+
     internship = Internships.query.get(id)
+    if not internship:
+        return redirect(url_for('internships_index'))
+    upd_internship = AddInternship(obj=internship)
+
+    # upd_internship = AddInternship()
+    upd_internship.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
+    upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by('id').all()]
+    upd_internship.format.data = [c.id for c in internship.format]
+
 
     if request.method == 'POST':
 
@@ -124,6 +143,11 @@ def update_internship(id):
         internship.more_inf = request.form.get('more_inf', type=str)
         company = request.form.get('company', type=str)
         format = request.form.getlist('format', type=int)
+
+        tags = request.form.get('tag', type=str)
+
+        list_of_tags = tags.split(',')
+        tag_list = [t for t in InternshipTag.query.all() if t.tag in list_of_tags]
 
         format_list = []
 
@@ -140,6 +164,8 @@ def update_internship(id):
 
         company_id = InternshipCompany.query.with_entities(InternshipCompany.id).filter_by(name=company).distinct().first()
         internship.format = format_list
+        internship.tag = tag_list
+
         internship.company_id = company_id[0]
         try:
             db.session.commit()
@@ -155,6 +181,7 @@ def fetch_internships():
     format = request.args.get('format', default=0, type=int)
     page = request.args.get('page', default=1, type=int)
     company = request.args.get('company', default=0, type=int)
+    tag = request.args.get('tag', default=0, type=int)
 
     if company:
         records = Internships.query.filter(Internships.company_id == company).order_by(Internships.id.desc())
@@ -162,11 +189,15 @@ def fetch_internships():
         records = Internships.query.order_by(Internships.id.desc())
 
     if format:
-        records = records.filter(Internships.format.any(id=format)).paginate(per_page=10, page=page, error_out=False)
-    else:
-        records = records.paginate(per_page=10, page=page, error_out=False)
+        records = records.filter(Internships.format.any(id=format))
+
+    if tag:
+        records = records.filter(Internships.tag.any(id=tag))
+
+    records = records.paginate(per_page=10, page=page, error_out=False)
 
     if len(records.items):
-        return render_template('internships/fetch_internships.html', internships=records, format=format, company=company)
+        return render_template('internships/fetch_internships.html', internships=records, format=format, company=company, tag=tag)
     else:
         return render_template('internships/fetch_internships_blank.html')
+
