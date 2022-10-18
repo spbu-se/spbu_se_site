@@ -34,9 +34,6 @@ def writing_thesis_thesis():
     if not current_thesis:
         return redirect(url_for('writing_thesis_index'))
 
-    if current_thesis.supervisor_id != user_staff.id:
-        return redirect(url_for('account_index'))
-
     return render_template('account/thesis_staff.html', thesis=current_thesis)
 
 
@@ -50,11 +47,8 @@ def writing_thesis_reports():
     if not current_thesis_id:
         return redirect(url_for('account_index'))
 
-    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    current_thesis = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(id=current_thesis_id).first()
     if not current_thesis:
-        return redirect(url_for('account_index'))
-
-    if current_thesis.supervisor_id != user_staff.id:
         return redirect(url_for('account_index'))
 
     current_report_id = request.args.get('report_id', type=int)
