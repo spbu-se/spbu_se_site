@@ -36,12 +36,41 @@
                             <div id="{{ 'collapse-'+(thesis.id|string()) }}" class={% if practice and practice.id == thesis.id %}"collapse show"{% else %}"collapse"{% endif %} aria-labelledby="{{ 'heading-'+(thesis.id|string()) }}" data-parent="#accordion-1">
                                 <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
                                     <nav class="nav flex-column">
-                                        <a class="nav-link" href="{{ url_for('account_choosing_topic', id=thesis.id) }}">Выбор темы</a>
-                                        <a class="nav-link" href="{{ url_for('account_workflow', id=thesis.id) }}">Отчётность</a>
-                                        <a class="nav-link" href="{{ url_for('account_preparation', id=thesis.id) }}">Подготовка к защите</a>
-                                        <a class="nav-link" href="{{ url_for('account_thesis_defense', id=thesis.id) }}">Защита</a>
-                                        <a class="nav-link" href="{{ url_for('account_materials', id=thesis.id) }}">Материалы</a>
-                                        <a class="nav-link" href="{{ url_for('account_data_for_practice', id=thesis.id) }}">Настройки</a>
+                                        <a class="nav-link" href="{{ url_for('account_choosing_topic', id=thesis.id) }}">
+                                            {% if request.path == "/account/choosing_topic" and practice and practice.id == thesis.id %}
+                                            <b>Выбор темы</b>
+                                            {%else%}
+                                            Выбор темы
+                                            {% endif %}
+                                        </a>
+                                        <a class="nav-link" href="{{ url_for('account_workflow', id=thesis.id) }}">
+                                            {% if request.path == "/account/workflow" and practice and practice.id == thesis.id %}
+                                            <b>Отчётность</b>
+                                            {%else%}
+                                            Отчётность
+                                            {% endif %}
+                                        </a>
+                                        <a class="nav-link" href="{{ url_for('account_preparation', id=thesis.id) }}">
+                                            {% if request.path == "/account/preparation_for_defense" and practice and practice.id == thesis.id %}
+                                            <b>Подготовка к защите</b>
+                                            {%else%}
+                                            Подготовка к защите
+                                            {% endif %}
+                                        </a>
+                                        <a class="nav-link" href="{{ url_for('account_thesis_defense', id=thesis.id) }}">
+                                            {% if request.path == "/account/defense" and practice and practice.id == thesis.id %}
+                                            <b>Защита</b>
+                                            {%else%}
+                                            Защита
+                                            {% endif %}
+                                        </a>
+                                        <a class="nav-link" href="{{ url_for('account_data_for_practice', id=thesis.id) }}">
+                                            {% if request.path == "/account/data_for_practice" and practice and practice.id == thesis.id %}
+                                            <b>Настройки</b>
+                                            {%else%}
+                                            Настройки
+                                            {% endif %}
+                                        </a>
                                     </nav>
                                 </div>
                             </div>

@@ -748,3 +748,10 @@ let internships_filter_element = document.getElementById('InternshipsFilter');
 if (internships_filter_element){
     internships_filter();
 }
+
+// coursework
+let coursework_filter_element = document.getElementById('PrepareToDefense');
+
+if (coursework_filter_element){
+    $('[data-toggle="popoverhover"]').popover({ trigger: "hover" });
+}
