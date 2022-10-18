@@ -500,7 +500,7 @@ def account_preparation():
 
                     current_thesis.reviewer_review_uri = review_filename_with_ext
                     db.session.commit()
-                    flash('Отзыв консультанта успешно загружен!', category='success')
+                    flash('Отзыв рецензента успешно загружен!', category='success')
 
         elif 'submit_presentation_button' in request.form:
             presentation_file = werkzeug.datastructures.FileStorage()
