@@ -218,6 +218,18 @@ class ThesisReport(db.Model):
     planned_to_do = db.Column(db.String(2048), nullable=True)
     time = db.Column(db.DateTime, default=datetime.utcnow)
 
+    comment = db.Column(db.String(2048), nullable=True)
+    comment_time = db.Column(db.DateTime, nullable=True)
+    '''comments = db.relationship('ThesisComment', backref=db.backref('report'))
+
+
+class ThesisComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    current_report_id = db.Column(db.Integer, db.ForeignKey('thesis_report.id'))
+
+    comment = db.Column(db.String(2048), nullable=True)
+    time = db.Column(db.DateTime, default=datetime.utcnow)
+'''
 
 class InternshipFormat(db.Model):
     __tablename__ = 'internship_format'

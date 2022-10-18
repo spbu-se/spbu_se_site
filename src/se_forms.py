@@ -132,3 +132,8 @@ class UserAddReport(FlaskForm):
     planned_to_do = StringField('planned_to_do', description='Например: В ближайшее время планирую дописать введение, '
                                                              'изучить MySQL по курсам на Stepik, составить схему баз '
                                                              'данных для моего проекта.', widget=TextArea())
+
+
+class StaffAddCommentToReport(FlaskForm):
+    comment = StringField('comment', description='Дайте студенту обратную связь по отчету, если хотите.',
+                          widget=TextArea())
