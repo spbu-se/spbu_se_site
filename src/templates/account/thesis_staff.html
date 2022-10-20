@@ -81,23 +81,25 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col">
-            <div class="card border-0">
-                <div class="card-body py-3">
-                    <h6 class="mb-0">Отправить уведомление</h6>
-                    <div class="form-group mb-0 mt-2">
-                        <input name="content" type="text" class="form-control" placeholder="Текст уведомления">
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_button" value="Отправить">
+    <form method="POST" action="{{ url_for('writing_thesis_thesis', id=thesis.id) }}">
+        <div class="row">
+            <div class="col">
+                <div class="card border-0">
+                    <div class="card-body py-3">
+                        <h6 class="mb-0">Отправить уведомление</h6>
+                        <div class="form-group mb-0 mt-2">
+                            <input name="content" type="text" class="form-control" placeholder="Текст уведомления">
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_notification_button" value="Отправить">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 
 
 </div>

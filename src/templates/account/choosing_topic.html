@@ -16,10 +16,16 @@
     <div class="row">
         <div class="col">
             <p>Дедлайн по выбору темы: {{ deadline.choose_topic | datatime_convert }}
-                {% if remaining_time[0] < 0 %}
-                (<span class="text-danger">дедлайн пропущен</span>)
+                {% if not practice.title %}
+                    {% if remaining_time[0] < 0 %}
+                    (<span class="text-danger">дедлайн пропущен</span>)
+                    {% else %}
+                    (осталось: <span class="text-{{remaining_time[2]}}">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)
+                    {% endif %}
                 {% else %}
-                (осталось: <span class="text-{{remaining_time[2]}}">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)
+                    {% if remaining_time[0] > 0 %}
+                    (осталось: <span class="text-body">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)
+                    {% endif %}
                 {% endif %}
             </p>
         </div>
@@ -32,7 +38,7 @@
         {% if practice.title %}
             <div class="row">
                 <div class="col-12">
-                    <div class="card">
+                    <div class="card border-0">
                         <div class="card-body py-3">
 
                             <h6>Выбранная тема</h6>
@@ -87,7 +93,7 @@
 
             <div class="row">
                 <div class="col">
-                    <div class="card">
+                    <div class="card border-0">
                         <div class="card-body py-3">
 
                             <div class="form-group">

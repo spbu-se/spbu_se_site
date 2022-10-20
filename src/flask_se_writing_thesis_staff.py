@@ -8,7 +8,7 @@ from flask_se_auth import login_required
 from flask_login import current_user
 
 from se_forms import StaffAddCommentToReport
-from se_models import db, Staff, CurrentThesis, ThesisReport
+from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationAccount
 
 
 @login_required
@@ -34,6 +34,17 @@ def writing_thesis_thesis():
     current_thesis = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(id=current_thesis_id).first()
     if not current_thesis:
         return redirect(url_for('writing_thesis_index'))
+
+    if request.method == 'POST':
+        if 'submit_notification_button' in request.form:
+            notification_content = request.form['content']
+
+            notification = NotificationAccount()
+            notification.recipient_id = current_thesis.author_id
+            notification.content = notification_content
+            db.session.add(notification)
+            db.session.commit()
+            flash('Уведомление отправлено!', category="success")
 
     return render_template('account/thesis_staff.html', thesis=current_thesis)
 

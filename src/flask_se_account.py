@@ -2,7 +2,7 @@
 
 import os
 import pytz
-from datetime import date
+from datetime import date, timedelta
 
 import werkzeug
 from flask import flash, redirect, request, render_template, url_for
@@ -289,18 +289,19 @@ def account_choosing_topic():
     # (time, word for time, text-color)
     remaining_time = tuple()
     if deadline:
-        if deadline.choose_topic < datetime.utcnow():
+        remaining_time_timedelta = deadline.choose_topic - datetime.utcnow()
+        if remaining_time_timedelta < timedelta(0):
             remaining_time = (-1, "", "")
-        elif (deadline.choose_topic - datetime.utcnow()).seconds // 60 < 60:
-            minutes = (deadline.choose_topic - datetime.utcnow()).seconds // 60
+        elif remaining_time_timedelta.seconds // 60 < 60 and remaining_time_timedelta.days < 1:
+            minutes = remaining_time_timedelta.seconds // 60
             if minutes in {1, 21, 31, 41, 51}:
                 remaining_time = (minutes, "минута", "danger")
             elif minutes % 10 in {2, 3, 4} and minutes % 100 // 10 != 1:
                 remaining_time = (minutes, "минуты", "danger")
             else:
                 remaining_time = (minutes, "минут", "danger")
-        elif (deadline.choose_topic - datetime.utcnow()).days < 1:
-            hours = (deadline.choose_topic - datetime.utcnow()).seconds // 3600
+        elif remaining_time_timedelta.days < 1:
+            hours = remaining_time_timedelta.seconds // 3600
             if hours in {1, 21}:
                 remaining_time = (hours, "час", "danger")
             elif hours in {2, 3, 4, 22, 23, 24}:
@@ -308,7 +309,7 @@ def account_choosing_topic():
             else:
                 remaining_time = (hours, "часов", "danger")
         else:
-            days = (deadline.choose_topic - datetime.utcnow()).days
+            days = remaining_time_timedelta.days
             word_for_time = ""
             if days % 100 // 10 == 1:
                 word_for_time = "дней"
