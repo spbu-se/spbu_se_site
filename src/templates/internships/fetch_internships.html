@@ -7,7 +7,8 @@
                 <h4 class = "text mt-3"> <a href="/internships/{{ i.id }}" target="_blank">  <strong> {{i.name_vacancy}} </strong> </a></h4>
                 {% endif %}
                 <p style="font-size: 100%" class="text m-0">{{i.company}}</p>
-                <p style="font-size: 100%"  class="text mb-1 mt-0"> {{i.location}}</p>
+                <p style="font-size: 100%" class="text mb-1 mt-0"> {{i.location}}</p>
+                <p style="font-size: 100%" class="text mb-1 mt-0"> {{i.tag|join(' ')}}</p>
         </div>
     </div>
 {% endfor %}
