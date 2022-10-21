@@ -286,54 +286,13 @@ def account_choosing_topic():
 
     deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).filter_by(area_id=current_thesis.area_id).first()
 
-    # (time, word for time, text-color)
-    remaining_time = tuple()
-    if deadline:
-        remaining_time_timedelta = deadline.choose_topic - datetime.utcnow()
-        if remaining_time_timedelta < timedelta(0):
-            remaining_time = (-1, "", "")
-        elif remaining_time_timedelta.seconds // 60 < 60 and remaining_time_timedelta.days < 1:
-            minutes = remaining_time_timedelta.seconds // 60
-            if minutes in {1, 21, 31, 41, 51}:
-                remaining_time = (minutes, "минута", "danger")
-            elif minutes % 10 in {2, 3, 4} and minutes % 100 // 10 != 1:
-                remaining_time = (minutes, "минуты", "danger")
-            else:
-                remaining_time = (minutes, "минут", "danger")
-        elif remaining_time_timedelta.days < 1:
-            hours = remaining_time_timedelta.seconds // 3600
-            if hours in {1, 21}:
-                remaining_time = (hours, "час", "danger")
-            elif hours in {2, 3, 4, 22, 23, 24}:
-                remaining_time = (hours, "часа", "danger")
-            else:
-                remaining_time = (hours, "часов", "danger")
-        else:
-            days = remaining_time_timedelta.days
-            word_for_time = ""
-            if days % 100 // 10 == 1:
-                word_for_time = "дней"
-            elif days % 10 == 1:
-                word_for_time = "день"
-            elif days % 10 in {2, 3, 4}:
-                word_for_time = "дня"
-            else:
-                word_for_time = "дней"
-
-            if days < 3:
-                remaining_time = (days, word_for_time, "danger")
-            elif days < 7:
-                remaining_time = (days, word_for_time, "warning")
-            else:
-                remaining_time = (days, word_for_time, "body")
-
     form = ChooseTopic()
     form.staff.choices.append((0, 'Выберите научного руководителя'))
     for supervisor in Staff.query.join(Users, Staff.user_id==Users.id).order_by(asc(Users.last_name)).all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
 
     return render_template('account/choosing_topic.html', thesises=get_list_of_thesises(), form=form,
-                           practice=current_thesis, deadline=deadline, remaining_time=remaining_time)
+                           practice=current_thesis, deadline=deadline, remaining_time=get_remaining_time(deadline.choose_topic))
 
 
 @login_required
@@ -543,7 +502,12 @@ def account_preparation():
             current_thesis.supervisor_review_uri = None
             db.session.commit()
 
-    return render_template('account/preparation.html', thesises=get_list_of_thesises(), practice=current_thesis)
+    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).\
+        filter_by(area_id=current_thesis.area_id).first()
+
+    return render_template('account/preparation.html', thesises=get_list_of_thesises(), practice=current_thesis,
+                           deadline=deadline, remaining_time_submit=get_remaining_time(deadline.submit_work_for_review),
+                           remaining_time_upload=get_remaining_time(deadline.upload_reviews))
 
 
 @login_required
@@ -607,5 +571,61 @@ def account_data_for_practice():
 
 
 def get_list_of_thesises():
+    """
+    Returns list of current thesises, which are not deleted, for current user
+
+    :return: list of objects that are CurrentThesis
+    """
     user = current_user
     return [thesis for thesis in user.current_thesises if not thesis.deleted]
+
+
+def get_remaining_time(deadline) -> tuple:
+    """
+    Counts the remaining time until the deadline
+
+    :param deadline: Deadline for specified work type and area of study
+    :return: Tuple (time, word for time, text-color), if deadline is not exist, returns empty tuple
+    """
+    if not deadline:
+        return tuple()
+
+    remaining_time = tuple()
+    remaining_time_timedelta = deadline - datetime.utcnow()
+    if remaining_time_timedelta < timedelta(0):
+        remaining_time = (-1, "", "")
+    elif remaining_time_timedelta.seconds // 60 < 60 and remaining_time_timedelta.days < 1:
+        minutes = remaining_time_timedelta.seconds // 60
+        if minutes in {1, 21, 31, 41, 51}:
+            remaining_time = (minutes, "минута", "danger")
+        elif minutes % 10 in {2, 3, 4} and minutes % 100 // 10 != 1:
+            remaining_time = (minutes, "минуты", "danger")
+        else:
+            remaining_time = (minutes, "минут", "danger")
+    elif remaining_time_timedelta.days < 1:
+        hours = remaining_time_timedelta.seconds // 3600
+        if hours in {1, 21}:
+            remaining_time = (hours, "час", "danger")
+        elif hours in {2, 3, 4, 22, 23, 24}:
+            remaining_time = (hours, "часа", "danger")
+        else:
+            remaining_time = (hours, "часов", "danger")
+    else:
+        days = remaining_time_timedelta.days
+        if days % 100 // 10 == 1:
+            word_for_time = "дней"
+        elif days % 10 == 1:
+            word_for_time = "день"
+        elif days % 10 in {2, 3, 4}:
+            word_for_time = "дня"
+        else:
+            word_for_time = "дней"
+
+        if days < 3:
+            remaining_time = (days, word_for_time, "danger")
+        elif days < 7:
+            remaining_time = (days, word_for_time, "warning")
+        else:
+            remaining_time = (days, word_for_time, "body")
+
+    return remaining_time

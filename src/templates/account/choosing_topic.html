@@ -12,13 +12,13 @@
         </div>
     </div>
 
-    {% if deadline %}
+    {% if deadline and deadline.choose_topic %}
     <div class="row">
         <div class="col">
-            <p>Дедлайн по выбору темы: {{ deadline.choose_topic | datatime_convert }}
+            <p>Дедлайн на выбор темы: <b>{{ deadline.choose_topic | datatime_convert }}</b>
                 {% if not practice.title %}
                     {% if remaining_time[0] < 0 %}
-                    (<span class="text-danger">дедлайн пропущен</span>)
+                    (<span class="text-danger">дедлайн прошёл</span>)
                     {% else %}
                     (осталось: <span class="text-{{remaining_time[2]}}">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)
                     {% endif %}
