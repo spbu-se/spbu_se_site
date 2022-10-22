@@ -16,6 +16,7 @@
             <h5>{{thesis.title}}</h5>
         </div>
     </div>
+
     <div class="row">
         <div class="col">
             <p class="mb-0">Студент: <b>{{ thesis.user.get_name() }}</b></p>
@@ -25,33 +26,39 @@
     </div>
 
     {% if not reports %}
+
     <div class="row">
         <div class="col text-center">
-            <p>Студент еще не отправлял отчеты по курсовой.</p>
+            <p>Студент еще не отправлял отчеты.</p>
         </div>
     </div>
+
     {% else %}
+
     <h6 class="mb-0">Отчёты</h6>
     <div id="accordion-2" class="accordion accordion-stacked mb-2">
+
         {% for report in reports %}
-        {% if report == reports[0] %}
-        <div class="card border-top-0 border-left-0 border-right-0">
-        {% else %}
-        <div class="card border-border-0 border-left-0 border-right-0">
-        {% endif %}
+
+        <div class="card border-bottom-0 border-left-0 border-right-0">
             <div class="card-header py-4" id="{{ 'heading-'+(report.id|string())}}" data-toggle="collapse" role="button" data-target="{{ '#collapse-'+(report.id|string()) }}" aria-expanded="false" aria-controls="{{ 'collapse-'+(report.id|string()) }}">
                 <h6 class="mb-0"><i data-feather="file-text" class="mr-3"></i>Отчёт за {{ report.time|datatime_convert }}</h6>
             </div>
+
             <div id="{{ 'collapse-'+(report.id|string()) }}" class="collapse" aria-labelledby="{{ 'heading-'+(report.id|string()) }}" data-parent="#accordion-2">
                 <div class="card-body py-0">
                     <h6>Было сделано</h6>
                     {{report.was_done|markdown}}
                     <h6>Планируется сделать</h6>
                     {{report.planned_to_do|markdown}}
+
                     {% if report.comment %}
+
                         <h6>Ваш комментарий к работе</h6>
                         {{report.comment|markdown}}
+
                     {% else %}
+
                         <form method="POST" action="{{url_for('writing_thesis_reports', id=thesis.id, report_id=report.id)}}">
                             {{ form.csrf_token }}
                             <div class="row">
@@ -72,14 +79,19 @@
                             </div>
                         <input type="submit" class="btn btn-sm btn-primary mb-3" name="{{ 'submit_button'+(report.id|string()) }}" id="{{ 'submit_button'+(report.id|string()) }}" value="Добавить комментарий">
                         </form>
+
                     {% endif %}
+
                 </div>
             </div>
-            {% endfor %}
         </div>
-            {% endif %}
-        </div>
+
+        {% endfor %}
+
     </div>
+
+    {% endif %}
+
 </div>
 
 {% endblock %}

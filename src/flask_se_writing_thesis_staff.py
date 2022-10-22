@@ -29,11 +29,11 @@ def writing_thesis_thesis():
 
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('writing_thesis_index'))
+        return redirect(url_for('account_index'))
 
     current_thesis = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(id=current_thesis_id).first()
     if not current_thesis:
-        return redirect(url_for('writing_thesis_index'))
+        return redirect(url_for('account_index'))
 
     if request.method == 'POST':
         if 'submit_notification_button' in request.form:
@@ -53,15 +53,15 @@ def writing_thesis_thesis():
 def writing_thesis_reports():
     user_staff = Staff.query.filter_by(user_id=current_user.id).first()
     if not user_staff:
-        return redirect(url_for('writing_thesis_thesis'))
+        return redirect(url_for('account_index'))
 
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('writing_thesis_thesis'))
+        return redirect(url_for('account_index'))
 
     current_thesis = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(id=current_thesis_id).first()
     if not current_thesis:
-        return redirect(url_for('writing_thesis_thesis'))
+        return redirect(url_for('account_index'))
 
     current_report_id = request.args.get('report_id', type=int)
     reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).order_by(desc(ThesisReport.time)).all()
