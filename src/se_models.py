@@ -187,7 +187,7 @@ class InternshipTag(db.Model):
     tag = db.Column(db.String(100), nullable=False)
 
     def __str__(self):
-        return "{self.tag}"
+        return self.tag
 
 
 class CurrentThesis(db.Model):
