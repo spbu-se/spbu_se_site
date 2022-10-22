@@ -292,7 +292,7 @@ def account_choosing_topic():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
 
     return render_template('account/choosing_topic.html', thesises=get_list_of_thesises(), form=form,
-                           practice=current_thesis, deadline=deadline, remaining_time=get_remaining_time(deadline.choose_topic))
+                           practice=current_thesis, deadline=deadline, remaining_time=get_remaining_time(deadline, "choose_topic"))
 
 
 @login_required
@@ -506,8 +506,8 @@ def account_preparation():
         filter_by(area_id=current_thesis.area_id).first()
 
     return render_template('account/preparation.html', thesises=get_list_of_thesises(), practice=current_thesis,
-                           deadline=deadline, remaining_time_submit=get_remaining_time(deadline.submit_work_for_review),
-                           remaining_time_upload=get_remaining_time(deadline.upload_reviews))
+                           deadline=deadline, remaining_time_submit=get_remaining_time(deadline, "submit_work_for_review"),
+                           remaining_time_upload=get_remaining_time(deadline, "upload_reviews"))
 
 
 @login_required
@@ -580,18 +580,40 @@ def get_list_of_thesises():
     return [thesis for thesis in user.current_thesises if not thesis.deleted]
 
 
-def get_remaining_time(deadline) -> tuple:
+def get_remaining_time(deadline, type_deadline):
     """
     Counts the remaining time until the deadline
 
     :param deadline: Deadline for specified work type and area of study
+    :param type_deadline: String that indicates for what deadline to count remaining time
     :return: Tuple (time, word for time, text-color), if deadline is not exist, returns empty tuple
     """
     if not deadline:
-        return tuple()
+        return None
+
+    remaining_time_timedelta = timedelta()
+    if type_deadline == "choose_topic":
+        if not deadline.choose_topic:
+            return None
+        remaining_time_timedelta = deadline.choose_topic - datetime.utcnow()
+    elif type_deadline == "submit_work_for_review":
+        if not deadline.submit_work_for_review:
+            return None
+        remaining_time_timedelta = deadline.submit_work_for_review - datetime.utcnow()
+    elif type_deadline == "upload_reviews":
+        if not deadline.upload_reviews:
+            return None
+        remaining_time_timedelta = deadline.upload_reviews - datetime.utcnow()
+    elif type_deadline == "pre_defense":
+        if not deadline.pre_defense:
+            return None
+        remaining_time_timedelta = deadline.pre_defense - datetime.utcnow()
+    elif type_deadline == "defense":
+        if not deadline.defense:
+            return None
+        remaining_time_timedelta = deadline.defense - datetime.utcnow()
 
     remaining_time = tuple()
-    remaining_time_timedelta = deadline - datetime.utcnow()
     if remaining_time_timedelta < timedelta(0):
         remaining_time = (-1, "", "")
     elif remaining_time_timedelta.seconds // 60 < 60 and remaining_time_timedelta.days < 1:
