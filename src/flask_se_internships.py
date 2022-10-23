@@ -22,7 +22,7 @@ def internships_index():
     for sid in InternshipFormat.query.all():
         internship_filter.format.choices.append((sid.id, sid.format))
 
-    internship_filter.tag.choices = [(y.id, y.tag) for x in Internships.query.all() for y in x.tag]
+    internship_filter.tag.choices = list({(y.id, y.tag) for x in Internships.query.all() for y in x.tag})
     internship_filter.tag.choices.insert(0, (0, "Все"))
     internship_filter.format.choices.insert(0, (0, "Все"))
     internship_filter.company.choices.insert(0, (0, "Все"))
