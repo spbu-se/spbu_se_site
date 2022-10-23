@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import datetime
 
+import pytz
+from dateutil import tz
 from flask import flash, redirect, request, render_template, url_for
 from sqlalchemy import desc, asc
 
@@ -8,7 +10,7 @@ from flask_se_auth import login_required
 from flask_login import current_user
 
 from se_forms import StaffAddCommentToReport
-from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationAccount
+from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationAccount, Users
 
 
 @login_required
@@ -17,7 +19,9 @@ def writing_thesis_index():
     if not user_staff:
         return redirect(url_for('account_index'))
 
-    current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).all()
+    current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).outerjoin(
+        ThesisReport, CurrentThesis.reports
+    ).order_by(desc(ThesisReport.time)).all()
     return render_template('account/current_thesises_staff.html', thesises=current_thesises)
 
 
@@ -29,11 +33,11 @@ def writing_thesis_thesis():
 
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('account_index'))
+        return redirect(url_for('writing_thesis_index'))
 
     current_thesis = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(id=current_thesis_id).first()
     if not current_thesis:
-        return redirect(url_for('account_index'))
+        return redirect(url_for('writing_thesis_index'))
 
     if request.method == 'POST':
         if 'submit_notification_button' in request.form:
@@ -57,27 +61,28 @@ def writing_thesis_reports():
 
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('account_index'))
+        return redirect(url_for('writing_thesis_index'))
 
     current_thesis = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(id=current_thesis_id).first()
     if not current_thesis:
-        return redirect(url_for('account_index'))
+        return redirect(url_for('writing_thesis_index'))
 
     current_report_id = request.args.get('report_id', type=int)
-    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).order_by(desc(ThesisReport.time)).all()
+    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).filter_by(deleted=False). \
+        order_by(desc(ThesisReport.time)).all()
     add_report_comment = StaffAddCommentToReport()
 
     if current_report_id:
         current_report = ThesisReport.query.filter_by(id=current_report_id).first()
 
-        if not current_report:
-            return redirect(url_for('account_index'))
+        if not current_report or current_report.deleted:
+            return redirect(url_for('writing_thesis_index'))
 
         if current_report.practice.supervisor_id != user_staff.id:
-            return redirect(url_for('account_index'))
+            return redirect(url_for('writing_thesis_index'))
 
         if request.method == 'POST':
-            if 'submit_button'+str(current_report_id) in request.form:
+            if 'submit_button' + str(current_report_id) in request.form:
                 new_comment = request.form.get('comment', type=str)
 
                 if not new_comment:
@@ -86,9 +91,22 @@ def writing_thesis_reports():
                     current_report.comment = new_comment
                     current_report.comment_time = datetime.datetime.now()
                     db.session.commit()
+
+                    notification = NotificationAccount()
+                    notification.recipient_id = current_thesis.author_id
+                    user = Users.query.filter_by(id=user_staff.user_id).first()
+                    notification.content = user.get_name() + "прокомментировал(-а) Ваш отчет от " \
+                                           + datetime_convert(current_report.time)
+                    db.session.add(notification)
+                    db.session.commit()
                     flash('Комментарий успешно отправлен!', category='success')
+
                 return render_template('account/reports_staff.html', thesis=current_thesis, reports=reports,
-                                        form=add_report_comment)
+                                       form=add_report_comment)
 
     return render_template('account/reports_staff.html', thesis=current_thesis, reports=reports,
                            form=add_report_comment)
+
+
+def datetime_convert(value, format="%d.%m.%Y %H:%M"):
+    return value.replace(tzinfo=pytz.UTC).astimezone(tz.tzlocal()).strftime(format)

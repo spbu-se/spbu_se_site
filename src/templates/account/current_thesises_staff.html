@@ -28,7 +28,10 @@
             <p class="text-sm mb-0">Студент: {{ thesis.user.get_name() }}</p>
             <p class="text-sm mb-0">Тип работы: {{ thesis.worktype }}</p>
             <p class="text-sm mb-0">Направление: {{ thesis.area }}</p>
-            <a type="btn" href="{{url_for('writing_thesis_reports', id=thesis.id)}}">Просмотреть отчеты студента</a>
+            <p class="text-sm mb-0"><a type="btn" href="{{url_for('writing_thesis_reports', id=thesis.id)}}">Просмотреть отчеты студента</a>
+            {% if thesis.reports %}
+             (последний - {{ thesis.reports[-1].time|datatime_convert }})</p>
+            {% endif %}
         </div>
     </div>
     {% endfor %}

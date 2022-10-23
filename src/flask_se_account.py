@@ -348,12 +348,12 @@ def account_workflow():
         if request.form['delete_button']:
             report_id = request.form['delete_button']
             report = ThesisReport.query.filter_by(id=report_id).first()
-
-            db.session.delete(report)
+            report.deleted = True
             db.session.commit()
             flash('Отчёт удален!', category='success')
 
-    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).order_by(desc(ThesisReport.time)).all()
+    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).filter_by(deleted=False).\
+        order_by(desc(ThesisReport.time)).all()
     return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
                            reports=reports)
 
