@@ -112,6 +112,10 @@ def add_internship():
 def page_internship(id):
     user = current_user
     internship = Internships.query.filter_by(id=id).first()
+
+    if id > Internships.query.count():
+        return render_template('404.html')
+
     return render_template("internships/page_internship.html", internship=internship, user=user)
 
 
