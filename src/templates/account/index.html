@@ -17,32 +17,32 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col">
-            <ul class="nav nav-tabs mb-3">
-                {% if type_notifications == "new" %}
-                <li class="nav-item">
-                    <a id="NewNotifications" class="nav-link active" href="{{ url_for('account_index', notifications='new') }}">Непрочитанные уведомления</a>
-                </li>
-                <li class="nav-item">
-                    <a id="AllNotifications" class="nav-link" href="{{ url_for('account_index', notifications='all') }}" onclick="return true;">Все уведомления</a>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a id="NewNotifications" class="nav-link" href="{{ url_for('account_index', notifications='new') }}">Непрочитанные уведомления</a>
-                </li>
-                <li class="nav-item">
-                    <a id="AllNotifications" class="nav-link active" href="{{ url_for('account_index', notifications='all') }}">Все уведомления</a>
-                </li>
-                {% endif %}
-            </ul>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs mb-2" id="myTab" role="tablist">
+        {% if type_notifications == 'new' %}
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="home-tab" data-toggle="tab" data-target="#new-notifications" type="button" role="tab" aria-controls="new-notifications" aria-selected="true">Непрочитанные уведомления</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="profile-tab" data-toggle="tab" data-target="#all-notifications" type="button" role="tab" aria-controls="all-notifications" aria-selected="false">Все уведомления</a>
+        </li>
+        {% else %}
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="home-tab" data-toggle="tab" data-target="#new-notifications" type="button" role="tab" aria-controls="new-notifications" aria-selected="false">Непрочитанные уведомления</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="profile-tab" data-toggle="tab" data-target="#all-notifications" type="button" role="tab" aria-controls="all-notifications" aria-selected="true">Все уведомления</a>
+        </li>
+        {% endif %}
+    </ul>
 
-            <form name="read_buttons_form" method="POST" action="{{ url_for('account_index', notifications=type_notifications) }}">
-                <input id="hiddenReadButton" type="hidden" name="read_button" value="0"/>
-
-                {% if type_notifications == "new" %}
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane {% if type_notifications == 'new' %} active {% endif %}" id="new-notifications" role="tabpanel" aria-labelledby="new-notifications-tab">
+            <form name="read_buttons_form_new" method="POST" action="{{ url_for('account_index', notifications='new') }}">
+                <input id="hiddenReadButtonNew" type="hidden" name="read_button" value="0"/>
                 {% if not notifications_not_viewed %}
-                <div class="row">
+                <div class="row mt-3">
                     <div class="col">
                         <p class="text-center">Здесь будут отображаться непрочитанные уведомления</p>
                     </div>
@@ -63,10 +63,10 @@
                                 </i>
                             </div>
                             <div class="col d-flex justify-content-end">
-                                <a href="" onClick="document.getElementById('hiddenReadButton').value = {{notification.id}}; read_buttons_form.submit(); return false;">
-                                    <span id="span{{notification.id}}" class="badge btn-secondary" style="display: inline-block;"
-                                      onmouseover="changeBadge('span{{notification.id}}');"
-                                      onmouseout="changeBadgeBack('span{{notification.id}}');">
+                                <a href="" onClick="document.getElementById('hiddenReadButtonNew').value = {{notification.id}}; read_buttons_form_new.submit(); return false;">
+                                    <span id="span{{notification.id}}-new" class="badge btn-secondary" style="display: inline-block;"
+                                          onmouseover="changeBadge('span{{notification.id}}-new');"
+                                          onmouseout="changeBadgeBack('span{{notification.id}}-new');">
                                     Не прочитано
                                     </span>
                                 </a>
@@ -76,56 +76,60 @@
                 </div>
                 {% endfor %}
                 {% endif %}
-                {% else %}
-                    {% if not notifications %}
-                    <div class="row">
-                        <div class="col">
-                            <p class="text-center">Здесь будут отображаться все уведомления</p>
-                        </div>
-                    </div>
-                    {% else %}
-                    {% for notification in notifications %}
-                    <div class="card mb-2 border-0">
-                        <div class="card-body pt-3 pb-3">
-                            <div class="row">
-                                <div class="col">
-                                    {{ notification.content|markdown }}
-                                </div>
-                            </div>
+            </form>
+        </div>
 
-                            <div class="row">
-                                <div class="col">
-                                    <i class="text-sm">
-                                        {{ notification.time | datatime_convert }}
-                                    </i>
-                                </div>
-                                {% if notification.viewed %}
-                                <div class="col d-flex justify-content-end">
-                                    <a><span class="badge btn-success disabled" style="display: inline-block; width: 103px">
-                                        Прочитано
-                                    </span></a>
-                                </div>
-                                {% else %}
-                                <div class="col d-flex justify-content-end">
-                                    <a href="" onClick="document.getElementById('hiddenReadButton').value = {{notification.id}}; read_buttons_form.submit(); return false;">
-                                        <span id="span{{notification.id}}" class="badge btn-secondary" style="display: inline-block;"
-                                          onmouseover="changeBadge('span{{notification.id}}');"
-                                          onmouseout="changeBadgeBack('span{{notification.id}}');">
-                                        Не прочитано
-                                        </span>
-                                    </a>
-                                </div>
-                                {% endif %}
+        <div class="tab-pane {% if type_notifications == 'all' %} active {% endif %}" id="all-notifications" role="tabpanel" aria-labelledby="new-notifications-tab">
+            <form name="read_buttons_form_all" method="POST" action="{{ url_for('account_index', notifications='all') }}">
+                <input id="hiddenReadButtonAll" type="hidden" name="read_button" value="0"/>
+                {% if not notifications %}
+                <div class="row mt-3">
+                    <div class="col">
+                        <p class="text-center">Здесь будут отображаться все уведомления</p>
+                    </div>
+                </div>
+                {% else %}
+                {% for notification in notifications %}
+                <div class="card mb-2 border-0">
+                    <div class="card-body pt-3 pb-3">
+                        <div class="row">
+                            <div class="col">
+                                {{ notification.content|markdown }}
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <i class="text-sm">
+                                    {{ notification.time | datatime_convert }}
+                                </i>
+                            </div>
+                            {% if notification.viewed %}
+                            <div class="col d-flex justify-content-end">
+                                <a><span class="badge btn-success disabled" style="display: inline-block; width: 103px">
+                                    Прочитано
+                                </span></a>
+                            </div>
+                            {% else %}
+                            <div class="col d-flex justify-content-end">
+                                <a href="" onClick="document.getElementById('hiddenReadButtonAll').value = {{notification.id}}; read_buttons_form_all.submit(); return false;">
+                                    <span id="span{{notification.id}}-all" class="badge btn-secondary" style="display: inline-block;"
+                                          onmouseover="changeBadge('span{{notification.id}}-all');"
+                                          onmouseout="changeBadgeBack('span{{notification.id}}-all');">
+                                    Не прочитано
+                                    </span>
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
-                    {% endfor %}
-                    {% endif %}
+                </div>
+                {% endfor %}
                 {% endif %}
             </form>
         </div>
     </div>
-    
+
 </div>
 
 <script type="text/javascript">
@@ -145,8 +149,6 @@
     }
 
     let position = 0;
-    document.getElementById('NewNotifications').addEventListener('click', () => { localStorage[position] = window.scrollY })
-    document.getElementById('AllNotifications').addEventListener('click', () => { localStorage[position] = window.scrollY })
     document.querySelectorAll('.badge').forEach(element =>
     {
         element.addEventListener('click', () => { localStorage[position] = window.scrollY });

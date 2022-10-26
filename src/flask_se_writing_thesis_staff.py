@@ -19,9 +19,8 @@ def writing_thesis_index():
     if not user_staff:
         return redirect(url_for('account_index'))
 
-    current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).outerjoin(
-        ThesisReport, CurrentThesis.reports
-    ).order_by(desc(ThesisReport.time)).all()
+    current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).\
+        outerjoin(ThesisReport, CurrentThesis.reports).order_by(desc(ThesisReport.time)).all()
     return render_template('account/current_thesises_staff.html', thesises=current_thesises)
 
 
