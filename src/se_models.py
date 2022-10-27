@@ -525,7 +525,7 @@ class Company(db.Model):
     reviewer = db.relationship('Reviewer', back_populates='company')
 
     def __str__(self):
-        return "{self.name}"
+        return {self.name}
 
 
 class ThesisReview(db.Model):
@@ -1371,7 +1371,7 @@ def init_db():
     # Create Companies
     print("Create companies")
     for cur in company:
-        c = Company(name=cur['name'], logo_uri=cur['logo_uri'])
+        c = InternshipCompany(name=cur['name'], logo_uri=cur['logo_uri'])
 
         db.session.add(c)
         db.session.commit()
