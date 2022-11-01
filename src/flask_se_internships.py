@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import markdown
+import os.path
 
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
@@ -74,6 +75,10 @@ def add_internship():
             if f.id in format:
                 format_list.append(f)
 
+        logo_uri = 'default-logo.png'
+        if os.path.exists('/static/images/logos/' + company.lower().replace(' ', '_') + '.png'):
+            logo_uri = company.lower().replace(' ', '_') + '.png'
+
         if not name_vacancy:
             flash("Пожалуйста, укажите название вакансии.")
             return render_template('internships/add_internship.html', form=add_intern, user=user)
@@ -87,7 +92,7 @@ def add_internship():
             return render_template('internships/add_internship.html', form=add_intern, user=user)
 
         if not db.session.query(InternshipCompany.id).filter_by(name=company).scalar():
-            company_entity = InternshipCompany(name=company)
+            company_entity = InternshipCompany(name=company, logo_uri=logo_uri)
             db.session.add(company_entity)
             db.session.commit()
 
