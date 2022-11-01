@@ -203,6 +203,8 @@ def update_internship(id):
 
 def fetch_internships():
 
+    user = current_user
+
     format = request.args.get('format', default=0, type=int)
     page = request.args.get('page', default=1, type=int)
     company = request.args.get('company', default=0, type=int)
@@ -222,7 +224,7 @@ def fetch_internships():
     records = records.paginate(per_page=10, page=page, error_out=False)
 
     if len(records.items):
-        return render_template('internships/fetch_internships.html', internships=records, format=format, company=company, tag=tag)
+        return render_template('internships/fetch_internships.html', internships=records, format=format, company=company, tag=tag, user=user)
     else:
         return render_template('internships/fetch_internships_blank.html')
 
