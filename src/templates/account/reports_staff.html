@@ -64,12 +64,12 @@
                                             <div class="col">
                                                 <div class="form-group">
                                                     <h6>Добавить комментарий к отчету (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>):</h6>
-                                                    {{form.comment(class_="form-control", placeholder=form.comment.description, rows="3")}}
+                                                    <textarea class="form-control" id="{{'comment' + (report.id|string)}}" name="comment" placeholder="Дайте студенту обратную связь по отчету, если хотите." rows="3" style="display: none;"></textarea>
                                                     <script>
                                                         (function () {
                                                             var simplemde = new SimpleMDE({
                                                                 spellChecker: false,
-                                                                element: document.getElementById("comment"),
+                                                                element: document.getElementById("{{'comment' + (report.id|string)}}"),
                                                             });
                                                         })();
                                                     </script>
