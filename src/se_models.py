@@ -202,6 +202,9 @@ class CurrentThesis(db.Model):
     supervisor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
     worktype_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
 
+    goal = db.Column(db.String(2048), nullable=True)
+    tasks = db.Column(db.String(2048), nullable=True)
+
     supervisor_review_uri = db.Column(db.String(512), nullable=True)
     reviewer_review_uri = db.Column(db.String(512), nullable=True)
     presentation_uri = db.Column(db.String(512), nullable=True)
