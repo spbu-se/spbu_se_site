@@ -51,8 +51,23 @@ def add_internship():
         salary = request.form.get('salary', type=str)
         more_inf = request.form.get('more_inf', type=str)
         format = request.form.getlist('format', type=int)
-
         tags = request.form.get('tag', type=str)
+
+        if not tags:
+            flash("Пожалуйста, укажите технологии.")
+            return render_template('internships/add_internship.html', form=add_intern, user=user)
+
+        if not name_vacancy:
+            flash("Пожалуйста, укажите название вакансии.")
+            return render_template('internships/add_internship.html', form=add_intern, user=user)
+
+        if not format:
+            flash("Пожалуйста, выберите формат стажировки.")
+            return render_template('internships/add_internship.html', form=add_intern, user=user)
+
+        if not company:
+            flash("Пожалуйста, укажите название компании")
+            return render_template('internships/add_internship.html', form=add_intern, user=user)
 
         tag_list = []
         list_of_tags = list(map(lambda x: x.strip(), tags.rstrip(',').split(',')))
@@ -75,17 +90,6 @@ def add_internship():
             if f.id in format:
                 format_list.append(f)
 
-        if not name_vacancy:
-            flash("Пожалуйста, укажите название вакансии.")
-            return render_template('internships/add_internship.html', form=add_intern, user=user)
-
-        if not format:
-            flash("Пожалуйста, выберите формат стажировки.")
-            return render_template('internships/add_internship.html', form=add_intern, user=user)
-
-        if not company:
-            flash("Пожалуйста, укажите название компании")
-            return render_template('internships/add_internship.html', form=add_intern, user=user)
 
         if not db.session.query(InternshipCompany.id).filter_by(name=company).scalar():
             company_entity = InternshipCompany(name=company)
@@ -152,7 +156,7 @@ def update_internship(id):
 
     if request.method == 'POST':
 
-        internship.name_vacancy = request.form.get('name_vacancy', type=str)
+        name_vacancy = request.form.get('name_vacancy', type=str)
         internship.description = request.form.get('description', type=str)
         internship.requirements = request.form.get('requirements', type=str)
         internship.location = request.form.get('location', type=str)
@@ -161,6 +165,22 @@ def update_internship(id):
         company = request.form.get('company', type=str)
         format = request.form.getlist('format', type=int)
         tags = request.form.get('tag', type=str)
+
+        if not tags:
+            flash("Пожалуйста, укажите технологии.")
+            return render_template('internships/update_internship.html', form=upd_internship, user=user)
+
+        if not name_vacancy:
+            flash("Пожалуйста, укажите название вакансии.")
+            return render_template('internships/update_internship.html', form=upd_internship, user=user)
+
+        if not format:
+            flash("Пожалуйста, выберите формат стажировки.")
+            return render_template('internships/update_internship.html', form=upd_internship, user=user)
+
+        if not company:
+            flash("Пожалуйста, укажите название компании")
+            return render_template('internships/update_internship.html', form=upd_internship, user=user)
 
         tag_list = []
         list_of_tags = list(map(lambda x: x.strip(), tags.rstrip(',').split(',')))
@@ -173,7 +193,7 @@ def update_internship(id):
                     break
             if not is_finded:
                 flash("Тег " + t + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить.")
-                return  render_template('internships/add_internship.html', form=upd_internship, user=user)
+                return  render_template('internships/update_internship.html', form=upd_internship, user=user)
 
         format_list = []
 
@@ -191,6 +211,7 @@ def update_internship(id):
         company_id = InternshipCompany.query.with_entities(InternshipCompany.id).filter_by(name=company).distinct().first()
         internship.format = format_list
         internship.tag = tag_list
+        internship.name_vacancy = name_vacancy
 
         internship.company_id = company_id[0]
         try:
