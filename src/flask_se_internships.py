@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import markdown
+import os.path
 
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
@@ -22,7 +23,7 @@ def internships_index():
     for sid in InternshipFormat.query.all():
         internship_filter.format.choices.append((sid.id, sid.format))
 
-    internship_filter.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.all()]
+    internship_filter.tag.choices = list({(y.id, y.tag) for x in Internships.query.all() for y in x.tag})
     internship_filter.tag.choices.insert(0, (0, "Все"))
     internship_filter.format.choices.insert(0, (0, "Все"))
     internship_filter.company.choices.insert(0, (0, "Все"))
@@ -38,7 +39,7 @@ def add_internship():
     add_intern = AddInternship()
     add_intern.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
     add_intern.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by('id').all()]
-    add_intern.company.choices = [(g.id, g.name) for g in InternshipCompany.query.order_by('id')]
+    add_intern.company.choices = [g.name for g in InternshipCompany.query.order_by('id')]
 
 
     if request.method == 'POST':
@@ -53,8 +54,18 @@ def add_internship():
 
         tags = request.form.get('tag', type=str)
 
-        list_of_tags = list(map(lambda x: x.strip(), tags.split(',')))
-        tag_list = [t for t in InternshipTag.query.all() if t.tag in list_of_tags]
+        tag_list = []
+        list_of_tags = list(map(lambda x: x.strip(), tags.rstrip(',').split(',')))
+        for t in list_of_tags:
+            is_finded = False
+            for posb_tag in InternshipTag.query.all():
+                if posb_tag.tag.upper() == t.upper():
+                    is_finded = True
+                    tag_list.append(posb_tag)
+                    break
+            if not is_finded:
+                flash("Тег " + t + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить.")
+                return  render_template('internships/add_internship.html', form=add_intern, user=user)
 
         format_list = []
 
@@ -63,6 +74,10 @@ def add_internship():
         for f in int_format:
             if f.id in format:
                 format_list.append(f)
+
+        logo_uri = 'default-logo.png'
+        if os.path.exists('/static/images/logos/' + company.lower().replace(' ', '_') + '.png'):
+            logo_uri = company.lower().replace(' ', '_') + '.png'
 
         if not name_vacancy:
             flash("Пожалуйста, укажите название вакансии.")
@@ -77,7 +92,7 @@ def add_internship():
             return render_template('internships/add_internship.html', form=add_intern, user=user)
 
         if not db.session.query(InternshipCompany.id).filter_by(name=company).scalar():
-            company_entity = InternshipCompany(name=company)
+            company_entity = InternshipCompany(name=company, logo_uri=logo_uri)
             db.session.add(company_entity)
             db.session.commit()
 
@@ -101,8 +116,12 @@ def add_internship():
 
 def page_internship(id):
     user = current_user
-    internship = Internships.query.filter_by(id=id).first()
-    return render_template("internships/page_internship.html", internship=internship, user=user)
+    internships = Internships.query.filter_by(id=id)
+
+    if internships.count() < 1:
+        return render_template('404.html')
+
+    return render_template("internships/page_internship.html", internship=internships.first(), user=user)
 
 
 # @login_required
@@ -122,15 +141,17 @@ def delete_internship(id):
 @login_required
 def update_internship(id):
 
+    user = current_user
     internship = Internships.query.get(id)
     if not internship:
         return redirect(url_for('internships_index'))
     upd_internship = AddInternship(obj=internship)
 
-    # upd_internship = AddInternship()
     upd_internship.format.choices = [(g.id, g.format) for g in InternshipFormat.query.order_by('id').all()]
     upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by('id').all()]
+    upd_internship.tag.data = ''.join([t.tag + ', ' for t in internship.tag]).strip(", ")
     upd_internship.format.data = [c.id for c in internship.format]
+    upd_internship.company.choices = [g.name for g in InternshipCompany.query.order_by('id')]
 
 
     if request.method == 'POST':
@@ -143,11 +164,20 @@ def update_internship(id):
         internship.more_inf = request.form.get('more_inf', type=str)
         company = request.form.get('company', type=str)
         format = request.form.getlist('format', type=int)
-
         tags = request.form.get('tag', type=str)
 
-        list_of_tags = tags.split(',')
-        tag_list = [t for t in InternshipTag.query.all() if t.tag in list_of_tags]
+        tag_list = []
+        list_of_tags = list(map(lambda x: x.strip(), tags.rstrip(',').split(',')))
+        for t in list_of_tags:
+            is_finded = False
+            for posb_tag in InternshipTag.query.all():
+                if posb_tag.tag.upper() == t.upper():
+                    is_finded = True
+                    tag_list.append(posb_tag)
+                    break
+            if not is_finded:
+                flash("Тег " + t + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить.")
+                return  render_template('internships/add_internship.html', form=upd_internship, user=user)
 
         format_list = []
 
@@ -178,8 +208,10 @@ def update_internship(id):
 
 def fetch_internships():
 
+    user = current_user
+    
     format = request.args.get('format', default=0, type=int)
-    page = request.args.get('page', default=1, type=int)
+    page = request.args.get('page', default=0, type=int)
     company = request.args.get('company', default=0, type=int)
     tag = request.args.get('tag', default=0, type=int)
 
@@ -197,7 +229,7 @@ def fetch_internships():
     records = records.paginate(per_page=10, page=page, error_out=False)
 
     if len(records.items):
-        return render_template('internships/fetch_internships.html', internships=records, format=format, company=company, tag=tag)
+        return render_template('internships/fetch_internships.html', internships=records, format=format, company=company, tag=tag, user=user)
     else:
         return render_template('internships/fetch_internships_blank.html')
 

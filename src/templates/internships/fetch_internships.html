@@ -1,14 +1,31 @@
 {% for i in internships.items %}
-    <div class="card">
-        <div class="card-body pt-2">
-                {% if i.more_inf %}
-                  <h4 class = "text mt-3"> <a href="{{ i.more_inf }}" target="_blank">  <strong> {{i.name_vacancy}} </strong> </a></h4>
+    <div class="card border-0">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col">
+            {% if i.more_inf %}
+              <h4 class="text mt-3">
+                {% if i.author_id == user.id %}
+                  <a href="/internships/{{ i.id }}" target="_blank"> <strong> {{i.name_vacancy}} </strong></a>
                 {% else %}
-                <h4 class = "text mt-3"> <a href="/internships/{{ i.id }}" target="_blank">  <strong> {{i.name_vacancy}} </strong> </a></h4>
+                  <a href="{{ i.more_inf }}" target="_blank"> <strong> {{i.name_vacancy}}</strong></a>
                 {% endif %}
-                <p style="font-size: 100%" class="text m-0">{{i.company}}</p>
-                <p style="font-size: 100%"  class="text mb-1 mt-0"> {{i.location}}</p>
+              </h4>
+            {% else %}
+              <h4 class="text mt-3"> <a href="/internships/{{ i.id }}" target="_blank"> <strong> {{i.name_vacancy}}</strong></a></h4>
+            {% endif %}
+          </div>
+          <div class="col-auto ml-auto text-right">
+            <img src="/images/logos/{{i.company.logo_uri}}" style="height: 50px">
+          </div>
         </div>
+      </div>
+      <div class="card-body pt-2">
+        <p style="font-size: 100%" class="text m-0">{{i.company}}</p>
+        <p style="font-size: 100%" class="text mb-1 mt-0"> {{i.location}}</p>
+        <p style="font-size: 100%" class="text mb-1 mt-0"> {{i.tag|join(' ')}}</p>
+        </p>
+      </div>
     </div>
 {% endfor %}
 
