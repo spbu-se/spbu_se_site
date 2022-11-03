@@ -468,8 +468,11 @@ class PostType(db.Model):
 
     post = db.relationship('Posts', back_populates='type')
 
-    def __str__(self):
-        return "{self.name}"
+    def __repr__(self):
+        return self.name
+
+    def __self__(self):
+        return self.name
 
 
 class ThemesLevel(db.Model):
@@ -480,8 +483,11 @@ class ThemesLevel(db.Model):
     #    theme = db.relationship('DiplomaThemes', back_populates='level')
     #    themes_id = db.Column(db.Integer, db.ForeignKey('diploma_themes.id'))
 
-    def __str__(self):
-        return "{self.level}"
+    def __repr__(self):
+        return self.level
+
+    def __self__(self):
+        return self.level
 
 
 class DiplomaThemes(db.Model):
@@ -524,8 +530,11 @@ class Company(db.Model):
     theme = db.relationship('DiplomaThemes', back_populates='company')
     reviewer = db.relationship('Reviewer', back_populates='company')
 
-    def __str__(self):
-        return "{self.name}"
+    def __repr__(self):
+        return self.name
+
+    def __self__(self):
+        return self.name
 
 
 class ThesisReview(db.Model):
