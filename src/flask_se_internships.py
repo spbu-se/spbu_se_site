@@ -116,12 +116,12 @@ def add_internship():
 
 def page_internship(id):
     user = current_user
-    internship = Internships.query.filter_by(id=id).first()
+    internships = Internships.query.filter_by(id=id)
 
-    if id > Internships.query.count():
+    if internships.count() < 1:
         return render_template('404.html')
 
-    return render_template("internships/page_internship.html", internship=internship, user=user)
+    return render_template("internships/page_internship.html", internship=internships.first(), user=user)
 
 
 # @login_required
@@ -209,9 +209,9 @@ def update_internship(id):
 def fetch_internships():
 
     user = current_user
-
+    
     format = request.args.get('format', default=0, type=int)
-    page = request.args.get('page', default=1, type=int)
+    page = request.args.get('page', default=0, type=int)
     company = request.args.get('company', default=0, type=int)
     tag = request.args.get('tag', default=0, type=int)
 
