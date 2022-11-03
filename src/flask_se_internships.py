@@ -168,19 +168,19 @@ def update_internship(id):
 
         if not tags:
             flash("Пожалуйста, укажите технологии.")
-            return render_template('internships/update_internship.html', form=upd_internship, user=user)
+            return render_template('internships/update_internship.html', internship=internship, form=upd_internship, user=user)
 
         if not name_vacancy:
             flash("Пожалуйста, укажите название вакансии.")
-            return render_template('internships/update_internship.html', form=upd_internship, user=user)
+            return render_template('internships/update_internship.html', internship=internship, form=upd_internship, user=user)
 
         if not format:
             flash("Пожалуйста, выберите формат стажировки.")
-            return render_template('internships/update_internship.html', form=upd_internship, user=user)
+            return render_template('internships/update_internship.html', internship=internship, form=upd_internship, user=user)
 
         if not company:
             flash("Пожалуйста, укажите название компании")
-            return render_template('internships/update_internship.html', form=upd_internship, user=user)
+            return render_template('internships/update_internship.html', internship=internship, form=upd_internship, user=user)
 
         tag_list = []
         list_of_tags = list(map(lambda x: x.strip(), tags.rstrip(',').split(',')))
@@ -193,7 +193,7 @@ def update_internship(id):
                     break
             if not is_finded:
                 flash("Тег " + t + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить.")
-                return  render_template('internships/update_internship.html', form=upd_internship, user=user)
+                return  render_template('internships/update_internship.html', internship=internship, form=upd_internship, user=user)
 
         format_list = []
 
