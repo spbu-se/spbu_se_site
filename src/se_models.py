@@ -469,7 +469,7 @@ class PostType(db.Model):
     post = db.relationship('Posts', back_populates='type')
 
     def __str__(self):
-        return "{self.name}"
+        return self.name
 
 
 class ThemesLevel(db.Model):
