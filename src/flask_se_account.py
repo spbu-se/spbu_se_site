@@ -335,6 +335,20 @@ def account_edit_theme():
 
 
 @login_required
+def account_goals_tasks():
+    print('aboba')
+    current_thesis_id = request.args.get('id', type=int)
+    if not current_thesis_id:
+        return redirect(url_for('account_index'))
+
+    print('abobus')
+    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
+    if not current_thesis or current_thesis.deleted:
+        return redirect(url_for('account_index'))
+    return render_template('account/goals_tasks.html', thesises=get_list_of_thesises(), practice=current_thesis)
+
+
+@login_required
 def account_workflow():
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:

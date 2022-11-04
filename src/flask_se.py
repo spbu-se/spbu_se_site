@@ -41,7 +41,7 @@ from se_sendmail import notification_send_mail, notification_send_diploma_themes
 
 from flask_se_account import account_index, account_guide, account_new_thesis, account_choosing_topic, \
     account_add_new_report, account_preparation, account_thesis_defense, account_data_for_practice, \
-    account_edit_theme, account_temp, account_temp_deadline, account_workflow
+    account_edit_theme, account_temp, account_temp_deadline, account_workflow, account_goals_tasks
 from flask_se_writing_thesis_staff import writing_thesis_index, writing_thesis_thesis, writing_thesis_reports
 from flask_se_coursework_admin import index_coursework_admin
 
@@ -160,6 +160,7 @@ app.add_url_rule('/account/new', methods=['GET', 'POST'], view_func=account_new_
 app.add_url_rule('/account/data_for_practice', methods=['GET', 'POST'], view_func=account_data_for_practice)
 app.add_url_rule('/account/choosing_topic', methods=['GET', 'POST'], view_func=account_choosing_topic)
 app.add_url_rule('/account/edit_theme', methods=['GET', 'POST'], view_func=account_edit_theme)
+app.add_url_rule('/account/goals_tasks', methods=['GET', 'POST'], view_func=account_goals_tasks)
 app.add_url_rule('/account/account_add_new_report', methods=['GET', 'POST'], view_func=account_add_new_report)
 app.add_url_rule('/account/workflow', methods=['GET', 'POST'], view_func=account_workflow)
 app.add_url_rule('/account/preparation_for_defense', methods=['GET', 'POST'], view_func=account_preparation)

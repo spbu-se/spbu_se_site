@@ -94,7 +94,7 @@ def writing_thesis_reports():
                     notification = NotificationAccount()
                     notification.recipient_id = current_thesis.author_id
                     user = Users.query.filter_by(id=user_staff.user_id).first()
-                    notification.content = user.get_name() + "прокомментировал(-а) Ваш отчет от " \
+                    notification.content = user.get_name() + " прокомментировал(-а) Ваш отчет от " \
                                            + datetime_convert(current_report.time)
                     db.session.add(notification)
                     db.session.commit()
