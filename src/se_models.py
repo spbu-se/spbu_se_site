@@ -206,8 +206,14 @@ class CurrentThesis(db.Model):
     reviewer_review_uri = db.Column(db.String(512), nullable=True)
     presentation_uri = db.Column(db.String(512), nullable=True)
 
-    deleted = db.Column(db.Boolean, default=False)
     reports = db.relationship('ThesisReport', backref=db.backref('practice'))
+
+    deleted = db.Column(db.Boolean, default=False)
+    status = db.Column(db.Integer, default=0)
+    # -1 - deleted
+    # 0 - active practice
+    # 1 - past practice
+    # 2 - send to archive of coursework
 
     def __repr__(self):
         return self.title

@@ -21,17 +21,17 @@
     <ul class="nav nav-tabs mb-2" id="myTab" role="tablist">
         {% if type_notifications == 'new' %}
         <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="home-tab" data-toggle="tab" data-target="#new-notifications" type="button" role="tab" aria-controls="new-notifications" aria-selected="true">Непрочитанные уведомления</a>
+            <a class="nav-link active" id="new" data-toggle="tab" data-target="#new-notifications" type="button" role="tab" aria-controls="new-notifications" aria-selected="true">Непрочитанные уведомления</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="profile-tab" data-toggle="tab" data-target="#all-notifications" type="button" role="tab" aria-controls="all-notifications" aria-selected="false">Все уведомления</a>
+            <a class="nav-link" id="all" data-toggle="tab" data-target="#all-notifications" type="button" role="tab" aria-controls="all-notifications" aria-selected="false">Все уведомления</a>
         </li>
         {% else %}
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="home-tab" data-toggle="tab" data-target="#new-notifications" type="button" role="tab" aria-controls="new-notifications" aria-selected="false">Непрочитанные уведомления</a>
+            <a class="nav-link" id="new" data-toggle="tab" data-target="#new-notifications" type="button" role="tab" aria-controls="new-notifications" aria-selected="false">Непрочитанные уведомления</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="profile-tab" data-toggle="tab" data-target="#all-notifications" type="button" role="tab" aria-controls="all-notifications" aria-selected="true">Все уведомления</a>
+            <a class="nav-link active" id="all" data-toggle="tab" data-target="#all-notifications" type="button" role="tab" aria-controls="all-notifications" aria-selected="true">Все уведомления</a>
         </li>
         {% endif %}
     </ul>

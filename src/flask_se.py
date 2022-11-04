@@ -38,10 +38,12 @@ from flask_se_internships import add_internship, internships_index, page_interns
     update_internship, fetch_internships
 
 from se_sendmail import notification_send_mail, notification_send_diploma_themes_on_review
+
 from flask_se_account import account_index, account_guide, account_new_thesis, account_choosing_topic, \
     account_add_new_report, account_preparation, account_thesis_defense, account_data_for_practice, \
     account_edit_theme, account_temp, account_temp_deadline, account_workflow
 from flask_se_writing_thesis_staff import writing_thesis_index, writing_thesis_thesis, writing_thesis_reports
+from flask_se_coursework_admin import index_coursework_admin
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -171,6 +173,8 @@ app.add_url_rule('/writing_thesis_staff', methods=['GET', 'POST'], view_func=wri
 app.add_url_rule('/writing_thesis_staff/thesis', methods=['GET', 'POST'], view_func=writing_thesis_thesis)
 app.add_url_rule('/writing_thesis_staff/reports', methods=['GET', 'POST'], view_func=writing_thesis_reports)
 
+# Coursework admin
+app.add_url_rule('/coursework_admin', methods=['GET'], view_func=index_coursework_admin)
 
 # Init Database
 db.app = app
