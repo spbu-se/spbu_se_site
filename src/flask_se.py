@@ -14,6 +14,7 @@ from flask_migrate import Migrate
 from flaskext.markdown import Markdown
 from sqlalchemy.sql.expression import func
 from flask_simplemde import SimpleMDE
+from flask_login import current_user
 
 
 import flask_se_theses
@@ -403,6 +404,16 @@ def sitemap():
     response = make_response(sitemap_xml)
     response.headers["Content-Type"] = "application/xml"
     return response
+
+
+@app.route('/who_is_user', methods=['GET'])
+def who_is_user():
+    if request.headers.get("X-Requested-With") != "XMLHttpRequest":
+        return redirect(url_for('index'))
+    if Staff.query.filter_by(user_id=current_user.id).first():
+        return "staff"
+    else:
+        return "student"
 
 
 if __name__ == "__main__":

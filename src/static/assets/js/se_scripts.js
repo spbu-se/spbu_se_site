@@ -778,3 +778,18 @@ let coursework_filter_element = document.getElementById('PrepareToDefense');
 if (coursework_filter_element){
     $('[data-toggle="popoverhover"]').popover({ trigger: "hover" });
 }
+
+
+addEventListener('load', () => {
+    $.ajax(
+    {
+        url: '/who_is_user',
+        type: 'GET'
+    }).done(function(whoIsUser)
+    {
+        if (whoIsUser != 'staff')
+        {
+            document.getElementById('coursework_staff_button').remove();
+        }
+    });
+});
