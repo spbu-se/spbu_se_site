@@ -27,10 +27,18 @@
         <div class="card-body pt-2 pb-3">
             <p class="text-sm mb-0">Студент: {{ thesis.user.get_name() }}</p>
             <p class="text-sm mb-0">Тип работы: {{ thesis.worktype }}</p>
-            <p class="text-sm mb-0">Направление: {{ thesis.area }}</p>
+            <p class="text-sm mb-2">Направление: {{ thesis.area }}</p>
             <p class="text-sm mb-0"><a type="btn" href="{{url_for('writing_thesis_reports', id=thesis.id)}}">Просмотреть отчеты студента</a>
             {% if thesis.reports %}
-             (последний - {{ thesis.reports[-1].time|datatime_convert }})</p>
+                {% set lastReport = {'value': false} %}
+                {% for report in thesis.reports %}
+                    {% if not report.deleted %}
+                        {% if lastReport.update({'value': report}) %} {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if lastReport.value %}
+                    (последний: {{ lastReport.value.time|datatime_convert }})</p>
+                {% endif %}
             {% endif %}
         </div>
     </div>
