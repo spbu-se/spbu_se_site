@@ -14,8 +14,9 @@ from transliterate import translit
 
 from flask_se_auth import login_required
 from flask_se_config import get_thesis_type_id_string
-from se_forms import ChooseTopic, DeadlineTemp, UserAddReport, CurrentWorktypeArea
-from se_models import Users, AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationAccount, Deadline, db, ThesisReport
+from se_forms import ChooseTopic, DeadlineTemp, UserAddReport, CurrentWorktypeArea, AddGoal, AddTask
+from se_models import Users, AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationAccount, Deadline, db, \
+    ThesisReport, ThesisTask
 
 # Global variables
 formatDateTime = "%d.%m.%Y %H:%M"
@@ -51,7 +52,8 @@ def account_temp_deadline():
             current_thesises = CurrentThesis.query.filter_by(worktype_id=worktype_id).filter_by(area_id=area_id).all()
 
             if request.form.get('choose_topic'):
-                new_deadline = datetime.strptime(request.form.get('choose_topic'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
+                new_deadline = datetime.strptime(request.form.get('choose_topic'), "%Y-%m-%dT%H:%M").astimezone(
+                    pytz.UTC)
                 if not deadline.choose_topic or \
                         deadline.choose_topic and deadline.choose_topic.replace(tzinfo=pytz.UTC) != new_deadline:
                     first_word = ""
@@ -66,15 +68,19 @@ def account_temp_deadline():
                         notification.recipient_id = currentThesis.author_id
                         notification.content = first_word + " дедлайн на выбор темы для " + \
                                                Worktype.query.filter_by(id=worktype_id).first().type + \
-                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
-                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
+                                               " для направления " + AreasOfStudy.query.filter_by(
+                            id=area_id).first().area + \
+                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(
+                            timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
 
                         db.session.add(notification)
 
             if request.form.get('submit_work_for_review'):
-                new_deadline = datetime.strptime(request.form.get('submit_work_for_review'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
+                new_deadline = datetime.strptime(request.form.get('submit_work_for_review'),
+                                                 "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
                 if not deadline.submit_work_for_review or \
-                        deadline.submit_work_for_review and deadline.submit_work_for_review.replace(tzinfo=pytz.UTC) != new_deadline:
+                        deadline.submit_work_for_review and deadline.submit_work_for_review.replace(
+                    tzinfo=pytz.UTC) != new_deadline:
                     first_word = ""
                     if not deadline.submit_work_for_review:
                         first_word = "Назначен"
@@ -87,13 +93,16 @@ def account_temp_deadline():
                         notification.recipient_id = currentThesis.author_id
                         notification.content = first_word + " дедлайн на отправку работы для рецензирования для " + \
                                                Worktype.query.filter_by(id=worktype_id).first().type + \
-                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
-                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
+                                               " для направления " + AreasOfStudy.query.filter_by(
+                            id=area_id).first().area + \
+                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(
+                            timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
 
                         db.session.add(notification)
 
             if request.form.get('upload_reviews'):
-                new_deadline = datetime.strptime(request.form.get('upload_reviews'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
+                new_deadline = datetime.strptime(request.form.get('upload_reviews'), "%Y-%m-%dT%H:%M").astimezone(
+                    pytz.UTC)
                 if not deadline.upload_reviews or \
                         deadline.upload_reviews and deadline.upload_reviews.replace(tzinfo=pytz.UTC) != new_deadline:
                     first_word = ""
@@ -108,8 +117,10 @@ def account_temp_deadline():
                         notification.recipient_id = currentThesis.author_id
                         notification.content = first_word + " дедлайн на загрузку отхывов для " + \
                                                Worktype.query.filter_by(id=worktype_id).first().type + \
-                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
-                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
+                                               " для направления " + AreasOfStudy.query.filter_by(
+                            id=area_id).first().area + \
+                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(
+                            timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
 
                         db.session.add(notification)
 
@@ -129,8 +140,10 @@ def account_temp_deadline():
                         notification.recipient_id = currentThesis.author_id
                         notification.content = first_word + " время предзащиты для " + \
                                                Worktype.query.filter_by(id=worktype_id).first().type + \
-                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
-                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
+                                               " для направления " + AreasOfStudy.query.filter_by(
+                            id=area_id).first().area + \
+                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(
+                            timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
 
                         db.session.add(notification)
 
@@ -150,8 +163,10 @@ def account_temp_deadline():
                         notification.recipient_id = currentThesis.author_id
                         notification.content = first_word + " время защиты для " + \
                                                Worktype.query.filter_by(id=worktype_id).first().type + \
-                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
-                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
+                                               " для направления " + AreasOfStudy.query.filter_by(
+                            id=area_id).first().area + \
+                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(
+                            timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
 
                         db.session.add(notification)
 
@@ -284,15 +299,17 @@ def account_choosing_topic():
 
             db.session.commit()
 
-    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).filter_by(area_id=current_thesis.area_id).first()
+    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).filter_by(
+        area_id=current_thesis.area_id).first()
 
     form = ChooseTopic()
     form.staff.choices.append((0, 'Выберите научного руководителя'))
-    for supervisor in Staff.query.join(Users, Staff.user_id==Users.id).order_by(asc(Users.last_name)).all():
+    for supervisor in Staff.query.join(Users, Staff.user_id == Users.id).order_by(asc(Users.last_name)).all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
 
     return render_template('account/choosing_topic.html', thesises=get_list_of_thesises(), form=form,
-                           practice=current_thesis, deadline=deadline, remaining_time=get_remaining_time(deadline, "choose_topic"))
+                           practice=current_thesis, deadline=deadline,
+                           remaining_time=get_remaining_time(deadline, "choose_topic"))
 
 
 @login_required
@@ -326,7 +343,8 @@ def account_edit_theme():
 
     form.topic.data = current_thesis.title
     form.staff.choices.append((current_thesis.supervisor_id, current_thesis.supervisor))
-    for supervisor in Staff.query.join(Users, Staff.user_id == Users.id).filter(Staff.id != current_thesis.supervisor_id)\
+    for supervisor in Staff.query.join(Users, Staff.user_id == Users.id).filter(
+            Staff.id != current_thesis.supervisor_id) \
             .order_by(asc(Users.last_name)).all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
 
@@ -336,16 +354,60 @@ def account_edit_theme():
 
 @login_required
 def account_goals_tasks():
-    print('aboba')
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
         return redirect(url_for('account_index'))
 
-    print('abobus')
     current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
         return redirect(url_for('account_index'))
-    return render_template('account/goals_tasks.html', thesises=get_list_of_thesises(), practice=current_thesis)
+
+    formGoal = AddGoal()
+    formTask = AddTask()
+    if request.method == "POST":
+        if 'submit_goal_button' in request.form and request.form['submit_goal_button'] == 'Сохранить' and request.form['goal']:
+            goal = request.form.get('goal', type=str)
+            if (len(goal) <= 20):
+                flash("Напишите подробнее!", category='error')
+            else:
+                current_thesis.goal = goal
+                db.session.commit()
+                flash('Цель добавлена!', category='success')
+
+        if 'submit_goal_button' in request.form and request.form['submit_goal_button'] == 'Сохранить изменения' and request.form['goal']:
+            goal = request.form.get('goal', type=str)
+            if (len(goal) <= 20):
+                flash("Напишите подробнее!", category='error')
+            else:
+                current_thesis.goal = goal
+                db.session.commit()
+                flash('Цель изменена!', category='success')
+        if 'submit_task_button' in request.form:
+            task = request.form.get('task_text', type=str)
+            if 'submit_task_button' in request.form:
+                task = request.form.get('task_text', type=str)
+                same = False
+                for existedTask in current_thesis.tasks:
+                    if not existedTask.deleted and existedTask.task_text == task:
+                        same = True
+                if same:
+                    flash("Такая задача уже существует!", category='error')
+                elif len(task) <= 15:
+                    flash("Опишите задачу подробнее!", category='error')
+                else:
+                    new_task = ThesisTask(task_text=task, current_thesis_id=current_thesis_id)
+                    db.session.add(new_task)
+                    db.session.commit()
+                    flash('Задача успешно добавлена!', category='success')
+
+        for task in current_thesis.tasks:
+            if 'delete_task_'+str(task.id) in request.form:
+                task.deleted = True
+                db.session.commit()
+                flash('Задача удалена!', category='success')
+
+    return render_template('account/goals_tasks.html', thesises=get_list_of_thesises(), practice=current_thesis,
+                           formGoal=formGoal, formTask=formTask)
 
 
 @login_required
@@ -366,7 +428,7 @@ def account_workflow():
             db.session.commit()
             flash('Отчёт удален!', category='success')
 
-    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).filter_by(deleted=False).\
+    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).filter_by(deleted=False). \
         order_by(desc(ThesisReport.time)).all()
     return render_template('account/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
                            reports=reports)
@@ -492,13 +554,15 @@ def account_preparation():
 
                     presentation_filename = presentation_filename + '_' + str(date.today().year) + '_slides'
                     presentation_filename_with_ext = presentation_filename + '.pdf'
-                    full_presentation_filename = os.path.join(PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
+                    full_presentation_filename = os.path.join(
+                        PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
 
                     # Check if file already exist
                     if os.path.isfile(full_presentation_filename):
                         presentation_filename = presentation_filename + '_' + str(os.urandom(8).hex())
                         presentation_filename_with_ext = presentation_filename + '.pdf'
-                        full_presentation_filename = os.path.join(PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
+                        full_presentation_filename = os.path.join(
+                            PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
 
                     presentation_file.save(full_presentation_filename)
 
@@ -516,11 +580,12 @@ def account_preparation():
             current_thesis.supervisor_review_uri = None
             db.session.commit()
 
-    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).\
+    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id). \
         filter_by(area_id=current_thesis.area_id).first()
 
     return render_template('account/preparation.html', thesises=get_list_of_thesises(), practice=current_thesis,
-                           deadline=deadline, remaining_time_submit=get_remaining_time(deadline, "submit_work_for_review"),
+                           deadline=deadline,
+                           remaining_time_submit=get_remaining_time(deadline, "submit_work_for_review"),
                            remaining_time_upload=get_remaining_time(deadline, "upload_reviews"))
 
 

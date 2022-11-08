@@ -202,13 +202,13 @@ class CurrentThesis(db.Model):
     worktype_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
 
     goal = db.Column(db.String(2048), nullable=True)
-    tasks = db.Column(db.String(2048), nullable=True)
 
     supervisor_review_uri = db.Column(db.String(512), nullable=True)
     reviewer_review_uri = db.Column(db.String(512), nullable=True)
     presentation_uri = db.Column(db.String(512), nullable=True)
 
     reports = db.relationship('ThesisReport', backref=db.backref('practice'))
+    tasks = db.relationship('ThesisTask', backref=db.backref('practice'))
 
     deleted = db.Column(db.Boolean, default=False)
     status = db.Column(db.Integer, default=0)
@@ -243,6 +243,13 @@ class Deadline(db.Model):
 
     pre_defense = db.Column(db.DateTime, nullable=True)
     defense = db.Column(db.DateTime, nullable=True)
+
+
+class ThesisTask(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    task_text = db.Column(db.String(2048), nullable=False)
+    deleted = db.Column(db.Boolean, default=False)
+    current_thesis_id = db.Column(db.Integer, db.ForeignKey('current_thesis.id'))
 
 
 class ThesisReport(db.Model):
