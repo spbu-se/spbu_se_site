@@ -129,7 +129,6 @@ def fetch_theses():
 
         for item in records.items:
             text_index = item.text.find(search.lower())
-            print(str(item.name_ru))
             search_in_name = str(item.name_ru).lower().find(search.lower()) != -1 or str(item.description).lower().find(search.lower()) != -1 or str(item.author).lower().find(search.lower()) != -1
 
             if search_in_name and text_index != -1:
