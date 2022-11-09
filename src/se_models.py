@@ -299,7 +299,7 @@ class Courses(db.Model):
 
 
 class Thesis(db.Model):
-    __searchable__ = ['name_ru', 'description', 'author']
+    __searchable__ = ['name_ru', 'description', 'author', 'text']
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -327,6 +327,7 @@ class Thesis(db.Model):
     publish_year = db.Column(db.Integer, nullable=False)
     recomended = db.Column(db.Boolean, default=False, nullable=False)
     temporary = db.Column(db.Boolean, default=False, nullable=False)
+    text = db.Column(db.Text, nullable=True)
 
     # 0 - success review (or not needed)
     # 1 - need to review

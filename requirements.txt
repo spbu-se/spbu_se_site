@@ -57,3 +57,5 @@ Werkzeug==1.0.1
 Whoosh==2.7.4
 WTForms==2.3.3
 zipp==3.7.0
+
+PyMuPDF==1.20.2

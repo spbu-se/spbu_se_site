@@ -48,6 +48,17 @@
         <p class="text-sm mb-0">Автор: <i>{{t.author}}</i></p>
         <p class="text-sm mb-0">Руководитель: <i>{{t.supervisor.user.get_name()}}</i></p>
         <p class="text-sm">Направление: <i>{{t.course.name}}</i></p>
+        {% if context[t] %}
+            <p class="text-sm" >Контекст:
+                {% for word in context[t] %}
+                    {% if word == search.lower() %}
+                        <mark>{{word}}</mark>
+                    {% else %}
+                        <i> {{word}} <i>
+                    {% endif %}
+                {% endfor %}
+            </p>
+        {% endif %}
         {% for tag in t.tags %}
         <a href="#" class="badge badge-info mr-2">
             {{ tag.name }}
