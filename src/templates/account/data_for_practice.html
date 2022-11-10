@@ -26,14 +26,14 @@
         {{ form.csrf_token }}
 
         <div class="row">
-            <div class="col-lg-3 col-md-4 col-12">
+            <div class="col-xl-4 col-md-5 col-12">
                 <div class="form-group">
-                    <label for="course">За какой курс:</label>
-                    {{ form.course(class_="custom-select pl-3") }}
+                    <label for="worktype">Тип работы:</label>
+                    {{ form.worktype(class_="custom-select pl-3") }}
                 </div>
             </div>
 
-            <div class="col-lg-9 col-md-8 col-12">
+            <div class="col-xl-8 col-md-7 col-12">
                 <div class="form-group">
                     <label for="area">Направление обучения:</label>
                     {{ form.area(class_="custom-select pl-3") }}

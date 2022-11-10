@@ -45,6 +45,10 @@
                         {{report.was_done|markdown}}
                         <h6>Планируется сделать</h6>
                         {{report.planned_to_do|markdown}}
+                        {% if report.comment %}
+                            <h6>Комментарий научного руководителя</h6>
+                            {{report.comment|markdown}}
+                        {% endif %}
                         <div class="row mb-3">
                             <div class="col d-flex justify-content-end">
                                 <a data-toggle="modal" data-target="{{ '#deleteModal'+(report.id|string()) }}" class="btn btn-sm btn-outline-danger" href="#">Удалить отчёт</a>

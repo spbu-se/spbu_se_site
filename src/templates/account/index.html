@@ -2,6 +2,11 @@
 
 {% block title %}Главная{% endblock %}
 
+{% block head_links %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}" id="stylesheet">
+    {{ simplemde.js }}
+{% endblock %}
+
 {% block content_account %}
 
 <div class="container">
@@ -17,17 +22,17 @@
             <ul class="nav nav-tabs mb-3">
                 {% if type_notifications == "new" %}
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ url_for('account_index', notifications='new') }}">Непрочитанные уведомления</a>
+                    <a id="NewNotifications" class="nav-link active" href="{{ url_for('account_index', notifications='new') }}">Непрочитанные уведомления</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('account_index', notifications='all') }}">Все уведомления</a>
+                    <a id="AllNotifications" class="nav-link" href="{{ url_for('account_index', notifications='all') }}" onclick="return true;">Все уведомления</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('account_index', notifications='new') }}">Непрочитанные уведомления</a>
+                    <a id="NewNotifications" class="nav-link" href="{{ url_for('account_index', notifications='new') }}">Непрочитанные уведомления</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ url_for('account_index', notifications='all') }}">Все уведомления</a>
+                    <a id="AllNotifications" class="nav-link active" href="{{ url_for('account_index', notifications='all') }}">Все уведомления</a>
                 </li>
                 {% endif %}
             </ul>
@@ -47,15 +52,15 @@
                 <div class="card mb-2">
                     <div class="card-body pt-3 pb-3">
                         <div class="row">
-                            <div class="col mb-2">
-                                {{ notification }}
+                            <div class="col">
+                                {{ notification.content|markdown }}
                             </div>
                         </div>
                         <div class="row">
                             <div class="col">
-                                <span class="badge btn-link disabled pl-0" style="display: inline-block;">
+                                <i class="text-sm">
                                     {{ notification.time | datatime_convert }}
-                                </span>
+                                </i>
                             </div>
                             <div class="col d-flex justify-content-end">
                                 <a href="" onClick="document.getElementById('hiddenReadButton').value = {{notification.id}}; read_buttons_form.submit(); return false;">
@@ -83,16 +88,16 @@
                     <div class="card mb-2">
                         <div class="card-body pt-3 pb-3">
                             <div class="row">
-                                <div class="col mb-2">
-                                    {{ notification }}
+                                <div class="col">
+                                    {{ notification.content|markdown }}
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
-                                    <span class="badge btn-link disabled pl-0" style="display: inline-block;">
-                                    {{ notification.time | datatime_convert }}
-                                    </span>
+                                    <i class="text-sm">
+                                        {{ notification.time | datatime_convert }}
+                                    </i>
                                 </div>
                                 {% if notification.viewed %}
                                 <div class="col d-flex justify-content-end">
@@ -138,6 +143,23 @@
         span.textContent = 'Не прочитано';
         span.className = "badge btn-secondary";
     }
+
+    let position = 0;
+    document.getElementById('NewNotifications').addEventListener('click', () => { localStorage[position] = window.scrollY })
+    document.getElementById('AllNotifications').addEventListener('click', () => { localStorage[position] = window.scrollY })
+    document.querySelectorAll('.badge').forEach(element =>
+    {
+        element.addEventListener('click', () => { localStorage[position] = window.scrollY });
+    });
+
+    window.addEventListener('load', e =>
+    {
+        if (localStorage[position] != 0)
+        {
+            window.scrollTo(0, localStorage[position]);
+            localStorage[position] = 0;
+        }
+    });
 </script>
 
 {% endblock %}
