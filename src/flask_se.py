@@ -143,6 +143,7 @@ app.add_url_rule('/review/become_thesis_reviewer_confirm', methods=['GET'],
 
 
 # Internships
+app.add_url_rule('/internships/index', methods=['GET'], view_func=internships_index)
 app.add_url_rule('/internships/internships_index.html', methods=['GET', 'POST'], view_func=internships_index)
 app.add_url_rule('/internships/fetch_internships', methods=['GET'], view_func=fetch_internships)
 app.add_url_rule('/internships/add', methods=['GET', 'POST'], view_func=add_internship)
