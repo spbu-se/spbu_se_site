@@ -772,20 +772,6 @@ if (internships_filter_element){
     internships_filter();
 }
 
-// Coursework
-let coursework_filter_element = document.getElementById('PrepareToDefense');
-
-if (coursework_filter_element){
-    $('[data-toggle="popoverhover"]').popover({ trigger: "hover" });
-}
-
-let coursework_tasks_element = document.getElementById('newText');
-
-if (coursework_tasks_element){
-    $('[data-toggle="popoverhover"]').popover({ trigger: "hover" });
-}
-
-
 addEventListener('load', () => {
     $.ajax(
     {

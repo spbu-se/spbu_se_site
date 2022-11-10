@@ -287,11 +287,7 @@ def account_choosing_topic():
             else:
                 current_thesis.title = topic
                 current_thesis.supervisor_id = supervisor_id
-
                 db.session.commit()
-
-        elif request.form['submit_button'] == 'Редактировать':
-            return redirect(url_for('account_edit_theme', id=current_thesis_id))
 
         elif request.form['submit_button'] == 'Да, отказываюсь!':
             current_thesis.title = None

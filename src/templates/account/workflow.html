@@ -1,6 +1,6 @@
 {% extends "account/base_account.html" %}
 
-{% block title %}Рабочий процесс{% endblock %}
+{% block title %}Отчётность{% endblock %}
 
 {% block head_links %}
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}" id="stylesheet">
@@ -25,7 +25,7 @@
 
     <div class="row mb-3">
         <div class="col text-center">
-            <a href="{{url_for('account_add_new_report', id=practice.id)}}" class="btn btn-primary">Создать новый отчёт</a>
+            <a id="new_report_button" name="{{ practice.id }}" href="{{url_for('account_add_new_report', id=practice.id)}}" class="btn btn-primary">Создать новый отчёт</a>
         </div>
     </div>
 
