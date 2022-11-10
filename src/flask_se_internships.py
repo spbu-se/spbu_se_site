@@ -28,9 +28,13 @@ def internships_index():
     internship_filter.format.choices.insert(0, (0, "Все"))
     internship_filter.company.choices.insert(0, (0, "Все"))
 
-    return render_template('internships/internships_index.html',
+    internships = Internships.query.all()
+    return render_template('internships/internships_index.html', internships=internships,
                            internship_filter=internship_filter, user=user)
 
+
+def old_internships_index():
+    return redirect(url_for('internships_index'))
 
 @login_required
 def add_internship():
