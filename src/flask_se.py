@@ -35,7 +35,7 @@ from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_t
     delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review, \
     fetch_thesis_on_review, review_become_thesis_reviewer_ask, review_become_thesis_reviewer_confirm
 from flask_se_internships import add_internship, internships_index, page_internship, delete_internship, \
-    update_internship, fetch_internships
+    update_internship, fetch_internships, old_internships_index
 
 from se_sendmail import notification_send_mail, notification_send_diploma_themes_on_review
 from flask_se_account import account_index, account_guide, account_new_thesis, account_choosing_topic, \
@@ -143,8 +143,8 @@ app.add_url_rule('/review/become_thesis_reviewer_confirm', methods=['GET'],
 
 
 # Internships
-app.add_url_rule('/internships/index', methods=['GET'], view_func=internships_index)
-app.add_url_rule('/internships/internships_index.html', methods=['GET', 'POST'], view_func=internships_index)
+app.add_url_rule('/internships/index', methods=['GET'], view_func=old_internships_index)
+app.add_url_rule('/internships/internships_index.html', methods=['GET'], view_func=internships_index)
 app.add_url_rule('/internships/fetch_internships', methods=['GET'], view_func=fetch_internships)
 app.add_url_rule('/internships/add', methods=['GET', 'POST'], view_func=add_internship)
 app.add_url_rule('/internships/<int:id>', methods=['GET', 'POST'], view_func=page_internship)
