@@ -1,11 +1,6 @@
-{% extends "account/base_writing_thesis_staff.html" %}
+{% extends "coursework/staff/base_coursework_staff.html" %}
 
 {% block title %}Текущие работы{% endblock %}
-
-{% block head_links %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}" id="stylesheet">
-    {{ simplemde.js }}
-{% endblock %}
 
 {% block content_writing_thesis_staff %}
 
@@ -58,7 +53,7 @@
                             {{report.comment|markdown}}
 
                         {% else %}
-                                <form id="{{ report.id|string() }}" method="POST" action="{{url_for('writing_thesis_reports', id=thesis.id, report_id=report.id)}}">
+                                <form id="{{ report.id|string() }}" method="POST" action="{{url_for('reports_staff', id=thesis.id, report_id=report.id)}}">
                                     {{ form.csrf_token }}
                                         <div class="row">
                                             <div class="col">

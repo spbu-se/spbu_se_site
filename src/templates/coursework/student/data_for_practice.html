@@ -1,4 +1,4 @@
-{% extends "account/base_account.html" %}
+{% extends "coursework/student/base_account.html" %}
 
 {% block title %}Настройки{% endblock %}
 
@@ -21,7 +21,7 @@
        </div>
     </div>
 
-    <form method="POST" action="{{url_for('account_data_for_practice', id=practice.id)}}">
+    <form method="POST" action="{{url_for('coursework_data_for_practice', id=practice.id)}}">
         <!-- General information -->
         {{ form.csrf_token }}
 

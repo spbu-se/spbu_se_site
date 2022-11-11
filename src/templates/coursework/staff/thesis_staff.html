@@ -1,4 +1,4 @@
-{% extends "account/base_writing_thesis_staff.html" %}
+{% extends "coursework/staff/base_coursework_staff.html" %}
 
 {% block title %}{{thesis.title}}{% endblock %}
 
@@ -81,7 +81,7 @@
         </div>
     </div>
 
-    <form method="POST" action="{{ url_for('writing_thesis_thesis', id=thesis.id) }}">
+    <form method="POST" action="{{ url_for('thesis_staff', id=thesis.id) }}">
         <div class="row">
             <div class="col">
                 <div class="card border-0">

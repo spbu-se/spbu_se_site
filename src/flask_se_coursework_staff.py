@@ -13,30 +13,34 @@ from se_forms import StaffAddCommentToReport
 from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationAccount, Users
 
 
+def datetime_convert(value, format="%d.%m.%Y %H:%M"):
+    return value.replace(tzinfo=pytz.UTC).astimezone(tz.tzlocal()).strftime(format)
+
+
 @login_required
-def writing_thesis_index():
+def index_staff():
     user_staff = Staff.query.filter_by(user_id=current_user.id).first()
     if not user_staff:
-        return redirect(url_for('account_index'))
+        return redirect(url_for('coursework_index'))
 
     current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).\
         outerjoin(ThesisReport, CurrentThesis.reports).order_by(desc(ThesisReport.time)).all()
-    return render_template('account/current_thesises_staff.html', thesises=current_thesises)
+    return render_template('coursework/staff/current_thesises_staff.html', thesises=current_thesises)
 
 
 @login_required
-def writing_thesis_thesis():
+def thesis_staff():
     user_staff = Staff.query.filter_by(user_id=current_user.id).first()
     if not user_staff:
-        return redirect(url_for('account_index'))
+        return redirect(url_for('coursework_index'))
 
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('writing_thesis_index'))
+        return redirect(url_for('index_staff'))
 
     current_thesis = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(id=current_thesis_id).first()
     if not current_thesis:
-        return redirect(url_for('writing_thesis_index'))
+        return redirect(url_for('index_staff'))
 
     if request.method == 'POST':
         if 'submit_notification_button' in request.form:
@@ -49,22 +53,22 @@ def writing_thesis_thesis():
             db.session.commit()
             flash('Уведомление отправлено!', category="success")
 
-    return render_template('account/thesis_staff.html', thesis=current_thesis)
+    return render_template('coursework/staff/thesis_staff.html', thesis=current_thesis)
 
 
 @login_required
-def writing_thesis_reports():
+def reports_staff():
     user_staff = Staff.query.filter_by(user_id=current_user.id).first()
     if not user_staff:
-        return redirect(url_for('account_index'))
+        return redirect(url_for('coursework_index'))
 
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('writing_thesis_index'))
+        return redirect(url_for('index_staff'))
 
     current_thesis = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(id=current_thesis_id).first()
     if not current_thesis:
-        return redirect(url_for('writing_thesis_index'))
+        return redirect(url_for('index_staff'))
 
     current_report_id = request.args.get('report_id', type=int)
     reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).filter_by(deleted=False). \
@@ -75,10 +79,10 @@ def writing_thesis_reports():
         current_report = ThesisReport.query.filter_by(id=current_report_id).first()
 
         if not current_report or current_report.deleted:
-            return redirect(url_for('writing_thesis_index'))
+            return redirect(url_for('index_staff'))
 
         if current_report.practice.supervisor_id != user_staff.id:
-            return redirect(url_for('writing_thesis_index'))
+            return redirect(url_for('index_staff'))
 
         if request.method == 'POST':
             if 'submit_button' + str(current_report_id) in request.form:
@@ -103,9 +107,5 @@ def writing_thesis_reports():
                 return render_template('account/reports_staff.html', thesis=current_thesis, reports=reports,
                                        form=add_report_comment)
 
-    return render_template('account/reports_staff.html', thesis=current_thesis, reports=reports,
+    return render_template('coursework/staff/reports_staff.html', thesis=current_thesis, reports=reports,
                            form=add_report_comment)
-
-
-def datetime_convert(value, format="%d.%m.%Y %H:%M"):
-    return value.replace(tzinfo=pytz.UTC).astimezone(tz.tzlocal()).strftime(format)

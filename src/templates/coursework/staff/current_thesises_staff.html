@@ -1,4 +1,4 @@
-{% extends "account/base_writing_thesis_staff.html" %}
+{% extends "coursework/staff/base_coursework_staff.html" %}
 
 {% block title %}Текущие работы{% endblock %}
 
@@ -22,13 +22,13 @@
     {% for thesis in thesises %}
     <div class="card border-0 mb-3">
         <div class="card-header">
-            <h6 class="mb-0"><a href="{{ url_for('writing_thesis_thesis', id=thesis.id) }}">{{ thesis.title }}</a></h6>
+            <h6 class="mb-0"><a href="{{ url_for('thesis_staff', id=thesis.id) }}">{{ thesis.title }}</a></h6>
         </div>
         <div class="card-body pt-2 pb-3">
             <p class="text-sm mb-0">Студент: {{ thesis.user.get_name() }}</p>
             <p class="text-sm mb-0">Тип работы: {{ thesis.worktype }}</p>
             <p class="text-sm mb-2">Направление: {{ thesis.area }}</p>
-            <p class="text-sm mb-0"><a type="btn" href="{{url_for('writing_thesis_reports', id=thesis.id)}}">Просмотреть отчеты студента</a>
+            <p class="text-sm mb-0"><a type="btn" href="{{url_for('reports_staff', id=thesis.id)}}">Просмотреть отчеты студента</a>
             {% if thesis.reports %}
                 {% set lastReport = {'value': false} %}
                 {% for report in thesis.reports %}

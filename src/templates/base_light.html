@@ -24,6 +24,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/animate.css/animate.min.css') }}">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/@fortawesome/fontawesome-free/css/all.min.css') }} ">
+    <!-- Markdowm -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}">
+    {{ simplemde.js }}
 
     {% block head_links %}
     {% endblock %}
@@ -237,7 +240,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
-                                        <a href="{{ url_for('account_index') }}" class="list-group-item list-group-item-action" role="button">
+                                        <a href="{{ url_for('coursework_index') }}" class="list-group-item list-group-item-action" role="button">
                                             <div class="d-flex">
                                                 <!-- Media body -->
                                                 <div class="ml-3">
@@ -245,7 +248,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
-                                        <a id="coursework_staff_button" href="{{ url_for('writing_thesis_index') }}" class="list-group-item list-group-item-action" role="button">
+                                        <a id="coursework_staff_button" href="{{ url_for('index_staff') }}" class="list-group-item list-group-item-action" role="button">
                                             <div class="d-flex">
                                                 <!-- Media body -->
                                                 <div class="ml-3">

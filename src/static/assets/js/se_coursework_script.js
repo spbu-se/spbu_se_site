@@ -5,31 +5,31 @@ function UpdateReady()
     $('#index_button').click( function(event)
     {
         event.preventDefault();
-        LoadPageWithAjax('/account', 'GET', null, 'Главная');
+        LoadPageWithAjax('/coursework', 'GET', null, 'Главная');
     });
 
     $('#guide_button').click( function(event)
     {
         event.preventDefault();
-        LoadPageWithAjax('/account/guide', 'GET', null, 'Справочник');
+        LoadPageWithAjax('/coursework/guide', 'GET', null, 'Справочник');
     });
 
     $('#new_work_button').click( function(event)
     {
         event.preventDefault();
-        LoadPageWithAjax('/account/new', 'GET', null, 'Новая работа');
+        LoadPageWithAjax('/coursework/new', 'GET', null, 'Новая работа');
     });
 
     $('#edit_topic_button').click( function(event)
     {
         event.preventDefault();
-        LoadPageWithAjax('/account/edit_theme', 'GET', {id: this.name}, 'Выбор темы');
+        LoadPageWithAjax('/coursework/edit_theme', 'GET', {id: this.name}, 'Выбор темы');
     });
 
     $('#new_report_button').click( function(event)
     {
         event.preventDefault();
-        LoadPageWithAjax('/account/account_add_new_report', 'GET', {id: this.name}, 'Новый отчёт');
+        LoadPageWithAjax('/coursework/add_new_report', 'GET', {id: this.name}, 'Новый отчёт');
     });
 
     $('.nav').each(function()
@@ -43,42 +43,42 @@ function UpdateReady()
                     button.onclick = function(event)
                     {
                         event.preventDefault();
-                        LoadPageWithAjax('/account/choosing_topic', 'GET', {id: thesis_id}, 'Выбор темы');
+                        LoadPageWithAjax('/coursework/choosing_topic', 'GET', {id: thesis_id}, 'Выбор темы');
                     }
                     break;
                 case 'goals_tasks_button':
                     button.onclick = function(event)
                     {
                         event.preventDefault();
-                        LoadPageWithAjax('/account/goals_tasks', 'GET', {id: thesis_id}, 'Цели и задачи');
+                        LoadPageWithAjax('/coursework/goals_tasks', 'GET', {id: thesis_id}, 'Цели и задачи');
                     }
                     break;
                 case 'reports_button':
                     button.onclick = function(event)
                     {
                         event.preventDefault();
-                        LoadPageWithAjax('/account/workflow', 'GET', {id: thesis_id}, 'Отчётность');
+                        LoadPageWithAjax('/coursework/workflow', 'GET', {id: thesis_id}, 'Отчётность');
                     }
                     break;
                 case 'preparation_button':
                     button.onclick = function(event)
                     {
                         event.preventDefault();
-                        LoadPageWithAjax('/account/preparation_for_defense', 'GET', {id: thesis_id}, 'Подготовка к защите');
+                        LoadPageWithAjax('/coursework/preparation_for_defense', 'GET', {id: thesis_id}, 'Подготовка к защите');
                     }
                     break;
                 case 'defense_button':
                     button.onclick = function(event)
                     {
                         event.preventDefault();
-                        LoadPageWithAjax('/account/defense', 'GET', {id: thesis_id}, 'Защита');
+                        LoadPageWithAjax('/coursework/defense', 'GET', {id: thesis_id}, 'Защита');
                     }
                     break;
                 case 'data_for_practice_button':
                     button.onclick = function(event)
                     {
                         event.preventDefault();
-                        LoadPageWithAjax('/account/data_for_practice', 'GET', {id: thesis_id}, 'Настройки');
+                        LoadPageWithAjax('/coursework/data_for_practice', 'GET', {id: thesis_id}, 'Настройки');
                     }
                     break;
             }
