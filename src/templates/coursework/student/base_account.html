@@ -39,42 +39,42 @@
                                 <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
                                     <nav id="{{thesis.id}}" class="nav flex-column">
                                         <a name="choosing_topic_button" class="nav-link" href="{{ url_for('coursework_choosing_topic', id=thesis.id) }}">
-                                            {% if (request.path == "/coursework/student/choosing_topic" or request.path == "/coursework/student/edit_theme") and practice and practice.id == thesis.id %}
+                                            {% if (request.path == "/coursework/choosing_topic" or request.path == "/coursework/edit_theme") and practice and practice.id == thesis.id %}
                                             <b>Выбор темы</b>
                                             {%else%}
                                             Выбор темы
                                             {% endif %}
                                         </a>
                                         <a name="goals_tasks_button" class="nav-link" href="{{ url_for('coursework_goals_tasks', id=thesis.id) }}">
-                                            {% if request.path == "/coursework/student/goals_tasks" and practice and practice.id == thesis.id %}
+                                            {% if request.path == "/coursework/goals_tasks" and practice and practice.id == thesis.id %}
                                             <b>Цели и задачи</b>
                                             {%else%}
                                             Цели и задачи
                                             {% endif %}
                                         </a>
                                         <a name="reports_button" class="nav-link" href="{{ url_for('coursework_workflow', id=thesis.id) }}">
-                                            {% if (request.path == "/coursework/student/workflow" or request.path == "/coursework/student/coursework_add_new_report") and practice and practice.id == thesis.id %}
+                                            {% if (request.path == "/coursework/workflow" or request.path == "/coursework/add_new_report") and practice and practice.id == thesis.id %}
                                             <b>Отчётность</b>
                                             {%else%}
                                             Отчётность
                                             {% endif %}
                                         </a>
                                         <a name="preparation_button" class="nav-link" href="{{ url_for('coursework_preparation', id=thesis.id) }}">
-                                            {% if request.path == "/coursework/student/preparation_for_defense" and practice and practice.id == thesis.id %}
+                                            {% if request.path == "/coursework/preparation_for_defense" and practice and practice.id == thesis.id %}
                                             <b>Подготовка к защите</b>
                                             {%else%}
                                             Подготовка к защите
                                             {% endif %}
                                         </a>
                                         <a name="defense_button" class="nav-link" href="{{ url_for('coursework_thesis_defense', id=thesis.id) }}">
-                                            {% if request.path == "/coursework/student/defense" and practice and practice.id == thesis.id %}
+                                            {% if request.path == "/coursework/defense" and practice and practice.id == thesis.id %}
                                             <b>Защита</b>
                                             {%else%}
                                             Защита
                                             {% endif %}
                                         </a>
                                         <a name="data_for_practice_button" class="nav-link" href="{{ url_for('coursework_data_for_practice', id=thesis.id) }}">
-                                            {% if request.path == "/coursework/student/data_for_practice" and practice and practice.id == thesis.id %}
+                                            {% if request.path == "/coursework/data_for_practice" and practice and practice.id == thesis.id %}
                                             <b>Настройки</b>
                                             {%else%}
                                             Настройки
