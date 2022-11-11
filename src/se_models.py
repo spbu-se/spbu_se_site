@@ -211,11 +211,9 @@ class CurrentThesis(db.Model):
     tasks = db.relationship('ThesisTask', backref=db.backref('practice'))
 
     deleted = db.Column(db.Boolean, default=False)
-    status = db.Column(db.Integer, default=0)
-    # -1 - deleted
-    # 0 - active practice
-    # 1 - past practice
-    # 2 - send to archive of coursework
+    status = db.Column(db.Integer, default=1)
+    # 1 - active practice
+    # 2 - past practice
 
     def __repr__(self):
         return self.title

@@ -1,4 +1,6 @@
+{% if request.headers.get("X-Requested-With") != "XMLHttpRequest" %}
 {% extends "base_light.html" %}
+{% endif %}
 
 {% block content %}
 
@@ -18,13 +20,13 @@
 
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
-                                <a href="{{ url_for('index_staff') }}"><h6 class="mb-0">Текущие работы</h6></a>
+                                <a id="current_thesises_button" href="{{ url_for('index_staff') }}"><h6 class="mb-0">Текущие работы</h6></a>
                             </div>
                         </div>
 
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
-                                <a href="#"><h6 class="mb-0">Отчёты</h6></a>
+                                <a id="finished_thesises_button" href="{{ url_for('finished_thesises_staff')}}"><h6 class="mb-0">Завершённые работы</h6></a>
                             </div>
                         </div>
 

@@ -43,7 +43,7 @@ from se_sendmail import notification_send_mail, notification_send_diploma_themes
 from flask_se_coursework import coursework_index, coursework_guide, coursework_new_thesis, coursework_choosing_topic, \
     coursework_add_new_report, coursework_preparation, coursework_thesis_defense, coursework_data_for_practice, \
     coursework_edit_theme, coursework_temp, coursework_temp_deadline, coursework_workflow, coursework_goals_tasks
-from flask_se_coursework_staff import index_staff, thesis_staff, reports_staff
+from flask_se_coursework_staff import index_staff, thesis_staff, reports_staff, finished_thesises_staff
 from flask_se_coursework_admin import index_admin
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
@@ -170,9 +170,10 @@ app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=coursework_temp)
 app.add_url_rule('/temp_deadline', methods=['GET', 'POST'], view_func=coursework_temp_deadline)
 
 # Coursework staff
-app.add_url_rule('/coursework_staff', methods=['GET', 'POST'], view_func=index_staff)
+app.add_url_rule('/coursework_staff', methods=['GET'], view_func=index_staff)
 app.add_url_rule('/coursework_staff/thesis', methods=['GET', 'POST'], view_func=thesis_staff)
 app.add_url_rule('/coursework_staff/reports', methods=['GET', 'POST'], view_func=reports_staff)
+app.add_url_rule('/coursework_staff/finished_thesises', methods=['GET'], view_func=finished_thesises_staff)
 
 # Coursework admin
 app.add_url_rule('/coursework_admin', methods=['GET'], view_func=index_admin)
@@ -409,7 +410,9 @@ def sitemap():
 def who_is_user():
     if request.headers.get("X-Requested-With") != "XMLHttpRequest":
         return redirect(url_for('index'))
-    if Staff.query.filter_by(user_id=current_user.id).first():
+    if not current_user.is_authenticated:
+        return "Not authorized"
+    elif Staff.query.filter_by(user_id=current_user.id).first():
         return "staff"
     else:
         return "student"

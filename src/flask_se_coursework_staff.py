@@ -23,9 +23,18 @@ def index_staff():
     if not user_staff:
         return redirect(url_for('coursework_index'))
 
-    current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).\
+    current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(status=1).\
         outerjoin(ThesisReport, CurrentThesis.reports).order_by(desc(ThesisReport.time)).all()
     return render_template('coursework/staff/current_thesises_staff.html', thesises=current_thesises)
+
+@login_required
+def finished_thesises_staff():
+    user_staff = Staff.query.filter_by(user_id=current_user.id).first()
+    if not user_staff:
+        return redirect(url_for('coursework_index'))
+
+    current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(status=2).all()
+    return render_template('coursework/staff/finished_thesises_staff.html', thesises=current_thesises)
 
 
 @login_required
@@ -52,6 +61,12 @@ def thesis_staff():
             db.session.add(notification)
             db.session.commit()
             flash('Уведомление отправлено!', category="success")
+        elif 'submit_finish_work_button' in request.form:
+            current_thesis.status = 2
+            db.session.commit()
+        elif 'submit_restore_work_button' in request.form:
+            current_thesis.status = 1
+            db.session.commit()
 
     return render_template('coursework/staff/thesis_staff.html', thesis=current_thesis)
 

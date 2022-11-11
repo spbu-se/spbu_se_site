@@ -1,6 +1,6 @@
 {% extends "coursework/staff/base_coursework_staff.html" %}
 
-{% block title %}Текущие работы{% endblock %}
+{% block title %}Отчёты{% endblock %}
 
 {% block content_writing_thesis_staff %}
 
@@ -8,7 +8,7 @@
 
     <div class="row">
         <div class="col">
-            <h5>{{thesis.title}}</h5>
+            <h5><a id="{{thesis.id}}" name="thesis_link" href="{{ url_for('thesis_staff', id=thesis.id) }}">{{thesis.title}}</a></h5>
         </div>
     </div>
 
@@ -34,8 +34,11 @@
     <div id="accordion-2" class="accordion accordion-stacked mb-2">
 
         {% for report in reports %}
-
+        {% if report == reports[0] %}
+        <div class="card border-0">
+        {% else %}
         <div class="card border-bottom-0 border-left-0 border-right-0">
+        {% endif %}
             <div class="card-header py-4" id="{{ 'heading-'+(report.id|string())}}" data-toggle="collapse" role="button" data-target="{{ '#collapse-'+(report.id|string()) }}" aria-expanded="false" aria-controls="{{ 'collapse-'+(report.id|string()) }}">
                 <h6 class="mb-0"><i data-feather="file-text" class="mr-3"></i>Отчёт за {{ report.time|datatime_convert }}</h6>
             </div>
@@ -86,5 +89,11 @@
     {% endif %}
 
 </div>
+<script>
+    $(document).ready(function()
+    {
+        document.title = "{{ thesis.title }}";
+    });
+</script>
 
 {% endblock %}

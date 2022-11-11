@@ -2,6 +2,7 @@ $(document).ready(function(){ UpdateReady(); });
 
 function UpdateReady()
 {
+    //Coursework student
     $('#index_button').click( function(event)
     {
         event.preventDefault();
@@ -83,7 +84,37 @@ function UpdateReady()
                     break;
             }
         }
+    });
 
+    //Coursework staff
+    $('#current_thesises_button').click( function(event)
+    {
+        event.preventDefault();
+        LoadPageWithAjax('/coursework_staff', 'GET', null, 'Текущие работы');
+    });
+
+    $('#finished_thesises_button').click( function(event)
+    {
+        event.preventDefault();
+        LoadPageWithAjax('/coursework_staff/finished_thesises', 'GET', null, 'Завершённые работы');
+    });
+
+    $("a[name='thesis_link']").each(function()
+    {
+        $(this).click(function(event)
+        {
+            event.preventDefault();
+            LoadPageWithAjax('/coursework_staff/thesis', 'GET', {id: this.id}, 'Текущие работы');
+        });
+    });
+
+    $("a[name='reports_link']").each(function()
+    {
+        $(this).click(function(event)
+        {
+            event.preventDefault();
+            LoadPageWithAjax('/coursework_staff/reports', 'GET', {id: this.id}, 'Отчёты');
+        });
     });
 
     $("input[type='file']").each(function()
