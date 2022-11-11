@@ -51,7 +51,7 @@
         {% if context[t] %}
             <p class="text-sm" >Контекст:
                 {% for word in context[t] %}
-                    {% if word == search.lower() %}
+                    {% if search.lower().strip() in word %}
                         <mark>{{word}}</mark>
                     {% else %}
                         <i> {{word}} <i>

@@ -160,7 +160,7 @@ def get_text(filename):
         page = doc.load_page(current_page)
         text += page.get_text('text').lower() + '\n'
         text = text.replace('-\n', '')
-        text = re.sub(r'[0-9]', '', text)
+        text = re.sub(r'[^a-z а-я \n : / . () # - ]', '', text)
 
     return text
 
