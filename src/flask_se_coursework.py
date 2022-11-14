@@ -20,6 +20,7 @@ from se_models import Users, AreasOfStudy, CurrentThesis, Staff, Worktype, Notif
 
 # Global variables
 formatDateTime = "%d.%m.%Y %H:%M"
+TEXT_UPLOAD_FOLDER = 'static/currentThesis/texts/'
 REVIEW_UPLOAD_FOLDER = 'static/currentThesis/reviews/'
 PRESENTATION_UPLOAD_FOLDER = 'static/currentThesis/slides/'
 ALLOWED_EXTENSIONS = {'pdf'}
@@ -107,7 +108,7 @@ def coursework_temp_deadline():
                     for currentThesis in current_thesises:
                         notification = NotificationAccount()
                         notification.recipient_id = currentThesis.author_id
-                        notification.content = first_word + " дедлайн на загрузку отхывов для " + \
+                        notification.content = first_word + " дедлайн на загрузку отзывов для " + \
                                                Worktype.query.filter_by(id=worktype_id).first().type + \
                                                " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
                                                ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
@@ -122,7 +123,7 @@ def coursework_temp_deadline():
                     if not deadline.pre_defense:
                         first_word = "Назначено"
                     elif deadline.pre_defense.replace(tzinfo=pytz.UTC) != new_deadline:
-                        first_word = "Изменёно"
+                        first_word = "Изменено"
 
                     deadline.pre_defense = new_deadline
                     for currentThesis in current_thesises:
@@ -143,7 +144,7 @@ def coursework_temp_deadline():
                     if not deadline.defense:
                         first_word = "Назначено"
                     elif deadline.defense.replace(tzinfo=pytz.UTC) != new_deadline:
-                        first_word = "Изменёно"
+                        first_word = "Изменено"
 
                     deadline.defense = new_deadline
                     for currentThesis in current_thesises:
@@ -463,7 +464,86 @@ def coursework_preparation():
         return redirect(url_for('coursework_index'))
 
     if request.method == 'POST':
-        if 'submit_review_button' in request.form:
+        if 'submit_text_button' in request.form:
+            text_file = werkzeug.datastructures.FileStorage()
+            if 'text' in request.files:
+                text_file = request.files['text']
+
+            if not current_thesis.text_uri and current_thesis.text_link:
+                if text_file.filename:
+                    if text_file and not allowed_file(text_file.filename):
+                        flash("Текст должен быть в формате .PDF", category='error')
+                    else:
+                        if text_file:
+                            author_en = translit(current_user.get_name(), 'ru', reversed=True)
+                            author_en = author_en.replace(" ", "_")
+                            text_filename = author_en + '_' + get_thesis_type_id_string(current_thesis.worktype_id)
+
+                            text_filename = text_filename + '_' + str(date.today().year) + '_text'
+                            text_filename_with_ext = text_filename + '.pdf'
+                            full_text_filename = os.path.join(TEXT_UPLOAD_FOLDER + text_filename_with_ext)
+
+                            # Check if file already exist
+                            if os.path.isfile(full_text_filename):
+                                text_filename = text_filename + '_' + str(os.urandom(8).hex())
+                                text_filename_with_ext = text_filename + '.pdf'
+                                full_text_filename = os.path.join(
+                                    TEXT_UPLOAD_FOLDER + text_filename_with_ext)
+
+                            text_file.save(full_text_filename)
+
+                            current_thesis.text_uri = text_filename_with_ext
+                            db.session.commit()
+                            flash('Текст успешно загружен!', category='success')
+                else:
+                    flash('Вы не загрузили текст работы.', category='error')
+
+            elif current_thesis.text_uri and not current_thesis.text_link:
+                if request.form['text_link']:
+                    text_link = request.form['text_link']
+                    current_thesis.text_link = text_link
+                    db.session.commit()
+                    flash('Ссылка на текст работы сохранена!', category='success')
+                else:
+                    flash('Вы не указали ссылку на текст;', category='error')
+
+            elif not current_thesis.text_uri and not current_thesis.text_link:
+                if not request.form['text_link'] and not text_file.filename:
+                    flash('Вы не загрузили текст работы и не указали ссылку на текст.', category='error')
+                else:
+                    if request.form['text_link']:
+                        text_link = request.form['text_link']
+                        current_thesis.text_link = text_link
+                        db.session.commit()
+                        flash('Ссылка на текст работы сохранена!', category='success')
+
+                    if text_file.filename:
+                        if text_file and not allowed_file(text_file.filename):
+                            flash("Текст должен быть в формате .PDF", category='error')
+                        else:
+                            if text_file:
+                                author_en = translit(current_user.get_name(), 'ru', reversed=True)
+                                author_en = author_en.replace(" ", "_")
+                                text_filename = author_en + '_' + get_thesis_type_id_string(current_thesis.worktype_id)
+
+                                text_filename = text_filename + '_' + str(date.today().year) + '_text'
+                                text_filename_with_ext = text_filename + '.pdf'
+                                full_text_filename = os.path.join(TEXT_UPLOAD_FOLDER + text_filename_with_ext)
+
+                                # Check if file already exist
+                                if os.path.isfile(full_text_filename):
+                                    text_filename = text_filename + '_' + str(os.urandom(8).hex())
+                                    text_filename_with_ext = text_filename + '.pdf'
+                                    full_text_filename = os.path.join(
+                                        TEXT_UPLOAD_FOLDER + text_filename_with_ext)
+
+                                text_file.save(full_text_filename)
+
+                                current_thesis.text_uri = text_filename_with_ext
+                                db.session.commit()
+                                flash('Текст успешно загружен!', category='success')
+
+        elif 'submit_review_button' in request.form:
             supervisor_review_file = werkzeug.datastructures.FileStorage()
             consultant_review_file = werkzeug.datastructures.FileStorage()
             if 'supervisor_review' in request.files:
@@ -523,36 +603,95 @@ def coursework_preparation():
             if 'presentation' in request.files:
                 presentation_file = request.files['presentation']
 
-            if presentation_file.filename == '':
-                flash('Вы не загрузили презентацию.', category='error')
-            elif presentation_file and not allowed_file(presentation_file.filename):
-                flash("Презентация должна быть в формате .PDF", category='error')
-            else:
-                if presentation_file:
-                    author_en = translit(current_user.get_name(), 'ru', reversed=True)
-                    author_en = author_en.replace(" ", "_")
-                    presentation_filename = author_en + '_' + get_thesis_type_id_string(current_thesis.worktype_id)
+            if not current_thesis.presentation_uri and current_thesis.presentation_link:
+                if presentation_file.filename:
+                    if presentation_file and not allowed_file(presentation_file.filename):
+                        flash("Презентация должна быть в формате .PDF", category='error')
+                    else:
+                        if presentation_file:
+                            author_en = translit(current_user.get_name(), 'ru', reversed=True)
+                            author_en = author_en.replace(" ", "_")
+                            presentation_filename = author_en + '_' + get_thesis_type_id_string(
+                                current_thesis.worktype_id)
 
-                    presentation_filename = presentation_filename + '_' + str(date.today().year) + '_slides'
-                    presentation_filename_with_ext = presentation_filename + '.pdf'
-                    full_presentation_filename = os.path.join(
-                        PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
+                            presentation_filename = presentation_filename + '_' + str(date.today().year) + '_slides'
+                            presentation_filename_with_ext = presentation_filename + '.pdf'
+                            full_presentation_filename = os.path.join(
+                                PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
 
-                    # Check if file already exist
-                    if os.path.isfile(full_presentation_filename):
-                        presentation_filename = presentation_filename + '_' + str(os.urandom(8).hex())
-                        presentation_filename_with_ext = presentation_filename + '.pdf'
-                        full_presentation_filename = os.path.join(
-                            PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
+                            # Check if file already exist
+                            if os.path.isfile(full_presentation_filename):
+                                presentation_filename = presentation_filename + '_' + str(os.urandom(8).hex())
+                                presentation_filename_with_ext = presentation_filename + '.pdf'
+                                full_presentation_filename = os.path.join(
+                                    PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
 
-                    presentation_file.save(full_presentation_filename)
+                            presentation_file.save(full_presentation_filename)
 
-                    current_thesis.presentation_uri = presentation_filename_with_ext
+                            current_thesis.presentation_uri = presentation_filename_with_ext
+                            db.session.commit()
+                            flash('Презентация успешно загружена!', category='success')
+                else:
+                    flash('Вы не загрузили презентацию.', category='error')
+
+            elif current_thesis.presentation_uri and not current_thesis.presentation_link:
+                if request.form['presentation_link']:
+                    presentation_link = request.form['presentation_link']
+                    current_thesis.presentation_link = presentation_link
                     db.session.commit()
-                    flash('Презентация успешно загружена!', category='success')
+                    flash('Ссылка на презентацию сохранена!', category='success')
+                else:
+                    flash('Вы не указали ссылку на презентацию;', category='error')
 
+            elif not current_thesis.presentation_uri and not current_thesis.presentation_link:
+                if not request.form['presentation_link'] and not presentation_file.filename:
+                    flash('Вы не загрузили презентацию и не указали ссылку на неё.', category='error')
+                else:
+                    if request.form['presentation_link']:
+                        presentation_link = request.form['presentation_link']
+                        current_thesis.presentation_link = presentation_link
+                        db.session.commit()
+                        flash('Ссылка на презентацию сохранена!', category='success')
+
+                    if presentation_file.filename:
+                        if presentation_file and not allowed_file(presentation_file.filename):
+                            flash("Презентация должна быть в формате .PDF", category='error')
+                        else:
+                            if presentation_file:
+                                author_en = translit(current_user.get_name(), 'ru', reversed=True)
+                                author_en = author_en.replace(" ", "_")
+                                presentation_filename = author_en + '_' + get_thesis_type_id_string(
+                                    current_thesis.worktype_id)
+
+                                presentation_filename = presentation_filename + '_' + str(date.today().year) + '_slides'
+                                presentation_filename_with_ext = presentation_filename + '.pdf'
+                                full_presentation_filename = os.path.join(
+                                    PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
+
+                                # Check if file already exist
+                                if os.path.isfile(full_presentation_filename):
+                                    presentation_filename = presentation_filename + '_' + str(os.urandom(8).hex())
+                                    presentation_filename_with_ext = presentation_filename + '.pdf'
+                                    full_presentation_filename = os.path.join(
+                                        PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
+
+                                presentation_file.save(full_presentation_filename)
+
+                                current_thesis.presentation_uri = presentation_filename_with_ext
+                                db.session.commit()
+                                flash('Презентация успешно загружена!', category='success')
+
+        elif 'delete_text_button' in request.form:
+            current_thesis.text_uri = None
+            db.session.commit()
+        elif 'delete_text_link_button' in request.form:
+            current_thesis.text_link = None
+            db.session.commit()
         elif 'delete_presentation_button' in request.form:
             current_thesis.presentation_uri = None
+            db.session.commit()
+        elif 'delete_presentation_link_button' in request.form:
+            current_thesis.presentation_link = None
             db.session.commit()
         elif 'delete_reviewer_review_button' in request.form:
             current_thesis.reviewer_review_uri = None
@@ -561,11 +700,11 @@ def coursework_preparation():
             current_thesis.supervisor_review_uri = None
             db.session.commit()
 
-    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id). \
+    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).\
         filter_by(area_id=current_thesis.area_id).first()
 
-    return render_template('coursework/student/preparation.html', thesises=get_list_of_thesises(), practice=current_thesis,
-                           deadline=deadline,
+    return render_template('coursework/student/preparation.html', thesises=get_list_of_thesises(),
+                           practice=current_thesis, deadline=deadline,
                            remaining_time_submit=get_remaining_time(deadline, "submit_work_for_review"),
                            remaining_time_upload=get_remaining_time(deadline, "upload_reviews"))
 

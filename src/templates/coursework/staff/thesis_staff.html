@@ -31,6 +31,19 @@
                 <div class="card-body py-3">
                     <h6 class="mb-0">Материалы работы</h6>
 
+                    {% if thesis.text_uri %}
+                    <div class="row px-2 mt-2">
+                        <div class="col">
+                            <a href="{{ url_for('static', filename='/currentThesis/texts/' + thesis.text_uri) }}" target="_blank">
+                                <div class="icon icon-sm icon-shape bg-soft-success text-success mr-2">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                                Текст работы
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     {% if thesis.supervisor_review_uri %}
                     <div class="row px-2 mt-2">
                         <div class="col">
@@ -65,6 +78,32 @@
                                     <i class="fas fa-file-powerpoint"></i>
                                 </div>
                                 Презентация
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if thesis.text_link %}
+                    <div class="row px-2 mt-2">
+                        <div class="col-10">
+                            <a href="{{ thesis.text_link }}" target="_blank">
+                                <div class="icon icon-sm icon-shape mr-2">
+                                    <i data-feather="external-link"></i>
+                                </div>
+                                Ссылка на текст работы
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if thesis.presentation_link %}
+                    <div class="row px-2 mt-2">
+                        <div class="col-10">
+                            <a href="{{ thesis.presentation_link }}" target="_blank">
+                                <div class="icon icon-sm icon-shape mr-2">
+                                    <i data-feather="external-link"></i>
+                                </div>
+                                Ссылка на презентацию
                             </a>
                         </div>
                     </div>

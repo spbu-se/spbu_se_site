@@ -23,6 +23,12 @@
                     <span>Выберите тему работы и научного руководителя</span>
                 </li>
                 {% endif %}
+                {% if not practice.text_uri %}
+                <li>
+                    <span class="text-warning"><i data-feather="alert-triangle"></i></span>
+                    <span>Загрузите текст работы</span>
+                </li>
+                {% endif %}
                 {% if not practice.supervisor_review_uri %}
                 <li>
                     <span class="text-warning"><i data-feather="alert-triangle"></i></span>

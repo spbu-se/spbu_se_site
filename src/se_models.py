@@ -203,9 +203,13 @@ class CurrentThesis(db.Model):
 
     goal = db.Column(db.String(2048), nullable=True)
 
+    text_uri = db.Column(db.String(512), nullable=True)
     supervisor_review_uri = db.Column(db.String(512), nullable=True)
     reviewer_review_uri = db.Column(db.String(512), nullable=True)
     presentation_uri = db.Column(db.String(512), nullable=True)
+
+    text_link = db.Column(db.String(2048), nullable=True)
+    presentation_link = db.Column(db.String(2048), nullable=True)
 
     reports = db.relationship('ThesisReport', backref=db.backref('practice'))
     tasks = db.relationship('ThesisTask', backref=db.backref('practice'))
