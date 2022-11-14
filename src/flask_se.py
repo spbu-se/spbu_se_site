@@ -2,6 +2,7 @@
 
 import sys
 from datetime import datetime
+import tzlocal
 
 import pytz
 from dateutil import tz
@@ -17,30 +18,30 @@ from flask_simplemde import SimpleMDE
 
 import flask_se_theses
 from flask_se_config import SECRET_KEY_THESIS, SECRET_KEY, SQLITE_DATABASE_NAME, plural_hours, get_hours_since
-from se_models import db, search, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, Posts, \
-    DiplomaThemes, recalculate_post_rank, Reviewer
+from se_models import db, search, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, Posts, DiplomaThemes, recalculate_post_rank
 from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, \
     logout, vk_callback, google_login, google_callback
 from flask_se_news import list_news, get_post, submit_post, post_vote, delete_post
 from flask_se_admin import SeAdminModelViewThesis, SeAdminIndexView, SeAdminModelViewUsers, \
     SeAdminModelViewSummerSchool, SeAdminModelViewStaff, SeAdminModelViewNews, SeAdminModelViewDiplomaThemes, \
-    SeAdminModelViewReviewDiplomaThemes, SeAdminModelViewReviewer
+    SeAdminModelViewReviewDiplomaThemes
 from flask_se_scholarships import get_scholarships_1, get_scholarships_2, get_scholarships_3, get_scholarships_4, \
     get_scholarships_5, get_scholarships_6, get_scholarships_7, get_scholarships_8, get_scholarships_9, \
     get_scholarships_10, get_scholarships_11, get_scholarships_12, get_scholarships_13
 from flask_se_diplomas import diplomas_index, get_theme, add_user_theme, user_diplomas_index, delete_theme, \
     edit_user_theme, fetch_themes, archive_theme, unarchive_theme
+
 from flask_se_review import submit_thesis_on_review, thesis_review_index, edit_thesis_on_review, \
     delete_thesis_on_review, review_thesis_on_review, review_submit_review, review_result_thesis_on_review, \
     fetch_thesis_on_review, review_become_thesis_reviewer_ask, review_become_thesis_reviewer_confirm
 from flask_se_internships import add_internship, internships_index, page_internship, delete_internship, \
-    update_internship, fetch_internships
+    update_internship, fetch_internships, old_internships_index
 
 from se_sendmail import notification_send_mail, notification_send_diploma_themes_on_review
 from flask_se_account import account_index, account_guide, account_new_thesis, account_choosing_topic, \
-    account_workflow, account_preparation, account_thesis_defense, account_materials, account_data_for_practice, \
-    account_edit_theme, account_temp, account_temp_deadline
-    
+    account_add_new_report, account_preparation, account_thesis_defense, account_data_for_practice, \
+    account_edit_theme, account_temp, account_temp_deadline, account_workflow
+from flask_se_writing_thesis_staff import writing_thesis_index, writing_thesis_thesis, writing_thesis_reports
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -142,7 +143,8 @@ app.add_url_rule('/review/become_thesis_reviewer_confirm', methods=['GET'],
 
 
 # Internships
-app.add_url_rule('/internships/index', methods=['GET', 'POST'], view_func=internships_index)
+app.add_url_rule('/internships/index', methods=['GET'], view_func=old_internships_index)
+app.add_url_rule('/internships/internships_index.html', methods=['GET'], view_func=internships_index)
 app.add_url_rule('/internships/fetch_internships', methods=['GET'], view_func=fetch_internships)
 app.add_url_rule('/internships/add', methods=['GET', 'POST'], view_func=add_internship)
 app.add_url_rule('/internships/<int:id>', methods=['GET', 'POST'], view_func=page_internship)
@@ -157,12 +159,18 @@ app.add_url_rule('/account/new', methods=['GET', 'POST'], view_func=account_new_
 app.add_url_rule('/account/data_for_practice', methods=['GET', 'POST'], view_func=account_data_for_practice)
 app.add_url_rule('/account/choosing_topic', methods=['GET', 'POST'], view_func=account_choosing_topic)
 app.add_url_rule('/account/edit_theme', methods=['GET', 'POST'], view_func=account_edit_theme)
-app.add_url_rule('/account/account_workflow', methods=['GET', 'POST'], view_func=account_workflow)
-app.add_url_rule('/account/preparation_for_defense', methods=['GET'], view_func=account_preparation)
+app.add_url_rule('/account/account_add_new_report', methods=['GET', 'POST'], view_func=account_add_new_report)
+app.add_url_rule('/account/workflow', methods=['GET', 'POST'], view_func=account_workflow)
+app.add_url_rule('/account/preparation_for_defense', methods=['GET', 'POST'], view_func=account_preparation)
 app.add_url_rule('/account/defense', methods=['GET'], view_func=account_thesis_defense)
-app.add_url_rule('/account/account_materials', methods=['GET'], view_func=account_materials)
 app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=account_temp)
 app.add_url_rule('/temp_deadline', methods=['GET', 'POST'], view_func=account_temp_deadline)
+
+
+# Writing_thesis_staff
+app.add_url_rule('/writing_thesis_staff', methods=['GET', 'POST'], view_func=writing_thesis_index)
+app.add_url_rule('/writing_thesis_staff/thesis', methods=['GET', 'POST'], view_func=writing_thesis_thesis)
+app.add_url_rule('/writing_thesis_staff/reports', methods=['GET', 'POST'], view_func=writing_thesis_reports)
 
 
 # Init Database
@@ -172,6 +180,8 @@ db.init_app(app)
 app.config['MSEARCH_BACKEND'] = 'whoosh'
 app.config['MSEARCH_ENABLE'] = True
 search.init_app(app)
+# search.create_index(Thesis, update=True)
+# search.create_index(Users, update=True)
 #search.create_index(Thesis, update=True)
 #search.create_index(Users, update=True)
 
@@ -209,7 +219,6 @@ admin.add_view(SeAdminModelViewStaff(Staff, db.session))
 admin.add_view(SeAdminModelViewThesis(Thesis, db.session))
 admin.add_view(SeAdminModelViewSummerSchool(SummerSchool, db.session))
 admin.add_view(SeAdminModelViewNews(Posts, db.session))
-admin.add_view(SeAdminModelViewReviewer(Reviewer, db.session))
 admin.add_view(SeAdminModelViewDiplomaThemes(DiplomaThemes, db.session, endpoint="diplomathemes"))
 admin.add_view(SeAdminModelViewReviewDiplomaThemes(DiplomaThemes, db.session, endpoint="reviewdiplomathemes", name="Review DiplomaThemes"))
 
@@ -399,4 +408,4 @@ if __name__ == "__main__":
         elif sys.argv[1] == "init":
             init_db()
     else:
-        app.run(port=5000)
+        app.run(port=5000, debug=True)

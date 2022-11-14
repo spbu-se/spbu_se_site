@@ -2,8 +2,11 @@
 from datetime import datetime
 
 from flask_wtf import FlaskForm
+
 from wtforms import SelectField, StringField, SelectMultipleField, DateTimeField, widgets, validators
+
 from flask_wtf.file import FileField, FileRequired
+from wtforms import SelectField, StringField, SelectMultipleField, RadioField, widgets
 from wtforms.widgets import TextArea
 from wtforms.validators import DataRequired
 
@@ -88,36 +91,37 @@ class Lecture(FlaskForm):
 
 class AddInternship(FlaskForm):
     requirements = StringField('requirements', widget=TextArea())
-    company = StringField('company')
+    company = SelectField('company', choices=[])
     name_vacancy = StringField('name_vacancy')
     salary = StringField('salary')
     location = StringField('location')
     more_inf = StringField('more_inf')
     description = StringField('description', widget=TextArea())
     format = MultiCheckboxField('format', coerce=int)
+    tag = StringField('tag')
 
 
 class InternshipsFilter(FlaskForm):
     format = SelectField('format', choices=[])
     company = SelectField('company', choices=[])
     language = SelectField('language', choices=[])
-    
+    tag = SelectField('tag', choices=[])
 
+    
 # Account forms
-class CurrentCourseArea(FlaskForm):
+class CurrentWorktypeArea(FlaskForm):
+    worktype = SelectField('worktype', choices=[])
     area = SelectField('area', choices=[])
-    course = SelectField('course', choices=[])
 
 
 class ChooseTopic(FlaskForm):
     topic = StringField('topic', description='Например, реализация алгоритма контекстно-свободной достижимости на OpenCL')
     staff = SelectField('staff', choices=[])
-    worktype = SelectField('worktype', choices=[])
 
 
 class DeadlineTemp(FlaskForm):
     area = SelectField('area', choices=[], validators=[validators.Optional()])
-    course = SelectField('course', choices=[], validators=[validators.Optional()])
+    worktype = SelectField('worktype', choices=[], validators=[validators.Optional()])
     choose_topic = DateTimeField('choose_topic')
     submit_work_for_review = DateTimeField('submit_work_for_review')
     upload_reviews = DateTimeField('upload_reviews')
@@ -133,3 +137,8 @@ class UserAddReport(FlaskForm):
     planned_to_do = StringField('planned_to_do', description='Например: В ближайшее время планирую дописать введение, '
                                                              'изучить MySQL по курсам на Stepik, составить схему баз '
                                                              'данных для моего проекта.', widget=TextArea())
+
+
+class StaffAddCommentToReport(FlaskForm):
+    comment = StringField('comment', description='Дайте студенту обратную связь по отчету, если хотите.',
+                          widget=TextArea())

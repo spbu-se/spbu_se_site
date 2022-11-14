@@ -90,15 +90,15 @@ def submit_thesis_on_review():
         area_of_study = request.form.get('area', type=int)
 
         if not title:
-            flash ("Укажите название вашей работы", 'error')
+            flash("Укажите название вашей работы", 'error')
             return redirect(request.url)
 
         if worktype <= 0 or worktype > ThesisOnReviewWorktype.query.distinct().count():
-            flash ("Укажите тип работы", 'error')
+            flash("Укажите тип работы", 'error')
             return redirect(request.url)
 
         if area_of_study <= 0 or area_of_study > AreasOfStudy.query.distinct().count():
-            flash ("Укажите направление вашего обучения", 'error')
+            flash("Укажите направление вашего обучения", 'error')
             return redirect(request.url)
 
         # check if the post request has the file part
