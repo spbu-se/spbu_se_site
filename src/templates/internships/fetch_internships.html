@@ -3,17 +3,20 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col">
-            {% if i.more_inf %}
-              <h4 class="text mt-3">
-                {% if i.author_id == user.id %}
-                  <a href="/internships/{{ i.id }}" target="_blank"> <strong> {{i.name_vacancy}} </strong></a>
-                {% else %}
-                  <a href="{{ i.more_inf }}" target="_blank"> <strong> {{i.name_vacancy}}</strong></a>
-                {% endif %}
-              </h4>
-            {% else %}
-              <h4 class="text mt-3"> <a href="/internships/{{ i.id }}" target="_blank"> <strong> {{i.name_vacancy}}</strong></a></h4>
-            {% endif %}
+            <h4 class="text mt-3">
+              {% if i.more_inf %}
+                <a href="{{ i.more_inf }}" target="_blank">
+              {% else %}
+                <a href="/internships/{{ i.id }}" target="_blank"> 
+              {% endif %}
+                <strong> 
+                  {{i.name_vacancy}} 
+                  {% if i.author_id == user.id %}
+                    <a href="/internships/{{ i.id }}" target="_blank"><img src="/images/redact.png" style="height: 15px"></a> 
+                  {% endif %}
+                </strong></a>
+            </h4>
+
           </div>
           <div class="col-auto ml-auto text-right">
             <img src="/images/logos/{{i.company.logo_uri}}" style="height: 50px">
