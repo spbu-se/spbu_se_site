@@ -4,6 +4,8 @@ import json
 import logging
 import os
 import random
+import re
+import fitz
 from os.path import splitext
 from urllib.parse import urlparse
 
@@ -38,7 +40,8 @@ def theses_search():
         filter.course.choices.append((sid[0], course.name))
         filter.course.choices.sort(key=lambda tup: tup[1])
 
-    dates = [theses.publish_year for theses in Thesis.query.filter(Thesis.temporary == False).with_entities(Thesis.publish_year).distinct()]
+    dates = [theses.publish_year for theses in
+             Thesis.query.filter(Thesis.temporary == False).with_entities(Thesis.publish_year).distinct()]
     dates.sort(reverse=True)
     filter.startdate.choices = dates
     filter.enddate.choices = dates
@@ -77,8 +80,10 @@ def fetch_theses():
     supervisor = request.args.get('supervisor', default=0, type=int)
     course = request.args.get('course', default=0, type=int)
     search = request.args.get('search', default='', type=str)
+    context = {}
 
-    dates = [theses.publish_year for theses in Thesis.query.filter(Thesis.temporary == False).with_entities(Thesis.publish_year).distinct()]
+    dates = [theses.publish_year for theses in
+             Thesis.query.filter(Thesis.temporary == False).with_entities(Thesis.publish_year).distinct()]
     dates.sort(reverse=True)
 
     if dates:
@@ -118,11 +123,46 @@ def fetch_theses():
         records = records.paginate(per_page=10, page=page, error_out=False)
 
     if len(records.items):
+        first_priority = []
+        second_priority = []
+        third_priority = []
+
+        for item in records.items:
+            text_index = item.text.find(search.lower())
+            search_in_name = str(item.name_ru).lower().find(search.lower()) != -1 or str(item.description).lower().find(search.lower()) != -1 or str(item.author).lower().find(search.lower()) != -1
+
+            if search_in_name and text_index != -1:
+                first_priority.append(item)
+            elif search_in_name:
+                second_priority.append(item)
+            else:
+                third_priority.append(item)
+
+            if text_index != -1:
+                left_space_index = item.text.find(' ', text_index - 60)
+                right_space_index = item.text.find(' ', text_index + 60)
+                context[item] = item.text[left_space_index:right_space_index].split()
+
+        records.items = first_priority + second_priority + third_priority
+
         return render_template('fetch_theses.html', theses=records, worktype=worktype, course=course,
-                               startdate=startdate, enddate=enddate, supervisor=supervisor, search=search)
+                               startdate=startdate, enddate=enddate, supervisor=supervisor, search=search
+                               , context=context)
     else:
         return render_template('fetch_theses_blank.html')
 
+
+def get_text(filename):
+    doc = fitz.open(filename)
+    text = ''
+
+    for current_page in range(3, len(doc)):
+        page = doc.load_page(current_page)
+        text += page.get_text('text').lower() + '\n'
+        text = text.replace('-\n', '')
+        text = re.sub(r'[^a-z а-я \n : / . () # - ]', '', text)
+
+    return text
 
 # Download thesis link
 def download_thesis():
@@ -272,6 +312,8 @@ def post_theses():
     # Save file to TMP
     thesis_text.save(os.path.join('./static/tmp/texts/', thesis_filename))
 
+    text = get_text(os.path.join('./static/tmp/texts/', thesis_filename))
+
     if presentation:
         presentation_filename = author_en
         presentation_filename = presentation_filename + '_' + type_id_string[type_id-1]
@@ -311,14 +353,14 @@ def post_theses():
                    supervisor_review_uri=supervisor_review_filename, reviewer_review_uri=reviewer_review_filename,
                    author=author, supervisor_id=supervisor_id, reviewer_id=2,
                    publish_year=publish_year, type_id=type_id, course_id=course_id, source_uri=source_uri,
-                   temporary=True)
+                   temporary=True, text=text)
     else:
         t = Thesis(name_ru=name_ru, text_uri=thesis_filename,
                    presentation_uri=presentation_filename,
                    supervisor_review_uri=supervisor_review_filename, reviewer_review_uri=reviewer_review_filename,
                    author=author, supervisor_id=supervisor_id, reviewer_id=2,
                    publish_year=publish_year, type_id=type_id, course_id=course_id,
-                   temporary=True)
+                   temporary=True, text=text)
 
     db.session.add(t)
 
