@@ -15,7 +15,6 @@ from transliterate import translit
 from flask_se_auth import login_required
 from flask_se_config import get_thesis_type_id_string
 from se_forms import ChooseTopic, DeadlineTemp, UserAddReport, CurrentWorktypeArea, AddGoal, AddTask
-
 from se_models import Users, AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationCoursework, Deadline, db, \
     ThesisReport, ThesisTask, add_mail_notification
 
@@ -54,11 +53,8 @@ def coursework_temp_deadline():
             current_thesises = CurrentThesis.query.filter_by(worktype_id=worktype_id).filter_by(area_id=area_id).all()
 
             if request.form.get('choose_topic'):
-
-                new_deadline = datetime.strptime(request.form.get('choose_topic'), "%Y-%m-%dT%H:%M").astimezone(
-                    pytz.UTC)
-                if not deadline.choose_topic or deadline.choose_topic and \
-                        deadline.choose_topic.replace(tzinfo=pytz.UTC) != new_deadline:
+                new_deadline = datetime.strptime(request.form.get('choose_topic'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
+                if not deadline.choose_topic or deadline.choose_topic and deadline.choose_topic.replace(tzinfo=pytz.UTC) != new_deadline:
                     first_word = ""
                     if not deadline.choose_topic:
                         first_word = "Назначен"
@@ -67,14 +63,12 @@ def coursework_temp_deadline():
 
                     deadline.choose_topic = new_deadline
                     for currentThesis in current_thesises:
-
                         notification = NotificationCoursework()
                         notification.recipient_id = currentThesis.author_id
-
-                        notification.content = first_word + " дедлайн на выбор темы для " + Worktype.query. \
-                            filter_by(id=worktype_id).first().type + " для направления " + AreasOfStudy.query.\
-                            filter_by(id=area_id).first().area + ": **" + new_deadline.replace(tzinfo=pytz.UTC).\
-                            astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
+                        notification.content = first_word + " дедлайн на выбор темы для " + \
+                                               Worktype.query.filter_by(id=worktype_id).first().type + \
+                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
+                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
                         add_mail_notification(currentThesis.author_id,
                                               "[SE site] " + first_word + " дедлайн на выбор темы",
                                               notification.content.replace('**', ''))
@@ -85,9 +79,7 @@ def coursework_temp_deadline():
                 new_deadline = datetime.strptime(request.form.get('submit_work_for_review'),
                                                  "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
                 if not deadline.submit_work_for_review or \
-
-                        deadline.submit_work_for_review and deadline.submit_work_for_review.replace(tzinfo=pytz.UTC) \
-                        != new_deadline:
+                        deadline.submit_work_for_review and deadline.submit_work_for_review.replace(tzinfo=pytz.UTC) != new_deadline:
                     first_word = ""
                     if not deadline.submit_work_for_review:
                         first_word = "Назначен"
@@ -96,15 +88,12 @@ def coursework_temp_deadline():
 
                     deadline.submit_work_for_review = new_deadline
                     for currentThesis in current_thesises:
-
                         notification = NotificationCoursework()
                         notification.recipient_id = currentThesis.author_id
                         notification.content = first_word + " дедлайн на отправку работы для рецензирования для " + \
-
-                            Worktype.query.filter_by(id=worktype_id).first().type + " для направления " + \
-                            AreasOfStudy.query.filter_by(id=area_id).first().area + ": **" + new_deadline.\
-                            replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + \
-                            " МСК**"
+                                               Worktype.query.filter_by(id=worktype_id).first().type + \
+                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
+                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
                         add_mail_notification(currentThesis.author_id,
                                               "[SE site] " + first_word + " дедлайн на отправку работы на рецензирование",
                                               notification.content.replace('**', ''))
@@ -112,9 +101,7 @@ def coursework_temp_deadline():
                         db.session.add(notification)
 
             if request.form.get('upload_reviews'):
-
-                new_deadline = datetime.strptime(request.form.get('upload_reviews'), "%Y-%m-%dT%H:%M").astimezone(
-                    pytz.UTC)
+                new_deadline = datetime.strptime(request.form.get('upload_reviews'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
                 if not deadline.upload_reviews or \
                         deadline.upload_reviews and deadline.upload_reviews.replace(tzinfo=pytz.UTC) != new_deadline:
                     first_word = ""
@@ -125,14 +112,12 @@ def coursework_temp_deadline():
 
                     deadline.upload_reviews = new_deadline
                     for currentThesis in current_thesises:
-
                         notification = NotificationCoursework()
                         notification.recipient_id = currentThesis.author_id
-
-                        notification.content = first_word + " дедлайн на загрузку отзывов для " + Worktype.query. \
-                            filter_by(id=worktype_id).first().type + " для направления " + AreasOfStudy.query.\
-                            filter_by(id=area_id).first().area + ": **" + new_deadline.replace(tzinfo=pytz.UTC).\
-                            astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
+                        notification.content = first_word + " дедлайн на загрузку отзывов для " + \
+                                               Worktype.query.filter_by(id=worktype_id).first().type + \
+                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
+                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
                         add_mail_notification(currentThesis.author_id,
                                               "[SE site] " + first_word + " дедлайн на загрузку отзывов",
                                               notification.content.replace('**', ''))
@@ -151,14 +136,12 @@ def coursework_temp_deadline():
 
                     deadline.pre_defense = new_deadline
                     for currentThesis in current_thesises:
-
                         notification = NotificationCoursework()
                         notification.recipient_id = currentThesis.author_id
-
-                        notification.content = first_word + " время предзащиты для " + Worktype.query.\
-                            filter_by(id=worktype_id).first().type + " для направления " + AreasOfStudy.query.\
-                            filter_by(id=area_id).first().area + ": **" + new_deadline.replace(tzinfo=pytz.UTC).\
-                            astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
+                        notification.content = first_word + " время предзащиты для " + \
+                                               Worktype.query.filter_by(id=worktype_id).first().type + \
+                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
+                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
                         add_mail_notification(currentThesis.author_id,
                                               "[SE site] " + first_word + " время предзащиты",
                                               notification.content.replace('**', ''))
@@ -176,14 +159,12 @@ def coursework_temp_deadline():
 
                     deadline.defense = new_deadline
                     for currentThesis in current_thesises:
-
                         notification = NotificationCoursework()
                         notification.recipient_id = currentThesis.author_id
-
-                        notification.content = first_word + " время защиты для " + Worktype.query.\
-                            filter_by(id=worktype_id).first().type + " для направления " + AreasOfStudy.query.\
-                            filter_by(id=area_id).first().area + ": **" + new_deadline.replace(tzinfo=pytz.UTC).\
-                            astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
+                        notification.content = first_word + " время защиты для " + \
+                                               Worktype.query.filter_by(id=worktype_id).first().type + \
+                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
+                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
                         add_mail_notification(currentThesis.author_id,
                                               "[SE site] " + first_word + " время защиты",
                                               notification.content.replace('**', ''))
@@ -208,7 +189,6 @@ def coursework_temp():
         recipient_id = request.form.get('recipient')
         content = request.form.get('content')
         if recipient_id and content:
-
             new_notification = NotificationCoursework()
             new_notification.recipient_id = recipient_id
             new_notification.content = content
@@ -233,20 +213,17 @@ def coursework_index():
     if request.method == "POST":
         if request.form['read_button']:
             notification_id = request.form['read_button']
-
             notification = NotificationCoursework.query.filter_by(id=notification_id).first()
             notification.viewed = True
 
             db.session.commit()
 
+    notifications = NotificationCoursework.query.filter_by(recipient_id=user.id).order_by(desc(NotificationCoursework.time)).all()
+    notifications_not_viewed = NotificationCoursework.query.filter_by(recipient_id=user.id).filter_by(viewed=False). \
+        order_by(desc(NotificationCoursework.time)).all()
 
-notifications = NotificationAccount.query.filter_by(recipient_id=user.id) \
-        .order_by(desc(NotificationAccount.time)).all()
-    notifications_not_viewed = NotificationAccount.query.filter_by(recipient_id=user.id).filter_by(viewed=False). \
-        order_by(desc(NotificationAccount.time)).all()
-    return render_template('coursework/student/index.html', thesises=get_list_of_thesises(),
-                           notifications=notifications, notifications_not_viewed=notifications_not_viewed,
-                           type_notifications=type_notifications)
+    return render_template('coursework/student/index.html', thesises=get_list_of_thesises(), notifications=notifications,
+                           notifications_not_viewed=notifications_not_viewed, type_notifications=type_notifications)
 
 
 @login_required
@@ -284,9 +261,7 @@ def coursework_new_thesis():
     for worktype in Worktype.query.filter(Worktype.id > 2).all():
         form.worktype.choices.append((worktype.id, worktype.type))
 
-
-    return render_template('coursework/student/new_practice.html', thesises=get_list_of_thesises(), user=user,
-                           review_filter=form,
+    return render_template('coursework/student/new_practice.html', thesises=get_list_of_thesises(), user=user, review_filter=form,
                            form=form)
 
 
@@ -496,8 +471,7 @@ def coursework_add_new_report():
             flash('Отчёт успешно отправлен!', category='success')
             return redirect(url_for('coursework_workflow', id=current_thesis_id))
 
-    return render_template('coursework/student/new_report.html', thesises=get_list_of_thesises(),
-                           practice=current_thesis,
+    return render_template('coursework/student/new_report.html', thesises=get_list_of_thesises(), practice=current_thesis,
                            form=add_thesis_report_form, user=user)
 
 
@@ -748,7 +722,7 @@ def coursework_preparation():
             current_thesis.supervisor_review_uri = None
             db.session.commit()
 
-    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id). \
+    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).\
         filter_by(area_id=current_thesis.area_id).first()
 
     return render_template('coursework/student/preparation.html', thesises=get_list_of_thesises(),
@@ -813,8 +787,7 @@ def coursework_data_for_practice():
         if worktype.id != current_thesis.worktype_id:
             form.worktype.choices.append((worktype.id, worktype))
 
-    return render_template('coursework/student/data_for_practice.html', thesises=get_list_of_thesises(), user=user,
-                           form=form,
+    return render_template('coursework/student/data_for_practice.html', thesises=get_list_of_thesises(), user=user, form=form,
                            practice=current_thesis)
 
 
@@ -861,6 +834,7 @@ def get_remaining_time(deadline, type_deadline):
             return None
         remaining_time_timedelta = deadline.defense - datetime.utcnow()
 
+    remaining_time = tuple()
     if remaining_time_timedelta < timedelta(0):
         remaining_time = (-1, "", "")
     elif remaining_time_timedelta.seconds // 60 < 60 and remaining_time_timedelta.days < 1:

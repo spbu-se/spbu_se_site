@@ -21,16 +21,45 @@
             {% else %}
             <p>Направление: <b>{{ thesis.area }}</b></p>
             {% endif %}
-            {% if thesis.goal %}
-            <p class="mb-0">Цель работы: <b>{{ thesis.goal }}</b></p>
-            {% endif %}
         </div>
     </div>
 
-    {% if thesis.supervisor_review_uri or thesis.reviewer_review_uri or thesis.presentation_uri %}
+    {% if thesis.goal or tasks %}
+     <div class="row">
+        <div class="col">
+            <div class="card border-0 mb-3">
+                <div class="card-body py-3">
+                    {% if thesis.goal %}
+                    <div class="mb-2">
+                        <h6 class="mb-0">Цель работы</h6>
+                        {{ thesis.goal }}
+                    </div>
+                    {% endif %}
+
+                    {% if tasks %}
+                    <div>
+                        <h6 class="mb-0">Задачи</h6>
+                        <ul class="mb-0">
+                        {% for task in tasks %}
+                        {% if not task.deleted %}
+                             <li>
+                                 {{task.task_text}}
+                             </li>
+                        {% endif %}
+                        {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+     </div>
+    {% endif %}
+
+    {% if thesis.text_uri or thesis.text_link or thesis.supervisor_review_uri or thesis.reviewer_review_uri or thesis.presentation_uri or thesis.presentation_link %}
     <div class="row">
         <div class="col">
-            <div class="card border-0 mb-0">
+            <div class="card border-0 mb-3">
                 <div class="card-body py-3">
                     <h6 class="mb-0">Материалы работы</h6>
 
@@ -120,7 +149,7 @@
 
     <div class="row">
         <div class="col">
-            <div class="card border-0 mb-0 mt-3">
+            <div class="card border-0 mb-3">
                 <div class="card-body py-3">
                     <a id="{{ thesis.id }}" name="reports_link" href="{{url_for('reports_staff', id=thesis.id)}}">Отчёты по текущей работе</a>
                     {% if thesis.reports %}
@@ -143,7 +172,7 @@
         {% if thesis.status == 1 %}
         <div class="row">
             <div class="col">
-                <div class="card border-0 mb-0 mt-3">
+                <div class="card border-0 mb-0">
                     <div class="card-body py-3">
                         <h6 class="mb-0">Отправить уведомление</h6>
                         <div class="form-group mb-0 mt-2">
@@ -175,7 +204,8 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                Вы точно хотите пометить работу <b>{{ thesis.title }}</b> завершённой?
+                                Вы точно хотите пометить данную работу завершённой?
+                                <br><b>{{ thesis.title }}</b>
                             </div>
                             <div class="modal-footer">
                                 <input type="submit" class="btn btn-secondary" name="submit_finish_work_button" value="Да!">

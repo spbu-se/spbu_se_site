@@ -75,7 +75,8 @@ def thesis_staff():
             current_thesis.status = 1
             db.session.commit()
 
-    return render_template('coursework/staff/thesis_staff.html', thesis=current_thesis)
+    not_deleted_tasks = [task for task in current_thesis.tasks if not task.deleted]
+    return render_template('coursework/staff/thesis_staff.html', thesis=current_thesis, tasks=not_deleted_tasks)
 
 
 @login_required
@@ -119,10 +120,9 @@ def reports_staff():
 
                     notification = NotificationCoursework()
                     notification.recipient_id = current_thesis.author_id
-
-user = Users.query.filter_by(id=user_staff.user_id).first()
-                    notification.content = user.get_name() + " прокомментировал Ваш отчет от " + datetime_convert(
-                        current_report.time)                    add_mail_notification(current_thesis.author_id, "[SE site] Отчёт прокомментирован",
+                    notification.content = user_staff.user.get_name() + " прокомментировал(-а) Ваш отчет от "\
+                                           + datetime_convert(current_report.time)
+                    add_mail_notification(current_thesis.author_id, "[SE site] Отчёт прокомментирован",
                                           notification.content)
 
                     db.session.add(notification)
