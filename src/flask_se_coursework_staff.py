@@ -10,7 +10,7 @@ from flask_se_auth import login_required
 from flask_login import current_user
 
 from se_forms import StaffAddCommentToReport
-from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationAccount, Users
+from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationCoursework, Users, add_mail_notification
 
 
 def datetime_convert(value, format="%d.%m.%Y %H:%M"):
@@ -55,9 +55,15 @@ def thesis_staff():
         if 'submit_notification_button' in request.form:
             notification_content = request.form['content']
 
-            notification = NotificationAccount()
+            mail_notification = render_template('notification/notification_from_supervisor.html', supervisor=user_staff,
+                                                thesis=current_thesis, content=notification_content)
+            add_mail_notification(current_thesis.author_id, "[SE site] Уведомление от научного руководителя",
+                                  mail_notification)
+
+            notification = NotificationCoursework()
             notification.recipient_id = current_thesis.author_id
             notification.content = notification_content
+
             db.session.add(notification)
             db.session.commit()
             flash('Уведомление отправлено!', category="success")
@@ -110,16 +116,18 @@ def reports_staff():
                     current_report.comment_time = datetime.datetime.now()
                     db.session.commit()
 
-                    notification = NotificationAccount()
+                    notification = NotificationCoursework()
                     notification.recipient_id = current_thesis.author_id
-                    user = Users.query.filter_by(id=user_staff.user_id).first()
-                    notification.content = user.get_name() + " прокомментировал(-а) Ваш отчет от " \
+                    notification.content = user_staff.user.get_name() + " прокомментировал(-а) Ваш отчет от "\
                                            + datetime_convert(current_report.time)
+                    add_mail_notification(current_thesis.author_id, "[SE site] Отчёт прокомментирован",
+                                          notification.content)
+
                     db.session.add(notification)
                     db.session.commit()
                     flash('Комментарий успешно отправлен!', category='success')
 
-                return render_template('account/reports_staff.html', thesis=current_thesis, reports=reports,
+                return render_template('coursework/staff/reports_staff.html', thesis=current_thesis, reports=reports,
                                        form=add_report_comment)
 
     return render_template('coursework/staff/reports_staff.html', thesis=current_thesis, reports=reports,

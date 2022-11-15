@@ -223,7 +223,7 @@ class CurrentThesis(db.Model):
         return self.title
 
 
-class NotificationAccount(db.Model):
+class NotificationCoursework(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     content = db.Column(db.String(512), nullable=False)

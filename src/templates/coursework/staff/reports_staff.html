@@ -45,38 +45,38 @@
 
             <div class="card-body py-0">
                 <div id="{{ 'collapse-'+(report.id|string()) }}" class="collapse" aria-labelledby="{{ 'heading-'+(report.id|string()) }}" data-parent="#accordion-2">
-                        <h6>Было сделано</h6>
-                        {{report.was_done|markdown}}
-                        <h6>Планируется сделать</h6>
-                        {{report.planned_to_do|markdown}}
+                    <h6>Было сделано</h6>
+                    {{report.was_done|markdown}}
+                    <h6>Планируется сделать</h6>
+                    {{report.planned_to_do|markdown}}
 
-                        {% if report.comment %}
+                    {% if report.comment %}
 
-                            <h6>Ваш комментарий к работе</h6>
-                            {{report.comment|markdown}}
+                        <h6>Ваш комментарий к работе</h6>
+                        {{report.comment|markdown}}
 
-                        {% else %}
-                                <form id="{{ report.id|string() }}" method="POST" action="{{url_for('reports_staff', id=thesis.id, report_id=report.id)}}">
-                                    {{ form.csrf_token }}
-                                        <div class="row">
-                                            <div class="col">
-                                                <div class="form-group">
-                                                    <h6>Добавить комментарий к отчету (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>):</h6>
-                                                    <textarea class="form-control" id="{{'comment' + (report.id|string)}}" name="comment" placeholder="Дайте студенту обратную связь по отчету, если хотите." rows="3" style="display: none;"></textarea>
-                                                    <script>
-                                                        (function () {
-                                                            var simplemde = new SimpleMDE({
-                                                                spellChecker: false,
-                                                                element: document.getElementById("{{'comment' + (report.id|string)}}"),
-                                                            });
-                                                        })();
-                                                    </script>
-                                                </div>
-                                            </div>
-                                        </div>
-                                <input type="submit" class="btn btn-sm btn-primary mb-3" name="{{ 'submit_button'+(report.id|string()) }}" id="{{ 'submit_button'+(report.id|string()) }}" value="Добавить комментарий">
-                                </form>
-                        {% endif %}
+                    {% else %}
+                    <form id="{{ report.id|string() }}" method="POST" action="{{url_for('reports_staff', id=thesis.id, report_id=report.id)}}">
+                        {{ form.csrf_token }}
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group mb-0">
+                                    <h6>Добавить комментарий к отчету (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>):</h6>
+                                    <textarea class="form-control" id="{{'comment' + (report.id|string)}}" name="comment" placeholder="Дайте студенту обратную связь по отчету, если хотите." rows="3" style="display: none;"></textarea>
+                                    <script>
+                                        (function () {
+                                            var simplemde = new SimpleMDE({
+                                            spellChecker: false,
+                                            element: document.getElementById("{{'comment' + (report.id|string)}}"),
+                                            });
+                                        })();
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="submit" class="btn btn-sm btn-primary mb-3" name="{{ 'submit_button'+(report.id|string()) }}" id="{{ 'submit_button'+(report.id|string()) }}" value="Добавить комментарий">
+                    </form>
+                    {% endif %}
 
                 </div>
             </div>
