@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
 
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField
 
-from wtforms import SelectField, StringField, SelectMultipleField, DateTimeField, widgets, validators
-
-from flask_wtf.file import FileField, FileRequired
-from wtforms import SelectField, StringField, SelectMultipleField, RadioField, widgets
+from wtforms import SelectField, StringField, SelectMultipleField, widgets, DateTimeField, validators
 from wtforms.widgets import TextArea
 from wtforms.validators import DataRequired
 
-from se_models import Worktype, AreasOfStudy
 
 # Thesis forms
 class ThesisFilter(FlaskForm):
@@ -28,9 +24,15 @@ class MultiCheckboxField(SelectMultipleField):
 
 
 class UserAddTheme(FlaskForm):
-    title = StringField('title', description='Например, реализация алгоритма контекстно-свободной достижимости на OpenCL', validators=[DataRequired()])
-    description = StringField('description', description='Например, необходимо адаптировать библиотеку CLSparse для работы с булевыми матрицами и реализовать алгоритм поиска путей с КС ограничениями, используя результаты адаптации. Провести сравнение с аналогами на существующих данных, проанализировать результаты.', widget=TextArea())
-    requirements = StringField('requirements', description='Например, умение программировать на OpenCL C. Умение читать и понимать код на OpenCL C.', widget=TextArea())
+    title = StringField('title', description='Например, реализация алгоритма контекстно-свободной достижимости на '
+                                             'OpenCL', validators=[DataRequired()])
+    description = StringField('description', description='Например, необходимо адаптировать библиотеку CLSparse для '
+                                                         'работы с булевыми матрицами и реализовать алгоритм поиска '
+                                                         'путей с КС ограничениями, используя результаты адаптации. '
+                                                         'Провести сравнение с аналогами на существующих данных, '
+                                                         'проанализировать результаты.', widget=TextArea())
+    requirements = StringField('requirements', description='Например, умение программировать на OpenCL C. Умение читать'
+                                                           ' и понимать код на OpenCL C.', widget=TextArea())
     levels = MultiCheckboxField('levels', coerce=int)
     consultant = StringField('consultant')
     company = SelectField('company', choices=[])
@@ -115,7 +117,8 @@ class CurrentWorktypeArea(FlaskForm):
 
 
 class ChooseTopic(FlaskForm):
-    topic = StringField('topic', description='Например, реализация алгоритма контекстно-свободной достижимости на OpenCL')
+    topic = StringField('topic', description='Например, реализация алгоритма контекстно-свободной достижимости на '
+                                             'OpenCL')
     staff = SelectField('staff', choices=[])
 
 
@@ -130,7 +133,8 @@ class DeadlineTemp(FlaskForm):
 
 
 class AddGoal(FlaskForm):
-    goal = StringField('goal', description='Например, модификация библиотеки COLMAP оптимальным алгоритмом локализации некалиброванной камеры относительно облака 3D точек.')
+    goal = StringField('goal', description='Например, модификация библиотеки COLMAP оптимальным алгоритмом локализации'
+                                           ' некалиброванной камеры относительно облака 3D точек.')
 
 
 class AddTask(FlaskForm):

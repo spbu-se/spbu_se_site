@@ -27,6 +27,7 @@ def index_staff():
         outerjoin(ThesisReport, CurrentThesis.reports).order_by(desc(ThesisReport.time)).all()
     return render_template('coursework/staff/current_thesises_staff.html', thesises=current_thesises)
 
+
 @login_required
 def finished_thesises_staff():
     user_staff = Staff.query.filter_by(user_id=current_user.id).first()
@@ -113,13 +114,13 @@ def reports_staff():
                     notification = NotificationAccount()
                     notification.recipient_id = current_thesis.author_id
                     user = Users.query.filter_by(id=user_staff.user_id).first()
-                    notification.content = user.get_name() + " прокомментировал(-а) Ваш отчет от " \
-                                           + datetime_convert(current_report.time)
+                    notification.content = user.get_name() + " прокомментировал Ваш отчет от " + datetime_convert(
+                        current_report.time)
                     db.session.add(notification)
                     db.session.commit()
                     flash('Комментарий успешно отправлен!', category='success')
 
-                return render_template('account/reports_staff.html', thesis=current_thesis, reports=reports,
+                return render_template('coursework/staff/reports_staff.html', thesis=current_thesis, reports=reports,
                                        form=add_report_comment)
 
     return render_template('coursework/staff/reports_staff.html', thesis=current_thesis, reports=reports,

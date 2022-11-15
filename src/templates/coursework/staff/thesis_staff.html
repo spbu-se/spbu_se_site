@@ -21,6 +21,9 @@
             {% else %}
             <p>Направление: <b>{{ thesis.area }}</b></p>
             {% endif %}
+            {% if thesis.goal %}
+            <p class="mb-0">Цель работы: <b>{{ thesis.goal }}</b></p>
+            {% endif %}
         </div>
     </div>
 
@@ -172,8 +175,7 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                Вы точно хотите пометить данную работу завершённой?
-                                <br><b>{{ thesis.title }}</b>
+                                Вы точно хотите пометить работу <b>{{ thesis.title }}</b> завершённой?
                             </div>
                             <div class="modal-footer">
                                 <input type="submit" class="btn btn-secondary" name="submit_finish_work_button" value="Да!">

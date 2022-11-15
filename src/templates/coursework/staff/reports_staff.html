@@ -5,10 +5,14 @@
 {% block content_writing_thesis_staff %}
 
 <div class="container">
-
     <div class="row">
         <div class="col">
-            <h5><a id="{{thesis.id}}" name="thesis_link" href="{{ url_for('thesis_staff', id=thesis.id) }}">{{thesis.title}}</a></h5>
+            <p><a id="{{thesis.id}}" name="thesis_link" href="{{ url_for('thesis_staff', id=thesis.id) }}"><i data-feather="arrow-left"></i> К материалам курсовой</a></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h5>{{thesis.title}}</h5>
         </div>
     </div>
 

@@ -2,22 +2,17 @@
 
 from os import urandom
 import shutil
+from datetime import datetime
 
-from datetime import datetime, timedelta
 from pathlib import Path
-
-import pytz
-from dateutil import tz
 from sqlalchemy import MetaData
-from flask import render_template
+from werkzeug.security import generate_password_hash
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_msearch import Search
-from werkzeug.security import generate_password_hash
-from datetime import datetime
-
-
 from flask_se_config import post_ranking_score, get_hours_since, SQLITE_DATABASE_NAME, SQLITE_DATABASE_BACKUP_NAME
+
 
 convention = {
     "ix": 'ix_%(column_0_label)s',
@@ -43,20 +38,22 @@ diploma_themes_tag = db.Table('diploma_themes_tag',
                                         primary_key=True)
                               )
 
-diploma_themes_level = db.Table('diploma_themes_level',
-              db.Column('themes_level_id', db.Integer, db.ForeignKey('themes_level.id'), primary_key=True),
-              db.Column('diploma_themes_id', db.Integer, db.ForeignKey('diploma_themes.id'), primary_key=True)
-              )
+diploma_themes_level = db.Table('diploma_themes_level', db.Column('themes_level_id', db.Integer,
+                                                                  db.ForeignKey('themes_level.id'), primary_key=True),
+                                db.Column('diploma_themes_id', db.Integer,
+                                          db.ForeignKey('diploma_themes.id'), primary_key=True))
 
 internships_format = db.Table('internships_format',
-             db.Column('internships_format_id', db.Integer, db.ForeignKey('internship_format.id'), primary_key=True),
-             db.Column('internships_id', db.Integer, db.ForeignKey('internships.id'), primary_key=True)
-             )
+                              db.Column('internships_format_id', db.Integer, db.ForeignKey('internship_format.id'),
+                                        primary_key=True),
+                              db.Column('internships_id', db.Integer, db.ForeignKey('internships.id'), primary_key=True)
+                              )
 
 internships_tag = db.Table('internships_tag',
-             db.Column('internships_tag_id', db.Integer, db.ForeignKey('internship_tag.id'), primary_key=True),
-             db.Column('internships_id', db.Integer, db.ForeignKey('internships.id'), primary_key=True)
-             )
+                           db.Column('internships_tag_id', db.Integer, db.ForeignKey('internship_tag.id'),
+                                     primary_key=True),
+                           db.Column('internships_id', db.Integer, db.ForeignKey('internships.id'), primary_key=True)
+                           )
 
 
 class Staff(db.Model):
@@ -72,7 +69,6 @@ class Staff(db.Model):
     supervisor = db.relationship("Thesis", backref=db.backref("supervisor"), foreign_keys='Thesis.supervisor_id')
     adviser = db.relationship("Thesis", backref=db.backref("reviewer"), foreign_keys='Thesis.reviewer_id')
     current_thesises = db.relationship("CurrentThesis", backref=db.backref("supervisor"))
-
 
     def __repr__(self):
         return '<%r>' % self.official_email
@@ -121,8 +117,8 @@ class Users(db.Model, UserMixin):
     reviewer = db.relationship('Reviewer', back_populates='user')
 
     all_user_votes = db.relationship('PostVote', back_populates='user')
-    internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False), foreign_keys='Internships.author_id')
-
+    internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False),
+                                        foreign_keys='Internships.author_id')
 
     def get_name(self):
         full_name = ''
@@ -136,9 +132,6 @@ class Users(db.Model, UserMixin):
             full_name = full_name + " " + self.middle_name
 
         return full_name
-
-        return "{self.last_name} {self.first_name} {self.middle_name}"
-
 
     def __str__(self):
         full_name = ''
@@ -216,6 +209,7 @@ class CurrentThesis(db.Model):
 
     deleted = db.Column(db.Boolean, default=False)
     status = db.Column(db.Integer, default=1)
+
     # 1 - active practice
     # 2 - past practice
 
@@ -276,11 +270,10 @@ class InternshipCompany(db.Model):
     internship = db.relationship('Internships', back_populates='company')
 
     def __str__(self):
-        return (self.name)
+        return self.name
 
 
 class Internships(db.Model):
-
     __tablename__ = 'internships'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -292,14 +285,15 @@ class Internships(db.Model):
     requirements = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
 
-    more_inf = db.Column(db.String, nullable=True) # ссылка на сайт
-    description = db.Column(db.String, nullable=True) # короткое описание того, чем нужно будет заниматься
+    more_inf = db.Column(db.String, nullable=True)  # ссылка на сайт
+    description = db.Column(db.String, nullable=True)  # короткое описание того, чем нужно будет заниматься
     location = db.Column(db.String(50), nullable=True)
     format = db.relationship('InternshipFormat', secondary=internships_format, lazy='subquery',
-                           backref=db.backref('internship', lazy=True), order_by=internships_format.c.internships_format_id)
-    tag = db.relationship('InternshipTag', secondary=internships_tag, lazy='subquery',
                              backref=db.backref('internship', lazy=True),
-                             order_by=internships_tag.c.internships_tag_id)
+                             order_by=internships_format.c.internships_format_id)
+    tag = db.relationship('InternshipTag', secondary=internships_tag, lazy='subquery',
+                          backref=db.backref('internship', lazy=True),
+                          order_by=internships_tag.c.internships_tag_id)
 
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
@@ -345,7 +339,7 @@ class Courses(db.Model):
     curriculum = db.relationship("Curriculum", backref=db.backref('course', uselist=False))
 
     def __repr__(self):
-        return '<%r>' % (self.name)
+        return '<%r>' % self.name
 
 
 class Thesis(db.Model):
@@ -500,8 +494,8 @@ class DiplomaThemes(db.Model):
     title = db.Column(db.String(512), nullable=False)
     description = db.Column(db.String(2048), nullable=True)
     requirements = db.Column(db.String(2048), nullable=True)
-    status = db.Column(db.Integer, default=0, nullable=False) # 0 - new, 1 - need update, 2 - approved, 3 - archive
-    
+    status = db.Column(db.Integer, default=0, nullable=False)  # 0 - new, 1 - need update, 2 - approved, 3 - archive
+
     comment = db.Column(db.String(2048), nullable=True)
 
     levels = db.relationship('ThemesLevel', secondary=diploma_themes_level, lazy='subquery',
@@ -1234,7 +1228,12 @@ def init_db():
 
     d_themes = [
         {'title': 'Изучение журналирования для all flash RAID массива',
-         'description': 'Журналирование позволяет решить проблему write-hole и порчу данных в случае сложных отказов системы. В рамках задачи предлагается изучить технологию журналирования в Linux dm-log. Исследование включает в себя функциональные возможности, параметры настройки, производительность при различных паттернах. Интегрирование с нашим RAID engine. Возможна исследование и реализация и различных подходов к журналирования внутри RAID engine а не сторонними средствами, для того чтобы получить более производительное решение.',
+         'description': 'Журналирование позволяет решить проблему write-hole и порчу данных в случае сложных отказов '
+                        'системы. В рамках задачи предлагается изучить технологию журналирования в Linux dm-log. '
+                        'Исследование включает в себя функциональные возможности, параметры настройки, производительно'
+                        'сть при различных паттернах. Интегрирование с нашим RAID engine. Возможна исследование и '
+                        'реализация и различных подходов к журналирования внутри RAID engine а не сторонними средствами'
+                        ', для того чтобы получить более производительное решение.',
          'levels': [1, 2],
          'company_id': 1,
          'supervisor_id': 5,
@@ -1243,7 +1242,13 @@ def init_db():
          'status': 2
          },
         {'title': 'Оптимизация алгоритма адаптивного объединения запросов в RAID',
-         'description': 'При последовательной записи объединение запросов позволят решить проблему read-modify-write на RAID с контрольными суммами. Имеющийся алгоритм зависит от нескольких параметров и есть ряд наработок, которые позволяют автоматически подстраивать параметры в зависимости от нагрузки (размер ио, интенсивность, многопоточность), однако не справляется с некоторыми паттернами. В рамках работы необходимо изучить алгоритм адаптивного объединения, улучшить его или предложить альтернативный. Также предполагает изучения объединения запросов не только на искусственных паттернах.',
+         'description': 'При последовательной записи объединение запросов позволят решить проблему read-modify-write на'
+                        ' RAID с контрольными суммами. Имеющийся алгоритм зависит от нескольких параметров и есть ряд'
+                        ' наработок, которые позволяют автоматически подстраивать параметры в зависимости от нагрузки '
+                        '(размер ио, интенсивность, многопоточность), однако не справляется с некоторыми паттернами. В '
+                        'рамках работы необходимо изучить алгоритм адаптивного объединения, улучшить его или предложить'
+                        ' альтернативный. Также предполагает изучения объединения запросов не только на искусственных '
+                        'паттернах.',
          'levels': [1, 2, 3],
          'company_id': 1,
          'supervisor_id': 5,
@@ -1252,7 +1257,12 @@ def init_db():
          'status': 2
          },
         {'title': 'Изучение RAM кэша для RAID массива',
-         'description': 'В рамках работы планируется изучить технологии Open Cache Acceleration Software для реализации RAM cache или кэш на быстрых накопителях для нашего RAID engine. Изучение включает в себя функциональные возможности, параметры и настройку, производительность в различных конфигурациях и паттернах нагрузки. Внедрение технологии, ее улучшение и адаптация под наш RAID. Возможно изучение и сравнение с имеющимися технологиями кеширования в Linux такими как dm-cache, bcache. Возможно также углубление в изучение алгоритмов Read-Ahead.',
+         'description': 'В рамках работы планируется изучить технологии Open Cache Acceleration Software для реализации'
+                        ' RAM cache или кэш на быстрых накопителях для нашего RAID engine. Изучение включает в себя '
+                        'функциональные возможности, параметры и настройку, производительность в различных конфигурац'
+                        'иях и паттернах нагрузки. Внедрение технологии, ее улучшение и адаптация под наш RAID. '
+                        'Возможно изучение и сравнение с имеющимися технологиями кеширования в Linux такими как '
+                        'dm-cache, bcache. Возможно также углубление в изучение алгоритмов Read-Ahead.',
          'levels': [3, 4],
          'company_id': 2,
          'supervisor_id': 5,
@@ -1261,7 +1271,6 @@ def init_db():
          'status': 2
          },
     ]
-
 
     # Check if db file already exists. If so, backup it
     db_file = Path(SQLITE_DATABASE_NAME)
