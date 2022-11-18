@@ -103,6 +103,7 @@ class Users(db.Model, UserMixin):
     google_id = db.Column(db.String(255), nullable=True)
 
     staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
+    staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
     news = db.relationship("Posts", backref=db.backref("author", uselist=False))
     diploma_themes_supervisor = db.relationship("DiplomaThemes", backref=db.backref("supervisor", uselist=False),
                                                 foreign_keys='DiplomaThemes.supervisor_id')
@@ -195,7 +196,6 @@ class CurrentThesis(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    course = db.Column(db.Integer, nullable=True)
     area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'), nullable=True)
 
     title = db.Column(db.String(512), nullable=True)
@@ -226,7 +226,7 @@ class NotificationAccount(db.Model):
 
 class Deadline(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    course = db.Column(db.Integer, nullable=False)
+    worktype_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
     area_id = db.Column(db.Integer, db.ForeignKey('areas_of_study.id'), nullable=False)
 
     choose_topic = db.Column(db.DateTime, nullable=True)
@@ -246,6 +246,18 @@ class ThesisReport(db.Model):
     planned_to_do = db.Column(db.String(2048), nullable=True)
     time = db.Column(db.DateTime, default=datetime.utcnow)
 
+    comment = db.Column(db.String(2048), nullable=True)
+    comment_time = db.Column(db.DateTime, nullable=True)
+    '''comments = db.relationship('ThesisComment', backref=db.backref('report'))
+
+
+class ThesisComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    current_report_id = db.Column(db.Integer, db.ForeignKey('thesis_report.id'))
+
+    comment = db.Column(db.String(2048), nullable=True)
+    time = db.Column(db.DateTime, default=datetime.utcnow)
+'''
 
 class InternshipCompany(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -296,6 +308,7 @@ class Worktype(db.Model):
     thesis = db.relationship("Thesis", backref=db.backref("type", uselist=False))
     thesis_on_review = db.relationship("ThesisOnReview", backref=db.backref('worktype', uselist=False))
     current_thesis = db.relationship("CurrentThesis", backref=db.backref("worktype"))
+    deadline = db.relationship("Deadline", backref=db.backref('worktype', uselist=False))
 
     def __repr__(self):
         return self.type
@@ -456,7 +469,7 @@ class PostType(db.Model):
     post = db.relationship('Posts', back_populates='type')
 
     def __str__(self):
-        return "{self.name}"
+        return self.name
 
 
 class ThemesLevel(db.Model):
@@ -731,9 +744,9 @@ def init_db():
         {'type': 'Бакалаврская ВКР'},
         {'type': 'Магистерская ВКР'},
         {'type': 'Практика осенняя, 2 курс'},
-        {'type': 'Практика весеняя, 2 курс'},
+        {'type': 'Практика весенняя, 2 курс'},
         {'type': 'Практика осенняя, 3 курс'},
-        {'type': 'Практика весеняя, 3 курс'},
+        {'type': 'Практика весенняя, 3 курс'},
         {'type': 'Производственная практика'},
         {'type': 'Преддипломная практика'},
     ]
@@ -1358,7 +1371,7 @@ def init_db():
     # Create Companies
     print("Create companies")
     for cur in company:
-        c = InternshipCompany(name=cur['name'], logo_uri=cur['logo_uri'])
+        c = Company(name=cur['name'], logo_uri=cur['logo_uri'])
 
         db.session.add(c)
         db.session.commit()
