@@ -245,6 +245,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
+                                        {% if current_user.is_staff() %}
                                         <a id="coursework_staff_button" href="{{ url_for('index_staff') }}" class="list-group-item list-group-item-action" role="button">
                                             <div class="d-flex">
                                                 <!-- Media body -->
@@ -253,6 +254,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </li>

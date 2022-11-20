@@ -406,18 +406,6 @@ def sitemap():
     return response
 
 
-@app.route('/who_is_user', methods=['GET'])
-def who_is_user():
-    if request.headers.get("X-Requested-With") != "XMLHttpRequest":
-        return redirect(url_for('index'))
-    if not current_user.is_authenticated:
-        return "Not authorized"
-    elif Staff.query.filter_by(user_id=current_user.id).first():
-        return "staff"
-    else:
-        return "student"
-
-
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "build":

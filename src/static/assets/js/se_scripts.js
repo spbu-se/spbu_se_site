@@ -771,17 +771,3 @@ let internships_filter_element = document.getElementById('InternshipsFilter');
 if (internships_filter_element){
     internships_filter();
 }
-
-addEventListener('load', () => {
-    $.ajax(
-    {
-        url: '/who_is_user',
-        type: 'GET'
-    }).done(function(whoIsUser)
-    {
-        if (whoIsUser != 'staff')
-        {
-            document.getElementById('coursework_staff_button').remove();
-        }
-    });
-});

@@ -31,6 +31,8 @@ metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
 search = Search()
 
+
+
 tag = db.Table('tag',
                db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'), primary_key=True),
                db.Column('thesis_id', db.Integer, db.ForeignKey('thesis.id'), primary_key=True)
@@ -135,6 +137,9 @@ class Users(db.Model, UserMixin):
             full_name = full_name + " " + self.middle_name
 
         return full_name
+
+    def is_staff(self):
+        return Staff.query.filter_by(user_id=self.id).first() is not None
 
     def __str__(self):
         full_name = ''
