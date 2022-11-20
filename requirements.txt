@@ -55,4 +55,5 @@ transliterate==1.10.2
 Pillow==9.3.0
 google-auth-oauthlib==0.7.1
 textile==4.0.2
+whoosh==2.7.4
 pip==22.3.1
