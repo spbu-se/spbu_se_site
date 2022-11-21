@@ -43,7 +43,7 @@ jobs:
           with:
             ref: 'temp'
         
-        # Set up Python 3.6 environment
+        # Set up Python 3.8 environment
         - uses: actions/setup-python@v2
           with:
               python-version: '3.8.0'
@@ -70,15 +70,19 @@ jobs:
         - run: npm install @nodelib/fs.scandir
         - run: npm install glob
         - run: npm init --yes
+        - run: node ./webpConverterScript.js
         - run: npm i -g purgecss
         - run: purgecss --css docs/assets/css/*.css --content src/templates/*.html --safelist show --output docs/assets/css
 
-            
-        - name: Deploy
-          uses: peaceiris/actions-gh-pages@v3
+
+        # Commit docs to gh-pages
+        - name: Push to gh-pages
+          uses: Automattic/action-commit-to-branch@master
           with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            publish_dir: ./docs
+            branch: 'gh-pages'
+            commit_message: 'Update gh-pages /docs/'
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
 
         - uses: dawidd6/action-delete-branch@v3
           with:
