@@ -73,16 +73,11 @@ jobs:
         - run: npm i -g purgecss
         - run: purgecss --css docs/assets/css/*.css --content src/templates/*.html --safelist show --output docs/assets/css
 
-
-        # Commit docs to gh-pages
-        - name: Push to gh-pages
-          uses: Automattic/action-commit-to-branch@master
+        - name: Deploy
+          uses: peaceiris/actions-gh-pages@v3
           with:
-            branch: 'gh-pages'
-            commit_message: 'Update gh-pages /docs/'
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            publish_dir: ./docs
         - uses: dawidd6/action-delete-branch@v3
           with:
             github_token: ${{github.token}}
