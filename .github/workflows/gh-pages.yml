@@ -78,6 +78,7 @@ jobs:
           with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             publish_dir: ./docs
+            
         - uses: dawidd6/action-delete-branch@v3
           with:
             github_token: ${{github.token}}
