@@ -639,7 +639,7 @@ function internships_load() {
         params.append('page', page);
     }
     if (internships_format_select){
-    params.append('format', internships_format_select.innerText);
+    params.append('format', internships_format_select.value);
     }
 
     if (internships_company_select){
@@ -647,7 +647,7 @@ function internships_load() {
     }
 
     if (internships_tag_select){
-    params.append('tag', internships_tag_select.innerText);
+    params.append('tag', internships_tag_select.value);
     }
 
     fetch('fetch_internships?' + params.toString()).then(function(response){
