@@ -19,14 +19,17 @@
 
           </div>
           <div class="col-auto ml-auto text-right">
-            <img src="/images/logos/{{i.company.logo_uri}}" style="height: 50px">
+            <a href="internships_index.html?format=0&company={{i.company.id}}&tag=0"><img src="/images/logos/{{i.company.logo_uri}}" style="height: 50px"></a>
           </div>
         </div>
       </div>
       <div class="card-body pt-2">
         <p style="font-size: 100%" class="text m-0">{{i.company}}</p>
         <p style="font-size: 100%" class="text mb-1 mt-0"> {{i.location}}</p>
-        <p style="font-size: 100%" class="text mb-1 mt-0"> {{i.tag|join(' ')}}</p>
+        <p style="font-size: 100%" class="text mb-1 mt-0"> 
+          {% for tag in i.tag %}
+            <a href="internships_index.html?format=0&company=0&tag={{tag.id}}">{{tag}} </a>
+          {% endfor %}
         </p>
       </div>
     </div>
