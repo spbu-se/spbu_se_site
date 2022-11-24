@@ -677,9 +677,10 @@ function internships_update() {
 
     let params = new URLSearchParams();
 
-    if (page && page > 1){
-        params.append('page', page);
-    }
+    //if (page && page > 1){
+    //    params.append('page', page);
+    //}
+    params.append('page', 1);
 
     if (internships_format_select){
         params.append('format', internships_format_select.value);
