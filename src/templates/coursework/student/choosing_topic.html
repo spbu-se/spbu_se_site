@@ -1,4 +1,4 @@
-{% extends "account/base_account.html" %}
+{% extends "coursework/student/base_account.html" %}
 
 {% block title %}Выбор темы{% endblock %}
 
@@ -12,27 +12,33 @@
         </div>
     </div>
 
-    {% if deadline %}
+    {% if deadline and deadline.choose_topic %}
     <div class="row">
         <div class="col">
-            <p>Дедлайн по выбору темы: {{ deadline.choose_topic | datatime_convert }}
-                {% if remaining_time[0] < 0 %}
-                (<span class="text-danger">дедлайн пропущен</span>)
+            <p>Дедлайн на выбор темы: <b>{{ deadline.choose_topic | datatime_convert }}</b>
+                {% if not practice.title %}
+                    {% if remaining_time[0] < 0 %}
+                    (<span class="text-danger">дедлайн прошёл</span>)
+                    {% else %}
+                    (осталось: <span class="text-{{remaining_time[2]}}">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)
+                    {% endif %}
                 {% else %}
-                (осталось: <span class="text-{{remaining_time[2]}}">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)
+                    {% if remaining_time[0] > 0 %}
+                    (осталось: <span class="text-body">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)
+                    {% endif %}
                 {% endif %}
             </p>
         </div>
     </div>
     {% endif %}
 
-    <form method="POST" action="{{url_for('account_choosing_topic', id=practice.id) }}">
+    <form method="POST" action="{{url_for('coursework_choosing_topic', id=practice.id) }}">
         {{ form.csrf_token }}
 
         {% if practice.title %}
             <div class="row">
                 <div class="col-12">
-                    <div class="card">
+                    <div class="card border-0">
                         <div class="card-body py-3">
 
                             <h6>Выбранная тема</h6>
@@ -42,7 +48,7 @@
 
                             <div class="row">
                                 <div class="col">
-                                    <input type="submit" class="btn btn-sm btn-primary" name="submit_button" value="Редактировать">
+                                    <a id="edit_topic_button" name="{{ practice.id }}" class="btn btn-sm btn-primary" href="{{ url_for('coursework_edit_theme', id=practice.id) }}">Редактировать</a>
                                 </div>
                                 <div class="col d-flex justify-content-end">
                                     <a data-toggle="modal" data-target="#deleteModal" class="btn btn-sm btn-outline-danger" href="#">Отказаться от темы</a>
@@ -87,7 +93,7 @@
 
             <div class="row">
                 <div class="col">
-                    <div class="card">
+                    <div class="card border-0">
                         <div class="card-body py-3">
 
                             <div class="form-group">

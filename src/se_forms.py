@@ -129,6 +129,14 @@ class DeadlineTemp(FlaskForm):
     defense = DateTimeField('defense')
 
 
+class AddGoal(FlaskForm):
+    goal = StringField('goal', description='Например, модификация библиотеки COLMAP оптимальным алгоритмом локализации некалиброванной камеры относительно облака 3D точек.')
+
+
+class AddTask(FlaskForm):
+    task_text = StringField('task_text', description='Например, научиться работать с ajax.')
+
+
 class UserAddReport(FlaskForm):
     was_done = StringField('was_done', description='Например: Провел сравнение моего проекта с аналогами. '
                                                    'Составил таблицу, проанализировал результаты. Сформулировал, чем '

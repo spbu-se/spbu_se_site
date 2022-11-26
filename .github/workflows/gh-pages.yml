@@ -43,7 +43,7 @@ jobs:
           with:
             ref: 'temp'
         
-        # Set up Python 3.6 environment
+        # Set up Python 3.8 environment
         - uses: actions/setup-python@v2
           with:
               python-version: '3.8.0'
@@ -73,13 +73,12 @@ jobs:
         - run: npm i -g purgecss
         - run: purgecss --css docs/assets/css/*.css --content src/templates/*.html --safelist show --output docs/assets/css
 
-            
         - name: Deploy
           uses: peaceiris/actions-gh-pages@v3
           with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             publish_dir: ./docs
-
+            
         - uses: dawidd6/action-delete-branch@v3
           with:
             github_token: ${{github.token}}

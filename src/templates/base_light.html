@@ -24,6 +24,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/animate.css/animate.min.css') }}">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/@fortawesome/fontawesome-free/css/all.min.css') }} ">
+    <!-- Markdowm -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}">
+    {{ simplemde.js }}
 
     {% block head_links %}
     {% endblock %}
@@ -237,6 +240,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
+                                        <a href="{{ url_for('coursework_index') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Написание практик и ВКР</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        {% if current_user.is_authenticated and current_user.is_staff() %}
+                                        <a id="coursework_staff_button" href="{{ url_for('index_staff') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Написание практик и ВКР для преподавателей</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </li>
@@ -260,7 +281,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </nav>
     </header>
 
+    <div id="content">
     {% block content %}{% endblock %}
+    </div>
 
     <footer class="position-relative" id="footer-main">
         <div class="footer pt-lg-7 footer-dark bg-dark">
@@ -364,6 +387,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- Quick JS -->
     <script src="{{ url_for('static', filename='/assets/js/quick-website.min.js') }}"></script>
     <script src="{{ url_for('static', filename='/assets/js/se_scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='/assets/js/se_coursework_script.js') }}"></script>
 
     <!-- Feather Icons -->
     <script>

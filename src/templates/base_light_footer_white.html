@@ -237,6 +237,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
+                                        <a href="{{ url_for('coursework_index') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Написание практик и ВКР</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        {% if current_user.is_authenticated and current_user.is_staff() %}
+                                        <a id="coursework_staff_button" href="{{ url_for('index_staff') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Написание практик и ВКР для преподавателей</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </li>

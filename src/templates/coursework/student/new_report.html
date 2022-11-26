@@ -1,11 +1,6 @@
-{% extends "account/base_account.html" %}
+{% extends "coursework/student/base_account.html" %}
 
-{% block title %}Рабочий процесс{% endblock %}
-
-{% block head_links %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}" id="stylesheet">
-    {{ simplemde.js }}
-{% endblock %}
+{% block title %}Новый отчёт{% endblock %}
 
 {% block content_account %}
 
@@ -21,7 +16,7 @@
             <p>Опишите проделанную работу и дальнейшие планы, чтобы научный руководитель знал о текущем состоянии вашей ВКР.</p>
         </div>
     </div>
-    <form method="POST" action="{{url_for('account_add_new_report', id=practice.id)}}">
+    <form method="POST" action="{{url_for('coursework_add_new_report', id=practice.id)}}">
         {{ form.csrf_token }}
 
         <div class="row">
@@ -33,11 +28,12 @@
                             <input id="csrf_token" name="csrf_token" type="hidden" value="IjFlODYzMGM3OGJhOGJmZDMwNmE0YWJiODkyMjkyN2U1ZDliMWMwMDEi.Yy__0A.-a2HDsftJTasLBHG084ksWFYZ34">
                             <div class="row">
                                 <div class="col">
-                                    <div class="form-group">
+                                    <div class="form-group mb-0">
                                         <h6>Что было сделано? (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)</h6>
                                         {{form.was_done(class_="form-control", placeholder=form.was_done.description, rows="3")}}
                                         <script>
                                         (function () {
+                                            console.log('yes');
                                             var simplemde = new SimpleMDE({
                                             spellChecker: false,
                                             element: document.getElementById("was_done"),
@@ -50,7 +46,7 @@
 
                             <div class="row">
                                 <div class="col">
-                                    <div class="form-group">
+                                    <div class="form-group mb-0">
                                         <h6>Что планируется сделать? (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)</h6>
                                         {{form.planned_to_do(class_="form-control", placeholder=form.planned_to_do.description, rows="3")}}
                                         <script>

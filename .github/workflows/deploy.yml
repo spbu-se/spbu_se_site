@@ -1,19 +1,19 @@
-# This is a basic account_workflow to help you get started with Actions
+# This is a basic coursework_workflow to help you get started with Actions
 
 name: SSH Deploy
 
 # Controls when the action will run. 
 on:
-    # Triggers the account_workflow on push or pull request events but only for the current branch
+    # Triggers the coursework_workflow on push or pull request events but only for the current branch
     pull_request:
     push:
       branches:
-        - account
+        - current
 
-    # Allows you to run this account_workflow manually from the Actions tab
+    # Allows you to run this coursework_workflow manually from the Actions tab
     workflow_dispatch:
 
-# A account_workflow run is made up of one or more jobs that can run sequentially or in parallel
+# A coursework_workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
     deploy:
