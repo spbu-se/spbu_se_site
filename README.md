@@ -21,11 +21,18 @@ python -m venv venv
 ```
 
 5. Активировать виртуальное окружение
+
+Windows
 ```bash
 venv\Scripts\activate
 ```
 
-6. Подключить необходимые пакеты
+Linux
+```bash
+. venv/bin/activate
+```
+
+6. Установить необходимые пакеты
 ```bash
 pip install -r requirements.txt
 ```
