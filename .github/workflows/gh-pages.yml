@@ -21,10 +21,10 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
       steps:
       
-        # Checks-out to branch ver2_dev
+        # Checks-out to branch coursework
         - uses: actions/checkout@v2
           with:
-            ref: 'account'
+            ref: 'coursework'
             
         - uses: dawidd6/action-delete-branch@v3
           with:
