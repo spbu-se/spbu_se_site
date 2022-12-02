@@ -7,7 +7,7 @@ on:
     # Triggers the workflow on push or pull request events but only for the current branch
     push:
       branches:
-        - account
+        - coursework
 
     # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
@@ -46,7 +46,7 @@ jobs:
         # Set up Python 3.8 environment
         - uses: actions/setup-python@v2
           with:
-              python-version: '3.8.0'
+              python-version: '3.8'
               
         # Install dependencies
         - name: Install dependencies

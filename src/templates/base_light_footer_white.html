@@ -250,7 +250,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                             <div class="d-flex">
                                                 <!-- Media body -->
                                                 <div class="ml-3">
-                                                    <small class="text-sm">Написание практик и ВКР для преподавателей</small>
+                                                    <small class="text-sm">Написание практик и ВКР (для преподавателей)</small>
                                                 </div>
                                             </div>
                                         </a>
@@ -339,6 +339,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <li><a href="{{ url_for('list_news') }}">Новости</a></li>
                             <li><a href="{{ url_for('theses_search') }}">Архив курсовых и ВКР</a></li>
                             <li><a href="{{ url_for('internships_index') }}">Поиск IT-стажировок</a></li>
+                            <li><a href="{{ url_for('coursework_index') }}">Написание практик и ВКР</a></li>
+                            {% if current_user.is_authenticated and current_user.is_staff() %}
+                            <li><a href="{{ url_for('index_staff') }}">Написание практик и ВКР (для преподавателей)</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                     <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
