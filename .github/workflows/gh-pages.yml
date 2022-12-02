@@ -28,7 +28,7 @@ jobs:
         # Checks-out to branch that triggered the action
         - uses: actions/checkout@v2
           with:
-            ref: ${GITHUB_REF_NAME}
+            ref: ${{ github.ref_name }}
             
         - uses: dawidd6/action-delete-branch@v3
           with:
