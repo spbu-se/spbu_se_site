@@ -134,6 +134,7 @@ function UpdateReady()
             $("#content").html(e.state.html);
             document.title = e.state.pageTitle;
             UpdateReady();
+            feather.replace();
         }
         else
         {

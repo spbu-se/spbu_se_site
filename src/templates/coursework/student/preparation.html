@@ -13,7 +13,7 @@
     </div>
 
     {% if deadline %}
-    <div class="row">
+    <div class="row mb-3">
         <div class="col">
             {% if deadline.submit_work_for_review %}
             <p class="mb-0">Дедлайн на отправку работы для рецензирования: <b>{{ deadline.submit_work_for_review | datatime_convert }}</b>

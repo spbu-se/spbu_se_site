@@ -5,7 +5,7 @@ import pytz
 from datetime import date, timedelta
 
 import werkzeug
-from flask import flash, redirect, request, render_template, url_for
+from flask import flash, redirect, request, render_template, url_for, render_template_string
 from flask_login import current_user
 from sqlalchemy import desc, asc
 from datetime import datetime
@@ -50,7 +50,8 @@ def coursework_temp_deadline():
                 deadline.area_id = area_id
                 db.session.add(deadline)
 
-            current_thesises = CurrentThesis.query.filter_by(worktype_id=worktype_id).filter_by(area_id=area_id).all()
+            current_thesises = CurrentThesis.query.filter_by(worktype_id=worktype_id).filter_by(area_id=area_id).\
+                filter_by(deleted=False).filter_by(status=1).all()
 
             if request.form.get('choose_topic'):
                 new_deadline = datetime.strptime(request.form.get('choose_topic'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
@@ -194,7 +195,8 @@ def coursework_temp():
             new_notification.content = content
 
             add_mail_notification(recipient_id, "[SE site] Уведомление",
-                                  current_user.get_name() + " отправил Вам уведомление:\n" + content)
+                                  render_template_string(current_user.get_name() + " отправил Вам уведомление: <br>" +
+                                                         content))
 
             db.session.add(new_notification)
             db.session.commit()
