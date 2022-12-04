@@ -108,7 +108,7 @@ class InternshipsFilter(FlaskForm):
     tag = SelectField('tag', choices=[])
 
     
-# Account forms
+# Practice forms
 class CurrentWorktypeArea(FlaskForm):
     worktype = SelectField('worktype', choices=[])
     area = SelectField('area', choices=[])

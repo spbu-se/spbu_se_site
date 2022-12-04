@@ -1,4 +1,4 @@
-{% extends "coursework/student/base_account.html" %}
+{% extends "practice/student/base_practice.html" %}
 
 {% block title %}Отчётность{% endblock %}
 
@@ -20,11 +20,11 @@
 
     <div class="row mb-3">
         <div class="col text-center">
-            <a id="new_report_button" name="{{ practice.id }}" href="{{url_for('coursework_add_new_report', id=practice.id)}}" class="btn btn-primary">Создать новый отчёт</a>
+            <a id="new_report_button" name="{{ practice.id }}" href="{{url_for('practice_add_new_report', id=practice.id)}}" class="btn btn-primary">Создать новый отчёт</a>
         </div>
     </div>
 
-    <form name="delete_buttons_form" method="POST" action="{{ url_for('coursework_workflow', id=practice.id) }}">
+    <form name="delete_buttons_form" method="POST" action="{{ url_for('practice_workflow', id=practice.id) }}">
         <input id="hiddenDeleteButton" type="hidden" name="delete_button" value="0"/>
         {% if reports %}
         <h6>Отправленные отчёты</h6>

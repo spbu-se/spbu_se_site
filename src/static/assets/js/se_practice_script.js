@@ -2,35 +2,35 @@ $(document).ready(function(){ UpdateReady(); });
 
 function UpdateReady()
 {
-    //Coursework student
+    //Practice student
     $('#index_button').click( function(event)
     {
         event.preventDefault();
-        LoadPageWithAjax('/coursework', 'GET', null, 'Главная');
+        LoadPageWithAjax('/practice', 'GET', null, 'Главная');
     });
 
     $('#guide_button').click( function(event)
     {
         event.preventDefault();
-        LoadPageWithAjax('/coursework/guide', 'GET', null, 'Справочник');
+        LoadPageWithAjax('/practice/guide', 'GET', null, 'Справочник');
     });
 
     $('#new_work_button').click( function(event)
     {
         event.preventDefault();
-        LoadPageWithAjax('/coursework/new', 'GET', null, 'Новая работа');
+        LoadPageWithAjax('/practice/new', 'GET', null, 'Новая работа');
     });
 
     $('#edit_topic_button').click( function(event)
     {
         event.preventDefault();
-        LoadPageWithAjax('/coursework/edit_theme', 'GET', {id: this.name}, 'Выбор темы');
+        LoadPageWithAjax('/practice/edit_theme', 'GET', {id: this.name}, 'Выбор темы');
     });
 
     $('#new_report_button').click( function(event)
     {
         event.preventDefault();
-        LoadPageWithAjax('/coursework/add_new_report', 'GET', {id: this.name}, 'Новый отчёт');
+        LoadPageWithAjax('/practice/add_new_report', 'GET', {id: this.name}, 'Новый отчёт');
     });
 
     $('.nav').each(function()
@@ -44,59 +44,59 @@ function UpdateReady()
                     button.onclick = function(event)
                     {
                         event.preventDefault();
-                        LoadPageWithAjax('/coursework/choosing_topic', 'GET', {id: thesis_id}, 'Выбор темы');
+                        LoadPageWithAjax('/practice/choosing_topic', 'GET', {id: thesis_id}, 'Выбор темы');
                     }
                     break;
                 case 'goals_tasks_button':
                     button.onclick = function(event)
                     {
                         event.preventDefault();
-                        LoadPageWithAjax('/coursework/goals_tasks', 'GET', {id: thesis_id}, 'Цели и задачи');
+                        LoadPageWithAjax('/practice/goals_tasks', 'GET', {id: thesis_id}, 'Цели и задачи');
                     }
                     break;
                 case 'reports_button':
                     button.onclick = function(event)
                     {
                         event.preventDefault();
-                        LoadPageWithAjax('/coursework/workflow', 'GET', {id: thesis_id}, 'Отчётность');
+                        LoadPageWithAjax('/practice/workflow', 'GET', {id: thesis_id}, 'Отчётность');
                     }
                     break;
                 case 'preparation_button':
                     button.onclick = function(event)
                     {
                         event.preventDefault();
-                        LoadPageWithAjax('/coursework/preparation_for_defense', 'GET', {id: thesis_id}, 'Подготовка к защите');
+                        LoadPageWithAjax('/practice/preparation_for_defense', 'GET', {id: thesis_id}, 'Подготовка к защите');
                     }
                     break;
                 case 'defense_button':
                     button.onclick = function(event)
                     {
                         event.preventDefault();
-                        LoadPageWithAjax('/coursework/defense', 'GET', {id: thesis_id}, 'Защита');
+                        LoadPageWithAjax('/practice/defense', 'GET', {id: thesis_id}, 'Защита');
                     }
                     break;
                 case 'data_for_practice_button':
                     button.onclick = function(event)
                     {
                         event.preventDefault();
-                        LoadPageWithAjax('/coursework/data_for_practice', 'GET', {id: thesis_id}, 'Настройки');
+                        LoadPageWithAjax('/practice/data_for_practice', 'GET', {id: thesis_id}, 'Настройки');
                     }
                     break;
             }
         }
     });
 
-    //Coursework staff
+    //Practice staff
     $('#current_thesises_button').click( function(event)
     {
         event.preventDefault();
-        LoadPageWithAjax('/coursework_staff', 'GET', null, 'Текущие работы');
+        LoadPageWithAjax('/practice_staff', 'GET', null, 'Текущие работы');
     });
 
     $('#finished_thesises_button').click( function(event)
     {
         event.preventDefault();
-        LoadPageWithAjax('/coursework_staff/finished_thesises', 'GET', null, 'Завершённые работы');
+        LoadPageWithAjax('/practice_staff/finished_thesises', 'GET', null, 'Завершённые работы');
     });
 
     $("a[name='thesis_link']").each(function()
@@ -104,7 +104,7 @@ function UpdateReady()
         $(this).click(function(event)
         {
             event.preventDefault();
-            LoadPageWithAjax('/coursework_staff/thesis', 'GET', {id: this.id}, 'Текущие работы');
+            LoadPageWithAjax('/practice_staff/thesis', 'GET', {id: this.id}, 'Текущие работы');
         });
     });
 
@@ -113,7 +113,7 @@ function UpdateReady()
         $(this).click(function(event)
         {
             event.preventDefault();
-            LoadPageWithAjax('/coursework_staff/reports', 'GET', {id: this.id}, 'Отчёты');
+            LoadPageWithAjax('/practice_staff/reports', 'GET', {id: this.id}, 'Отчёты');
         });
     });
 
@@ -142,8 +142,8 @@ function UpdateReady()
         }
     };
 
-    let coursework_filter_element = document.getElementById('guide_button');
-    if (coursework_filter_element){
+    let practice_filter_element = document.getElementById('guide_button');
+    if (practice_filter_element){
         $('[data-toggle="popoverhover"]').popover({ trigger: "hover" });
     }
 }

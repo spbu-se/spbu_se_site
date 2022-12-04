@@ -8,4 +8,4 @@ from flask_login import current_user
 
 @login_required
 def index_admin():
-    return render_template('coursework/admin/base_coursework_admin.html')
+    return render_template('practice/admin/base_practice_admin.html')

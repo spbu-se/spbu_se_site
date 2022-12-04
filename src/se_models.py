@@ -314,7 +314,7 @@ class Internships(db.Model):
         return self.name_vacancy
 
 
-# Coursework, diploma
+# Practice, diploma
 class Worktype(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(255), nullable=False)

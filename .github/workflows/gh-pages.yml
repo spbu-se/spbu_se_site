@@ -7,7 +7,7 @@ on:
     # Triggers the workflow on push or pull request events
     push:
       branches:
-        - coursework
+        - practice
         - ver2_dev
     pull_request:
       branches:

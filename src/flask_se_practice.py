@@ -31,7 +31,7 @@ def allowed_file(filename):
 
 
 @login_required
-def coursework_temp_deadline():
+def practice_temp_deadline():
     form = DeadlineTemp()
 
     if request.method == "POST":
@@ -181,11 +181,11 @@ def coursework_temp_deadline():
     for worktype in Worktype.query.filter(Worktype.id > 2).order_by('id').all():
         form.worktype.choices.append((worktype.id, worktype.type))
 
-    return render_template('coursework/temp_deadline.html', form=form)
+    return render_template('practice/temp_deadline.html', form=form)
 
 
 @login_required
-def coursework_temp():
+def practice_temp():
     if request.method == "POST":
         recipient_id = request.form.get('recipient')
         content = request.form.get('content')
@@ -201,11 +201,11 @@ def coursework_temp():
             db.session.add(new_notification)
             db.session.commit()
 
-    return render_template('coursework/temp.html')
+    return render_template('practice/temp.html')
 
 
 @login_required
-def coursework_index():
+def practice_index():
     user = current_user
 
     type_notifications = request.args.get('notifications', type=str)
@@ -224,17 +224,17 @@ def coursework_index():
     notifications_not_viewed = NotificationCoursework.query.filter_by(recipient_id=user.id).filter_by(viewed=False). \
         order_by(desc(NotificationCoursework.time)).all()
 
-    return render_template('coursework/student/index.html', thesises=get_list_of_thesises(), notifications=notifications,
+    return render_template('practice/student/index.html', thesises=get_list_of_thesises(), notifications=notifications,
                            notifications_not_viewed=notifications_not_viewed, type_notifications=type_notifications)
 
 
 @login_required
-def coursework_guide():
-    return render_template('coursework/student/guide.html', thesises=get_list_of_thesises())
+def practice_guide():
+    return render_template('practice/student/guide.html', thesises=get_list_of_thesises())
 
 
 @login_required
-def coursework_new_thesis():
+def practice_new_thesis():
     user = current_user
     form = CurrentWorktypeArea()
 
@@ -253,7 +253,7 @@ def coursework_new_thesis():
 
             db.session.add(new_thesis)
             db.session.commit()
-            return redirect(url_for('coursework_choosing_topic', id=new_thesis.id))
+            return redirect(url_for('practice_choosing_topic', id=new_thesis.id))
 
     form.area.choices.append((0, 'Выберите направление'))
     for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by('id').all():
@@ -263,19 +263,19 @@ def coursework_new_thesis():
     for worktype in Worktype.query.filter(Worktype.id > 2).all():
         form.worktype.choices.append((worktype.id, worktype.type))
 
-    return render_template('coursework/student/new_practice.html', thesises=get_list_of_thesises(), user=user, review_filter=form,
+    return render_template('practice/student/new_practice.html', thesises=get_list_of_thesises(), user=user, review_filter=form,
                            form=form)
 
 
 @login_required
-def coursework_choosing_topic():
+def practice_choosing_topic():
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     if request.method == "POST":
         if request.form['submit_button'] == 'Сохранить':
@@ -307,20 +307,20 @@ def coursework_choosing_topic():
     for supervisor in Staff.query.join(Users, Staff.user_id == Users.id).order_by(asc(Users.last_name)).all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
 
-    return render_template('coursework/student/choosing_topic.html', thesises=get_list_of_thesises(), form=form,
+    return render_template('practice/student/choosing_topic.html', thesises=get_list_of_thesises(), form=form,
                            practice=current_thesis, deadline=deadline,
                            remaining_time=get_remaining_time(deadline, "choose_topic"))
 
 
 @login_required
-def coursework_edit_theme():
+def practice_edit_theme():
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     form = ChooseTopic()
     if request.method == "POST":
@@ -339,7 +339,7 @@ def coursework_edit_theme():
                 current_thesis.supervisor_id = supervisor_id
 
                 db.session.commit()
-                return redirect(url_for('coursework_choosing_topic', id=current_thesis_id))
+                return redirect(url_for('practice_choosing_topic', id=current_thesis_id))
 
     form.topic.data = current_thesis.title
     form.staff.choices.append((current_thesis.supervisor_id, current_thesis.supervisor))
@@ -348,19 +348,19 @@ def coursework_edit_theme():
             .order_by(asc(Users.last_name)).all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
 
-    return render_template('coursework/student/edit_theme.html', thesises=get_list_of_thesises(), form=form,
+    return render_template('practice/student/edit_theme.html', thesises=get_list_of_thesises(), form=form,
                            practice=current_thesis)
 
 
 @login_required
-def coursework_goals_tasks():
+def practice_goals_tasks():
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     formGoal = AddGoal()
     formTask = AddTask()
@@ -412,19 +412,19 @@ def coursework_goals_tasks():
                 db.session.commit()
                 flash('Задача удалена!', category='success')
 
-    return render_template('coursework/student/goals_tasks.html', thesises=get_list_of_thesises(),
+    return render_template('practice/student/goals_tasks.html', thesises=get_list_of_thesises(),
                            practice=current_thesis, formGoal=formGoal, formTask=formTask)
 
 
 @login_required
-def coursework_workflow():
+def practice_workflow():
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     if request.method == "POST":
         if request.form['delete_button']:
@@ -436,19 +436,19 @@ def coursework_workflow():
 
     reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).filter_by(deleted=False). \
         order_by(desc(ThesisReport.time)).all()
-    return render_template('coursework/student/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
+    return render_template('practice/student/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
                            reports=reports)
 
 
 @login_required
-def coursework_add_new_report():
+def practice_add_new_report():
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     user = current_user
     add_thesis_report_form = UserAddReport()
@@ -471,21 +471,21 @@ def coursework_add_new_report():
             db.session.add(new_report)
             db.session.commit()
             flash('Отчёт успешно отправлен!', category='success')
-            return redirect(url_for('coursework_workflow', id=current_thesis_id))
+            return redirect(url_for('practice_workflow', id=current_thesis_id))
 
-    return render_template('coursework/student/new_report.html', thesises=get_list_of_thesises(), practice=current_thesis,
+    return render_template('practice/student/new_report.html', thesises=get_list_of_thesises(), practice=current_thesis,
                            form=add_thesis_report_form, user=user)
 
 
 @login_required
-def coursework_preparation():
+def practice_preparation():
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     if request.method == 'POST':
         if 'submit_text_button' in request.form:
@@ -727,34 +727,34 @@ def coursework_preparation():
     deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).\
         filter_by(area_id=current_thesis.area_id).first()
 
-    return render_template('coursework/student/preparation.html', thesises=get_list_of_thesises(),
+    return render_template('practice/student/preparation.html', thesises=get_list_of_thesises(),
                            practice=current_thesis, deadline=deadline,
                            remaining_time_submit=get_remaining_time(deadline, "submit_work_for_review"),
                            remaining_time_upload=get_remaining_time(deadline, "upload_reviews"))
 
 
 @login_required
-def coursework_thesis_defense():
+def practice_thesis_defense():
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
-    return render_template('coursework/student/defense.html', thesises=get_list_of_thesises(), practice=current_thesis)
+    return render_template('practice/student/defense.html', thesises=get_list_of_thesises(), practice=current_thesis)
 
 
 @login_required
-def coursework_data_for_practice():
+def practice_data_for_practice():
     current_thesis_id = request.args.get('id', type=int)
     if not current_thesis_id:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
     if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('coursework_index'))
+        return redirect(url_for('practice_index'))
 
     user = current_user
     form = CurrentWorktypeArea()
@@ -777,7 +777,7 @@ def coursework_data_for_practice():
         elif request.form['submit_button'] == 'Да, удалить!':
             current_thesis.deleted = True
             db.session.commit()
-            return redirect(url_for('coursework_index'))
+            return redirect(url_for('practice_index'))
 
     form.area.choices.append((current_thesis.area_id, current_thesis.area.area))
     for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).filter(AreasOfStudy.id != current_thesis.area.id). \
@@ -789,7 +789,7 @@ def coursework_data_for_practice():
         if worktype.id != current_thesis.worktype_id:
             form.worktype.choices.append((worktype.id, worktype))
 
-    return render_template('coursework/student/data_for_practice.html', thesises=get_list_of_thesises(), user=user, form=form,
+    return render_template('practice/student/data_for_practice.html', thesises=get_list_of_thesises(), user=user, form=form,
                            practice=current_thesis)
 
 

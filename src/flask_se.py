@@ -40,11 +40,11 @@ from flask_se_internships import add_internship, internships_index, page_interns
 
 from se_sendmail import notification_send_mail, notification_send_diploma_themes_on_review
 
-from flask_se_coursework import coursework_index, coursework_guide, coursework_new_thesis, coursework_choosing_topic, \
-    coursework_add_new_report, coursework_preparation, coursework_thesis_defense, coursework_data_for_practice, \
-    coursework_edit_theme, coursework_temp, coursework_temp_deadline, coursework_workflow, coursework_goals_tasks
-from flask_se_coursework_staff import index_staff, thesis_staff, reports_staff, finished_thesises_staff
-from flask_se_coursework_admin import index_admin
+from flask_se_practice import practice_index, practice_guide, practice_new_thesis, practice_choosing_topic, \
+    practice_add_new_report, practice_preparation, practice_thesis_defense, practice_data_for_practice, \
+    practice_edit_theme, practice_temp, practice_temp_deadline, practice_workflow, practice_goals_tasks
+from flask_se_practice_staff import index_staff, thesis_staff, reports_staff, finished_thesises_staff
+from flask_se_practice_admin import index_admin
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -155,29 +155,29 @@ app.add_url_rule('/internships/<int:id>/delete', view_func=delete_internship)
 app.add_url_rule('/internships/<int:id>/update', methods=['GET', 'POST'], view_func=update_internship)
 
 
-# Coursework
-app.add_url_rule('/coursework', methods=['GET', 'POST'], view_func=coursework_index)
-app.add_url_rule('/coursework/guide', methods=['GET'], view_func=coursework_guide)
-app.add_url_rule('/coursework/new', methods=['GET', 'POST'], view_func=coursework_new_thesis)
-app.add_url_rule('/coursework/data_for_practice', methods=['GET', 'POST'], view_func=coursework_data_for_practice)
-app.add_url_rule('/coursework/choosing_topic', methods=['GET', 'POST'], view_func=coursework_choosing_topic)
-app.add_url_rule('/coursework/edit_theme', methods=['GET', 'POST'], view_func=coursework_edit_theme)
-app.add_url_rule('/coursework/goals_tasks', methods=['GET', 'POST'], view_func=coursework_goals_tasks)
-app.add_url_rule('/coursework/add_new_report', methods=['GET', 'POST'], view_func=coursework_add_new_report)
-app.add_url_rule('/coursework/workflow', methods=['GET', 'POST'], view_func=coursework_workflow)
-app.add_url_rule('/coursework/preparation_for_defense', methods=['GET', 'POST'], view_func=coursework_preparation)
-app.add_url_rule('/coursework/defense', methods=['GET'], view_func=coursework_thesis_defense)
-app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=coursework_temp)
-app.add_url_rule('/temp_deadline', methods=['GET', 'POST'], view_func=coursework_temp_deadline)
+# Practice
+app.add_url_rule('/practice', methods=['GET', 'POST'], view_func=practice_index)
+app.add_url_rule('/practice/guide', methods=['GET'], view_func=practice_guide)
+app.add_url_rule('/practice/new', methods=['GET', 'POST'], view_func=practice_new_thesis)
+app.add_url_rule('/practice/data_for_practice', methods=['GET', 'POST'], view_func=practice_data_for_practice)
+app.add_url_rule('/practice/choosing_topic', methods=['GET', 'POST'], view_func=practice_choosing_topic)
+app.add_url_rule('/practice/edit_theme', methods=['GET', 'POST'], view_func=practice_edit_theme)
+app.add_url_rule('/practice/goals_tasks', methods=['GET', 'POST'], view_func=practice_goals_tasks)
+app.add_url_rule('/practice/add_new_report', methods=['GET', 'POST'], view_func=practice_add_new_report)
+app.add_url_rule('/practice/workflow', methods=['GET', 'POST'], view_func=practice_workflow)
+app.add_url_rule('/practice/preparation_for_defense', methods=['GET', 'POST'], view_func=practice_preparation)
+app.add_url_rule('/practice/defense', methods=['GET'], view_func=practice_thesis_defense)
+app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=practice_temp)
+app.add_url_rule('/temp_deadline', methods=['GET', 'POST'], view_func=practice_temp_deadline)
 
-# Coursework staff
-app.add_url_rule('/coursework_staff', methods=['GET'], view_func=index_staff)
-app.add_url_rule('/coursework_staff/thesis', methods=['GET', 'POST'], view_func=thesis_staff)
-app.add_url_rule('/coursework_staff/reports', methods=['GET', 'POST'], view_func=reports_staff)
-app.add_url_rule('/coursework_staff/finished_thesises', methods=['GET'], view_func=finished_thesises_staff)
+# Practice staff
+app.add_url_rule('/practice_staff', methods=['GET'], view_func=index_staff)
+app.add_url_rule('/practice_staff/thesis', methods=['GET', 'POST'], view_func=thesis_staff)
+app.add_url_rule('/practice_staff/reports', methods=['GET', 'POST'], view_func=reports_staff)
+app.add_url_rule('/practice_staff/finished_thesises', methods=['GET'], view_func=finished_thesises_staff)
 
-# Coursework admin
-app.add_url_rule('/coursework_admin', methods=['GET'], view_func=index_admin)
+# Practice admin
+app.add_url_rule('/practice_admin', methods=['GET'], view_func=index_admin)
 
 # Init Database
 db.app = app

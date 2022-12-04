@@ -1,4 +1,4 @@
-{% extends "coursework/student/base_account.html" %}
+{% extends "practice/student/base_practice.html" %}
 
 {% block title %}Новый отчёт{% endblock %}
 
@@ -16,7 +16,7 @@
             <p>Опишите проделанную работу и дальнейшие планы, чтобы научный руководитель знал о текущем состоянии вашей ВКР.</p>
         </div>
     </div>
-    <form method="POST" action="{{url_for('coursework_add_new_report', id=practice.id)}}">
+    <form method="POST" action="{{url_for('practice_add_new_report', id=practice.id)}}">
         {{ form.csrf_token }}
 
         <div class="row">
