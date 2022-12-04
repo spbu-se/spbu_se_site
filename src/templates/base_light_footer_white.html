@@ -237,7 +237,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
-                                        <a href="{{ url_for('coursework_index') }}" class="list-group-item list-group-item-action" role="button">
+                                        <a href="{{ url_for('practice_index') }}" class="list-group-item list-group-item-action" role="button">
                                             <div class="d-flex">
                                                 <!-- Media body -->
                                                 <div class="ml-3">
@@ -246,7 +246,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                             </div>
                                         </a>
                                         {% if current_user.is_authenticated and current_user.is_staff() %}
-                                        <a id="coursework_staff_button" href="{{ url_for('index_staff') }}" class="list-group-item list-group-item-action" role="button">
+                                        <a id="practice_staff_button" href="{{ url_for('index_staff') }}" class="list-group-item list-group-item-action" role="button">
                                             <div class="d-flex">
                                                 <!-- Media body -->
                                                 <div class="ml-3">
@@ -339,7 +339,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <li><a href="{{ url_for('list_news') }}">Новости</a></li>
                             <li><a href="{{ url_for('theses_search') }}">Архив курсовых и ВКР</a></li>
                             <li><a href="{{ url_for('internships_index') }}">Поиск IT-стажировок</a></li>
-                            <li><a href="{{ url_for('coursework_index') }}">Написание практик и ВКР</a></li>
+                            <li><a href="{{ url_for('practice_index') }}">Написание практик и ВКР</a></li>
                             {% if current_user.is_authenticated and current_user.is_staff() %}
                             <li><a href="{{ url_for('index_staff') }}">Написание практик и ВКР (для преподавателей)</a></li>
                             {% endif %}

@@ -1,4 +1,4 @@
-{% extends "coursework/student/base_account.html" %}
+{% extends "practice/student/base_practice.html" %}
 
 {% block title %}Подготовка к защите{% endblock %}
 
@@ -37,7 +37,7 @@
     </div>
     {% endif %}
 
-    <form method="POST" action="{{url_for('coursework_preparation', id=practice.id)}}" enctype="multipart/form-data">
+    <form method="POST" action="{{url_for('practice_preparation', id=practice.id)}}" enctype="multipart/form-data">
 
         <div class="row">
             <div class="col">

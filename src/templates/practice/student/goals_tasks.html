@@ -1,4 +1,4 @@
-{% extends "coursework/student/base_account.html" %}
+{% extends "practice/student/base_practice.html" %}
 
 {% block title %}Цель и задачи{% endblock %}
 
@@ -11,7 +11,7 @@
         </div>
     </div>
     
-    <form name="edit_tasks_goals_form" method="POST" action="{{ url_for('coursework_goals_tasks', id=practice.id) }}">
+    <form name="edit_tasks_goals_form" method="POST" action="{{ url_for('practice_goals_tasks', id=practice.id) }}">
         <div class="card border-0 mb-3">
             {% if not practice.goal %}
             <div class="card-header">
@@ -45,7 +45,7 @@
         </div>
     </form>
 
-    <form name="edit_tasks_goals_form" method="POST" action="{{ url_for('coursework_goals_tasks', id=practice.id) }}">
+    <form name="edit_tasks_goals_form" method="POST" action="{{ url_for('practice_goals_tasks', id=practice.id) }}">
         <div class="card border-0 mb-3">
             <div class="card-header">
                  <h6>Задачи</h6>
