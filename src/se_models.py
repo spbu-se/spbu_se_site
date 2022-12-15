@@ -611,8 +611,11 @@ class ThesisOnReview(db.Model):
     # 2 - on review (in progress)
     # 3 - failed to review
     review_status = db.Column(db.Integer, nullable=True, default=10)
-
     review = db.relationship('ThesisReview', back_populates='thesis_on_review')
+
+    # 0 - is active
+    # 1 - not active
+    deleted = db.Column(db.Integer, nullable=True, default=0)
 
 
 class PromoCode(db.Model):
