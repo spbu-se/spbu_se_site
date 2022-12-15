@@ -29,6 +29,8 @@ class SeAdminModelView(ModelView):
 
 
 class SeAdminModelViewThesis(SeAdminModelView):
+
+    column_exclude_list = ['text']
     pass
 
 
