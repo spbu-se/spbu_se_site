@@ -7,7 +7,7 @@ bs4==0.0.1
 certifi==2020.12.5
 chardet==4.0.0
 charset-normalizer==2.0.12
-click==7.1.2
+click==8.0.0
 clickclick==20.10.2
 connexion==2.6.0
 Flask==2.1.0
@@ -40,6 +40,7 @@ python-dateutil==2.8.2
 python-editor==1.0.4
 pytz==2022.1
 pytz-deprecation-shim==0.1.0.post0
+PyMuPDF==1.20.2
 PyYAML==6.0
 requests==2.27.1
 six==1.16.0
@@ -48,5 +49,11 @@ SQLAlchemy==1.4.35
 tzdata==2022.1
 tzlocal==4.2
 urllib3==1.26.9
-Werkzeug==0.16.1
+Werkzeug==2.0.0
 WTForms==3.0.1
+transliterate==1.10.2
+Pillow==9.3.0
+google-auth-oauthlib==0.7.1
+textile==4.0.2
+whoosh==2.7.4
+pip==22.3.1

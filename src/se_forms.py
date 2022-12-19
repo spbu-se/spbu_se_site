@@ -108,7 +108,7 @@ class InternshipsFilter(FlaskForm):
     tag = SelectField('tag', choices=[])
 
     
-# Account forms
+# Practice forms
 class CurrentWorktypeArea(FlaskForm):
     worktype = SelectField('worktype', choices=[])
     area = SelectField('area', choices=[])
@@ -127,6 +127,14 @@ class DeadlineTemp(FlaskForm):
     upload_reviews = DateTimeField('upload_reviews')
     pre_defense = DateTimeField('pre_defense')
     defense = DateTimeField('defense')
+
+
+class AddGoal(FlaskForm):
+    goal = StringField('goal', description='Например, модификация библиотеки COLMAP оптимальным алгоритмом локализации некалиброванной камеры относительно облака 3D точек.')
+
+
+class AddTask(FlaskForm):
+    task_text = StringField('task_text', description='Например, научиться работать с ajax.')
 
 
 class UserAddReport(FlaskForm):

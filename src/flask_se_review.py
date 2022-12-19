@@ -60,9 +60,9 @@ def fetch_thesis_on_review():
     area = request.args.get('area', default=1, type=int)
 
     if status == 4:
-        records = ThesisOnReview.query.filter(ThesisOnReview.id>0).order_by(ThesisOnReview.id.desc())
+        records = ThesisOnReview.query.filter(ThesisOnReview.id>0).filter(ThesisOnReview.deleted==0).order_by(ThesisOnReview.id.desc())
     else:
-        records = ThesisOnReview.query.filter(ThesisOnReview.review_status==status).order_by(ThesisOnReview.id.desc())
+        records = ThesisOnReview.query.filter(ThesisOnReview.review_status==status).filter(ThesisOnReview.deleted==0).order_by(ThesisOnReview.id.desc())
 
     if worktype > 1:
         records = records.filter(ThesisOnReview.thesis_on_review_type_id==worktype)

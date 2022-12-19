@@ -1,0 +1,57 @@
+{% extends "practice/student/base_practice.html" %}
+
+{% block title %}Защита{% endblock %}
+
+{% block content_account %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col">
+            <h5 class="align-right">Защита</h5>
+        </div>
+    </div>
+
+    {% if not practice.title or not practice.supervisor_review_uri or not practice.reviewer_review_uri or not practice.presentation_uri %}
+    <div class="row">
+        <div class="col">
+            <b>Перед защитой:</b>
+            <ul class="list-unstyled ml-2">
+                {% if not practice.title %}
+                <li>
+                    <span class="text-warning"><i data-feather="alert-triangle"></i></span>
+                    <span>Выберите тему работы и научного руководителя</span>
+                </li>
+                {% endif %}
+                {% if not practice.text_uri %}
+                <li>
+                    <span class="text-warning"><i data-feather="alert-triangle"></i></span>
+                    <span>Загрузите текст работы</span>
+                </li>
+                {% endif %}
+                {% if not practice.supervisor_review_uri %}
+                <li>
+                    <span class="text-warning"><i data-feather="alert-triangle"></i></span>
+                    <span>Загрузите отзыв научного руководителя</span>
+                </li>
+                {% endif %}
+                {% if not practice.reviewer_review_uri %}
+                <li>
+                    <span class="text-warning"><i data-feather="alert-triangle"></i></span>
+                    <span>Загрузите отзыв рецензента</span>
+                </li>
+                {% endif %}
+                {% if not practice.presentation_uri %}
+                <li>
+                    <span class="text-warning"><i data-feather="alert-triangle"></i></span>
+                    <span>Загрузите презентацию на защиту</span>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

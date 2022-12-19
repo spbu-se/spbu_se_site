@@ -1,0 +1,126 @@
+{% extends "practice/student/base_practice.html" %}
+
+{% block title %}Цель и задачи{% endblock %}
+
+{% block content_account %}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h5 class="align-right">Цель и задачи</h5>
+        </div>
+    </div>
+    
+    <form name="edit_tasks_goals_form" method="POST" action="{{ url_for('practice_goals_tasks', id=practice.id) }}">
+        <div class="card border-0 mb-3">
+            {% if not practice.goal %}
+            <div class="card-header">
+                <h6>Укажите цель работы</h6>
+            </div>
+            <div class="card-body pt-2 pb-3">
+                {{formGoal.goal(class_="form-control", placeholder=formGoal.goal.description, rows="3")}}
+                <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_goal_button" value="Сохранить">
+            </div>
+            {% else %}
+            <div class="card-header">
+                <h6>Цель работы</h6>
+            </div>
+            <div class="card-body pt-2 pb-3">
+                <div id="oldGoal">{{practice.goal}}<br></div>
+
+                {{formGoal.goal(class_="form-control", value=practice.goal, id="goal_text", rows="3", hidden=True)}}
+                <input id="editGoal" class="btn btn-sm btn-primary mt-3" name="edit_goal_button" value="Изменить цель" onclick="add_goal()">
+
+                <script>
+                    function add_goal(){
+                        document.getElementById('editGoal').style.display='none';
+                        document.getElementById('editGoalButton').hidden=false;
+                        document.getElementById('goal_text').hidden=false;
+                        document.getElementById('oldGoal').hidden=true;
+                    }
+                </script>
+                <input id="editGoalButton" type="submit" class="btn btn-sm btn-primary mt-3" name="submit_goal_button" value="Сохранить изменения" hidden>
+             </div>
+            {% endif %}
+        </div>
+    </form>
+
+    <form name="edit_tasks_goals_form" method="POST" action="{{ url_for('practice_goals_tasks', id=practice.id) }}">
+        <div class="card border-0 mb-3">
+            <div class="card-header">
+                 <h6>Задачи</h6>
+            </div>
+            <div class="card-body pt-0 pb-3">
+                {% if practice.tasks %}
+                    <ul id="listOfTasks" class="list-unstyled list-bullet mb-0">
+                    {% for task in practice.tasks %}
+                        {% if not task.deleted %}
+                             <li class="py-2">
+                                 <div class="row">
+                                     <div class="col-10" id="task">
+                                         <div class="row">
+                                             <div class="col-1">
+                                                <span class="badge badge-circle rounded-circle badge-soft-success mr-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                                             </div>
+                                             <div class="col-10">
+                                                {{task.task_text}}
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="col-2">
+                                        <div class="text-right">
+                                            <a data-toggle="modal" data-target="{{'#deleteTask'+(task.id|string())+'Modal'}}"  class="text-danger" href="#">
+                                                <button class="text-danger text-center" style="outline: none; border: 0; box-shadow: none; background-color: transparent;"  data-content="Удалить задачу" data-trigger="hover" data-placement="top" data-toggle="popoverhover">
+                                                    <i data-feather="trash-2"></i>
+                                                </button>
+                                            </a>
+                                        </div>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="{{'deleteTask'+(task.id|string())+'Modal'}}" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="{{'ModalLabel'+(task.id|string())}}">Подтверждение</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Вы точно хотите удалить данную задачу?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <input type="submit" class="btn btn-secondary" name="{{'delete_task_'+(task.id|string())}}" value="Да, удалить!">
+                                                        <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                 </div>
+                             </li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Здесь будут задачи Вашей работы</p>
+                {% endif %}
+                <fieldset id="newText" hidden>{{formTask.task_text(class_="form-control", id="textOfTask", placeholder=formTask.task_text.description, rows="3")}}
+                </fieldset>
+                <input id="addButton" class="btn btn-sm btn-primary mt-3" name="submit_task_form_button" value="Добавить задачу" onclick="add_input()">
+
+
+                <script>
+                    function add_input(){
+                        document.getElementById('addButton').style.display='none';
+                        document.getElementById('addTaskButton').hidden=false;
+                        document.getElementById('textOfTask').value='';
+                        document.getElementById('newText').hidden=false;
+                  }
+                </script>
+                <input id="addTaskButton" type="submit" class="btn btn-sm btn-primary mt-2" name="submit_task_button" value="Сохранить" hidden>
+             </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

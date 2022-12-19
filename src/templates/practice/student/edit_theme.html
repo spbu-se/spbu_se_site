@@ -1,4 +1,4 @@
-{% extends "account/base_account.html" %}
+{% extends "practice/student/base_practice.html" %}
 
 {% block title %}Выбор темы{% endblock %}
 
@@ -12,12 +12,12 @@
         </div>
     </div>
 
-    <form method="POST" action="{{url_for('account_edit_theme', id=practice.id) }}">
+    <form method="POST" action="{{url_for('practice_edit_theme', id=practice.id) }}">
         {{ form.csrf_token }}
 
         <div class="row">
-            <div class="col-12">
-                <div class="card">
+            <div class="col">
+                <div class="card border-0">
                     <div class="card-body pt-3">
                         <h6>Редактирование темы</h6>
 

@@ -7,7 +7,7 @@
 
             <div class="row mb-3">
                 <div class="col-12">
-                    <h2>Написание учебных практик и ВКР (Преподаватель)</h2>
+                    <h2>Написание учебных практик и ВКР (Руководитель практики)</h2>
                 </div>
             </div>
 
@@ -15,16 +15,15 @@
                 <div class="col-lg-3 col-12">
 
                     <div id="accordion-1" class="accordion accordion-stacked mb-2">
-
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
-                                <a href="{{ url_for('writing_thesis_index') }}"><h6 class="mb-0">Текущие работы</h6></a>
+                                <a href="#"><h6 class="mb-0">Работы</h6></a>
                             </div>
                         </div>
 
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
-                                <a href="#"><h6 class="mb-0">Отчёты</h6></a>
+                                <a href="#"><h6 class="mb-0">Ещё что-то</h6></a>
                             </div>
                         </div>
 
@@ -68,7 +67,7 @@
                     {% endif %}
                     {% endwith %}
 
-                    {% block content_writing_thesis_staff %}{% endblock %}
+                    {% block content_practice_admin %}{% endblock %}
 
                 </div>
             </div>

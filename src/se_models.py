@@ -31,6 +31,8 @@ metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
 search = Search()
 
+
+
 tag = db.Table('tag',
                db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'), primary_key=True),
                db.Column('thesis_id', db.Integer, db.ForeignKey('thesis.id'), primary_key=True)
@@ -103,7 +105,6 @@ class Users(db.Model, UserMixin):
     google_id = db.Column(db.String(255), nullable=True)
 
     staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
-    staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
     news = db.relationship("Posts", backref=db.backref("author", uselist=False))
     diploma_themes_supervisor = db.relationship("DiplomaThemes", backref=db.backref("supervisor", uselist=False),
                                                 foreign_keys='DiplomaThemes.supervisor_id')
@@ -124,7 +125,6 @@ class Users(db.Model, UserMixin):
     all_user_votes = db.relationship('PostVote', back_populates='user')
     internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False), foreign_keys='Internships.author_id')
 
-
     def get_name(self):
         full_name = ''
         if self.last_name:
@@ -138,8 +138,8 @@ class Users(db.Model, UserMixin):
 
         return full_name
 
-        return "{self.last_name} {self.first_name} {self.middle_name}"
-
+    def is_staff(self):
+        return Staff.query.filter_by(user_id=self.id).first() is not None
 
     def __str__(self):
         full_name = ''
@@ -202,18 +202,29 @@ class CurrentThesis(db.Model):
     supervisor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
     worktype_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
 
+    goal = db.Column(db.String(2048), nullable=True)
+
+    text_uri = db.Column(db.String(512), nullable=True)
     supervisor_review_uri = db.Column(db.String(512), nullable=True)
     reviewer_review_uri = db.Column(db.String(512), nullable=True)
     presentation_uri = db.Column(db.String(512), nullable=True)
 
-    deleted = db.Column(db.Boolean, default=False)
+    text_link = db.Column(db.String(2048), nullable=True)
+    presentation_link = db.Column(db.String(2048), nullable=True)
+
     reports = db.relationship('ThesisReport', backref=db.backref('practice'))
+    tasks = db.relationship('ThesisTask', backref=db.backref('practice'))
+
+    deleted = db.Column(db.Boolean, default=False)
+    status = db.Column(db.Integer, default=1)
+    # 1 - active practice
+    # 2 - past practice
 
     def __repr__(self):
         return self.title
 
 
-class NotificationAccount(db.Model):
+class NotificationCoursework(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     content = db.Column(db.String(512), nullable=False)
@@ -237,6 +248,16 @@ class Deadline(db.Model):
     defense = db.Column(db.DateTime, nullable=True)
 
 
+class ThesisTask(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    task_text = db.Column(db.String(2048), nullable=False)
+    deleted = db.Column(db.Boolean, default=False)
+    current_thesis_id = db.Column(db.Integer, db.ForeignKey('current_thesis.id'))
+
+    def __repr__(self):
+        return self.task_text
+
+
 class ThesisReport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -246,18 +267,11 @@ class ThesisReport(db.Model):
     planned_to_do = db.Column(db.String(2048), nullable=True)
     time = db.Column(db.DateTime, default=datetime.utcnow)
 
+    deleted = db.Column(db.Boolean, default=False)
+
     comment = db.Column(db.String(2048), nullable=True)
     comment_time = db.Column(db.DateTime, nullable=True)
-    '''comments = db.relationship('ThesisComment', backref=db.backref('report'))
 
-
-class ThesisComment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    current_report_id = db.Column(db.Integer, db.ForeignKey('thesis_report.id'))
-
-    comment = db.Column(db.String(2048), nullable=True)
-    time = db.Column(db.DateTime, default=datetime.utcnow)
-'''
 
 class InternshipCompany(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -300,7 +314,7 @@ class Internships(db.Model):
         return self.name_vacancy
 
 
-# Coursework, diploma
+# Practice, diploma
 class Worktype(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(255), nullable=False)
@@ -339,7 +353,7 @@ class Courses(db.Model):
 
 
 class Thesis(db.Model):
-    __searchable__ = ['name_ru', 'description', 'author']
+    __searchable__ = ['name_ru', 'description', 'author', 'text']
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -367,6 +381,7 @@ class Thesis(db.Model):
     publish_year = db.Column(db.Integer, nullable=False)
     recomended = db.Column(db.Boolean, default=False, nullable=False)
     temporary = db.Column(db.Boolean, default=False, nullable=False)
+    text = db.Column(db.Text, nullable=True)
 
     # 0 - success review (or not needed)
     # 1 - need to review
@@ -596,8 +611,11 @@ class ThesisOnReview(db.Model):
     # 2 - on review (in progress)
     # 3 - failed to review
     review_status = db.Column(db.Integer, nullable=True, default=10)
-
     review = db.relationship('ThesisReview', back_populates='thesis_on_review')
+
+    # 0 - is active
+    # 1 - not active
+    deleted = db.Column(db.Integer, nullable=True, default=0)
 
 
 class PromoCode(db.Model):

@@ -14,6 +14,7 @@ from flask_migrate import Migrate
 from flaskext.markdown import Markdown
 from sqlalchemy.sql.expression import func
 from flask_simplemde import SimpleMDE
+from flask_login import current_user
 
 
 import flask_se_theses
@@ -38,10 +39,12 @@ from flask_se_internships import add_internship, internships_index, page_interns
     update_internship, fetch_internships, old_internships_index
 
 from se_sendmail import notification_send_mail, notification_send_diploma_themes_on_review
-from flask_se_account import account_index, account_guide, account_new_thesis, account_choosing_topic, \
-    account_add_new_report, account_preparation, account_thesis_defense, account_data_for_practice, \
-    account_edit_theme, account_temp, account_temp_deadline, account_workflow
-from flask_se_writing_thesis_staff import writing_thesis_index, writing_thesis_thesis, writing_thesis_reports
+
+from flask_se_practice import practice_index, practice_guide, practice_new_thesis, practice_choosing_topic, \
+    practice_add_new_report, practice_preparation, practice_thesis_defense, practice_data_for_practice, \
+    practice_edit_theme, practice_temp, practice_temp_deadline, practice_workflow, practice_goals_tasks
+from flask_se_practice_staff import index_staff, thesis_staff, reports_staff, finished_thesises_staff
+from flask_se_practice_admin import index_admin
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -152,26 +155,29 @@ app.add_url_rule('/internships/<int:id>/delete', view_func=delete_internship)
 app.add_url_rule('/internships/<int:id>/update', methods=['GET', 'POST'], view_func=update_internship)
 
 
-# Account
-app.add_url_rule('/account', methods=['GET', 'POST'], view_func=account_index)
-app.add_url_rule('/account/guide', methods=['GET'], view_func=account_guide)
-app.add_url_rule('/account/new', methods=['GET', 'POST'], view_func=account_new_thesis)
-app.add_url_rule('/account/data_for_practice', methods=['GET', 'POST'], view_func=account_data_for_practice)
-app.add_url_rule('/account/choosing_topic', methods=['GET', 'POST'], view_func=account_choosing_topic)
-app.add_url_rule('/account/edit_theme', methods=['GET', 'POST'], view_func=account_edit_theme)
-app.add_url_rule('/account/account_add_new_report', methods=['GET', 'POST'], view_func=account_add_new_report)
-app.add_url_rule('/account/workflow', methods=['GET', 'POST'], view_func=account_workflow)
-app.add_url_rule('/account/preparation_for_defense', methods=['GET', 'POST'], view_func=account_preparation)
-app.add_url_rule('/account/defense', methods=['GET'], view_func=account_thesis_defense)
-app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=account_temp)
-app.add_url_rule('/temp_deadline', methods=['GET', 'POST'], view_func=account_temp_deadline)
+# Practice
+app.add_url_rule('/practice', methods=['GET', 'POST'], view_func=practice_index)
+app.add_url_rule('/practice/guide', methods=['GET'], view_func=practice_guide)
+app.add_url_rule('/practice/new', methods=['GET', 'POST'], view_func=practice_new_thesis)
+app.add_url_rule('/practice/data_for_practice', methods=['GET', 'POST'], view_func=practice_data_for_practice)
+app.add_url_rule('/practice/choosing_topic', methods=['GET', 'POST'], view_func=practice_choosing_topic)
+app.add_url_rule('/practice/edit_theme', methods=['GET', 'POST'], view_func=practice_edit_theme)
+app.add_url_rule('/practice/goals_tasks', methods=['GET', 'POST'], view_func=practice_goals_tasks)
+app.add_url_rule('/practice/add_new_report', methods=['GET', 'POST'], view_func=practice_add_new_report)
+app.add_url_rule('/practice/workflow', methods=['GET', 'POST'], view_func=practice_workflow)
+app.add_url_rule('/practice/preparation_for_defense', methods=['GET', 'POST'], view_func=practice_preparation)
+app.add_url_rule('/practice/defense', methods=['GET'], view_func=practice_thesis_defense)
+app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=practice_temp)
+app.add_url_rule('/temp_deadline', methods=['GET', 'POST'], view_func=practice_temp_deadline)
 
+# Practice staff
+app.add_url_rule('/practice_staff', methods=['GET'], view_func=index_staff)
+app.add_url_rule('/practice_staff/thesis', methods=['GET', 'POST'], view_func=thesis_staff)
+app.add_url_rule('/practice_staff/reports', methods=['GET', 'POST'], view_func=reports_staff)
+app.add_url_rule('/practice_staff/finished_thesises', methods=['GET'], view_func=finished_thesises_staff)
 
-# Writing_thesis_staff
-app.add_url_rule('/writing_thesis_staff', methods=['GET', 'POST'], view_func=writing_thesis_index)
-app.add_url_rule('/writing_thesis_staff/thesis', methods=['GET', 'POST'], view_func=writing_thesis_thesis)
-app.add_url_rule('/writing_thesis_staff/reports', methods=['GET', 'POST'], view_func=writing_thesis_reports)
-
+# Practice admin
+app.add_url_rule('/practice_admin', methods=['GET'], view_func=index_admin)
 
 # Init Database
 db.app = app

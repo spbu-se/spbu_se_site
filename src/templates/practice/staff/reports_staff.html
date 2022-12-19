@@ -1,0 +1,103 @@
+{% extends "practice/staff/base_practice_staff.html" %}
+
+{% block title %}Отчёты{% endblock %}
+
+{% block content_writing_thesis_staff %}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <p><a id="{{thesis.id}}" name="thesis_link" href="{{ url_for('thesis_staff', id=thesis.id) }}"><i data-feather="arrow-left"></i> К материалам курсовой</a></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h5>{{thesis.title}}</h5>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <p class="mb-0">Студент: <b>{{ thesis.user.get_name() }}</b></p>
+            <p class="mb-0">Тип работы: <b>{{ thesis.worktype }}</b></p>
+            <p>Направление: <b>{{ thesis.area }}</b></p>
+        </div>
+    </div>
+
+    {% if not reports %}
+
+    <div class="row">
+        <div class="col">
+            <p class="text-center"><b>Студент еще не отправлял отчеты.</b></p>
+        </div>
+    </div>
+
+    {% else %}
+
+    <h6 class="mb-0">Отчёты</h6>
+    <div id="accordion-2" class="accordion accordion-stacked mb-2">
+
+        {% for report in reports %}
+        {% if report == reports[0] %}
+        <div class="card border-0">
+        {% else %}
+        <div class="card border-bottom-0 border-left-0 border-right-0">
+        {% endif %}
+            <div class="card-header py-4" id="{{ 'heading-'+(report.id|string())}}" data-toggle="collapse" role="button" data-target="{{ '#collapse-'+(report.id|string()) }}" aria-expanded="false" aria-controls="{{ 'collapse-'+(report.id|string()) }}">
+                <h6 class="mb-0"><i data-feather="file-text" class="mr-3"></i>Отчёт за {{ report.time|datatime_convert }}</h6>
+            </div>
+
+            <div class="card-body py-0">
+                <div id="{{ 'collapse-'+(report.id|string()) }}" class="collapse" aria-labelledby="{{ 'heading-'+(report.id|string()) }}" data-parent="#accordion-2">
+                    <h6>Было сделано</h6>
+                    {{report.was_done|markdown}}
+                    <h6>Планируется сделать</h6>
+                    {{report.planned_to_do|markdown}}
+
+                    {% if report.comment %}
+
+                        <h6>Ваш комментарий к работе</h6>
+                        {{report.comment|markdown}}
+
+                    {% else %}
+                    <form id="{{ report.id|string() }}" method="POST" action="{{url_for('reports_staff', id=thesis.id, report_id=report.id)}}">
+                        {{ form.csrf_token }}
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group mb-0">
+                                    <h6>Добавить комментарий к отчету (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>):</h6>
+                                    <textarea class="form-control" id="{{'comment' + (report.id|string)}}" name="comment" placeholder="Дайте студенту обратную связь по отчету, если хотите." rows="3" style="display: none;"></textarea>
+                                    <script>
+                                        (function () {
+                                            var simplemde = new SimpleMDE({
+                                            spellChecker: false,
+                                            element: document.getElementById("{{'comment' + (report.id|string)}}"),
+                                            });
+                                        })();
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="submit" class="btn btn-sm btn-primary mb-3" name="{{ 'submit_button'+(report.id|string()) }}" id="{{ 'submit_button'+(report.id|string()) }}" value="Добавить комментарий">
+                    </form>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% endif %}
+
+</div>
+<script>
+    $(document).ready(function()
+    {
+        document.title = "{{ thesis.title }}";
+    });
+</script>
+
+{% endblock %}

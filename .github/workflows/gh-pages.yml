@@ -4,10 +4,14 @@ name: CI/CD to github pages
 
 # Controls when the action will run. 
 on:
-    # Triggers the workflow on push or pull request events but only for the current branch
+    # Triggers the workflow on push or pull request events
     push:
       branches:
-        - account
+        - practice
+        - ver2_dev
+    pull_request:
+      branches:
+        - ver2_dev   
 
     # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
@@ -21,10 +25,10 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
       steps:
       
-        # Checks-out to branch ver2_dev
+        # Checks-out to branch that triggered the action
         - uses: actions/checkout@v2
           with:
-            ref: 'account'
+            ref: ${{ github.ref_name }}
             
         - uses: dawidd6/action-delete-branch@v3
           with:
@@ -43,10 +47,10 @@ jobs:
           with:
             ref: 'temp'
         
-        # Set up Python 3.6 environment
+        # Set up Python 3.8 environment
         - uses: actions/setup-python@v2
           with:
-              python-version: '3.8.0'
+              python-version: '3.8'
               
         # Install dependencies
         - name: Install dependencies
@@ -73,13 +77,12 @@ jobs:
         - run: npm i -g purgecss
         - run: purgecss --css docs/assets/css/*.css --content src/templates/*.html --safelist show --output docs/assets/css
 
-            
         - name: Deploy
           uses: peaceiris/actions-gh-pages@v3
           with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             publish_dir: ./docs
-
+            
         - uses: dawidd6/action-delete-branch@v3
           with:
             github_token: ${{github.token}}

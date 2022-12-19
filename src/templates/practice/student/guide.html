@@ -1,0 +1,82 @@
+{% extends "practice/student/base_practice.html" %}
+
+{% block title %}Справочник{% endblock %}
+
+{% block content_account %}
+<div class="container">
+
+    <div class="row">
+        <div class="col">
+            <h5 class="align-right">Справочник</h5>
+        </div>
+    </div>
+     <div class="row">
+         <div class="col">
+             <h6>Порядок работы над учебной практикой (УП):</h6>
+             <ul class="pl-3">
+                 <li class="mx-0">Выбираете научного руководителя и тему из <a href="https://se.math.spbu.ru/diplomas/index.html" target="_blank">списка предложенных</a>.
+                     <ul>
+                         <li>От второкурсников ожидается умение писать хороший код и искать информацию, от третьекурсников –
+                             не только умение что-то сделать, но и понимание того, зачем и почему это делалось.</li>
+                     </ul>
+                 </li>
+
+                 <li>Выполняете работу, раз в неделю отчитываясь научнику (и консультанту, если есть) о том, на что ушло
+                     время. Типичный план работы:
+                     <ul class="list-unstyled">
+                         <li class="py-2">
+                             <span class="badge badge-circle rounded-circle badge-soft-success mr-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                             Погружение в предметную область
+                         </li>
+                         <li class="py-2">
+                             <span class="badge badge-circle rounded-circle badge-soft-success mr-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                             Обзор аналогов и используемых инструментов
+                         </li>
+                         <li class="py-2">
+                             <span class="badge badge-circle rounded-circle badge-soft-success mr-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                             Проектирование и реализация
+                         </li>
+                         <li class="py-2">
+                             <span class="badge badge-circle rounded-circle badge-soft-success mr-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                             Апробация
+                         </li>
+                         <li class="py-2">
+                             <span class="badge badge-circle rounded-circle badge-soft-success mr-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                             Написание текста, подготовка к защите
+                         </li>
+                     </ul>
+                 </li>
+                 <li>В конце семестра сдаёте на кафедру отчёт, отзыв научника, и проходите защиту.</li>
+                    <ul>
+                        <li>Для допуска к защите проходите рецензирование, а после – сдаёте презентацию.</li>
+                    </ul>
+                     <li>Оценка пойдет в диплом, а курсовая - в архив кафедры.</li>
+             </ul>
+
+             <hr class="divider divider-fade" />
+             <b><a href="../files/PracticesGuide.pdf" target="_blank">Подробный гайд</a> по учебным практикам (рекомендуем к прочтению!)</b>
+             <h6>Шаблоны:</h6>
+             <ul>
+                 <li><a href="https://github.com/spbu-se/matmex-diploma-template" target="_blank">отчёта</a></li>
+                 <li><a href="https://github.com/spbu-se/report_presentation_template" target="_blank">презентации</a></li>
+                 <li>отзывов:
+                     <ul>
+                         <li><a href="https://docs.google.com/document/d/1bjIlOsBn47HhU_q9DRnrz-yjiWtiML85uDU_n5OgQXc" target="_blank">научника</a></li>
+                         <li><a href="https://docs.google.com/document/d/13jq0sNdH6lWY9qg0mdDIaxcU7eEK3iGJuveiaqzJxyk" target="_blank">консультанта</a></li>
+                     </ul>
+                 </li>
+                 <li><a href="https://drive.google.com/file/d/1yd7DH2y94CDiBxHX59-I7BTwrtrwit6r" target="_blank">акта о внедрении</a></li>
+
+             </ul>
+             <h6>Примеры курсовых работ:</h6>
+             <ul>
+                 <li><a href="https://se.math.spbu.ru/theses.html?search=&worktype=8&supervisor=0&course=0&startdate=2020&enddate=2021" target="_blank">весенняя практика 3 курса с 2020 по 2021 год</a></li>
+                 <li><a href="https://se.math.spbu.ru/theses.html?search=&worktype=4&supervisor=0&course=0&startdate=2016&enddate=2018" target="_blank">магистерские ВКР с 2016 по 2018 год</a></li>
+                 <li><a href="https://se.math.spbu.ru/theses.html" target="_blank">и многие другие...</a></li>
+             </ul>
+
+         </div>
+     </div>
+
+</div>
+{% endblock %}

@@ -1,4 +1,6 @@
+{% if request.headers.get("X-Requested-With") != "XMLHttpRequest" %}
 {% extends "base_light.html" %}
+{% endif %}
 
 {% block content %}
 
@@ -18,13 +20,13 @@
 
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
-                                <a href="{{ url_for('account_index') }}"><h6 class="mb-0">Главная</h6></a>
+                                <a id="index_button" href="{{ url_for('practice_index') }}"><h6 class="mb-0">Главная</h6></a>
                             </div>
                         </div>
 
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
-                                <a href="{{ url_for('account_guide') }}"><h6 class="mb-0">Справочник</h6></a>
+                                <a id="guide_button" href="{{ url_for('practice_guide') }}"><h6 class="mb-0">Справочник</h6></a>
                             </div>
                         </div>
 
@@ -35,42 +37,50 @@
                             </div>
                             <div id="{{ 'collapse-'+(thesis.id|string()) }}" class={% if practice and practice.id == thesis.id %}"collapse show"{% else %}"collapse"{% endif %} aria-labelledby="{{ 'heading-'+(thesis.id|string()) }}" data-parent="#accordion-1">
                                 <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
-                                    <nav class="nav flex-column">
-                                        <a class="nav-link" href="{{ url_for('account_choosing_topic', id=thesis.id) }}">
-                                            {% if request.path == "/account/choosing_topic" and practice and practice.id == thesis.id %}
+                                    <nav id="{{thesis.id}}" class="nav flex-column">
+                                        <a name="choosing_topic_button" class="nav-link" href="{{ url_for('practice_choosing_topic', id=thesis.id) }}">
+                                            {% if (request.path == "/practice/choosing_topic" or request.path == "/practice/edit_theme") and practice and practice.id == thesis.id %}
                                             <b>Выбор темы</b>
                                             {%else%}
                                             Выбор темы
                                             {% endif %}
                                         </a>
-                                        <a class="nav-link" href="{{ url_for('account_workflow', id=thesis.id) }}">
-                                            {% if request.path == "/account/workflow" and practice and practice.id == thesis.id %}
+                                        <a name="goals_tasks_button" class="nav-link" href="{{ url_for('practice_goals_tasks', id=thesis.id) }}">
+                                            {% if request.path == "/practice/goals_tasks" and practice and practice.id == thesis.id %}
+                                            <b>Цели и задачи</b>
+                                            {%else%}
+                                            Цели и задачи
+                                            {% endif %}
+                                        </a>
+                                        <a name="reports_button" class="nav-link" href="{{ url_for('practice_workflow', id=thesis.id) }}">
+                                            {% if (request.path == "/practice/workflow" or request.path == "/practice/add_new_report") and practice and practice.id == thesis.id %}
                                             <b>Отчётность</b>
                                             {%else%}
                                             Отчётность
                                             {% endif %}
                                         </a>
-                                        <a class="nav-link" href="{{ url_for('account_preparation', id=thesis.id) }}">
-                                            {% if request.path == "/account/preparation_for_defense" and practice and practice.id == thesis.id %}
+                                        <a name="preparation_button" class="nav-link" href="{{ url_for('practice_preparation', id=thesis.id) }}">
+                                            {% if request.path == "/practice/preparation_for_defense" and practice and practice.id == thesis.id %}
                                             <b>Подготовка к защите</b>
                                             {%else%}
                                             Подготовка к защите
                                             {% endif %}
                                         </a>
-                                        <a class="nav-link" href="{{ url_for('account_thesis_defense', id=thesis.id) }}">
-                                            {% if request.path == "/account/defense" and practice and practice.id == thesis.id %}
+                                        <a name="defense_button" class="nav-link" href="{{ url_for('practice_thesis_defense', id=thesis.id) }}">
+                                            {% if request.path == "/practice/defense" and practice and practice.id == thesis.id %}
                                             <b>Защита</b>
                                             {%else%}
                                             Защита
                                             {% endif %}
                                         </a>
-                                        <a class="nav-link" href="{{ url_for('account_data_for_practice', id=thesis.id) }}">
-                                            {% if request.path == "/account/data_for_practice" and practice and practice.id == thesis.id %}
+                                        <a name="data_for_practice_button" class="nav-link" href="{{ url_for('practice_data_for_practice', id=thesis.id) }}">
+                                            {% if request.path == "/practice/data_for_practice" and practice and practice.id == thesis.id %}
                                             <b>Настройки</b>
                                             {%else%}
                                             Настройки
                                             {% endif %}
-                                        </a>                                    </nav>
+                                        </a>
+                                    </nav>
                                 </div>
                             </div>
                         </div>
@@ -78,12 +88,11 @@
 
                         <div class="card">
                             <div class="py-3 px-4 mb-0" style="background-color: transparent;">
-                                <a class="btn btn-sm btn-primary btn-block" href="{{ url_for('account_new_thesis') }}" role="button">Новая работа</a>
+                                <a id="new_work_button" class="btn btn-sm btn-primary btn-block" href="{{ url_for('practice_new_thesis') }}" role="button">Новая работа</a>
                             </div>
                         </div>
 
                     </div>
-
                 </div>
 
                 <div class="col-lg-9 col-12">

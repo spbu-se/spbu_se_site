@@ -1,0 +1,232 @@
+{% extends "practice/staff/base_practice_staff.html" %}
+
+{% block title %}{{thesis.title}}{% endblock %}
+
+{% block content_writing_thesis_staff %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col">
+            <h5>{{thesis.title}}</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p class="mb-0">Студент: <b>{{ thesis.user.get_name() }}</b></p>
+            <p class="mb-0">Тип работы: <b>{{ thesis.worktype }}</b></p>
+            {% if thesis.status == 2 %}
+            <p class="mb-0">Направление: <b>{{ thesis.area }}</b></p>
+            <p class="text-warning"><b>Завершённая работа</b></p>
+            {% else %}
+            <p>Направление: <b>{{ thesis.area }}</b></p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if thesis.goal or tasks %}
+     <div class="row">
+        <div class="col">
+            <div class="card border-0 mb-3">
+                <div class="card-body py-3">
+                    {% if thesis.goal %}
+                    <div class="mb-2">
+                        <h6 class="mb-0">Цель работы</h6>
+                        {{ thesis.goal }}
+                    </div>
+                    {% endif %}
+
+                    {% if tasks %}
+                    <div>
+                        <h6 class="mb-0">Задачи</h6>
+                        <ul class="mb-0">
+                        {% for task in tasks %}
+                        {% if not task.deleted %}
+                             <li>
+                                 {{task.task_text}}
+                             </li>
+                        {% endif %}
+                        {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+     </div>
+    {% endif %}
+
+    {% if thesis.text_uri or thesis.text_link or thesis.supervisor_review_uri or thesis.reviewer_review_uri or thesis.presentation_uri or thesis.presentation_link %}
+    <div class="row">
+        <div class="col">
+            <div class="card border-0 mb-3">
+                <div class="card-body py-3">
+                    <h6 class="mb-0">Материалы работы</h6>
+
+                    {% if thesis.text_uri %}
+                    <div class="row px-2 mt-2">
+                        <div class="col">
+                            <a href="{{ url_for('static', filename='/currentThesis/texts/' + thesis.text_uri) }}" target="_blank">
+                                <div class="icon icon-sm icon-shape bg-soft-success text-success mr-2">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                                Текст работы
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if thesis.supervisor_review_uri %}
+                    <div class="row px-2 mt-2">
+                        <div class="col">
+                            <a href="{{ url_for('static', filename='/currentThesis/reviews/' + thesis.supervisor_review_uri) }}" target="_blank">
+                                <div class="icon icon-sm icon-shape bg-soft-primary text-primary mr-2">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                Отзыв научного руководителя
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if thesis.reviewer_review_uri %}
+                    <div class="row px-2 mt-2">
+                        <div class="col">
+                            <a href="{{ url_for('static', filename='/currentThesis/reviews/' + thesis.reviewer_review_uri) }}" target="_blank">
+                                <div class="icon icon-sm icon-shape bg-soft-primary text-primary mr-2">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                Отзыв рецензента
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if thesis.presentation_uri %}
+                    <div class="row px-2 mt-2">
+                        <div class="col">
+                            <a href="{{ url_for('static', filename='/currentThesis/slides/' + thesis.presentation_uri) }}" target="_blank">
+                                <div class="icon icon-sm icon-shape bg-soft-warning text-warning mr-2">
+                                    <i class="fas fa-file-powerpoint"></i>
+                                </div>
+                                Презентация
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if thesis.text_link %}
+                    <div class="row px-2 mt-2">
+                        <div class="col-10">
+                            <a href="{{ thesis.text_link }}" target="_blank">
+                                <div class="icon icon-sm icon-shape mr-2">
+                                    <i data-feather="external-link"></i>
+                                </div>
+                                Ссылка на текст работы
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if thesis.presentation_link %}
+                    <div class="row px-2 mt-2">
+                        <div class="col-10">
+                            <a href="{{ thesis.presentation_link }}" target="_blank">
+                                <div class="icon icon-sm icon-shape mr-2">
+                                    <i data-feather="external-link"></i>
+                                </div>
+                                Ссылка на презентацию
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col">
+            <div class="card border-0 mb-3">
+                <div class="card-body py-3">
+                    <a id="{{ thesis.id }}" name="reports_link" href="{{url_for('reports_staff', id=thesis.id)}}">Отчёты по текущей работе</a>
+                    {% if thesis.reports %}
+                        {% set lastReport = {'value': false} %}
+                        {% for report in thesis.reports %}
+                            {% if not report.deleted %}
+                                {% if lastReport.update({'value': report}) %} {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if lastReport.value %}
+                            (последний: {{ lastReport.value.time|datatime_convert }})
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('thesis_staff', id=thesis.id) }}">
+        {% if thesis.status == 1 %}
+        <div class="row">
+            <div class="col">
+                <div class="card border-0 mb-0">
+                    <div class="card-body py-3">
+                        <h6 class="mb-0">Отправить уведомление</h6>
+                        <div class="form-group mb-0 mt-2">
+                            <input name="content" type="text" class="form-control" placeholder="Текст уведомления">
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_notification_button" value="Отправить">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row my-3">
+            <div class="col d-flex justify-content-end">
+                {% if thesis.status == 1 %}
+                <a data-toggle="modal" data-target="#deleteModal" class="btn btn-sm btn-outline-danger" href="#">Завершить работу</a>
+                <!-- Modal -->
+                <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="ModalLabel">Подтверждение</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Вы точно хотите пометить данную работу завершённой?
+                                <br><b>{{ thesis.title }}</b>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-secondary" name="submit_finish_work_button" value="Да!">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить как есть</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if thesis.status == 2 %}
+                <input type="submit" class="btn btn-outline-primary btn-sm" name="submit_restore_work_button" value="Восстановить работу">
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    $(document).ready(function()
+    {
+        document.title = "{{ thesis.title }}";
+    });
+</script>
+
+{% endblock %}

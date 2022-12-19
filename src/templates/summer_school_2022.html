@@ -50,7 +50,7 @@
                             {%  if proj.description %}
 
                             <h6 class="h6 mb-0">Описание</h6>
-                            <p class="text-sm mb-0">{{proj.description | safe}}</p>
+                            {{proj.description | safe}}
                             {% endif %}
 
                             {% if proj.repo %}
