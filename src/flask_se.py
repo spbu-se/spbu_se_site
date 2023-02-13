@@ -42,9 +42,9 @@ from se_sendmail import notification_send_mail, notification_send_diploma_themes
 
 from flask_se_practice import practice_index, practice_guide, practice_new_thesis, practice_choosing_topic, \
     practice_add_new_report, practice_preparation, practice_thesis_defense, practice_data_for_practice, \
-    practice_edit_theme, practice_temp, practice_temp_deadline, practice_workflow, practice_goals_tasks
+    practice_edit_theme, practice_temp, practice_workflow, practice_goals_tasks
 from flask_se_practice_staff import index_staff, thesis_staff, reports_staff, finished_thesises_staff
-from flask_se_practice_admin import index_admin
+from flask_se_practice_admin import index_admin, deadline_admin
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -168,7 +168,6 @@ app.add_url_rule('/practice/workflow', methods=['GET', 'POST'], view_func=practi
 app.add_url_rule('/practice/preparation_for_defense', methods=['GET', 'POST'], view_func=practice_preparation)
 app.add_url_rule('/practice/defense', methods=['GET'], view_func=practice_thesis_defense)
 app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=practice_temp)
-app.add_url_rule('/temp_deadline', methods=['GET', 'POST'], view_func=practice_temp_deadline)
 
 # Practice staff
 app.add_url_rule('/practice_staff', methods=['GET'], view_func=index_staff)
@@ -178,6 +177,7 @@ app.add_url_rule('/practice_staff/finished_thesises', methods=['GET'], view_func
 
 # Practice admin
 app.add_url_rule('/practice_admin', methods=['GET'], view_func=index_admin)
+app.add_url_rule('/practice_admin/deadline', methods=['GET', 'POST'], view_func=deadline_admin)
 
 # Init Database
 db.app = app

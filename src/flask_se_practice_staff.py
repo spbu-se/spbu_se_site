@@ -10,7 +10,7 @@ from flask_se_auth import login_required
 from flask_login import current_user
 
 from se_forms import StaffAddCommentToReport
-from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationCoursework, Users, add_mail_notification
+from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationPractice, Users, add_mail_notification
 
 
 def datetime_convert(value, format="%d.%m.%Y %H:%M"):
@@ -23,7 +23,7 @@ def index_staff():
     if not user_staff:
         return redirect(url_for('practice_index'))
 
-    current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(status=1).\
+    current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(status=1). \
         outerjoin(ThesisReport, CurrentThesis.reports).order_by(desc(ThesisReport.time)).all()
     return render_template('practice/staff/current_thesises_staff.html', thesises=current_thesises)
 
@@ -61,7 +61,7 @@ def thesis_staff():
             add_mail_notification(current_thesis.author_id, "[SE site] Уведомление от научного руководителя",
                                   mail_notification)
 
-            notification = NotificationCoursework()
+            notification = NotificationPractice()
             notification.recipient_id = current_thesis.author_id
             notification.content = notification_content
 
@@ -118,7 +118,7 @@ def reports_staff():
                     current_report.comment_time = datetime.datetime.now()
                     db.session.commit()
 
-                    notification = NotificationCoursework()
+                    notification = NotificationPractice()
                     notification.recipient_id = current_thesis.author_id
                     notification.content = user_staff.user.get_name() + " прокомментировал(-а) Ваш отчет от "\
                                            + datetime_convert(current_report.time)
