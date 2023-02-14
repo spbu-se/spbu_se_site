@@ -12,6 +12,8 @@ from flask_login import current_user
 from se_forms import StaffAddCommentToReport
 from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationPractice, Users, add_mail_notification
 
+from templates.practice.staff.templates import PracticeStaffTemplates
+
 
 def datetime_convert(value, format="%d.%m.%Y %H:%M"):
     return value.replace(tzinfo=pytz.UTC).astimezone(tz.tzlocal()).strftime(format)
@@ -25,7 +27,7 @@ def index_staff():
 
     current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(status=1). \
         outerjoin(ThesisReport, CurrentThesis.reports).order_by(desc(ThesisReport.time)).all()
-    return render_template('practice/staff/current_thesises_staff.html', thesises=current_thesises)
+    return render_template(PracticeStaffTemplates.CURRENT_THESISES.value, thesises=current_thesises)
 
 
 @login_required
@@ -35,7 +37,7 @@ def finished_thesises_staff():
         return redirect(url_for('practice_index'))
 
     current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(status=2).all()
-    return render_template('practice/staff/finished_thesises_staff.html', thesises=current_thesises)
+    return render_template(PracticeStaffTemplates.FINISHED_THESISES.value, thesises=current_thesises)
 
 
 @login_required
@@ -76,7 +78,7 @@ def thesis_staff():
             db.session.commit()
 
     not_deleted_tasks = [task for task in current_thesis.tasks if not task.deleted]
-    return render_template('practice/staff/thesis_staff.html', thesis=current_thesis, tasks=not_deleted_tasks)
+    return render_template(PracticeStaffTemplates.THESIS.value, thesis=current_thesis, tasks=not_deleted_tasks)
 
 
 @login_required
@@ -129,8 +131,8 @@ def reports_staff():
                     db.session.commit()
                     flash('Комментарий успешно отправлен!', category='success')
 
-                return render_template('practice/staff/reports_staff.html', thesis=current_thesis, reports=reports,
+                return render_template(PracticeStaffTemplates.REPORTS.value, thesis=current_thesis, reports=reports,
                                        form=add_report_comment)
 
-    return render_template('practice/staff/reports_staff.html', thesis=current_thesis, reports=reports,
+    return render_template(PracticeStaffTemplates.REPORTS.value, thesis=current_thesis, reports=reports,
                            form=add_report_comment)

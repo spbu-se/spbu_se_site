@@ -22,14 +22,14 @@ module.exports = function(hljs) {
       'is-not is-numeric is-odd is-pos is-string is-symbol is-zero isinstance islice issubclass ' +
       'iter iterable? iterate iterator? keyword keyword? lambda last len let ' +
       'lif lif-not list* list-comp locals loop macro-error macroexpand macroexpand-1 macroexpand-all ' +
-      'map max merge-with method-check_current_thesis_exists_or_redirect min multi-check_current_thesis_exists_or_redirect multicombinations name neg? next ' +
+      'map max merge-with method-decorator min multi-decorator multicombinations name neg? next ' +
       'none? nonlocal not not-in not? nth numeric? oct odd? open ' +
       'or ord partition permutations pos? post-route postwalk pow prewalk print ' +
       'product profile/calls profile/cpu put-route quasiquote quote raise range read read-str ' +
       'recursive-replace reduce remove repeat repeatedly repr require rest round route ' +
       'route-with-methods rwm second seq set-comp setattr setv some sorted string ' +
       'string? sum switch symbol? take take-nth take-while tee try unless ' +
-      'unquote unquote-splicing vars walk when while with with* with-check_current_thesis_exists_or_redirect with-gensyms ' +
+      'unquote unquote-splicing vars walk when while with with* with-decorator with-gensyms ' +
       'xi xor yield yield-from zero? zip zip-longest | |= ~'
    };
 

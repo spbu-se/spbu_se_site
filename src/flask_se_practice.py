@@ -37,7 +37,8 @@ def check_current_thesis_exists_or_redirect(func):
         current_thesis_id = request.args.get('id', type=int)
         if not current_thesis_id:
             return redirect(url_for('practice_index'))
-        current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
+        current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).\
+            filter_by(id=current_thesis_id).first()
         if not current_thesis or current_thesis.deleted:
             return redirect(url_for('practice_index'))
         return func(current_thesis)
