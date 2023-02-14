@@ -35,7 +35,7 @@
     <div class="tab-content">
         <div class="tab-pane {% if type_notifications == 'new' %} active {% endif %}" id="new-notifications" role="tabpanel" aria-labelledby="new-notifications-tab">
             <form name="read_buttons_form_new" method="POST" action="{{ url_for('practice_index', notifications='new') }}">
-                <input id="hiddenReadButtonNew" type="hidden" name="read_button" value="0"/>
+                <input id="hiddenReadButtonNew" type="hidden" name="read_notification_button" value="0"/>
                 {% if not notifications_not_viewed %}
                 <div class="row mt-3">
                     <div class="col">
@@ -76,7 +76,7 @@
 
         <div class="tab-pane {% if type_notifications == 'all' %} active {% endif %}" id="all-notifications" role="tabpanel" aria-labelledby="new-notifications-tab">
             <form name="read_buttons_form_all" method="POST" action="{{ url_for('practice_index', notifications='all') }}">
-                <input id="hiddenReadButtonAll" type="hidden" name="read_button" value="0"/>
+                <input id="hiddenReadButtonAll" type="hidden" name="read_notification_button" value="0"/>
                 {% if not notifications %}
                 <div class="row mt-3">
                     <div class="col">

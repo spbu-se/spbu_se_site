@@ -32,7 +32,7 @@
     </div>
     {% endif %}
 
-    <form method="POST" action="{{url_for('practice_choosing_topic', id=practice.id) }}">
+    <form method="POST" action="{{ url_for('practice_choosing_topic', id=practice.id) }}">
         {{ form.csrf_token }}
 
         {% if practice.title %}
@@ -71,7 +71,7 @@
                                                 </div>
 
                                                 <div class="modal-footer">
-                                                    <input type="submit" class="btn btn-secondary" name="submit_button" value="Да, отказываюсь!">
+                                                    <input type="submit" class="btn btn-secondary" name="delete_topic_button" value="Да, отказываюсь!">
                                                     <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
                                                 </div>
                                             </div>
@@ -108,7 +108,7 @@
 
                             <div class="row">
                                 <div class="col">
-                                    <input type="submit" class="btn btn-sm btn-primary" name="submit_button" value="Сохранить">
+                                    <input type="submit" class="btn btn-sm btn-primary" name="save_topic_button" value="Сохранить">
                                 </div>
                             </div>
                             <div class="row">

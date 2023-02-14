@@ -4,13 +4,13 @@ import datetime
 import pytz
 from dateutil import tz
 from flask import flash, redirect, request, render_template, url_for
-from sqlalchemy import desc, asc
+from sqlalchemy import desc
 
 from flask_se_auth import login_required
 from flask_login import current_user
 
 from se_forms import StaffAddCommentToReport
-from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationPractice, Users, add_mail_notification
+from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationPractice, add_mail_notification
 
 from templates.practice.staff.templates import PracticeStaffTemplates
 
@@ -63,10 +63,7 @@ def thesis_staff():
             add_mail_notification(current_thesis.author_id, "[SE site] Уведомление от научного руководителя",
                                   mail_notification)
 
-            notification = NotificationPractice()
-            notification.recipient_id = current_thesis.author_id
-            notification.content = notification_content
-
+            notification = NotificationPractice(recipient_id=current_thesis.author_id, content=notification_content)
             db.session.add(notification)
             db.session.commit()
             flash('Уведомление отправлено!', category="success")
@@ -120,10 +117,11 @@ def reports_staff():
                     current_report.comment_time = datetime.datetime.now()
                     db.session.commit()
 
-                    notification = NotificationPractice()
-                    notification.recipient_id = current_thesis.author_id
-                    notification.content = user_staff.user.get_name() + " прокомментировал(-а) Ваш отчет от "\
-                                           + datetime_convert(current_report.time)
+                    notification = NotificationPractice(recipient_id=current_thesis.author_id,
+                                                        content=user_staff.user.get_name() +
+                                                                " прокомментировал(-а) Ваш отчет от " +
+                                                                datetime_convert(current_report.time))
+
                     add_mail_notification(current_thesis.author_id, "[SE site] Отчёт прокомментирован",
                                           notification.content)
 

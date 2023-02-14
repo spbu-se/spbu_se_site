@@ -6,7 +6,7 @@ from functools import wraps
 from typing import List
 
 import werkzeug
-from flask import flash, redirect, request, render_template, url_for, render_template_string
+from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
 from sqlalchemy import desc, asc
 from datetime import datetime
@@ -16,7 +16,7 @@ from flask_se_auth import login_required
 from flask_se_config import get_thesis_type_id_string
 from se_forms import ChooseTopic, UserAddReport, CurrentWorktypeArea, AddGoal, AddTask
 from se_models import Users, AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationPractice, Deadline, db, \
-    ThesisReport, ThesisTask, add_mail_notification
+    ThesisReport, ThesisTask
 
 from templates.practice.student.templates import PracticeStudentTemplates
 
@@ -46,36 +46,17 @@ def check_current_thesis_exists_or_redirect(func):
 
 
 @login_required
-def practice_temp():
-    if request.method == "POST":
-        recipient_id = request.form.get('recipient')
-        content = request.form.get('content')
-        if recipient_id and content:
-            new_notification = NotificationPractice(recipient_id=recipient_id, content=content)
-            add_mail_notification(recipient_id, "[SE site] Уведомление",
-                                  render_template_string(current_user.get_name() + " отправил Вам уведомление: " +
-                                                         content))
-            db.session.add(new_notification)
-            db.session.commit()
-
-    return render_template("practice/temp.html")
-
-
-@login_required
 def practice_index():
-    user = current_user
-
-    type_notifications = request.args.get('notifications', type=str, default='new')  # default, вообще убрать
-    # if not type_notifications:
-    #   type_notifications = "new"
-
     if request.method == "POST":
-        if request.form['read_button']:  # read_notification
-            notification_id = request.form['read_button']
-            notification = NotificationPractice.query.filter_by(id=notification_id).first()  # проверить на null
-            notification.viewed = True
+        if 'read_notification_button' in request.form:
+            notification_id = request.form['read_notification_button']
+            notification = NotificationPractice.query.filter_by(id=notification_id).first()
+            if notification:
+                notification.viewed = True
+                db.session.commit()
 
-            db.session.commit()
+    user = current_user
+    type_notifications = request.args.get('notifications', type=str, default='new')
 
     notifications = NotificationPractice.query.filter_by(recipient_id=user.id).\
         order_by(desc(NotificationPractice.time)).all()
@@ -83,8 +64,8 @@ def practice_index():
         order_by(desc(NotificationPractice.time)).all()
 
     return render_template(PracticeStudentTemplates.MAIN.value, thesises=get_list_of_thesises(),
-                           notifications=notifications,
-                           notifications_not_viewed=notifications_not_viewed, type_notifications=type_notifications)
+                           notifications=notifications, notifications_not_viewed=notifications_not_viewed,
+                           type_notifications=type_notifications)
 
 
 @login_required
@@ -94,43 +75,39 @@ def practice_guide():
 
 @login_required
 def practice_new_thesis():
-    user = current_user
-    form = CurrentWorktypeArea()
-
     if request.method == "POST":
         current_area_id = request.form.get('area', type=int)
         current_worktype_id = request.form.get('worktype', type=int)
         if current_worktype_id == 0:
-            flash('Выберите тип работы.', category='error')  # .......
+            flash('Выберите тип работы.', category='error')
         elif current_area_id == 0:
-            flash('Выберите направление.', category='error')  # .........
+            flash('Выберите направление.', category='error')
         else:
-            new_thesis = CurrentThesis(author_id=user.id, worktype_id=current_worktype_id, area_id=current_area_id)
-
+            new_thesis = CurrentThesis(author_id=current_user.id, worktype_id=current_worktype_id,
+                                       area_id=current_area_id)
             db.session.add(new_thesis)
             db.session.commit()
             return redirect(url_for('practice_choosing_topic', id=new_thesis.id))
 
+    form = CurrentWorktypeArea()
     form.area.choices.append((0, 'Выберите направление'))
     for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by('id').all():
         form.area.choices.append((area.id, area.area))
-
     form.worktype.choices.append((0, 'Выберите тип работы'))
     for worktype in Worktype.query.filter(Worktype.id > 2).all():
         form.worktype.choices.append((worktype.id, worktype.type))
 
-    return render_template(PracticeStudentTemplates.NEW_PRACTICE.value, thesises=get_list_of_thesises(), user=user,
-                           review_filter=form, form=form)
+    return render_template(PracticeStudentTemplates.NEW_PRACTICE.value, thesises=get_list_of_thesises(),
+                           user=current_user, review_filter=form, form=form)
 
 
 @login_required
 @check_current_thesis_exists_or_redirect
 def practice_choosing_topic(current_thesis):
     if request.method == "POST":
-        if request.form['submit_button'] == 'Сохранить':
+        if 'save_topic_button' in request.form:
             topic = request.form.get('topic', type=str)
             supervisor_id = request.form.get('staff', type=int)
-
             if not topic:
                 flash('Введите название темы.', category='error')
             elif len(topic) <= 7:
@@ -141,14 +118,13 @@ def practice_choosing_topic(current_thesis):
                 current_thesis.title = topic
                 current_thesis.supervisor_id = supervisor_id
                 db.session.commit()
-
-        elif request.form['submit_button'] == 'Да, отказываюсь!':
+        elif 'delete_topic_button' in request.form:
             current_thesis.title = None
             current_thesis.supervisor_id = None
-
             db.session.commit()
 
-    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).filter_by(area_id=current_thesis.area_id).first()
+    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).\
+        filter_by(area_id=current_thesis.area_id).first()
 
     form = ChooseTopic()
     form.staff.choices.append((0, 'Выберите научного руководителя'))
@@ -165,7 +141,7 @@ def practice_choosing_topic(current_thesis):
 def practice_edit_theme(current_thesis):
     form = ChooseTopic()
     if request.method == "POST":
-        if request.form['submit_button'] == 'Сохранить':
+        if 'save_topic_button' in request.form:
             topic = request.form.get('topic', type=str)
             supervisor_id = request.form.get('staff', type=int)
 
@@ -178,15 +154,13 @@ def practice_edit_theme(current_thesis):
             else:
                 current_thesis.title = topic
                 current_thesis.supervisor_id = supervisor_id
-
                 db.session.commit()
                 return redirect(url_for('practice_choosing_topic', id=current_thesis.id))
 
     form.topic.data = current_thesis.title
     form.staff.choices.append((current_thesis.supervisor_id, current_thesis.supervisor))
-    for supervisor in Staff.query.join(Users, Staff.user_id == Users.id).filter(
-            Staff.id != current_thesis.supervisor_id) \
-            .order_by(asc(Users.last_name)).all():
+    for supervisor in Staff.query.join(Users, Staff.user_id == Users.id).\
+            filter(Staff.id != current_thesis.supervisor_id).order_by(asc(Users.last_name)).all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
 
     return render_template(PracticeStudentTemplates.EDIT_TOPIC.value, thesises=get_list_of_thesises(), form=form,
@@ -556,29 +530,25 @@ def practice_thesis_defense(current_thesis):
 @login_required
 @check_current_thesis_exists_or_redirect
 def practice_data_for_practice(current_thesis):
-    user = current_user
-    form = CurrentWorktypeArea()
     if request.method == "POST":
-        if request.form['submit_button'] == 'Сохранить':
+        if 'save_button' in request.form:
             current_area_id = request.form.get('area', type=int)
             current_worktype_id = request.form.get('worktype', type=int)
 
             if current_area_id == current_thesis.area_id and current_worktype_id == current_thesis.worktype_id:
                 flash('Никаких изменений нет.', category='error')
             else:
-                if current_area_id != current_thesis.area_id:
-                    current_thesis.area_id = current_area_id
-                if current_worktype_id != current_thesis.worktype_id:
-                    current_thesis.worktype_id = current_worktype_id
-
+                current_thesis.area_id = current_area_id
+                current_thesis.worktype_id = current_worktype_id
                 db.session.commit()
                 flash('Изменения сохранены', category='success')
 
-        elif request.form['submit_button'] == 'Да, удалить!':
+        elif 'delete_thesis_button' in request.form:
             current_thesis.deleted = True
             db.session.commit()
             return redirect(url_for('practice_index'))
 
+    form = CurrentWorktypeArea()
     form.area.choices.append((current_thesis.area_id, current_thesis.area.area))
     for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).filter(AreasOfStudy.id != current_thesis.area.id). \
             order_by('id').all():
@@ -589,16 +559,12 @@ def practice_data_for_practice(current_thesis):
         if worktype.id != current_thesis.worktype_id:
             form.worktype.choices.append((worktype.id, worktype))
 
-    return render_template(PracticeStudentTemplates.SETTINGS.value, thesises=get_list_of_thesises(), user=user,
+    return render_template(PracticeStudentTemplates.SETTINGS.value, thesises=get_list_of_thesises(), user=current_user,
                            form=form, practice=current_thesis)
 
 
 def get_list_of_thesises() -> List[CurrentThesis]:
-    """
-    Returns list of current thesises, which are not deleted, for current user
-    """
-    user = current_user
-    return [thesis for thesis in user.current_thesises if not thesis.deleted]
+    return [thesis for thesis in current_user.current_thesises if not thesis.deleted]
 
 
 def get_remaining_time(deadline, type_deadline):
@@ -634,7 +600,6 @@ def get_remaining_time(deadline, type_deadline):
             return None
         remaining_time_timedelta = deadline.defense - datetime.utcnow()
 
-    remaining_time = tuple()
     if remaining_time_timedelta < timedelta(0):
         remaining_time = (-1, "", "")
     elif remaining_time_timedelta.seconds // 60 < 60 and remaining_time_timedelta.days < 1:
