@@ -2,6 +2,7 @@
 
 import os
 from datetime import date, timedelta
+from functools import wraps
 from typing import List
 
 import werkzeug
@@ -28,6 +29,19 @@ ALLOWED_EXTENSIONS = {'pdf'}
 
 def __allowed_file(filename) -> bool:
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def check_current_thesis_exists_or_redirect(func):
+    @wraps(func)
+    def get_current_thesis_decorator():
+        current_thesis_id = request.args.get('id', type=int)
+        if not current_thesis_id:
+            return redirect(url_for('practice_index'))
+        current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
+        if not current_thesis or current_thesis.deleted:
+            return redirect(url_for('practice_index'))
+        return func(current_thesis)
+    return get_current_thesis_decorator
 
 
 @login_required
@@ -109,15 +123,8 @@ def practice_new_thesis():
 
 
 @login_required
-def practice_choosing_topic():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
+@check_current_thesis_exists_or_redirect
+def practice_choosing_topic(current_thesis):
     if request.method == "POST":
         if request.form['submit_button'] == 'Сохранить':
             topic = request.form.get('topic', type=str)
@@ -153,15 +160,8 @@ def practice_choosing_topic():
 
 
 @login_required
-def practice_edit_theme():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
+@check_current_thesis_exists_or_redirect
+def practice_edit_theme(current_thesis):
     form = ChooseTopic()
     if request.method == "POST":
         if request.form['submit_button'] == 'Сохранить':
@@ -179,7 +179,7 @@ def practice_edit_theme():
                 current_thesis.supervisor_id = supervisor_id
 
                 db.session.commit()
-                return redirect(url_for('practice_choosing_topic', id=current_thesis_id))
+                return redirect(url_for('practice_choosing_topic', id=current_thesis.id))
 
     form.topic.data = current_thesis.title
     form.staff.choices.append((current_thesis.supervisor_id, current_thesis.supervisor))
@@ -193,15 +193,8 @@ def practice_edit_theme():
 
 
 @login_required
-def practice_goals_tasks():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
+@check_current_thesis_exists_or_redirect
+def practice_goals_tasks(current_thesis):
     formGoal = AddGoal()
     formTask = AddTask()
     if request.method == "POST":
@@ -240,7 +233,7 @@ def practice_goals_tasks():
                 elif len(task) <= 15:
                     flash("Опишите задачу подробнее!", category='error')
                 else:
-                    new_task = ThesisTask(task_text=task, current_thesis_id=current_thesis_id)
+                    new_task = ThesisTask(task_text=task, current_thesis_id=current_thesis.id)
                     db.session.add(new_task)
                     db.session.commit()
                     flash('Задача успешно добавлена!', category='success')
@@ -257,15 +250,8 @@ def practice_goals_tasks():
 
 
 @login_required
-def practice_workflow():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
+@check_current_thesis_exists_or_redirect
+def practice_workflow(current_thesis):
     if request.method == "POST":
         if request.form['delete_button']:
             report_id = request.form['delete_button']
@@ -274,22 +260,15 @@ def practice_workflow():
             db.session.commit()
             flash('Отчёт удален!', category='success')
 
-    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).filter_by(deleted=False). \
+    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis.id).filter_by(deleted=False). \
         order_by(desc(ThesisReport.time)).all()
     return render_template(PracticeStudentTemplates.WORKFLOW.value, thesises=get_list_of_thesises(),
                            practice=current_thesis, reports=reports)
 
 
 @login_required
-def practice_add_new_report():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
+@check_current_thesis_exists_or_redirect
+def practice_add_new_report(current_thesis):
     user = current_user
     add_thesis_report_form = UserAddReport()
 
@@ -307,26 +286,19 @@ def practice_add_new_report():
             flash("Слишком короткое описание дальнейших планов, напишите подробнее!", category='error')
         else:
             new_report = ThesisReport(was_done=was_done, planned_to_do=planned_to_do,
-                                      current_thesis_id=current_thesis_id, author_id=user.id)
+                                      current_thesis_id=current_thesis.id, author_id=user.id)
             db.session.add(new_report)
             db.session.commit()
             flash('Отчёт успешно отправлен!', category='success')
-            return redirect(url_for('practice_workflow', id=current_thesis_id))
+            return redirect(url_for('practice_workflow', id=current_thesis.id))
 
     return render_template(PracticeStudentTemplates.NEW_REPORT.value, thesises=get_list_of_thesises(),
                            practice=current_thesis, form=add_thesis_report_form, user=user)
 
 
 @login_required
-def practice_preparation():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
+@check_current_thesis_exists_or_redirect
+def practice_preparation(current_thesis):
     if request.method == 'POST':
         if 'submit_text_button' in request.form:
             text_file = werkzeug.datastructures.FileStorage()
@@ -574,29 +546,15 @@ def practice_preparation():
 
 
 @login_required
-def practice_thesis_defense():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
+@check_current_thesis_exists_or_redirect
+def practice_thesis_defense(current_thesis):
     return render_template(PracticeStudentTemplates.DEFENSE.value, thesises=get_list_of_thesises(),
                            practice=current_thesis)
 
 
 @login_required
-def practice_data_for_practice():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
+@check_current_thesis_exists_or_redirect
+def practice_data_for_practice(current_thesis):
     user = current_user
     form = CurrentWorktypeArea()
     if request.method == "POST":

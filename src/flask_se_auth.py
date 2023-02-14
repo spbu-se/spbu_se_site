@@ -29,7 +29,7 @@ ALLOWED_EXTENSIONS = {'bmp', 'png', 'jpg', 'jpeg'}
 login_manager = LoginManager()
 login_manager.login_view = "login_index"
 
-# create an alias of login_required decorator
+# create an alias of login_required check_current_thesis_exists_or_redirect
 login_required = login_required
 
 
