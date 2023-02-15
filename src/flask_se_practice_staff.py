@@ -5,6 +5,7 @@ import pytz
 from dateutil import tz
 from flask import flash, redirect, request, render_template, url_for
 from sqlalchemy import desc
+from functools import wraps
 
 from flask_se_auth import login_required
 from flask_login import current_user
@@ -14,46 +15,56 @@ from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationPracti
 
 from templates.practice.staff.templates import PracticeStaffTemplates
 
+DATE_AND_TIME_FORMAT = "%d.%m.%Y %H:%M"
 
-def datetime_convert(value, format="%d.%m.%Y %H:%M"):
-    return value.replace(tzinfo=pytz.UTC).astimezone(tz.tzlocal()).strftime(format)
+
+def datetime_convert(value):
+    return value.replace(tzinfo=pytz.UTC).astimezone(tz.tzlocal()).strftime(DATE_AND_TIME_FORMAT)
+
+
+def user_is_staff(func):
+    @wraps(func)
+    def check_user_is_staff_decorator():
+        user_staff = Staff.query.filter_by(user_id=current_user.id).first()
+        if not user_staff:
+            return redirect(url_for('practice_index'))
+        return func(user_staff)
+    return check_user_is_staff_decorator
+
+
+def current_thesis_exists_or_redirect(func):
+    @wraps(func)
+    def get_current_thesis_decorator(user_staff):
+        current_thesis_id = request.args.get('id', type=int)
+        if not current_thesis_id:
+            return redirect(url_for('index_staff'))
+        current_thesis = (CurrentThesis.query.filter_by(supervisor_id=user_staff.id)
+                          .filter_by(id=current_thesis_id).first())
+        if not current_thesis:
+            return redirect(url_for('index_staff'))
+        return func(user_staff, current_thesis)
+    return get_current_thesis_decorator
 
 
 @login_required
-def index_staff():
-    user_staff = Staff.query.filter_by(user_id=current_user.id).first()
-    if not user_staff:
-        return redirect(url_for('practice_index'))
-
-    current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(status=1). \
-        outerjoin(ThesisReport, CurrentThesis.reports).order_by(desc(ThesisReport.time)).all()
+@user_is_staff
+def index_staff(user_staff):
+    current_thesises = (CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(status=1)
+                        .outerjoin(ThesisReport, CurrentThesis.reports).order_by(desc(ThesisReport.time)).all())
     return render_template(PracticeStaffTemplates.CURRENT_THESISES.value, thesises=current_thesises)
 
 
 @login_required
-def finished_thesises_staff():
-    user_staff = Staff.query.filter_by(user_id=current_user.id).first()
-    if not user_staff:
-        return redirect(url_for('practice_index'))
-
+@user_is_staff
+def finished_thesises_staff(user_staff):
     current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(status=2).all()
     return render_template(PracticeStaffTemplates.FINISHED_THESISES.value, thesises=current_thesises)
 
 
 @login_required
-def thesis_staff():
-    user_staff = Staff.query.filter_by(user_id=current_user.id).first()
-    if not user_staff:
-        return redirect(url_for('practice_index'))
-
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('index_staff'))
-
-    current_thesis = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis:
-        return redirect(url_for('index_staff'))
-
+@user_is_staff
+@current_thesis_exists_or_redirect
+def thesis_staff(user_staff, current_thesis):
     if request.method == 'POST':
         if 'submit_notification_button' in request.form:
             notification_content = request.form['content']
@@ -79,21 +90,11 @@ def thesis_staff():
 
 
 @login_required
-def reports_staff():
-    user_staff = Staff.query.filter_by(user_id=current_user.id).first()
-    if not user_staff:
-        return redirect(url_for('practice_index'))
-
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('index_staff'))
-
-    current_thesis = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis:
-        return redirect(url_for('index_staff'))
-
+@user_is_staff
+@current_thesis_exists_or_redirect
+def reports_staff(user_staff, current_thesis):
     current_report_id = request.args.get('report_id', type=int)
-    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).filter_by(deleted=False). \
+    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis.id).filter_by(deleted=False). \
         order_by(desc(ThesisReport.time)).all()
     add_report_comment = StaffAddCommentToReport()
 

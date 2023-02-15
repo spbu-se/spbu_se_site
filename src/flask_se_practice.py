@@ -25,6 +25,11 @@ TEXT_UPLOAD_FOLDER = 'static/currentThesis/texts/'
 REVIEW_UPLOAD_FOLDER = 'static/currentThesis/reviews/'
 PRESENTATION_UPLOAD_FOLDER = 'static/currentThesis/slides/'
 ALLOWED_EXTENSIONS = {'pdf'}
+MIN_LENGTH_OF_TOPIC = 7
+MIN_LENGTH_OF_GOAL = 20
+MIN_LENGTH_OF_TASK = 15
+MIN_LENGTH_OF_FIELD_WAS_DONE = 10
+MIN_LENGTH_OF_FIELD_PLANNED_TO_DO = 10
 
 
 class TypeOfFile(Enum):
@@ -117,7 +122,7 @@ def practice_choosing_topic(current_thesis):
             supervisor_id = request.form.get('staff', type=int)
             if not topic:
                 flash('Введите название темы.', category='error')
-            elif len(topic) <= 7:
+            elif len(topic) <= MIN_LENGTH_OF_TOPIC:
                 flash('Слишком короткое название темы.', category='error')
             elif not supervisor_id:
                 flash('Выберите научного руководителя.', category='error')
@@ -153,7 +158,7 @@ def practice_edit_theme(current_thesis):
 
             if not topic:
                 flash('Введите название темы.', category='error')
-            elif len(topic) <= 7:
+            elif len(topic) <= MIN_LENGTH_OF_TOPIC:
                 flash('Слишком короткое название темы.', category='error')
             elif not supervisor_id:
                 flash('Выберите научного руководителя.', category='error')
@@ -185,7 +190,7 @@ def practice_goals_tasks(current_thesis):
                 and request.form['goal']:
             goal = request.form.get('goal', type=str)
 
-            if len(goal) <= 20:
+            if len(goal) <= MIN_LENGTH_OF_GOAL:
                 flash("Напишите подробнее!", category='error')
             else:
                 current_thesis.goal = goal
@@ -196,7 +201,7 @@ def practice_goals_tasks(current_thesis):
                 and request.form['goal']:
             goal = request.form.get('goal', type=str)
 
-            if len(goal) <= 20:
+            if len(goal) <= MIN_LENGTH_OF_GOAL:
                 flash("Напишите подробнее!", category='error')
             else:
                 current_thesis.goal = goal
@@ -212,7 +217,7 @@ def practice_goals_tasks(current_thesis):
                         same = True
                 if same:
                     flash("Такая задача уже существует!", category='error')
-                elif len(task) <= 15:
+                elif len(task) <= MIN_LENGTH_OF_TASK:
                     flash("Опишите задачу подробнее!", category='error')
                 else:
                     new_task = ThesisTask(task_text=task, current_thesis_id=current_thesis.id)
@@ -262,9 +267,9 @@ def practice_add_new_report(current_thesis):
             flash('Поле "Что было сделано?" является обязательным!', category='error')
         elif not planned_to_do:
             flash('Поле "Что планируется сделать?" является обязательным!', category='error')
-        elif len(was_done) <= 10:
+        elif len(was_done) <= MIN_LENGTH_OF_FIELD_WAS_DONE:
             flash("Слишком короткое описание проделанной работы, напишите подробнее!", category='error')
-        elif len(planned_to_do) <= 10:
+        elif len(planned_to_do) <= MIN_LENGTH_OF_FIELD_PLANNED_TO_DO:
             flash("Слишком короткое описание дальнейших планов, напишите подробнее!", category='error')
         else:
             new_report = ThesisReport(was_done=was_done, planned_to_do=planned_to_do,
