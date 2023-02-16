@@ -496,7 +496,7 @@ class ThemesLevel(db.Model):
     #    themes_id = db.Column(db.Integer, db.ForeignKey('diploma_themes.id'))
 
     def __str__(self):
-        return "{self.level}"
+        return f"{self.level}"
 
 
 class DiplomaThemes(db.Model):
@@ -521,6 +521,12 @@ class DiplomaThemes(db.Model):
     supervisor_thesis_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     consultant_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
+    def __repr__(self):
+        return f"{self.title}"
+
+    def __str__(self):
+        return f"{self.title}"
+
 
 class DiplomaThemesTags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -540,7 +546,7 @@ class Company(db.Model):
     reviewer = db.relationship('Reviewer', back_populates='company')
 
     def __str__(self):
-        return {self.name}
+        return f"{self.name}"
 
 
 class ThesisReview(db.Model):
