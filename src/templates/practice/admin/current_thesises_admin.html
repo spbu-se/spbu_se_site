@@ -12,11 +12,29 @@
         </div>
     </div>
 
+    {% if not list_of_thesises %}
     <div class="row">
         <div class="col text-center">
-            <p>Когда-нибудь здесь будет отображаться список работ</p>
+            <p>Здесь будут отображаться текущие работы OLOLOLO</p>
         </div>
     </div>
+    {% else %}
+    {% for thesis in list_of_thesises %}
+    <div class="card border-0 mb-3">
+        <div class="card-header">
+            <h6 class="mb-0">
+                <a id="{{thesis.id}}" name="thesis_link" href="{{ url_for('thesis_staff', id=thesis.id) }}" class="link text-primary">
+                    <strong>{{ thesis.title }}</strong>
+                </a>
+            </h6>
+        </div>
+        <div class="card-body pt-2 pb-3">
+            <p class="text-sm mb-0">Студент: {{ thesis.user.get_name() }}</p>
+            <p class="text-sm mb-0">Научный руководитель: {{ thesis.supervisor }}</p>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
 
 </div>
 

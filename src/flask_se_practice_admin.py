@@ -1,27 +1,86 @@
 # -*- coding: utf-8 -*-
+from functools import wraps
 
 import pytz
-from flask import flash, redirect, request, render_template
+from flask import flash, redirect, request, render_template, url_for
 from datetime import datetime
+
+from flask_login import current_user
 from pytz import timezone
 
 from flask_se_auth import login_required
-from se_forms import DeadlineTemp
-from se_models import AreasOfStudy, CurrentThesis, Worktype, NotificationPractice, Deadline, db, add_mail_notification
+from se_forms import DeadlineTemp, CurrentWorktypeArea
+from se_models import (AreasOfStudy, CurrentThesis, Worktype, NotificationPractice, Deadline, db, add_mail_notification,
+                       Staff)
 
 from templates.practice.admin.templates import PracticeAdminTemplates
 
 FORMAT_DATE_TIME = "%d.%m.%Y %H:%M"
 
 
+def user_is_staff(func):
+    @wraps(func)
+    def check_user_is_staff_decorator():
+        user_staff = Staff.query.filter_by(user_id=current_user.id).first()
+        if not user_staff:
+            return redirect(url_for('practice_index'))
+        return func()
+    return check_user_is_staff_decorator
+
+
 @login_required
+@user_is_staff
+def choose_worktype_admin():
+    source = request.args.get('source', type=str)
+    if request.method == "POST":
+        area_id = request.form.get('area', type=int)
+        worktype_id = request.form.get('worktype', type=int)
+        if worktype_id == 0:
+            flash('Выберите тип работы.', category='error')
+        elif area_id == 0:
+            flash('Выберите направление.', category='error')
+        else:
+            return redirect(url_for(source if source is not None else 'index_admin',
+                                    area_id=area_id, worktype_id=worktype_id))
+
+    form = CurrentWorktypeArea()
+    form.area.choices.append((0, 'Выберите направление'))
+    for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all():
+        form.area.choices.append((area.id, area.area))
+    form.worktype.choices.append((0, 'Выберите тип работы'))
+    for worktype in Worktype.query.filter(Worktype.id > 2).all():
+        form.worktype.choices.append((worktype.id, worktype.type))
+
+    return render_template(PracticeAdminTemplates.CHOOSE_WORKTYPE.value, form=form, source=source)
+
+
+@login_required
+@user_is_staff
 def index_admin():
-    return render_template(PracticeAdminTemplates.CURRENT_THESISES.value)
+    area_id = request.args.get('area_id', type=int)
+    worktype_id = request.args.get('worktype_id', type=int)
+    if not area_id or not worktype_id:
+        return redirect(url_for('choose_worktype_admin', source=index_admin.__name__))
+    area = AreasOfStudy.query.filter_by(id=area_id).first()
+    worktype = Worktype.query.filter_by(id=worktype_id).first()
+
+    list_of_thesises = (CurrentThesis.query.filter_by(status=1).filter_by(deleted=False)
+                        .filter_by(area_id=area_id).filter_by(worktype_id=worktype_id).all())
+    return render_template(PracticeAdminTemplates.CURRENT_THESISES.value,
+                           area_id=area.id, worktype_id=worktype.id,
+                           area=area, worktype=worktype,
+                           list_of_thesises=list_of_thesises)
 
 
 @login_required
+@user_is_staff
 def deadline_admin():
-    form = DeadlineTemp()
+    area_id = request.args.get('area_id', type=int)
+    worktype_id = request.args.get('worktype_id', type=int)
+    if not area_id or not worktype_id:
+        return redirect(url_for('choose_worktype_admin', source=deadline_admin.__name__))
+    area = AreasOfStudy.query.filter_by(id=area_id).first()
+    worktype = Worktype.query.filter_by(id=worktype_id).first()
 
     if request.method == "POST":
         worktype_id = request.form.get('worktype', type=int)
@@ -164,12 +223,8 @@ def deadline_admin():
 
             db.session.commit()
 
-    form.area.choices.append((0, 'Выберите направление'))
-    for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by('id').all():
-        form.area.choices.append((area.id, area.area))
+    form = DeadlineTemp()
 
-    form.worktype.choices.append((0, 'Выберите тип работы'))
-    for worktype in Worktype.query.filter(Worktype.id > 2).order_by('id').all():
-        form.worktype.choices.append((worktype.id, worktype.type))
-
-    return render_template(PracticeAdminTemplates.DEADLINE.value, form=form)
+    return render_template(PracticeAdminTemplates.DEADLINE.value, form=form,
+                           area_id=area.id, worktype_id=worktype.id,
+                           area=area, worktype=worktype)
