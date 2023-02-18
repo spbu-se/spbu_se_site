@@ -182,14 +182,9 @@ def practice_edit_theme(current_thesis):
 @login_required
 @current_thesis_exists_or_redirect
 def practice_goals_tasks(current_thesis):
-    formGoal = AddGoal()
-    formTask = AddTask()
     if request.method == "POST":
-
-        if 'submit_goal_button' in request.form and request.form['submit_goal_button'] == 'Сохранить' \
-                and request.form['goal']:
+        if 'submit_goal_button' in request.form and request.form['goal'] != '':
             goal = request.form.get('goal', type=str)
-
             if len(goal) <= MIN_LENGTH_OF_GOAL:
                 flash("Напишите подробнее!", category='error')
             else:
@@ -197,24 +192,21 @@ def practice_goals_tasks(current_thesis):
                 db.session.commit()
                 flash('Цель добавлена!', category='success')
 
-        if 'submit_goal_button' in request.form and request.form['submit_goal_button'] == 'Сохранить изменения' \
-                and request.form['goal']:
+        if 'submit_goal_button' in request.form and request.form['goal'] != '':
             goal = request.form.get('goal', type=str)
-
             if len(goal) <= MIN_LENGTH_OF_GOAL:
                 flash("Напишите подробнее!", category='error')
             else:
                 current_thesis.goal = goal
                 db.session.commit()
                 flash('Цель изменена!', category='success')
-        if 'submit_task_button' in request.form:
 
-            if 'submit_task_button' in request.form:
-                task = request.form.get('task_text', type=str)
-                same = False
-                for existedTask in current_thesis.tasks:
-                    if not existedTask.deleted and existedTask.task_text == task:
-                        same = True
+        if 'submit_task_button' in request.form:
+            task = request.form.get('task_text', type=str)
+            same = False
+            for existedTask in current_thesis.tasks:
+                if not existedTask.deleted and existedTask.task_text == task:
+                    same = True
                 if same:
                     flash("Такая задача уже существует!", category='error')
                 elif len(task) <= MIN_LENGTH_OF_TASK:
@@ -226,29 +218,30 @@ def practice_goals_tasks(current_thesis):
                     flash('Задача успешно добавлена!', category='success')
 
         for task in current_thesis.tasks:
-
             if 'delete_task_' + str(task.id) in request.form:
                 task.deleted = True
                 db.session.commit()
                 flash('Задача удалена!', category='success')
 
+    form_goal = AddGoal()
+    form_task = AddTask()
     return render_template(PracticeStudentTemplates.GOALS_TASKS.value, thesises=get_list_of_thesises(),
-                           practice=current_thesis, formGoal=formGoal, formTask=formTask)
+                           practice=current_thesis, formGoal=form_goal, formTask=form_task)
 
 
 @login_required
 @current_thesis_exists_or_redirect
 def practice_workflow(current_thesis):
     if request.method == "POST":
-        if request.form['delete_button']:
+        if 'delete_button' in request.form:
             report_id = request.form['delete_button']
             report = ThesisReport.query.filter_by(id=report_id).first()
             report.deleted = True
             db.session.commit()
             flash('Отчёт удален!', category='success')
 
-    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis.id).filter_by(deleted=False). \
-        order_by(desc(ThesisReport.time)).all()
+    reports = (ThesisReport.query.filter_by(current_thesis_id=current_thesis.id).filter_by(deleted=False)
+               .order_by(desc(ThesisReport.time)).all())
     return render_template(PracticeStudentTemplates.WORKFLOW.value, thesises=get_list_of_thesises(),
                            practice=current_thesis, reports=reports)
 
@@ -256,7 +249,6 @@ def practice_workflow(current_thesis):
 @login_required
 @current_thesis_exists_or_redirect
 def practice_add_new_report(current_thesis):
-    user = current_user
     add_thesis_report_form = UserAddReport()
 
     if request.method == 'POST':
@@ -273,14 +265,14 @@ def practice_add_new_report(current_thesis):
             flash("Слишком короткое описание дальнейших планов, напишите подробнее!", category='error')
         else:
             new_report = ThesisReport(was_done=was_done, planned_to_do=planned_to_do,
-                                      current_thesis_id=current_thesis.id, author_id=user.id)
+                                      current_thesis_id=current_thesis.id, author_id=current_user.id)
             db.session.add(new_report)
             db.session.commit()
             flash('Отчёт успешно отправлен!', category='success')
             return redirect(url_for('practice_workflow', id=current_thesis.id))
 
     return render_template(PracticeStudentTemplates.NEW_REPORT.value, thesises=get_list_of_thesises(),
-                           practice=current_thesis, form=add_thesis_report_form, user=user)
+                           practice=current_thesis, form=add_thesis_report_form, user=current_user)
 
 
 @login_required
