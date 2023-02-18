@@ -122,7 +122,8 @@ class Users(db.Model, UserMixin):
     reviewer = db.relationship('Reviewer', back_populates='user')
 
     all_user_votes = db.relationship('PostVote', back_populates='user')
-    internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False), foreign_keys='Internships.author_id')
+    internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False),
+                                        foreign_keys='Internships.author_id')
 
     def get_name(self):
         full_name = ''
