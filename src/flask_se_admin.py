@@ -214,7 +214,6 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
         'description': {
             'rows': 10,
             'style': 'width: 100%;',
-            'readonly': True
         },
         'requirements': {
             'rows': 3,
