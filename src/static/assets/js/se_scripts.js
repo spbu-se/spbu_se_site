@@ -355,7 +355,7 @@ function themes_update() {
 
     // Page first
     if (page && page > 1){
-        params.append('page', page);
+        params.append('page', 1);
     }
 
     // Supervisor?

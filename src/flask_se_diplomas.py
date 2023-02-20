@@ -71,7 +71,7 @@ def fetch_themes():
 
     if company:
         # Check if company exists
-        records = DiplomaThemes.query.filter(DiplomaThemes.company_id == company).order_by(DiplomaThemes.id.desc())
+        records = DiplomaThemes.query.filter(DiplomaThemes.status == 2).filter(DiplomaThemes.company_id == company).order_by(DiplomaThemes.id.desc())
     else:
         records = DiplomaThemes.query.filter(DiplomaThemes.status == 2).order_by(DiplomaThemes.id.desc())
 
