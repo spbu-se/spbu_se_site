@@ -67,7 +67,6 @@ def index_admin():
     list_of_thesises = (CurrentThesis.query.filter_by(status=1).filter_by(deleted=False)
                         .filter_by(area_id=area_id).filter_by(worktype_id=worktype_id).all())
     return render_template(PracticeAdminTemplates.CURRENT_THESISES.value,
-                           area_id=area.id, worktype_id=worktype.id,
                            area=area, worktype=worktype,
                            list_of_thesises=list_of_thesises)
 
@@ -226,5 +225,4 @@ def deadline_admin():
     form = DeadlineTemp()
 
     return render_template(PracticeAdminTemplates.DEADLINE.value, form=form,
-                           area_id=area.id, worktype_id=worktype.id,
                            area=area, worktype=worktype)
