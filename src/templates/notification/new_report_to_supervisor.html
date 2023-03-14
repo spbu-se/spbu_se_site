@@ -1,0 +1,7 @@
+<em><b>{{ user.get_name() }}</b></em> отправил(a) <a href="http://se.math.spbu.ru/practice_staff/reports?id={{ practice.id }}">отчёт</a> по учебной практике/ВКР<br>
+<p>
+<b>Тема:</b> <a href="http://se.math.spbu.ru/practice_staff/thesis?id={{ practice.id }}">{{ practice }}</a><br>
+<b>Тип работы:</b> {{ practice.worktype }}<br>
+<b>Направление:</b> {{ practice.area }}
+</p><br>
+<a href="https://se.math.spbu.ru/practice_staff">Посмотреть текущие работы</a>

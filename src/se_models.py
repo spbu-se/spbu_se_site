@@ -662,9 +662,9 @@ def recalculate_post_rank():
 
 def add_mail_notification(user_id, title, content):
     if not Users.query.filter_by(id=user_id).first():
-        print()
-    n = Notification(recipient=user_id, title=title, content=content)
+        return
 
+    n = Notification(recipient=user_id, title=title, content=content)
     db.session.add(n)
     db.session.commit()
 

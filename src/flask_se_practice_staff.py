@@ -29,6 +29,7 @@ def user_is_staff(func):
         if not user_staff:
             return redirect(url_for('practice_index'))
         return func(user_staff)
+
     return check_user_is_staff_decorator
 
 
@@ -43,6 +44,7 @@ def current_thesis_exists_or_redirect(func):
         if not current_thesis:
             return redirect(url_for('index_staff'))
         return func(user_staff, current_thesis)
+
     return get_current_thesis_decorator
 
 

@@ -16,9 +16,10 @@ from flask_se_auth import login_required
 from flask_se_config import get_thesis_type_id_string
 from se_forms import ChooseTopic, UserAddReport, CurrentWorktypeArea, AddGoal, AddTask
 from se_models import Users, AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationPractice, Deadline, db, \
-    ThesisReport, ThesisTask
+    ThesisReport, ThesisTask, add_mail_notification
 
 from templates.practice.student.templates import PracticeStudentTemplates
+from templates.notification.templates import NotificationTemplates
 
 # Global variables
 TEXT_UPLOAD_FOLDER = 'static/currentThesis/texts/'
@@ -130,6 +131,10 @@ def practice_choosing_topic(current_thesis):
                 current_thesis.title = topic
                 current_thesis.supervisor_id = supervisor_id
                 db.session.commit()
+                add_mail_notification(supervisor_id, "Добавлена новая учебная практика/ВКР",
+                                      render_template(NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
+                                                      user=current_user, practice=current_thesis))
+
         elif 'delete_topic_button' in request.form:
             current_thesis.title = None
             current_thesis.supervisor_id = None
@@ -164,7 +169,11 @@ def practice_edit_theme(current_thesis):
                 flash('Выберите научного руководителя.', category='error')
             else:
                 current_thesis.title = topic
-                current_thesis.supervisor_id = supervisor_id
+                if current_thesis.supervisor_id != supervisor_id:
+                    add_mail_notification(supervisor_id, "Добавлена новая учебная практика/ВКР",
+                                          render_template(NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
+                                                          user=current_user, practice=current_thesis))
+                    current_thesis.supervisor_id = supervisor_id
                 db.session.commit()
                 return redirect(url_for('practice_choosing_topic', id=current_thesis.id))
 
@@ -249,8 +258,6 @@ def practice_workflow(current_thesis):
 @login_required
 @current_thesis_exists_or_redirect
 def practice_add_new_report(current_thesis):
-    add_thesis_report_form = UserAddReport()
-
     if request.method == 'POST':
         was_done = request.form.get('was_done', type=str)
         planned_to_do = request.form.get('planned_to_do', type=str)
@@ -268,9 +275,13 @@ def practice_add_new_report(current_thesis):
                                       current_thesis_id=current_thesis.id, author_id=current_user.id)
             db.session.add(new_report)
             db.session.commit()
+            add_mail_notification(current_thesis.supervisor_id, "Новый отчёт по учебной практике",
+                                  render_template(NotificationTemplates.NEW_REPORT_TO_SUPERVISOR.value,
+                                                  user=current_user, practice=current_thesis))
             flash('Отчёт успешно отправлен!', category='success')
             return redirect(url_for('practice_workflow', id=current_thesis.id))
 
+    add_thesis_report_form = UserAddReport()
     return render_template(PracticeStudentTemplates.NEW_REPORT.value, thesises=get_list_of_thesises(),
                            practice=current_thesis, form=add_thesis_report_form, user=current_user)
 
