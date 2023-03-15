@@ -216,15 +216,15 @@ def practice_goals_tasks(current_thesis):
             for existedTask in current_thesis.tasks:
                 if not existedTask.deleted and existedTask.task_text == task:
                     same = True
-                if same:
-                    flash("Такая задача уже существует!", category='error')
-                elif len(task) <= MIN_LENGTH_OF_TASK:
-                    flash("Опишите задачу подробнее!", category='error')
-                else:
-                    new_task = ThesisTask(task_text=task, current_thesis_id=current_thesis.id)
-                    db.session.add(new_task)
-                    db.session.commit()
-                    flash('Задача успешно добавлена!', category='success')
+            if same:
+                flash("Такая задача уже существует!", category='error')
+            elif len(task) <= MIN_LENGTH_OF_TASK:
+                flash("Опишите задачу подробнее!", category='error')
+            else:
+                new_task = ThesisTask(task_text=task, current_thesis_id=current_thesis.id)
+                db.session.add(new_task)
+                db.session.commit()
+                flash('Задача успешно добавлена!', category='success')
 
         for task in current_thesis.tasks:
             if 'delete_task_' + str(task.id) in request.form:
@@ -337,8 +337,10 @@ def practice_preparation(current_thesis):
                 flash('Вы не загрузили отзыв.', category='error')
                 return redirect(url_for('practice_preparation', id=current_thesis.id))
 
-            if supervisor_review is not None and not allowed_file(supervisor_review.filename) \
-                    or reviewer_review is not None and not allowed_file(reviewer_review.filename):
+            if supervisor_review is not None and (not supervisor_review.filename == ''
+                                                  and not allowed_file(supervisor_review.filename)) \
+                    or reviewer_review is not None and (not reviewer_review.filename == ''
+                                                        and not allowed_file(reviewer_review.filename)):
                 flash('Текст отзывов должен быть в формате .PDF', category='error')
                 return redirect(url_for('practice_preparation', id=current_thesis.id))
 
