@@ -171,7 +171,6 @@ class SeAdminModelViewDiplomaThemes(SeAdminModelView):
         }
     }
 
-
     pass
 
 
@@ -242,5 +241,22 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
 
     def get_count_query(self):
         return self.session.query(db.func.count('*')).filter(self.model.status < 2)
+
+    pass
+
+
+class SeAdminModelViewCurrentThesis(SeAdminModelView):
+    column_list = ('title', 'user', 'area', 'worktype', 'supervisor', 'deleted', 'status')
+    column_labels = dict(title='Название темы',
+                         user='Студент',
+                         area='Направление обучения',
+                         worktype='Тип работы',
+                         supervisor='Научный руководитель',
+                         deleted='Удалена',
+                         status='Статус')
+    column_choices = {'status': [
+        (1, 'Текущая работа'),
+        (2, 'Завершенная работа')
+    ]}
 
     pass

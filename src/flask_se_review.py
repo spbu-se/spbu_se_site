@@ -255,6 +255,7 @@ def edit_thesis_on_review():
 
     return render_template('thesis_review/edit.html', form=edit_thesis_onreview, user=user, thesis=thesis_review)
 
+
 @login_required
 def delete_thesis_on_review():
 

@@ -19,13 +19,14 @@ from flask_login import current_user
 
 import flask_se_theses
 from flask_se_config import SECRET_KEY_THESIS, SECRET_KEY, SQLITE_DATABASE_NAME, plural_hours, get_hours_since
-from se_models import db, search, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, Posts, DiplomaThemes, recalculate_post_rank
+from se_models import db, search, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, Posts, DiplomaThemes, \
+    CurrentThesis, recalculate_post_rank
 from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, \
     logout, vk_callback, google_login, google_callback
 from flask_se_news import list_news, get_post, submit_post, post_vote, delete_post
 from flask_se_admin import SeAdminModelViewThesis, SeAdminIndexView, SeAdminModelViewUsers, \
     SeAdminModelViewSummerSchool, SeAdminModelViewStaff, SeAdminModelViewNews, SeAdminModelViewDiplomaThemes, \
-    SeAdminModelViewReviewDiplomaThemes
+    SeAdminModelViewReviewDiplomaThemes, SeAdminModelViewCurrentThesis
 from flask_se_scholarships import get_scholarships_1, get_scholarships_2, get_scholarships_3, get_scholarships_4, \
     get_scholarships_5, get_scholarships_6, get_scholarships_7, get_scholarships_8, get_scholarships_9, \
     get_scholarships_10, get_scholarships_11, get_scholarships_12, get_scholarships_13
@@ -227,6 +228,7 @@ admin.add_view(SeAdminModelViewSummerSchool(SummerSchool, db.session))
 admin.add_view(SeAdminModelViewNews(Posts, db.session))
 admin.add_view(SeAdminModelViewDiplomaThemes(DiplomaThemes, db.session, endpoint="diplomathemes"))
 admin.add_view(SeAdminModelViewReviewDiplomaThemes(DiplomaThemes, db.session, endpoint="reviewdiplomathemes", name="Review DiplomaThemes"))
+admin.add_view(SeAdminModelViewCurrentThesis(CurrentThesis, db.session))
 
 # Init SimpleMDE
 app.config['SIMPLEMDE_JS_IIFE'] = True
