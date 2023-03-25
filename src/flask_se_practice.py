@@ -192,50 +192,61 @@ def practice_edit_theme(current_thesis):
 @current_thesis_exists_or_redirect
 def practice_goals_tasks(current_thesis):
     if request.method == "POST":
-        if 'submit_goal_button' in request.form and request.form['goal'] != '':
+        if 'submit_goal_button' in request.form or 'edit_goal_button' in request.form:
             goal = request.form.get('goal', type=str)
+            if goal is None:
+                return redirect(url_for('practice_goals_tasks', id=current_thesis.id))
+
             if len(goal) <= MIN_LENGTH_OF_GOAL:
-                flash("Напишите подробнее!", category='error')
-            else:
+                flash("Слишком короткое описание цели, напишите подробнее!", category='error')
+                return redirect(url_for('practice_goals_tasks', id=current_thesis.id))
+
+            if current_thesis.goal != goal:
                 current_thesis.goal = goal
                 db.session.commit()
-                flash('Цель добавлена!', category='success')
+                flash('Цель добавлена!' if 'submit_goal_button' in request.form else 'Цель изменена!',
+                      category='success')
 
-        if 'submit_goal_button' in request.form and request.form['goal'] != '':
-            goal = request.form.get('goal', type=str)
-            if len(goal) <= MIN_LENGTH_OF_GOAL:
-                flash("Напишите подробнее!", category='error')
-            else:
-                current_thesis.goal = goal
-                db.session.commit()
-                flash('Цель изменена!', category='success')
+        elif 'submit_task_button' in request.form:
+            task = request.form.get('task', type=str)
 
-        if 'submit_task_button' in request.form:
-            task = request.form.get('task_text', type=str)
-            same = False
-            for existedTask in current_thesis.tasks:
-                if not existedTask.deleted and existedTask.task_text == task:
-                    same = True
-            if same:
-                flash("Такая задача уже существует!", category='error')
-            elif len(task) <= MIN_LENGTH_OF_TASK:
+            if len(task) <= MIN_LENGTH_OF_TASK:
                 flash("Опишите задачу подробнее!", category='error')
-            else:
-                new_task = ThesisTask(task_text=task, current_thesis_id=current_thesis.id)
-                db.session.add(new_task)
-                db.session.commit()
-                flash('Задача успешно добавлена!', category='success')
+                return redirect(url_for('practice_goals_tasks', id=current_thesis.id))
 
-        for task in current_thesis.tasks:
-            if 'delete_task_' + str(task.id) in request.form:
-                task.deleted = True
-                db.session.commit()
-                flash('Задача удалена!', category='success')
+            new_task = ThesisTask(task_text=task, current_thesis_id=current_thesis.id)
+            db.session.add(new_task)
+            db.session.commit()
+            flash('Задача добавлена!', category='success')
 
-    form_goal = AddGoal()
-    form_task = AddTask()
+        elif 'delete_task_id_button' in request.form and request.form['delete_task_id_button'] != "0":
+            task_id = request.form['delete_task_id_button']
+            task = ThesisTask.query.filter_by(id=task_id).first()
+            if task is None:
+                return redirect(url_for('practice_goals_tasks', id=current_thesis.id))
+
+            task.deleted = True
+            db.session.commit()
+            flash('Задача удалена!', category='success')
+
+        elif 'edit_task_id_button' in request.form and request.form['edit_task_id_button'] != "0":
+            task_id = request.form['edit_task_id_button']
+            task = ThesisTask.query.filter_by(id=task_id).first()
+            if task is None:
+                return redirect(url_for('practice_goals_tasks', id=current_thesis.id))
+
+            new_task = request.form.get('task', type=str)
+            if len(new_task) <= MIN_LENGTH_OF_TASK:
+                flash("Опишите задачу подробнее!", category='error')
+                return redirect(url_for('practice_goals_tasks', id=current_thesis.id))
+
+            if task.task_text != new_task:
+                task.task_text = new_task
+                db.session.commit()
+                flash('Задача изменена!', category='success')
+
     return render_template(PracticeStudentTemplates.GOALS_TASKS.value, thesises=get_list_of_thesises(),
-                           practice=current_thesis, formGoal=form_goal, formTask=form_task)
+                           practice=current_thesis)
 
 
 @login_required

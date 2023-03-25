@@ -50,7 +50,7 @@
                         {% set sum = 0 %}
                         {% if thesis.title and thesis.supervisor_id %}{% set sum = sum + 1 %}{% endif %}
                         {% if thesis.goal %}{% set sum = sum + 1 %}{% endif %}
-                        {% if thesis.tasks %}{% set sum = sum + 1 %}{% endif %}
+                        {% if thesis.tasks|selectattr('deleted', 'equalto', False)|list %}{% set sum = sum + 1 %}{% endif %}
                         {% if thesis.text_uri %}{% set sum = sum + 1 %}{% endif %}
                         {% if thesis.supervisor_review_uri %}{% set sum = sum + 1 %}{% endif %}
                         {% if thesis.reviewer_review_uri %}{% set sum = sum + 1 %}{% endif %}
@@ -90,7 +90,7 @@
                     </div>
                     <div class="row">
                         <div class="col">
-                            {% if thesis.tasks %}
+                            {% if thesis.tasks|selectattr('deleted', 'equalto', False)|list %}
                             <i class="text-success mr-1" data-feather="check-circle"></i>
                             {% else %}
                             <i class="mr-1" data-feather="circle"></i>
