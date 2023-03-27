@@ -52,7 +52,8 @@ def current_thesis_exists_or_redirect(func):
 @user_is_staff
 def index_staff(user_staff):
     current_thesises = (CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(status=1)
-                        .outerjoin(ThesisReport, CurrentThesis.reports).order_by(desc(ThesisReport.time)).all())
+                        .filter_by(deleted=False).outerjoin(ThesisReport, CurrentThesis.reports)
+                        .order_by(desc(ThesisReport.time)).all())
     return render_template(PracticeStaffTemplates.CURRENT_THESISES.value, thesises=current_thesises)
 
 
@@ -121,9 +122,9 @@ def reports_staff(user_staff, current_thesis):
                     db.session.commit()
 
                     notification = NotificationPractice(recipient_id=current_thesis.author_id,
-                                                        content=user_staff.user.get_name() +
-                                                                " прокомментировал(-а) Ваш отчет от " +
-                                                                datetime_convert(current_report.time))
+                                                        content=(user_staff.user.get_name()
+                                                                 + " прокомментировал(-а) Ваш отчет от "
+                                                                 + datetime_convert(current_report.time)))
 
                     add_mail_notification(current_thesis.author_id, "[SE site] Отчёт прокомментирован",
                                           notification.content)
