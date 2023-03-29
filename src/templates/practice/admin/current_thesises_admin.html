@@ -1,0 +1,41 @@
+{% extends "practice/admin/base_practice_admin.html" %}
+
+{% block title %}Работы{% endblock %}
+
+{% block content_practice_admin %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col">
+            <h5>Работы</h5>
+        </div>
+    </div>
+
+    {% if not list_of_thesises %}
+    <div class="row">
+        <div class="col text-center">
+            <p>Здесь будут отображаться текущ6ие работы по направлению<br>{{ area }}, {{ worktype }}</p>
+        </div>
+    </div>
+    {% else %}
+    {% for thesis in list_of_thesises %}
+    <div class="card border-0 mb-3">
+        <div class="card-header">
+            <h6 class="mb-0">
+                <a id="{{thesis.id}}" name="thesis_link" href="{{ url_for('thesis_staff', id=thesis.id) }}" class="link text-primary">
+                    <strong>{{ thesis.title }}</strong>
+                </a>
+            </h6>
+        </div>
+        <div class="card-body pt-2 pb-3">
+            <p class="text-sm mb-0">Студент: {{ thesis.user.get_name() }}</p>
+            <p class="text-sm mb-0">Научный руководитель: {{ thesis.supervisor }}</p>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -255,6 +255,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                             </div>
                                         </a>
                                         {% endif %}
+                                        {% if current_user.is_authenticated and current_user.is_staff() %}
+                                        <a href="{{ url_for('index_admin') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Написание практик и ВКР (для руководителей практик)</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </li>
@@ -362,7 +372,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 <a href="{{url_for('nooffer')}}" class="text-white">Данный сайт носит информационный характер и не является публичной офертой.</a>
                             </div>
                             <div class="copyright text-sm font-weight-bold text-center text-md-left">
-                                &copy; Кафедра системного программирования, Математико-механический факультет, СПбГУ, 1996-2021
+                                &copy; Кафедра системного программирования, Математико-механический факультет, СПбГУ, 1996-2023
                             </div>
                         </div>
                 </div>

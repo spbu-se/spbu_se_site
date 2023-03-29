@@ -75,7 +75,6 @@ class Staff(db.Model):
     adviser = db.relationship("Thesis", backref=db.backref("reviewer"), foreign_keys='Thesis.reviewer_id')
     current_thesises = db.relationship("CurrentThesis", backref=db.backref("supervisor"))
 
-
     def __repr__(self):
         return '<%r>' % self.official_email
 
@@ -123,7 +122,8 @@ class Users(db.Model, UserMixin):
     reviewer = db.relationship('Reviewer', back_populates='user')
 
     all_user_votes = db.relationship('PostVote', back_populates='user')
-    internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False), foreign_keys='Internships.author_id')
+    internship_author = db.relationship("Internships", backref=db.backref("user", uselist=False),
+                                        foreign_keys='Internships.author_id')
 
     def get_name(self):
         full_name = ''
@@ -220,16 +220,25 @@ class CurrentThesis(db.Model):
     # 1 - active practice
     # 2 - past practice
 
+    def __init__(self, author_id, worktype_id, area_id):
+        self.author_id = author_id
+        self.worktype_id = worktype_id
+        self.area_id = area_id
+
     def __repr__(self):
         return self.title
 
 
-class NotificationCoursework(db.Model):
+class NotificationPractice(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     content = db.Column(db.String(512), nullable=False)
     time = db.Column(db.DateTime, default=datetime.utcnow)
     viewed = db.Column(db.Boolean, default=False, nullable=False)
+
+    def __init__(self, recipient_id, content):
+        self.recipient_id = recipient_id
+        self.content = content
 
     def __repr__(self):
         return self.content
@@ -254,6 +263,10 @@ class ThesisTask(db.Model):
     deleted = db.Column(db.Boolean, default=False)
     current_thesis_id = db.Column(db.Integer, db.ForeignKey('current_thesis.id'))
 
+    def __init__(self, task_text, current_thesis_id):
+        self.task_text = task_text
+        self.current_thesis_id = current_thesis_id
+
     def __repr__(self):
         return self.task_text
 
@@ -271,6 +284,12 @@ class ThesisReport(db.Model):
 
     comment = db.Column(db.String(2048), nullable=True)
     comment_time = db.Column(db.DateTime, nullable=True)
+
+    def __init__(self, was_done, planned_to_do, current_thesis_id, author_id):
+        self.was_done = was_done
+        self.planned_to_do = planned_to_do
+        self.current_thesis_id = current_thesis_id
+        self.author_id = author_id
 
 
 class InternshipCompany(db.Model):
@@ -651,8 +670,10 @@ def recalculate_post_rank():
 
 
 def add_mail_notification(user_id, title, content):
-    n = Notification(recipient=user_id, title=title, content=content)
+    if not Users.query.filter_by(id=user_id).first():
+        return
 
+    n = Notification(recipient=user_id, title=title, content=content)
     db.session.add(n)
     db.session.commit()
 
