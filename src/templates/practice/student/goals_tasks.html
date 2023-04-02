@@ -4,6 +4,18 @@
 
 {% block content_account %}
 
+{% set examplesOfGoal =['разработка отладчика для программ, написанных на языке РуСи и добавление к IDE возможности отладки',
+                            'реализация механизма изолированного от JetBrains Rider управления поставщиками типов',
+                            'создание веб-сервиса для упрощения организации работы над учебными практиками и ВКР',
+                            'создание препроцессора для языка РуСи',
+                            'разработка модуля, предназначенного для повышения привилегий пользователя в ОС Windows с использованием уязвимости'] %}
+
+{% set examplesOfTask =['изучить архитектуру транслятора РуСи',
+                            'доработать модули генерации и интерпретации кода для работы с отладочной информацией',
+                            'провести обзор существующих решений',
+                            'реализовать основные функции отладчика',
+                            'провести апробацию'] %}
+
 <div class="container">
     <div class="row">
         <div class="col">
@@ -11,116 +23,296 @@
         </div>
     </div>
     
-    <form name="edit_tasks_goals_form" method="POST" action="{{ url_for('practice_goals_tasks', id=practice.id) }}">
-        <div class="card border-0 mb-3">
-            {% if not practice.goal %}
-            <div class="card-header">
-                <h6>Укажите цель работы</h6>
-            </div>
-            <div class="card-body pt-2 pb-3">
-                {{formGoal.goal(class_="form-control", placeholder=formGoal.goal.description, rows="3")}}
-                <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_goal_button" value="Сохранить">
-            </div>
-            {% else %}
-            <div class="card-header">
-                <h6>Цель работы</h6>
-            </div>
-            <div class="card-body pt-2 pb-3">
-                <div id="oldGoal">{{practice.goal}}<br></div>
+    <form name="GoalAndTasksForm" id="GoalAndTasksForm" method="POST" action="{{ url_for('practice_goals_tasks', id=practice.id) }}">
 
-                {{formGoal.goal(class_="form-control", value=practice.goal, id="goal_text", rows="3", hidden=True)}}
-                <input id="editGoal" class="btn btn-sm btn-primary mt-3" name="edit_goal_button" value="Изменить цель" onclick="add_goal()">
+        <div class="row">
+            <div class="col">
+                <div class="card border-0 mb-2">
+                    <div class="card-body py-3">
+                        <h6>Цель работы
+                            <a class="text-primary" data-toggle="modal" data-target="#goal-help-modal" href="#">
+                                <i data-feather="alert-circle"></i>
+                            </a>
+                        </h6>
 
-                <script>
-                    function add_goal(){
-                        document.getElementById('editGoal').style.display='none';
-                        document.getElementById('editGoalButton').hidden=false;
-                        document.getElementById('goal_text').hidden=false;
-                        document.getElementById('oldGoal').hidden=true;
-                    }
-                </script>
-                <input id="editGoalButton" type="submit" class="btn btn-sm btn-primary mt-3" name="submit_goal_button" value="Сохранить изменения" hidden>
-             </div>
-            {% endif %}
+                        <div class="modal fade" id="goal-help-modal" tabindex="-1"
+                             role="dialog" aria-labelledby="goalHelpModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-xl" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title h6" id="goalHelpModalLabel">Cправка: цель</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                    Цель работы — то, что, собственно, делается — формулируется одним предложением. При этом:
+                                        <ul>
+                                            <li>
+                                                Не надо объяснять актуальность и важность работы, это должно быть сделано во введении;
+                                            </li>
+                                            <li>
+                                                При формулировке цели не должно появляться новых терминов или каких-то других новых знаний,
+                                                как бы ни был велик соблазн использовать их для более точной формулировки цели.
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if practice.goal %}
+                        <p id="goal">{{ practice.goal }}</p>
+
+                        <div id="editGoalButtonDiv" class="row">
+                            <div class="col">
+                                <a class="btn btn-sm btn-outline-primary" onclick="EditGoal('{{ practice.goal }}')">Редактировать</a>
+                            </div>
+                        </div>
+
+                        <div id="textareaForGoal" class="form-group mb-0" style="display: none">
+                            <textarea name="goal" class="form-control" id="goalTextarea" rows="3"
+                                      placeholder="Укажите цель работы
+Например, {{ examplesOfGoal|random }}."></textarea>
+                        </div>
+
+                        <div id="resaveGoalButtonDiv" class="row" style="display: none">
+                            <div class="col d-flex justify-content-between">
+                                <input type="submit" class="btn btn-sm btn-primary mt-2"
+                                       name="edit_goal_button" value="Сохранить">
+                                <a class="btn btn-sm btn-outline-danger mt-2"
+                                   onclick="ResetGoal();">Отмена</a>
+                            </div>
+                        </div>
+
+                        {% else %}
+                        <div class="form-group mb-0">
+                            <textarea name="goal" class="form-control" id="goalTextarea" rows="3"
+                                      placeholder="Укажите цель работы
+Например, {{ examplesOfGoal|random }}."></textarea>
+                        </div>
+                        <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_goal_button" value="Сохранить">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
 
-    <form name="edit_tasks_goals_form" method="POST" action="{{ url_for('practice_goals_tasks', id=practice.id) }}">
-        <div class="card border-0 mb-3">
-            <div class="card-header">
-                 <h6>Задачи</h6>
-            </div>
-            <div class="card-body pt-0 pb-3">
-                {% if practice.tasks %}
-                    <ul id="listOfTasks" class="list-unstyled list-bullet mb-0">
-                    {% for task in practice.tasks %}
-                        {% if not task.deleted %}
-                             <li class="py-2">
-                                 <div class="row">
-                                     <div class="col-10" id="task">
-                                         <div class="row">
-                                             <div class="col-1">
-                                                <span class="badge badge-circle rounded-circle badge-soft-success mr-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
-                                             </div>
-                                             <div class="col-10">
-                                                {{task.task_text}}
-                                             </div>
-                                         </div>
-                                     </div>
-                                     <div class="col-2">
-                                        <div class="text-right">
-                                            <a data-toggle="modal" data-target="{{'#deleteTask'+(task.id|string())+'Modal'}}"  class="text-danger" href="#">
-                                                <button class="text-danger text-center" style="outline: none; border: 0; box-shadow: none; background-color: transparent;"  data-content="Удалить задачу" data-trigger="hover" data-placement="top" data-toggle="popoverhover">
-                                                    <i data-feather="trash-2"></i>
-                                                </button>
-                                            </a>
-                                        </div>
-                                        <!-- Modal -->
-                                        <div class="modal fade" id="{{'deleteTask'+(task.id|string())+'Modal'}}" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="{{'ModalLabel'+(task.id|string())}}">Подтверждение</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        Вы точно хотите удалить данную задачу?
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <input type="submit" class="btn btn-secondary" name="{{'delete_task_'+(task.id|string())}}" value="Да, удалить!">
-                                                        <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
-                                                    </div>
+        <input id="hiddenDeleteTaskId" type="hidden" name="delete_task_id_button" value="0"/>
+        <input id="hiddenEditTaskId" type="hidden" name="edit_task_id_button" value="0"/>
+
+         <div class="row">
+            <div class="col">
+                <div class="card border-0 mb-2">
+                    <div class="card-body py-3">
+                        <h6>Задачи
+                            <a class="text-primary" data-toggle="modal" data-target="#tasks-help-modal" href="#">
+                                <i data-feather="alert-circle"></i>
+                            </a>
+                        </h6>
+
+                        <div class="modal fade" id="tasks-help-modal" tabindex="-1"
+                             role="dialog" aria-labelledby="tasksHelpModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-xl" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title h6" id="tasksHelpModalLabel">Cправка: задачи</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Задачи — то, что нужно сделать, чтобы достичь цели. Задач обычно 3-5,
+                                        и они обычно включают в себя обзор, проектирование и реализацию, апробацию и эксперименты.
+                                        На что надо обращать внимание:
+                                        <ul>
+                                            <li>
+                                                При формулировке задач не должно появляться новых терминов или каких-то других новых знаний,
+                                                как бы ни был велик соблазн использовать их для более точной формулировки задач;
+
+                                            </li>
+                                            <li>
+                                                Задачи должны быть специфичны для работы — просто «сделать обзор», «реализовать»,
+                                                «апробировать» не подойдёт (это легко проверяется мысленным экспериментом —
+                                                достаточно просто представить себе, что в работе хочется починить микроволновку —
+                                                если задачи всё ещё подходят, это плохо сформулированные задачи);
+                                            </li>
+                                            <li>
+                                                Список задач должен быть достаточен для достижения цели.
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if practice.tasks|selectattr('deleted', 'equalto', False)|list %}
+
+                        <ul class="pl-3">
+                        {% for task in practice.tasks|selectattr('deleted', 'equalto', False)|list %}
+                            <li class="mt-2" id="liTask-{{task.id}}" data-purpose="task">
+                                <div class="row">
+                                    <div class="col-10 pr-0">
+                                        {{ task }}
+                                    </div>
+                                    <div class="col-2 text-right">
+                                        <button class="text-primary mr-2" style="outline: none; border: 0; box-shadow: none; background-color: transparent;"
+                                                data-content="Редактировать задачу" data-trigger="hover" data-placement="top" data-toggle="popoverhover"
+                                                onclick="EditTask('{{ task }}', {{task.id}}); return false;">
+                                            <i data-feather="edit"></i>
+                                        </button>
+                                        <a data-toggle="modal" data-target="#deleteTaskModal-{{ task.id }}" href="#">
+                                            <button class="text-danger" style="outline: none; border: 0; box-shadow: none; background-color: transparent;" data-content="Удалить задачу" data-trigger="hover" data-placement="top" data-toggle="popoverhover">
+                                                <i data-feather="trash-2"></i>
+                                            </button>
+                                        </a>
+                                    </div>
+                                    <!-- Modal -->
+                                    <div class="modal fade text-body" id="deleteTaskModal-{{ task.id }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="ModalLabelReviewer">Подтверждение</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <b>Вы точно хотите удалить данную задачу?</b>
+                                                    <br>{{ task }}
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-secondary" value="Да, удалить!"
+                                                            onClick="document.getElementById('hiddenDeleteTaskId').value = {{task.id}}; GoalAndTasksForm.submit(); return false;">Да, удалить</button>
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                 </div>
-                             </li>
+                                </div>
+                            </li>
+                        {% endfor %}
+                        </ul>
+
+                        <div id="addTaskButton" class="row">
+                            <div class="col">
+                                <a class="btn btn-sm btn-primary" onclick="AddTask()">Добавить задачу</a>
+                            </div>
+                        </div>
+
+
+                        <div id="addNewTaskTitle" class="row mt-3 mb-1" style="display: none">
+                            <div class="col">
+                                <b>Добавление новой задачи</b>
+                            </div>
+                        </div>
+
+                        <div id="editTaskTitle" class="row mt-3 mb-1" style="display: none">
+                            <div class="col">
+                                <b>Редактирование задачи</b>
+                            </div>
+                        </div>
+
+                        <div id="textareaForTask" class="form-group mb-0" style="display: none">
+                            <textarea name="task" class="form-control" id="taskTextarea" rows="3"
+                                      placeholder="Укажите задачу
+Например, {{ examplesOfTask|random }}."></textarea>
+                        </div>
+
+                        <div id="addNewTaskButtonDiv" class="row" style="display: none">
+                            <div class="col d-flex justify-content-between">
+                                <input type="submit" class="btn btn-sm btn-primary mt-2"
+                                       name="submit_task_button" value="Сохранить">
+                                <a class="btn btn-sm btn-outline-danger mt-2"
+                                   onclick="resetTask();">Отмена</a>
+                            </div>
+                        </div>
+
+                        <div id="editTaskButtonDiv" class="row" style="display: none">
+                            <div class="col d-flex justify-content-between">
+                                <a class="btn btn-sm btn-primary mt-2"
+                                   onclick="SubmitEditTask();">Изменить</a>
+                                <a class="btn btn-sm btn-outline-danger mt-2"
+                                   onclick="resetTask();">Отмена</a>
+                            </div>
+                        </div>
+
+                        {% else %}
+                        <div class="form-group mb-0">
+                            <textarea name="task" class="form-control" id="taskTextarea" rows="3"
+                                      placeholder="Добавьте первую задачу
+Например, {{ examplesOfTask|random }}."></textarea>
+                        </div>
+                        <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_task_button" value="Сохранить">
                         {% endif %}
-                    {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>Здесь будут задачи Вашей работы</p>
-                {% endif %}
-                <fieldset id="newText" hidden>{{formTask.task_text(class_="form-control", id="textOfTask", placeholder=formTask.task_text.description, rows="3")}}
-                </fieldset>
-                <input id="addButton" class="btn btn-sm btn-primary mt-3" name="submit_task_form_button" value="Добавить задачу" onclick="add_input()">
 
-
-                <script>
-                    function add_input(){
-                        document.getElementById('addButton').style.display='none';
-                        document.getElementById('addTaskButton').hidden=false;
-                        document.getElementById('textOfTask').value='';
-                        document.getElementById('newText').hidden=false;
-                  }
-                </script>
-                <input id="addTaskButton" type="submit" class="btn btn-sm btn-primary mt-2" name="submit_task_button" value="Сохранить" hidden>
-             </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
     </form>
 </div>
 
+<script type="text/javascript">
+     function EditGoal(goal) {
+         console.log("ololo");
+         document.getElementById("goal").style.display = "none";
+         document.getElementById("editGoalButtonDiv").style.display = "none";
+         document.getElementById("textareaForGoal").style.display = "block";
+         document.getElementById("resaveGoalButtonDiv").style.display = "block";
+         document.getElementById("goalTextarea").value = goal;
+    }
+
+    function ResetGoal() {
+         document.getElementById("goal").style.display = "block";
+         document.getElementById("editGoalButtonDiv").style.display = "block";
+         document.getElementById("textareaForGoal").style.display = "none";
+         document.getElementById("resaveGoalButtonDiv").style.display = "none";
+         document.getElementById("goalTextarea").value = "";
+    }
+
+    function AddTask() {
+         document.getElementById("addTaskButton").style.display = "none";
+         document.getElementById("addNewTaskTitle").style.display = "block";
+         document.getElementById("textareaForTask").style.display = "block";
+         document.getElementById("addNewTaskButtonDiv").style.display = "block";
+    }
+
+    let editingTaskId = 0;
+
+    function resetTask() {
+        editingTaskId = 0
+        $("li[data-purpose='task']").map(function() {
+            this.classList.remove("text-warning");
+        });
+
+        document.getElementById("addTaskButton").style.display = "block";
+        document.getElementById("textareaForTask").style.display = "none";
+        document.getElementById("addNewTaskButtonDiv").style.display = "none";
+        document.getElementById("editTaskButtonDiv").style.display = "none";
+        document.getElementById("addNewTaskTitle").style.display = "none";
+        document.getElementById("editTaskTitle").style.display = "none";
+        document.getElementById("taskTextarea").value = "";
+    }
+
+    function EditTask(task, task_id) {
+        resetTask();
+
+        editingTaskId = task_id;
+        document.getElementById("liTask-" + task_id).classList.add("text-warning");
+        document.getElementById("addTaskButton").style.display = "none";
+        document.getElementById("editTaskTitle").style.display = "block";
+        document.getElementById("textareaForTask").style.display = "block";
+        document.getElementById("taskTextarea").value = task;
+        document.getElementById("editTaskButtonDiv").style.display = "block";
+    }
+
+    function SubmitEditTask() {
+        document.getElementById("hiddenEditTaskId").value = editingTaskId;
+        document.getElementById("GoalAndTasksForm").submit();
+        editingTaskId = 0;
+        return false;
+    }
+</script>
 {% endblock %}

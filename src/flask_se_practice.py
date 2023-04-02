@@ -1,243 +1,93 @@
 # -*- coding: utf-8 -*-
 
 import os
-import pytz
 from datetime import date, timedelta
+from enum import Enum
+from functools import wraps
+from typing import List, Tuple
 
-import werkzeug
-from flask import flash, redirect, request, render_template, url_for, render_template_string
+from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
 from sqlalchemy import desc, asc
 from datetime import datetime
-from pytz import timezone
 from transliterate import translit
 
 from flask_se_auth import login_required
 from flask_se_config import get_thesis_type_id_string
-from se_forms import ChooseTopic, DeadlineTemp, UserAddReport, CurrentWorktypeArea, AddGoal, AddTask
-from se_models import Users, AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationCoursework, Deadline, db, \
+from se_forms import ChooseTopic, UserAddReport, CurrentWorktypeArea, AddGoal, AddTask
+from se_models import Users, AreasOfStudy, CurrentThesis, Staff, Worktype, NotificationPractice, Deadline, db, \
     ThesisReport, ThesisTask, add_mail_notification
 
+from templates.practice.student.templates import PracticeStudentTemplates
+from templates.notification.templates import NotificationTemplates
+
 # Global variables
-formatDateTime = "%d.%m.%Y %H:%M"
 TEXT_UPLOAD_FOLDER = 'static/currentThesis/texts/'
 REVIEW_UPLOAD_FOLDER = 'static/currentThesis/reviews/'
 PRESENTATION_UPLOAD_FOLDER = 'static/currentThesis/slides/'
 ALLOWED_EXTENSIONS = {'pdf'}
+MIN_LENGTH_OF_TOPIC = 7
+MIN_LENGTH_OF_GOAL = 20
+MIN_LENGTH_OF_TASK = 15
+MIN_LENGTH_OF_FIELD_WAS_DONE = 10
+MIN_LENGTH_OF_FIELD_PLANNED_TO_DO = 10
 
 
-def allowed_file(filename):
+class TypeOfFile(Enum):
+    TEXT = "text"
+    REVIEWER_REVIEW = "reviewer_review"
+    SUPERVISOR_REVIEW = "supervisor_review"
+    PRESENTATION = "slides"
+
+
+def allowed_file(filename) -> bool:
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@login_required
-def practice_temp_deadline():
-    form = DeadlineTemp()
-
-    if request.method == "POST":
-        worktype_id = request.form.get('worktype', type=int)
-        area_id = request.form.get('area', type=int)
-
-        if area_id == 0:
-            flash('Укажите направление.', category='error')
-        elif worktype_id == 0:
-            flash('Укажите тип работы!', category='error')
-        else:
-            deadline = Deadline.query.filter_by(worktype_id=worktype_id).filter_by(area_id=area_id).first()
-            if not deadline:
-                deadline = Deadline()
-                deadline.worktype_id = worktype_id
-                deadline.area_id = area_id
-                db.session.add(deadline)
-
-            current_thesises = CurrentThesis.query.filter_by(worktype_id=worktype_id).filter_by(area_id=area_id).\
-                filter_by(deleted=False).filter_by(status=1).all()
-
-            if request.form.get('choose_topic'):
-                new_deadline = datetime.strptime(request.form.get('choose_topic'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
-                if not deadline.choose_topic or deadline.choose_topic and deadline.choose_topic.replace(tzinfo=pytz.UTC) != new_deadline:
-                    first_word = ""
-                    if not deadline.choose_topic:
-                        first_word = "Назначен"
-                    elif deadline.choose_topic.replace(tzinfo=pytz.UTC) != new_deadline:
-                        first_word = "Изменён"
-
-                    deadline.choose_topic = new_deadline
-                    for currentThesis in current_thesises:
-                        notification = NotificationCoursework()
-                        notification.recipient_id = currentThesis.author_id
-                        notification.content = first_word + " дедлайн на выбор темы для " + \
-                                               Worktype.query.filter_by(id=worktype_id).first().type + \
-                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
-                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
-                        add_mail_notification(currentThesis.author_id,
-                                              "[SE site] " + first_word + " дедлайн на выбор темы",
-                                              notification.content.replace('**', ''))
-
-                        db.session.add(notification)
-
-            if request.form.get('submit_work_for_review'):
-                new_deadline = datetime.strptime(request.form.get('submit_work_for_review'),
-                                                 "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
-                if not deadline.submit_work_for_review or \
-                        deadline.submit_work_for_review and deadline.submit_work_for_review.replace(tzinfo=pytz.UTC) != new_deadline:
-                    first_word = ""
-                    if not deadline.submit_work_for_review:
-                        first_word = "Назначен"
-                    elif deadline.submit_work_for_review.replace(tzinfo=pytz.UTC) != new_deadline:
-                        first_word = "Изменён"
-
-                    deadline.submit_work_for_review = new_deadline
-                    for currentThesis in current_thesises:
-                        notification = NotificationCoursework()
-                        notification.recipient_id = currentThesis.author_id
-                        notification.content = first_word + " дедлайн на отправку работы для рецензирования для " + \
-                                               Worktype.query.filter_by(id=worktype_id).first().type + \
-                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
-                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
-                        add_mail_notification(currentThesis.author_id,
-                                              "[SE site] " + first_word + " дедлайн на отправку работы на рецензирование",
-                                              notification.content.replace('**', ''))
-
-                        db.session.add(notification)
-
-            if request.form.get('upload_reviews'):
-                new_deadline = datetime.strptime(request.form.get('upload_reviews'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
-                if not deadline.upload_reviews or \
-                        deadline.upload_reviews and deadline.upload_reviews.replace(tzinfo=pytz.UTC) != new_deadline:
-                    first_word = ""
-                    if not deadline.upload_reviews:
-                        first_word = "Назначен"
-                    elif deadline.upload_reviews.replace(tzinfo=pytz.UTC) != new_deadline:
-                        first_word = "Изменён"
-
-                    deadline.upload_reviews = new_deadline
-                    for currentThesis in current_thesises:
-                        notification = NotificationCoursework()
-                        notification.recipient_id = currentThesis.author_id
-                        notification.content = first_word + " дедлайн на загрузку отзывов для " + \
-                                               Worktype.query.filter_by(id=worktype_id).first().type + \
-                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
-                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
-                        add_mail_notification(currentThesis.author_id,
-                                              "[SE site] " + first_word + " дедлайн на загрузку отзывов",
-                                              notification.content.replace('**', ''))
-
-                        db.session.add(notification)
-
-            if request.form.get('pre_defense'):
-                new_deadline = datetime.strptime(request.form.get('pre_defense'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
-                if not deadline.pre_defense or \
-                        deadline.pre_defense and deadline.pre_defense.replace(tzinfo=pytz.UTC) != new_deadline:
-                    first_word = ""
-                    if not deadline.pre_defense:
-                        first_word = "Назначено"
-                    elif deadline.pre_defense.replace(tzinfo=pytz.UTC) != new_deadline:
-                        first_word = "Изменено"
-
-                    deadline.pre_defense = new_deadline
-                    for currentThesis in current_thesises:
-                        notification = NotificationCoursework()
-                        notification.recipient_id = currentThesis.author_id
-                        notification.content = first_word + " время предзащиты для " + \
-                                               Worktype.query.filter_by(id=worktype_id).first().type + \
-                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
-                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
-                        add_mail_notification(currentThesis.author_id,
-                                              "[SE site] " + first_word + " время предзащиты",
-                                              notification.content.replace('**', ''))
-                        db.session.add(notification)
-
-            if request.form.get('defense'):
-                new_deadline = datetime.strptime(request.form.get('defense'), "%Y-%m-%dT%H:%M").astimezone(pytz.UTC)
-                if not deadline.defense or \
-                        deadline.defense and deadline.defense.replace(tzinfo=pytz.UTC) != new_deadline:
-                    first_word = ""
-                    if not deadline.defense:
-                        first_word = "Назначено"
-                    elif deadline.defense.replace(tzinfo=pytz.UTC) != new_deadline:
-                        first_word = "Изменено"
-
-                    deadline.defense = new_deadline
-                    for currentThesis in current_thesises:
-                        notification = NotificationCoursework()
-                        notification.recipient_id = currentThesis.author_id
-                        notification.content = first_word + " время защиты для " + \
-                                               Worktype.query.filter_by(id=worktype_id).first().type + \
-                                               " для направления " + AreasOfStudy.query.filter_by(id=area_id).first().area + \
-                                               ": **" + new_deadline.replace(tzinfo=pytz.UTC).astimezone(timezone("Europe/Moscow")).strftime(formatDateTime) + " МСК**"
-                        add_mail_notification(currentThesis.author_id,
-                                              "[SE site] " + first_word + " время защиты",
-                                              notification.content.replace('**', ''))
-                        db.session.add(notification)
-
-            db.session.commit()
-
-    form.area.choices.append((0, 'Выберите направление'))
-    for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by('id').all():
-        form.area.choices.append((area.id, area.area))
-
-    form.worktype.choices.append((0, 'Выберите тип работы'))
-    for worktype in Worktype.query.filter(Worktype.id > 2).order_by('id').all():
-        form.worktype.choices.append((worktype.id, worktype.type))
-
-    return render_template('practice/temp_deadline.html', form=form)
-
-
-@login_required
-def practice_temp():
-    if request.method == "POST":
-        recipient_id = request.form.get('recipient')
-        content = request.form.get('content')
-        if recipient_id and content:
-            new_notification = NotificationCoursework()
-            new_notification.recipient_id = recipient_id
-            new_notification.content = content
-
-            add_mail_notification(recipient_id, "[SE site] Уведомление",
-                                  render_template_string(current_user.get_name() + " отправил Вам уведомление: <br>" +
-                                                         content))
-
-            db.session.add(new_notification)
-            db.session.commit()
-
-    return render_template('practice/temp.html')
+def current_thesis_exists_or_redirect(func):
+    @wraps(func)
+    def get_current_thesis_decorator():
+        current_thesis_id = request.args.get('id', type=int)
+        if not current_thesis_id:
+            return redirect(url_for('practice_index'))
+        current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).\
+            filter_by(id=current_thesis_id).first()
+        if not current_thesis or current_thesis.deleted:
+            return redirect(url_for('practice_index'))
+        return func(current_thesis)
+    return get_current_thesis_decorator
 
 
 @login_required
 def practice_index():
-    user = current_user
-
-    type_notifications = request.args.get('notifications', type=str)
-    if not type_notifications:
-        type_notifications = "new"
-
     if request.method == "POST":
-        if request.form['read_button']:
-            notification_id = request.form['read_button']
-            notification = NotificationCoursework.query.filter_by(id=notification_id).first()
-            notification.viewed = True
+        if 'read_notification_button' in request.form:
+            notification_id = request.form['read_notification_button']
+            notification = NotificationPractice.query.filter_by(id=notification_id).first()
+            if notification:
+                notification.viewed = True
+                db.session.commit()
 
-            db.session.commit()
+    user = current_user
+    type_notifications = request.args.get('notifications', type=str, default='new')
 
-    notifications = NotificationCoursework.query.filter_by(recipient_id=user.id).order_by(desc(NotificationCoursework.time)).all()
-    notifications_not_viewed = NotificationCoursework.query.filter_by(recipient_id=user.id).filter_by(viewed=False). \
-        order_by(desc(NotificationCoursework.time)).all()
+    notifications = NotificationPractice.query.filter_by(recipient_id=user.id).\
+        order_by(desc(NotificationPractice.time)).all()
+    notifications_not_viewed = NotificationPractice.query.filter_by(recipient_id=user.id).filter_by(viewed=False).\
+        order_by(desc(NotificationPractice.time)).all()
 
-    return render_template('practice/student/index.html', thesises=get_list_of_thesises(), notifications=notifications,
-                           notifications_not_viewed=notifications_not_viewed, type_notifications=type_notifications)
+    return render_template(PracticeStudentTemplates.MAIN.value, thesises=get_list_of_thesises(),
+                           notifications=notifications, notifications_not_viewed=notifications_not_viewed,
+                           type_notifications=type_notifications)
 
 
 @login_required
 def practice_guide():
-    return render_template('practice/student/guide.html', thesises=get_list_of_thesises())
+    return render_template(PracticeStudentTemplates.GUIDE.value, thesises=get_list_of_thesises())
 
 
 @login_required
 def practice_new_thesis():
-    user = current_user
-    form = CurrentWorktypeArea()
-
     if request.method == "POST":
         current_area_id = request.form.get('area', type=int)
         current_worktype_id = request.form.get('worktype', type=int)
@@ -246,45 +96,34 @@ def practice_new_thesis():
         elif current_area_id == 0:
             flash('Выберите направление.', category='error')
         else:
-            new_thesis = CurrentThesis()
-            new_thesis.author_id = user.id
-            new_thesis.worktype_id = current_worktype_id
-            new_thesis.area_id = current_area_id
-
+            new_thesis = CurrentThesis(author_id=current_user.id, worktype_id=current_worktype_id,
+                                       area_id=current_area_id)
             db.session.add(new_thesis)
             db.session.commit()
             return redirect(url_for('practice_choosing_topic', id=new_thesis.id))
 
+    form = CurrentWorktypeArea()
     form.area.choices.append((0, 'Выберите направление'))
     for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by('id').all():
         form.area.choices.append((area.id, area.area))
-
     form.worktype.choices.append((0, 'Выберите тип работы'))
     for worktype in Worktype.query.filter(Worktype.id > 2).all():
         form.worktype.choices.append((worktype.id, worktype.type))
 
-    return render_template('practice/student/new_practice.html', thesises=get_list_of_thesises(), user=user, review_filter=form,
-                           form=form)
+    return render_template(PracticeStudentTemplates.NEW_PRACTICE.value, thesises=get_list_of_thesises(),
+                           user=current_user, review_filter=form, form=form)
 
 
 @login_required
-def practice_choosing_topic():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
+@current_thesis_exists_or_redirect
+def practice_choosing_topic(current_thesis):
     if request.method == "POST":
-        if request.form['submit_button'] == 'Сохранить':
+        if 'save_topic_button' in request.form:
             topic = request.form.get('topic', type=str)
             supervisor_id = request.form.get('staff', type=int)
-
             if not topic:
                 flash('Введите название темы.', category='error')
-            elif len(topic) <= 7:
+            elif len(topic) <= MIN_LENGTH_OF_TOPIC:
                 flash('Слишком короткое название темы.', category='error')
             elif not supervisor_id:
                 flash('Выберите научного руководителя.', category='error')
@@ -292,167 +131,144 @@ def practice_choosing_topic():
                 current_thesis.title = topic
                 current_thesis.supervisor_id = supervisor_id
                 db.session.commit()
+                add_mail_notification(supervisor_id, "Добавлена новая учебная практика/ВКР",
+                                      render_template(NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
+                                                      user=current_user, practice=current_thesis))
 
-        elif request.form['submit_button'] == 'Да, отказываюсь!':
+        elif 'delete_topic_button' in request.form:
             current_thesis.title = None
             current_thesis.supervisor_id = None
-
             db.session.commit()
 
-    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).filter_by(
-        area_id=current_thesis.area_id).first()
+    deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).\
+        filter_by(area_id=current_thesis.area_id).first()
 
     form = ChooseTopic()
     form.staff.choices.append((0, 'Выберите научного руководителя'))
     for supervisor in Staff.query.join(Users, Staff.user_id == Users.id).order_by(asc(Users.last_name)).all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
 
-    return render_template('practice/student/choosing_topic.html', thesises=get_list_of_thesises(), form=form,
+    return render_template(PracticeStudentTemplates.CHOOSING_TOPIC.value, thesises=get_list_of_thesises(), form=form,
                            practice=current_thesis, deadline=deadline,
                            remaining_time=get_remaining_time(deadline, "choose_topic"))
 
 
 @login_required
-def practice_edit_theme():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
-    form = ChooseTopic()
+@current_thesis_exists_or_redirect
+def practice_edit_theme(current_thesis):
     if request.method == "POST":
-        if request.form['submit_button'] == 'Сохранить':
+        if 'save_topic_button' in request.form:
             topic = request.form.get('topic', type=str)
             supervisor_id = request.form.get('staff', type=int)
 
             if not topic:
                 flash('Введите название темы.', category='error')
-            elif len(topic) <= 7:
+            elif len(topic) <= MIN_LENGTH_OF_TOPIC:
                 flash('Слишком короткое название темы.', category='error')
             elif not supervisor_id:
                 flash('Выберите научного руководителя.', category='error')
             else:
                 current_thesis.title = topic
-                current_thesis.supervisor_id = supervisor_id
-
+                if current_thesis.supervisor_id != supervisor_id:
+                    add_mail_notification(supervisor_id, "Добавлена новая учебная практика/ВКР",
+                                          render_template(NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
+                                                          user=current_user, practice=current_thesis))
+                    current_thesis.supervisor_id = supervisor_id
                 db.session.commit()
-                return redirect(url_for('practice_choosing_topic', id=current_thesis_id))
+                return redirect(url_for('practice_choosing_topic', id=current_thesis.id))
 
+    form = ChooseTopic()
     form.topic.data = current_thesis.title
     form.staff.choices.append((current_thesis.supervisor_id, current_thesis.supervisor))
-    for supervisor in Staff.query.join(Users, Staff.user_id == Users.id).filter(
-            Staff.id != current_thesis.supervisor_id) \
-            .order_by(asc(Users.last_name)).all():
+    for supervisor in Staff.query.join(Users, Staff.user_id == Users.id).\
+            filter(Staff.id != current_thesis.supervisor_id).order_by(asc(Users.last_name)).all():
         form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
 
-    return render_template('practice/student/edit_theme.html', thesises=get_list_of_thesises(), form=form,
+    return render_template(PracticeStudentTemplates.EDIT_TOPIC.value, thesises=get_list_of_thesises(), form=form,
                            practice=current_thesis)
 
 
 @login_required
-def practice_goals_tasks():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
-    formGoal = AddGoal()
-    formTask = AddTask()
+@current_thesis_exists_or_redirect
+def practice_goals_tasks(current_thesis):
     if request.method == "POST":
-
-        if 'submit_goal_button' in request.form and request.form['submit_goal_button'] == 'Сохранить' \
-                and request.form['goal']:
+        if 'submit_goal_button' in request.form or 'edit_goal_button' in request.form:
             goal = request.form.get('goal', type=str)
+            if goal is None:
+                return redirect(url_for('practice_goals_tasks', id=current_thesis.id))
 
-            if len(goal) <= 20:
-                flash("Напишите подробнее!", category='error')
-            else:
+            if len(goal) <= MIN_LENGTH_OF_GOAL:
+                flash("Слишком короткое описание цели, напишите подробнее!", category='error')
+                return redirect(url_for('practice_goals_tasks', id=current_thesis.id))
+
+            if current_thesis.goal != goal:
                 current_thesis.goal = goal
                 db.session.commit()
-                flash('Цель добавлена!', category='success')
+                flash('Цель добавлена!' if 'submit_goal_button' in request.form else 'Цель изменена!',
+                      category='success')
 
-        if 'submit_goal_button' in request.form and request.form['submit_goal_button'] == 'Сохранить изменения' \
-                and request.form['goal']:
-            goal = request.form.get('goal', type=str)
+        elif 'submit_task_button' in request.form:
+            task = request.form.get('task', type=str)
 
-            if len(goal) <= 20:
-                flash("Напишите подробнее!", category='error')
-            else:
-                current_thesis.goal = goal
+            if len(task) <= MIN_LENGTH_OF_TASK:
+                flash("Опишите задачу подробнее!", category='error')
+                return redirect(url_for('practice_goals_tasks', id=current_thesis.id))
+
+            new_task = ThesisTask(task_text=task, current_thesis_id=current_thesis.id)
+            db.session.add(new_task)
+            db.session.commit()
+            flash('Задача добавлена!', category='success')
+
+        elif 'delete_task_id_button' in request.form and request.form['delete_task_id_button'] != "0":
+            task_id = request.form['delete_task_id_button']
+            task = ThesisTask.query.filter_by(id=task_id).first()
+            if task is None:
+                return redirect(url_for('practice_goals_tasks', id=current_thesis.id))
+
+            task.deleted = True
+            db.session.commit()
+            flash('Задача удалена!', category='success')
+
+        elif 'edit_task_id_button' in request.form and request.form['edit_task_id_button'] != "0":
+            task_id = request.form['edit_task_id_button']
+            task = ThesisTask.query.filter_by(id=task_id).first()
+            if task is None:
+                return redirect(url_for('practice_goals_tasks', id=current_thesis.id))
+
+            new_task = request.form.get('task', type=str)
+            if len(new_task) <= MIN_LENGTH_OF_TASK:
+                flash("Опишите задачу подробнее!", category='error')
+                return redirect(url_for('practice_goals_tasks', id=current_thesis.id))
+
+            if task.task_text != new_task:
+                task.task_text = new_task
                 db.session.commit()
-                flash('Цель изменена!', category='success')
-        if 'submit_task_button' in request.form:
+                flash('Задача изменена!', category='success')
 
-            if 'submit_task_button' in request.form:
-                task = request.form.get('task_text', type=str)
-                same = False
-                for existedTask in current_thesis.tasks:
-                    if not existedTask.deleted and existedTask.task_text == task:
-                        same = True
-                if same:
-                    flash("Такая задача уже существует!", category='error')
-                elif len(task) <= 15:
-                    flash("Опишите задачу подробнее!", category='error')
-                else:
-                    new_task = ThesisTask(task_text=task, current_thesis_id=current_thesis_id)
-                    db.session.add(new_task)
-                    db.session.commit()
-                    flash('Задача успешно добавлена!', category='success')
-
-        for task in current_thesis.tasks:
-
-            if 'delete_task_' + str(task.id) in request.form:
-                task.deleted = True
-                db.session.commit()
-                flash('Задача удалена!', category='success')
-
-    return render_template('practice/student/goals_tasks.html', thesises=get_list_of_thesises(),
-                           practice=current_thesis, formGoal=formGoal, formTask=formTask)
+    return render_template(PracticeStudentTemplates.GOALS_TASKS.value, thesises=get_list_of_thesises(),
+                           practice=current_thesis)
 
 
 @login_required
-def practice_workflow():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
+@current_thesis_exists_or_redirect
+def practice_workflow(current_thesis):
     if request.method == "POST":
-        if request.form['delete_button']:
+        if 'delete_button' in request.form:
             report_id = request.form['delete_button']
             report = ThesisReport.query.filter_by(id=report_id).first()
             report.deleted = True
             db.session.commit()
             flash('Отчёт удален!', category='success')
 
-    reports = ThesisReport.query.filter_by(current_thesis_id=current_thesis_id).filter_by(deleted=False). \
-        order_by(desc(ThesisReport.time)).all()
-    return render_template('practice/student/workflow.html', thesises=get_list_of_thesises(), practice=current_thesis,
-                           reports=reports)
+    reports = (ThesisReport.query.filter_by(current_thesis_id=current_thesis.id).filter_by(deleted=False)
+               .order_by(desc(ThesisReport.time)).all())
+    return render_template(PracticeStudentTemplates.WORKFLOW.value, thesises=get_list_of_thesises(),
+                           practice=current_thesis, reports=reports)
 
 
 @login_required
-def practice_add_new_report():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
-    user = current_user
-    add_thesis_report_form = UserAddReport()
-
+@current_thesis_exists_or_redirect
+def practice_add_new_report(current_thesis):
     if request.method == 'POST':
         was_done = request.form.get('was_done', type=str)
         planned_to_do = request.form.get('planned_to_do', type=str)
@@ -461,249 +277,136 @@ def practice_add_new_report():
             flash('Поле "Что было сделано?" является обязательным!', category='error')
         elif not planned_to_do:
             flash('Поле "Что планируется сделать?" является обязательным!', category='error')
-        elif len(was_done) <= 10:
+        elif len(was_done) <= MIN_LENGTH_OF_FIELD_WAS_DONE:
             flash("Слишком короткое описание проделанной работы, напишите подробнее!", category='error')
-        elif len(planned_to_do) <= 10:
+        elif len(planned_to_do) <= MIN_LENGTH_OF_FIELD_PLANNED_TO_DO:
             flash("Слишком короткое описание дальнейших планов, напишите подробнее!", category='error')
         else:
             new_report = ThesisReport(was_done=was_done, planned_to_do=planned_to_do,
-                                      current_thesis_id=current_thesis_id, author_id=user.id)
+                                      current_thesis_id=current_thesis.id, author_id=current_user.id)
             db.session.add(new_report)
             db.session.commit()
+            add_mail_notification(current_thesis.supervisor_id, "Новый отчёт по учебной практике",
+                                  render_template(NotificationTemplates.NEW_REPORT_TO_SUPERVISOR.value,
+                                                  user=current_user, practice=current_thesis))
             flash('Отчёт успешно отправлен!', category='success')
-            return redirect(url_for('practice_workflow', id=current_thesis_id))
+            return redirect(url_for('practice_workflow', id=current_thesis.id))
 
-    return render_template('practice/student/new_report.html', thesises=get_list_of_thesises(), practice=current_thesis,
-                           form=add_thesis_report_form, user=user)
+    add_thesis_report_form = UserAddReport()
+    return render_template(PracticeStudentTemplates.NEW_REPORT.value, thesises=get_list_of_thesises(),
+                           practice=current_thesis, form=add_thesis_report_form, user=current_user)
 
 
 @login_required
-def practice_preparation():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
+@current_thesis_exists_or_redirect
+def practice_preparation(current_thesis):
     if request.method == 'POST':
         if 'submit_text_button' in request.form:
-            text_file = werkzeug.datastructures.FileStorage()
-            if 'text' in request.files:
-                text_file = request.files['text']
+            text_file = request.files['text'] if 'text' in request.files else None
 
-            if not current_thesis.text_uri and current_thesis.text_link:
-                if text_file.filename:
-                    if text_file and not allowed_file(text_file.filename):
-                        flash("Текст должен быть в формате .PDF", category='error')
-                    else:
-                        if text_file:
-                            author_en = translit(current_user.get_name(), 'ru', reversed=True)
-                            author_en = author_en.replace(" ", "_")
-                            text_filename = author_en + '_' + get_thesis_type_id_string(current_thesis.worktype_id)
+            if text_file is not None and text_file.filename == ''\
+                    and 'text_link' in request.form and request.form['text_link'] == '':
+                flash('Вы не загрузили текст работы и не указали ссылку на текст.', category='error')
+                return redirect(url_for('practice_preparation', id=current_thesis.id))
 
-                            text_filename = text_filename + '_' + str(date.today().year) + '_text'
-                            text_filename_with_ext = text_filename + '.pdf'
-                            full_text_filename = os.path.join(TEXT_UPLOAD_FOLDER + text_filename_with_ext)
+            if text_file is None and 'text_link' in request.form and request.form['text_link'] == '':
+                flash('Вы не указали ссылку на текст.', category='error')
+                return redirect(url_for('practice_preparation', id=current_thesis.id))
 
-                            # Check if file already exist
-                            if os.path.isfile(full_text_filename):
-                                text_filename = text_filename + '_' + str(os.urandom(8).hex())
-                                text_filename_with_ext = text_filename + '.pdf'
-                                full_text_filename = os.path.join(
-                                    TEXT_UPLOAD_FOLDER + text_filename_with_ext)
+            if 'text_link' not in request.form and text_file is not None and text_file.filename == '':
+                flash('Вы не загрузили текст работы.', category='error')
+                return redirect(url_for('practice_preparation', id=current_thesis.id))
 
-                            text_file.save(full_text_filename)
+            if 'text_link' in request.form and request.form['text_link'] != '':
+                current_thesis.text_link = request.form['text_link']
+                db.session.commit()
+                flash('Ссылка на текст работы сохранена!', category='success')
 
-                            current_thesis.text_uri = text_filename_with_ext
-                            db.session.commit()
-                            flash('Текст успешно загружен!', category='success')
-                else:
-                    flash('Вы не загрузили текст работы.', category='error')
+            if text_file is not None and (text_file.filename != '' and not allowed_file(text_file.filename)):
+                flash("Текст работы должен быть в формате .PDF", category='error')
+                return redirect(url_for('practice_preparation', id=current_thesis.id))
 
-            elif current_thesis.text_uri and not current_thesis.text_link:
-                if request.form['text_link']:
-                    text_link = request.form['text_link']
-                    current_thesis.text_link = text_link
-                    db.session.commit()
-                    flash('Ссылка на текст работы сохранена!', category='success')
-                else:
-                    flash('Вы не указали ссылку на текст;', category='error')
-
-            elif not current_thesis.text_uri and not current_thesis.text_link:
-                if not request.form['text_link'] and not text_file.filename:
-                    flash('Вы не загрузили текст работы и не указали ссылку на текст.', category='error')
-                else:
-                    if request.form['text_link']:
-                        text_link = request.form['text_link']
-                        current_thesis.text_link = text_link
-                        db.session.commit()
-                        flash('Ссылка на текст работы сохранена!', category='success')
-
-                    if text_file.filename:
-                        if text_file and not allowed_file(text_file.filename):
-                            flash("Текст должен быть в формате .PDF", category='error')
-                        else:
-                            if text_file:
-                                author_en = translit(current_user.get_name(), 'ru', reversed=True)
-                                author_en = author_en.replace(" ", "_")
-                                text_filename = author_en + '_' + get_thesis_type_id_string(current_thesis.worktype_id)
-
-                                text_filename = text_filename + '_' + str(date.today().year) + '_text'
-                                text_filename_with_ext = text_filename + '.pdf'
-                                full_text_filename = os.path.join(TEXT_UPLOAD_FOLDER + text_filename_with_ext)
-
-                                # Check if file already exist
-                                if os.path.isfile(full_text_filename):
-                                    text_filename = text_filename + '_' + str(os.urandom(8).hex())
-                                    text_filename_with_ext = text_filename + '.pdf'
-                                    full_text_filename = os.path.join(
-                                        TEXT_UPLOAD_FOLDER + text_filename_with_ext)
-
-                                text_file.save(full_text_filename)
-
-                                current_thesis.text_uri = text_filename_with_ext
-                                db.session.commit()
-                                flash('Текст успешно загружен!', category='success')
+            if text_file is not None and text_file.filename != '':
+                full_filename, filename = get_filename(current_thesis, TEXT_UPLOAD_FOLDER, TypeOfFile.TEXT.value)
+                text_file.save(full_filename)
+                current_thesis.text_uri = filename
+                db.session.commit()
+                flash('Текст успешно загружен!', category='success')
 
         elif 'submit_review_button' in request.form:
-            supervisor_review_file = werkzeug.datastructures.FileStorage()
-            consultant_review_file = werkzeug.datastructures.FileStorage()
-            if 'supervisor_review' in request.files:
-                supervisor_review_file = request.files['supervisor_review']
-            if 'consultant_review' in request.files:
-                consultant_review_file = request.files['consultant_review']
+            supervisor_review = request.files['supervisor_review'] if 'supervisor_review' in request.files else None
+            reviewer_review = request.files['consultant_review'] if 'consultant_review' in request.files else None
 
-            if supervisor_review_file.filename == '' and consultant_review_file.filename == '':
+            if supervisor_review is None and reviewer_review is None:
+                return redirect(url_for('practice_preparation', id=current_thesis.id))
+
+            # Check at least one review has been uploaded
+            if supervisor_review is not None and supervisor_review.filename == ''\
+                    and reviewer_review is not None and reviewer_review.filename == ''\
+                    or supervisor_review is None and reviewer_review is not None and reviewer_review.filename == ''\
+                    or reviewer_review is None and supervisor_review is not None and supervisor_review.filename == '':
                 flash('Вы не загрузили отзыв.', category='error')
-            elif supervisor_review_file and not allowed_file(supervisor_review_file.filename) or \
-                    consultant_review_file and not allowed_file(consultant_review_file.filename):
-                flash("Текст отзывов должен быть в формате .PDF", category='error')
-            else:
-                author_en = translit(current_user.get_name(), 'ru', reversed=True)
-                author_en = author_en.replace(" ", "_")
+                return redirect(url_for('practice_preparation', id=current_thesis.id))
 
-                if supervisor_review_file:
-                    review_filename = author_en + '_' + get_thesis_type_id_string(current_thesis.worktype_id)
+            if supervisor_review is not None and (not supervisor_review.filename == ''
+                                                  and not allowed_file(supervisor_review.filename)) \
+                    or reviewer_review is not None and (not reviewer_review.filename == ''
+                                                        and not allowed_file(reviewer_review.filename)):
+                flash('Текст отзывов должен быть в формате .PDF', category='error')
+                return redirect(url_for('practice_preparation', id=current_thesis.id))
 
-                    review_filename = review_filename + '_' + str(date.today().year) + '_supervisor_review'
-                    review_filename_with_ext = review_filename + '.pdf'
-                    full_review_filename = os.path.join(REVIEW_UPLOAD_FOLDER + review_filename_with_ext)
+            if supervisor_review:
+                full_filename, filename = get_filename(current_thesis, REVIEW_UPLOAD_FOLDER,
+                                                       TypeOfFile.SUPERVISOR_REVIEW.value)
+                supervisor_review.save(full_filename)
+                current_thesis.supervisor_review_uri = filename
+                db.session.commit()
+                flash('Отзыв научного руководителя успешно загружен!', category='success')
 
-                    # Check if file already exist
-                    if os.path.isfile(full_review_filename):
-                        review_filename = review_filename + '_' + str(os.urandom(8).hex())
-                        review_filename_with_ext = review_filename + '.pdf'
-                        full_review_filename = os.path.join(REVIEW_UPLOAD_FOLDER + review_filename_with_ext)
-
-                    supervisor_review_file.save(full_review_filename)
-
-                    current_thesis.supervisor_review_uri = review_filename_with_ext
-                    db.session.commit()
-                    flash('Отзыв научного руководителя успешно загружен!', category='success')
-
-                if consultant_review_file:
-                    review_filename = author_en + '_' + get_thesis_type_id_string(current_thesis.worktype_id)
-
-                    review_filename = review_filename + '_' + str(date.today().year) + '_reviewer_review'
-                    review_filename_with_ext = review_filename + '.pdf'
-                    full_review_filename = os.path.join(REVIEW_UPLOAD_FOLDER + review_filename_with_ext)
-
-                    # Check if file already exist
-                    if os.path.isfile(full_review_filename):
-                        review_filename = review_filename + '_' + str(os.urandom(8).hex())
-                        review_filename_with_ext = review_filename + '.pdf'
-                        full_review_filename = os.path.join(REVIEW_UPLOAD_FOLDER + review_filename_with_ext)
-
-                    consultant_review_file.save(full_review_filename)
-
-                    current_thesis.reviewer_review_uri = review_filename_with_ext
-                    db.session.commit()
-                    flash('Отзыв рецензента успешно загружен!', category='success')
+            if reviewer_review:
+                full_filename, filename = get_filename(current_thesis, REVIEW_UPLOAD_FOLDER,
+                                                       TypeOfFile.REVIEWER_REVIEW.value)
+                reviewer_review.save(full_filename)
+                current_thesis.reviewer_review_uri = filename
+                db.session.commit()
+                flash('Отзыв рецензента успешно загружен!', category='success')
 
         elif 'submit_presentation_button' in request.form:
-            presentation_file = werkzeug.datastructures.FileStorage()
-            if 'presentation' in request.files:
-                presentation_file = request.files['presentation']
+            print(request.files)
+            presentation_file = request.files['presentation'] if 'presentation' in request.files else None
 
-            if not current_thesis.presentation_uri and current_thesis.presentation_link:
-                if presentation_file.filename:
-                    if presentation_file and not allowed_file(presentation_file.filename):
-                        flash("Презентация должна быть в формате .PDF", category='error')
-                    else:
-                        if presentation_file:
-                            author_en = translit(current_user.get_name(), 'ru', reversed=True)
-                            author_en = author_en.replace(" ", "_")
-                            presentation_filename = author_en + '_' + get_thesis_type_id_string(
-                                current_thesis.worktype_id)
+            if presentation_file is not None and presentation_file.filename == ''\
+                    and 'presentation_link' in request.form and request.form['presentation_link'] == '':
+                flash('Вы не загрузили презентацию и не указали ссылку на неё.', category='error')
+                return redirect(url_for('practice_preparation', id=current_thesis.id))
 
-                            presentation_filename = presentation_filename + '_' + str(date.today().year) + '_slides'
-                            presentation_filename_with_ext = presentation_filename + '.pdf'
-                            full_presentation_filename = os.path.join(
-                                PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
+            if presentation_file is None and ('presentation_link' in request.form
+                                              and request.form['presentation_link'] == ''):
+                flash('Вы не указали ссылку на презентацию.', category='error')
+                return redirect(url_for('practice_preparation', id=current_thesis.id))
 
-                            # Check if file already exist
-                            if os.path.isfile(full_presentation_filename):
-                                presentation_filename = presentation_filename + '_' + str(os.urandom(8).hex())
-                                presentation_filename_with_ext = presentation_filename + '.pdf'
-                                full_presentation_filename = os.path.join(
-                                    PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
+            if 'presentation_link' not in request.form and (presentation_file is not None
+                                                            and presentation_file.filename == ''):
+                flash('Вы не загрузили презентацию.', category='error')
+                return redirect(url_for('practice_preparation', id=current_thesis.id))
 
-                            presentation_file.save(full_presentation_filename)
+            if 'presentation_link' in request.form and request.form['presentation_link'] != '':
+                current_thesis.presentation_link = request.form['presentation_link']
+                db.session.commit()
+                flash('Ссылка на презентацию сохранена!', category='success')
 
-                            current_thesis.presentation_uri = presentation_filename_with_ext
-                            db.session.commit()
-                            flash('Презентация успешно загружена!', category='success')
-                else:
-                    flash('Вы не загрузили презентацию.', category='error')
+            if presentation_file is not None and (presentation_file.filename != ''
+                                                  and not allowed_file(presentation_file.filename)):
+                flash("Презентация должна быть в формате .PDF", category='error')
+                return redirect(url_for('practice_preparation', id=current_thesis.id))
 
-            elif current_thesis.presentation_uri and not current_thesis.presentation_link:
-                if request.form['presentation_link']:
-                    presentation_link = request.form['presentation_link']
-                    current_thesis.presentation_link = presentation_link
-                    db.session.commit()
-                    flash('Ссылка на презентацию сохранена!', category='success')
-                else:
-                    flash('Вы не указали ссылку на презентацию;', category='error')
-
-            elif not current_thesis.presentation_uri and not current_thesis.presentation_link:
-                if not request.form['presentation_link'] and not presentation_file.filename:
-                    flash('Вы не загрузили презентацию и не указали ссылку на неё.', category='error')
-                else:
-                    if request.form['presentation_link']:
-                        presentation_link = request.form['presentation_link']
-                        current_thesis.presentation_link = presentation_link
-                        db.session.commit()
-                        flash('Ссылка на презентацию сохранена!', category='success')
-
-                    if presentation_file.filename:
-                        if presentation_file and not allowed_file(presentation_file.filename):
-                            flash("Презентация должна быть в формате .PDF", category='error')
-                        else:
-                            if presentation_file:
-                                author_en = translit(current_user.get_name(), 'ru', reversed=True)
-                                author_en = author_en.replace(" ", "_")
-                                presentation_filename = author_en + '_' + get_thesis_type_id_string(
-                                    current_thesis.worktype_id)
-
-                                presentation_filename = presentation_filename + '_' + str(date.today().year) + '_slides'
-                                presentation_filename_with_ext = presentation_filename + '.pdf'
-                                full_presentation_filename = os.path.join(
-                                    PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
-
-                                # Check if file already exist
-                                if os.path.isfile(full_presentation_filename):
-                                    presentation_filename = presentation_filename + '_' + str(os.urandom(8).hex())
-                                    presentation_filename_with_ext = presentation_filename + '.pdf'
-                                    full_presentation_filename = os.path.join(
-                                        PRESENTATION_UPLOAD_FOLDER + presentation_filename_with_ext)
-
-                                presentation_file.save(full_presentation_filename)
-
-                                current_thesis.presentation_uri = presentation_filename_with_ext
-                                db.session.commit()
-                                flash('Презентация успешно загружена!', category='success')
+            if presentation_file is not None and presentation_file.filename != '':
+                full_filename, filename = get_filename(current_thesis, PRESENTATION_UPLOAD_FOLDER,
+                                                       TypeOfFile.PRESENTATION.value)
+                presentation_file.save(full_filename)
+                current_thesis.presentation_uri = filename
+                db.session.commit()
+                flash('Презентация успешно загружена!', category='success')
 
         elif 'delete_text_button' in request.form:
             current_thesis.text_uri = None
@@ -727,58 +430,59 @@ def practice_preparation():
     deadline = Deadline.query.filter_by(worktype_id=current_thesis.worktype_id).\
         filter_by(area_id=current_thesis.area_id).first()
 
-    return render_template('practice/student/preparation.html', thesises=get_list_of_thesises(),
+    return render_template(PracticeStudentTemplates.PREPARATION.value, thesises=get_list_of_thesises(),
                            practice=current_thesis, deadline=deadline,
                            remaining_time_submit=get_remaining_time(deadline, "submit_work_for_review"),
                            remaining_time_upload=get_remaining_time(deadline, "upload_reviews"))
 
 
+def get_filename(current_thesis: CurrentThesis, folder: str, type_of_file: str) -> Tuple[str, str]:
+    author_en = translit(current_user.get_name(), 'ru', reversed=True)
+    author_en = author_en.replace(" ", "_")
+
+    filename = author_en + '_' + get_thesis_type_id_string(current_thesis.worktype_id)
+    filename = filename + '_' + str(date.today().year) + '_' + type_of_file
+    filename_with_ext = filename + '.pdf'
+    full_filename = os.path.join(folder + filename_with_ext)
+
+    # Check if file already exist
+    if os.path.isfile(full_filename):
+        filename = filename + '_' + str(os.urandom(8).hex())
+        filename_with_ext = filename + '.pdf'
+        full_filename = os.path.join(folder + filename_with_ext)
+
+    return full_filename, filename_with_ext
+
+
 @login_required
-def practice_thesis_defense():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
-    return render_template('practice/student/defense.html', thesises=get_list_of_thesises(), practice=current_thesis)
+@current_thesis_exists_or_redirect
+def practice_thesis_defense(current_thesis):
+    return render_template(PracticeStudentTemplates.DEFENSE.value, thesises=get_list_of_thesises(),
+                           practice=current_thesis)
 
 
 @login_required
-def practice_data_for_practice():
-    current_thesis_id = request.args.get('id', type=int)
-    if not current_thesis_id:
-        return redirect(url_for('practice_index'))
-
-    current_thesis = CurrentThesis.query.filter_by(author_id=current_user.id).filter_by(id=current_thesis_id).first()
-    if not current_thesis or current_thesis.deleted:
-        return redirect(url_for('practice_index'))
-
-    user = current_user
-    form = CurrentWorktypeArea()
+@current_thesis_exists_or_redirect
+def practice_data_for_practice(current_thesis):
     if request.method == "POST":
-        if request.form['submit_button'] == 'Сохранить':
+        if 'save_button' in request.form:
             current_area_id = request.form.get('area', type=int)
             current_worktype_id = request.form.get('worktype', type=int)
 
             if current_area_id == current_thesis.area_id and current_worktype_id == current_thesis.worktype_id:
                 flash('Никаких изменений нет.', category='error')
             else:
-                if current_area_id != current_thesis.area_id:
-                    current_thesis.area_id = current_area_id
-                if current_worktype_id != current_thesis.worktype_id:
-                    current_thesis.worktype_id = current_worktype_id
-
+                current_thesis.area_id = current_area_id
+                current_thesis.worktype_id = current_worktype_id
                 db.session.commit()
                 flash('Изменения сохранены', category='success')
 
-        elif request.form['submit_button'] == 'Да, удалить!':
+        elif 'delete_thesis_button' in request.form:
             current_thesis.deleted = True
             db.session.commit()
             return redirect(url_for('practice_index'))
 
+    form = CurrentWorktypeArea()
     form.area.choices.append((current_thesis.area_id, current_thesis.area.area))
     for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).filter(AreasOfStudy.id != current_thesis.area.id). \
             order_by('id').all():
@@ -789,18 +493,12 @@ def practice_data_for_practice():
         if worktype.id != current_thesis.worktype_id:
             form.worktype.choices.append((worktype.id, worktype))
 
-    return render_template('practice/student/data_for_practice.html', thesises=get_list_of_thesises(), user=user, form=form,
-                           practice=current_thesis)
+    return render_template(PracticeStudentTemplates.SETTINGS.value, thesises=get_list_of_thesises(), user=current_user,
+                           form=form, practice=current_thesis)
 
 
-def get_list_of_thesises():
-    """
-    Returns list of current thesises, which are not deleted, for current user
-
-    :return: list of objects that are CurrentThesis
-    """
-    user = current_user
-    return [thesis for thesis in user.current_thesises if not thesis.deleted]
+def get_list_of_thesises() -> List[CurrentThesis]:
+    return [thesis for thesis in current_user.current_thesises if not thesis.deleted]
 
 
 def get_remaining_time(deadline, type_deadline):
@@ -836,7 +534,6 @@ def get_remaining_time(deadline, type_deadline):
             return None
         remaining_time_timedelta = deadline.defense - datetime.utcnow()
 
-    remaining_time = tuple()
     if remaining_time_timedelta < timedelta(0):
         remaining_time = (-1, "", "")
     elif remaining_time_timedelta.seconds // 60 < 60 and remaining_time_timedelta.days < 1:

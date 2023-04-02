@@ -19,13 +19,14 @@ from flask_login import current_user
 
 import flask_se_theses
 from flask_se_config import SECRET_KEY_THESIS, SECRET_KEY, SQLITE_DATABASE_NAME, plural_hours, get_hours_since
-from se_models import db, search, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, Posts, DiplomaThemes, recalculate_post_rank
+from se_models import db, search, init_db, Staff, Users, Thesis, Curriculum, SummerSchool, Posts, DiplomaThemes, \
+    CurrentThesis, recalculate_post_rank
 from flask_se_auth import login_manager, register_basic, login_index, password_recovery, user_profile, upload_avatar, \
     logout, vk_callback, google_login, google_callback
 from flask_se_news import list_news, get_post, submit_post, post_vote, delete_post
 from flask_se_admin import SeAdminModelViewThesis, SeAdminIndexView, SeAdminModelViewUsers, \
     SeAdminModelViewSummerSchool, SeAdminModelViewStaff, SeAdminModelViewNews, SeAdminModelViewDiplomaThemes, \
-    SeAdminModelViewReviewDiplomaThemes
+    SeAdminModelViewReviewDiplomaThemes, SeAdminModelViewCurrentThesis
 from flask_se_scholarships import get_scholarships_1, get_scholarships_2, get_scholarships_3, get_scholarships_4, \
     get_scholarships_5, get_scholarships_6, get_scholarships_7, get_scholarships_8, get_scholarships_9, \
     get_scholarships_10, get_scholarships_11, get_scholarships_12, get_scholarships_13
@@ -42,9 +43,9 @@ from se_sendmail import notification_send_mail, notification_send_diploma_themes
 
 from flask_se_practice import practice_index, practice_guide, practice_new_thesis, practice_choosing_topic, \
     practice_add_new_report, practice_preparation, practice_thesis_defense, practice_data_for_practice, \
-    practice_edit_theme, practice_temp, practice_temp_deadline, practice_workflow, practice_goals_tasks
+    practice_edit_theme, practice_workflow, practice_goals_tasks
 from flask_se_practice_staff import index_staff, thesis_staff, reports_staff, finished_thesises_staff
-from flask_se_practice_admin import index_admin
+from flask_se_practice_admin import index_admin, deadline_admin, choose_worktype_admin
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -167,8 +168,6 @@ app.add_url_rule('/practice/add_new_report', methods=['GET', 'POST'], view_func=
 app.add_url_rule('/practice/workflow', methods=['GET', 'POST'], view_func=practice_workflow)
 app.add_url_rule('/practice/preparation_for_defense', methods=['GET', 'POST'], view_func=practice_preparation)
 app.add_url_rule('/practice/defense', methods=['GET'], view_func=practice_thesis_defense)
-app.add_url_rule('/temp', methods=['GET', 'POST'], view_func=practice_temp)
-app.add_url_rule('/temp_deadline', methods=['GET', 'POST'], view_func=practice_temp_deadline)
 
 # Practice staff
 app.add_url_rule('/practice_staff', methods=['GET'], view_func=index_staff)
@@ -178,6 +177,8 @@ app.add_url_rule('/practice_staff/finished_thesises', methods=['GET'], view_func
 
 # Practice admin
 app.add_url_rule('/practice_admin', methods=['GET'], view_func=index_admin)
+app.add_url_rule('/practice_admin/choose_worktype', methods=['GET', 'POST'], view_func=choose_worktype_admin)
+app.add_url_rule('/practice_admin/deadline', methods=['GET', 'POST'], view_func=deadline_admin)
 
 # Init Database
 db.app = app
@@ -227,6 +228,7 @@ admin.add_view(SeAdminModelViewSummerSchool(SummerSchool, db.session))
 admin.add_view(SeAdminModelViewNews(Posts, db.session))
 admin.add_view(SeAdminModelViewDiplomaThemes(DiplomaThemes, db.session, endpoint="diplomathemes"))
 admin.add_view(SeAdminModelViewReviewDiplomaThemes(DiplomaThemes, db.session, endpoint="reviewdiplomathemes", name="Review DiplomaThemes"))
+admin.add_view(SeAdminModelViewCurrentThesis(CurrentThesis, db.session))
 
 # Init SimpleMDE
 app.config['SIMPLEMDE_JS_IIFE'] = True

@@ -113,7 +113,7 @@ def vk_callback():
     if "error" in access_token_json:
         return redirect(url_for('index'))
 
-    print (access_token_json)
+    print(access_token_json)
 
     vk_id = access_token_json['user_id']
     access_token = access_token_json['access_token']
