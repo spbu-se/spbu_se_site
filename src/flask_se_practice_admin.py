@@ -73,8 +73,8 @@ def index_admin():
         if "download_materials_button" in request.form:
             return download_materials(area, worktype)
 
-    list_of_thesises = (CurrentThesis.query.filter_by(status=1).filter_by(deleted=False)
-                        .filter_by(area_id=area_id).filter_by(worktype_id=worktype_id).all())
+    list_of_thesises = (CurrentThesis.query.filter_by(area_id=area_id).filter_by(worktype_id=worktype_id)
+                        .filter_by(deleted=False).filter_by(status=1).all())
     return render_template(PracticeAdminTemplates.CURRENT_THESISES.value,
                            area=area, worktype=worktype,
                            list_of_thesises=list_of_thesises)
@@ -115,6 +115,25 @@ def __send_file_and_remove(full_filename, filename):
     return_data.seek(0)
     os.remove(full_filename)
     return send_file(return_data, mimetype=full_filename, attachment_filename=filename)
+
+
+@login_required
+@user_is_staff
+def thesis_admin():
+    current_thesis_id = request.args.get('id', type=int)
+    if not current_thesis_id:
+        return redirect(url_for('index_admin'))
+    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    if not current_thesis:
+        return redirect(url_for('index_admin'))
+    area_id = request.args.get('area_id', type=int)
+    worktype_id = request.args.get('worktype_id', type=int)
+    if not area_id or not worktype_id:
+        return redirect(url_for('choose_worktype_admin', source=index_admin.__name__))
+    area = AreasOfStudy.query.filter_by(id=area_id).first()
+    worktype = Worktype.query.filter_by(id=worktype_id).first()
+
+    return render_template(PracticeAdminTemplates.THESIS.value, thesis=current_thesis, area=area, worktype=worktype)
 
 
 @login_required

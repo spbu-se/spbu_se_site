@@ -372,7 +372,6 @@ def practice_preparation(current_thesis):
                 flash('Отзыв рецензента успешно загружен!', category='success')
 
         elif 'submit_presentation_button' in request.form:
-            print(request.files)
             presentation_file = request.files['presentation'] if 'presentation' in request.files else None
 
             if presentation_file is not None and presentation_file.filename == ''\

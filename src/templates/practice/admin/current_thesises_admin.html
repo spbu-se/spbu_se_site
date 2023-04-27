@@ -32,7 +32,7 @@
     <div class="card border-0 mb-3">
         <div class="card-header">
             <h6 class="mb-0">
-                <a id="{{thesis.id}}" name="thesis_link" href="{{ url_for('thesis_staff', id=thesis.id) }}" class="link text-primary">
+                <a href="{{ url_for('thesis_admin', id=thesis.id, area_id=area.id, worktype_id=worktype.id) }}" class="link text-primary">
                     <strong>{{ thesis.title }}</strong>
                 </a>
             </h6>
