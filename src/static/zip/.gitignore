@@ -1,2 +1,3 @@
-# gitignore for add empty folder to git
-!.gitignore
+# ignore all files in this folder 
+# for add empty folder to git
+*
