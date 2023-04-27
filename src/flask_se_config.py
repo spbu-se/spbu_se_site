@@ -15,7 +15,7 @@ if os.path.exists(MAIL_PASSWORD_FILE):
     with open(MAIL_PASSWORD_FILE, 'r') as file:
         MAIL_PASSWORD = file.read().rstrip()
 else:
-    print ("There is no MAIL_PASSWORD_FILE, generate random MAIL_PASSWORD")
+    print("There is no MAIL_PASSWORD_FILE, generate random MAIL_PASSWORD")
     MAIL_PASSWORD = os.urandom(16).hex()
 
 

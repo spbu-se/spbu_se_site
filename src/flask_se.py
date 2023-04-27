@@ -176,7 +176,7 @@ app.add_url_rule('/practice_staff/reports', methods=['GET', 'POST'], view_func=r
 app.add_url_rule('/practice_staff/finished_thesises', methods=['GET'], view_func=finished_thesises_staff)
 
 # Practice admin
-app.add_url_rule('/practice_admin', methods=['GET'], view_func=index_admin)
+app.add_url_rule('/practice_admin', methods=['GET', 'POST'], view_func=index_admin)
 app.add_url_rule('/practice_admin/choose_worktype', methods=['GET', 'POST'], view_func=choose_worktype_admin)
 app.add_url_rule('/practice_admin/deadline', methods=['GET', 'POST'], view_func=deadline_admin)
 

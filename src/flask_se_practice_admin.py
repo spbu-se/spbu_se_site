@@ -1,30 +1,35 @@
 # -*- coding: utf-8 -*-
+import os
+import io
 from functools import wraps
 
 import pytz
-from flask import flash, redirect, request, render_template, url_for
+from flask import flash, redirect, request, render_template, url_for, send_file
 from datetime import datetime
-
 from flask_login import current_user
 from pytz import timezone
+from zipfile import ZipFile
+from transliterate import translit
 
 from flask_se_auth import login_required
 from se_forms import DeadlineTemp, CurrentWorktypeArea
 from se_models import (AreasOfStudy, CurrentThesis, Worktype, NotificationPractice, Deadline, db, add_mail_notification,
                        Staff)
-
+from flask_se_practice import TEXT_UPLOAD_FOLDER, PRESENTATION_UPLOAD_FOLDER, REVIEW_UPLOAD_FOLDER
+from src.flask_se_config import get_thesis_type_id_string
 from templates.practice.admin.templates import PracticeAdminTemplates
 
 FORMAT_DATE_TIME = "%d.%m.%Y %H:%M"
+ARCHIVE_FOLDER = 'static/zip/'
 
 
 def user_is_staff(func):
     @wraps(func)
-    def check_user_is_staff_decorator():
+    def check_user_is_staff_decorator(*args, **kwargs):
         user_staff = Staff.query.filter_by(user_id=current_user.id).first()
         if not user_staff:
             return redirect(url_for('practice_index'))
-        return func()
+        return func(*args, **kwargs)
     return check_user_is_staff_decorator
 
 
@@ -64,11 +69,52 @@ def index_admin():
     area = AreasOfStudy.query.filter_by(id=area_id).first()
     worktype = Worktype.query.filter_by(id=worktype_id).first()
 
+    if request.method == 'POST':
+        if "download_materials_button" in request.form:
+            return download_materials(area, worktype)
+
     list_of_thesises = (CurrentThesis.query.filter_by(status=1).filter_by(deleted=False)
                         .filter_by(area_id=area_id).filter_by(worktype_id=worktype_id).all())
     return render_template(PracticeAdminTemplates.CURRENT_THESISES.value,
                            area=area, worktype=worktype,
                            list_of_thesises=list_of_thesises)
+
+
+@login_required
+@user_is_staff
+def download_materials(area, worktype):
+    thesises = (CurrentThesis.query.filter_by(area_id=area.id).filter_by(worktype_id=worktype.id)
+                .filter_by(deleted=False).filter_by(status=1).all())
+
+    filename = (get_thesis_type_id_string(worktype.id) + '_'
+                + translit(area.area, 'ru', reversed=True).replace(' ', '_') + '.zip')
+    full_filename = ARCHIVE_FOLDER + filename
+
+    with ZipFile(full_filename, 'w') as zip_file:
+        for thesis in thesises:
+            if thesis.text_uri is not None:
+                zip_file.write(TEXT_UPLOAD_FOLDER + thesis.text_uri,
+                               arcname=thesis.text_uri)
+            if thesis.supervisor_review_uri is not None:
+                zip_file.write(REVIEW_UPLOAD_FOLDER + thesis.supervisor_review_uri,
+                               arcname=thesis.supervisor_review_uri)
+            if thesis.reviewer_review_uri is not None:
+                zip_file.write(REVIEW_UPLOAD_FOLDER + thesis.reviewer_review_uri,
+                               arcname=thesis.reviewer_review_uri)
+            if thesis.presentation_uri is not None:
+                zip_file.write(PRESENTATION_UPLOAD_FOLDER + thesis.presentation_uri,
+                               arcname=thesis.presentation_uri)
+
+    return __send_file_and_remove(full_filename, filename)
+
+
+def __send_file_and_remove(full_filename, filename):
+    return_data = io.BytesIO()
+    with open(full_filename, 'rb') as fo:
+        return_data.write(fo.read())
+    return_data.seek(0)
+    os.remove(full_filename)
+    return send_file(return_data, mimetype=full_filename, attachment_filename=filename)
 
 
 @login_required

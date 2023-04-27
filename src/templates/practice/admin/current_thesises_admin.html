@@ -15,10 +15,19 @@
     {% if not list_of_thesises %}
     <div class="row">
         <div class="col text-center">
-            <p>Здесь будут отображаться текущ6ие работы по направлению<br>{{ area }}, {{ worktype }}</p>
+            <p>Здесь будут отображаться текущие работы по направлению<br>{{ area }}, {{ worktype }}</p>
         </div>
     </div>
     {% else %}
+
+    <form method="POST" action="{{ url_for('index_admin', area_id=area.id, worktype_id=worktype.id) }}">
+        <div class="row mb-3">
+            <div class="col">
+                <input type="submit" class="btn btn-sm btn-primary" name="download_materials_button" value="Загрузить материалы работ">
+            </div>
+        </div>
+    </form>
+
     {% for thesis in list_of_thesises %}
     <div class="card border-0 mb-3">
         <div class="card-header">
@@ -34,6 +43,9 @@
         </div>
     </div>
     {% endfor %}
+
+
+
     {% endif %}
 
 </div>
