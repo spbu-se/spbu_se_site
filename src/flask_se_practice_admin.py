@@ -16,7 +16,7 @@ from se_forms import DeadlineTemp, CurrentWorktypeArea
 from se_models import (AreasOfStudy, CurrentThesis, Worktype, NotificationPractice, Deadline, db, add_mail_notification,
                        Staff)
 from flask_se_practice import TEXT_UPLOAD_FOLDER, PRESENTATION_UPLOAD_FOLDER, REVIEW_UPLOAD_FOLDER
-from src.flask_se_config import get_thesis_type_id_string
+from flask_se_config import get_thesis_type_id_string
 from templates.practice.admin.templates import PracticeAdminTemplates
 
 FORMAT_DATE_TIME = "%d.%m.%Y %H:%M"
