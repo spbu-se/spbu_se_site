@@ -327,7 +327,7 @@ def practice_preparation(current_thesis):
                 return redirect(url_for('practice_preparation', id=current_thesis.id))
 
             if text_file is not None and text_file.filename != '':
-                full_filename, filename = get_filename(current_thesis, TEXT_UPLOAD_FOLDER, TypeOfFile.TEXT.value)
+                full_filename, filename = __get_filename(current_thesis, TEXT_UPLOAD_FOLDER, TypeOfFile.TEXT.value)
                 text_file.save(full_filename)
                 current_thesis.text_uri = filename
                 db.session.commit()
@@ -356,23 +356,22 @@ def practice_preparation(current_thesis):
                 return redirect(url_for('practice_preparation', id=current_thesis.id))
 
             if supervisor_review:
-                full_filename, filename = get_filename(current_thesis, REVIEW_UPLOAD_FOLDER,
-                                                       TypeOfFile.SUPERVISOR_REVIEW.value)
+                full_filename, filename = __get_filename(current_thesis, REVIEW_UPLOAD_FOLDER,
+                                                         TypeOfFile.SUPERVISOR_REVIEW.value)
                 supervisor_review.save(full_filename)
                 current_thesis.supervisor_review_uri = filename
                 db.session.commit()
                 flash('Отзыв научного руководителя успешно загружен!', category='success')
 
             if reviewer_review:
-                full_filename, filename = get_filename(current_thesis, REVIEW_UPLOAD_FOLDER,
-                                                       TypeOfFile.REVIEWER_REVIEW.value)
+                full_filename, filename = __get_filename(current_thesis, REVIEW_UPLOAD_FOLDER,
+                                                         TypeOfFile.REVIEWER_REVIEW.value)
                 reviewer_review.save(full_filename)
                 current_thesis.reviewer_review_uri = filename
                 db.session.commit()
                 flash('Отзыв рецензента успешно загружен!', category='success')
 
         elif 'submit_presentation_button' in request.form:
-            print(request.files)
             presentation_file = request.files['presentation'] if 'presentation' in request.files else None
 
             if presentation_file is not None and presentation_file.filename == ''\
@@ -401,8 +400,8 @@ def practice_preparation(current_thesis):
                 return redirect(url_for('practice_preparation', id=current_thesis.id))
 
             if presentation_file is not None and presentation_file.filename != '':
-                full_filename, filename = get_filename(current_thesis, PRESENTATION_UPLOAD_FOLDER,
-                                                       TypeOfFile.PRESENTATION.value)
+                full_filename, filename = __get_filename(current_thesis, PRESENTATION_UPLOAD_FOLDER,
+                                                         TypeOfFile.PRESENTATION.value)
                 presentation_file.save(full_filename)
                 current_thesis.presentation_uri = filename
                 db.session.commit()
@@ -436,7 +435,7 @@ def practice_preparation(current_thesis):
                            remaining_time_upload=get_remaining_time(deadline, "upload_reviews"))
 
 
-def get_filename(current_thesis: CurrentThesis, folder: str, type_of_file: str) -> Tuple[str, str]:
+def __get_filename(current_thesis: CurrentThesis, folder: str, type_of_file: str) -> Tuple[str, str]:
     author_en = translit(current_user.get_name(), 'ru', reversed=True)
     author_en = author_en.replace(" ", "_")
 

@@ -15,15 +15,24 @@
     {% if not list_of_thesises %}
     <div class="row">
         <div class="col text-center">
-            <p>Здесь будут отображаться текущ6ие работы по направлению<br>{{ area }}, {{ worktype }}</p>
+            <p>Здесь будут отображаться текущие работы по направлению<br>{{ area }}, {{ worktype }}</p>
         </div>
     </div>
     {% else %}
+
+    <form method="POST" action="{{ url_for('index_admin', area_id=area.id, worktype_id=worktype.id) }}">
+        <div class="row mb-3">
+            <div class="col">
+                <input type="submit" class="btn btn-sm btn-primary" name="download_materials_button" value="Загрузить материалы работ">
+            </div>
+        </div>
+    </form>
+
     {% for thesis in list_of_thesises %}
     <div class="card border-0 mb-3">
         <div class="card-header">
             <h6 class="mb-0">
-                <a id="{{thesis.id}}" name="thesis_link" href="{{ url_for('thesis_staff', id=thesis.id) }}" class="link text-primary">
+                <a href="{{ url_for('thesis_admin', id=thesis.id, area_id=area.id, worktype_id=worktype.id) }}" class="link text-primary">
                     <strong>{{ thesis.title }}</strong>
                 </a>
             </h6>
@@ -34,6 +43,9 @@
         </div>
     </div>
     {% endfor %}
+
+
+
     {% endif %}
 
 </div>
