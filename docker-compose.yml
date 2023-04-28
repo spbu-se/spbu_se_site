@@ -13,6 +13,8 @@ services:
       - ./files/thesis:/app/static/thesis
       - ./files/images:/app/static/images
       - ./files/files:/app/static/files
+    networks:
+      - se_site_network
     logging:
       driver: "json-file"
       options:
@@ -24,9 +26,15 @@ services:
     restart: always
     volumes:
       - ./nginx:/etc/nginx/templates
+    networks:
+      - se_site_network
     ports:
      - "80:80"
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
+
+  networks:
+    se_site_network:
+      driver: bridge
