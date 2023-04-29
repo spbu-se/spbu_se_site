@@ -1,3 +1,5 @@
+version: "3.5"
+
 services:
   flask:
     build:
@@ -35,6 +37,6 @@ services:
       options:
         max-size: "10m"
 
-  networks:
-    se_site_network:
-      driver: bridge
+networks:
+  se_site_network:
+    driver: bridge
