@@ -44,3 +44,13 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      - name: Run deploy on server
+          uses: appleboy/ssh-action@v0.1.10
+          with:
+            host: ${{ secrets.HOST }}
+            username: ${{ secrets.USERNAME }}
+            key: ${{ secrets.SSHKEY }}
+            script: |
+              docker compose -f ./se_spbu_site/docker-compose.yml pull
+              docker compose -f ./se_spbu_site/docker-compose.yml up -d
+              docker image prune -f
