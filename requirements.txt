@@ -10,7 +10,7 @@ charset-normalizer==2.0.12
 click==8.0.0
 clickclick==20.10.2
 connexion==2.6.0
-Flask==2.1.0
+Flask==2.2.5
 Flask-Admin==1.5.8
 Flask-APScheduler==1.12.3
 Flask-BasicAuth==0.2.0
