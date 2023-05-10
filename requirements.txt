@@ -49,7 +49,7 @@ SQLAlchemy==1.4.35
 tzdata==2022.1
 tzlocal==4.2
 urllib3==1.26.9
-Werkzeug==2.0.0
+Werkzeug==2.2.3
 WTForms==3.0.1
 transliterate==1.10.2
 Pillow==9.3.0
