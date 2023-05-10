@@ -1,0 +1,645 @@
+{% extends "base_dark.html" %}
+{% block title %}Стипендии и гранты для студентов кафедры Системного программирования СПбГУ{% endblock %}
+{% block description %}Стипендии и гранты для учащихся кафедры Системного программирования СПбГУ{% endblock %}
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/students/scholarships.html"/>
+{% endblock %}
+
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice bg-dark bg-cover bg-size--cover pt-9" style="background-image: url({{ url_for('static', filename='/assets/img/main-back.jpg') }} );">
+        <!-- Container -->
+        <div class="container d-flex align-items-center text-center text-lg-left pt-3 pt-lg-4">
+            <div class="col px-0">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 text-center text-lg-left">
+                        <!-- Heading -->
+                        <h1 class="text-white mb-1 text-">
+                            Стипендии<br>и гранты для студентов кафедры
+                        </h1>
+                    </div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-lg-8 text-center text-lg-left">
+                        <!-- Text -->
+                        <p class="lead text-white opacity-8 mt-2 mb-0">
+                            Информация о стипендиях и грантах для учащихся на кафедре "Системного программирования" СПбГУ.
+                        </p>
+                        <div class="media align-items-center pt-2">
+                            <div class="media-body">
+                                <span class="text-sm text-muted text-white">Последнее обновление 25.08.2022</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- SVG separator -->
+        <div class="shape-container shape-line shape-position-bottom">
+            <svg width="2560px" height="100px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" viewBox="0 0 2560 100" style="enable-background:new 0 0 2560 100;" xml:space="preserve" class="fill-section-secondary">
+                <polygon points="2560 0 2560 100 0 100"></polygon>
+            </svg>
+        </div>
+    </section>
+
+    <section class="slice bg-section-secondary" id="scholarships">
+        <!-- Container -->
+        <div class="container">
+            <div class="row row-grid justify-content-between align-items-center">
+                <div class="col-lg-12 my-2">
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Государственная академическая стипендия</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold"> 2 080 руб. в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            <p class="mb-2">Назначается всем студентам, поступившим на первый курс. Последующая выплата производится на основании результатов промежуточной аттестации при условии отсутствия академической задолженности и оценок "удовлетворительно".</p>
+                            <p class="mb-0"><strong>Подавать заявку не требуется</strong>, назначается автоматически, на основании успеваемости.</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col d-flex justify-content-end align-items-center">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>ПРОГРАММА «УМНИК»</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p>500 000 рублей на 12 месяцев</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            <p class="mb-2">Принимать участие в конкурсе по данной программе могут физические лица, от 18 до 30 лет включительно, являющиеся гражданами РФ, и ранее не побеждавшие в программе.</p>
+                            <p class="mb-0 text-danger">Конкурс еще не открыт.</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="https://fasie.ru/programs/programma-umnik/" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Инструкция</span>
+                                        <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Альфа-Шанс</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p>300 000 рублей</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            <p class="mb-2">Если вы студент 3–4 курса российского вуза, отправьте заявку на грант. Расскажите о себе, своём опыте и достижениях в мотивационном письме или видео — это важная часть заявки. Напишите, зачем вам деньги: чтобы  оплатить учёбу, купить технику для работы над проектом или поехать в Москву и Нью-Йорк за вдохновением?</p>
+                            <p class="mb-0 text-danger">Конкурс еще не открыт.</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="https://alfabank.ru/about/society/alfa-chance/" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробности</span>
+                                        <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Повышенная академическая стипендия</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p>от 6 500 до 11 200 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            <p class="mb-2">Для студентов, обучающихся по основным образовательным программам бакалавриата, специалитета и магистратуры.</p>
+                            <p class="mb-2">Стипендия назначается студентам, имеющим особые достижения в учебной, научно-исследовательской, общественной, культурно-творческой и спортивной деятельности.</p>
+                            <p class="mb-0 text-danger">Внимание! Заявка подается до 02.02.2022</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="https://students.spbu.ru/files/Instrukcia-PGAS.pdf" target="_blank" class="btn btn-lg btn-soft-info btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Инструкция</span>
+                                        <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                    <a href="http://my.spbu.ru/" target="_blank" class="btn btn-lg btn-soft-success btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подать заявку</span>
+                                        <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                     <a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya.html" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                         <span class="btn-inner--text">Подробнее</span>
+                                         <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Повышенная социальная стипендия</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p>30 000 руб. в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            <p class="mb-2">Для студентов первого и второго курсов, обучающихся по очной форме обучения за счет бюджетных ассигнований.</p>
+                            <p class="mb-2">Имеющим оценки успеваемости «хорошо» и «отлично» и относящимся к категории лиц, имеющих право на получение государственной социальной стипендии</p>
+                            <p class="mb-0 text-danger">Внимание! Заявка подается до 05.09.2022</p>
+
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya/5387-podacha-zayavki-na-sotsial-nuyu-stipendiyu-v-povyshennom-razmere.html" target="_blank" class="btn btn-lg btn-soft-info btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Инструкция</span>
+                                        <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                    <a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya/5387-podacha-zayavki-na-sotsial-nuyu-stipendiyu-v-povyshennom-razmere.html" target="_blank" class="btn btn-lg btn-soft-success btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подать заявку</span>
+                                        <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                     <a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya/5387-podacha-zayavki-na-sotsial-nuyu-stipendiyu-v-povyshennom-razmere.html" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                         <span class="btn-inner--text">Подробнее</span>
+                                         <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Cтипендия успешного первокурсника Dell</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p>~10 000 руб. в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            <p class="mb-2">Для студентов вторых курсов обучения, обучающихся по направлению «Математическое обеспечение и администрирование информационных систем» и «Программная инженерия».</p>
+                            <p class="mb-2">Санкт-Петербургский Центр Разработок Dell Technologies совместно с фондом Эйлера выдает стипендию второкурсникам по итогу их успехов в первых трех экзаменационных сессиях.</p>
+                            <p class="mb-0">Информацию о студентах, которые претендуют на получение стипендии мы получаем от преподавателей кафедр, с которыми сотрудничаем</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                   <a href="https://www.euler-foundation.org/?page_id=700" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                         <span class="btn-inner--text">Подробнее</span>
+                                         <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия Президента РФ для студентов (приоритетные направления)</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">7 000 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-0">Для:</p>
+                            <ul>
+                            <li>2, 3 курса бакалавриата;</li>
+                            <li>1 курса магистратуры;</li>
+                            </ul>
+                            <p class="mb-2">Наличие по результатам промежуточной аттестаций не менее 50% оценок «отлично» от общего количества полученных оценок при отсутствии оценок «удовлетворительно», полученных в течение года, и отсутствие академической задолженности за весь период обучения;</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: февраль-март 2022 года</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_1')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия Президента РФ для аспирантов (приоритетные направления)</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">14 000 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-2">Для аспирантов.</p>
+                            <p class="mb-2">Наличие по результатам промежуточной аттестаций не менее 50% оценок «отлично» от общего количества полученных оценок при отсутствии оценок «удовлетворительно», полученных в течение года, и отсутствие академической задолженности за весь период обучения;</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: февраль-март 2022 года</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_2')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия Президента РФ для студентов (все направления)</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">2 200 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-2">Для студентов бакалавриата, магистратуры и специалитета за исключением выпускных курсов очной формы обучения</p>
+                            <p class="mb-2">Наличие по результатам промежуточной аттестации не менее 50% оценок «отлично» от общего количества полученных оценок при отсутствии оценок «удовлетворительно», полученных в течение года, и отсутствие академической задолженности за весь период обучения.</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: февраль-март 2022 года</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_3')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия Президента РФ для аспирантов (все направления)</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">4 500 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-2">Для аспирантов, за исключением выпускных курсов очной формы обучения</p>
+                            <p class="mb-2">Наличие по результатам промежуточной аттестации не менее 50% оценок «отлично» от общего количества полученных оценок при отсутствии оценок «удовлетворительно», полученных в течение года, и отсутствие академической задолженности за весь период обучения.</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: февраль-март 2022 года</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_4')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия Правительства РФ для студентов (приоритетные направления)</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">5 000 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-0">Для:</p>
+                            <ul>
+                                <li>2, 3 курса бакалавриата</li>
+                                <li>1 курса магистратуры</li>
+                                <li>2, 3, 4, 5 курс специалитета</li>
+                            </ul>
+                            <p class="mb-2">Наличие по результатам промежуточной аттестаций не менее 50% оценок «отлично» от общего количества полученных оценок при отсутствии оценок «удовлетворительно», полученных по итогам промежуточной аттестации, и отсутствие академической задолженности за весь период обучения.</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: 26.02.2022 - 09.04.2022</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_5')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия Правительства РФ для аспирантов (приоритетные направления)</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">10 000 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-2">Для аспирантов</p>
+                            <p class="mb-2">Наличие по результатам промежуточной аттестаций не менее 50% оценок «отлично» от общего количества полученных оценок при отсутствии оценок «удовлетворительно», полученных по итогам промежуточной аттестации, и отсутствие академической задолженности за весь период обучения.</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: 26.02.2022 - 09.04.2022</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_6')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия Правительства РФ для студентов (все направления)</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">840 - 1440 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-0">Для:</p>
+                            <ul>
+                                <li>2, 3 курса бакалавриата</li>
+                                <li>1 курса магистратуры</li>
+                                <li>2, 3, 4 курс специалитета</li>
+                            </ul>
+                            <p class="mb-2">Наличие по результатам промежуточной аттестации не менее 50% оценок «отлично» от общего количества полученных оценок при отсутствии оценок «удовлетворительно», полученных в течение года, и отсутствие академической задолженности за весь период обучения.</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: февраль-май 2022 года.</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_7')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия Правительства РФ для аспирантов (все направления)</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">3 600 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-2">Для аспирантов</p>
+                            <p class="mb-2">Наличие по результатам промежуточной аттестации не менее 50% оценок «отлично» от общего количества полученных оценок при отсутствии оценок «удовлетворительно», полученных в течение года, и отсутствие академической задолженности за весь период обучения.</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: февраль-май 2022 года.</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_8')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Именная стипендия Правительства Санкт-Петербурга</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">2 000 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-0">Для:</p>
+                            <ul>
+                                <li>3, 4 курса бакалавриата</li>
+                                <li>1, 2 курса магистратуры</li>
+                                <li>3, 4, 5 курса специалитета</li>
+                            </ul>
+                            <p class="mb-2">Студенты, проявившие выдающиеся способности в учебной, научноисследовательской, общественной, культурно-творческой и спортивной деятельности  (см. заявку, Приложение №3 к Приказу о порядке проведения конкурсного отбора)</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: февраль-май 2022 года.</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_9')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Именная стипендия Правительства Санкт-Петербурга студентам из числа детей-сирот, детей, оставшихся без попечения родителей, лиц из числа детей-сирот и детей, оставшихся без попечения родителей</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">2 000 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-0">Для:</p>
+                            <ul>
+                                <li>3, 4 курса бакалавриата</li>
+                                <li>1, 2 курса магистратуры</li>
+                                <li>3, 4, 5 курса специалитета</li>
+                            </ul>
+                            <p class="mb-2">Студентам из числа детей-сирот, детей, оставшихся без попечения родителей, лиц из числа детей-сирот и детей, оставшихся без попечения родителей</p>
+                            <p class="mb-2">Студенты, проявившие выдающиеся способности в учебной, научноисследовательской, общественной, культурно-творческой и спортивной деятельности  (см. заявку, Приложение №3 к Приказу о порядке проведения конкурсного отбора)</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: февраль-май 2022 года.</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_10')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Именная стипендия Правительства Санкт-Петербурга в области математики и сфере ИТ</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">5 000 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-0">Для:</p>
+                            <ul>
+                                <li>1 курса бакалавриата</li>
+                            </ul>
+                            <p class="mb-2">студенты, проявившие выдающиеся способности и достигшие значительных успехов в данной области или сфере. (см. заявку, Приложение №3 к Приказу о порядке проведения конкурсного отбора)</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: февраль-май 2022 года.</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_11')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Именная стипендия академика С.П. Меркурьева</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">4 160 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-2">Для студентов СПбГУ, как правило, старших курсов, проявившие выдающиеся способности в учебной и научной деятельности. (Решение Ученого совета СПбГУ от 31.05.1993, приказ ректора СПбГУ от 05.07.1999 № 553/1)</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: 03.03.2022 - 09.04.2022</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_12')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Ректорская стипендия </strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">устанавливается приказом ректора</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-0">Для студентов 1 курса магистратуры</p>
+                            <p class="mb-2">Победители и призеры международных и всероссийских интеллектуальных соревнований студентов в соответствии с <a href="https://students.spbu.ru/files/perechen-rectorskaya_st.docx" target="_blank">Перечнем</a></p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: 1 - 14 сентября</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="{{url_for('get_scholarships_13')}}" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h6 class="mb-0"><strong>Стипендия благотворительного фонда В.Потанина</strong></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    <p class="font-weight-bold">25 000 рублей в месяц</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2 pb-1">
+                            <p class="mb-0">Для 1 и 2 курса магистратуры</p>
+                            <p class="mb-0">Сроки подачи заявки и проведения конкурса: до ноября 2021 года</p>
+                        </div>
+                        <div class="card-footer border-0 delimiter-top">
+                            <div class="row">
+                                <div class="col text-lg-right">
+                                    <a href="https://www.fondpotanin.ru/competitions/fellowships/" target="_blank" class="btn btn-lg btn-soft-primary btn-sm mb-3 mb-lg-0">
+                                        <span class="btn-inner--text">Подробнее</span>
+                                        <span class="btn-inner--icon">
+                                             <i data-feather="arrow-right"></i>
+                                         </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

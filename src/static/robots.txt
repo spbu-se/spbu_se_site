@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://se.math.spbu.ru/Sitemap.xml
+Disallow: /login.html

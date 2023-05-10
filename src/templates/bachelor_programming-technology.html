@@ -1,0 +1,343 @@
+{% extends "base_dark.html" %}
+{% block title %}Технологии программирования (бакалавриат){% endblock %}
+{% block description %}Бакалаврская программа «Технологии программирования» (бакалавриат, код 02.03.03). Информация для поступающих, минимальные баллы по ЕГЭ, количество бюджетных мест, учебный план. Кафедра Системного программирования Математико-механического факультета СПбГУ.{% endblock %}
+
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/bachelor/programming-technology.html" />
+{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice pt-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
+        <!-- Container -->
+        <div class="container pt-5 pt-lg-6">
+            <div class="row align-items-center justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="text-white">Технологии программирования</h1>
+                    <p class="lead text-white opacity-8 mb-0">
+                        Бакалавриат
+                    </p>
+                    <p class="lead text-white opacity-8">
+                         Код образовательной программы &mdash; 02.03.03
+                    </p>
+                </div>
+            </div>
+            <div class="row pt-3 align-items-center justify-content-center">
+                <div class="col-lg-4">
+                    <a href="{{ url_for('bachelor_application') }}" class="btn btn-lg btn-primary btn-icon mb-3 w-100">
+                        <span class="btn-inner--text">Как подать заявление</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+ <section class="slice" id="programming-technology">
+        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-9 text-center">
+                    <h2 class="mb-1">
+                        Направление "Технологии программирования"
+                    </h2>
+                </div>
+            </div>
+            <div class="row align-items-center mt-3">
+                <div class="col-lg-12 text-center text-lg-left">
+                    <p class="lead opacity-8">
+                        Направление "Технологии программирования" готовит квалифицированных программистов со знаниями математики, теоретической информатики и навыками исследовательской деятельности. Оно отличается большим выбором траекторий обучения — от грамотного технического специалиста до академического учёного, от архитектора до Data Scientist-а, причём курсы выбираете вы. Сильная техническая подготовка по программированию на младших курсах  (можно выбрать сложность программы и используемые технологии, от C++ до Python), хорошая математическая подготовка, углублённые курсы по выбору на старших курсах, практическая ориентированность программы делают из наших выпускников сильных разработчиков, способных работать в R&D-отделах крупных компаний и занимать руководящие посты.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   <section class="slice" id="applicants">
+        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-7 text-center">
+                    <h2 class="mb-1">
+                        Информация для поступающих
+                    </h2>
+                </div>
+            </div>
+            <div class="row ">
+                <div class="col-lg-6 pb-lg-0 pt-lg-0">
+                    <div class="card shadow-lg border-0" style="max-width: 100%;">
+                        <div class="card-body px-4 py-4 text-center text-md-left">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        <a href="https://abiturient.spbu.ru/files/2021/bac/priem_bac_spec_2021.pdf" target="_blank" class="text-primary">279</a>
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Средний балл 2021г.
+                                    </p>
+                                </div>
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        60
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Бюджетных мест
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 pt-lg-0">
+                    <div class="card shadow-lg border-0" style="max-width: 100%;">
+                        <div class="card-body px-4 py-4 text-center text-md-left">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        10
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Мест по контракту
+                                    </p>
+                                </div>
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        <a href="https://abiturient.spbu.ru/files/2022/cost_bac_spec_2022.pdf" target="_blank" class="text-primary">331 900 ₽</a>
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Стоимость обучения в год
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card shadow-lg border-0 mb-0" style="max-width: 100%;">
+                        <div class="card-body px-4 py-4 text-center text-md-left">
+                            <div class="row align-items-center">
+                                <div class="col-lg-3">
+                                     <h2 class="font-weight-normal text-center mb-0">
+                                        Очная
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Форма обучения
+                                    </p>
+                                </div>
+                                <div class="col-lg-3">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        4 года
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Срок обучения
+                                    </p>
+                                </div>
+                                <div class="col-lg-3">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        Есть
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Общежитие
+                                    </p>
+                                </div>
+                                <div class="col-lg-3">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        Есть
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Военная кафедра
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row" id="AdditionalInfo">
+                <div class="col-lg-3">
+                    <div class="card border-0 shadow-lg rounded-lg">
+                        <div class="card-header py-4" id="min_score">
+                            <h6 class="mb-0 text-center">Минимальные баллы по ЕГЭ</h6>
+                        </div>
+                            <div class="card-body px-3 pb-0 pt-0">
+                                <table class="table">
+                                    <tbody>
+                                    <tr>
+                                        <td class="px-0">Информатика и ИКТ</td>
+                                        <td class="px-0 text-center">66</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-0">Математика</td>
+                                        <td class="px-0 text-center">68</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-0">Русский язык</td>
+                                        <td class="px-0 text-center">65</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-lg rounded-lg">
+                        <div class="card-header py-4 px-3" id="heading-2-1">
+                            <h6 class="mb-0 text-center">Баллы за индивидуальные достижения</h6>
+                        </div>
+                            <div class="card-body px-3 pb-0 pt-0">
+                                <table class="table">
+                                    <tbody>
+                                    <tr>
+                                        <td class="px-0">Аттестат с отличием</td>
+                                        <td class="px-0 text-center">3</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-0">Значок ГТО</td>
+                                        <td class="px-0 text-center">1</td>
+                                    </tr>
+                                    <tr class="col-sm-3">
+                                        <td class="px-0 text-wrap">
+                                                Диплом победителя регионального этапа Всероссийской олимпиады по математике или информатике
+                                        </td>
+                                        <td class="px-0 text-center">4</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-0 text-wrap">
+                                            Диплом призера регионального этапа Всероссийской олимпиады по математике или информатике
+                                        </td>
+                                        <td class="px-0 text-center">3</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan=2 class="px-0 text-center">
+                                            <a href="https://abiturient.spbu.ru/files/2020/bak/2020_individual_dostizheniya.pdf" class="stretched-link" target="_blank">
+                                                <span class="align-middle">Полный список</span>
+                                                <span>
+                                                    <i data-feather="arrow-right"></i>
+                                                </span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-lg rounded-lg">
+                        <div class="card-header py-4 px-3" id="heading-2-2">
+                            <h6 class="mb-0 text-center">Поступление по олимпиаде</h6>
+                        </div>
+                        <div class="card-body px-3 pb-0 pt-0">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col" class="px-0">Уровень</th>
+                                    <th scope="col" class="px-0">Предмет</th>
+                                    <th scope="col" class="px-0">Льгота</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="px-0">Всероссийская</td>
+                                    <td class="px-0"><span class="align-middle">Информатика и ИКТ</span></td>
+                                    <td class="px-0 text-center">
+                                        <a href="https://abiturient.spbu.ru/files/2020/bak/2020_individual_dostizheniya.pdf" class="stretched-link" target="_blank">
+                                            <span class="align-middle">
+                                                    <i data-feather="arrow-right"></i>
+                                            </span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-0">1 и 2 тур</td>
+                                    <td class="px-0">Математика, Информатика</td>
+                                    <td class="px-0">БВИ*</td>
+                                </tr>
+                                <tr>
+                                    <td colspan=3 class="px-0">
+                                        <p class="text-wrap font-italic">
+                                            Дипломы призера и победителя оцениваются одинаково
+                                        </p>
+                                        <p class="text-wrap font-italic">
+                                            *Без вступительных испытаний
+                                        </p>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice">
+        <div class="container-fluid">
+            <div class="jumbotron bg-dark shadow-lg mb-0">
+                <!-- Container -->
+                <div class="container">
+                    <!-- Text -->
+                    <div class="row py-6">
+                        <div class="col-lg-10">
+                            <h2 class="h3 lh-170 text-white">
+                                <strong class="text-warning">Для кого?</strong>
+                            </h2>
+                            <h2 class="h3 lh-170 text-white">
+                                Для тех, кто получает удовольствие от решения алгоритмических и технических задач и хочет больше узнать о современных задачах и способах их решения
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice" id="curriculum">
+        <div class="container-fluid">
+            <div class="jumbotron bg-light-secondary py-0 mb-0">
+                <div class="container">
+                    <div class="row justify-content-center mb-4">
+                        <div class="col-lg-7 text-center">
+                            <h2 class="mb-1">
+                                Учебный план
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-n4" style="height: 800px;">
+                {% include 'programming_technology_curriculum.html' %}
+                </div>
+                <div class="row">
+                <div class="col-lg-12 pr-7 pt-0 text-lg-right">
+                    <a href="https://www.math.spbu.ru/ru/mmeh/PLANS/1/19_5006_020303bMOiAIS_19_06_10.pdf" target="_blank" class="btn btn-lg btn-primary btn-icon mb-3 mb-lg-0">
+                        <span class="btn-inner--text">Подробный учебный план</span>
+                        <span class="btn-inner--icon">
+                            <i data-feather="arrow-right"></i>
+                        </span>
+                    </a>
+                </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice bg-section-secondary">
+    <div class="container">
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-9 text-center">
+                <h2 class="">
+                    Поступление
+                </h2>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-9 text-center">
+                <p class="lead lh-190">
+                    Мы написали <a href="{{ url_for('bachelor_application') }}">подробную инструкцию</a> о том, как подать заявление в СПбГУ.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

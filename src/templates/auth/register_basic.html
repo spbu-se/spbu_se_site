@@ -1,0 +1,107 @@
+{% extends 'base_light.html' %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+
+<section>
+    <div class="container">
+        <div class="row row-grid align-items-center justify-content-center pt-4">
+            <div class="col-9">
+
+            {% with errors = get_flashed_messages(category_filter=["error"]) %}
+            {% if errors %}
+            {%- for message in errors %}
+            <div class="alert alert-info" role="alert">
+                <strong>Ошибка!</strong> {{message}}
+            </div>
+            {% endfor -%}
+            {% endif %}
+            {% endwith %}
+            </div>
+
+        </div>
+        <div class="row row-grid align-items-center">
+            <!--текст слева-->
+            <div class="col-12 col-md-6 col-lg-7 order-md-1 pr-md-5">
+                <!-- Heading -->
+                <h3 class="text-center text-md-left mb-3">
+                    Регистрация нового пользователя на сайт кафедры Системного программирования
+                </h3>
+                <!-- Text -->
+                <h6 class="lead text-center text-md-left">
+                    Тут будет описание, возможно ;)
+                </h6>
+            </div>
+
+            <!--форма регистрации-->
+            <div class="col-12 col-md-4 col-lg-4 order-md-2 ">
+                <div>
+                    <div class="mb-3 text-center">
+                        <h6 class="h3 mb-1">Создать аккаунт</h6>
+                    </div>
+                    <span class="clearfix"></span>
+                    <form method="post" action="{{ url_for('register_basic') }}">
+                        <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i data-feather="user"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control form-control-prepend" name="first_name" id="name" placeholder="Андрей">
+                                </div>
+                        </div>
+                        <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i data-feather="at-sign"></i></span>
+                                    </div>
+                                    <input type="email" class="form-control form-control-prepend" name="email" id="email" placeholder="ant@spbu.ru">
+                                </div>
+                        </div>
+                        <div class="form-group mb-4">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i data-feather="key"></i></span>
+                                    </div>
+                                    <input type="password" class="form-control" name="password" id="password" placeholder="Пароль">
+                                </div>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-block btn-primary">Зарегистрироваться</button>
+                        </div>
+                    </form>
+                    <div class="py-3 text-center">
+                        <span class="text-xs text-uppercase">или зарегистрироваться через</span>
+                    </div>
+                    <!-- Alternative login -->
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <a class="btn btn-block btn-neutral btn-icon px-2 mb-3 mb-sm-0"
+                               href="https://oauth.vk.com/authorize?client_id=7912054&display=page&redirect_uri=http://127.0.0.1:5000/vk_callback&scope=friends&response_type=code&v=5.130">
+                                <span class="btn-inner--icon"><img src="/assets/img/login/vk.svg"
+                                                                   alt="Image placeholder"></span>
+                                <span class="btn-inner--text">Вконтакте</span>
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <a href="{{ url_for('login_index') }}" class="btn btn-block btn-neutral btn-icon px-2">
+                                <span class="btn-inner--icon"><img src="/assets/img/login/google.svg"
+                                                                   alt="Image placeholder"></span>
+                                <span class="btn-inner--text">Google</span>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Links -->
+                    <div class="mt-4 text-center"><small>Уже зарегистрированы?</small>
+                        <a href="{{ url_for('login_index') }}" class="small font-weight-bold">Войти</a>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

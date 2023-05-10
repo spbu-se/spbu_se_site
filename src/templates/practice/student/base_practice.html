@@ -1,0 +1,176 @@
+{% if request.headers.get("X-Requested-With") != "XMLHttpRequest" %}
+{% extends "base_light.html" %}
+{% endif %}
+
+{% block content %}
+
+    <section class="mt-7 pt-4 bg-section-secondary">
+        <div class="container">
+
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h2>Написание учебных практик и ВКР</h2>
+                </div>
+            </div>
+
+            <div class="row row-grid">
+                <div class="col-lg-3 col-12">
+
+                    <div id="accordion-1" class="accordion accordion-stacked mb-2">
+
+                        <div class="card">
+                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
+                                <a id="index_button" href="{{ url_for('practice_index') }}"><h6 class="mb-0">Главная</h6></a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
+                                <a id="guide_button" href="{{ url_for('practice_guide') }}"><h6 class="mb-0">Справочник</h6></a>
+                            </div>
+                        </div>
+
+                        {% for thesis in thesises %}
+                        <div class="card">
+                            <div class="card-header py-4" id="{{ 'heading-'+(thesis.id|string()) }}" data-toggle="collapse" role="button" data-target="{{ '#collapse-'+(thesis.id|string()) }}" aria-expanded={% if practice and practice.id == thesis.id %}"true"{% else %}"false"{% endif %} aria-controls="{{ 'collapse-'+(thesis.id|string()) }}">
+                                <h6 class="mb-0" style="padding-right: 0.5rem">{{ thesis.worktype.type }}</h6>
+                            </div>
+                            <div id="{{ 'collapse-'+(thesis.id|string()) }}" class={% if practice and practice.id == thesis.id %}"collapse show"{% else %}"collapse"{% endif %} aria-labelledby="{{ 'heading-'+(thesis.id|string()) }}" data-parent="#accordion-1">
+                                <div style="flex: 1 1 auto; min-height: 1px; padding: 0 1.75rem 0.5rem; color: #718096;">
+                                    <div class="progress mb-2">
+                                        {% set sum = 0 %}
+                                        {% if thesis.title and thesis.supervisor_id %}{% set sum = sum + 1 %}{% endif %}
+                                        {% if thesis.goal %}{% set sum = sum + 1 %}{% endif %}
+                                        {% if thesis.tasks|selectattr('deleted', 'equalto', False)|list %}{% set sum = sum + 1 %}{% endif %}
+                                        {% if thesis.text_uri %}{% set sum = sum + 1 %}{% endif %}
+                                        {% if thesis.supervisor_review_uri %}{% set sum = sum + 1 %}{% endif %}
+                                        {% if thesis.reviewer_review_uri %}{% set sum = sum + 1 %}{% endif %}
+                                        {% if thesis.presentation_uri %}{% set sum = sum + 1 %}{% endif %}
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ (sum / 7 * 100)|round|int }}%" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <nav id="{{thesis.id}}" class="nav flex-column">
+                                        <a name="choosing_topic_button" class="nav-link pl-2" href="{{ url_for('practice_choosing_topic', id=thesis.id) }}">
+                                            {% if thesis.title and thesis.supervisor_id %}
+                                            <i class="text-success mr-1" data-feather="check"></i>
+                                            {% else %}
+                                            <i class="mr-1" data-feather="chevron-right"></i>
+                                            {% endif %}
+
+                                            {% if (request.path == "/practice/choosing_topic" or request.path == "/practice/edit_theme") and practice and practice.id == thesis.id %}
+                                            <b>Выбор темы</b>
+                                            {%else%}
+                                            Выбор темы
+                                            {% endif %}
+                                        </a>
+                                        <a name="goals_tasks_button" class="nav-link pl-2" href="{{ url_for('practice_goals_tasks', id=thesis.id) }}">
+                                            {% if thesis.goal and thesis.tasks|selectattr('deleted', 'equalto', False)|list %}
+                                            <i class="text-success mr-1" data-feather="check"></i>
+                                            {% elif thesis.goal or thesis.tasks|selectattr('deleted', 'equalto', False)|list %}
+                                            <i class="mr-1 text-warning" data-feather="chevron-right"></i>
+                                            {% else%}
+                                            <i class="mr-1" data-feather="chevron-right"></i>
+                                            {% endif %}
+
+                                            {% if request.path == "/practice/goals_tasks" and practice and practice.id == thesis.id %}
+                                            <b>Цели и задачи</b>
+                                            {%else%}
+                                            Цели и задачи
+                                            {% endif %}
+                                        </a>
+                                        <a name="reports_button" class="nav-link pl-2" href="{{ url_for('practice_workflow', id=thesis.id) }}">
+                                            <i class="mr-1" data-feather="clipboard"></i>
+                                            {% if (request.path == "/practice/workflow" or request.path == "/practice/add_new_report") and practice and practice.id == thesis.id %}
+                                            <b>Отчётность</b>
+                                            {%else%}
+                                            Отчётность
+                                            {% endif %}
+                                        </a>
+                                        <a name="preparation_button" class="nav-link pl-2" href="{{ url_for('practice_preparation', id=thesis.id) }}">
+                                            {% if thesis.text_uri and thesis.supervisor_review_uri and thesis.presentation_uri and thesis.reviewer_review_uri %}
+                                            <i class="text-success mr-1" data-feather="check"></i>
+                                            {% elif thesis.text_uri or thesis.supervisor_review_uri or thesis.presentation_uri or thesis.reviewer_review_uri %}
+                                            <i class="mr-1 text-warning" data-feather="chevron-right"></i>
+                                            {% else %}
+                                            <i class="mr-1" data-feather="chevron-right"></i>
+                                            {% endif %}
+                                            {% if request.path == "/practice/preparation_for_defense" and practice and practice.id == thesis.id %}
+                                            <b>Подготовка к защите</b>
+                                            {%else%}
+                                            Подготовка к защите
+                                            {% endif %}
+                                        </a>
+                                        <a name="defense_button" class="nav-link pl-2" href="{{ url_for('practice_thesis_defense', id=thesis.id) }}">
+                                            <i class="mr-1" data-feather="chevron-right"></i>
+                                            {% if request.path == "/practice/defense" and practice and practice.id == thesis.id %}
+                                            <b>Защита</b>
+                                            {%else%}
+                                            Защита
+                                            {% endif %}
+                                        </a>
+                                        <a name="data_for_practice_button" class="nav-link pl-2" href="{{ url_for('practice_data_for_practice', id=thesis.id) }}">
+                                            <i class="mr-1" data-feather="settings"></i>
+                                            {% if request.path == "/practice/data_for_practice" and practice and practice.id == thesis.id %}
+                                            <b>Настройки</b>
+                                            {%else%}
+                                            Настройки
+                                            {% endif %}
+                                        </a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <div class="card">
+                            <div class="py-3 px-4 mb-0" style="background-color: transparent;">
+                                <a id="new_work_button" class="btn btn-sm btn-primary btn-block" href="{{ url_for('practice_new_thesis') }}" role="button">Новая работа</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-lg-9 col-12">
+
+                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                    {% if errors %}
+                    <div class="row">
+                        <div class="col-12">
+                            {%- for message in errors %}
+                            <div class="alert alert-warning" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                {{message}}
+                            </div>
+                            {% endfor -%}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% with messages = get_flashed_messages(category_filter=["success"]) %}
+                    {% if messages %}
+                        <div class="row">
+                            <div class="col-12">
+                                {%- for message in messages %}
+                                <div class="alert alert-success" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    {{message}}
+                                </div>
+                                {% endfor -%}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% block content_account %}{% endblock %}
+
+                </div>
+            </div>
+        </div>
+     </section>
+
+{% endblock %}

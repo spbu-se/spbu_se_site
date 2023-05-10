@@ -1,0 +1,76 @@
+{% extends "base_light.html" %}
+
+{% block content %}
+
+    <section class="mt-7 pt-4 bg-section-secondary">
+        <div class="container">
+
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h2>Написание учебных практик и ВКР (Руководитель практики)</h2>
+                    <p class="mb-0">Направление обучения: <b>{{ area }}</b></p>
+                    <p class="mb-0">Тип работы: <b>{{ worktype }}</b></p>
+                    <a href={{ url_for('choose_worktype_admin') }}>Изменить</a>
+                </div>
+            </div>
+
+            <div class="row row-grid">
+                <div class="col-lg-3 col-12">
+                    <div id="accordion-1" class="accordion accordion-stacked mb-2">
+                        <div class="card">
+                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
+                                <a href={{ url_for('index_admin', area_id=area.id, worktype_id=worktype.id) }}><h6 class="mb-0">Работы</h6></a>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
+                                <a href={{ url_for('deadline_admin', area_id=area.id, worktype_id=worktype.id) }}><h6 class="mb-0">Дедлайны</h6></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-9 col-12">
+
+                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                    {% if errors %}
+                    <div class="row">
+                        <div class="col-12">
+                            {%- for message in errors %}
+                            <div class="alert alert-warning" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                {{message}}
+                            </div>
+                            {% endfor -%}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% with messages = get_flashed_messages(category_filter=["success"]) %}
+                    {% if messages %}
+                        <div class="row">
+                            <div class="col-12">
+                                {%- for message in messages %}
+                                <div class="alert alert-success" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    {{message}}
+                                </div>
+                                {% endfor -%}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% block content_practice_admin %}{% endblock %}
+
+                </div>
+            </div>
+        </div>
+     </section>
+
+{% endblock %}

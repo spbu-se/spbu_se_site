@@ -1,0 +1,418 @@
+{% extends "practice/student/base_practice.html" %}
+
+{% block title %}Подготовка к защите{% endblock %}
+
+{% block content_account %}
+
+<div class="container">
+
+    <div class="row" id="PrepareToDefense">
+        <div class="col">
+            <h5>Подготовка к защите</h5>
+        </div>
+    </div>
+
+    {% if deadline %}
+    <div class="row mb-3">
+        <div class="col">
+            {% if deadline.submit_work_for_review %}
+            <p class="mb-0">Дедлайн на отправку работы для рецензирования: <b>{{ deadline.submit_work_for_review | datatime_convert }}</b>
+                {% if remaining_time_submit[0] < 0 %}
+                (<span class="text-body">дедлайн прошёл</span>)
+                {% else %}
+                (осталось: <span class="text-{{remaining_time_submit[2]}}">{{ remaining_time_submit[0] }} {{ remaining_time_submit[1] }}</span>)
+                {% endif %}
+            </p>
+            {% endif %}
+            {% if deadline.upload_reviews %}
+            <p class="mb-0">Дедлайн на загрузку отзывов: <b>{{ deadline.upload_reviews | datatime_convert }}</b>
+                {% if remaining_time_upload[0] < 0 %}
+                (<span class="text-body">дедлайн прошёл</span>)
+                {% else %}
+                (осталось: <span class="text-{{remaining_time_upload[2]}}">{{ remaining_time_upload[0] }} {{ remaining_time_upload[1] }}</span>)
+                {% endif %}
+            </p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{{url_for('practice_preparation', id=practice.id)}}" enctype="multipart/form-data">
+
+        <div class="row">
+            <div class="col">
+                <div class="card border-0 mb-2">
+                    <div class="card-body py-3">
+
+                        <h6 class="mb-0">Текст работы</h6>
+                        {% if practice.text_uri %}
+                        <div class="row px-2 mt-2">
+                            <div class="col-10">
+                                <a href="{{ url_for('static', filename='/currentThesis/texts/' + practice.text_uri) }}" target="_blank">
+                                    <div class="icon icon-sm icon-shape bg-soft-success text-success mr-2">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </div>
+                                    Текст работы
+                                </a>
+                            </div>
+                            <div class="col-2">
+                                <div class="text-right">
+                                    <a data-toggle="modal" data-target="#deleteTextModal"  class="text-danger" href="#">
+                                        <button class="text-danger" style="outline: none; border: 0; box-shadow: none; background-color: transparent;" data-content="Удалить текст" data-trigger="hover" data-placement="top" data-toggle="popoverhover">
+                                            <i data-feather="trash-2"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                                <!-- Modal -->
+                                <div class="modal fade" id="deleteTextModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="ModalLabelText">Подтверждение</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Вы точно хотите удалить текст работы?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="submit" class="btn btn-secondary" name="delete_text_button" value="Да, удалить!">
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if practice.text_link %}
+                        <div class="row px-2 mt-2">
+                            <div class="col-10">
+                                <a href="{{ practice.text_link }}" target="_blank">
+                                    <div class="icon icon-sm icon-shape mr-2">
+                                        <i data-feather="external-link"></i>
+                                    </div>
+                                    Ссылка на текст работы
+                                </a>
+                            </div>
+                            <div class="col-2">
+                                <div class="text-right">
+                                    <a data-toggle="modal" data-target="#deleteTextLinkModal"  class="text-danger" href="#">
+                                        <button class="text-danger" style="outline: none; border: 0; box-shadow: none; background-color: transparent;" data-content="Удалить ссылку на текст" data-trigger="hover" data-placement="top" data-toggle="popoverhover">
+                                            <i data-feather="trash-2"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                                <!-- Modal -->
+                                <div class="modal fade" id="deleteTextLinkModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabelTextLink" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="ModalLabelTextLink">Подтверждение</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Вы точно хотите удалить ссылку на текст работы?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="submit" class="btn btn-secondary" name="delete_text_link_button" value="Да, удалить!">
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not practice.text_uri %}
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group mb-0 mt-2">
+                                    <input type="file" name="text" id="text" class="custom-input-file" />
+                                    <label for="text">
+                                        <i data-feather="upload"></i>
+                                        <span>Загрузить текст работы (в формате .PDF)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not practice.text_link %}
+                        <p class="text-sm mt-2 mb-0">Если Вы загружаете неокончательный вариант текста, можете прикрепить ссылку:</p>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group mb-0 mt-0">
+                                    <input type="text" name="text_link" id="text_link" class="form-control" placeholder="Ссылка на текст работы (например, в Google Docs)"/>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not practice.text_uri or not practice.text_link  %}
+                        <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_text_button" value="Сохранить">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="card mb-2 border-0">
+                    <div class="card-body py-3">
+
+                        <h6 class="mb-0">Отзывы</h6>
+
+                        {% if practice.supervisor_review_uri %}
+                        <div class="row px-2 mt-2">
+                            <div class="col-10">
+                                <a href="{{ url_for('static', filename='/currentThesis/reviews/' + practice.supervisor_review_uri) }}" target="_blank">
+                                    <div class="icon icon-sm icon-shape bg-soft-primary text-primary mr-2">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    Отзыв научного руководителя
+                                </a>
+                            </div>
+                            <div class="col-2">
+                                <div class="text-right">
+                                    <a data-toggle="modal" data-target="#deleteSupervisorReviewModal"  class="text-danger" href="#">
+                                        <button class="text-danger text-center" style="outline: none; border: 0; box-shadow: none; background-color: transparent;"  data-content="Удалить отзыв науч. руководителя" data-trigger="hover" data-placement="top" data-toggle="popoverhover">
+                                            <i data-feather="trash-2"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                                <!-- Modal -->
+                                <div class="modal fade" id="deleteSupervisorReviewModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="ModalLabelSupervisor">Подтверждение</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Вы точно хотите удалить отзыв научного руководителя?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="submit" class="btn btn-secondary" name="delete_supevisor_review_button" value="Да, удалить!">
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if practice.reviewer_review_uri %}
+                        <div class="row px-2 mt-2">
+                            <div class="col-10">
+                                <a href="{{ url_for('static', filename='/currentThesis/reviews/' + practice.reviewer_review_uri) }}" target="_blank">
+                                    <div class="icon icon-sm icon-shape bg-soft-primary text-primary mr-2">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    Отзыв рецензента
+                                </a>
+                            </div>
+                            <div class="col-2">
+                                <div class="text-right">
+                                    <a data-toggle="modal" data-target="#deleteReviewerReviewModal"  class="text-danger" href="#">
+                                        <button class="text-danger" style="outline: none; border: 0; box-shadow: none; background-color: transparent;" data-content="Удалить отзыв рецензента" data-trigger="hover" data-placement="top" data-toggle="popoverhover">
+                                            <i data-feather="trash-2"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                                <!-- Modal -->
+                                <div class="modal fade" id="deleteReviewerReviewModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="ModalLabelReviewer">Подтверждение</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Вы точно хотите удалить отзыв рецензента?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="submit" class="btn btn-secondary" name="delete_reviewer_review_button" value="Да, удалить!">
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not practice.supervisor_review_uri %}
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group mb-0 mt-2">
+                                    <input type="file" name="supervisor_review" id="supervisor_review" class="custom-input-file" />
+                                    <label for="supervisor_review">
+                                        <i data-feather="upload"></i>
+                                        <span>Загрузить отзыв научного руководителя (в формате .PDF)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not practice.reviewer_review_uri%}
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group mb-0 mt-2">
+                                    <input type="file" name="consultant_review" id="consultant_review" class="custom-input-file" />
+                                    <label for="consultant_review">
+                                        <i data-feather="upload"></i>
+                                        <span>Загрузить отзыв рецензента (в формате .PDF)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not practice.supervisor_review_uri or not practice.reviewer_review_uri %}
+                        <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_review_button" value="Сохранить">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="card border-0">
+                    <div class="card-body py-3">
+
+                        <h6 class="mb-0">Презентация</h6>
+                        {% if practice.presentation_uri %}
+                        <div class="row px-2 mt-2">
+                            <div class="col-10">
+                                <a href="{{ url_for('static', filename='/currentThesis/slides/' + practice.presentation_uri) }}" target="_blank">
+                                    <div class="icon icon-sm icon-shape bg-soft-warning text-warning mr-2">
+                                        <i class="fas fa-file-powerpoint"></i>
+                                    </div>
+                                    Презентация
+                                </a>
+                            </div>
+                            <div class="col-2">
+                                <div class="text-right">
+                                    <a data-toggle="modal" data-target="#deletePresentationModal"  class="text-danger" href="#">
+                                        <button class="text-danger" style="outline: none; border: 0; box-shadow: none; background-color: transparent;" data-content="Удалить презентацию" data-trigger="hover" data-placement="top" data-toggle="popoverhover">
+                                            <i data-feather="trash-2"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                                <!-- Modal -->
+                                <div class="modal fade" id="deletePresentationModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabelPresentation" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="ModalLabelPresentation">Подтверждение</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Вы точно хотите удалить презентацию работы?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="submit" class="btn btn-secondary" name="delete_presentation_button" value="Да, удалить!">
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if practice.presentation_link %}
+                        <div class="row px-2 mt-2">
+                            <div class="col-10">
+                                <a href="{{ practice.presentation_link }}" target="_blank">
+                                    <div class="icon icon-sm icon-shape mr-2">
+                                        <i data-feather="external-link"></i>
+                                    </div>
+                                    Ссылка на презентацию
+                                </a>
+                            </div>
+                            <div class="col-2">
+                                <div class="text-right">
+                                    <a data-toggle="modal" data-target="#deletePresentationLinkModal"  class="text-danger" href="#">
+                                        <button class="text-danger" style="outline: none; border: 0; box-shadow: none; background-color: transparent;" data-content="Удалить ссылку на презентацию" data-trigger="hover" data-placement="top" data-toggle="popoverhover">
+                                            <i data-feather="trash-2"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                                <!-- Modal -->
+                                <div class="modal fade" id="deletePresentationLinkModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabelPresentationLink" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="ModalLabelPresentationLink">Подтверждение</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Вы точно хотите удалить ссылку на презентацию?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="submit" class="btn btn-secondary" name="delete_presentation_link_button" value="Да, удалить!">
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not practice.presentation_uri %}
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group mb-0 mt-2">
+                                    <input type="file" name="presentation" id="presentation" class="custom-input-file" />
+                                    <label for="presentation">
+                                        <i data-feather="upload"></i>
+                                        <span>Загрузить презентацию работы (в формате .PDF)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not practice.presentation_link %}
+                        <p class="text-sm mt-2 mb-0">Если Вы загружаете неокончательный вариант презентации, можете прикрепить ссылку:</p>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group mb-0 mt-0">
+                                    <input type="text" name="presentation_link" id="presentation_link" class="form-control" placeholder="Ссылка на презентацию работы (например, в Google Docs)"/>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not practice.presentation_uri or not practice.presentation_link  %}
+                        <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_presentation_button" value="Сохранить">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

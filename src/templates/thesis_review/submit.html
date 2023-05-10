@@ -1,0 +1,91 @@
+{% extends 'base_light_footer_white.html' %}
+
+{% block title %}Загрузка работы для рецензирования{% endblock %}
+
+{% block content %}
+
+<section class="mt-7 pt-6 bg-section-secondary">
+    <div class="container">
+        <div class="row row-grid align-items-center justify-content-center pt-4">
+            <div class="col-12">
+                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                    {% if errors %}
+                    {%- for message in errors %}
+
+                    <div class="alert alert-info" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        {{message}}
+                    </div>
+                    {% endfor -%}
+                    {% endif %}
+                    {% endwith %}
+                </div>
+        </div>
+        <div class="row justify-content-center pt-4">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <!-- Title -->
+                        <h3 class="mb-3">Загрузить работу для рецензирования</h3>
+                        <!-- Form -->
+
+                        <form method="POST" action="{{url_for('submit_thesis_on_review')}}" enctype="multipart/form-data">
+                            <!-- General information -->
+                            {{ filter.csrf_token }}
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        {{ filter.title(class_="form-control", placeholder=filter.title.description) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        {{ filter.author(class_="form-control", value=user.get_name(), readonly="readonly") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        {{ filter.type(class_="custom-select pl-3") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        {{ filter.area(class_="custom-select pl-3") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <input type="file" name="thesis" id="thesis" class="custom-input-file" />
+                                        <label for="thesis">
+                                            <i data-feather="upload"></i>
+                                            <span>Загрузить работу (в формате .PDF)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Buttons -->
+                            <div class="row ">
+                                <div class="col-md-8 my-3 text-lg-right">
+                                    <button type="submit" class="btn btn-sm btn-primary">Загрузить</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

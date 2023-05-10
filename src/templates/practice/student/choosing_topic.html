@@ -1,0 +1,129 @@
+{% extends "practice/student/base_practice.html" %}
+
+{% block title %}Выбор темы{% endblock %}
+
+{% block content_account %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col">
+            <h5>Выбор темы</h5>
+        </div>
+    </div>
+
+    {% if deadline and deadline.choose_topic %}
+    <div class="row">
+        <div class="col">
+            <p>Дедлайн на выбор темы: <b>{{ deadline.choose_topic | datatime_convert }}</b>
+                {% if not practice.title %}
+                    {% if remaining_time[0] < 0 %}
+                    (<span class="text-danger">дедлайн прошёл</span>)
+                    {% else %}
+                    (осталось: <span class="text-{{remaining_time[2]}}">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)
+                    {% endif %}
+                {% else %}
+                    {% if remaining_time[0] > 0 %}
+                    (осталось: <span class="text-body">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)
+                    {% endif %}
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('practice_choosing_topic', id=practice.id) }}">
+        {{ form.csrf_token }}
+
+        {% if practice.title %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0">
+                        <div class="card-body py-3">
+
+                            <h6>Выбранная тема</h6>
+                            <h5>{{ practice.title }}</h5>
+                            <p>Научный руководитель: <b>{{practice.supervisor}}</b>
+                                <br>Тип работы: <b>{{practice.worktype}}</b></p>
+
+                            <div class="row">
+                                <div class="col">
+                                    <a id="edit_topic_button" name="{{ practice.id }}" class="btn btn-sm btn-primary" href="{{ url_for('practice_edit_theme', id=practice.id) }}">Редактировать</a>
+                                </div>
+                                <div class="col d-flex justify-content-end">
+                                    <a data-toggle="modal" data-target="#deleteModal" class="btn btn-sm btn-outline-danger" href="#">Отказаться от темы</a>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="ModalLabel">Подтверждение</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Вы точно хотите отказаться от данной темы?
+
+                                                    {% if practice.title %}
+                                                        <br><b>{{practice.title}}</b>
+                                                    {% endif %}
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <input type="submit" class="btn btn-secondary" name="delete_topic_button" value="Да, отказываюсь!">
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col">
+                    <p>Выберите тему из <a href="/diplomas/index.html" target="_blank">доступных</a> или <a href="/diplomas/add_theme.html" target="_blank">предложите свою</a>, затем согласуйте свой выбор с научным руководителем.</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="card border-0">
+                        <div class="card-body py-3">
+
+                            <div class="form-group">
+                                <label for="topic">Название темы</label>
+                                {{form.topic(class_="form-control", placeholder=form.topic.description)}}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="staff">Научный руководитель</label>
+                                {{ form.staff(class_="custom-select pl-3") }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+                                    <input type="submit" class="btn btn-sm btn-primary" name="save_topic_button" value="Сохранить">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <span class="text-sm">После сохранения выбранную тему можно редактировать или отказаться от неё.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+    </form>
+
+</div>
+
+{% endblock %}

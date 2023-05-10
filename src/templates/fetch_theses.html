@@ -1,0 +1,99 @@
+{% for t in theses.items %}
+<div class="card border-0">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h6 class="mb-0"><strong>{{ t.name_ru }} [{{ t.publish_year }}]</strong></h6>
+            </div>
+            <div class="col-auto ml-auto text-right">
+                {% if t.text_uri %}
+                <a href="{{ url_for('download_thesis', thesis_id=t.id) }}" class="text-reset" target="_blank">
+                    <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Текст работы" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                </a>
+                {% endif %}
+                {% if t.presentation_uri %}
+                <a href="{{ url_for('static', filename='/thesis/slides/' + t.presentation_uri) }}" class="text-reset" target="_blank">
+                    <div class="icon icon-sm icon-shape bg-soft-warning text-warning" data-content="Презентация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                        <i class="fas fa-file-powerpoint"></i>
+                    </div>
+                </a>
+                {% endif %}
+                {% if t.supervisor_review_uri %}
+                <a href="{{ url_for('static', filename='/thesis/reviews/' + t.supervisor_review_uri) }}" class="text-reset" target="_blank">
+                    <div class="icon icon-sm icon-shape bg-soft-primary text-primary" data-content="Отзыв руководителя" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                </a>
+                {% endif %}
+                {% if t.reviewer_review_uri %}
+                <a href="{{ url_for('static', filename='/thesis/reviews/' + t.reviewer_review_uri) }}" class="text-reset" target="_blank">
+                    <div class="icon icon-sm icon-shape bg-soft-primary text-primary" data-content="Отзыв рецензента" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                </a>
+                {% endif %}
+                {% if t.source_uri %}
+                <a href="{{t.source_uri}}" target="_blank" class="text-reset">
+                    <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Реализация" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                        <i class="fas fa-file-archive"></i>
+                    </div>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="card-body pt-2">
+        <p class="text-sm mb-0">Автор: <i>{{t.author}}</i></p>
+        <p class="text-sm mb-0">Руководитель: <i>{{t.supervisor.user.get_name()}}</i></p>
+        <p class="text-sm">Направление: <i>{{t.course.name}}</i></p>
+        {% if context[t] %}
+            <p class="text-sm" >Контекст:
+                {% for word in context[t] %}
+                    {% if search.lower().strip() in word %}
+                        <mark>{{word}}</mark>
+                    {% else %}
+                        <i> {{word}} <i>
+                    {% endif %}
+                {% endfor %}
+            </p>
+        {% endif %}
+        {% for tag in t.tags %}
+        <a href="#" class="badge badge-info mr-2">
+            {{ tag.name }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+{% if theses.total %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+      {% if theses.has_prev %}
+    <li class="page-item">
+      <a class="page-link" href="{{ url_for ('theses_search', page=theses.prev_num, worktype=worktype, startdate=startdate, enddate=enddate, supervisor=supervisor, course=course) }}" tabindex="-1" aria-disabled="true">Назад</a>
+    </li>
+      {% endif %}
+
+      {% for curr_page in theses.iter_pages() %}
+      {% if curr_page %}
+        {% if curr_page != theses.page %}
+            <li class="page-item"><a class="page-link" href="{{ url_for ('theses_search', page=curr_page, worktype=worktype, startdate=startdate, enddate=enddate, supervisor=supervisor, course=course, search=search) }}">{{curr_page}}</a></li>
+        {% else %}
+        <li class="page-item active"><span class="page-link">{{curr_page}}<span class="sr-only">(current)</span></span></li>
+        {% endif %}
+      {% else %}
+        <li class="page-item"><span class="page-link"> ... </span></li>
+      {% endif %}
+      {% endfor %}
+
+      {% if theses.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="{{ url_for ('theses_search', page=theses.next_num, worktype=worktype, startdate=startdate, enddate=enddate, supervisor=supervisor, course=course, search=search) }}">Вперед</a>
+    </li>
+      {% endif %}
+  </ul>
+</nav>
+{% endif %}

@@ -1,0 +1,102 @@
+{% extends "base_dark.html" %}
+{% block title %}Сервис по предложению и выбору тем для учебных практик и ВКР{% endblock %}
+{% block description %}Сервис по предложению и выбору тем для учебных практик и ВКР{% endblock %}
+
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/diplomas/index.html" />
+{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice pt-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
+        <!-- Container -->
+        <div class="container align-items-center text-center text-lg-left pt-3 pt-lg-4">
+            <div class="row align-items-center">
+                <div class="col-lg-12 text-center">
+                    <h3 class="text-white">Актуальные темы для учебных практик и ВКР</h3>
+                </div>
+            </div>
+            <div class="row mt-4 d-flex justify-content-center">
+                {% if user_themes_count %}
+                <div class="col-md-3 pb-sm-2">
+                    <a href="{{ url_for('user_diplomas_index') }}" class="btn btn-lg btn-secondary btn-icon w-100">
+                        <span class="btn-inner--text">Мои темы ({{user_themes_count}})</span>
+                    </a>
+                </div>
+                {% endif %}
+                <div class="col-md-3">
+                    <a href="{{ url_for('add_user_theme') }}" class="btn btn-lg btn-primary btn-icon w-100">
+                        <span class="btn-inner--text">Предложить тему</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+     <section class="slice clients delimiter-top delimiter-bottom bg-section-secondary" id="themes">
+        <div class="container">
+            <div class="row row-grid">
+                <div class="col-lg-9" id="ThemesList">
+                    {% for t in themes %}
+
+                    <div class="card border-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h6 class="mb-0"><a href="{{ url_for('get_theme', id=t.id) }}" class="link text-primary"><strong>{{t.title}}</strong></a></h6>
+                                </div>
+                                <div class="col-auto ml-auto text-right">
+                                    {% if t.company.id == 1 %}
+                                    <img alt="Image placeholder" src="/images/avatars/{{t.author.avatar_uri}}" class="avatar  rounded-circle" style="height: 50px">
+                                    {% else %}
+                                    <img alt="Image placeholder" src="/images/logos/{{t.company.logo_uri}}" style="height: 50px">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body pt-2">
+                            {% set ns = namespace(found = false) %}
+                            <p class="mb-0">Уровень: {% if t.levels %} {% for level in t.levels %} {% if 'ВКР' in level.level %} {% set ns.found = true %} {% endif %} {{level.level}} {% if not loop.last %} , {% endif %} {% endfor %} {% endif %}</p>
+                            <p class="mb-0">Источник темы: {% if t.company.id == 1 %} {{t.author.get_name()}} {% else %} {{t.company.name}} {% endif %}</p>
+                            <p class="mb-0">Руководитель: {{t.supervisor.get_name()}}</p>
+                            {% if t.supervisor_thesis %} {% if ns.found %}<p class="mb-0">Руководитель ВКР: {{t.supervisor_thesis.get_name()}}</p>{% endif %} {% endif %}
+                            <p class="">Консультант: {{t.consultant.get_name()}} </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="col-lg-3 ml-lg-auto" id="DiplomaThemesFilter">
+                    <div data-toggle="sticky" data-sticky-offset="10">
+                        <div class="card">
+                            <div class="card-header px-3">
+                                <span class="h6 mb-0">Фильтры</span>
+                            </div>
+                            <div class="card-body px-3">
+                                {{ diploma_filter.csrf_token }}
+                                <p class="text-sm mb-0">
+                                    Руководитель
+                                </p>
+                                <div class="form-group">
+                                    {{ diploma_filter.supervisor(class_="custom-select pl-3") }}
+                                </div>
+                                <p class="text-sm mb-0">
+                                    Источник темы
+                                </p>
+                                <div class="form-group">
+                                    {{ diploma_filter.company(class_="custom-select pl-3") }}
+                                </div>
+                                <p class="text-sm mb-0">
+                                    Уровень темы
+                                </p>
+                                <div class="form-group">
+                                    {{ diploma_filter.level(class_="custom-select pl-3") }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+     </section>
+{% endblock %}

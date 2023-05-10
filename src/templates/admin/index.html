@@ -1,0 +1,45 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4>Автоматизация загрузки ВКР и учебных практик</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <ul>
+                    <li><p class="lead">Для доступа к API необходим ключ доступа - SECRET_KEY_THESIS: {{thesis_key}}</p></li>
+                    <li><p class="lead"><a href="/files/upload.py">Скачайте Python скрипт</a> для загрузки работ</p></li>
+                    <li><p class="lead">Настройте скрипт под загружаемую работу (название, ФИО автора, год и т.д.)</p></li>
+                    <li><p class="lead">Запустите скрипт</p></li>
+                    <li><p class="lead">В случае успеха скрипт вернет "{"status":0,"string":"Success"}"</p></li>
+                    <li><p class="lead">Максимальный размер загружаемого файла 70 Мб (в /etc/nginx/sites-enabled/se.math.spbu.ru стоит client_max_body_size 70M;)</p></li>
+                    <li><p class="lead">В случае ошибки вернет причину ошибки, например: {"status":500,"string":"Invalid secret key: fbe3a36f1fb3eff7aeeea5f18865c8f2"}</p></li>
+                    <li><p class="lead">Все вновь загруженные работы помечаются как временные и доступны по адресу <a href="https://se.math.spbu.ru/theses_tmp.html" target="_blank">https://se.math.spbu.ru/theses_tmp.html</a></p></li>
+                    <li><p class="lead">Проверьте вновь загруженные работы и если все правильно, подтвердите их и они станут доступны в общем архиве</p></li>
+                    <li><p class="lead">По всем вопросам и пожеланиям пишите мне в телеграм <a href="https://t.me/Zelenchuk">@Zelenchuk</a></p></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4>Исходники сайта</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p class="lead"><a href="https://github.com/i1ya/spbu_se_site" target="_blank">Исходники сайта на github</a>, актульная версия лежит в ветке <a href="https://github.com/i1ya/spbu_se_site/tree/ver2_dev" target="_blank">ver2_dev</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

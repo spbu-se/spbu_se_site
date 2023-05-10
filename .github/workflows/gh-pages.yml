@@ -1,0 +1,86 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI/CD to github pages
+
+# Controls when the action will run. 
+on:
+    # Triggers the workflow on push or pull request events
+    push:
+      branches:
+        - practice
+        - ver2_dev
+
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+    deploy:
+      name: Test and deploy to gh-pages 
+      runs-on: ubuntu-latest
+      
+    # Steps represent a sequence of tasks that will be executed as part of the job
+      steps:
+      
+        # Checks-out to branch that triggered the action
+        - uses: actions/checkout@v2
+          with:
+            ref: ${{ github.ref_name }}
+            
+        - uses: dawidd6/action-delete-branch@v3
+          with:
+            github_token: ${{github.token}}
+            branches: temp
+            soft_fail: true
+        
+        - uses: peterjgrainger/action-create-branch@v2.0.1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            branch: 'temp'
+            
+        # Checks-out repository branch ver2_dev
+        - uses: actions/checkout@v2
+          with:
+            ref: 'temp'
+        
+        # Set up Python 3.8 environment
+        - uses: actions/setup-python@v2
+          with:
+              python-version: '3.8'
+              
+        # Install dependencies
+        - name: Install dependencies
+          run: |
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+        - name: Initialize db
+          run: |
+            python src/flask_se.py init
+            
+        # install npm and run script
+        - name: install npm and run script
+          uses: actions/setup-node@v2
+          with: 
+            node-version: '14'
+
+        - run: npm install fast-glob
+        - run: npm install imagemin imagemin-webp
+        - run: npm install @nodelib/fs.stat
+        - run: npm install @nodelib/fs.walk
+        - run: npm install @nodelib/fs.scandir
+        - run: npm install glob
+        - run: npm init --yes
+        - run: npm i -g purgecss
+        - run: purgecss --css docs/assets/css/*.css --content src/templates/*.html --safelist show --output docs/assets/css
+
+        - name: Deploy
+          uses: peaceiris/actions-gh-pages@v3
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            publish_dir: ./docs
+            
+        - uses: dawidd6/action-delete-branch@v3
+          with:
+            github_token: ${{github.token}}
+            branches: temp

@@ -1,0 +1,166 @@
+{% extends "practice/staff/base_practice_staff.html" %}
+
+{% block title %}Текущие работы{% endblock %}
+
+{% block content_writing_thesis_staff %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col">
+            <h5>Текущие работы</h5>
+        </div>
+    </div>
+
+    {% if not thesises %}
+    <div class="row">
+        <div class="col text-center">
+            <p>Здесь будут отображаться текущие работы, в которых Вы указаны как научный руководитель</p>
+        </div>
+    </div>
+    {% else %}
+    {% for thesis in thesises %}
+    <div class="card border-0 mb-3">
+        <div class="card-header">
+            <h6 class="mb-0">
+                <a id="{{thesis.id}}" name="thesis_link" href="{{ url_for('thesis_staff', id=thesis.id) }}" class="link text-primary">
+                    <strong>{{ thesis.title }}</strong>
+                </a>
+            </h6>
+        </div>
+        <div class="card-body pt-2 pb-3">
+            <p class="text-sm mb-0">Студент: {{ thesis.user.get_name() }}</p>
+            <p class="text-sm mb-0">Тип работы: {{ thesis.worktype }}</p>
+            <p class="text-sm mb-2">Направление: {{ thesis.area }}</p>
+            <p class="text-sm mb-0"><a id="{{ thesis.id }}" name="reports_link" href="{{url_for('reports_staff', id=thesis.id)}}">Просмотреть отчеты студента</a>
+            {% if thesis.reports %}
+                {% set lastReport = {'value': false} %}
+                {% for report in thesis.reports %}
+                    {% if not report.deleted %}
+                        {% if lastReport.update({'value': report}) %} {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if lastReport.value %}
+                    (последний: {{ lastReport.value.time|datatime_convert }})</p>
+                {% endif %}
+            {% endif %}
+            <div class="row mt-2">
+                <div class="col-11 my-auto">
+                    <div class="progress ">
+                        {% set sum = 0 %}
+                        {% if thesis.title and thesis.supervisor_id %}{% set sum = sum + 1 %}{% endif %}
+                        {% if thesis.goal %}{% set sum = sum + 1 %}{% endif %}
+                        {% if thesis.tasks|selectattr('deleted', 'equalto', False)|list %}{% set sum = sum + 1 %}{% endif %}
+                        {% if thesis.text_uri %}{% set sum = sum + 1 %}{% endif %}
+                        {% if thesis.supervisor_review_uri %}{% set sum = sum + 1 %}{% endif %}
+                        {% if thesis.reviewer_review_uri %}{% set sum = sum + 1 %}{% endif %}
+                        {% if thesis.presentation_uri %}{% set sum = sum + 1 %}{% endif %}
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ (sum / 7 * 100)|round|int }}%" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                <div class="col-1 my-auto">
+                    <a id="arrow-{{ thesis.id }}" data-toggle="collapse" href="#collapse-{{ thesis.id }}" role="button" aria-expanded="false"
+                       aria-controls="collapse-{{ thesis.id }}" onclick="ChangeArrow({{ thesis.id }})">
+                        <i id="iconUp" data-feather="chevron-up" style="display: none"></i>
+                        <i id="iconDown" data-feather="chevron-down"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="collapse" id="collapse-{{ thesis.id }}">
+                <div class="card shadow-none text-sm py-2 px-4 mt-2 mb-0">
+                    <div class="row">
+                        <div class="col">
+                            {% if thesis.title and thesis.supervisor_id %}
+                            <i class="text-success mr-1" data-feather="check-circle"></i>
+                            {% else %}
+                            <i class="mr-1" data-feather="circle"></i>
+                            {% endif %}
+                            Тема работы и научный руководитель выбраны
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            {% if thesis.goal %}
+                            <i class="text-success mr-1" data-feather="check-circle"></i>
+                            {% else %}
+                            <i class="mr-1" data-feather="circle"></i>
+                            {% endif %}
+                            Цель выбрана
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            {% if thesis.tasks|selectattr('deleted', 'equalto', False)|list %}
+                            <i class="text-success mr-1" data-feather="check-circle"></i>
+                            {% else %}
+                            <i class="mr-1" data-feather="circle"></i>
+                            {% endif %}
+                            Задачи поставлены
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            {% if thesis.text_uri %}
+                            <i class="text-success mr-1" data-feather="check-circle"></i>
+                            {% else %}
+                            <i class="mr-1" data-feather="circle"></i>
+                            {% endif %}
+                            Текст работы загружен
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            {% if thesis.supervisor_review_uri %}
+                            <i class="text-success mr-1" data-feather="check-circle"></i>
+                            {% else %}
+                            <i class="mr-1" data-feather="circle"></i>
+                            {% endif %}
+                            Отзыв научного руководителя загружен
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            {% if thesis.reviewer_review_uri %}
+                            <i class="text-success mr-1" data-feather="check-circle"></i>
+                            {% else %}
+                            <i class="mr-1" data-feather="circle"></i>
+                            {% endif %}
+                            Отзыв консультанта загружен
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            {% if thesis.presentation_uri %}
+                            <i class="text-success mr-1" data-feather="check-circle"></i>
+                            {% else %}
+                            <i class="mr-1" data-feather="circle"></i>
+                            {% endif %}
+                            Презентация загружена
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+</div>
+
+<script type="text/javascript">
+     function ChangeArrow(id) {
+         let arrow = document.getElementById("arrow-" + id)
+         let iconUp = arrow.querySelector('#iconUp');
+         let iconDown = arrow.querySelector('#iconDown');
+         if (arrow.getAttribute("aria-expanded") === "false") {
+             iconDown.style.display = "none";
+             iconUp.style.display = "block";
+         }
+        else {
+            iconUp.style.display = "none";
+            iconDown.style.display = "block";
+        }
+    }
+</script>
+
+{% endblock %}

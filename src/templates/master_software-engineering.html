@@ -1,0 +1,285 @@
+{% extends "base_dark.html" %}
+{% block title %}Программная инженерия (магистратура){% endblock %}
+{% block description %}09.04.04 «Программная инженерия» (магистратура). Кафедра Системного программирования Математико-механического факультета СПбГУ.{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice pt-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
+        <!-- Container -->
+        <div class="container pt-5 pt-lg-6 pb-lg-9 pb-7">
+            <div class="row align-items-center justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="text-white">Программная инженерия</h1>
+                    <p class="lead text-white opacity-8 mb-0">
+                        Магистратура
+                    </p>
+                    <p class="lead text-white opacity-8">
+                        Код образовательной программы - 09.04.04
+                    </p>
+                </div>
+            </div>
+            <div class="row pt-3 align-items-center justify-content-center">
+                <div class="col-lg-4">
+                    <a href="{{ url_for('bachelor_application') }}" class="btn btn-lg btn-primary btn-icon mb-3 w-100">
+                        <span class="btn-inner--text">Как подать заявление</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- SVG Separator -->
+        <div class="shape-container shape-position-bottom">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" preserveAspectRatio="none">
+                <path d="M 0 0 c 0 0 200 50 500 50 s 500 -50 500 -50 v 101 h -1000 v -100 z"></path>
+            </svg>
+        </div>
+    </section>
+
+    <section class="slice pt-0">
+        <div class="container position-relative zindex-100">
+            <div class="row ">
+                <div class="col-lg-6 pt-5 pb-7 pb-lg-0 pt-lg-0 mt-n10">
+                    <div class="card shadow-lg border-0 mb-0" style="max-width: 100%;">
+                        <div class="card-body px-4 py-4 text-center text-md-left">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        <a href="https://abiturient.spbu.ru/files/2021/mag/mag_prog_VI_2021.pdf" target="_blank" class="text-primary">20</a>
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Бюджетных мест
+                                    </p>
+                                </div>
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        2 года
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Срок обучения
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 pt-7 pt-lg-0 pb-lg-0 mt-n10">
+                    <div class="card shadow-lg border-0 mb-0" style="max-width: 100%;">
+                        <div class="card-body px-4 py-4 text-center text-md-left">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        <a href="https://abiturient.spbu.ru/files/2021/mag/mag_prog_VI_2021.pdf" target="_blank" class="text-primary">10</a>
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Мест по контракту
+                                    </p>
+                                </div>
+                                <div class="col-lg-6">
+                                    <h2 class="font-weight-normal text-center mb-0">
+                                        <a href="https://abiturient.spbu.ru/files/2022/cost_mag_2022.pdf" target="_blank" class="text-primary">318 400 ₽</a>
+                                    </h2>
+                                    <p class="text-center mb-0">
+                                        Стоимость обучения в год
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="mt-0 mb-5">
+            <div class="row row-grid justify-content-around align-items-center" id="AdditionalInfo">
+                <div class="col-lg-6 order-lg-2 ml-lg-auto pl-lg-6">
+                    <!-- Heading -->
+                    <h2 class="mt-4">Состав портфолио</h2>
+                    <!-- Text -->
+                    <p class="lead lh-190 my-4">
+                        Приём в магистратуру осуществляется на основании портфолио документов. Минимальный балл по конкурсу портфолио равен 35. Состав портфолио:
+                    </p>
+                    <!-- List -->
+                    <ul class="list-unstyled">
+                        <li class="py-2">
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <div class="icon icon-shape icon-primary icon-sm rounded-circle mr-3">
+                                        <i class="fas fa-envelope-open"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="h6 mb-0">Мотивационное письмо</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="py-2">
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <div class="icon icon-shape icon-warning icon-sm rounded-circle mr-3">
+                                        <i class="fas fa-palette"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="h6 mb-0">Эссе</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="py-2">
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <div class="icon icon-shape icon-success icon-sm rounded-circle mr-3">
+                                        <i class="fas fa-certificate"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="h6 mb-0">Дипломы и сертификаты</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="row">
+                <div class="col-lg-12 pr-0">
+                    <a href="https://abiturient.spbu.ru/files/2021/mag/admission/09.04.04_Programmnaya_inzheneriya.pdf" target="_blank" class="btn btn-lg btn-primary btn-icon mb-3 mb-lg-0">
+                        <span class="btn-inner--text">Подробные критерии оценки</span>
+                        <span class="btn-inner--icon">
+                            <i data-feather="arrow-right"></i>
+                        </span>
+                    </a>
+                </div>
+            </div>
+                </div>
+                <div class="col-lg-6 order-lg-1">
+                    <!-- Image -->
+                    <div class="position-relative zindex-100">
+                        <img alt="Image placeholder" src="{{ url_for('static', filename='/assets/img/master_se2.svg') }}" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice bg-section-secondary" id="programm">
+        <div class="container">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-7 text-center">
+                    <h2 class="mb-1">
+                        Программа
+                    </h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="mx-auto">
+                    <table class="table-cards">
+                        <tbody>
+                        <tr class="table-divider">
+                            <td class="align-middle"><h3 class="font-weight-normal text-nowrap">1 курс</h3></td>
+                            <td>
+                                <ul class="list-unstyled text-wrap">
+                                    <li class="py-2">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
+                                                    <i data-feather="chevron-right"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="lead mb-0 text-wrap">Интенсивное расширение знаний математических дисциплин и информатики</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="py-2">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
+                                                    <i data-feather="chevron-right"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="lead mb-0 text-wrap">Выбор темы научно-исследовательской работы, погружение в предметную область. Презентация промежуточных результатов исследования</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="py-2">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
+                                                    <i data-feather="chevron-right"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="lead mb-0">Сбалансированный набор профильных дисциплин для расширения кругозора</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="py-2">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
+                                                    <i data-feather="chevron-right"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="lead mb-0">Самостоятельное изучение технологий под руководством опытных консультантов</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr class="table-divider">
+                            <td class="align-middle"><h3 class="font-weight-normal text-nowrap">2 курс</h3></td>
+                            <td>
+                                <ul class="list-unstyled text-wrap">
+                                    <li class="py-2">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
+                                                    <i data-feather="chevron-right"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="lead mb-0">Научно-исследовательская работа. Публикации в индексируемых научных журналах и защита результатов исследования</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="py-2">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
+                                                    <i data-feather="chevron-right"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="lead mb-0">Продолжение самостоятельных исследований. Консультации с преподавателями и специалистами</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="py-2">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <div class="badge badge-circle rounded-circle badge-success mr-3">
+                                                    <i data-feather="chevron-right"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="lead mb-0">Знакомство с экономическим и процессным управлением проектами разработки ПО</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 pr-0 text-lg-right">
+                    <a href="https://math.spbu.ru/ru/mmeh/PLANS/1/19_5666_090404mPrIng_19_06_04.pdf" target="_blank" class="btn btn-lg btn-primary btn-icon mb-3 mb-lg-0">
+                        <span class="btn-inner--text">Учебный план</span>
+                        <span class="btn-inner--icon">
+                            <i data-feather="arrow-right"></i>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

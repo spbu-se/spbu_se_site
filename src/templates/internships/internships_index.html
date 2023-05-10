@@ -1,0 +1,92 @@
+{% extends "base_dark.html" %}
+{% block title %}Сервис для поиска студенческих IT-стажировок{% endblock %}
+{% block description %}Сервис для поиска студенческих IT-стажировок{% endblock %}
+
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/internships/internships_index.html" />
+{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice pt-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
+        <!-- Container -->
+        <div class="align-items-center text-center pt-3 pt-lg-4">
+             <div class="row mt-4 d-flex justify-content-center">
+                <div class="col-md-3">
+                    <h3 class="text-white ">
+                        <span style="white-space: nowrap;">Актуальные IT-стажировки </span></h3>
+                </div>
+            </div>
+{#            <div class="row mt-4 d-flex justify-content-center">#}
+{#                <div class="col-md-3">#}
+{#                    <a href="{{ url_for('add_internship') }}" class="btn btn-lg btn-primary btn-icon w-100">#}
+{#                        <span class="btn-inner--text">Предложить стажировку</span>#}
+{#                    </a>#}
+{#                </div>#}
+{#            </div>#}
+        </div>
+    </section>
+
+     <section class="slice clients delimiter-top delimiter-bottom bg-section-secondary" id="internships">
+        <div class="container">
+            <section class="row row-grid">
+                <div class="col-lg-9" id="InternshipsList">
+{#                    {% for i in internships %}#}
+{#                        <div class="card">#}
+{#                            <div class="card-body pt-2">#}
+{#                                   <h4 class = "text mt-3"><strong> {{i.name_vacancy}}</strong></h4>#}
+{#                                   <p style="font-size: 120%" class="text mb-2">{{i.company}}</p>#}
+{#                                    <p style="font-size: 120%"> <img  src="/images/location.png" class="ml-0" width="25px">{{i.location}}</p>#}
+{##}
+{#                                   <a href="/internships/{{ i.id }}" class="btn btn-primary">Подробнее</a>#}
+{##}
+{#                            </div>#}
+{##}
+{#                        </div>#}
+{#                    {% endfor %}#}
+                </div>
+                <div class="col-lg-3 ml-lg-auto" id="InternshipsFilter">
+                    <div data-toggle="sticky" data-sticky-offset="10">
+                        <div class="card">
+                            <div class="card-header px-3">
+                                <span class="h6 mb-0">Фильтры</span>
+                            </div>
+                            <div class="card-body px-3">
+                                {{ internship_filter.csrf_token }}
+                                <p class="text-sm mb-0">
+                                    Формат стажировки
+                                </p>
+                                <div class="form-group">
+                                    {{ internship_filter.format(class_="custom-select pl-3") }}
+                                </div>
+                                <p class="text-sm mb-0">
+                                    Технология
+                                </p>
+                                <div class="form-group">
+                                    {{ internship_filter.tag(class_="custom-select pl-3") }}
+                                </div>
+                                <p class="text-sm mb-0">
+
+                                    Компания
+                                </p>
+                                <div class="form-group">
+                                    {{ internship_filter.company(class_="custom-select pl-3") }}
+                                </div>
+                                <div class="row mt-4 d-flex justify-content-center">
+                                    <hr class="my-2" />
+                                      <p class="text-sm mb-0 mr-4">
+                                        <a href={{ url_for('add_internship') }} "> <big><u>Предложить стажировку <u/><big/></a>
+                                      </p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </sectio
+
+{% endblock %}
+

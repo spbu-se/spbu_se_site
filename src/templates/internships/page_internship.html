@@ -1,0 +1,95 @@
+{% extends "base_dark.html" %}
+{% block title %}{{internship.name_vacancy}}{% endblock %}
+{% block description %}Сервис для поиска студенческих IT-стажировок{% endblock %}
+
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/diplomas/index.html" />
+{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice pt-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
+        <!-- Container -->
+    </section>
+
+     <section class="slice clients delimiter-top delimiter-bottom bg-section-secondary" id="internships">
+        <div class="container">
+            <div class="row row-grid">
+                <div class="col-lg-9" >
+                   <h1 class = "text mt-3 mb-3"><strong> {{internship.name_vacancy}}</strong>
+                   </h1>
+
+                    <div class="card">
+                         <div class="card-header pt-4">
+                            <div class="row">
+                                <div class="col">
+                                    <h4>Описание вакансии</h4>
+                                </div>
+                            </div>
+                         </div>
+                        <div class="card-body pt-2">
+                            <dl class="dl-horizontal">
+                                <dd>{{ internship.description|markdown }}</dd>
+                                                            </dl>
+                        </div>
+                    </div>
+                    <div class="card">
+                         <div class="card-header pt-4">
+                            <div class="row">
+                                <div class="col">
+                                    <h4>Требования</h4>
+                                </div>
+                            </div>
+                         </div>
+                        <div class="card-body pt-2">
+                            <p>{{ internship.requirements|markdown }}</p>
+                        </div>
+                    </div>
+
+
+
+
+                </div>
+                <div class="col item mt-7">
+                    <h6 class="mb-0">Компания</h6>
+                    <p class="text-sm">
+                        {{ internship.company }}
+                    </p>
+                    <hr class="my-2" />
+
+                   <h6 class="mb-0">Формат</h6>
+                   <p class="text-sm">{% if internship.format %} {% for f in internship.format %} {{f.format}}{% if not loop.last %}, {% endif %} {% endfor %} {% endif %}</p>
+                   <h6 class="mb-0">Стек технологий</h6>
+                   <p class="text-sm">{% if internship.tag %} {% for f in internship.tag %} {{f.tag}}{% if not loop.last %}, {% endif %} {% endfor %} {% endif %}</p>
+                  {% if internship.location != NULL %}
+                        <hr class="my-2" />
+
+                        <h6 class="mb-0">Город</h6>
+                        <p class="text-sm">
+                            {{internship.location}}
+                        </p>
+                  {% endif %}
+                  {% if internship.salary  %}
+                    <hr class="my-2" />
+
+                    <h6 class="mb-0">Заработная плата</h6>
+                    <p class="text-sm">
+                        {{internship.salary}}
+                    </p>
+                   <hr class="my-2" />
+                  {% endif %}
+                  {% if internship.author_id == user.id %}
+                        <a href="/internships/{{ internship.id }}/delete" class="btn btn-outline-danger btn-xs">Удалить</a>
+                        <a href="/internships/{{ internship.id }}/update" class="btn btn-outline-primary btn-xs">Редактировать</a>
+                    {% endif %}
+{#                    <hr class="my-2" />#}
+{#                    <p class="text-sm">#}
+{#                        <a href={{ internship.more_inf }} class="btn btn-primary">Откликнуться </a>#}
+{#                    </p>#}
+                </div>
+
+            </div>
+        </div>
+     </section>
+{% endblock %}
+

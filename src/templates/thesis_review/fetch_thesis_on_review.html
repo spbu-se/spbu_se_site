@@ -1,0 +1,111 @@
+{% for t in thesis.items %}
+<div class="card border-0">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h6 class="mb-0"><strong>{{ t.name_ru }} ({{t.thesis_on_review_worktype}})</strong></h6>
+            </div>
+            <div class="col-auto ml-auto text-right">
+                {% if t.text_uri %}
+                {% if t.author_id == user.id or user.reviewer %}
+                <a href="{{ url_for('static', filename='/thesis/onreview/' + t.text_uri) }}" class="text-reset" target="_blank">
+                    <div class="icon icon-sm icon-shape bg-soft-success text-success" data-content="Текст работы" data-placement="top" data-trigger="hover" data-toggle="popoverhover">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                </a>
+                {% endif %}
+                {% endif %}
+
+                {% if current_user.is_authenticated %}
+                {% if t.author_id == user.id %}
+
+                <div class="dropdown">
+                    <a href="#" class="action-item" role="button" data-toggle="dropdown" aria-haspopup="true" data-expanded="false">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a href="{{ url_for ('edit_thesis_on_review', thesis_review_id=t.id)}}" class="dropdown-item">
+                            Редактировать
+                        </a>
+                        <a href="" data-toggle="modal" data-target="#deleteModal" class="dropdown-item">
+                            Удалить
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="ModalLabel">Подтверждение</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+
+                            <div class="modal-body">
+                                Вы точно хотите удалить эту работу'?
+                            </div>
+
+                            <div class="modal-footer">
+                                <a href="{{url_for('delete_thesis_on_review', thesis_review_id=t.id)}}" type="button" class="btn btn-secondary">Да, точно</a>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body pt-2 pb-4">
+        {% if t.review_status == 0 %}
+        <p class="text-sm mb-0">Статус: Работа зачтена {% if t.author_id == user.id or user.reviewer %} (<i class="text-primary"><a href="{{url_for('review_result_thesis_on_review', thesis_review_id=t.id)}}">посмотреть рецензию</a></i>) {% endif %} </p>
+        {% elif t.review_status == 1 %}
+        <p class="text-sm mb-0">Статус: <i >Требуется рецензия</i> {% if user.reviewer %} {% if t.author_id != user.id %} <a href="{{url_for('review_thesis_on_review', thesis_review_id=t.id)}}">(<i class="text-warning">взять на рецензию</i>)</a> {% endif %} {% endif %}</p>
+        {% elif t.review_status == 2 %}
+        <p class="text-sm mb-0">Статус: {% if t.reviewer.user_id == user.id %} <a href="{{url_for('review_thesis_on_review', thesis_review_id=t.id)}}"><i>На рецензии...</i></a> {% else %} <i>На рецензии...</i> {% endif %} </p>
+        {% elif t.review_status == 3 %}
+        <p class="text-sm mb-0">Статус: Требуется доработка {% if t.author_id == user.id or user.reviewer %} (<i class="text-primary"><a href="{{url_for('review_result_thesis_on_review', thesis_review_id=t.id)}}">посмотреть рецензию</a></i>) {% endif %}</p>
+        {% endif %}
+
+        <p class="text-sm mb-0">Автор: <i>{{t.author.get_name()}}</i></p>
+        <p class="text-sm mb-0">Направление: <i>{{t.area.area}}</i></p>
+    </div>
+</div>
+{% endfor %}
+
+{% if thesis.total %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+      {% if thesis.has_prev %}
+    <li class="page-item">
+      <a class="page-link" href="{{ url_for ('thesis_review_index', page=thesis.prev_num, status=status, worktype=worktype, area=area) }}" tabindex="-1" aria-disabled="true">Назад</a>
+    </li>
+      {% endif %}
+
+      {% for curr_page in thesis.iter_pages() %}
+      {% if curr_page %}
+        {% if curr_page != thesis.page %}
+            <li class="page-item"><a class="page-link" href="{{ url_for ('thesis_review_index', page=curr_page, status=status, worktype=worktype, area=area) }}">{{curr_page}}</a></li>
+        {% else %}
+        <li class="page-item active"><span class="page-link">{{curr_page}}<span class="sr-only">(current)</span></span></li>
+        {% endif %}
+      {% else %}
+        <li class="page-item"><span class="page-link"> ... </span></li>
+      {% endif %}
+      {% endfor %}
+
+      {% if thesis.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="{{ url_for ('thesis_review_index', page=thesis.next_num, status=status, worktype=worktype, area=area) }}">Вперед</a>
+    </li>
+      {% endif %}
+  </ul>
+</nav>
+{% endif %}

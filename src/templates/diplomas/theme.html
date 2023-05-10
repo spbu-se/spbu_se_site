@@ -1,0 +1,227 @@
+{% extends "base_light.html" %}
+{% block title %}{{theme.title}}{% endblock %}
+{% block description %}{{theme.title}}{% endblock %}
+
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/diplomas/theme.html?id={{theme.id}}" />
+{% endblock %}
+
+{% block head_links %}
+<style>
+    .tooltip-inner {
+  max-width: 500px;
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<section class="mt-7 pt-6 bg-section-secondary">
+    <div class="container">
+        <div class="row pb-4">
+            <div class="col pl-4">
+                <h1>{{theme.title}}</h1>
+            </div>
+        </div>
+        <div class="row row-grid">
+            <div class="col-lg-9">
+                <div class="card mb-2">
+                    <div class="card-body py-4">
+                        {{theme.description|markdown}}
+                    </div>
+                </div>
+
+                {% if theme.requirements %}
+                <div class="card">
+                    <div class="card-header pt-4">
+                        <div class="row">
+                            <div class="col">
+                                <h5>Требования к студенту</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pt-2">
+                        {{theme.requirements|markdown}}
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+            <div class="col-lg-3 ml-lg-auto">
+                {% if current_user.is_authenticated %}
+                    {% if theme.author_id == current_user.id%}
+                        <h6 class="">Статус</h6>
+                        {% if theme.status == 0 %}
+                            <span class="badge badge-warning badge-pill" data-toggle="tooltip" data-placement="right" data-title="Тема отправлена преподавателям и будет рассмотрена коллективом кафедры.">На проверке</span>
+                        {% elif theme.status == 1 %}
+                            <span class="badge badge-danger badge-pill" data-container="body" data-toggle="tooltip" data-placement="right" data-title="{% if theme.comment %} {{theme.comment}} {% else %} Странно, тему отправили на доработку, но не указали комментарий. Так быть не должно, свяжитесь со мной для выяснения причин (телеграм @Zelenchuk) {% endif %}">Требуется доработка</span>
+                        {% elif theme.status == 2 %}
+                            <span class="badge badge-success badge-pill" data-container="body" data-toggle="tooltip" data-placement="right" data-title="Ваша тема одобрена, ей назначен научный руководитель и она доступна в общем списке актуальных тем.">Одобрена</span>
+                        {% elif theme.status == 3 %}
+                            <span class="badge badge-primary badge-pill" data-container="body" data-toggle="tooltip" data-placement="right" data-title="Ваша тема в архиве. Чтобы отправить ее на проверку, внесите любые изменения и сохраните их.">В архиве</span>
+                        {% endif %}
+                        <hr class="my-2" />
+                    {% endif %}
+                {% endif %}
+
+
+                <h6 class="mb-0">Уровень</h6>
+                <p class="text-sm">{% if theme.levels %} {% for level in theme.levels %} {{level.level}}{% if not loop.last %}, {% endif %} {% endfor %} {% endif %}</p>
+                <hr class="my-2" />
+
+                <h6 class="mb-0">Руководитель</h6>
+                <p class="text-sm">
+                    {% if theme.supervisor_id %}
+                        {{theme.supervisor.get_name()}}
+                    {% else %}
+                        еще не назначен
+                    {% endif %}
+                </p>
+
+                <hr class="my-2" />
+
+                <h6 class="mb-0">Консультант</h6>
+                <p class="text-sm">
+                    {% if theme.consultant_id %}
+                        {{theme.consultant.get_name()}}
+                    {% else %}
+                        Консультант еще не назначен
+                    {% endif %}
+                </p>
+
+                {% if current_user.is_authenticated %}
+                    {% if theme.consultant.how_to_contact %}
+                    <h6 class="mb-0">Способ связи</h6>
+                    <p class="text-sm">
+                         {{theme.consultant.how_to_contact}}
+                    </p>
+                    {% else %}
+                        {% if theme.author_id == current_user.id %}
+                        <h6 class="mb-0">Способ связи</h6>
+                        <p class="text-sm text-danger">Заполнте поле "Как с вами связаться" в <a href="{{url_for('user_profile')}}">вашем профиле.</a></p>
+
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
+                <hr class="my-2" />
+
+                <h6 class="mb-0">Источник</h6>
+                <p class="text-sm">
+                    {{theme.company.name}}
+                </p>
+
+                {% if current_user.is_authenticated %}
+                    {% if theme.author_id == current_user.id %}
+                        <hr class="my-2" />
+                        <h6 class="">Управление</h6>
+                        <a href="{{ url_for('edit_user_theme', theme_id=theme.id) }}" class="btn btn-xs btn-primary">
+                            <span class="btn-inner--text">Редактировать</span>
+                        </a>
+                        <a href="#" data-toggle="modal" data-target="#exitModal" class="btn btn-xs btn-danger">
+                            <span class="btn-inner--text">Удалить</span>
+                        </a>
+
+         <!-- Modal -->
+        <div class="modal fade" id="exitModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="ModalLabel">Подтверждение</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Вы точно хотите удалить эту тему'?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="{{url_for('delete_theme', theme_id=theme.id)}}" type="button" class="btn btn-secondary">Да, точно</a>
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+        {% endif %}
+        {% endif %}
+
+                    {% if current_user.is_authenticated %}
+                    {% if theme.author_id == current_user.id %}
+                    {% if theme.status != 3 %}
+
+                        <hr class="my-2" />
+                        <h6 class="">Архив</h6>
+                        <p class="text-sm">Если тема уже выбрана или более не актуальна, уберите ее в архив.
+                            <a href="#" data-toggle="modal" data-target="#archiveModal" class="btn btn-xs btn-secondary">
+                                <span class="btn-inner--text">Убрать в архив</span>
+                            </a>
+                        </p>
+
+         <!-- Modal -->
+        <div class="modal fade" id="archiveModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel2" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="ModalLabel2">Подтверждение</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Вы всегда сможете вернуть и опубликовать тему из архива. Убрать текущую тему в архив?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="{{url_for('archive_theme', theme_id=theme.id)}}" type="button" class="btn btn-secondary">Да, убрать</a>
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+        {% endif %}
+        {% endif %}
+        {% endif %}
+
+                    {% if current_user.is_authenticated %}
+                    {% if theme.author_id == current_user.id %}
+                    {% if theme.status == 3 %}
+
+                        <hr class="my-2" />
+                        <h6 class="">Архив</h6>
+                        <p class="text-sm">Ваша тема в архиве, хотите ее вернуть и опубликовать?
+                            <a href="#" data-toggle="modal" data-target="#archiveModal2" class="btn btn-xs btn-secondary">
+                                <span class="btn-inner--text">Вернуть тему из архива</span>
+                            </a>
+                        </p>
+
+         <!-- Modal -->
+        <div class="modal fade" id="archiveModal2" tabindex="-1" role="dialog" aria-labelledby="ModalLabel3" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="ModalLabel3">Подтверждение</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Вернуть текущую тему из архива?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="{{url_for('unarchive_theme', theme_id=theme.id)}}" type="button" class="btn btn-secondary">Да, вернуть</a>
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+        {% endif %}
+        {% endif %}
+        {% endif %}
+
+
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

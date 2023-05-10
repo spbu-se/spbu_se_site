@@ -1,0 +1,89 @@
+{% extends "base_dark.html" %}
+{% block title %}Предложенные мной темы учебных практик и ВКР{% endblock %}
+{% block description %}Предложенные мной темы учебных практик и ВКР{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice pt-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main2.jpg')}});">
+        <!-- Container -->
+        <div class="container align-items-center text-center text-lg-left pt-3 pt-lg-4">
+            <div class="row align-items-center">
+                <div class="col-lg-12 text-center">
+                    <h3 class="text-white">Мои темы учебных практик и ВКР</h3>
+                </div>
+            </div>
+            <div class="row mt-4 d-flex justify-content-center">
+                <div class="col-md-3 pb-sm-2">
+                    <a href="{{ url_for('diplomas_index') }}" class="btn btn-lg btn-secondary btn-icon w-100">
+                        <span class="btn-inner--text">Все темы</span>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ url_for('add_user_theme') }}" class="btn btn-lg btn-primary btn-icon w-100">
+                        <span class="btn-inner--text">Предложить тему</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+     <section class="slice clients delimiter-top delimiter-bottom bg-section-secondary" id="themes">
+        <div class="container">
+            <div class="row row-grid align-items-center">
+                <div class="col-lg-9 mx-auto" id="ThemesList">
+                    {% for t in themes %}
+                    <div class="card border-0">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+            <div class="col">
+                <h6 class="mb-0"><a href="{{ url_for('get_theme', id=t.id) }}" class="link text-primary"><strong>{{t.title}}</strong></a></h6>
+            </div>
+                                <div class="col-auto ml-auto text-right">
+                                    {% if t.company.id == 1 %}
+                                    <img alt="Image placeholder" src="/images/avatars/{{t.author.avatar_uri}}" class="avatar  rounded-circle" style="height: 50px">
+                                    {% else %}
+                                    <img alt="Image placeholder" src="/images/logos/{{t.company.logo_uri}}" style="height: 50px">
+                                    {% endif %}
+                                </div>
+        </div>
+    </div>
+    <div class="card-body py-2">
+        <p class="mb-0">Уровень: {% if t.levels %} {% for level in t.levels %} {{level.level}} {% if not loop.last %} , {% endif %} {% endfor %} {% endif %}</p>
+        <p class="mb-0">Источник темы: {% if t.company.id == 1 %} {{t.author.get_name()}} {% else %} {{t.company.name}} {% endif %}</p>
+        <p class="mb-0">Руководитель: {% if t.supervisor_id %}{{t.supervisor.get_name()}} {% else %} Еще не назначен {% endif %}</p>
+        {% if t.supervisor_thesis %}<p class="mb-0">Руководитель ВКР: {{t.supervisor_thesis.get_name()}}</p> {% endif %}
+        <p class="">Консультант: {{t.consultant.get_name()}}</p>
+    </div>
+
+                        <div class="card-footer border-0 delimiter-top">
+        <div class="row align-items-left">
+            <div class="col-auto">
+                {% if t.status == 0 %}
+                <span class="badge badge-warning badge-pill">На проверке</span>
+                <p class="pt-2">Тема отправлена преподавателям и будет рассмотрена коллективом кафедры.</p>
+                {% elif t.status == 1 %}
+                <a href="{{ url_for('edit_user_theme', theme_id=t.id) }}" class="btn btn-xs btn-danger btn-icon">
+                    <span class="btn-inner--icon"><i data-feather="edit-2"></i></span>
+                    <span class="btn-inner--text">Требуется доработка</span>
+                </a>
+                <p class="pt-2">Результат проверки: {% if t.comment %} {{t.comment}} {% else %} Странно, тему отправили на доработку, но не указали комментарий. Так быть не должно, свяжитесь со мной для выяснения причин (телеграм @Zelenchuk) {% endif %}</p>
+                {% elif t.status == 2 %}
+                <span class="badge badge-success badge-pill">Одобрена</span>
+                <p class="pt-2">Ваша тема одобрена, ей назначен научный руководитель и она доступна в общем списке актуальных тем.</p>
+
+                {% elif t.status == 3 %}
+                <span class="badge badge-primary badge-pill">В архиве</span>
+                <p class="pt-2">Ваша тема в архиве. Чтобы отправить ее на проверку, внесите любые изменения и сохраните их.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+     </section>
+
+{% endblock %}

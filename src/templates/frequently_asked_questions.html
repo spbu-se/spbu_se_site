@@ -1,0 +1,266 @@
+{% extends "base_light.html" %}
+{% block schemapage %}itemscope itemtype="https://schema.org/FAQPage"{% endblock %}
+{% block title %}Вопросы и ответы про обучение на мат-мехе СПбГУ{% endblock %}
+{% block description %}Ответы на основные вопросы про обучение на мат-мехе СПбГУ и в частности на направлениях "Программная инженерия" и "Технологии программирования".{% endblock %}
+
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/frequently-asked-questions.html" />
+{% endblock %}
+
+{% block content %}
+     <!-- Main content -->
+<section xmlns="http://www.w3.org/1999/html" class="mt-7 pt-6">
+        <!-- Container -->
+        <div class="container d-flex align-items-center border-bottom pb-5">
+            <div class="col px-0">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <!-- Heading -->
+                        <h1 class="h2 mb-2">Вопросы и ответы про обучение на мат-мехе СПбГУ <strong>(F.A.Q.)</strong></h1>
+                        <!-- Text -->
+                        <p class="lead">Собрали основные вопросы про обучение на Программной инженерии (ПИ), Технологии программирования (ТП) и в целом на мат-мехе СПбГУ. Даём краткие ответы. За формальным и точным ответом лучше обращаться в <a href="https://abiturient.spbu.ru/" target="_blank">приёмную комиссию</a> напрямую, мы можем ошибаться в нюансах.</p>
+                        <!-- Meta -->
+                        <p>Автор ответов на вопросы: Алан Гамаонов (студент направления "Программная инженерия").</p>
+                        <p class="text-sm">Остались вопросы? Задавай в <a href="https://t.me/sysprog2020admission" target="_blank">Telegram чате</a>!<br>
+                            Хочешь спросить лично? Пиши! Telegram: <a href="http://t.me/GamaonovAB" target="_blank">@GamaonovAB</a> или в Вконтакте <a href="https://vk.com/end1ess_nameless" target="_blank">Алан Гамаонов</a>.
+                        </p>
+                        <div class="media align-items-center pt-2">
+                            <div class="media-body">
+                                <span class="text-sm text-muted">Обновлено 30 Марта 2021г.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</section>
+
+    <section class="slice slice-lg pb-0 pt-5 bg-section-secondary">
+        <div class="container position-relative zindex-100 border-bottom">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="text-center">
+                        <h2 class="h2 mb-2">Мат-мех в целом</h2>
+                        <h3 class="h5 mx-auto mb-5">Общежития</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="row row-grid justify-content-center">
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Где находятся общежития?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Петергоф, 7 минут пешком до учебного корпуса, до метро час. Подробнее <a href="{{ url_for('index', _anchor='mm_map') }}" target="_blank">тут</a>.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Кто получает общежитие?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Все иногородние и иностранные студенты, а также люди из дальних районов Ленинградской области.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Стоимость общежития?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text"><a href="https://guestbook.spbu.ru/2-uncategorised/8523-skolko-stoit-prozhivanie-v-obshchezhitii-dlya-studenta-na-byudzhete.html#:~:text=%D0%94%D0%BB%D1%8F%20%D0%BE%D0%B1%D1%83%D1%87%D0%B0%D1%8E%D1%89%D0%B8%D1%85%D1%81%D1%8F%20%D0%B7%D0%B0%20%D1%81%D1%87%D0%B5%D1%82%20%D0%B1%D1%8E%D0%B4%D0%B6%D0%B5%D1%82%D0%BD%D1%8B%D1%85,%D0%BF%D0%BB%D0%B0%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B8%20%D0%B6%D0%B8%D0%BB%D1%8B%D1%85%20%D0%BF%D0%BE%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B9%20%D0%B2%20%D0%BE%D0%B1%D1%89%D0%B5%D0%B6%D0%B8%D1%82%D0%B8%D0%B8." target="_blank">~350 руб/мес для бюджетников</a>, ~1к для контрактников.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Жилищные условия?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Зависят от конкретной общаги, этажа и даже блока. Состояние: от свежего евроремонта до подержанной квартирки).</p>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="text-center">
+                        <h3 class="h5 mx-auto mb-5">Стипендии на мат-мехе</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="row row-grid justify-content-center">
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Какая стипендия?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Стандартная ~1.6к, социальная ~2.4к (сверху), <a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya.html" target="_blank">ПГАС</a> ~5-20к, повышенная социальная ~27к. И ещё есть разные стипендии за успехи в науке и учёбе: от частных фондов, государственные  (президентская, губернаторская, правительственная и т.д.). Эти стипендии очень разные, от 5к и сильно больше, бывают и по 40к. Тут уж как пойдёт.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Поощрят за высокие баллы по ЕГЭ?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Материально — нет, но зато всегда можно козырнуть перед одногруппниками :)</p>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="text-center">
+                        <h3 class="h5 mx-auto mb-5">Движ</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="row row-grid justify-content-center">
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Что меня ждёт кроме учёбы?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Общеуниверситетский праздник в конце лета, День первокурсника, Неделя факультета, Мисс мат-меха, вечера песен под гитару в общагах, ролёвки, мафия и не только) Есть ещё всякие спортивные соревнования и праздники, но это всё для тех, кто очень не хочет учиться.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Если я активист?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Двери профкома и студсовета всегда открыты, там весело! Есть разные студотряды, там ещё веселее. Можно и что-то своё придумать и продвигать. Но преподаватели почему-то считают, что надо учиться.</p>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slice slice-lg pb-0 pt-5 bg-section-secondary">
+        <div class="container position-relative zindex-100">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="text-center">
+                        <h2 class="h2 mb-5">Программная инженерия и Технологии программирования</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="row row-grid justify-content-center">
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Сложно ли учиться на мат-мехе?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Плохой вопрос. Кому-то сложно, а кому-то нет.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Много математики? Хватит ли уровня ЕГЭ?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">На Программной инженерии поменьше и полегче, на Технологии программирования побольше, но всё равно не так, как на других направлениях мат-меха. В целом, уровня ЕГЭ для начала хватит. Главное — не забивать на учёбу.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Хочу программировать, куда идти?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Программная инженерия! Круче на мат-мехе не найдёшь. На Технологии программирования тоже есть шанс попасть в группу с сильной прогой, тогда будет очень хорошо. Если вдруг проги будет мало, всегда можно ходить на пары к другим преподавателям и в кружки всякие.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Есть физика?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Нет, физики нет. На Технологии программирования будет матфизика (3 курс), но это совсем не то, что было в школе.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Будут прикладные знания по программированию?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Будут, можно даже не сомневаться)</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Преподаватели хорошие?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">В основном, да, но есть, конечно, исключения.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Как со свободным временем?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Оно есть, его вполне достаточно. Отдохнуть/заняться спортом всегда будет возможность, но есть такое мнение: “На ПИ основная нагрузка — сидеть дома/в лабораториях/компаниях и кодить. То есть как бы времени много, но его не должно оставаться” (с).</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Сложно перевестись на ПИ/ТП?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">После первого семестра достаточно сложно (особенно на ПИ, ибо мест меньше), потом, конечно, полегче, но придётся закрывать академ.разницу.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Есть стажировки для студентов?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Выбор есть. Информации о стажировках в инфополе мат-меха очень много и уровень подготовки вполне позволяет на них претендовать. Это и широко известные компании, и интересные небольшие проекты. Кроме общих объявлений есть традиция приватных “инвайтов”. В чатики иногда заходят выпускники, приглашают напрямую. Ещё бывает, что в лабы приглашают тех, кто хорошо проявил себя на учёбе. В общем, варианты есть.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Какие языки программирования будут?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <p itemprop="text">Много разных. Надо различать курсы и проекты. На проектах вообще всё может случиться. По учёбе примерно следующее: обязательно будут С, ООП и параллельное программирование на Java/Kotlin и C#. Python для обработки изображений, данных, Машинное обучение (ML). Обязательно будет функциональное программирование, там Haskell, где-то Scala, OCaml, бывает F#.</p>
+                                </span>
+                            </div>
+                        </div>
+                        <!-- div class="col-lg-6 px-lg-4">
+                            <div class="mb-5" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                                <h5 class="h6" itemprop="name">Что посмотреть перед учебой?</h5>
+                                <span itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                    <span itemprop="text">
+                                        <p >На самом деле, я бы ничего не рекомендовал, потому что математическую литературу читать почти невозможно, если вам не преподавали математику определенным образом, а с прогой особых проблем не должно быть, но есть пара рекомендаций:</p>
+                                        <ol class="pl-3">
+                                            <li class="pb-3">
+                                        <span class="align-middle">CS 50 на русском на YouTube.</span>
+                                    </li>
+                                            <li class="pb-3">
+                                                <span class="align-middle"><a href="http://www-cs-students.stanford.edu/~blynn/gitmagic/intl/ru/" target="_blank">Волшебство Git</a>.</span>
+                                            </li>
+                                            <li class="pb-3">
+                                                <span class="align-middle">Курс на Stepik <a href="https://stepik.org/course/762/promo" target="_blank">Основы Linux</a>.</span>
+                                            </li>
+                                        </ol>
+                                    </span>
+                                </span>
+                            </div>
+                        </div -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

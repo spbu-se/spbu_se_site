@@ -1,0 +1,663 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru"
+      lang="ru">
+
+  
+    
+    
+    
+    
+    
+
+  
+
+  <head>
+
+    <meta http-equiv="Content-Type"
+          content="text/html;charset=utf-8" />
+
+    
+      <base href="https://oops.math.spbu.ru/SE/diploma/2020/pi/" /><!--[if lt IE 7]></base><![endif]-->
+    
+
+    <meta name="generator" content="Plone - http://plone.org" />
+
+    <link rel="kss-base-url" href="https://oops.math.spbu.ru/SE/diploma/2020/pi" />
+
+  
+  
+    
+      <script type="text/javascript"
+              src="https://oops.math.spbu.ru/SE/portal_javascripts/Plone%20Default/jquery-cachekey6435.js">
+      </script>
+    
+    
+  
+
+  
+    
+      <script type="text/javascript"
+              src="https://oops.math.spbu.ru/SE/portal_javascripts/Plone%20Default/ie5fixes-cachekey4141.js">
+      </script>
+    
+    
+  
+
+  
+    
+      <script type="text/javascript"
+              src="https://oops.math.spbu.ru/SE/portal_javascripts/Plone%20Default/resourcebase2-dom-fp-cachekey7741.js">
+      </script>
+    
+    
+  
+
+  
+    
+      <script type="text/javascript"
+              src="https://oops.math.spbu.ru/SE/portal_javascripts/Plone%20Default/input-label-cachekey8103.js">
+      </script>
+    
+    
+  
+
+  
+  
+    
+    
+      <style type="text/css"><!-- @import url(https://oops.math.spbu.ru/SE/portal_css/Plone%20Default/base-cachekey9776.css); --></style>
+    
+    
+  
+
+  
+  <link rel="kinetic-stylesheet" type="text/css"
+        href="https://oops.math.spbu.ru/SE/portal_kss/Plone%20Default/at-cachekey9112.kss" />
+
+
+<title>pi &mdash; SE</title>
+
+
+    <!-- Internet Explorer CSS Fixes -->
+    <!--[if IE]>
+        <style type="text/css" media="all">@import url(https://oops.math.spbu.ru/SE/IEFixes.css);</style>
+    <![endif]-->
+
+    
+    <link rel="author"
+          href="https://oops.math.spbu.ru/SE/author/admin"
+          title="Информация об авторе" />
+
+
+
+    <link rel="shortcut icon" type="image/x-icon"
+          href="https://oops.math.spbu.ru/SE/favicon.ico" />
+
+
+
+    <link rel="home" href="https://oops.math.spbu.ru/SE"
+          title="Главная страница" />
+
+    <link rel="contents"
+          href="https://oops.math.spbu.ru/SE/sitemap"
+          title="Карта сайта" />
+
+
+
+
+
+    <link rel="search"
+          href="https://oops.math.spbu.ru/SE/search_form"
+          title="Search this site" />
+
+
+<link rel="alternate" type="application/rss+xml" href="http://se.math.spbu.ru/SE/site-feed/RSS" title="RSS 1.0" />
+
+
+    <!-- Disable IE6 image toolbar -->
+    <meta http-equiv="imagetoolbar" content="no" />
+    
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+  </head>
+
+  <body class="section-diploma template-default_error_message"
+        dir="ltr">
+    <div id="visual-portal-wrapper">
+
+      <div id="portal-top">
+        <div id="portal-header">
+<p class="hiddenStructure">
+  <a accesskey="2"
+     href="https://oops.math.spbu.ru/SE/diploma/2020/pi/Gorbatyuk-review.pdf#documentContent">Перейти к содержимому.</a> |
+
+  <a accesskey="6"
+     href="https://oops.math.spbu.ru/SE/diploma/2020/pi/Gorbatyuk-review.pdf#portlet-navigation-tree">Перейти к навигации</a>
+</p>
+
+<div id="portal-searchbox">
+    <form name="searchform"
+          action="https://oops.math.spbu.ru/SE/search">
+
+        <label for="searchGadget" class="hiddenStructure">Поиск</label>
+
+        <div class="LSBox">
+        <input name="SearchableText" type="text" size="18"
+               title="Поиск на сайте" accesskey="4"
+               class="inputLabel" id="searchGadget" />
+
+        <input class="searchButton" type="submit"
+               value="Поиск" />
+    
+        <div class="searchSection">
+            <input id="searchbox_currentfolder_only"
+                   class="noborder" type="checkbox"
+                   name="path" value="/SE/diploma/2020/pi" />
+            <label for="searchbox_currentfolder_only"
+                   style="cursor: pointer">только в текущем разделе</label>
+        </div>
+
+        <div class="LSResult" id="LSResult" style=""><div class="LSShadow" id="LSShadow"></div></div>
+        </div>
+    </form>
+
+    <div id="portal-advanced-search" class="hiddenStructure">
+        <a href="https://oops.math.spbu.ru/SE/search_form"
+           accesskey="5">Расширенный поиск</a>
+    </div>
+
+</div>
+
+<a id="portal-logo" accesskey="1"
+   href="https://oops.math.spbu.ru/SE">
+    <img src="https://oops.math.spbu.ru/SE/logo.jpg" alt="" title="" height="74" width="205" /></a>
+
+
+    <h5 class="hiddenStructure">Разделы</h5>
+
+    <ul id="portal-globalnav">
+        <li id="portaltab-contacts" class="plain">
+            <a href="https://oops.math.spbu.ru/SE/contacts"
+               title="">Контакты</a></li>
+        <li id="portaltab-candidate" class="plain">
+            <a href="https://oops.math.spbu.ru/SE/candidate"
+               title="">Абитуриенту</a></li>
+        <li id="portaltab-sudents" class="plain">
+            <a href="https://oops.math.spbu.ru/SE/student"
+               title="">Студенту</a></li>
+        <li id="portaltab-schedule" class="plain">
+            <a href="https://oops.math.spbu.ru/SE/info/schedule"
+               title="Расписание преподавателей кафедры и семинарских аудиторий">Расписание</a></li>
+        <li id="portaltab-alumni" class="plain">
+            <a href="https://oops.math.spbu.ru/SE/alumni"
+               title="Выпускники кафедры">Выпускники</a></li>
+        <li id="portaltab-seminar" class="plain">
+            <a href="https://oops.math.spbu.ru/SE/seminar"
+               title="Семинар кафедры">Семинар</a></li>
+    </ul>
+
+</div>
+
+<div id="portal-personaltools-wrapper">
+
+<h5 class="hiddenStructure">Персональные инструменты</h5>
+
+<ul id="portal-personaltools" class="visualInline">
+   
+
+    
+        <li>
+            <a href="https://oops.math.spbu.ru/SE/login_form">Вход</a>
+        </li>
+    
+
+</ul>
+</div>
+
+
+    <ul id="portal-languageselector">
+        
+        <li class="">
+                <a href="https://oops.math.spbu.ru/SE/diploma/2020/pi?set_language=en"
+                   title="English">
+                    
+                        <img width="14" height="11" alt=""
+                             src="https://oops.math.spbu.ru/SE/++resource++country-flags/gb.gif"
+                             class="" title="English" />
+                    
+                    
+                </a>&nbsp; 
+        </li>
+        
+        
+        <li class="currentLanguage">
+                <a href="https://oops.math.spbu.ru/SE/diploma/2020/pi?set_language=ru"
+                   title="Russian">
+                    
+                        <img width="14" height="11" alt=""
+                             src="https://oops.math.spbu.ru/SE/++resource++country-flags/ru.gif"
+                             class="currentItem"
+                             title="Russian" />
+                    
+                    
+                </a>&nbsp; 
+        </li>
+        
+    </ul>
+
+
+<div id="portal-breadcrumbs">
+
+    <span id="breadcrumbs-you-are-here">Вы здесь:</span>
+    <a href="https://oops.math.spbu.ru/SE">Главная</a>
+    <span class="breadcrumbSeparator">
+        &rarr;
+        
+    </span>
+    <span dir="ltr">
+        
+            <a href="https://oops.math.spbu.ru/SE/diploma">Дипломные работы</a>
+            <span class="breadcrumbSeparator">
+                &rarr;
+                
+            </span>
+            
+         
+    </span>
+    <span dir="ltr">
+        
+            <a href="https://oops.math.spbu.ru/SE/diploma/2020">2020</a>
+            <span class="breadcrumbSeparator">
+                &rarr;
+                
+            </span>
+            
+         
+    </span>
+    <span dir="ltr">
+        
+            
+            
+            <span>pi</span>
+         
+    </span>
+
+</div>
+
+      </div>
+
+      <div class="visualClear" id="clear-space-before-wrapper-table"><!-- --></div>
+
+      <table id="portal-columns">
+        <tbody>
+          <tr>
+            
+            
+            
+
+            
+            <td id="portal-column-content">
+
+              
+                <div class="">
+
+                  
+
+
+                  <div id="region-content" class="documentContent">
+
+                    <span id="contentTopLeft"></span>
+                    <span id="contentTopRight"></span>
+                    
+                    <a name="documentContent"></a>
+
+                    
+
+    <dl class="portalMessage info" id="kssPortalMessage" style="display:none">
+        <dt>Info</dt>
+        <dd></dd>
+    </dl>
+
+
+                    
+                    <div id="viewlet-above-content"></div>
+
+                    
+                    
+                    
+                      
+                      <div>
+
+        <div>
+
+            
+                
+                
+                    
+                <h1 class="documentFirstHeading">
+                    We're sorry, but that page doesn't exist&hellip;
+                </h1>
+
+                <p>Пожалуйста, внимательно проверьте web адрес либо используйте поиск по сайту чтобы найти то, что ищете.</p>
+
+                <p>
+                If you are certain you have the correct web address but are encountering an error, please
+                contact the <span> <a href="https://oops.math.spbu.ru/SE/contact-info">Управление сайтом</a></span>.
+                </p>
+
+                <p>Спасибо.</p>
+                
+                <!-- Offer search results for suggestions -->
+                
+                    
+                    <h3>You might have been looking for&hellip;</h3>
+                    
+                    <dl>
+                    
+                    
+                        
+                            <dt class="contenttype-folder">
+                              <img width="16" height="16" src="https://oops.math.spbu.ru/SE/folder_icon.gif" alt="Folder" />
+                               <a
+    href="https://oops.math.spbu.ru/SE/diploma/2020/pi/"
+    class="state-visible">pi</a>
+                               
+                                <span class="discreet">admin, 2020-06-04 00:26</span>
+
+                            </dt>
+            
+                            <dd></dd>
+
+                        
+                    
+                    
+                    
+                        
+                            <dt class="contenttype-folder">
+                              <img width="16" height="16" src="https://oops.math.spbu.ru/SE/folder_icon.gif" alt="Folder" />
+                               <a
+    href="https://oops.math.spbu.ru/SE/diploma/2018/pi/"
+    class="state-published">pi</a>
+                               
+                                <span class="discreet">stanislav_sartasov, 2018-06-21 13:33</span>
+
+                            </dt>
+            
+                            <dd></dd>
+
+                        
+                    
+                    
+                        
+                            <dt class="contenttype-folder">
+                              <img width="16" height="16" src="https://oops.math.spbu.ru/SE/folder_icon.gif" alt="Folder" />
+                               <a
+    href="https://oops.math.spbu.ru/SE/diploma/2019/pi/"
+    class="state-visible">PI</a>
+                               
+                                <span class="discreet">admin, 2019-06-12 14:14</span>
+
+                            </dt>
+            
+                            <dd></dd>
+
+                        
+                    
+                    
+                        
+                            <dt class="contenttype-folder">
+                              <img width="16" height="16" src="https://oops.math.spbu.ru/SE/folder_icon.gif" alt="Folder" />
+                               <a
+    href="https://oops.math.spbu.ru/SE/diploma/2017/pi/"
+    class="state-published">pi</a>
+                               
+                                <span class="discreet">stanislav_sartasov, 2017-08-16 14:51</span>
+
+                            </dt>
+            
+                            <dd></dd>
+
+                        
+                    
+                    
+                        
+                            <dt class="contenttype-folder">
+                              <img width="16" height="16" src="https://oops.math.spbu.ru/SE/folder_icon.gif" alt="Folder" />
+                               <a
+    href="https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020/pi/"
+    class="state-visible">pi</a>
+                               
+                                <span class="discreet">admin, 2020-06-04 00:33</span>
+
+                            </dt>
+            
+                            <dd></dd>
+
+                        
+                    
+                    
+                        
+                            <dt class="contenttype-folder">
+                              <img width="16" height="16" src="https://oops.math.spbu.ru/SE/folder_icon.gif" alt="Folder" />
+                               <a
+    href="https://oops.math.spbu.ru/SE/diploma/2020/pi/"
+    class="state-visible">pi</a>
+                               
+                                <span class="discreet">admin, 2020-06-04 00:26</span>
+
+                            </dt>
+            
+                            <dd></dd>
+
+                        
+                    
+                    
+                        
+                            <dt class="contenttype-folder">
+                              <img width="16" height="16" src="https://oops.math.spbu.ru/SE/folder_icon.gif" alt="Folder" />
+                               <a
+    href="https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020/pi-2/"
+    class="state-visible">pi-2</a>
+                               
+                                <span class="discreet">stanislav_sartasov, 2020-07-27 02:53</span>
+
+                            </dt>
+            
+                            <dd></dd>
+
+                        
+                    
+                    
+                        
+                            <dt class="contenttype-image">
+                              <img width="16" height="16" src="https://oops.math.spbu.ru/SE/image_icon.gif" alt="Image" />
+                               <a
+    href="https://oops.math.spbu.ru/SE/square-pi-logo/view"
+    class="state-published">square-pi-logo</a>
+                               
+                                <span class="discreet">dluciv, 2011-06-22 23:53</span>
+
+                            </dt>
+            
+                            <dd>Второй неофициальный логотип программной инженерии</dd>
+
+                        
+                    
+                    
+                        
+                            <dt class="contenttype-image">
+                              <img width="16" height="16" src="https://oops.math.spbu.ru/SE/image_icon.gif" alt="Image" />
+                               <a
+    href="https://oops.math.spbu.ru/SE/se-231000-pi-logo/view"
+    class="state-published">se-231000-pi-logo</a>
+                               
+                                <span class="discreet">dluciv, 2011-06-20 11:36</span>
+
+                            </dt>
+            
+                            <dd>Логотип *неофициальный) направления 231000 «Программная инженерия»</dd>
+
+                        
+                    
+                    
+                        
+                            <dt class="contenttype-file">
+                              <img width="16" height="16" src="https://oops.math.spbu.ru/SE/pdf_icon.gif" alt="File" />
+                               <a
+    href="https://oops.math.spbu.ru/SE/Members/avakhitov/cv4-12/view"
+    class="state-published">cv4_12</a>
+                               
+                                <span class="discreet">avakhitov, 2014-05-09 15:36</span>
+
+                            </dt>
+            
+                            <dd></dd>
+
+                        
+                    
+                    
+                        
+                            <dt class="contenttype-file">
+                              <img width="16" height="16" src="https://oops.math.spbu.ru/SE/pdf_icon.gif" alt="File" />
+                               <a
+    href="https://oops.math.spbu.ru/SE/diploma/2020/pi/Ostroukhov-report.pdf/view"
+    class="state-published">Ostroukhov-report.pdf</a>
+                               
+                                <span class="discreet">admin, 2020-11-13 01:52</span>
+
+                            </dt>
+            
+                            <dd></dd>
+
+                        
+                    
+                        
+                    </dl>
+                    
+                
+
+            
+
+        </div>
+
+        
+        
+
+</div>
+                    
+                    
+
+                    
+                    
+                      
+
+                    
+                    
+
+                    <span id="contentBottomLeft"></span>
+                    <span id="contentBottomRight"></span>
+
+                  </div>
+
+                </div>
+
+              
+            </td>
+            
+
+            
+            
+            
+          </tr>
+        </tbody>
+      </table>
+      
+
+      <div class="visualClear" id="clear-space-before-footer"><!-- --></div>
+      
+      
+
+      
+
+        <div id="portal-footer">
+
+<span>
+&copy; Кафедра системного программирования, математико-механический факультет, СПбГУ, 1996-2010
+<br />
+198504, Санкт-Петербург, Петергоф, Университетский пр., дом 28
+</span>
+
+
+
+
+</div>
+
+  <div id="portal-colophon">
+      
+
+      
+
+      <div class="colophonWrapper">
+      <ul>
+        <li>
+          <a href="http://plone.org"
+             title="Этот сайт был создан с помощью cистемы управления контентом Plone. Нажмите для более подробной информации.">
+            Powered by Plone</a>
+        </li>
+        <li>
+          <a href="http://validator.w3.org/check/referer"
+             title="Данный Plone сайт отвечает стандартам XHTML.">Валидный XHTML</a>
+        </li>
+        <li>
+          <a href="http://jigsaw.w3.org/css-validator/check/referer&amp;warning=no&amp;profile=css3&amp;usermedium=all"
+             title="Данный Plone-сайт отвечает требованиям стандарта CSS.">Валидный CSS</a>
+        </li>
+        <li>
+          <a href="http://www.section508.gov"
+             title="Этот сайт соответствует документу Section 508 Accessibility Guidelines правительства США.">Секция 508</a>
+        </li>
+        <li>
+          <a href="http://www.w3.org/WAI/WCAG1AA-Conformance"
+             title="This site conforms to the W3C-WAI Web Content Accessibility Guidelines.">WCAG</a>
+        </li>
+      </ul>
+      </div>
+
+    </div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32347211-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+      
+
+      <div class="visualClear"><!-- --></div>
+    </div>
+<div id="kss-spinner"><img alt=""
+                           src="https://oops.math.spbu.ru/SE/spinner.gif" /></div>
+</body>
+</html>
+

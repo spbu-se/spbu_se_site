@@ -1,0 +1,67 @@
+{% for i in internships.items %}
+    <div class="card border-0">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col">
+            <h4 class="text mt-3">
+              {% if i.more_inf %}
+                <a href="{{ i.more_inf }}" target="_blank">
+              {% else %}
+                <a href="/internships/{{ i.id }}" target="_blank"> 
+              {% endif %}
+                <strong> 
+                  {{i.name_vacancy}} 
+                  {% if i.author_id == user.id %}
+                    <a href="/internships/{{ i.id }}" target="_blank"><img src="/images/redact.png" style="height: 15px"></a> 
+                  {% endif %}
+                </strong></a>
+            </h4>
+
+          </div>
+          <div class="col-auto ml-auto text-right">
+            <a href="internships_index.html?format=0&company={{i.company.id}}&tag=0"><img src="/images/logos/{{i.company.logo_uri}}" style="height: 50px"></a>
+          </div>
+        </div>
+      </div>
+      <div class="card-body pt-2">
+        <p style="font-size: 100%" class="text m-0">{{i.company}}</p>
+        <p style="font-size: 100%" class="text mb-1 mt-0"> {{i.location}}</p>
+        <p style="font-size: 100%" class="text mb-1 mt-0"> 
+          {% for tag in i.tag %}
+            <a href="internships_index.html?format=0&company=0&tag={{tag.id}}">{{tag}} </a>
+          {% endfor %}
+        </p>
+      </div>
+    </div>
+{% endfor %}
+
+
+{% if internships.total %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+      {% if internships.has_prev %}
+    <li class="page-item">
+      <a class="page-link" href="{{ url_for ('internships_index', format=format, company=company, tag=tag) }}" tabindex="-1" aria-disabled="true">Назад</a>
+    </li>
+      {% endif %}
+
+      {% for curr_page in internships.iter_pages() %}
+      {% if curr_page %}
+        {% if curr_page != internships.page %}
+            <li class="page-item"><a class="page-link" href="{{ url_for ('internships_index', page=curr_page, format=format, company=company, tag=tag) }}">{{curr_page}}</a></li>
+        {% else %}
+        <li class="page-item active"><span class="page-link">{{curr_page}}<span class="sr-only">(current)</span></span></li>
+        {% endif %}
+      {% else %}
+        <li class="page-item"><span class="page-link"> ... </span></li>
+      {% endif %}
+      {% endfor %}
+
+      {% if internships.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="{{ url_for ('internships_index', page=internships.next_num, format=format, company=company, tag=tag) }}">Вперед</a>
+    </li>
+      {% endif %}
+  </ul>
+</nav>
+{% endif %}

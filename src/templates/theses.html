@@ -1,0 +1,96 @@
+{% extends "base_dark.html" %}
+{% block title %}Курсовые, учебные практики и ВКР студентов Кафедры Системного Программирования{% endblock %}
+{% block description %}Готовые дипломные работы по программированию, курсовые по программированию, ВКР бакалавров и магистров Кафедры Системного программирования Математико-механического факультета СПбГУ.{% endblock %}
+
+{% block headers %}
+<link rel="canonical" href="https://se.math.spbu.ru/theses.html"/>
+{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="slice pt-8 bg-dark bg-cover bg-size--cover" style="background-image: url({{ url_for('static', filename='/assets/img/main-back.jpg')}});">
+        <!-- Container -->
+        <div class="container d-flex align-items-center text-center text-lg-left pt-3 pt-lg-4">
+            <div class="col px-0">
+                <div class="row align-items-center">
+                    <div class="col-lg-12 text-center">
+                        <!-- Heading -->
+                        <h3 class="text-white mb-1">
+                            Учебные практики и выпускные квалификационные работы
+                        </h3>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-lg-9">
+                        <div class="input-group input-group-lg mt-3">
+                            <input class="form-control" type="text" placeholder="Искать работы" id="thesis_search_field">
+                            <div class="input-group-append">
+                                <button class="btn btn-warning" type="button" id="thesis_search_button">Поиск</button>
+                            </div>
+                        </div>
+                        <span class="text-white">{{hint}}</span>
+                    </div>
+                </div>
+                <!--div class="row align-items-center">
+                    <div class="col-lg-12 text-center">
+                        <p class="lead text-white opacity-8 mt-2">
+                            Курсовые и выпускные квалификационные работы студентов кафедры системного программирования с 2007 по 2021 год.
+                        </p>
+                    </div>
+                </div-->
+            </div>
+        </div>
+    </section>
+
+    <section class="slice clients delimiter-top delimiter-bottom bg-section-secondary" id="theses">
+        <div class="container">
+            <div class="row row-grid">
+                <div class="col-lg-9" id="ThesisList">
+                </div>
+                <div class="col-lg-3 ml-lg-auto">
+                    <div data-toggle="sticky" data-sticky-offset="10">
+                        <div class="card" id="ThesisSearchFilter">
+                            <div class="card-header px-3">
+                                <span class="h6 mb-0">Фильтры</span>
+                            </div>
+                            <div class="card-body px-3">
+                                {{ filter.csrf_token }}
+                                <p class="text-sm mb-0">
+                                    Тип
+                                </p>
+                                <div class="form-group">
+                                    {{ filter.worktype(class_="custom-select pl-3") }}
+                                </div>
+                                <p class="text-sm mb-0">
+                                    Руководитель
+                                </p>
+                                <div class="form-group">
+                                    {{ filter.supervisor(class_="custom-select pl-3") }}
+                                </div>
+                                <p class="text-sm mb-0">
+                                    Направление
+                                </p>
+                                <div class="form-group">
+                                    {{ filter.course(class_="custom-select pl-3") }}
+                                </div>
+                                <p class="text-sm mb-0">
+                                    Даты
+                                </p>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-6 pr-md-1 pb-2 pb-md-0">
+                                            {{ filter.startdate(class_="custom-select pl-3") }}
+                                        </div>
+                                        <div class="col-md-6 pl-md-1">
+                                            {{ filter.enddate(class_="custom-select pl-3") }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+     </section>
+{% endblock %}

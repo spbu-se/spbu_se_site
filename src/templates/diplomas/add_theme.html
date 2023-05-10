@@ -1,0 +1,83 @@
+{% extends "base_light.html" %}
+{% block title %}Предложите свою тему{% endblock %}
+{% block description %}Предложите свою тему{% endblock %}
+
+{% block head_links %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}" id="stylesheet">
+    {{ simplemde.js }}
+{% endblock %}
+
+{% block content %}
+<section class="mt-7 pt-6 bg-section-secondary">
+    <div class="container">
+
+        <form method="POST" action="{{url_for('add_user_theme')}}">
+            {{ form.csrf_token }}
+            <div class="row row-grid">
+                <div class="col-lg-9">
+                    <div class="form-group">
+                        <h6 class="mb-0">Название темы</h6>
+                        {{form.title(class_="form-control", placeholder=form.title.description)}}
+                    </div>
+
+                    <div class="form-group">
+                        <h6 class="mb-0">Описание (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)</h6>
+                        {{form.description(class_="form-control", placeholder=form.description.description, data_toggle="autosize", rows="9")}}
+                        <script>
+                        (function () {
+                            var simplemde = new SimpleMDE({
+                                spellChecker: false,
+                                element: document.getElementById("description"),
+                            });
+                        })();
+                        </script>
+                    </div>
+
+                    <div class="form-group">
+                        <h6 class="mb-0">Требования к студенту (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)</h6>
+                        {{form.requirements(class_="form-control", placeholder=form.requirements.description, rows="3")}}
+                        <script>
+                        (function () {
+                            var simplemde = new SimpleMDE({
+                                spellChecker: false,
+                                element: document.getElementById("requirements"),
+                            });
+                        })();
+                        </script>
+                    </div>
+                </div>
+                <div class="col-lg-3 ml-lg-auto">
+
+                    <h6 class="mb-0">Уровень</h6>
+                    {% for choice in form.levels %}
+                    <div class="form-check">
+                        {{ choice(class="text-sm form-check-input") }}
+                        {{ choice.label(class="text-sm form-check-label") }}
+                    </div>
+                    {% endfor %}
+                    <hr class="my-3" />
+
+                    <h6 class="mb-0">Способ связи</h6>
+                    {% if user.how_to_contact %}
+                    <p class="text-sm">{{ user.how_to_contact }} </p>
+                    {% else %}
+                    <p class="text-sm text-danger">Заполните поле "Как с вами связаться" в <a href="{{url_for('user_profile')}}">вашем профиле.</a></p>
+                    {% endif %}
+
+                     <hr class="my-3" />
+
+                    <h6 class=mb-0">Источник темы</h6>
+                    {{form.company(class_="text-sm custom-select")}}
+                    <p class="text-sm">Если вашей компании или кафедры нет в списке, <a href="https://t.me/Zelenchuk" target="_blank">свяжитесь со мной</a>.</p>
+
+                    <hr class="my-3" />
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary w-100">Предложить тему</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}
