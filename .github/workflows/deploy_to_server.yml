@@ -7,50 +7,14 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     environment: deploy_environment
     steps:
-      - name: Get current date
-        id: date
-        run: |
-          echo "date=$(date +'%Y-%m-%dT%H:%M:%S')" >> ${GITHUB_OUTPUT}
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Log in to the Container registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: ghcr.io/spbu-se/se_spbu_website
-          tags: |
-            latest
-            type=semver,pattern={{version}}
-            type=raw,value=${{steps.date.outputs.date}},enable=true
-            type=sha
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
       - name: Run deploy on server
           uses: appleboy/ssh-action@v0.1.10
           with:
             host: ${{ secrets.HOST }}
             username: ${{ secrets.USERNAME }}
             key: ${{ secrets.SSHKEY }}
-            script: |
-              docker compose -f ./se_spbu_site/docker-compose.yml pull
-              docker compose -f ./se_spbu_site/docker-compose.yml up -d
-              docker image prune -f
+            script:
