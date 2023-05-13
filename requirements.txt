@@ -6,7 +6,7 @@ blinker==1.4
 bs4==0.0.1
 certifi==2020.12.5
 chardet==4.0.0
-charset-normalizer==2.0.12
+charset-normalizer==3.1.0
 click==8.0.0
 clickclick==20.10.2
 connexion==2.6.0
