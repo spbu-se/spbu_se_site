@@ -12,7 +12,7 @@ clickclick==20.10.2
 connexion==2.6.0
 Flask==2.3.2
 Flask-Admin==1.5.8
-Flask-APScheduler==1.12.3
+Flask-APScheduler==1.12.4
 Flask-BasicAuth==0.2.0
 Flask-Login==0.5.0
 Flask-Markdown==0.3
