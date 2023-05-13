@@ -464,7 +464,7 @@ def practice_preparation(current_thesis):
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if text_file is not None and text_file.filename != "":
-                full_filename, filename = get_filename(
+                full_filename, filename = __get_filename(
                     current_thesis, TEXT_UPLOAD_FOLDER, TypeOfFile.TEXT.value
                 )
                 text_file.save(full_filename)
@@ -519,7 +519,7 @@ def practice_preparation(current_thesis):
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if supervisor_review:
-                full_filename, filename = get_filename(
+                full_filename, filename = __get_filename(
                     current_thesis,
                     REVIEW_UPLOAD_FOLDER,
                     TypeOfFile.SUPERVISOR_REVIEW.value,
@@ -532,7 +532,7 @@ def practice_preparation(current_thesis):
                 )
 
             if reviewer_review:
-                full_filename, filename = get_filename(
+                full_filename, filename = __get_filename(
                     current_thesis,
                     REVIEW_UPLOAD_FOLDER,
                     TypeOfFile.REVIEWER_REVIEW.value,
@@ -543,7 +543,6 @@ def practice_preparation(current_thesis):
                 flash("Отзыв рецензента успешно загружен!", category="success")
 
         elif "submit_presentation_button" in request.form:
-            print(request.files)
             presentation_file = (
                 request.files["presentation"]
                 if "presentation" in request.files
@@ -591,7 +590,7 @@ def practice_preparation(current_thesis):
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if presentation_file is not None and presentation_file.filename != "":
-                full_filename, filename = get_filename(
+                full_filename, filename = __get_filename(
                     current_thesis,
                     PRESENTATION_UPLOAD_FOLDER,
                     TypeOfFile.PRESENTATION.value,
@@ -636,7 +635,7 @@ def practice_preparation(current_thesis):
     )
 
 
-def get_filename(
+def __get_filename(
     current_thesis: CurrentThesis, folder: str, type_of_file: str
 ) -> Tuple[str, str]:
     author_en = translit(current_user.get_name(), "ru", reversed=True)

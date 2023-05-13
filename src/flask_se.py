@@ -137,7 +137,12 @@ from flask_se_practice_staff import (
     reports_staff,
     finished_thesises_staff,
 )
-from flask_se_practice_admin import index_admin, deadline_admin, choose_worktype_admin
+from flask_se_practice_admin import (
+    index_admin,
+    deadline_admin,
+    choose_worktype_admin,
+    thesis_admin,
+)
 
 app = Flask(
     __name__, static_url_path="", static_folder="static", template_folder="templates"
@@ -341,7 +346,7 @@ app.add_url_rule(
 )
 
 # Practice admin
-app.add_url_rule("/practice_admin", methods=["GET"], view_func=index_admin)
+app.add_url_rule("/practice_admin", methods=["GET", "POST"], view_func=index_admin)
 app.add_url_rule(
     "/practice_admin/choose_worktype",
     methods=["GET", "POST"],
@@ -349,6 +354,9 @@ app.add_url_rule(
 )
 app.add_url_rule(
     "/practice_admin/deadline", methods=["GET", "POST"], view_func=deadline_admin
+)
+app.add_url_rule(
+    "/practice_admin/thesis", methods=["GET", "POST"], view_func=thesis_admin
 )
 
 # Init Database
