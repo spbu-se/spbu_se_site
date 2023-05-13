@@ -30,7 +30,7 @@ Jinja2==3.0.3
 jsonschema==4.4.0
 Mako==1.2.4
 Markdown==3.3.6
-MarkupSafe==2.1.1
+MarkupSafe==2.1.2
 openapi-schema-validator==0.2.3
 openapi-spec-validator==0.4.0
 packaging==21.3
