@@ -1,4 +1,4 @@
-alembic==1.6.5
+alembic==1.11.1
 APScheduler==3.8.1
 attrs==21.4.0
 beautifulsoup4==4.9.3
