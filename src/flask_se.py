@@ -227,6 +227,7 @@ app.add_url_rule("/scholarships/13.html", view_func=get_scholarships_13)
 
 
 # Diplomas
+app.add_url_rule("/diplomas/", view_func=diplomas_index)
 app.add_url_rule("/diplomas/index.html", view_func=diplomas_index)
 app.add_url_rule("/diplomas/theme.html", view_func=get_theme)
 app.add_url_rule(
