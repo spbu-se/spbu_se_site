@@ -146,6 +146,10 @@ def fetch_theses():
         third_priority = []
 
         for item in records.items:
+            if not item.text:
+                third_priority.append(item)
+                continue
+
             text_index = item.text.find(search.lower())
             search_in_name = (
                 str(item.name_ru).lower().find(search.lower()) != -1
