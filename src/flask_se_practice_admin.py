@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import io
+import pygsheets
 from functools import wraps
 
 import pytz
@@ -71,12 +72,16 @@ def index_admin():
 
     if request.method == 'POST':
         if "download_materials_button" in request.form:
+            # ololo()
             return download_materials(area, worktype)
 
     list_of_thesises = (CurrentThesis.query.filter_by(area_id=area_id).filter_by(worktype_id=worktype_id)
                         .filter_by(deleted=False).filter_by(status=1).all())
+    list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
+    list_of_worktypes = Worktype.query.filter(Worktype.id > 2).all()
     return render_template(PracticeAdminTemplates.CURRENT_THESISES.value,
                            area=area, worktype=worktype,
+                           list_of_areas=list_of_areas, list_of_worktypes=list_of_worktypes,
                            list_of_thesises=list_of_thesises)
 
 
@@ -115,6 +120,16 @@ def __send_file_and_remove(full_filename, filename):
     return_data.seek(0)
     os.remove(full_filename)
     return send_file(return_data, mimetype=full_filename, attachment_filename=filename)
+
+
+def ololo():
+    gc = pygsheets.authorize(service_account_file='creds1.json')
+    gc.sheet.create('test2')
+    sh = gc.open('test2')
+    wk1 = sh[0]
+    wk1.update_value('A1', 'Hello, World!')
+    print(sh.id)
+    sh.share('', role='writer', type='anyone')
 
 
 @login_required
