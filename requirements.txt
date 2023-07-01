@@ -25,7 +25,7 @@ Frozen-Flask==0.15
 greenlet==2.0.2
 idna==3.3
 inflection==0.5.1
-itsdangerous==2.0.1
+itsdangerous==2.1.2
 Jinja2==3.0.3
 jsonschema==4.17.3
 Mako==1.2.4
