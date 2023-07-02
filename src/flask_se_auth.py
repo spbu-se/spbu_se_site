@@ -90,7 +90,7 @@ def login_index():
         password = request.form.get("password")
         user = Users.query.filter_by(email=email).first()
         if user:
-            if check_password_hash(user.password_hash, password):
+            if (user.password_hash is not None) and check_password_hash(user.password_hash, password):
                 login_user(user, remember=True)
                 return redirect_next_url(fallback=url_for("user_profile"))
             else:
