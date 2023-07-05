@@ -5,6 +5,7 @@ import pygsheets
 from functools import wraps
 
 import pytz
+import yadisk
 from flask import flash, redirect, request, render_template, url_for, send_file
 from datetime import datetime
 from flask_login import current_user
@@ -19,6 +20,8 @@ from se_models import (AreasOfStudy, CurrentThesis, Worktype, NotificationPracti
 from flask_se_practice import TEXT_UPLOAD_FOLDER, PRESENTATION_UPLOAD_FOLDER, REVIEW_UPLOAD_FOLDER
 from flask_se_config import get_thesis_type_id_string
 from templates.practice.admin.templates import PracticeAdminTemplates
+
+from flask_se_yandex_disk import get_code
 
 FORMAT_DATE_TIME = "%d.%m.%Y %H:%M"
 ARCHIVE_FOLDER = 'static/zip/'
@@ -65,15 +68,14 @@ def choose_worktype_admin():
 def index_admin():
     area_id = request.args.get('area_id', type=int)
     worktype_id = request.args.get('worktype_id', type=int)
-    if not area_id or not worktype_id:
-        return redirect(url_for('choose_worktype_admin', source=index_admin.__name__))
     area = AreasOfStudy.query.filter_by(id=area_id).first()
     worktype = Worktype.query.filter_by(id=worktype_id).first()
 
     if request.method == 'POST':
         if "download_materials_button" in request.form:
-            # ololo()
             return download_materials(area, worktype)
+        if "yandex_button" in request.form:
+            return get_code()
 
     list_of_thesises = (CurrentThesis.query.filter_by(area_id=area_id).filter_by(worktype_id=worktype_id)
                         .filter_by(deleted=False).filter_by(status=1).all())
@@ -156,8 +158,6 @@ def thesis_admin():
 def deadline_admin():
     area_id = request.args.get('area_id', type=int)
     worktype_id = request.args.get('worktype_id', type=int)
-    if not area_id or not worktype_id:
-        return redirect(url_for('choose_worktype_admin', source=deadline_admin.__name__))
     area = AreasOfStudy.query.filter_by(id=area_id).first()
     worktype = Worktype.query.filter_by(id=worktype_id).first()
 
