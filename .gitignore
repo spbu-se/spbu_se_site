@@ -91,3 +91,6 @@ flask_se_secret.conf
 /**/flask_se_mail.conf
 */src/flask_se_mail.conf
 flask_se_mail.conf
+
+# Do not track __pycache__
+**/__pycache__/
