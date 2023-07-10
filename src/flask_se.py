@@ -683,6 +683,7 @@ if __name__ == "__main__":
         if sys.argv[1] == "build":
             freezer.freeze()
         elif sys.argv[1] == "init":
-            init_db()
+            with app.app_context():
+                init_db()
     else:
         app.run(port=5000, debug=True)
