@@ -65,7 +65,7 @@ textile==4.0.2
 transliterate==1.10.2
 typing_extensions==4.7.1
 tzdata==2022.1
-tzlocal==4.2
+tzlocal==5.0.1
 urllib3==1.26.9
 webencodings==0.5.1
 Werkzeug==2.3.4
