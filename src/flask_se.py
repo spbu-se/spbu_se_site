@@ -145,7 +145,11 @@ from flask_se_practice_admin import (
 )
 
 app = Flask(
-    __name__, static_url_path="", static_folder="static", template_folder="templates", instance_path=SQLITE_DATABASE_PATH
+    __name__,
+    static_url_path="",
+    static_folder="static",
+    template_folder="templates",
+    instance_path=SQLITE_DATABASE_PATH,
 )
 
 # Flask configs
@@ -157,9 +161,7 @@ app.config["FREEZER_DESTINATION"] = "../docs"
 app.config["FREEZER_IGNORE_MIMETYPE_WARNINGS"] = True
 
 # SQLAlchimy config
-app.config["SQLALCHEMY_DATABASE_URI"] = (
-    "sqlite:///" + SQLITE_DATABASE_NAME
-)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + SQLITE_DATABASE_NAME
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 app.config["SECRET_KEY"] = SECRET_KEY
 app.config["SESSION_COOKIE_NAME"] = "se_session"
