@@ -4,3 +4,7 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      pip-dependencies:
+        patterns:
+          - "*" # All dependabot updates are grouped
