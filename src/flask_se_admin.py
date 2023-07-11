@@ -65,8 +65,36 @@ class SeAdminIndexView(AdminIndexView):
 
 
 class SeAdminModelViewUsers(SeAdminModelView):
-    column_exclude_list = ["password_hash", "internship_author", "current_thesises", "diploma_themes_author", "diploma_themes_consultant", "diploma_themes_thesis_supervisor", "diploma_themes_supervisor", "news", "staff", "all_user_votes", "reviewer", "thesis_on_review_author", "thesises"]
-    form_excluded_columns = ["password_hash", "internship_author", "current_thesises", "diploma_themes_author", "diploma_themes_consultant", "diploma_themes_thesis_supervisor", "diploma_themes_supervisor", "news", "staff", "all_user_votes", "reviewer", "thesis_on_review_author", "thesises"]
+    column_exclude_list = [
+        "password_hash",
+        "internship_author",
+        "current_thesises",
+        "diploma_themes_author",
+        "diploma_themes_consultant",
+        "diploma_themes_thesis_supervisor",
+        "diploma_themes_supervisor",
+        "news",
+        "staff",
+        "all_user_votes",
+        "reviewer",
+        "thesis_on_review_author",
+        "thesises",
+    ]
+    form_excluded_columns = [
+        "password_hash",
+        "internship_author",
+        "current_thesises",
+        "diploma_themes_author",
+        "diploma_themes_consultant",
+        "diploma_themes_thesis_supervisor",
+        "diploma_themes_supervisor",
+        "news",
+        "staff",
+        "all_user_votes",
+        "reviewer",
+        "thesis_on_review_author",
+        "thesises",
+    ]
 
     pass
 

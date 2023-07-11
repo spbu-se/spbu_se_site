@@ -12,7 +12,7 @@ MAIL_PASSWORD_FILE = os.path.join(
 )
 SECRET_KEY_THESIS = os.urandom(16).hex()
 SQLITE_DATABASE_NAME = "se.db"
-SQLITE_DATABASE_PATH = "databases/"
+SQLITE_DATABASE_PATH = pathlib.Path("databases/").absolute().as_posix()
 
 if os.path.exists(MAIL_PASSWORD_FILE):
     with open(MAIL_PASSWORD_FILE, "r") as file:
