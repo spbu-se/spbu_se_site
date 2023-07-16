@@ -21,7 +21,7 @@ from flask_se_practice import TEXT_UPLOAD_FOLDER, PRESENTATION_UPLOAD_FOLDER, RE
 from flask_se_config import get_thesis_type_id_string
 from templates.practice.admin.templates import PracticeAdminTemplates
 
-from flask_se_yandex_disk import get_code
+from flask_se_yandex_disk import handle_yandex_table
 
 FORMAT_DATE_TIME = "%d.%m.%Y %H:%M"
 ARCHIVE_FOLDER = 'static/zip/'
@@ -75,7 +75,12 @@ def index_admin():
         if "download_materials_button" in request.form:
             return download_materials(area, worktype)
         if "yandex_button" in request.form:
-            return get_code()
+            table_name = request.form["table_name"]
+            if table_name is None or table_name == "":
+                flash("Введите название файла для выгрузки на Яндекс Диск", category="error")
+                return redirect(url_for("index_admin", area_id=area.id, worktype_id=worktype.id))
+
+            return handle_yandex_table(table_name=table_name, area_id=area.id, worktype_id=worktype.id)
 
     list_of_thesises = (CurrentThesis.query.filter_by(area_id=area_id).filter_by(worktype_id=worktype_id)
                         .filter_by(deleted=False).filter_by(status=1).all())

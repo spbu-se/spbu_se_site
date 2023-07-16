@@ -22,9 +22,9 @@ from templates.practice.student.templates import PracticeStudentTemplates
 from templates.notification.templates import NotificationTemplates
 
 # Global variables
-TEXT_UPLOAD_FOLDER = 'static/currentThesis/texts/'
-REVIEW_UPLOAD_FOLDER = 'static/currentThesis/reviews/'
-PRESENTATION_UPLOAD_FOLDER = 'static/currentThesis/slides/'
+TEXT_UPLOAD_FOLDER = 'static/practice/texts/'
+REVIEW_UPLOAD_FOLDER = 'static/practice/reviews/'
+PRESENTATION_UPLOAD_FOLDER = 'static/practice/slides/'
 ALLOWED_EXTENSIONS = {'pdf'}
 MIN_LENGTH_OF_TOPIC = 7
 MIN_LENGTH_OF_GOAL = 20
