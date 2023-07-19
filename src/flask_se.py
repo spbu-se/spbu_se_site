@@ -158,30 +158,30 @@ app.add_url_rule('/internships/<int:id>/update', methods=['GET', 'POST'], view_f
 
 
 # Practice
-app.add_url_rule('/practice', methods=['GET', 'POST'], view_func=practice_index)
-app.add_url_rule('/practice/guide', methods=['GET'], view_func=practice_guide)
-app.add_url_rule('/practice/new', methods=['GET', 'POST'], view_func=practice_new_thesis)
-app.add_url_rule('/practice/data_for_practice', methods=['GET', 'POST'], view_func=practice_data_for_practice)
-app.add_url_rule('/practice/choosing_topic', methods=['GET', 'POST'], view_func=practice_choosing_topic)
-app.add_url_rule('/practice/edit_theme', methods=['GET', 'POST'], view_func=practice_edit_theme)
-app.add_url_rule('/practice/goals_tasks', methods=['GET', 'POST'], view_func=practice_goals_tasks)
-app.add_url_rule('/practice/add_new_report', methods=['GET', 'POST'], view_func=practice_add_new_report)
-app.add_url_rule('/practice/workflow', methods=['GET', 'POST'], view_func=practice_workflow)
-app.add_url_rule('/practice/preparation_for_defense', methods=['GET', 'POST'], view_func=practice_preparation)
-app.add_url_rule('/practice/defense', methods=['GET'], view_func=practice_thesis_defense)
+app.add_url_rule('/practice/', methods=['GET', 'POST'], view_func=practice_index)
+app.add_url_rule('/practice/guide/', methods=['GET'], view_func=practice_guide)
+app.add_url_rule('/practice/new/', methods=['GET', 'POST'], view_func=practice_new_thesis)
+app.add_url_rule('/practice/data_for_practice/', methods=['GET', 'POST'], view_func=practice_data_for_practice)
+app.add_url_rule('/practice/choosing_topic/', methods=['GET', 'POST'], view_func=practice_choosing_topic)
+app.add_url_rule('/practice/edit_theme/', methods=['GET', 'POST'], view_func=practice_edit_theme)
+app.add_url_rule('/practice/goals_tasks/', methods=['GET', 'POST'], view_func=practice_goals_tasks)
+app.add_url_rule('/practice/add_new_report/', methods=['GET', 'POST'], view_func=practice_add_new_report)
+app.add_url_rule('/practice/workflow/', methods=['GET', 'POST'], view_func=practice_workflow)
+app.add_url_rule('/practice/preparation_for_defense/', methods=['GET', 'POST'], view_func=practice_preparation)
+app.add_url_rule('/practice/defense/', methods=['GET'], view_func=practice_thesis_defense)
 
 # Practice staff
-app.add_url_rule('/practice_staff', methods=['GET'], view_func=index_staff)
-app.add_url_rule('/practice_staff/thesis', methods=['GET', 'POST'], view_func=thesis_staff)
-app.add_url_rule('/practice_staff/reports', methods=['GET', 'POST'], view_func=reports_staff)
-app.add_url_rule('/practice_staff/finished_thesises', methods=['GET'], view_func=finished_thesises_staff)
+app.add_url_rule('/practice_staff/', methods=['GET'], view_func=index_staff)
+app.add_url_rule('/practice_staff/thesis/', methods=['GET', 'POST'], view_func=thesis_staff)
+app.add_url_rule('/practice_staff/reports/', methods=['GET', 'POST'], view_func=reports_staff)
+app.add_url_rule('/practice_staff/finished_thesises/', methods=['GET'], view_func=finished_thesises_staff)
 
 # Practice admin
-app.add_url_rule('/practice_admin', methods=['GET', 'POST'], view_func=index_admin)
-app.add_url_rule('/practice_admin/choose_worktype', methods=['GET', 'POST'], view_func=choose_worktype_admin)
-app.add_url_rule('/practice_admin/deadline', methods=['GET', 'POST'], view_func=deadline_admin)
-app.add_url_rule('/practice_admin/thesis', methods=['GET', 'POST'], view_func=thesis_admin)
-app.add_url_rule('/practice_admin/yandex_code', methods=['GET'], view_func=yandex_code)
+app.add_url_rule('/practice_admin/', methods=['GET', 'POST'], view_func=index_admin)
+app.add_url_rule('/practice_admin/choose_worktype/', methods=['GET', 'POST'], view_func=choose_worktype_admin)
+app.add_url_rule('/practice_admin/deadline/', methods=['GET', 'POST'], view_func=deadline_admin)
+app.add_url_rule('/practice_admin/thesis/', methods=['GET', 'POST'], view_func=thesis_admin)
+app.add_url_rule('/practice_admin/yandex_code/', methods=['GET'], view_func=yandex_code)
 
 # Init Database
 db.app = app

@@ -7,6 +7,7 @@ import yadisk
 
 from flask import redirect, url_for, request, flash
 from flask_se_auth import login_required
+from flask_se_practice_table import read_table
 
 # https://yandex.ru/dev/id/doc/ru/codes/code-url
 
@@ -64,10 +65,9 @@ def yandex_code():
         return redirect(url_for('index_admin', area_id=area_id_, worktype_id=worktype_id_))
 
     # Whole logic of working with yandex disk
-    #
-    #
-
     table_name = table_path.split('/')[-1]
     disk.download(table_path, FOLDER_FOR_TABLE + table_name)
+
+    read_table(FOLDER_FOR_TABLE + table_name)
 
     return redirect(url_for('index_admin', area_id=area_id_, worktype_id=worktype_id_))
