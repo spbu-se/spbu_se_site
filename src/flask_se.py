@@ -161,7 +161,9 @@ app.config["FREEZER_DESTINATION"] = "../docs"
 app.config["FREEZER_IGNORE_MIMETYPE_WARNINGS"] = True
 
 # SQLAlchimy config
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + SQLITE_DATABASE_NAME
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    "sqlite:///" + SQLITE_DATABASE_PATH + "/" + SQLITE_DATABASE_NAME
+)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 app.config["SECRET_KEY"] = SECRET_KEY
 app.config["SESSION_COOKIE_NAME"] = "se_session"
