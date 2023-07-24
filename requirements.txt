@@ -1,3 +1,6 @@
+# It is useful because connexion  2.14.2 requires Flask <2.3,
+# which in turn is missing this dependency. Can be removed after Flask 2.3
+blinker==1.6.2 # Added manually, to be removed later.
 bs4==0.0.1
 chardet==4.0.0
 connexion==2.6.0
