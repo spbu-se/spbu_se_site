@@ -42,12 +42,21 @@
                             </div>
                             <div class="modal-body">
                                 Введите полный путь и название файла таблицы (в формате .xlsx)
-                                <ul>
+                                <ul class="mb-0">
                                     <li>Если файл существует на диске, он будет скачан, отредактирован и загружен обратно.</li>
                                     <li>Если файла на диске нет, он будет создан.</li>
                                 </ul>
-                                <div class="form-group mb-0">
+                                <div class="form-group mb-2 mt-1">
                                     <input type="text" class="form-control" placeholder="path/to/table/table_with_results.xlsx" name="table_name">
+                                </div>
+
+                                Введите название листа таблицы
+                                <ul class="mb-0">
+                                    <li>Лист таблицы, который будет отредактирован/создан.</li>
+                                    <li>По умолчанию (пустое значение) - первый лист таблицы.</li>
+                                </ul>
+                                <div class="form-group mb-0 mt-1">
+                                    <input id="sheet-name-input" type="text" class="form-control" placeholder="Лист таблицы" name="sheet_name">
                                 </div>
                             </div>
                             <div class="modal-footer py-2">

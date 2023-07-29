@@ -46,7 +46,7 @@ from flask_se_practice import practice_index, practice_guide, practice_new_thesi
     practice_edit_theme, practice_workflow, practice_goals_tasks
 from flask_se_practice_staff import index_staff, thesis_staff, reports_staff, finished_thesises_staff
 from flask_se_practice_admin import index_admin, deadline_admin, choose_worktype_admin, thesis_admin
-from flask_se_yandex_disk import yandex_code
+from flask_se_practice_yandex_disk import yandex_code
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 

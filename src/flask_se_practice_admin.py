@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
 import io
-import pygsheets
 from functools import wraps
 
 import pytz
-import yadisk
 from flask import flash, redirect, request, render_template, url_for, send_file
 from datetime import datetime
 from flask_login import current_user
@@ -21,7 +19,7 @@ from flask_se_practice import TEXT_UPLOAD_FOLDER, PRESENTATION_UPLOAD_FOLDER, RE
 from flask_se_config import get_thesis_type_id_string
 from templates.practice.admin.templates import PracticeAdminTemplates
 
-from flask_se_yandex_disk import handle_yandex_table
+from flask_se_practice_yandex_disk import handle_yandex_table
 
 FORMAT_DATE_TIME = "%d.%m.%Y %H:%M"
 ARCHIVE_FOLDER = 'static/zip/'
@@ -76,11 +74,15 @@ def index_admin():
             return download_materials(area, worktype)
         if "yandex_button" in request.form:
             table_name = request.form["table_name"]
+            sheet_name = request.form["sheet_name"]
             if table_name is None or table_name == "":
                 flash("Введите название файла для выгрузки на Яндекс Диск", category="error")
                 return redirect(url_for("index_admin", area_id=area.id, worktype_id=worktype.id))
 
-            return handle_yandex_table(table_name=table_name, area_id=area.id, worktype_id=worktype.id)
+            return handle_yandex_table(table_name=table_name,
+                                       sheet_name=sheet_name,
+                                       area_id=area.id,
+                                       worktype_id=worktype.id)
 
     list_of_thesises = (CurrentThesis.query.filter_by(area_id=area_id).filter_by(worktype_id=worktype_id)
                         .filter_by(deleted=False).filter_by(status=1).all())
@@ -127,16 +129,6 @@ def __send_file_and_remove(full_filename, filename):
     return_data.seek(0)
     os.remove(full_filename)
     return send_file(return_data, mimetype=full_filename, attachment_filename=filename)
-
-
-def ololo():
-    gc = pygsheets.authorize(service_account_file='creds1.json')
-    gc.sheet.create('test2')
-    sh = gc.open('test2')
-    wk1 = sh[0]
-    wk1.update_value('A1', 'Hello, World!')
-    print(sh.id)
-    sh.share('', role='writer', type='anyone')
 
 
 @login_required

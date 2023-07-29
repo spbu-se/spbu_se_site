@@ -7,7 +7,7 @@ import yadisk
 
 from flask import redirect, url_for, request, flash
 from flask_se_auth import login_required
-from flask_se_practice_table import read_table
+from flask_se_practice_table import edit_table
 
 # https://yandex.ru/dev/id/doc/ru/codes/code-url
 
@@ -16,17 +16,21 @@ CLIENT_SECRET = '621eab823cdf4649868b6e317963a054'
 FOLDER_FOR_TABLE = 'static/practice/result_table/'
 
 table_path = ''
+sheet_name_ = ''
 area_id_ = -1
 worktype_id_ = -1
 
 
-def handle_yandex_table(table_name, area_id, worktype_id):
+def handle_yandex_table(table_name, sheet_name, area_id, worktype_id):
     global table_path
     global area_id_
     global worktype_id_
+    global sheet_name_
     table_path = table_name
     area_id_ = area_id
     worktype_id_ = worktype_id
+    sheet_name_ = sheet_name
+
     return get_code()
 
 
@@ -59,15 +63,18 @@ def yandex_code():
 
     token = get_token(code)
     disk = yadisk.YaDisk(token=token)
-
     if not disk.check_token():
         flash('Неверный токен для Яндекс Диска', category='error')
         return redirect(url_for('index_admin', area_id=area_id_, worktype_id=worktype_id_))
 
-    # Whole logic of working with yandex disk
     table_name = table_path.split('/')[-1]
     disk.download(table_path, FOLDER_FOR_TABLE + table_name)
 
-    read_table(FOLDER_FOR_TABLE + table_name)
+    edit_table(path_to_table=(FOLDER_FOR_TABLE + table_name),
+               sheet_name=sheet_name_,
+               area_id=area_id_,
+               worktype_id=worktype_id_)
+
+    disk.upload(FOLDER_FOR_TABLE + table_name, table_path, overwrite=True)
 
     return redirect(url_for('index_admin', area_id=area_id_, worktype_id=worktype_id_))
