@@ -32,8 +32,9 @@ Linux
 . venv/bin/activate
 ```
 
-6. Установить необходимые пакеты
+6. Обновить `pip` и установить необходимые пакеты
 ```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
