@@ -21,4 +21,5 @@ pyparsing==3.1.1
 python-editor==1.0.4
 textile==4.0.2
 transliterate==1.10.2
+uWSGI==2.0.22
 Whoosh==2.7.4
