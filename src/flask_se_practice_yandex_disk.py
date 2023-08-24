@@ -2,6 +2,8 @@
 
 import base64
 import json
+import os
+
 import requests
 import yadisk
 
@@ -11,12 +13,12 @@ from flask_se_practice_table import edit_table
 
 # https://yandex.ru/dev/id/doc/ru/codes/code-url
 
-CLIENT_ID = '10e079e42b49492295a39e2767e7b049'
-CLIENT_SECRET = '621eab823cdf4649868b6e317963a054'
-FOLDER_FOR_TABLE = 'static/practice/result_table/'
+CLIENT_ID = "10e079e42b49492295a39e2767e7b049"
+CLIENT_SECRET = "621eab823cdf4649868b6e317963a054"
+FOLDER_FOR_TABLE = "static/practice/result_table/"
 
-table_path = ''
-sheet_name_ = ''
+table_path = ""
+sheet_name_ = ""
 area_id_ = -1
 worktype_id_ = -1
 
@@ -35,16 +37,27 @@ def handle_yandex_table(table_name, sheet_name, area_id, worktype_id):
 
 
 def get_code():
-    redirect_uri = "http://127.0.0.1:5000/practice_admin/yandex_code"
-    url = "https://oauth.yandex.ru/authorize?response_type=code" \
-          + "&client_id=" + CLIENT_ID \
-          + "&redirect_uri=" + redirect_uri
+    redirect_uri = (
+        "http://127.0.0.1:5000/practice_admin/yandex_code"
+        if __debug__
+        else "https://se.math.spbu.ru/practice_admin/yandex_code"
+    )
+
+    url = (
+        "https://oauth.yandex.ru/authorize?response_type=code"
+        + "&client_id="
+        + CLIENT_ID
+        + "&redirect_uri="
+        + redirect_uri
+    )
     return redirect(url)
 
 
 def get_token(code):
     token_url = "https://oauth.yandex.ru/token"
-    credentials_string = base64.b64encode((CLIENT_ID + ':' + CLIENT_SECRET).encode('ascii')).decode('ascii')
+    credentials_string = base64.b64encode(
+        (CLIENT_ID + ":" + CLIENT_SECRET).encode("ascii")
+    ).decode("ascii")
     headers = {"Authorization": "Basic " + credentials_string}
     content = "grant_type=authorization_code&code=" + code
     response = requests.post(token_url, headers=headers, data=content)
@@ -57,24 +70,37 @@ def get_token(code):
 
 @login_required
 def yandex_code():
-    code = request.args.get('code', type=str)
+    code = request.args.get("code", type=str)
     if code is None:
-        return redirect(url_for('index_admin', area_id=area_id_, worktype_id=worktype_id_))
+        return redirect(
+            url_for("index_admin", area_id=area_id_, worktype_id=worktype_id_)
+        )
 
     token = get_token(code)
     disk = yadisk.YaDisk(token=token)
     if not disk.check_token():
-        flash('Неверный токен для Яндекс Диска', category='error')
-        return redirect(url_for('index_admin', area_id=area_id_, worktype_id=worktype_id_))
+        flash("Неверный токен для Яндекс Диска", category="error")
+        return redirect(
+            url_for("index_admin", area_id=area_id_, worktype_id=worktype_id_)
+        )
 
-    table_name = table_path.split('/')[-1]
-    disk.download(table_path, FOLDER_FOR_TABLE + table_name)
+    table_name = table_path.split("/")[-1]
+    try:
+        disk.download(table_path, FOLDER_FOR_TABLE + table_name)
+    except yadisk.exceptions.PathNotFoundError:
+        os.remove(FOLDER_FOR_TABLE + table_name)
 
-    edit_table(path_to_table=(FOLDER_FOR_TABLE + table_name),
-               sheet_name=sheet_name_,
-               area_id=area_id_,
-               worktype_id=worktype_id_)
+    edit_table(
+        path_to_table=(FOLDER_FOR_TABLE + table_name),
+        sheet_name=sheet_name_,
+        area_id=area_id_,
+        worktype_id=worktype_id_,
+    )
 
-    disk.upload(FOLDER_FOR_TABLE + table_name, table_path, overwrite=True)
+    try:
+        disk.upload(FOLDER_FOR_TABLE + table_name, table_path, overwrite=True)
+    except yadisk.exceptions.ParentNotFoundError:
+        flash("Указанный путь не существует на диске", category="error")
 
-    return redirect(url_for('index_admin', area_id=area_id_, worktype_id=worktype_id_))
+    os.remove(FOLDER_FOR_TABLE + table_name)
+    return redirect(url_for("index_admin", area_id=area_id_, worktype_id=worktype_id_))
