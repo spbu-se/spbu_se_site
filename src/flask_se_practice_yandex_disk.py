@@ -1,38 +1,27 @@
 # -*- coding: utf-8 -*-
+# https://yandex.ru/dev/id/doc/ru/codes/code-url
 
 import base64
 import json
 import os
-
 import requests
 import yadisk
 
-from flask import redirect, url_for, request, flash
+from flask import redirect, url_for, request, flash, session, get_flashed_messages
 from flask_se_auth import login_required
 from flask_se_practice_table import edit_table
+from flask_se_practice_config import FOLDER_FOR_TABLE, CLIENT_ID, CLIENT_SECRET
 
-# https://yandex.ru/dev/id/doc/ru/codes/code-url
-
-CLIENT_ID = "10e079e42b49492295a39e2767e7b049"
-CLIENT_SECRET = "621eab823cdf4649868b6e317963a054"
-FOLDER_FOR_TABLE = "static/practice/result_table/"
-
-table_path = ""
-sheet_name_ = ""
-area_id_ = -1
-worktype_id_ = -1
+COLUMN_NAMES = None
 
 
-def handle_yandex_table(table_name, sheet_name, area_id, worktype_id):
-    global table_path
-    global area_id_
-    global worktype_id_
-    global sheet_name_
-    table_path = table_name
-    area_id_ = area_id
-    worktype_id_ = worktype_id
-    sheet_name_ = sheet_name
-
+def handle_yandex_table(table_name, sheet_name, area_id, worktype_id, column_names):
+    session["table_path"] = table_name
+    session["sheet_name"] = sheet_name
+    session["area_id"] = area_id
+    session["worktype_id"] = worktype_id
+    global COLUMN_NAMES
+    COLUMN_NAMES = column_names
     return get_code()
 
 
@@ -70,10 +59,12 @@ def get_token(code):
 
 @login_required
 def yandex_code():
+    area_id = session.get("area_id")
+    worktype_id = session.get("worktype_id")
     code = request.args.get("code", type=str)
     if code is None:
         return redirect(
-            url_for("index_admin", area_id=area_id_, worktype_id=worktype_id_)
+            url_for("index_admin", area_id=area_id, worktype_id=worktype_id)
         )
 
     token = get_token(code)
@@ -81,9 +72,10 @@ def yandex_code():
     if not disk.check_token():
         flash("Неверный токен для Яндекс Диска", category="error")
         return redirect(
-            url_for("index_admin", area_id=area_id_, worktype_id=worktype_id_)
+            url_for("index_admin", area_id=area_id, worktype_id=worktype_id)
         )
 
+    table_path = session.get("table_path")
     table_name = table_path.split("/")[-1]
     try:
         disk.download(table_path, FOLDER_FOR_TABLE + table_name)
@@ -92,9 +84,10 @@ def yandex_code():
 
     edit_table(
         path_to_table=(FOLDER_FOR_TABLE + table_name),
-        sheet_name=sheet_name_,
-        area_id=area_id_,
-        worktype_id=worktype_id_,
+        sheet_name=session.get("sheet_name"),
+        area_id=area_id,
+        worktype_id=worktype_id,
+        column_names=COLUMN_NAMES,
     )
 
     try:
@@ -103,4 +96,10 @@ def yandex_code():
         flash("Указанный путь не существует на диске", category="error")
 
     os.remove(FOLDER_FOR_TABLE + table_name)
-    return redirect(url_for("index_admin", area_id=area_id_, worktype_id=worktype_id_))
+    flashed_messages = get_flashed_messages(category_filter=["error"])
+    if len(flashed_messages) > 0:
+        for message in flashed_messages:
+            flash(message, category="error")
+    else:
+        flash("Таблица успешно загружена на Яндекс Диск", category="success")
+    return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
