@@ -391,25 +391,36 @@ login_manager.init_app(app)
 # Init markdown
 Markdown(app, extensions=["tables"])
 
+def recalculate_post_rank_wrapper():
+    with app.app_context():
+        recalculate_post_rank()
+
+def notification_send_mail_wrapper():
+    with app.app_context():
+        notification_send_mail()
+
+def notification_send_diploma_themes_on_review_wrapper():
+    with app.app_context():
+        notification_send_diploma_themes_on_review()
 
 # Init APScheduler
 app.config["SCHEDULER_TIMEZONE"] = "UTC"
 scheduler = APScheduler()
 scheduler.add_job(
     id="RecalculatePostRank",
-    func=recalculate_post_rank,
+    func=recalculate_post_rank_wrapper,
     trigger="interval",
     seconds=3600,
 )
 scheduler.add_job(
     id="SendMailNotification",
-    func=notification_send_mail,
+    func=notification_send_mail_wrapper,
     trigger="interval",
     seconds=10,
 )
 scheduler.add_job(
     id="SendDiplomaThemesOnReviewNotification",
-    func=notification_send_diploma_themes_on_review,
+    func=notification_send_diploma_themes_on_review_wrapper,
     trigger="interval",
     seconds=86400,
 )
