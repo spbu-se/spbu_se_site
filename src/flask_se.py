@@ -391,17 +391,21 @@ login_manager.init_app(app)
 # Init markdown
 Markdown(app, extensions=["tables"])
 
+
 def recalculate_post_rank_wrapper():
     with app.app_context():
         recalculate_post_rank()
+
 
 def notification_send_mail_wrapper():
     with app.app_context():
         notification_send_mail()
 
+
 def notification_send_diploma_themes_on_review_wrapper():
     with app.app_context():
         notification_send_diploma_themes_on_review()
+
 
 # Init APScheduler
 app.config["SCHEDULER_TIMEZONE"] = "UTC"
