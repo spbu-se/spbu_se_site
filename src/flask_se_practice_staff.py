@@ -60,7 +60,11 @@ def index_staff(user_staff):
 @login_required
 @user_is_staff
 def finished_thesises_staff(user_staff):
-    current_thesises = CurrentThesis.query.filter_by(supervisor_id=user_staff.id).filter_by(status=2).all()
+    current_thesises = (CurrentThesis.query
+                        .filter_by(supervisor_id=user_staff.id)
+                        .filter_by(status=2)
+                        .filter_by(deleted=False)
+                        .all())
     return render_template(PracticeStaffTemplates.FINISHED_THESISES.value, thesises=current_thesises)
 
 

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 import io
+from enum import Enum
 from functools import wraps
 
 import pytz
-from flask import flash, redirect, request, render_template, url_for, send_file
+from flask import flash, redirect, request, render_template, url_for, send_file, session
 from datetime import datetime
 from flask_login import current_user
 from pytz import timezone
@@ -12,7 +13,7 @@ from zipfile import ZipFile
 from transliterate import translit
 
 from flask_se_auth import login_required
-from se_forms import DeadlineTemp, CurrentWorktypeArea
+from se_forms import DeadlineTemp
 from se_models import (
     AreasOfStudy,
     CurrentThesis,
@@ -36,6 +37,12 @@ from flask_se_practice_config import TABLE_COLUMNS, ARCHIVE_FOLDER
 FORMAT_DATE_TIME = "%d.%m.%Y %H:%M"
 
 
+class PracticeAdminPage(Enum):
+    CURRENT_THESISES = "current_thesises"
+    FINISHED_THESISES = "finished_thesises"
+    THESIS = "thesis"
+
+
 def user_is_staff(func):
     @wraps(func)
     def check_user_is_staff_decorator(*args, **kwargs):
@@ -49,37 +56,15 @@ def user_is_staff(func):
 
 @login_required
 @user_is_staff
-def choose_worktype_admin():
-    source = request.args.get("source", type=str)
-    if request.method == "POST":
-        area_id = request.form.get("area", type=int)
-        worktype_id = request.form.get("worktype", type=int)
-        if worktype_id == 0:
-            flash("Выберите тип работы.", category="error")
-        elif area_id == 0:
-            flash("Выберите направление.", category="error")
-        else:
-            return redirect(
-                url_for(
-                    source if source is not None else "index_admin",
-                    area_id=area_id,
-                    worktype_id=worktype_id,
-                )
-            )
+def choose_area_and_worktype_admin():
+    area_id = request.args.get("area_id", type=int)
+    worktype_id = request.args.get("worktype_id", type=int)
 
-    form = CurrentWorktypeArea()
-    form.area.choices.append((0, "Выберите направление"))
-    for area in (
-        AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
-    ):
-        form.area.choices.append((area.id, area.area))
-    form.worktype.choices.append((0, "Выберите тип работы"))
-    for worktype in Worktype.query.filter(Worktype.id > 2).all():
-        form.worktype.choices.append((worktype.id, worktype.type))
-
-    return render_template(
-        PracticeAdminTemplates.CHOOSE_WORKTYPE.value, form=form, source=source
-    )
+    previous_page = session.get("previous_page")
+    if previous_page == PracticeAdminPage.CURRENT_THESISES.value:
+        return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
+    elif previous_page == PracticeAdminPage.FINISHED_THESISES.value:
+        return redirect(url_for("finished_thesises_admin", area_id=area_id, worktype_id=worktype_id))
 
 
 @login_required
@@ -145,6 +130,7 @@ def index_admin():
         AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     )
     list_of_worktypes = Worktype.query.filter(Worktype.id > 2).all()
+    session["previous_page"] = PracticeAdminPage.CURRENT_THESISES.value
     return render_template(
         PracticeAdminTemplates.CURRENT_THESISES.value,
         area=area,
@@ -215,22 +201,50 @@ def thesis_admin():
     current_thesis_id = request.args.get("id", type=int)
     if not current_thesis_id:
         return redirect(url_for("index_admin"))
+
     current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
     if not current_thesis:
         return redirect(url_for("index_admin"))
+
+    list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
+    list_of_worktypes = Worktype.query.filter(Worktype.id > 2).all()
+    session["previous_page"] = PracticeAdminPage.THESIS.value
+    return render_template(
+        PracticeAdminTemplates.THESIS.value,
+        area=current_thesis.area,
+        worktype=current_thesis.worktype,
+        list_of_areas=list_of_areas,
+        list_of_worktypes=list_of_worktypes,
+        thesis=current_thesis,
+    )
+
+
+@login_required
+@user_is_staff
+def finished_thesises_admin():
     area_id = request.args.get("area_id", type=int)
     worktype_id = request.args.get("worktype_id", type=int)
-    if not area_id or not worktype_id:
-        return redirect(url_for("choose_worktype_admin", source=index_admin.__name__))
     area = AreasOfStudy.query.filter_by(id=area_id).first()
     worktype = Worktype.query.filter_by(id=worktype_id).first()
 
-    return render_template(
-        PracticeAdminTemplates.THESIS.value,
-        thesis=current_thesis,
-        area=area,
-        worktype=worktype,
+    current_thesises = (CurrentThesis.query
+                        .filter_by(area_id=area_id)
+                        .filter_by(worktype_id=worktype_id)
+                        .filter_by(status=2)
+                        .filter_by(deleted=False)
+                        .all())
+
+    list_of_areas = (
+        AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     )
+    list_of_worktypes = Worktype.query.filter(Worktype.id > 2).all()
+    session["previous_page"] = PracticeAdminPage.FINISHED_THESISES.value
+    return render_template(PracticeAdminTemplates.FINISHED_THESISES.value,
+                           area=area,
+                           worktype=worktype,
+                           list_of_areas=list_of_areas,
+                           list_of_worktypes=list_of_worktypes,
+                           thesises=current_thesises)
 
 
 @login_required

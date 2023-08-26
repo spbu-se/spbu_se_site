@@ -59,7 +59,7 @@
                                     <input id="sheet-name-input" type="text" class="form-control" placeholder="Название листа таблицы" name="sheet_name">
                                 </div>
 
-                                
+
                                 <a id="arrow-column-name" data-toggle="collapse" href="#collapseColumnNames" role="button" aria-expanded="false" aria-controls="collapseColumnNames" onclick="ChangeArrow()">
                                     Настроить названия столбцов в таблице
                                     <i id="iconUp" data-feather="chevron-up" style="display: none"></i>
@@ -121,7 +121,7 @@
     <div class="card border-0 mb-3">
         <div class="card-header">
             <h6 class="mb-0">
-                <a href="{{ url_for('thesis_admin', id=thesis.id, area_id=area.id, worktype_id=worktype.id) }}" class="link text-primary">
+                <a href="{{ url_for('thesis_admin', id=thesis.id) }}" class="link text-primary">
                     <strong>{{ thesis.title }}</strong>
                 </a>
             </h6>
