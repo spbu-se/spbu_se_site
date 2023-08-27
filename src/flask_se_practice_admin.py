@@ -33,6 +33,8 @@ from flask_se_config import get_thesis_type_id_string
 from templates.practice.admin.templates import PracticeAdminTemplates
 from flask_se_practice_yandex_disk import handle_yandex_table
 from flask_se_practice_config import TABLE_COLUMNS, ARCHIVE_FOLDER
+from templates.notification.templates import NotificationTemplates
+
 
 FORMAT_DATE_TIME = "%d.%m.%Y %H:%M"
 
@@ -65,6 +67,8 @@ def choose_area_and_worktype_admin():
         return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
     elif previous_page == PracticeAdminPage.FINISHED_THESISES.value:
         return redirect(url_for("finished_thesises_admin", area_id=area_id, worktype_id=worktype_id))
+
+    return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
 
 
 @login_required
@@ -206,8 +210,31 @@ def thesis_admin():
     if not current_thesis:
         return redirect(url_for("index_admin"))
 
+    if request.method == 'POST':
+        if 'submit_notification_button' in request.form:
+            notification_content = request.form['content']
+
+            mail_notification = render_template(NotificationTemplates.NOTIFICATION_FROM_CURATOR.value,
+                                                curator=current_user,
+                                                thesis=current_thesis,
+                                                content=notification_content)
+            add_mail_notification(current_thesis.author_id, "[SE site] Уведомление от руководителя практики",
+                                  mail_notification)
+
+            notification = NotificationPractice(recipient_id=current_thesis.author_id, content=notification_content)
+            db.session.add(notification)
+            db.session.commit()
+            flash('Уведомление отправлено!', category="success")
+        elif 'submit_finish_work_button' in request.form:
+            current_thesis.status = 2
+            db.session.commit()
+        elif 'submit_restore_work_button' in request.form:
+            current_thesis.status = 1
+            db.session.commit()
+
     list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     list_of_worktypes = Worktype.query.filter(Worktype.id > 2).all()
+    not_deleted_tasks = [task for task in current_thesis.tasks if not task.deleted]
     session["previous_page"] = PracticeAdminPage.THESIS.value
     return render_template(
         PracticeAdminTemplates.THESIS.value,
@@ -216,6 +243,7 @@ def thesis_admin():
         list_of_areas=list_of_areas,
         list_of_worktypes=list_of_worktypes,
         thesis=current_thesis,
+        tasks=not_deleted_tasks
     )
 
 
