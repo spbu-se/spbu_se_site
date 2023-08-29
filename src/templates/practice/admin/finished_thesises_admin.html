@@ -30,8 +30,7 @@
         </div>
         <div class="card-body pt-2 pb-3">
             <p class="text-sm mb-0">Студент: {{ thesis.user.get_name() }}</p>
-            <p class="text-sm mb-0">Тип работы: {{ thesis.worktype }}</p>
-            <p class="text-sm mb-2">Направление: {{ thesis.area }}</p>
+            <p class="text-sm mb-0">Научный руководитель: {{ thesis.supervisor }}</p>
         </div>
     </div>
     {% endfor %}

@@ -774,9 +774,10 @@ if (internships_filter_element){
 }
 
 // Coursework
-let coursework_filter_element = document.getElementById('PrepareToDefense');
+let practice_student_filter_element = document.getElementById('practice-student-title');
+let practice_admin_filter_element = document.getElementById('practice-admin-title');
 
-if (coursework_filter_element){
+if (practice_student_filter_element || practice_admin_filter_element){
     $('[data-toggle="popoverhover"]').popover({ trigger: "hover" });
 }
 

@@ -6,11 +6,35 @@
 
 <div class="container">
 
-    <div class="row">
+    <div class="row mb-2">
         <div class="col">
-            <h5>{{thesis.title}}</h5>
+            <h5 class="mb-0">{{thesis.title}}</h5>
+            <a href="#" id="editTitleButton" class="text-sm" onclick="editTitle(); return false;">Редактировать тему</a>
         </div>
     </div>
+
+    <form method="POST" action="{{ url_for('thesis_admin', id=thesis.id) }}">
+        <div id="editTitleInput" class="row" style="display: none">
+            <div class="col">
+                <div class="card border-0 mb-2">
+                    <div class="card-body py-3">
+                        <h6 class="mb-0">Редактировать тему</h6>
+                        <div class="form-group mb-0 mt-2">
+                            <input name="title_input" type="text" class="form-control" placeholder="Название темы" value="{{ thesis.title }}">
+                        </div>
+                        <div id="editThemeButtonDiv" class="row" >
+                            <div class="col d-flex justify-content-between">
+                                <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_edit_title_button" value="Изменить">
+                                <a class="btn btn-sm btn-outline-danger mt-2"
+                                   onclick="cancelEditingTask();">Отмена</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
     <div class="row">
         <div class="col">
             <p class="mb-0">Студент: <b>{{ thesis.user.get_name() }}</b></p>
@@ -214,6 +238,16 @@
     {
         document.title = "{{ thesis.title }}";
     });
+
+    function editTitle() {
+        document.getElementById("editTitleButton").style.display = "none";
+        document.getElementById("editTitleInput").style.display = "block";
+    }
+
+    function cancelEditingTask() {
+        document.getElementById("editTitleButton").style.display = "block";
+        document.getElementById("editTitleInput").style.display = "none";
+    }
 </script>
 
 {% endblock %}

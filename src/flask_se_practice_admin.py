@@ -225,6 +225,15 @@ def thesis_admin():
             db.session.add(notification)
             db.session.commit()
             flash('Уведомление отправлено!', category="success")
+        elif 'submit_edit_title_button' in request.form:
+            new_title = request.form["title_input"]
+            notification_content = f"Руководитель практики изменил название Вашей работы \"{current_thesis.title}\" на \"{new_title}\""
+            current_thesis.title = new_title
+            add_mail_notification(current_thesis.author_id, "[SE site] Уведомление от руководителя практики",
+                                  notification_content)
+            notification = NotificationPractice(recipient_id=current_thesis.author_id, content=notification_content)
+            db.session.add(notification)
+            db.session.commit()
         elif 'submit_finish_work_button' in request.form:
             current_thesis.status = 2
             db.session.commit()
