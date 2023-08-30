@@ -88,7 +88,7 @@
      </div>
     {% endif %}
 
-    {% if thesis.text_uri or thesis.text_link or thesis.supervisor_review_uri or thesis.reviewer_review_uri or thesis.presentation_uri or thesis.presentation_link %}
+    {% if thesis.text_uri or thesis.text_link or thesis.supervisor_review_uri or thesis.reviewer_review_uri or thesis.presentation_uri or thesis.presentation_link or thesis.code_link%}
     <div class="row">
         <div class="col">
             <div class="card border-0 mb-3">
@@ -171,6 +171,28 @@
                             </a>
                         </div>
                     </div>
+                    {% endif %}
+
+                    {% if thesis.code_link %}
+                    <div class="row px-2 mt-2">
+                        <div class="col-10">
+                            <a href="{{ thesis.code_link }}" target="_blank">
+                                <div class="icon icon-sm icon-shape bg-soft-success text-success mr-2">
+                                        <i class="fas fa-file-archive"></i>
+                                    </div>
+                                Ссылка на реализацию: {{ thesis.code_link }}
+                            </a>
+                        </div>
+                    </div>
+                    {% if thesis.code_link %}
+                    <div class="row px-2">
+                        <div class="col-10">
+                            <div>
+                                <b>Имя аккаунта:</b> {{ thesis.account_name }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                     {% endif %}
 
                 </div>

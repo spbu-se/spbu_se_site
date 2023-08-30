@@ -212,15 +212,20 @@ def thesis_admin():
 
     if request.method == 'POST':
         if 'submit_notification_button' in request.form:
-            notification_content = request.form['content']
+            if request.form["content"] in {None, ""}:
+                flash("Нельзя отправить пустое уведомление!", category="error")
+                return redirect(url_for("thesis_staff", id=current_thesis.id))
 
             mail_notification = render_template(NotificationTemplates.NOTIFICATION_FROM_CURATOR.value,
                                                 curator=current_user,
                                                 thesis=current_thesis,
-                                                content=notification_content)
+                                                content=request.form['content'])
             add_mail_notification(current_thesis.author_id, "[SE site] Уведомление от руководителя практики",
                                   mail_notification)
 
+            notification_content = (f"Руководитель практики {current_user.get_name()} "
+                                    f"отправил Вам уведомление по работе \"{current_thesis.title}\": "
+                                    f"{request.form['content']}")
             notification = NotificationPractice(recipient_id=current_thesis.author_id, content=notification_content)
             db.session.add(notification)
             db.session.commit()

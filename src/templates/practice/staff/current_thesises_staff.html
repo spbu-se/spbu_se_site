@@ -55,7 +55,8 @@
                         {% if thesis.supervisor_review_uri %}{% set sum = sum + 1 %}{% endif %}
                         {% if thesis.reviewer_review_uri %}{% set sum = sum + 1 %}{% endif %}
                         {% if thesis.presentation_uri %}{% set sum = sum + 1 %}{% endif %}
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ (sum / 7 * 100)|round|int }}%" aria-valuemin="0" aria-valuemax="100"></div>
+                        {% if thesis.code_link %}{% set sum = sum + 1 %}{% endif %}
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ (sum / 8 * 100)|round|int }}%" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
                 <div class="col-1 my-auto">
@@ -136,6 +137,16 @@
                             <i class="mr-1" data-feather="circle"></i>
                             {% endif %}
                             Презентация загружена
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            {% if thesis.code_link %}
+                            <i class="text-success mr-1" data-feather="check-circle"></i>
+                            {% else %}
+                            <i class="mr-1" data-feather="circle"></i>
+                            {% endif %}
+                            Ссылка на реализацию загружена
                         </div>
                     </div>
                 </div>

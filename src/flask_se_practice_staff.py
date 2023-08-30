@@ -14,6 +14,7 @@ from se_forms import StaffAddCommentToReport
 from se_models import db, Staff, CurrentThesis, ThesisReport, NotificationPractice, add_mail_notification
 
 from templates.practice.staff.templates import PracticeStaffTemplates
+from templates.notification.templates import NotificationTemplates
 
 DATE_AND_TIME_FORMAT = "%d.%m.%Y %H:%M"
 
@@ -74,13 +75,19 @@ def finished_thesises_staff(user_staff):
 def thesis_staff(user_staff, current_thesis):
     if request.method == 'POST':
         if 'submit_notification_button' in request.form:
-            notification_content = request.form['content']
+            if request.form["content"] in {None, ""}:
+                flash("Нельзя отправить пустое уведомление!", category="error")
+                return redirect(url_for("thesis_staff", id=current_thesis.id))
 
-            mail_notification = render_template('notification/notification_from_supervisor.html', supervisor=user_staff,
-                                                thesis=current_thesis, content=notification_content)
+            mail_notification = render_template(NotificationTemplates.NOTIFICATION_FROM_SUPERVISOR.value,
+                                                supervisor=user_staff,
+                                                thesis=current_thesis,
+                                                content=request.form['content'])
             add_mail_notification(current_thesis.author_id, "[SE site] Уведомление от научного руководителя",
                                   mail_notification)
-
+            notification_content = (f"Научный руководитель {user_staff.user.get_name()} "
+                                    f"отправил Вам уведомление по работе \"{current_thesis.title}\": "
+                                    f"{request.form['content']}")
             notification = NotificationPractice(recipient_id=current_thesis.author_id, content=notification_content)
             db.session.add(notification)
             db.session.commit()
