@@ -540,7 +540,7 @@ def practice_preparation(current_thesis):
                 reviewer_review.save(full_filename)
                 current_thesis.reviewer_review_uri = filename
                 db.session.commit()
-                flash("Отзыв рецензента успешно загружен!", category="success")
+                flash("Отзыв консультанта успешно загружен!", category="success")
 
         elif "submit_presentation_button" in request.form:
             presentation_file = (

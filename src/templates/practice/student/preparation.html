@@ -48,7 +48,7 @@
                         {% if practice.text_uri %}
                         <div class="row px-2 mt-2">
                             <div class="col-10">
-                                <a href="{{ url_for('static', filename='/currentThesis/texts/' + practice.text_uri) }}" target="_blank">
+                                <a href="{{ url_for('static', filename='/practice/texts/' + practice.text_uri) }}" target="_blank">
                                     <div class="icon icon-sm icon-shape bg-soft-success text-success mr-2">
                                         <i class="fas fa-file-pdf"></i>
                                     </div>
@@ -172,7 +172,7 @@
                         {% if practice.supervisor_review_uri %}
                         <div class="row px-2 mt-2">
                             <div class="col-10">
-                                <a href="{{ url_for('static', filename='/currentThesis/reviews/' + practice.supervisor_review_uri) }}" target="_blank">
+                                <a href="{{ url_for('static', filename='/practice/reviews/' + practice.supervisor_review_uri) }}" target="_blank">
                                     <div class="icon icon-sm icon-shape bg-soft-primary text-primary mr-2">
                                         <i class="fas fa-file-alt"></i>
                                     </div>
@@ -214,11 +214,11 @@
                         {% if practice.reviewer_review_uri %}
                         <div class="row px-2 mt-2">
                             <div class="col-10">
-                                <a href="{{ url_for('static', filename='/currentThesis/reviews/' + practice.reviewer_review_uri) }}" target="_blank">
+                                <a href="{{ url_for('static', filename='/practice/reviews/' + practice.reviewer_review_uri) }}" target="_blank">
                                     <div class="icon icon-sm icon-shape bg-soft-primary text-primary mr-2">
                                         <i class="fas fa-file-alt"></i>
                                     </div>
-                                    Отзыв рецензента
+                                    Отзыв консультанта
                                 </a>
                             </div>
                             <div class="col-2">
@@ -240,7 +240,7 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                Вы точно хотите удалить отзыв рецензента?
+                                                Вы точно хотите удалить отзыв консультанта?
                                             </div>
                                             <div class="modal-footer">
                                                 <input type="submit" class="btn btn-secondary" name="delete_reviewer_review_button" value="Да, удалить!">
@@ -274,7 +274,7 @@
                                     <input type="file" name="consultant_review" id="consultant_review" class="custom-input-file" />
                                     <label for="consultant_review">
                                         <i data-feather="upload"></i>
-                                        <span>Загрузить отзыв рецензента (в формате .PDF)</span>
+                                        <span>Загрузить отзыв консультанта (в формате .PDF)</span>
                                     </label>
                                 </div>
                             </div>
@@ -298,7 +298,7 @@
                         {% if practice.presentation_uri %}
                         <div class="row px-2 mt-2">
                             <div class="col-10">
-                                <a href="{{ url_for('static', filename='/currentThesis/slides/' + practice.presentation_uri) }}" target="_blank">
+                                <a href="{{ url_for('static', filename='/practice/slides/' + practice.presentation_uri) }}" target="_blank">
                                     <div class="icon icon-sm icon-shape bg-soft-warning text-warning mr-2">
                                         <i class="fas fa-file-powerpoint"></i>
                                     </div>
