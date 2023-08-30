@@ -43,10 +43,36 @@
 
                             <h6>Выбранная тема</h6>
                             <h5>{{ practice.title }}</h5>
-                            <p>Научный руководитель: <b>{{practice.supervisor}}</b>
-                                <br>Тип работы: <b>{{practice.worktype}}</b></p>
+                            <p class="mb-0">
+                                Научный руководитель: <b>{{practice.supervisor}}</b>
+                                {% if practice.consultant %}
+                                <br>
+                                Консультант: <b>{{practice.consultant}}</b>
+                                {% endif %}
+                                <br>
+                                Тип работы: <b>{{practice.worktype}}</b>
+                                <br>
+                                {% if not practice.consultant %}
+                                <a href="#" id="addConsultantButton" onclick="addConsultant(); return false;">Добавить консультанта</a>
+                                {% endif %}
+                            </p>
 
-                            <div class="row">
+                            <div id="addConsultantInput" class="row" style="display: none">
+                                <div class="col">
+                                    <div class="form-group mb-0 mt-1">
+                                        <input name="add_consultant_input" type="text" class="form-control" placeholder="ФИО консультанта, должность и компания">
+                                    </div>
+                                    <div id="editThemeButtonDiv" class="row" >
+                                        <div class="col d-flex justify-content-between">
+                                            <input type="submit" class="btn btn-sm btn-primary mt-2" name="add_consultant_button" value="Сохранить">
+                                            <a class="btn btn-sm btn-outline-danger mt-2"
+                                               onclick="cancelAddingConsultant(); return false;">Отмена</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="editAndRefuseButton" class="row mt-3" >
                                 <div class="col">
                                     <a id="edit_topic_button" name="{{ practice.id }}" class="btn btn-sm btn-primary" href="{{ url_for('practice_edit_theme', id=practice.id) }}">Редактировать</a>
                                 </div>
@@ -126,4 +152,17 @@
 
 </div>
 
+<script>
+    function addConsultant() {
+        document.getElementById("addConsultantInput").style.display = "block";
+        document.getElementById("addConsultantButton").style.display = "none";
+        document.getElementById("editAndRefuseButton").style.display = "none";
+    }
+
+    function cancelAddingConsultant() {
+        document.getElementById("addConsultantInput").style.display = "none";
+        document.getElementById("addConsultantButton").style.display = "block";
+        document.getElementById("editAndRefuseButton").style.display = "";
+    }
+</script>
 {% endblock %}

@@ -179,6 +179,11 @@ def practice_choosing_topic(current_thesis):
                     ),
                 )
 
+        elif "add_consultant_button" in request.form:
+            current_thesis.consultant = request.form["add_consultant_input"]
+            db.session.commit()
+            flash("Консультант добавлен!", category="success")
+
         elif "delete_topic_button" in request.form:
             current_thesis.title = None
             current_thesis.supervisor_id = None
@@ -216,6 +221,7 @@ def practice_edit_theme(current_thesis):
         if "save_topic_button" in request.form:
             topic = request.form.get("topic", type=str)
             supervisor_id = request.form.get("staff", type=int)
+            consultant = request.form.get("consultant", type=str)
 
             if not topic:
                 flash("Введите название темы.", category="error")
@@ -225,6 +231,7 @@ def practice_edit_theme(current_thesis):
                 flash("Выберите научного руководителя.", category="error")
             else:
                 current_thesis.title = topic
+                current_thesis.consultant = consultant
                 if current_thesis.supervisor_id != supervisor_id:
                     add_mail_notification(
                         supervisor_id,
@@ -244,6 +251,7 @@ def practice_edit_theme(current_thesis):
     form = ChooseTopic()
     form.topic.data = current_thesis.title
     form.staff.choices.append((current_thesis.supervisor_id, current_thesis.supervisor))
+    form.consultant.data = current_thesis.consultant
     for supervisor in (
         Staff.query.join(Users, Staff.user_id == Users.id)
         .filter(Staff.id != current_thesis.supervisor_id)
