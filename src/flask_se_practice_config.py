@@ -16,6 +16,8 @@ TABLE_COLUMNS = {
     "text": "Текст",
     "supervisor_review": "Отзыв научника",
     "reviewer_review": "Отзыв консультанта",
+    "code": "Код",
+    "committer": "Имя коммитера",
     "presentation": "Презентация",
 }
 
@@ -35,3 +37,5 @@ MIN_LENGTH_OF_TASK = 15
 
 MIN_LENGTH_OF_FIELD_WAS_DONE = 10
 MIN_LENGTH_OF_FIELD_PLANNED_TO_DO = 10
+
+FORMAT_DATE_TIME = "%d.%m.%Y %H:%M"

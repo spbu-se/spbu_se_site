@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+
 import os
 import io
 from enum import Enum
 from functools import wraps
-
 import pytz
+
 from flask import flash, redirect, request, render_template, url_for, send_file, session
 from datetime import datetime
 from flask_login import current_user
@@ -24,19 +25,18 @@ from se_models import (
     add_mail_notification,
     Staff,
 )
-from flask_se_practice import (
-    TEXT_UPLOAD_FOLDER,
-    PRESENTATION_UPLOAD_FOLDER,
-    REVIEW_UPLOAD_FOLDER,
-)
 from flask_se_config import get_thesis_type_id_string
 from templates.practice.admin.templates import PracticeAdminTemplates
 from flask_se_practice_yandex_disk import handle_yandex_table
-from flask_se_practice_config import TABLE_COLUMNS, ARCHIVE_FOLDER
+from flask_se_practice_config import (
+    TABLE_COLUMNS,
+    ARCHIVE_FOLDER,
+    TEXT_UPLOAD_FOLDER,
+    PRESENTATION_UPLOAD_FOLDER,
+    REVIEW_UPLOAD_FOLDER,
+    FORMAT_DATE_TIME
+)
 from templates.notification.templates import NotificationTemplates
-
-
-FORMAT_DATE_TIME = "%d.%m.%Y %H:%M"
 
 
 class PracticeAdminPage(Enum):
@@ -64,9 +64,13 @@ def choose_area_and_worktype_admin():
 
     previous_page = session.get("previous_page")
     if previous_page == PracticeAdminPage.CURRENT_THESISES.value:
-        return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
+        return redirect(
+            url_for("index_admin", area_id=area_id, worktype_id=worktype_id)
+        )
     elif previous_page == PracticeAdminPage.FINISHED_THESISES.value:
-        return redirect(url_for("finished_thesises_admin", area_id=area_id, worktype_id=worktype_id))
+        return redirect(
+            url_for("finished_thesises_admin", area_id=area_id, worktype_id=worktype_id)
+        )
 
     return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
 
@@ -103,6 +107,8 @@ def index_admin():
                 "text": request.form.get("text_column", ""),
                 "supervisor_review": request.form.get("supervisor_review_column", ""),
                 "reviewer_review": request.form.get("reviewer_review_column", ""),
+                "code": request.form.get("code_column", ""),
+                "committer": request.form.get("committer_column", ""),
                 "presentation": request.form.get("presentation_column", ""),
             }
             for value in column_names.values():
@@ -133,14 +139,14 @@ def index_admin():
     list_of_areas = (
         AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     )
-    list_of_worktypes = Worktype.query.filter(Worktype.id > 2).all()
+    list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     session["previous_page"] = PracticeAdminPage.CURRENT_THESISES.value
     return render_template(
         PracticeAdminTemplates.CURRENT_THESISES.value,
         area=area,
         worktype=worktype,
         list_of_areas=list_of_areas,
-        list_of_worktypes=list_of_worktypes,
+        list_of_worktypes=list_of_work_types,
         list_of_thesises=list_of_thesises,
         table_columns=TABLE_COLUMNS,
     )
@@ -210,44 +216,61 @@ def thesis_admin():
     if not current_thesis:
         return redirect(url_for("index_admin"))
 
-    if request.method == 'POST':
-        if 'submit_notification_button' in request.form:
+    if request.method == "POST":
+        if "submit_notification_button" in request.form:
             if request.form["content"] in {None, ""}:
                 flash("Нельзя отправить пустое уведомление!", category="error")
                 return redirect(url_for("thesis_staff", id=current_thesis.id))
 
-            mail_notification = render_template(NotificationTemplates.NOTIFICATION_FROM_CURATOR.value,
-                                                curator=current_user,
-                                                thesis=current_thesis,
-                                                content=request.form['content'])
-            add_mail_notification(current_thesis.author_id, "[SE site] Уведомление от руководителя практики",
-                                  mail_notification)
+            mail_notification = render_template(
+                NotificationTemplates.NOTIFICATION_FROM_CURATOR.value,
+                curator=current_user,
+                thesis=current_thesis,
+                content=request.form["content"],
+            )
+            add_mail_notification(
+                current_thesis.author_id,
+                "[SE site] Уведомление от руководителя практики",
+                mail_notification,
+            )
 
-            notification_content = (f"Руководитель практики {current_user.get_name()} "
-                                    f"отправил Вам уведомление по работе \"{current_thesis.title}\": "
-                                    f"{request.form['content']}")
-            notification = NotificationPractice(recipient_id=current_thesis.author_id, content=notification_content)
+            notification_content = (
+                f"Руководитель практики {current_user.get_name()} "
+                f'отправил Вам уведомление по работе "{current_thesis.title}": '
+                f"{request.form['content']}"
+            )
+            notification = NotificationPractice(
+                recipient_id=current_thesis.author_id, content=notification_content
+            )
             db.session.add(notification)
             db.session.commit()
-            flash('Уведомление отправлено!', category="success")
-        elif 'submit_edit_title_button' in request.form:
+            flash("Уведомление отправлено!", category="success")
+        elif "submit_edit_title_button" in request.form:
             new_title = request.form["title_input"]
-            notification_content = f"Руководитель практики изменил название Вашей работы \"{current_thesis.title}\" на \"{new_title}\""
+            notification_content = ("Руководитель практики изменил название Вашей работы " +
+                                    f"\"{current_thesis.title}\" на \"{new_title}\"")
             current_thesis.title = new_title
-            add_mail_notification(current_thesis.author_id, "[SE site] Уведомление от руководителя практики",
-                                  notification_content)
-            notification = NotificationPractice(recipient_id=current_thesis.author_id, content=notification_content)
+            add_mail_notification(
+                current_thesis.author_id,
+                "[SE site] Уведомление от руководителя практики",
+                notification_content,
+            )
+            notification = NotificationPractice(
+                recipient_id=current_thesis.author_id, content=notification_content
+            )
             db.session.add(notification)
             db.session.commit()
-        elif 'submit_finish_work_button' in request.form:
+        elif "submit_finish_work_button" in request.form:
             current_thesis.status = 2
             db.session.commit()
-        elif 'submit_restore_work_button' in request.form:
+        elif "submit_restore_work_button" in request.form:
             current_thesis.status = 1
             db.session.commit()
 
-    list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
-    list_of_worktypes = Worktype.query.filter(Worktype.id > 2).all()
+    list_of_areas = (
+        AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
+    )
+    list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     not_deleted_tasks = [task for task in current_thesis.tasks if not task.deleted]
     session["previous_page"] = PracticeAdminPage.THESIS.value
     return render_template(
@@ -255,9 +278,9 @@ def thesis_admin():
         area=current_thesis.area,
         worktype=current_thesis.worktype,
         list_of_areas=list_of_areas,
-        list_of_worktypes=list_of_worktypes,
+        list_of_worktypes=list_of_work_types,
         thesis=current_thesis,
-        tasks=not_deleted_tasks
+        tasks=not_deleted_tasks,
     )
 
 
@@ -269,24 +292,27 @@ def finished_thesises_admin():
     area = AreasOfStudy.query.filter_by(id=area_id).first()
     worktype = Worktype.query.filter_by(id=worktype_id).first()
 
-    current_thesises = (CurrentThesis.query
-                        .filter_by(area_id=area_id)
-                        .filter_by(worktype_id=worktype_id)
-                        .filter_by(status=2)
-                        .filter_by(deleted=False)
-                        .all())
+    current_thesises = (
+        CurrentThesis.query.filter_by(area_id=area_id)
+        .filter_by(worktype_id=worktype_id)
+        .filter_by(status=2)
+        .filter_by(deleted=False)
+        .all()
+    )
 
     list_of_areas = (
         AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     )
-    list_of_worktypes = Worktype.query.filter(Worktype.id > 2).all()
+    list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     session["previous_page"] = PracticeAdminPage.FINISHED_THESISES.value
-    return render_template(PracticeAdminTemplates.FINISHED_THESISES.value,
-                           area=area,
-                           worktype=worktype,
-                           list_of_areas=list_of_areas,
-                           list_of_worktypes=list_of_worktypes,
-                           thesises=current_thesises)
+    return render_template(
+        PracticeAdminTemplates.FINISHED_THESISES.value,
+        area=area,
+        worktype=worktype,
+        list_of_areas=list_of_areas,
+        list_of_worktypes=list_of_work_types,
+        thesises=current_thesises,
+    )
 
 
 @login_required

@@ -124,12 +124,17 @@ def get_all_thesises(area_id, worktype_id) -> list:
     return thesises
 
 
-def add_new_data_to_table(row: pd.Series, current_thesis: CurrentThesis, user: Users, column_names):
+def add_new_data_to_table(
+    row: pd.Series, current_thesis: CurrentThesis, user: Users, column_names
+):
     update_if_cell_is_empty(row, column_names["name"], user.get_name())
     update_if_cell_is_empty(row, column_names["theme"], current_thesis.title)
     update_if_cell_is_empty(row, column_names["supervisor"], current_thesis.supervisor)
+    update_if_cell_is_empty(row, column_names["consultant"], current_thesis.consultant)
     update_if_cell_is_empty(row, column_names["how_to_contact"], user.how_to_contact)
-    update_if_cell_is_empty(row, column_names["text"], "да" if current_thesis.text_uri else "")
+    update_if_cell_is_empty(
+        row, column_names["text"], "да" if current_thesis.text_uri else ""
+    )
     update_if_cell_is_empty(
         row,
         column_names["supervisor_review"],
@@ -140,6 +145,8 @@ def add_new_data_to_table(row: pd.Series, current_thesis: CurrentThesis, user: U
         column_names["reviewer_review"],
         "да" if current_thesis.reviewer_review_uri else "",
     )
+    update_if_cell_is_empty(row, column_names["code"], current_thesis.code_link)
+    update_if_cell_is_empty(row, column_names["committer"], current_thesis.account_name)
     update_if_cell_is_empty(
         row,
         column_names["presentation"],
