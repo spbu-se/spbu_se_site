@@ -25,6 +25,7 @@ from se_models import (
     add_mail_notification,
     Staff,
 )
+
 from flask_se_config import get_thesis_type_id_string
 from templates.practice.admin.templates import PracticeAdminTemplates
 from flask_se_practice_yandex_disk import handle_yandex_table
@@ -37,7 +38,6 @@ from flask_se_practice_config import (
     FORMAT_DATE_TIME
 )
 from templates.notification.templates import NotificationTemplates
-
 
 class PracticeAdminPage(Enum):
     CURRENT_THESISES = "current_thesises"
@@ -73,6 +73,7 @@ def choose_area_and_worktype_admin():
         )
 
     return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
+
 
 
 @login_required
@@ -136,11 +137,13 @@ def index_admin():
         .filter_by(status=1)
         .all()
     )
+
     list_of_areas = (
         AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     )
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     session["previous_page"] = PracticeAdminPage.CURRENT_THESISES.value
+
     return render_template(
         PracticeAdminTemplates.CURRENT_THESISES.value,
         area=area,

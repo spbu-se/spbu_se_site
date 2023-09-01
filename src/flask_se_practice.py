@@ -22,6 +22,7 @@ from transliterate import translit
 from flask_se_auth import login_required
 from flask_se_config import get_thesis_type_id_string
 from se_forms import ChooseTopic, UserAddReport, CurrentWorktypeArea
+
 from se_models import (
     Users,
     AreasOfStudy,
@@ -49,6 +50,7 @@ from flask_se_practice_config import (
     MIN_LENGTH_OF_FIELD_WAS_DONE,
     MIN_LENGTH_OF_FIELD_PLANNED_TO_DO,
 )
+
 
 
 class TypeOfFile(Enum):
@@ -619,7 +621,7 @@ def practice_preparation(current_thesis):
                 current_thesis.presentation_uri = filename
                 db.session.commit()
                 flash("Презентация успешно загружена!", category="success")
-
+                
         elif "submit_code_button" in request.form:
             code_link = (
                 request.form["code_link"] if "code_link" in request.form else None
