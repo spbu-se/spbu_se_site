@@ -1,0 +1,9 @@
+<p>
+    Научный руководитель {{ user_staff.user.get_name() }} прокомментировал Ваш отчёт от {{ current_report.time | datatime_convert }} по работе "{{ current_thesis.title }}"
+</p>
+
+<p>
+{{ current_report.comment }}
+</p>
+
+<a href="https://se.math.spbu.ru/practice/workflow?id={{ current_thesis.id }}">Посмотреть все отчёты по работе</a>
