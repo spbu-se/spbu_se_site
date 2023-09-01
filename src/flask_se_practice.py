@@ -52,7 +52,6 @@ from flask_se_practice_config import (
 )
 
 
-
 class TypeOfFile(Enum):
     TEXT = "text"
     REVIEWER_REVIEW = "reviewer_review"
@@ -621,7 +620,7 @@ def practice_preparation(current_thesis):
                 current_thesis.presentation_uri = filename
                 db.session.commit()
                 flash("Презентация успешно загружена!", category="success")
-                
+
         elif "submit_code_button" in request.form:
             code_link = (
                 request.form["code_link"] if "code_link" in request.form else None

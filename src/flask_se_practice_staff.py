@@ -191,7 +191,7 @@ def reports_staff(user_staff, current_thesis):
                             user_staff=user_staff,
                             current_report=current_report,
                             current_thesis=current_thesis,
-                        )
+                        ),
                     )
 
                     db.session.add(notification)

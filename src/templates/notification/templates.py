@@ -4,6 +4,8 @@ from enum import Enum
 class NotificationTemplates(Enum):
     NOTIFICATION_FROM_SUPERVISOR = "notification/notification_from_supervisor.html"
     NOTIFICATION_FROM_CURATOR = "notification/notification_from_curator.html"
-    NEW_PRACTICE_TO_SUPERVISOR = "notification/new_practice_was_added_to_supervisor.html"
+    NEW_PRACTICE_TO_SUPERVISOR = (
+        "notification/new_practice_was_added_to_supervisor.html"
+    )
     NEW_REPORT_TO_SUPERVISOR = "notification/new_report_to_supervisor.html"
     SUPERVISOR_COMMENT_TO_REPORT = "notification/supervisor_comment_to_report.html"

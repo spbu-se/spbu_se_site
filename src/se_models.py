@@ -266,8 +266,8 @@ class CurrentThesis(db.Model):
 
     title = db.Column(db.String(512), nullable=True)
 
-    supervisor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
-    worktype_id = db.Column(db.Integer, db.ForeignKey('worktype.id'), nullable=False)
+    supervisor_id = db.Column(db.Integer, db.ForeignKey("staff.id"), nullable=True)
+    worktype_id = db.Column(db.Integer, db.ForeignKey("worktype.id"), nullable=False)
     consultant = db.Column(db.String(2048), nullable=True)
 
     goal = db.Column(db.String(2048), nullable=True)

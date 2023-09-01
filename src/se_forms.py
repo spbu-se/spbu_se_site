@@ -154,7 +154,9 @@ class ChooseTopic(FlaskForm):
         description="Например, реализация алгоритма контекстно-свободной достижимости на OpenCL",
     )
     staff = SelectField("staff", choices=[])
-    consultant = StringField('consultant', description="ФИО консультанта, должность и компания")
+    consultant = StringField(
+        "consultant", description="ФИО консультанта, должность и компания"
+    )
 
 
 class DeadlineTemp(FlaskForm):

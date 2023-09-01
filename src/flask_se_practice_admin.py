@@ -35,9 +35,10 @@ from flask_se_practice_config import (
     TEXT_UPLOAD_FOLDER,
     PRESENTATION_UPLOAD_FOLDER,
     REVIEW_UPLOAD_FOLDER,
-    FORMAT_DATE_TIME
+    FORMAT_DATE_TIME,
 )
 from templates.notification.templates import NotificationTemplates
+
 
 class PracticeAdminPage(Enum):
     CURRENT_THESISES = "current_thesises"
@@ -73,7 +74,6 @@ def choose_area_and_worktype_admin():
         )
 
     return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
-
 
 
 @login_required
@@ -250,8 +250,10 @@ def thesis_admin():
             flash("Уведомление отправлено!", category="success")
         elif "submit_edit_title_button" in request.form:
             new_title = request.form["title_input"]
-            notification_content = ("Руководитель практики изменил название Вашей работы " +
-                                    f"\"{current_thesis.title}\" на \"{new_title}\"")
+            notification_content = (
+                "Руководитель практики изменил название Вашей работы "
+                + f'"{current_thesis.title}" на "{new_title}"'
+            )
             current_thesis.title = new_title
             add_mail_notification(
                 current_thesis.author_id,
