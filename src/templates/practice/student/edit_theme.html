@@ -12,6 +12,17 @@
         </div>
     </div>
 
+    {% if practice.status == 2 %}
+    <div class="row mb-3">
+        <div class="col">
+            <p class="text-warning mb-0">
+                <b>Завершённая работа</b>
+            </p>
+            Научный руководитель или руководитель практики пометил эту работу как завершенную
+        </div>
+    </div>
+    {% endif %}
+
     <form method="POST" action="{{url_for('practice_edit_theme', id=practice.id) }}">
         {{ form.csrf_token }}
 

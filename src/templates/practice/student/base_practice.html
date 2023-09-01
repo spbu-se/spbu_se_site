@@ -100,14 +100,14 @@
                                             Подготовка к защите
                                             {% endif %}
                                         </a>
-                                        <a name="defense_button" class="nav-link pl-2" href="{{ url_for('practice_thesis_defense', id=thesis.id) }}">
-                                            <i class="mr-1" data-feather="chevron-right"></i>
-                                            {% if request.path == "/practice/defense" and practice and practice.id == thesis.id %}
-                                            <b>Защита</b>
-                                            {%else%}
-                                            Защита
-                                            {% endif %}
-                                        </a>
+<!--                                        <a name="defense_button" class="nav-link pl-2" href="{{ url_for('practice_thesis_defense', id=thesis.id) }}">-->
+<!--                                            <i class="mr-1" data-feather="chevron-right"></i>-->
+<!--                                            {% if request.path == "/practice/defense" and practice and practice.id == thesis.id %}-->
+<!--                                            <b>Защита</b>-->
+<!--                                            {%else%}-->
+<!--                                            Защита-->
+<!--                                            {% endif %}-->
+<!--                                        </a>-->
                                         <a name="data_for_practice_button" class="nav-link pl-2" href="{{ url_for('practice_data_for_practice', id=thesis.id) }}">
                                             <i class="mr-1" data-feather="settings"></i>
                                             {% if request.path == "/practice/data_for_practice" and practice and practice.id == thesis.id %}

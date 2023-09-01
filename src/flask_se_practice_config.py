@@ -22,3 +22,16 @@ TABLE_COLUMNS = {
 
 # Folder for downloading of materials about all practices
 ARCHIVE_FOLDER = "static/zip/"
+
+TEXT_UPLOAD_FOLDER = "static/practice/texts/"
+REVIEW_UPLOAD_FOLDER = "static/practice/reviews/"
+PRESENTATION_UPLOAD_FOLDER = "static/practice/slides/"
+
+ALLOWED_EXTENSIONS = {"pdf"}
+
+MIN_LENGTH_OF_TOPIC = 7
+MIN_LENGTH_OF_GOAL = 20
+MIN_LENGTH_OF_TASK = 15
+
+MIN_LENGTH_OF_FIELD_WAS_DONE = 10
+MIN_LENGTH_OF_FIELD_PLANNED_TO_DO = 10

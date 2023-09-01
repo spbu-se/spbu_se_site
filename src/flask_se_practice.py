@@ -6,7 +6,14 @@ from enum import Enum
 from functools import wraps
 from typing import List, Tuple
 
-from flask import flash, redirect, request, render_template, url_for, get_flashed_messages
+from flask import (
+    flash,
+    redirect,
+    request,
+    render_template,
+    url_for,
+    get_flashed_messages,
+)
 from flask_login import current_user
 from sqlalchemy import desc, asc
 from datetime import datetime
@@ -31,17 +38,17 @@ from se_models import (
 
 from templates.practice.student.templates import PracticeStudentTemplates
 from templates.notification.templates import NotificationTemplates
-
-# Global variables
-TEXT_UPLOAD_FOLDER = "static/practice/texts/"
-REVIEW_UPLOAD_FOLDER = "static/practice/reviews/"
-PRESENTATION_UPLOAD_FOLDER = "static/practice/slides/"
-ALLOWED_EXTENSIONS = {"pdf"}
-MIN_LENGTH_OF_TOPIC = 7
-MIN_LENGTH_OF_GOAL = 20
-MIN_LENGTH_OF_TASK = 15
-MIN_LENGTH_OF_FIELD_WAS_DONE = 10
-MIN_LENGTH_OF_FIELD_PLANNED_TO_DO = 10
+from flask_se_practice_config import (
+    TEXT_UPLOAD_FOLDER,
+    REVIEW_UPLOAD_FOLDER,
+    PRESENTATION_UPLOAD_FOLDER,
+    ALLOWED_EXTENSIONS,
+    MIN_LENGTH_OF_TOPIC,
+    MIN_LENGTH_OF_GOAL,
+    MIN_LENGTH_OF_TASK,
+    MIN_LENGTH_OF_FIELD_WAS_DONE,
+    MIN_LENGTH_OF_FIELD_PLANNED_TO_DO,
+)
 
 
 class TypeOfFile(Enum):
@@ -305,6 +312,10 @@ def practice_goals_tasks(current_thesis):
             db.session.add(new_task)
             db.session.commit()
             flash("Задача добавлена!", category="success")
+
+        elif "delete_goal_button" in request.form:
+            current_thesis.goal = None
+            db.session.commit()
 
         elif (
             "delete_task_id_button" in request.form
@@ -609,11 +620,18 @@ def practice_preparation(current_thesis):
                 flash("Презентация успешно загружена!", category="success")
 
         elif "submit_code_button" in request.form:
-            code_link = request.form["code_link"] if "code_link" in request.form else None
-            account_name = request.form["account_name"] if "account_name" in request.form else None
+            code_link = (
+                request.form["code_link"] if "code_link" in request.form else None
+            )
+            account_name = (
+                request.form["account_name"] if "account_name" in request.form else None
+            )
 
             if code_link in {None, ""} and account_name in {None, ""}:
-                flash("Вы не указали имя аккаунта и ссылку на репозиторий.", category="error")
+                flash(
+                    "Вы не указали имя аккаунта и ссылку на репозиторий.",
+                    category="error",
+                )
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if code_link not in {None, ""}:
@@ -628,7 +646,10 @@ def practice_preparation(current_thesis):
 
             if code_link not in {None, ""} and account_name not in {None, ""}:
                 get_flashed_messages()
-                flash("Ссылка на репозиторий и имя аккаунта сохранены!", category="success")
+                flash(
+                    "Ссылка на репозиторий и имя аккаунта сохранены!",
+                    category="success",
+                )
 
         elif "delete_text_button" in request.form:
             current_thesis.text_uri = None
