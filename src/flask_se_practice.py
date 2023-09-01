@@ -421,6 +421,7 @@ def practice_add_new_report(current_thesis):
                     NotificationTemplates.NEW_REPORT_TO_SUPERVISOR.value,
                     user=current_user,
                     practice=current_thesis,
+                    report=new_report,
                 ),
             )
             flash("Отчёт успешно отправлен!", category="success")
