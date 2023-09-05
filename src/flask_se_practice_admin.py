@@ -135,6 +135,7 @@ def index_admin():
         .filter_by(worktype_id=worktype_id)
         .filter_by(deleted=False)
         .filter_by(status=1)
+        .filter(CurrentThesis.title != None)
         .all()
     )
 
@@ -302,6 +303,7 @@ def finished_thesises_admin():
         .filter_by(worktype_id=worktype_id)
         .filter_by(status=2)
         .filter_by(deleted=False)
+        .filter(CurrentThesis.title != None)
         .all()
     )
 
