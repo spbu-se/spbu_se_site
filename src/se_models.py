@@ -285,6 +285,7 @@ class CurrentThesis(db.Model):
     reports = db.relationship("ThesisReport", backref=db.backref("practice"))
     tasks = db.relationship("ThesisTask", backref=db.backref("practice"))
 
+    archived = db.Column(db.Boolean, default=False)
     deleted = db.Column(db.Boolean, default=False)
     status = db.Column(db.Integer, default=1)
     # 1 - active practice

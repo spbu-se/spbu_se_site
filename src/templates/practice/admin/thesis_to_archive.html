@@ -1,0 +1,201 @@
+{% extends "practice/admin/base_practice_admin.html" %}
+
+{% block title %}{{ thesis.title }}{% endblock %}
+
+{% block content_practice_admin %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col">
+            <h5>Перенести работу в архив практик и ВКР</h5>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('archive_thesis', id=thesis.id) }}" enctype="multipart/form-data">
+        {{ form.csrf_token }}
+
+        <div class="row mb-1">
+            <div class="col">
+                Тема:
+                <b>{{ thesis.title }}</b>
+            </div>
+        </div>
+        <div class="row mb-1">
+            <div class="col">
+                Автор:
+                <b>{{ thesis.user.get_name() }}</b>
+            </div>
+        </div>
+        <div class="row mb-1">
+            <div class="col">
+                Научный руководитель:
+                <b>{{ thesis.supervisor.user.get_name() }}</b>
+            </div>
+        </div>
+        <div class="row mb-1">
+            <div class="col">
+                Тип работы:
+                <b>{{ thesis.worktype }}</b>
+            </div>
+        </div>
+        <div class="row mb-1">
+            <div class="col">
+                Направление обучения:
+                <b>{{ thesis.area }}</b>
+            </div>
+        </div>
+        <div class="row mb-1">
+            <div class="col">
+                <div class="form-group mb-1">
+                    <label for="course" class="mb-1">Выберите направление обучения (бакалавриат/магистратура):</label>
+                    {{ form.course(class_="custom-select pl-3") }}
+                </div>
+            </div>
+        </div>
+        <div class="row mb-1">
+            <div class="col">
+                <div class="form-group mb-1">
+                    <label for="publish_year" class="mb-1">Год публикации:</label>
+                    {{ form.publish_year(class_="custom-select pl-3") }}
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-1">
+            <div class="col">
+                Текст:
+                {% if thesis.text_uri %}
+                <div class="row px-2 my-1">
+                    <div class="col">
+                        <a href="{{ url_for('static', filename='/practice/texts/' + thesis.text_uri) }}" target="_blank">
+                            <div class="icon icon-sm icon-shape bg-soft-success text-success mr-2">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            Текст работы
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="form-group mb-1 mt-1">
+                    <input type="file" name="text" id="text" class="custom-input-file" />
+                    <label for="text">
+                        <i data-feather="upload" class="mr-2"></i>
+                        <span>Загрузить текст работы (в формате .PDF)</span>
+                    </label>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row mb-1">
+            <div class="col">
+                Презентация:
+                {% if thesis.presentation_uri %}
+                <div class="row px-2 my-1">
+                    <div class="col">
+                        <a href="{{ url_for('static', filename='/practice/slides/' + thesis.presentation_uri) }}" target="_blank">
+                            <div class="icon icon-sm icon-shape bg-soft-warning text-warning mr-2">
+                                <i class="fas fa-file-powerpoint"></i>
+                            </div>
+                            Презентация
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="form-group mb-1 mt-1">
+                    <input type="file" name="presentation" id="presentation" class="custom-input-file" />
+                    <label for="presentation">
+                        <i data-feather="upload" class="mr-2"></i>
+                        <span>Загрузить презентацию работы (в формате .PDF)</span>
+                    </label>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row mb-1">
+            <div class="col">
+                Отзыв научного руководителя:
+                {% if thesis.supervisor_review_uri %}
+                <div class="row px-2 my-1">
+                    <div class="col">
+                        <a href="{{ url_for('static', filename='/practice/reviews/' + thesis.supervisor_review_uri) }}" target="_blank">
+                            <div class="icon icon-sm icon-shape bg-soft-primary text-primary mr-2">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            Отзыв научного руководителя
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="form-group mb-1 mt-1">
+                    <input type="file" name="supervisor_review" id="supervisor_review" class="custom-input-file" />
+                    <label for="supervisor_review">
+                        <i data-feather="upload" class="mr-2"></i>
+                        <span>Загрузить отзыв научного руководителя (в формате .PDF)</span>
+                    </label>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row mb-1">
+            <div class="col">
+                Отзыв консультанта:
+                {% if thesis.reviewer_review_uri %}
+                <div class="row px-2 my-1">
+                    <div class="col">
+                        <a href="{{ url_for('static', filename='/practice/reviews/' + thesis.reviewer_review_uri) }}" target="_blank">
+                            <div class="icon icon-sm icon-shape bg-soft-primary text-primary mr-2">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            Отзыв консультанта
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="form-group mb-1 mt-1">
+                    <input type="file" name="consultant_review" id="consultant_review" class="custom-input-file" />
+                    <label for="consultant_review">
+                        <i data-feather="upload" class="mr-2"></i>
+                        <span>Загрузить отзыв консультанта (в формате .PDF)</span>
+                    </label>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row mb-1">
+            <div class="col">
+                Ссылка на реализацию:
+                {% if thesis.code_link %}
+                <div class="row px-2 my-1">
+                    <div class="col">
+                        <a href="{{ thesis.code_link }}" target="_blank">
+                            <div class="icon icon-sm icon-shape bg-soft-success text-success mr-2">
+                                <i class="fas fa-file-archive"></i>
+                            </div>
+                            {{ thesis.code_link }}
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="form-group mb-0 mt-1">
+                    <input type="text" name="code_link" id="code_link" class="form-control" placeholder="Ссылка на репозиторий"/>
+                </div>
+                {% endif %}
+                <span class="text-sm my-0 py-0">Если в ссылке нет подстроки "http", ссылка не будет добавлена </span>
+            </div>
+        </div>
+
+        <div class="row mt-3 mb-2">
+            <div class="col d-flex justify-content-between">
+                <a class="btn btn-sm btn-primary" href="{{ url_for('thesis_admin', id=thesis.id) }}">Назад к работе</a>
+                <input type="submit" class="btn btn-sm btn-outline-danger" name="thesis_to_archive_button" value="Перенести в архив">
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

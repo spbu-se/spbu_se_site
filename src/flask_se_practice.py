@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import os
-from datetime import date, timedelta
-from enum import Enum
+from datetime import timedelta
 from functools import wraps
-from typing import List, Tuple
+from typing import List
 
 from flask import (
     flash,
@@ -17,12 +15,9 @@ from flask import (
 from flask_login import current_user
 from sqlalchemy import desc, asc
 from datetime import datetime
-from transliterate import translit
-
 from flask_se_auth import login_required
-from flask_se_config import get_thesis_type_id_string
-from se_forms import ChooseTopic, UserAddReport, CurrentWorktypeArea
 
+from se_forms import ChooseTopic, UserAddReport, CurrentWorktypeArea
 from se_models import (
     Users,
     AreasOfStudy,
@@ -36,31 +31,21 @@ from se_models import (
     ThesisTask,
     add_mail_notification,
 )
-
 from templates.practice.student.templates import PracticeStudentTemplates
 from templates.notification.templates import NotificationTemplates
 from flask_se_practice_config import (
     TEXT_UPLOAD_FOLDER,
     REVIEW_UPLOAD_FOLDER,
     PRESENTATION_UPLOAD_FOLDER,
-    ALLOWED_EXTENSIONS,
     MIN_LENGTH_OF_TOPIC,
     MIN_LENGTH_OF_GOAL,
     MIN_LENGTH_OF_TASK,
     MIN_LENGTH_OF_FIELD_WAS_DONE,
     MIN_LENGTH_OF_FIELD_PLANNED_TO_DO,
+    TypeOfFile,
+    get_filename,
+    allowed_file,
 )
-
-
-class TypeOfFile(Enum):
-    TEXT = "text"
-    REVIEWER_REVIEW = "reviewer_review"
-    SUPERVISOR_REVIEW = "supervisor_review"
-    PRESENTATION = "slides"
-
-
-def allowed_file(filename) -> bool:
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def current_thesis_exists_or_redirect(func):
@@ -485,7 +470,7 @@ def practice_preparation(current_thesis):
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if text_file is not None and text_file.filename != "":
-                full_filename, filename = __get_filename(
+                full_filename, filename = get_filename(
                     current_thesis, TEXT_UPLOAD_FOLDER, TypeOfFile.TEXT.value
                 )
                 text_file.save(full_filename)
@@ -540,7 +525,7 @@ def practice_preparation(current_thesis):
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if supervisor_review:
-                full_filename, filename = __get_filename(
+                full_filename, filename = get_filename(
                     current_thesis,
                     REVIEW_UPLOAD_FOLDER,
                     TypeOfFile.SUPERVISOR_REVIEW.value,
@@ -553,7 +538,7 @@ def practice_preparation(current_thesis):
                 )
 
             if reviewer_review:
-                full_filename, filename = __get_filename(
+                full_filename, filename = get_filename(
                     current_thesis,
                     REVIEW_UPLOAD_FOLDER,
                     TypeOfFile.REVIEWER_REVIEW.value,
@@ -611,7 +596,7 @@ def practice_preparation(current_thesis):
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if presentation_file is not None and presentation_file.filename != "":
-                full_filename, filename = __get_filename(
+                full_filename, filename = get_filename(
                     current_thesis,
                     PRESENTATION_UPLOAD_FOLDER,
                     TypeOfFile.PRESENTATION.value,
@@ -692,26 +677,6 @@ def practice_preparation(current_thesis):
         remaining_time_submit=get_remaining_time(deadline, "submit_work_for_review"),
         remaining_time_upload=get_remaining_time(deadline, "upload_reviews"),
     )
-
-
-def __get_filename(
-    current_thesis: CurrentThesis, folder: str, type_of_file: str
-) -> Tuple[str, str]:
-    author_en = translit(current_user.get_name(), "ru", reversed=True)
-    author_en = author_en.replace(" ", "_")
-
-    filename = author_en + "_" + get_thesis_type_id_string(current_thesis.worktype_id)
-    filename = filename + "_" + str(date.today().year) + "_" + type_of_file
-    filename_with_ext = filename + ".pdf"
-    full_filename = os.path.join(folder + filename_with_ext)
-
-    # Check if file already exist
-    if os.path.isfile(full_filename):
-        filename = filename + "_" + str(os.urandom(8).hex())
-        filename_with_ext = filename + ".pdf"
-        full_filename = os.path.join(folder + filename_with_ext)
-
-    return full_filename, filename_with_ext
 
 
 @login_required

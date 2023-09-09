@@ -35,26 +35,27 @@
         </div>
     </form>
 
-    <div class="row">
+    <div class="row mb-2">
         <div class="col">
             <p class="mb-0">Студент: <b>{{ thesis.user.get_name() }}</b></p>
             {% if thesis.consultant %}
             <p class="mb-0">Консультант: <b>{{ thesis.consultant }}</b></p>
             {% endif %}
             <p class="mb-0">Тип работы: <b>{{ thesis.worktype }}</b></p>
-            {% if thesis.status == 1 %}
-                {% if thesis.user.how_to_contact %}
-                <p class="mb-0">Направление: <b>{{ thesis.area }}</b></p>
-                <p>Как связаться: {{ thesis.user.how_to_contact }}</p>
-                {% else %}
-                <p>Направление: <b>{{ thesis.area }}</b></p>
-                {% endif %}
-            {% else %}
             <p class="mb-0">Направление: <b>{{ thesis.area }}</b></p>
-                {% if thesis.user.how_to_contact %}
-                <p class="mb-0">Как связаться: {{ thesis.user.how_to_contact }}</p>
-                {% endif %}
-            <p class="text-warning"><b>Завершённая работа</b></p>
+            {% if thesis.user.how_to_contact %}
+            <p class="mb-0">Как связаться: {{ thesis.user.how_to_contact }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <div class="col">
+            {% if thesis.status == 2 %}
+            <div class="text-warning"><b>Завершённая работа</b></div>
+            {% endif %}
+            {% if thesis.archived %}
+            <div class="text-warning"><b>Работа перенесена в архив</b></div>
             {% endif %}
         </div>
     </div>
@@ -182,7 +183,7 @@
                             <a href="{{ thesis.code_link }}" target="_blank">
                                 <div class="icon icon-sm icon-shape bg-soft-success text-success mr-2">
                                         <i class="fas fa-file-archive"></i>
-                                    </div>
+                                </div>
                                 Ссылка на реализацию: {{ thesis.code_link }}
                             </a>
                         </div>
@@ -226,6 +227,12 @@
         {% endif %}
 
         <div class="row my-3">
+            {% if not thesis.archived %}
+            <div class="col">
+                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('archive_thesis', id=thesis.id) }}">Перенести в архив</a>
+            </div>
+            {% endif %}
+
             <div class="col d-flex justify-content-end">
                 {% if thesis.status == 1 %}
                 <a data-toggle="modal" data-target="#deleteModal" class="btn btn-sm btn-outline-danger" href="#">Завершить работу</a>

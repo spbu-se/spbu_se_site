@@ -2,7 +2,6 @@
 
 import sys
 from datetime import datetime
-import tzlocal
 
 import pytz
 from dateutil import tz
@@ -14,7 +13,6 @@ from flask_migrate import Migrate
 from flaskext.markdown import Markdown
 from sqlalchemy.sql.expression import func
 from flask_simplemde import SimpleMDE
-from flask_login import current_user
 
 
 import flask_se_theses
@@ -143,6 +141,7 @@ from flask_se_practice_admin import (
     choose_area_and_worktype_admin,
     thesis_admin,
     finished_thesises_admin,
+    archive_thesis,
 )
 from flask_se_practice_yandex_disk import yandex_code
 
@@ -372,6 +371,11 @@ app.add_url_rule(
     "/practice_admin/thesis", methods=["GET", "POST"], view_func=thesis_admin
 )
 app.add_url_rule("/practice_admin/yandex_code", methods=["GET"], view_func=yandex_code)
+app.add_url_rule(
+    "/practice_admin/thesis_to_archive",
+    methods=["GET", "POST"],
+    view_func=archive_thesis,
+)
 
 
 # Init Database
