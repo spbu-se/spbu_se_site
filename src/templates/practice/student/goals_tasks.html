@@ -80,7 +80,7 @@
                             <div class="col-2 text-right">
                                 <button class="text-primary mr-2" style="outline: none; border: 0; box-shadow: none; background-color: transparent;"
                                     data-content="Редактировать цель" data-trigger="hover" data-placement="top" data-toggle="popoverhover"
-                                    onclick="EditGoal('{{ practice.goal }}'); return false;">
+                                    onclick="EditGoal(`{{ practice.goal }}`); return false;">
                                     <i data-feather="edit"></i>
                                 </button>
                                 <a data-toggle="modal" data-target="#deleteGoalModal" href="#">
@@ -199,7 +199,7 @@
                                     <div class="col-2 text-right">
                                         <button class="text-primary mr-2" style="outline: none; border: 0; box-shadow: none; background-color: transparent;"
                                                 data-content="Редактировать задачу" data-trigger="hover" data-placement="top" data-toggle="popoverhover"
-                                                onclick="EditTask('{{ task }}', {{task.id}}); return false;">
+                                                onclick="EditTask(`{{ task }}`, `{{task.id}}`); return false;">
                                             <i data-feather="edit"></i>
                                         </button>
                                         <a data-toggle="modal" data-target="#deleteTaskModal-{{ task.id }}" href="#">
