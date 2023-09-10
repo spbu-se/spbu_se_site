@@ -23,30 +23,30 @@
     </div>
     {% endif %}
 
-    {% if deadline %}
-    <div class="row mb-3">
-        <div class="col">
-            {% if deadline.submit_work_for_review %}
-            <p class="mb-0">Дедлайн на отправку работы для рецензирования: <b>{{ deadline.submit_work_for_review | datatime_convert }}</b>
-                {% if remaining_time_submit[0] < 0 %}
-                (<span class="text-body">дедлайн прошёл</span>)
-                {% else %}
-                (осталось: <span class="text-{{remaining_time_submit[2]}}">{{ remaining_time_submit[0] }} {{ remaining_time_submit[1] }}</span>)
-                {% endif %}
-            </p>
-            {% endif %}
-            {% if deadline.upload_reviews %}
-            <p class="mb-0">Дедлайн на загрузку отзывов: <b>{{ deadline.upload_reviews | datatime_convert }}</b>
-                {% if remaining_time_upload[0] < 0 %}
-                (<span class="text-body">дедлайн прошёл</span>)
-                {% else %}
-                (осталось: <span class="text-{{remaining_time_upload[2]}}">{{ remaining_time_upload[0] }} {{ remaining_time_upload[1] }}</span>)
-                {% endif %}
-            </p>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
+<!--    {% if deadline %}-->
+<!--    <div class="row mb-3">-->
+<!--        <div class="col">-->
+<!--            {% if deadline.submit_work_for_review %}-->
+<!--            <p class="mb-0">Дедлайн на отправку работы для рецензирования: <b>{{ deadline.submit_work_for_review | datatime_convert }}</b>-->
+<!--                {% if remaining_time_submit[0] < 0 %}-->
+<!--                (<span class="text-body">дедлайн прошёл</span>)-->
+<!--                {% else %}-->
+<!--                (осталось: <span class="text-{{remaining_time_submit[2]}}">{{ remaining_time_submit[0] }} {{ remaining_time_submit[1] }}</span>)-->
+<!--                {% endif %}-->
+<!--            </p>-->
+<!--            {% endif %}-->
+<!--            {% if deadline.upload_reviews %}-->
+<!--            <p class="mb-0">Дедлайн на загрузку отзывов: <b>{{ deadline.upload_reviews | datatime_convert }}</b>-->
+<!--                {% if remaining_time_upload[0] < 0 %}-->
+<!--                (<span class="text-body">дедлайн прошёл</span>)-->
+<!--                {% else %}-->
+<!--                (осталось: <span class="text-{{remaining_time_upload[2]}}">{{ remaining_time_upload[0] }} {{ remaining_time_upload[1] }}</span>)-->
+<!--                {% endif %}-->
+<!--            </p>-->
+<!--            {% endif %}-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    {% endif %}-->
 
     <form method="POST" action="{{url_for('practice_preparation', id=practice.id)}}" enctype="multipart/form-data">
 

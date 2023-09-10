@@ -23,25 +23,25 @@
     </div>
     {% endif %}
 
-    {% if deadline and deadline.choose_topic %}
-    <div class="row">
-        <div class="col">
-            <p>Дедлайн на выбор темы: <b>{{ deadline.choose_topic | datatime_convert }}</b>
-                {% if not practice.title %}
-                    {% if remaining_time[0] < 0 %}
-                    (<span class="text-danger">дедлайн прошёл</span>)
-                    {% else %}
-                    (осталось: <span class="text-{{remaining_time[2]}}">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)
-                    {% endif %}
-                {% else %}
-                    {% if remaining_time[0] > 0 %}
-                    (осталось: <span class="text-body">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)
-                    {% endif %}
-                {% endif %}
-            </p>
-        </div>
-    </div>
-    {% endif %}
+<!--    {% if deadline and deadline.choose_topic %}-->
+<!--    <div class="row">-->
+<!--        <div class="col">-->
+<!--            <p>Дедлайн на выбор темы: <b>{{ deadline.choose_topic | datatime_convert }}</b>-->
+<!--                {% if not practice.title %}-->
+<!--                    {% if remaining_time[0] < 0 %}-->
+<!--                    (<span class="text-danger">дедлайн прошёл</span>)-->
+<!--                    {% else %}-->
+<!--                    (осталось: <span class="text-{{remaining_time[2]}}">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)-->
+<!--                    {% endif %}-->
+<!--                {% else %}-->
+<!--                    {% if remaining_time[0] > 0 %}-->
+<!--                    (осталось: <span class="text-body">{{ remaining_time[0] }} {{ remaining_time[1] }}</span>)-->
+<!--                    {% endif %}-->
+<!--                {% endif %}-->
+<!--            </p>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    {% endif %}-->
 
     <form method="POST" action="{{ url_for('practice_choosing_topic', id=practice.id) }}">
         {{ form.csrf_token }}
