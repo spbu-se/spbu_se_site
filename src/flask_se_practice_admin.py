@@ -43,7 +43,7 @@ from flask_se_practice_config import (
     ARCHIVE_REVIEW_FOLDER,
     ARCHIVE_PRESENTATION_FOLDER,
     get_filename,
-    TypeOfFile
+    TypeOfFile,
 )
 from templates.notification.templates import NotificationTemplates
 
@@ -305,7 +305,9 @@ def archive_thesis():
     if not current_thesis_id:
         return redirect(url_for("index_admin"))
 
-    current_thesis: CurrentThesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    current_thesis: CurrentThesis = CurrentThesis.query.filter_by(
+        id=current_thesis_id
+    ).first()
     if not current_thesis:
         return redirect(url_for("index_admin"))
 
@@ -315,22 +317,42 @@ def archive_thesis():
             print(request.files)
             course_id = request.form.get("course", type=int)
             if course_id == 0:
-                flash("Выберите направление обучения (бакалавриат/магистратура)", category="error")
+                flash(
+                    "Выберите направление обучения (бакалавриат/магистратура)",
+                    category="error",
+                )
                 return redirect(url_for("archive_thesis", id=current_thesis.id))
 
             text_file = request.files["text"] if "text" in request.files else None
             if not current_thesis.text_uri and not text_file:
-                flash("Загрузите текст работы, чтобы перенести её в архив", category="error")
+                flash(
+                    "Загрузите текст работы, чтобы перенести её в архив",
+                    category="error",
+                )
                 return redirect(url_for("archive_thesis", id=current_thesis.id))
 
-            presentation_file = request.files["presentation"] if "presentation" in request.files else None
+            presentation_file = (
+                request.files["presentation"]
+                if "presentation" in request.files
+                else None
+            )
             if not current_thesis.presentation_uri and not presentation_file:
-                flash("Загрузите презентацию работы, чтобы перенести её в архив", category="error")
+                flash(
+                    "Загрузите презентацию работы, чтобы перенести её в архив",
+                    category="error",
+                )
                 return redirect(url_for("archive_thesis", id=current_thesis.id))
 
-            supervisor_review_file = request.files["supervisor_review"] if "supervisor_review" in request.files else None
+            supervisor_review_file = (
+                request.files["supervisor_review"]
+                if "supervisor_review" in request.files
+                else None
+            )
             if not current_thesis.supervisor_review_uri and not supervisor_review_file:
-                flash("Загрузите отзыв научного руководителя, чтобы перенести работу в архив", category="error")
+                flash(
+                    "Загрузите отзыв научного руководителя, чтобы перенести работу в архив",
+                    category="error",
+                )
                 return redirect(url_for("archive_thesis", id=current_thesis.id))
 
             thesis = Thesis()
@@ -343,32 +365,59 @@ def archive_thesis():
             thesis.supervisor_id = current_thesis.supervisor_id
             thesis.publish_year = request.form.get("publish_year", type=int)
 
-            path_to_archive_text, archive_text_filename = get_filename(current_thesis, ARCHIVE_TEXT_FOLDER, TypeOfFile.TEXT.value)
+            path_to_archive_text, archive_text_filename = get_filename(
+                current_thesis, ARCHIVE_TEXT_FOLDER, TypeOfFile.TEXT.value
+            )
             if current_thesis.text_uri:
-                shutil.copyfile(TEXT_UPLOAD_FOLDER + current_thesis.text_uri, path_to_archive_text)
+                shutil.copyfile(
+                    TEXT_UPLOAD_FOLDER + current_thesis.text_uri, path_to_archive_text
+                )
             else:
                 text_file.save(path_to_archive_text)
             thesis.text_uri = archive_text_filename
 
-            path_to_archive_presentation, archive_slides_filename = get_filename(current_thesis, ARCHIVE_PRESENTATION_FOLDER, TypeOfFile.PRESENTATION.value)
+            path_to_archive_presentation, archive_slides_filename = get_filename(
+                current_thesis,
+                ARCHIVE_PRESENTATION_FOLDER,
+                TypeOfFile.PRESENTATION.value,
+            )
             if current_thesis.presentation_uri:
-                shutil.copyfile(PRESENTATION_UPLOAD_FOLDER + current_thesis.presentation_uri, path_to_archive_presentation)
+                shutil.copyfile(
+                    PRESENTATION_UPLOAD_FOLDER + current_thesis.presentation_uri,
+                    path_to_archive_presentation,
+                )
             else:
                 presentation_file.save(path_to_archive_presentation)
             thesis.presentation_uri = archive_slides_filename
 
-            path_to_archive_super_review, archive_super_review_filename = get_filename(current_thesis, ARCHIVE_REVIEW_FOLDER, TypeOfFile.SUPERVISOR_REVIEW.value)
+            path_to_archive_super_review, archive_super_review_filename = get_filename(
+                current_thesis,
+                ARCHIVE_REVIEW_FOLDER,
+                TypeOfFile.SUPERVISOR_REVIEW.value,
+            )
             if current_thesis.supervisor_review_uri:
-                shutil.copyfile(REVIEW_UPLOAD_FOLDER + current_thesis.supervisor_review_uri, path_to_archive_super_review)
+                shutil.copyfile(
+                    REVIEW_UPLOAD_FOLDER + current_thesis.supervisor_review_uri,
+                    path_to_archive_super_review,
+                )
             else:
                 supervisor_review_file.save(path_to_archive_super_review)
             thesis.supervisor_review_uri = archive_super_review_filename
 
-            path_to_archive_rev_review, archive_rev_review_filename = get_filename(current_thesis, ARCHIVE_REVIEW_FOLDER, TypeOfFile.REVIEWER_REVIEW.value)
+            path_to_archive_rev_review, archive_rev_review_filename = get_filename(
+                current_thesis, ARCHIVE_REVIEW_FOLDER, TypeOfFile.REVIEWER_REVIEW.value
+            )
             if current_thesis.reviewer_review_uri:
-                shutil.copyfile(REVIEW_UPLOAD_FOLDER + current_thesis.reviewer_review_uri, path_to_archive_rev_review)
+                shutil.copyfile(
+                    REVIEW_UPLOAD_FOLDER + current_thesis.reviewer_review_uri,
+                    path_to_archive_rev_review,
+                )
             else:
-                reviewer_review_file = request.files["consultant_review"] if "consultant_review" in request.files else None
+                reviewer_review_file = (
+                    request.files["consultant_review"]
+                    if "consultant_review" in request.files
+                    else None
+                )
                 if reviewer_review_file not in {None, ""}:
                     reviewer_review_file.save(path_to_archive_rev_review)
                     thesis.reviewer_review_uri = archive_rev_review_filename
@@ -383,6 +432,25 @@ def archive_thesis():
             db.session.add(thesis)
             current_thesis.archived = True
             current_thesis.status = 2
+
+            add_mail_notification(
+                current_thesis.author_id,
+                "[SE site] Ваша работы перенесена в архив практик и ВКР",
+                render_template(
+                    NotificationTemplates.THESIS_WAS_ARCHIVED_BY_ADMIN.value,
+                    curator=current_user,
+                    thesis=current_thesis,
+                ),
+            )
+            notification_content = (
+                f"Руководитель практики { current_user.get_name() }"
+                f' перенёс Вашу работу "{ current_thesis.title }"'
+                f" в архив практик и ВКР."
+            )
+            notification = NotificationPractice(
+                recipient_id=current_thesis.author_id, content=notification_content
+            )
+            db.session.add(notification)
             db.session.commit()
             flash("Работа перенесена в архив!", category="success")
             return redirect(url_for("thesis_admin", id=current_thesis.id))
@@ -393,7 +461,7 @@ def archive_thesis():
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     course_and_year_form = ChooseCourseAndYear()
     course_and_year_form.course.choices.append((0, "Выберите направление"))
-    for course in (Courses.query.all()):
+    for course in Courses.query.all():
         course_and_year_form.course.choices.append((course.id, course.name))
 
     return render_template(
@@ -403,7 +471,7 @@ def archive_thesis():
         worktype=current_thesis.worktype,
         list_of_areas=list_of_areas,
         list_of_worktypes=list_of_work_types,
-        form=course_and_year_form
+        form=course_and_year_form,
     )
 
 
