@@ -59,9 +59,11 @@ from flask_se_practice_config import (
     ARCHIVE_REVIEW_FOLDER,
     ARCHIVE_PRESENTATION_FOLDER,
     get_filename,
-    TypeOfFile, FOLDER_FOR_TABLE,
+    TypeOfFile,
+    FOLDER_FOR_TABLE,
 )
 from flask_se_practice_table import edit_table
+
 
 class PracticeAdminPage(Enum):
     CURRENT_THESISES = "current_thesises"
@@ -157,7 +159,7 @@ def index_admin():
                 )
             else:
                 table_filename = table_name.split("/")[-1]
-                full_filename = (FOLDER_FOR_TABLE + table_filename)
+                full_filename = FOLDER_FOR_TABLE + table_filename
                 edit_table(
                     path_to_table=full_filename,
                     sheet_name=sheet_name,
@@ -170,7 +172,9 @@ def index_admin():
                     table.write(fo.read())
                 table.seek(0)
                 os.remove(full_filename)
-                return send_file(table, mimetype=full_filename, attachment_filename=table_filename)
+                return send_file(
+                    table, mimetype=full_filename, attachment_filename=table_filename
+                )
 
     list_of_thesises = (
         CurrentThesis.query.filter_by(area_id=area_id)
