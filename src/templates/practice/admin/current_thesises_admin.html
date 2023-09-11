@@ -22,12 +22,12 @@
 
     <form method="POST" action="{{ url_for('index_admin', area_id=area.id, worktype_id=worktype.id) }}">
         <div class="row mb-3">
-            <div class="col">
+            <div class="col d-flex justify-content-start">
                 <input type="submit" class="btn btn-sm btn-primary" name="download_materials_button" value="Загрузить материалы работ">
 
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#yandexDiskModal">
-                    Выгрузить таблицу
+                    Таблица с результатами
                 </button>
 
                 <!-- Modal -->
@@ -35,7 +35,7 @@
                     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="yandexDiskModalLabel">Выгрузка таблицы с результатами на Яндекс Диск</h5>
+                                <h5 class="modal-title" id="yandexDiskModalLabel">Выгрузка таблицы с результатами</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                                 </button>
@@ -116,7 +116,8 @@
 
                             </div>
                             <div class="modal-footer py-2">
-                                <input type="submit" class="btn btn-sm btn-primary" name="yandex_button" value="Выгрузить">
+                                <input type="submit" class="btn btn-sm btn-primary" name="download_table" value="Скачать">
+                                <input type="submit" class="btn btn-sm btn-primary" name="yandex_button" value="Выгрузить на Яндекс Диск">
                             </div>
                         </div>
                     </div>

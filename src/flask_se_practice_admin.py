@@ -46,6 +46,7 @@ from se_models import (
 
 from flask_se_config import get_thesis_type_id_string
 from templates.practice.admin.templates import PracticeAdminTemplates
+from templates.notification.templates import NotificationTemplates
 from flask_se_practice_yandex_disk import handle_yandex_table
 from flask_se_practice_config import (
     TABLE_COLUMNS,
@@ -58,10 +59,9 @@ from flask_se_practice_config import (
     ARCHIVE_REVIEW_FOLDER,
     ARCHIVE_PRESENTATION_FOLDER,
     get_filename,
-    TypeOfFile,
+    TypeOfFile, FOLDER_FOR_TABLE,
 )
-from templates.notification.templates import NotificationTemplates
-
+from flask_se_practice_table import edit_table
 
 class PracticeAdminPage(Enum):
     CURRENT_THESISES = "current_thesises"
@@ -110,12 +110,14 @@ def index_admin():
     if request.method == "POST":
         if "download_materials_button" in request.form:
             return download_materials(area, worktype)
-        if "yandex_button" in request.form:
+        if "yandex_button" in request.form or "download_table" in request.form:
             table_name = request.form["table_name"]
             sheet_name = request.form["sheet_name"]
             if table_name is None or table_name == "":
                 flash(
-                    "Введите название файла для выгрузки на Яндекс Диск",
+                    "Введите название файла для выгрузки на Яндекс Диск"
+                    if "yandex_button" in request.form
+                    else "Введите название файла для скачивания таблицы с результатами",
                     category="error",
                 )
                 return redirect(
@@ -145,13 +147,30 @@ def index_admin():
                         url_for("index_admin", area_id=area.id, worktype_id=worktype.id)
                     )
 
-            return handle_yandex_table(
-                table_name=table_name,
-                sheet_name=sheet_name,
-                area_id=area.id,
-                worktype_id=worktype.id,
-                column_names=column_names,
-            )
+            if "yandex_button" in request.form:
+                return handle_yandex_table(
+                    table_name=table_name,
+                    sheet_name=sheet_name,
+                    area_id=area.id,
+                    worktype_id=worktype.id,
+                    column_names=column_names,
+                )
+            else:
+                table_filename = table_name.split("/")[-1]
+                full_filename = (FOLDER_FOR_TABLE + table_filename)
+                edit_table(
+                    path_to_table=full_filename,
+                    sheet_name=sheet_name,
+                    area_id=area.id,
+                    worktype_id=worktype.id,
+                    column_names=column_names,
+                )
+                table = io.BytesIO()
+                with open(full_filename, "rb") as fo:
+                    table.write(fo.read())
+                table.seek(0)
+                os.remove(full_filename)
+                return send_file(table, mimetype=full_filename, attachment_filename=table_filename)
 
     list_of_thesises = (
         CurrentThesis.query.filter_by(area_id=area_id)
