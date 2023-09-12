@@ -16,6 +16,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import pathlib
 from datetime import date
 from enum import Enum
 from typing import Tuple
@@ -25,8 +26,15 @@ from flask_se_config import get_thesis_type_id_string
 from se_models import CurrentThesis
 
 # Yandex disk
-CLIENT_ID = "10e079e42b49492295a39e2767e7b049"
-CLIENT_SECRET = "621eab823cdf4649868b6e317963a054"
+YANDEX_CLIENT_ID = "10e079e42b49492295a39e2767e7b049"
+YANDEX_SECRET_FILE = os.path.join(
+    pathlib.Path(__file__).parent, "configs/flask_se_practice_yandex_secret.conf"
+)
+if os.path.exists(YANDEX_SECRET_FILE):
+    with open(YANDEX_SECRET_FILE, "r") as file:
+        YANDEX_SECRET = file.read().rstrip()
+else:
+    YANDEX_SECRET = ""
 
 
 FOLDER_FOR_TABLE = "static/practice/result_table/"

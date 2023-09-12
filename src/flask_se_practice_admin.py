@@ -351,8 +351,6 @@ def archive_thesis():
 
     if request.method == "POST":
         if "thesis_to_archive_button" in request.form:
-            print(request.form)
-            print(request.files)
             course_id = request.form.get("course", type=int)
             if course_id == 0:
                 flash(

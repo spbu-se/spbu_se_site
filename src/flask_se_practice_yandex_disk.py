@@ -25,7 +25,7 @@ import yadisk
 from flask import redirect, url_for, request, flash, session, get_flashed_messages
 from flask_se_auth import login_required
 from flask_se_practice_table import edit_table
-from flask_se_practice_config import FOLDER_FOR_TABLE, CLIENT_ID, CLIENT_SECRET
+from flask_se_practice_config import FOLDER_FOR_TABLE, YANDEX_CLIENT_ID, YANDEX_SECRET
 
 COLUMN_NAMES = None
 
@@ -50,7 +50,7 @@ def get_code():
     url = (
         "https://oauth.yandex.ru/authorize?response_type=code"
         + "&client_id="
-        + CLIENT_ID
+        + YANDEX_CLIENT_ID
         + "&redirect_uri="
         + redirect_uri
     )
@@ -60,7 +60,7 @@ def get_code():
 def get_token(code):
     token_url = "https://oauth.yandex.ru/token"
     credentials_string = base64.b64encode(
-        (CLIENT_ID + ":" + CLIENT_SECRET).encode("ascii")
+        (YANDEX_CLIENT_ID + ":" + YANDEX_SECRET).encode("ascii")
     ).decode("ascii")
     headers = {"Authorization": "Basic " + credentials_string}
     content = "grant_type=authorization_code&code=" + code
