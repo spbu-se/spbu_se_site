@@ -2,21 +2,24 @@
 # which in turn is missing this dependency. Can be removed after Flask 2.3
 blinker==1.6.2 # Added manually, to be removed later.
 bs4==0.0.1
-chardet==5.1.0
+chardet==5.2.0
 connexion==2.14.2
 Flask-Admin==1.6.1
 Flask-APScheduler==1.12.4
 Flask-BasicAuth==0.2.0
 Flask-Login==0.6.2
 Flask-Markdown==0.3
-Flask-Migrate==4.0.4
+Flask-Migrate==4.0.5
 flask-msearch==0.2.9.2
+# Flask-SQLAlchemy <= 3.0.5 is required for flask-msearch
+# because in Flask-SQLAlchemy > 3.0.5 the deprecated code that flask-msearch uses was removed.
+Flask-SQLAlchemy==3.0.5
 Flask-SimpleMDE==0.3.0
 Flask-WTF==1.1.1
 Frozen-Flask==0.18
-google-auth-oauthlib==1.0.0
+google-auth-oauthlib==1.1.0
 Pillow==10.0.0
-PyMuPDF==1.22.5
+PyMuPDF==1.23.3
 pyparsing==3.1.1
 python-editor==1.0.4
 textile==4.0.2
