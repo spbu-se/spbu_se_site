@@ -13,7 +13,7 @@ Flask-Migrate==4.0.5
 flask-msearch==0.2.9.2
 # Flask-SQLAlchemy <= 3.0.5 is required for flask-msearch
 # because in Flask-SQLAlchemy > 3.0.5 the deprecated code that flask-msearch uses was removed.
-Flask-SQLAlchemy==3.0.5
+Flask-SQLAlchemy==3.1.1
 Flask-SimpleMDE==0.3.0
 Flask-WTF==1.1.1
 Frozen-Flask==0.18
