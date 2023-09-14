@@ -16,7 +16,6 @@ flask-msearch==0.2.9.2
 Flask-SQLAlchemy==3.0.5
 Flask-SimpleMDE==0.3.0
 Flask-WTF==1.1.1
-flask-sqlalchemy==3.0.5
 Frozen-Flask==0.18
 google-auth-oauthlib==1.1.0
 Pillow==10.0.0
