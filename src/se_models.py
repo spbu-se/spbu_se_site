@@ -265,8 +265,10 @@ class CurrentThesis(db.Model):
     area_id = db.Column(db.Integer, db.ForeignKey("areas_of_study.id"), nullable=True)
 
     title = db.Column(db.String(512), nullable=True)
+
     supervisor_id = db.Column(db.Integer, db.ForeignKey("staff.id"), nullable=True)
     worktype_id = db.Column(db.Integer, db.ForeignKey("worktype.id"), nullable=False)
+    consultant = db.Column(db.String(2048), nullable=True)
 
     goal = db.Column(db.String(2048), nullable=True)
 
@@ -277,10 +279,13 @@ class CurrentThesis(db.Model):
 
     text_link = db.Column(db.String(2048), nullable=True)
     presentation_link = db.Column(db.String(2048), nullable=True)
+    code_link = db.Column(db.String(2048), nullable=True)
+    account_name = db.Column(db.String(512), nullable=True)
 
     reports = db.relationship("ThesisReport", backref=db.backref("practice"))
     tasks = db.relationship("ThesisTask", backref=db.backref("practice"))
 
+    archived = db.Column(db.Boolean, default=False)
     deleted = db.Column(db.Boolean, default=False)
     status = db.Column(db.Integer, default=1)
     # 1 - active practice

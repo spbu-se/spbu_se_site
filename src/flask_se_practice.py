@@ -1,20 +1,38 @@
+"""
+   Copyright 2023 Alexander Slugin
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+"""
 # -*- coding: utf-8 -*-
 
-import os
-from datetime import date, timedelta
-from enum import Enum
+from datetime import timedelta
 from functools import wraps
-from typing import List, Tuple
+from typing import List
 
-from flask import flash, redirect, request, render_template, url_for
+from flask import (
+    flash,
+    redirect,
+    request,
+    render_template,
+    url_for,
+    get_flashed_messages,
+)
 from flask_login import current_user
 from sqlalchemy import desc, asc
 from datetime import datetime
-from transliterate import translit
-
 from flask_se_auth import login_required
-from flask_se_config import get_thesis_type_id_string
-from se_forms import ChooseTopic, UserAddReport, CurrentWorktypeArea, AddGoal, AddTask
+
+from se_forms import ChooseTopic, UserAddReport, CurrentWorktypeArea
 from se_models import (
     Users,
     AreasOfStudy,
@@ -28,31 +46,21 @@ from se_models import (
     ThesisTask,
     add_mail_notification,
 )
-
 from templates.practice.student.templates import PracticeStudentTemplates
 from templates.notification.templates import NotificationTemplates
-
-# Global variables
-TEXT_UPLOAD_FOLDER = "static/currentThesis/texts/"
-REVIEW_UPLOAD_FOLDER = "static/currentThesis/reviews/"
-PRESENTATION_UPLOAD_FOLDER = "static/currentThesis/slides/"
-ALLOWED_EXTENSIONS = {"pdf"}
-MIN_LENGTH_OF_TOPIC = 7
-MIN_LENGTH_OF_GOAL = 20
-MIN_LENGTH_OF_TASK = 15
-MIN_LENGTH_OF_FIELD_WAS_DONE = 10
-MIN_LENGTH_OF_FIELD_PLANNED_TO_DO = 10
-
-
-class TypeOfFile(Enum):
-    TEXT = "text"
-    REVIEWER_REVIEW = "reviewer_review"
-    SUPERVISOR_REVIEW = "supervisor_review"
-    PRESENTATION = "slides"
-
-
-def allowed_file(filename) -> bool:
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+from flask_se_practice_config import (
+    TEXT_UPLOAD_FOLDER,
+    REVIEW_UPLOAD_FOLDER,
+    PRESENTATION_UPLOAD_FOLDER,
+    MIN_LENGTH_OF_TOPIC,
+    MIN_LENGTH_OF_GOAL,
+    MIN_LENGTH_OF_TASK,
+    MIN_LENGTH_OF_FIELD_WAS_DONE,
+    MIN_LENGTH_OF_FIELD_PLANNED_TO_DO,
+    TypeOfFile,
+    get_filename,
+    allowed_file,
+)
 
 
 def current_thesis_exists_or_redirect(func):
@@ -179,6 +187,11 @@ def practice_choosing_topic(current_thesis):
                     ),
                 )
 
+        elif "add_consultant_button" in request.form:
+            current_thesis.consultant = request.form["add_consultant_input"]
+            db.session.commit()
+            flash("Консультант добавлен!", category="success")
+
         elif "delete_topic_button" in request.form:
             current_thesis.title = None
             current_thesis.supervisor_id = None
@@ -216,6 +229,7 @@ def practice_edit_theme(current_thesis):
         if "save_topic_button" in request.form:
             topic = request.form.get("topic", type=str)
             supervisor_id = request.form.get("staff", type=int)
+            consultant = request.form.get("consultant", type=str)
 
             if not topic:
                 flash("Введите название темы.", category="error")
@@ -225,6 +239,7 @@ def practice_edit_theme(current_thesis):
                 flash("Выберите научного руководителя.", category="error")
             else:
                 current_thesis.title = topic
+                current_thesis.consultant = consultant
                 if current_thesis.supervisor_id != supervisor_id:
                     add_mail_notification(
                         supervisor_id,
@@ -244,6 +259,7 @@ def practice_edit_theme(current_thesis):
     form = ChooseTopic()
     form.topic.data = current_thesis.title
     form.staff.choices.append((current_thesis.supervisor_id, current_thesis.supervisor))
+    form.consultant.data = current_thesis.consultant
     for supervisor in (
         Staff.query.join(Users, Staff.user_id == Users.id)
         .filter(Staff.id != current_thesis.supervisor_id)
@@ -297,6 +313,10 @@ def practice_goals_tasks(current_thesis):
             db.session.add(new_task)
             db.session.commit()
             flash("Задача добавлена!", category="success")
+
+        elif "delete_goal_button" in request.form:
+            current_thesis.goal = None
+            db.session.commit()
 
         elif (
             "delete_task_id_button" in request.form
@@ -402,6 +422,7 @@ def practice_add_new_report(current_thesis):
                     NotificationTemplates.NEW_REPORT_TO_SUPERVISOR.value,
                     user=current_user,
                     practice=current_thesis,
+                    report=new_report,
                 ),
             )
             flash("Отчёт успешно отправлен!", category="success")
@@ -464,7 +485,7 @@ def practice_preparation(current_thesis):
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if text_file is not None and text_file.filename != "":
-                full_filename, filename = __get_filename(
+                full_filename, filename = get_filename(
                     current_thesis, TEXT_UPLOAD_FOLDER, TypeOfFile.TEXT.value
                 )
                 text_file.save(full_filename)
@@ -519,7 +540,7 @@ def practice_preparation(current_thesis):
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if supervisor_review:
-                full_filename, filename = __get_filename(
+                full_filename, filename = get_filename(
                     current_thesis,
                     REVIEW_UPLOAD_FOLDER,
                     TypeOfFile.SUPERVISOR_REVIEW.value,
@@ -532,7 +553,7 @@ def practice_preparation(current_thesis):
                 )
 
             if reviewer_review:
-                full_filename, filename = __get_filename(
+                full_filename, filename = get_filename(
                     current_thesis,
                     REVIEW_UPLOAD_FOLDER,
                     TypeOfFile.REVIEWER_REVIEW.value,
@@ -540,7 +561,7 @@ def practice_preparation(current_thesis):
                 reviewer_review.save(full_filename)
                 current_thesis.reviewer_review_uri = filename
                 db.session.commit()
-                flash("Отзыв рецензента успешно загружен!", category="success")
+                flash("Отзыв консультанта успешно загружен!", category="success")
 
         elif "submit_presentation_button" in request.form:
             presentation_file = (
@@ -590,7 +611,7 @@ def practice_preparation(current_thesis):
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if presentation_file is not None and presentation_file.filename != "":
-                full_filename, filename = __get_filename(
+                full_filename, filename = get_filename(
                     current_thesis,
                     PRESENTATION_UPLOAD_FOLDER,
                     TypeOfFile.PRESENTATION.value,
@@ -599,6 +620,38 @@ def practice_preparation(current_thesis):
                 current_thesis.presentation_uri = filename
                 db.session.commit()
                 flash("Презентация успешно загружена!", category="success")
+
+        elif "submit_code_button" in request.form:
+            code_link = (
+                request.form["code_link"] if "code_link" in request.form else None
+            )
+            account_name = (
+                request.form["account_name"] if "account_name" in request.form else None
+            )
+
+            if code_link in {None, ""} and account_name in {None, ""}:
+                flash(
+                    "Вы не указали имя аккаунта и ссылку на репозиторий.",
+                    category="error",
+                )
+                return redirect(url_for("practice_preparation", id=current_thesis.id))
+
+            if code_link not in {None, ""}:
+                current_thesis.code_link = code_link
+                db.session.commit()
+                flash("Ссылка на репозиторий сохранена!", category="success")
+
+            if account_name not in {None, ""}:
+                current_thesis.account_name = account_name
+                db.session.commit()
+                flash("Имя аккаунта сохранено!", category="success")
+
+            if code_link not in {None, ""} and account_name not in {None, ""}:
+                get_flashed_messages()
+                flash(
+                    "Ссылка на репозиторий и имя аккаунта сохранены!",
+                    category="success",
+                )
 
         elif "delete_text_button" in request.form:
             current_thesis.text_uri = None
@@ -618,6 +671,12 @@ def practice_preparation(current_thesis):
         elif "delete_supevisor_review_button" in request.form:
             current_thesis.supervisor_review_uri = None
             db.session.commit()
+        elif "delete_code_link_button" in request.form:
+            current_thesis.code_link = None
+            db.session.commit()
+        elif "delete_account_name_button" in request.form:
+            current_thesis.account_name = None
+            db.session.commit()
 
     deadline = (
         Deadline.query.filter_by(worktype_id=current_thesis.worktype_id)
@@ -633,26 +692,6 @@ def practice_preparation(current_thesis):
         remaining_time_submit=get_remaining_time(deadline, "submit_work_for_review"),
         remaining_time_upload=get_remaining_time(deadline, "upload_reviews"),
     )
-
-
-def __get_filename(
-    current_thesis: CurrentThesis, folder: str, type_of_file: str
-) -> Tuple[str, str]:
-    author_en = translit(current_user.get_name(), "ru", reversed=True)
-    author_en = author_en.replace(" ", "_")
-
-    filename = author_en + "_" + get_thesis_type_id_string(current_thesis.worktype_id)
-    filename = filename + "_" + str(date.today().year) + "_" + type_of_file
-    filename_with_ext = filename + ".pdf"
-    full_filename = os.path.join(folder + filename_with_ext)
-
-    # Check if file already exist
-    if os.path.isfile(full_filename):
-        filename = filename + "_" + str(os.urandom(8).hex())
-        filename_with_ext = filename + ".pdf"
-        full_filename = os.path.join(folder + filename_with_ext)
-
-    return full_filename, filename_with_ext
 
 
 @login_required

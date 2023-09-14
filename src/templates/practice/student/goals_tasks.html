@@ -4,13 +4,13 @@
 
 {% block content_account %}
 
-{% set examplesOfGoal =['разработка отладчика для программ, написанных на языке РуСи и добавление к IDE возможности отладки',
+{% set examplesOfGoal = ['разработка отладчика для программ, написанных на языке РуСи и добавление к IDE возможности отладки',
                             'реализация механизма изолированного от JetBrains Rider управления поставщиками типов',
                             'создание веб-сервиса для упрощения организации работы над учебными практиками и ВКР',
                             'создание препроцессора для языка РуСи',
                             'разработка модуля, предназначенного для повышения привилегий пользователя в ОС Windows с использованием уязвимости'] %}
 
-{% set examplesOfTask =['изучить архитектуру транслятора РуСи',
+{% set examplesOfTask = ['изучить архитектуру транслятора РуСи',
                             'доработать модули генерации и интерпретации кода для работы с отладочной информацией',
                             'провести обзор существующих решений',
                             'реализовать основные функции отладчика',
@@ -22,7 +22,18 @@
             <h5 class="align-right">Цель и задачи</h5>
         </div>
     </div>
-    
+
+    {% if practice.status == 2 %}
+    <div class="row mb-3">
+        <div class="col">
+            <p class="text-warning mb-0">
+                <b>Завершённая работа</b>
+            </p>
+            Научный руководитель или руководитель практики пометил эту работу как завершенную
+        </div>
+    </div>
+    {% endif %}
+
     <form name="GoalAndTasksForm" id="GoalAndTasksForm" method="POST" action="{{ url_for('practice_goals_tasks', id=practice.id) }}">
 
         <div class="row">
@@ -37,7 +48,7 @@
 
                         <div class="modal fade" id="goal-help-modal" tabindex="-1"
                              role="dialog" aria-labelledby="goalHelpModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-xl" role="document">
+                            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title h6" id="goalHelpModalLabel">Cправка: цель</h5>
@@ -62,11 +73,41 @@
                         </div>
 
                         {% if practice.goal %}
-                        <p id="goal">{{ practice.goal }}</p>
+                        <div class="row" id="goal">
+                            <div class="col-10 pr-0">
+                                {{ practice.goal }}
+                            </div>
+                            <div class="col-2 text-right">
+                                <button class="text-primary mr-2" style="outline: none; border: 0; box-shadow: none; background-color: transparent;"
+                                    data-content="Редактировать цель" data-trigger="hover" data-placement="top" data-toggle="popoverhover"
+                                    onclick="EditGoal(`{{ practice.goal }}`); return false;">
+                                    <i data-feather="edit"></i>
+                                </button>
+                                <a data-toggle="modal" data-target="#deleteGoalModal" href="#">
+                                    <button class="text-danger" style="outline: none; border: 0; box-shadow: none; background-color: transparent;" data-content="Удалить цель" data-trigger="hover" data-placement="top" data-toggle="popoverhover">
+                                        <i data-feather="trash-2"></i>
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
 
-                        <div id="editGoalButtonDiv" class="row">
-                            <div class="col">
-                                <a class="btn btn-sm btn-outline-primary" onclick="EditGoal('{{ practice.goal }}')">Редактировать</a>
+                        <div class="modal fade text-body" id="deleteGoalModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Подтверждение</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Вы точно хотите удалить цель?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <input type="submit" class="btn btn-secondary" name="delete_goal_button" value="Да, удалить!">
+                                        <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -113,7 +154,7 @@
 
                         <div class="modal fade" id="tasks-help-modal" tabindex="-1"
                              role="dialog" aria-labelledby="tasksHelpModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-xl" role="document">
+                            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title h6" id="tasksHelpModalLabel">Cправка: задачи</h5>
@@ -158,7 +199,7 @@
                                     <div class="col-2 text-right">
                                         <button class="text-primary mr-2" style="outline: none; border: 0; box-shadow: none; background-color: transparent;"
                                                 data-content="Редактировать задачу" data-trigger="hover" data-placement="top" data-toggle="popoverhover"
-                                                onclick="EditTask('{{ task }}', {{task.id}}); return false;">
+                                                onclick="EditTask(`{{ task }}`, `{{task.id}}`); return false;">
                                             <i data-feather="edit"></i>
                                         </button>
                                         <a data-toggle="modal" data-target="#deleteTaskModal-{{ task.id }}" href="#">
@@ -256,17 +297,14 @@
 
 <script type="text/javascript">
      function EditGoal(goal) {
-         console.log("ololo");
          document.getElementById("goal").style.display = "none";
-         document.getElementById("editGoalButtonDiv").style.display = "none";
          document.getElementById("textareaForGoal").style.display = "block";
          document.getElementById("resaveGoalButtonDiv").style.display = "block";
          document.getElementById("goalTextarea").value = goal;
     }
 
     function ResetGoal() {
-         document.getElementById("goal").style.display = "block";
-         document.getElementById("editGoalButtonDiv").style.display = "block";
+         document.getElementById("goal").style.display = "";
          document.getElementById("textareaForGoal").style.display = "none";
          document.getElementById("resaveGoalButtonDiv").style.display = "none";
          document.getElementById("goalTextarea").value = "";

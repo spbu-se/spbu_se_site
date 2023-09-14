@@ -1,16 +1,13 @@
 {% extends "base_light.html" %}
-
+{% block author %}Alexander Slugin{% endblock %}
 {% block content %}
 
     <section class="mt-7 pt-4 bg-section-secondary">
         <div class="container">
 
-            <div class="row mb-3">
+            <div class="row" id="practice-admin-title">
                 <div class="col-12">
                     <h2>Написание учебных практик и ВКР (Руководитель практики)</h2>
-                    <p class="mb-0">Направление обучения: <b>{{ area }}</b></p>
-                    <p class="mb-0">Тип работы: <b>{{ worktype }}</b></p>
-                    <a href={{ url_for('choose_worktype_admin') }}>Изменить</a>
                 </div>
             </div>
 
@@ -18,15 +15,46 @@
                 <div class="col-lg-3 col-12">
                     <div id="accordion-1" class="accordion accordion-stacked mb-2">
                         <div class="card">
-                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
-                                <a href={{ url_for('index_admin', area_id=area.id, worktype_id=worktype.id) }}><h6 class="mb-0">Работы</h6></a>
+                            <div class="card-body px-3 py-3">
+                                <p class="text-sm mb-0">
+                                    Направление обучения
+                                </p>
+                                <div class="form-group">
+                                    <select class="custom-select pl-3" onchange="location = this.value;">
+                                        <option {% if not area %} selected {% endif %} value="{{ url_for('choose_area_and_worktype_admin', worktype_id=worktype.id)}}">Выберите направление обучения</option>
+                                        {% for area_of_study in list_of_areas %}
+                                        <option {% if area.id == area_of_study.id %} selected {% endif %} value="{{ url_for('choose_area_and_worktype_admin', area_id=area_of_study.id, worktype_id=worktype.id)}}">{{ area_of_study }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <p class="text-sm mb-0">
+                                    Тип работы
+                                </p>
+                                <div class="form-group">
+                                    <select class="custom-select pl-3" onchange="location = this.value;">
+                                        <option {% if not worktype %} selected {% endif %} value="{{ url_for('choose_area_and_worktype_admin', area_id=area.id)}}">Выберите тип работы</option>
+                                        {% for work_type in list_of_worktypes %}
+                                        <option {% if worktype.id == work_type.id %} selected {% endif %} value="{{ url_for('choose_area_and_worktype_admin', area_id=area.id, worktype_id=work_type.id)}}">{{ work_type }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="card">
                             <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
-                                <a href={{ url_for('deadline_admin', area_id=area.id, worktype_id=worktype.id) }}><h6 class="mb-0">Дедлайны</h6></a>
+                                <a href="{{ url_for('index_admin', area_id=area.id, worktype_id=worktype.id) }}"><h6 class="mb-0">Работы</h6></a>
                             </div>
                         </div>
+                        <div class="card">
+                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">
+                                <a href="{{ url_for('finished_thesises_admin', area_id=area.id, worktype_id=worktype.id) }}"><h6 class="mb-0">Завершённые работы</h6></a>
+                            </div>
+                        </div>
+<!--                        <div class="card">-->
+<!--                            <div class="py-4" style="padding: 1.25rem 1.75rem; margin-bottom: 0; background-color: transparent;">-->
+<!--                                <a href="{{ url_for('deadline_admin', area_id=area.id, worktype_id=worktype.id) }}"><h6 class="mb-0">Дедлайны</h6></a>-->
+<!--                            </div>-->
+<!--                        </div>-->
                     </div>
                 </div>
 
@@ -66,8 +94,28 @@
                     {% endif %}
                     {% endwith %}
 
+                    {% if not area and not worktype %}
+                    <div class="row">
+                        <div class="col text-center">
+                            <h5>Выберите направление обучения и тип работы</h5>
+                        </div>
+                    </div>
+                    {% elif not area %}
+                    <div class="row">
+                        <div class="col text-center">
+                            <h5>Выберите направление обучения</h5>
+                        </div>
+                    </div>
+                    {% elif not worktype %}
+                    <div class="row">
+                        <div class="col text-center">
+                            <h5>Выберите тип работы</h5>
+                        </div>
+                    </div>
+                    {% else %}
                     {% block content_practice_admin %}{% endblock %}
 
+                    {% endif %}
                 </div>
             </div>
         </div>

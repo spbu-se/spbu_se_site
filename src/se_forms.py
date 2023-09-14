@@ -154,6 +154,9 @@ class ChooseTopic(FlaskForm):
         description="Например, реализация алгоритма контекстно-свободной достижимости на OpenCL",
     )
     staff = SelectField("staff", choices=[])
+    consultant = StringField(
+        "consultant", description="ФИО консультанта, должность и компания"
+    )
 
 
 class DeadlineTemp(FlaskForm):
@@ -200,6 +203,16 @@ class UserAddReport(FlaskForm):
 class StaffAddCommentToReport(FlaskForm):
     comment = StringField(
         "comment",
-        description="Дайте студенту обратную связь по отчету, если хотите.",
+        description="Можете дать студенту обратную связь по отчёту",
         widget=TextArea(),
     )
+
+
+class ChooseCourseAndYear(FlaskForm):
+    course = SelectField("course", choices=[])
+
+    current_year = datetime.now().year
+    years = [
+        (str(year), str(year)) for year in range(current_year - 5, current_year + 3)
+    ]
+    publish_year = SelectField("publish_year", choices=years, default=str(current_year))

@@ -12,30 +12,41 @@
         </div>
     </div>
 
-    {% if deadline %}
+    {% if practice.status == 2 %}
     <div class="row mb-3">
         <div class="col">
-            {% if deadline.submit_work_for_review %}
-            <p class="mb-0">Дедлайн на отправку работы для рецензирования: <b>{{ deadline.submit_work_for_review | datatime_convert }}</b>
-                {% if remaining_time_submit[0] < 0 %}
-                (<span class="text-body">дедлайн прошёл</span>)
-                {% else %}
-                (осталось: <span class="text-{{remaining_time_submit[2]}}">{{ remaining_time_submit[0] }} {{ remaining_time_submit[1] }}</span>)
-                {% endif %}
+            <p class="text-warning mb-0">
+                <b>Завершённая работа</b>
             </p>
-            {% endif %}
-            {% if deadline.upload_reviews %}
-            <p class="mb-0">Дедлайн на загрузку отзывов: <b>{{ deadline.upload_reviews | datatime_convert }}</b>
-                {% if remaining_time_upload[0] < 0 %}
-                (<span class="text-body">дедлайн прошёл</span>)
-                {% else %}
-                (осталось: <span class="text-{{remaining_time_upload[2]}}">{{ remaining_time_upload[0] }} {{ remaining_time_upload[1] }}</span>)
-                {% endif %}
-            </p>
-            {% endif %}
+            Научный руководитель или руководитель практики пометил эту работу как завершенную
         </div>
     </div>
     {% endif %}
+
+<!--    {% if deadline %}-->
+<!--    <div class="row mb-3">-->
+<!--        <div class="col">-->
+<!--            {% if deadline.submit_work_for_review %}-->
+<!--            <p class="mb-0">Дедлайн на отправку работы для рецензирования: <b>{{ deadline.submit_work_for_review | datatime_convert }}</b>-->
+<!--                {% if remaining_time_submit[0] < 0 %}-->
+<!--                (<span class="text-body">дедлайн прошёл</span>)-->
+<!--                {% else %}-->
+<!--                (осталось: <span class="text-{{remaining_time_submit[2]}}">{{ remaining_time_submit[0] }} {{ remaining_time_submit[1] }}</span>)-->
+<!--                {% endif %}-->
+<!--            </p>-->
+<!--            {% endif %}-->
+<!--            {% if deadline.upload_reviews %}-->
+<!--            <p class="mb-0">Дедлайн на загрузку отзывов: <b>{{ deadline.upload_reviews | datatime_convert }}</b>-->
+<!--                {% if remaining_time_upload[0] < 0 %}-->
+<!--                (<span class="text-body">дедлайн прошёл</span>)-->
+<!--                {% else %}-->
+<!--                (осталось: <span class="text-{{remaining_time_upload[2]}}">{{ remaining_time_upload[0] }} {{ remaining_time_upload[1] }}</span>)-->
+<!--                {% endif %}-->
+<!--            </p>-->
+<!--            {% endif %}-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    {% endif %}-->
 
     <form method="POST" action="{{url_for('practice_preparation', id=practice.id)}}" enctype="multipart/form-data">
 
@@ -48,7 +59,7 @@
                         {% if practice.text_uri %}
                         <div class="row px-2 mt-2">
                             <div class="col-10">
-                                <a href="{{ url_for('static', filename='/currentThesis/texts/' + practice.text_uri) }}" target="_blank">
+                                <a href="{{ url_for('static', filename='/practice/texts/' + practice.text_uri) }}" target="_blank">
                                     <div class="icon icon-sm icon-shape bg-soft-success text-success mr-2">
                                         <i class="fas fa-file-pdf"></i>
                                     </div>
@@ -135,7 +146,7 @@
                                 <div class="form-group mb-0 mt-2">
                                     <input type="file" name="text" id="text" class="custom-input-file" />
                                     <label for="text">
-                                        <i data-feather="upload"></i>
+                                        <i data-feather="upload" class="mr-2"></i>
                                         <span>Загрузить текст работы (в формате .PDF)</span>
                                     </label>
                                 </div>
@@ -172,7 +183,7 @@
                         {% if practice.supervisor_review_uri %}
                         <div class="row px-2 mt-2">
                             <div class="col-10">
-                                <a href="{{ url_for('static', filename='/currentThesis/reviews/' + practice.supervisor_review_uri) }}" target="_blank">
+                                <a href="{{ url_for('static', filename='/practice/reviews/' + practice.supervisor_review_uri) }}" target="_blank">
                                     <div class="icon icon-sm icon-shape bg-soft-primary text-primary mr-2">
                                         <i class="fas fa-file-alt"></i>
                                     </div>
@@ -214,11 +225,11 @@
                         {% if practice.reviewer_review_uri %}
                         <div class="row px-2 mt-2">
                             <div class="col-10">
-                                <a href="{{ url_for('static', filename='/currentThesis/reviews/' + practice.reviewer_review_uri) }}" target="_blank">
+                                <a href="{{ url_for('static', filename='/practice/reviews/' + practice.reviewer_review_uri) }}" target="_blank">
                                     <div class="icon icon-sm icon-shape bg-soft-primary text-primary mr-2">
                                         <i class="fas fa-file-alt"></i>
                                     </div>
-                                    Отзыв рецензента
+                                    Отзыв консультанта
                                 </a>
                             </div>
                             <div class="col-2">
@@ -240,7 +251,7 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                Вы точно хотите удалить отзыв рецензента?
+                                                Вы точно хотите удалить отзыв консультанта?
                                             </div>
                                             <div class="modal-footer">
                                                 <input type="submit" class="btn btn-secondary" name="delete_reviewer_review_button" value="Да, удалить!">
@@ -259,7 +270,7 @@
                                 <div class="form-group mb-0 mt-2">
                                     <input type="file" name="supervisor_review" id="supervisor_review" class="custom-input-file" />
                                     <label for="supervisor_review">
-                                        <i data-feather="upload"></i>
+                                        <i data-feather="upload" class="mr-2"></i>
                                         <span>Загрузить отзыв научного руководителя (в формате .PDF)</span>
                                     </label>
                                 </div>
@@ -273,8 +284,8 @@
                                 <div class="form-group mb-0 mt-2">
                                     <input type="file" name="consultant_review" id="consultant_review" class="custom-input-file" />
                                     <label for="consultant_review">
-                                        <i data-feather="upload"></i>
-                                        <span>Загрузить отзыв рецензента (в формате .PDF)</span>
+                                        <i data-feather="upload" class="mr-2"></i>
+                                        <span>Загрузить отзыв консультанта (в формате .PDF)</span>
                                     </label>
                                 </div>
                             </div>
@@ -291,14 +302,14 @@
 
         <div class="row">
             <div class="col">
-                <div class="card border-0">
+                <div class="card mb-2 border-0">
                     <div class="card-body py-3">
 
                         <h6 class="mb-0">Презентация</h6>
                         {% if practice.presentation_uri %}
                         <div class="row px-2 mt-2">
                             <div class="col-10">
-                                <a href="{{ url_for('static', filename='/currentThesis/slides/' + practice.presentation_uri) }}" target="_blank">
+                                <a href="{{ url_for('static', filename='/practice/slides/' + practice.presentation_uri) }}" target="_blank">
                                     <div class="icon icon-sm icon-shape bg-soft-warning text-warning mr-2">
                                         <i class="fas fa-file-powerpoint"></i>
                                     </div>
@@ -385,7 +396,7 @@
                                 <div class="form-group mb-0 mt-2">
                                     <input type="file" name="presentation" id="presentation" class="custom-input-file" />
                                     <label for="presentation">
-                                        <i data-feather="upload"></i>
+                                        <i data-feather="upload" class="mr-2"></i>
                                         <span>Загрузить презентацию работы (в формате .PDF)</span>
                                     </label>
                                 </div>
@@ -406,6 +417,144 @@
 
                         {% if not practice.presentation_uri or not practice.presentation_link  %}
                         <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_presentation_button" value="Сохранить">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="card border-0">
+                    <div class="card-body py-3">
+
+                        <h6 class="mb-0">Реализация
+                            <a class="text-primary" data-toggle="modal" data-target="#code-help-modal" href="#">
+                                <i data-feather="alert-circle"></i>
+                            </a>
+                        </h6>
+
+                        <div class="modal fade" id="code-help-modal" tabindex="-1"
+                             role="dialog" aria-labelledby="codeHelpModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title h6" id="codeHelpModalLabel">Справка: реализация</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Укажите ссылку на репозиторий с практической реализацией либо явно укажите, что код закрыт или отсутствует.
+                                        Если проект групповой, указывается также имя аккаунта автора, позволяющее однозначно определить его вклад в проект.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if practice.code_link %}
+                        <div class="row px-2 mt-2">
+                            <div class="col-10">
+                                <a href="{{ practice.code_link }}" target="_blank">
+                                    <div class="icon icon-sm icon-shape bg-soft-success text-success mr-2">
+                                        <i class="fas fa-file-archive"></i>
+                                    </div>
+                                    {{ practice.code_link }}
+                                </a>
+                            </div>
+                            <div class="col-2">
+                                <div class="text-right">
+                                    <a data-toggle="modal" data-target="#deleteCodeLinkModal"  class="text-danger" href="#">
+                                        <button class="text-danger" style="outline: none; border: 0; box-shadow: none; background-color: transparent;" data-content="Удалить ссылку на репозиторий" data-trigger="hover" data-placement="top" data-toggle="popoverhover">
+                                            <i data-feather="trash-2"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                                <!-- Modal -->
+                                <div class="modal fade" id="deleteCodeLinkModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabelCodeLink" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="ModalLabelCodeLink">Подтверждение</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Вы точно хотите удалить ссылку на репозиторий?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="submit" class="btn btn-secondary" name="delete_code_link_button" value="Да, удалить!">
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if practice.account_name %}
+                        <div class="row px-2 mt-2">
+                            <div class="col-10">
+                                <div>
+                                    <b>Имя аккаунта:</b> {{ practice.account_name }}
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="text-right">
+                                    <a data-toggle="modal" data-target="#deleteAccountNameModal"  class="text-danger" href="#">
+                                        <button class="text-danger" style="outline: none; border: 0; box-shadow: none; background-color: transparent;" data-content="Удалить имя аккаунта" data-trigger="hover" data-placement="top" data-toggle="popoverhover">
+                                            <i data-feather="trash-2"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                                <!-- Modal -->
+                                <div class="modal fade" id="deleteAccountNameModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabelAccountName" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="ModalLabelAccountName">Подтверждение</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Вы точно хотите удалить имя аккаунта?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="submit" class="btn btn-secondary" name="delete_account_name_button" value="Да, удалить!">
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not practice.code_link %}
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group mb-0 mt-2">
+                                    <input type="text" name="code_link" id="code_link" class="form-control" placeholder="Ссылка на репозиторий либо укажите, что код закрыт или отсутствует"/>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not practice.account_name %}
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group mb-0 mt-2">
+                                    <input type="text" name="account_name" id="account_name" class="form-control" placeholder="Имя аккаунта"/>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not practice.code_link or not practice.account_name %}
+                        <input type="submit" class="btn btn-sm btn-primary mt-2" name="submit_code_button" value="Сохранить">
                         {% endif %}
                     </div>
                 </div>
