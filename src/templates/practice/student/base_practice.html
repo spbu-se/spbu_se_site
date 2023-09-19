@@ -57,9 +57,9 @@
                                             <i class="mr-1" data-feather="chevron-right"></i>
                                             {% endif %}
 
-                                            {% if (request.path == "/practice/choosing_topic" or request.path == "/practice/edit_theme") and practice and practice.id == thesis.id %}
+                                            {% if (request.path == "/practice/choosing_topic/" or request.path == "/practice/edit_theme/") and practice and practice.id == thesis.id %}
                                             <b>Выбор темы</b>
-                                            {%else%}
+                                            {% else %}
                                             Выбор темы
                                             {% endif %}
                                         </a>
@@ -72,17 +72,17 @@
                                             <i class="mr-1" data-feather="chevron-right"></i>
                                             {% endif %}
 
-                                            {% if request.path == "/practice/goals_tasks" and practice and practice.id == thesis.id %}
+                                            {% if request.path == "/practice/goals_tasks/" and practice and practice.id == thesis.id %}
                                             <b>Цели и задачи</b>
-                                            {%else%}
+                                            {% else %}
                                             Цели и задачи
                                             {% endif %}
                                         </a>
                                         <a name="reports_button" class="nav-link pl-2" href="{{ url_for('practice_workflow', id=thesis.id) }}">
                                             <i class="mr-1" data-feather="clipboard"></i>
-                                            {% if (request.path == "/practice/workflow" or request.path == "/practice/add_new_report") and practice and practice.id == thesis.id %}
+                                            {% if (request.path == "/practice/workflow/" or request.path == "/practice/add_new_report/") and practice and practice.id == thesis.id %}
                                             <b>Отчётность</b>
-                                            {%else%}
+                                            {% else %}
                                             Отчётность
                                             {% endif %}
                                         </a>
@@ -94,25 +94,27 @@
                                             {% else %}
                                             <i class="mr-1" data-feather="chevron-right"></i>
                                             {% endif %}
-                                            {% if request.path == "/practice/preparation_for_defense" and practice and practice.id == thesis.id %}
+                                            {% if request.path == "/practice/preparation_for_defense/" and practice and practice.id == thesis.id %}
                                             <b>Подготовка к защите</b>
-                                            {%else%}
+                                            {% else %}
                                             Подготовка к защите
                                             {% endif %}
                                         </a>
-<!--                                        <a name="defense_button" class="nav-link pl-2" href="{{ url_for('practice_thesis_defense', id=thesis.id) }}">-->
-<!--                                            <i class="mr-1" data-feather="chevron-right"></i>-->
-<!--                                            {% if request.path == "/practice/defense" and practice and practice.id == thesis.id %}-->
-<!--                                            <b>Защита</b>-->
-<!--                                            {%else%}-->
-<!--                                            Защита-->
-<!--                                            {% endif %}-->
-<!--                                        </a>-->
+                                        <!--
+                                        <a name="defense_button" class="nav-link pl-2" href="{{ url_for('practice_thesis_defense', id=thesis.id) }}">
+                                            <i class="mr-1" data-feather="chevron-right"></i>
+                                            {% if request.path == "/practice/defense" and practice and practice.id == thesis.id %}
+                                            <b>Защита</b>
+                                            {% else %}
+                                            Защита
+                                            {% endif %}
+                                        </a>
+                                        -->
                                         <a name="data_for_practice_button" class="nav-link pl-2" href="{{ url_for('practice_data_for_practice', id=thesis.id) }}">
                                             <i class="mr-1" data-feather="settings"></i>
-                                            {% if request.path == "/practice/data_for_practice" and practice and practice.id == thesis.id %}
+                                            {% if request.path == "/practice/data_for_practice/" and practice and practice.id == thesis.id %}
                                             <b>Настройки</b>
-                                            {%else%}
+                                            {% else %}
                                             Настройки
                                             {% endif %}
                                         </a>

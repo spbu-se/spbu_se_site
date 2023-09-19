@@ -41,11 +41,9 @@ def handle_yandex_table(table_name, sheet_name, area_id, worktype_id, column_nam
 
 
 def get_code():
-    if __debug__:
-        redirect_uri = "http://127.0.0.1:5000/practice_admin/yandex_code"
-    else:
-        redirect_uri = "https://se.math.spbu.ru/practice_admin/yandex_code"
 
+    redirect_uri = "http://127.0.0.1:5000/practice_admin/yandex_code"
+                   # "https://se.math.spbu.ru/practice_admin/yandex_code"
     url = (
         f"https://oauth.yandex.ru/authorize?response_type=code"
         f"&client_id={YANDEX_CLIENT_ID}&redirect_uri={redirect_uri}"

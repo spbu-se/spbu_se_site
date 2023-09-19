@@ -22,104 +22,129 @@
 
     <form method="POST" action="{{ url_for('index_admin', area_id=area.id, worktype_id=worktype.id) }}">
         <div class="row mb-3">
-            <div class="col d-flex justify-content-start">
-                <input type="submit" class="btn btn-sm btn-primary" name="download_materials_button" value="Загрузить материалы работ">
-
+            <div class="col">
+                <input type="submit" class="btn btn-sm btn-primary" name="download_materials_button" value="Скачать материалы работ">
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#yandexDiskModal">
                     Таблица с результатами
                 </button>
+                <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#finishAllWorksModal">
+                    Завершить все работы
+                </button>
+            </div>
+        </div>
 
-                <!-- Modal -->
-                <div class="modal fade docs-example-modal-lg" id="yandexDiskModal" tabindex="-1" role="dialog" aria-labelledby="yandexDiskModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="yandexDiskModalLabel">Выгрузка таблицы с результатами</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                                </button>
+        <!-- Modal -->
+        <div class="modal fade" id="finishAllWorksModal" tabindex="-1" role="dialog" aria-labelledby="finishAllWorksModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="finishAllWorksModalLabel">Подтверждение</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Вы точно хотите пометить все работы завершёнными?<br>
+                        <b>Направление:</b> {{ area }}<br>
+                        <b>Тип работ:</b> {{ worktype }}
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" class="btn btn-secondary" name="finish_all_work_button" value="Да!">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить как есть</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade docs-example-modal-lg" id="yandexDiskModal" tabindex="-1" role="dialog" aria-labelledby="yandexDiskModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="yandexDiskModalLabel">Выгрузка таблицы с результатами</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Введите полный путь и название файла таблицы (в формате .xlsx)
+                        <ul class="mb-0">
+                            <li>Если файл существует на диске, он будет скачан, отредактирован и загружен обратно.</li>
+                            <li>Если файла на диске нет, он будет создан.</li>
+                        </ul>
+                        <div class="form-group mb-2 mt-1">
+                            <input type="text" class="form-control" placeholder="path/to/table/table_with_results.xlsx" name="table_name">
+                        </div>
+
+                        Введите название листа таблицы
+                        <ul class="mb-0">
+                            <li>Лист таблицы, который будет отредактирован / создан (при создании таблицы).</li>
+                            <li>По умолчанию (пустое значение) - первый лист таблицы.</li>
+                        </ul>
+                        <div class="form-group mb-3 mt-1">
+                            <input id="sheet-name-input" type="text" class="form-control" placeholder="Название листа таблицы" name="sheet_name">
+                        </div>
+
+
+                        <a id="arrow-column-name" data-toggle="collapse" href="#collapseColumnNames" role="button" aria-expanded="false" aria-controls="collapseColumnNames" onclick="ChangeArrow()">
+                            Настроить названия столбцов в таблице
+                            <i id="iconUp" data-feather="chevron-up" style="display: none"></i>
+                            <i id="iconDown" data-feather="chevron-down"></i>
+                        </a>
+
+                        <div class="collapse" id="collapseColumnNames">
+                            <div class="form-group mb-2">
+                                <label for="user-name-input" class="text-sm mb-0">ФИО</label>
+                                <input id="user-name-input" type="text" class="form-control" placeholder="ФИО" name="user_name_column" value="{{ table_columns['name'] }}">
                             </div>
-                            <div class="modal-body">
-                                Введите полный путь и название файла таблицы (в формате .xlsx)
-                                <ul class="mb-0">
-                                    <li>Если файл существует на диске, он будет скачан, отредактирован и загружен обратно.</li>
-                                    <li>Если файла на диске нет, он будет создан.</li>
-                                </ul>
-                                <div class="form-group mb-2 mt-1">
-                                    <input type="text" class="form-control" placeholder="path/to/table/table_with_results.xlsx" name="table_name">
-                                </div>
-
-                                Введите название листа таблицы
-                                <ul class="mb-0">
-                                    <li>Лист таблицы, который будет отредактирован / создан (при создании таблицы).</li>
-                                    <li>По умолчанию (пустое значение) - первый лист таблицы.</li>
-                                </ul>
-                                <div class="form-group mb-3 mt-1">
-                                    <input id="sheet-name-input" type="text" class="form-control" placeholder="Название листа таблицы" name="sheet_name">
-                                </div>
-
-
-                                <a id="arrow-column-name" data-toggle="collapse" href="#collapseColumnNames" role="button" aria-expanded="false" aria-controls="collapseColumnNames" onclick="ChangeArrow()">
-                                    Настроить названия столбцов в таблице
-                                    <i id="iconUp" data-feather="chevron-up" style="display: none"></i>
-                                    <i id="iconDown" data-feather="chevron-down"></i>
-                                </a>
-
-                                <div class="collapse" id="collapseColumnNames">
-                                    <div class="form-group mb-2">
-                                        <label for="user-name-input" class="text-sm mb-0">ФИО</label>
-                                        <input id="user-name-input" type="text" class="form-control" placeholder="ФИО" name="user_name_column" value="{{ table_columns['name'] }}">
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <label for="how_to_contact-input" class="text-sm mb-0">Способ связи</label>
-                                        <input id="how_to_contact-input" type="text" class="form-control" placeholder="Способ связи" name="how_to_contact_column" value="{{ table_columns['how_to_contact'] }}">
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <label for="supervisor-input" class="text-sm mb-0">Научный руководитель</label>
-                                        <input id="supervisor-input" type="text" class="form-control" placeholder="Научный руководитель" name="supervisor_column" value="{{ table_columns['supervisor'] }}">
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <label for="consultant-input" class="text-sm mb-0">Консультант</label>
-                                        <input id="consultant-input" type="text" class="form-control" placeholder="Консультант" name="consultant_column" value="{{ table_columns['consultant'] }}">
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <label for="theme-input" class="text-sm mb-0">Тема</label>
-                                        <input id="theme-input" type="text" class="form-control" placeholder="Название темы" name="theme_column" value="{{ table_columns['theme'] }}">
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <label for="text-input" class="text-sm mb-0">Текст</label>
-                                        <input id="text-input" type="text" class="form-control" placeholder="Текст" name="text_column" value="{{ table_columns['text'] }}">
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <label for="supervisor-review-input" class="text-sm mb-0">Отзыв научного руководителя</label>
-                                        <input id="supervisor-review-input" type="text" class="form-control" placeholder="Отзыв научного руководителя" name="supervisor_review_column" value="{{ table_columns['supervisor_review'] }}">
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <label for="reviewer-review-input" class="text-sm mb-0">Отзыв консультанта</label>
-                                        <input id="reviewer-review-input" type="text" class="form-control" placeholder="Отзыв консультанта" name="reviewer_review_column" value="{{ table_columns['reviewer_review'] }}">
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <label for="code-input" class="text-sm mb-0">Реализация (ссылка на код)</label>
-                                        <input id="code-input" type="text" class="form-control" placeholder="Ссылка на код" name="code_column" value="{{ table_columns['code'] }}">
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <label for="committer-input" class="text-sm mb-0">Имя коммитера</label>
-                                        <input id="committer-input" type="text" class="form-control" placeholder="Имя коммитера" name="committer_column" value="{{ table_columns['committer'] }}">
-                                    </div>
-                                    <div class="form-group mb-0">
-                                        <label for="presentation-input" class="text-sm mb-0">Презентация</label>
-                                        <input id="presentation-input" type="text" class="form-control" placeholder="Презентация" name="presentation_column" value="{{ table_columns['presentation'] }}">
-                                    </div>
-                                </div>
-
-
+                            <div class="form-group mb-2">
+                                <label for="how_to_contact-input" class="text-sm mb-0">Способ связи</label>
+                                <input id="how_to_contact-input" type="text" class="form-control" placeholder="Способ связи" name="how_to_contact_column" value="{{ table_columns['how_to_contact'] }}">
                             </div>
-                            <div class="modal-footer py-2">
-                                <input type="submit" class="btn btn-sm btn-primary" name="download_table" value="Скачать">
-                                <input type="submit" class="btn btn-sm btn-primary" name="yandex_button" value="Выгрузить на Яндекс Диск">
+                            <div class="form-group mb-2">
+                                <label for="supervisor-input" class="text-sm mb-0">Научный руководитель</label>
+                                <input id="supervisor-input" type="text" class="form-control" placeholder="Научный руководитель" name="supervisor_column" value="{{ table_columns['supervisor'] }}">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="consultant-input" class="text-sm mb-0">Консультант</label>
+                                <input id="consultant-input" type="text" class="form-control" placeholder="Консультант" name="consultant_column" value="{{ table_columns['consultant'] }}">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="theme-input" class="text-sm mb-0">Тема</label>
+                                <input id="theme-input" type="text" class="form-control" placeholder="Название темы" name="theme_column" value="{{ table_columns['theme'] }}">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="text-input" class="text-sm mb-0">Текст</label>
+                                <input id="text-input" type="text" class="form-control" placeholder="Текст" name="text_column" value="{{ table_columns['text'] }}">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="supervisor-review-input" class="text-sm mb-0">Отзыв научного руководителя</label>
+                                <input id="supervisor-review-input" type="text" class="form-control" placeholder="Отзыв научного руководителя" name="supervisor_review_column" value="{{ table_columns['supervisor_review'] }}">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="reviewer-review-input" class="text-sm mb-0">Отзыв консультанта</label>
+                                <input id="reviewer-review-input" type="text" class="form-control" placeholder="Отзыв консультанта" name="reviewer_review_column" value="{{ table_columns['reviewer_review'] }}">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="code-input" class="text-sm mb-0">Реализация (ссылка на код)</label>
+                                <input id="code-input" type="text" class="form-control" placeholder="Ссылка на код" name="code_column" value="{{ table_columns['code'] }}">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="committer-input" class="text-sm mb-0">Имя коммитера</label>
+                                <input id="committer-input" type="text" class="form-control" placeholder="Имя коммитера" name="committer_column" value="{{ table_columns['committer'] }}">
+                            </div>
+                            <div class="form-group mb-0">
+                                <label for="presentation-input" class="text-sm mb-0">Презентация</label>
+                                <input id="presentation-input" type="text" class="form-control" placeholder="Презентация" name="presentation_column" value="{{ table_columns['presentation'] }}">
                             </div>
                         </div>
+
+
+                    </div>
+                    <div class="modal-footer py-2">
+                        <input type="submit" class="btn btn-sm btn-primary" name="download_table" value="Скачать">
+                        <input type="submit" class="btn btn-sm btn-primary" name="yandex_button" value="Выгрузить на Яндекс Диск">
                     </div>
                 </div>
             </div>
