@@ -173,7 +173,7 @@ def index_admin():
                 table.seek(0)
                 os.remove(full_filename)
                 return send_file(
-                    table, mimetype=full_filename, attachment_filename=table_filename
+                    table, mimetype=full_filename, download_name=table_filename
                 )
 
     list_of_thesises = (
@@ -252,7 +252,7 @@ def __send_file_and_remove(full_filename, filename):
         return_data.write(fo.read())
     return_data.seek(0)
     os.remove(full_filename)
-    return send_file(return_data, mimetype=full_filename, attachment_filename=filename)
+    return send_file(return_data, mimetype=full_filename, download_name=filename)
 
 
 @login_required
