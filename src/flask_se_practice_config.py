@@ -21,9 +21,12 @@ from datetime import date
 from enum import Enum
 from typing import Tuple
 from transliterate import translit
+from string import Template
 
 from flask_se_config import get_thesis_type_id_string
 from se_models import CurrentThesis
+
+ROOT_URL = "https://se.math.spbu.ru"
 
 # Yandex disk
 YANDEX_CLIENT_ID = "10e079e42b49492295a39e2767e7b049"
@@ -36,6 +39,11 @@ if os.path.exists(YANDEX_SECRET_FILE):
 else:
     YANDEX_SECRET = ""
 
+YANDEX_AUTHORIZE_URL_TEMPLATE = Template(
+    "https://oauth.yandex.ru/authorize?response_type=code"
+    "&client_id=$yandex_client_id&redirect_uri=$redirect_uri"
+)
+YANDEX_GET_TOKEN_URL = "https://oauth.yandex.ru/token"
 
 FOLDER_FOR_TABLE = "static/practice/result_table/"
 

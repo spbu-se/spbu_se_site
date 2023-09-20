@@ -112,6 +112,18 @@ def index_admin():
     if request.method == "POST":
         if "download_materials_button" in request.form:
             return download_materials(area, worktype)
+        if "finish_all_work_button" in request.form:
+            thesises = (
+                CurrentThesis.query.filter_by(area_id=area_id)
+                .filter_by(worktype_id=worktype_id)
+                .filter_by(deleted=False)
+                .filter_by(status=1)
+                .filter(CurrentThesis.title != None)
+                .all()
+            )
+            for thesis in thesises:
+                thesis.status = 2
+            db.session.commit()
         if "yandex_button" in request.form or "download_table" in request.form:
             table_name = request.form["table_name"]
             sheet_name = request.form["sheet_name"]
