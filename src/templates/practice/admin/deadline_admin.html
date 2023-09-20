@@ -1,0 +1,58 @@
+{% extends "practice/admin/base_practice_admin.html" %}
+
+{% block head_links %}
+<link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/flatpickr/dist/flatpickr.min.css') }}" >
+{% endblock %}
+
+{% block title %}Дедлайны{% endblock %}
+
+{% block content_practice_admin %}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h5>Дедлайны</h5>
+        </div>
+    </div>
+
+    <form method="POST" action="{{url_for('deadline_admin') }}">
+        {{ form.csrf_token }}
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0">
+                    <div class="card-body pt-3">
+                        <div class="form-group">
+                            <label for="choose_topic">Дедлайн на выбор темы:</label>
+                            {{ form.choose_topic(class="form-control flatpickr-input flatpickr-mobile", type="datetime-local", placeholder="Select date and time") }}
+                        </div>
+                        <div class="form-group">
+                            <label for="submit_work_for_review">Дедлайн на отправку работы на рецензирование:</label>
+                            {{ form.submit_work_for_review(class="form-control flatpickr-input flatpickr-mobile", type="datetime-local", placeholder="Select date and time") }}
+                        </div>
+                        <div class="form-group">
+                            <label for="upload_reviews">Дедлайн на загрузку отзывов:</label>
+                            {{ form.upload_reviews(class="form-control flatpickr-input flatpickr-mobile", type="datetime-local", placeholder="Select date and time") }}
+                        </div>
+                        <div class="form-group">
+                            <label for="pre_defense">Время предзащиты:</label>
+                            {{ form.pre_defense(class="form-control flatpickr-input flatpickr-mobile", type="datetime-local", placeholder="Select date and time") }}
+                        </div>
+                        <div class="form-group">
+                            <label for="defense">Время защиты:</label>
+                            {{ form.defense(class="form-control flatpickr-input flatpickr-mobile", type="datetime-local", placeholder="Select date and time") }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <input type="submit" class="btn btn-sm btn-primary" name="submit_button" value="Сохранить">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+     </form>
+</div>
+
+{% endblock %}

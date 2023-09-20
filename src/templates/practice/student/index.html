@@ -1,0 +1,162 @@
+{% extends "practice/student/base_practice.html" %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content_account %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col">
+            <h5 class="align-right">Главная</h5>
+        </div>
+    </div>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs mb-2" id="myTab" role="tablist">
+        {% if type_notifications == 'new' %}
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="new" data-toggle="tab" data-target="#new-notifications" type="button" role="tab" aria-controls="new-notifications" aria-selected="true">Непрочитанные уведомления</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="all" data-toggle="tab" data-target="#all-notifications" type="button" role="tab" aria-controls="all-notifications" aria-selected="false">Все уведомления</a>
+        </li>
+        {% else %}
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="new" data-toggle="tab" data-target="#new-notifications" type="button" role="tab" aria-controls="new-notifications" aria-selected="false">Непрочитанные уведомления</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="all" data-toggle="tab" data-target="#all-notifications" type="button" role="tab" aria-controls="all-notifications" aria-selected="true">Все уведомления</a>
+        </li>
+        {% endif %}
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane {% if type_notifications == 'new' %} active {% endif %}" id="new-notifications" role="tabpanel" aria-labelledby="new-notifications-tab">
+            <form name="read_buttons_form_new" method="POST" action="{{ url_for('practice_index', notifications='new') }}">
+                <input id="hiddenReadButtonNew" type="hidden" name="read_notification_button" value="0"/>
+                {% if not notifications_not_viewed %}
+                <div class="row mt-3">
+                    <div class="col">
+                        <p class="text-center">Здесь будут отображаться непрочитанные уведомления</p>
+                    </div>
+                </div>
+                {% else %}
+                {% for notification in notifications_not_viewed %}
+                <div class="card mb-2 border-0">
+                    <div class="card-body pt-3 pb-3">
+                        <div class="row">
+                            <div class="col">
+                                {{ notification.content|markdown }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <i class="text-sm">
+                                    {{ notification.time | datatime_convert }}
+                                </i>
+                            </div>
+                            <div class="col d-flex justify-content-end">
+                                <a href="" onClick="document.getElementById('hiddenReadButtonNew').value = {{notification.id}}; read_buttons_form_new.submit(); return false;">
+                                    <span id="span{{notification.id}}-new" class="badge btn-secondary" style="display: inline-block;"
+                                          onmouseover="changeBadge('span{{notification.id}}-new');"
+                                          onmouseout="changeBadgeBack('span{{notification.id}}-new');">
+                                    Не прочитано
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="tab-pane {% if type_notifications == 'all' %} active {% endif %}" id="all-notifications" role="tabpanel" aria-labelledby="new-notifications-tab">
+            <form name="read_buttons_form_all" method="POST" action="{{ url_for('practice_index', notifications='all') }}">
+                <input id="hiddenReadButtonAll" type="hidden" name="read_notification_button" value="0"/>
+                {% if not notifications %}
+                <div class="row mt-3">
+                    <div class="col">
+                        <p class="text-center">Здесь будут отображаться все уведомления</p>
+                    </div>
+                </div>
+                {% else %}
+                {% for notification in notifications %}
+                <div class="card mb-2 border-0">
+                    <div class="card-body pt-3 pb-3">
+                        <div class="row">
+                            <div class="col">
+                                {{ notification.content|markdown }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <i class="text-sm">
+                                    {{ notification.time | datatime_convert }}
+                                </i>
+                            </div>
+                            {% if notification.viewed %}
+                            <div class="col d-flex justify-content-end">
+                                <a><span class="badge btn-success disabled" style="display: inline-block; width: 103px">
+                                    Прочитано
+                                </span></a>
+                            </div>
+                            {% else %}
+                            <div class="col d-flex justify-content-end">
+                                <a href="" onClick="document.getElementById('hiddenReadButtonAll').value = {{notification.id}}; read_buttons_form_all.submit(); return false;">
+                                    <span id="span{{notification.id}}-all" class="badge btn-secondary" style="display: inline-block;"
+                                          onmouseover="changeBadge('span{{notification.id}}-all');"
+                                          onmouseout="changeBadgeBack('span{{notification.id}}-all');">
+                                    Не прочитано
+                                    </span>
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    function changeBadge(id)
+    {
+        span = document.getElementById(id);
+        let widthSpan = span.offsetWidth;
+        span.textContent = 'Прочитано';
+        span.style.width = widthSpan.toString() + "px";
+        span.className = "badge btn-success";
+    }
+    function changeBadgeBack(id)
+    {
+        span = document.getElementById(id);
+        span.textContent = 'Не прочитано';
+        span.className = "badge btn-secondary";
+    }
+
+    let position = 0;
+    document.querySelectorAll('.badge').forEach(element =>
+    {
+        element.addEventListener('click', () => { localStorage[position] = window.scrollY });
+    });
+
+    window.addEventListener('load', e =>
+    {
+        if (localStorage[position] != 0)
+        {
+            window.scrollTo(0, localStorage[position]);
+            localStorage[position] = 0;
+        }
+    });
+</script>
+
+{% endblock %}

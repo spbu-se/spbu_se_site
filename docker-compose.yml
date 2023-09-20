@@ -1,0 +1,42 @@
+version: "3.5"
+
+services:
+  flask:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: flask
+    restart: always
+    expose:
+      - 8080
+    volumes:
+      - ./databases:/app/databases
+      - ./files/currentThesis:/app/static/currentThesis
+      - ./files/thesis:/app/static/thesis
+      - ./files/images:/app/static/images
+      - ./files/files:/app/static/files
+    networks:
+      - se_site_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+
+  nginx:
+    container_name: nginx
+    image: nginx
+    restart: always
+    volumes:
+      - ./nginx:/etc/nginx/templates
+    networks:
+      - se_site_network
+    ports:
+     - "80:80"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+
+networks:
+  se_site_network:
+    driver: bridge

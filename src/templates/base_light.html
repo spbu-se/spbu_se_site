@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="{% block description %}{% endblock %}">
-    <meta name="author" content="Илья Зеленчук">
+    <meta name="author" content="{% block author %}Илья Зеленчук{% endblock %}">
     <title>{% block title %}{% endblock %}</title>
 
     <!-- Google Tag Manager -->
@@ -24,6 +24,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/animate.css/animate.min.css') }}">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ url_for('static', filename='/assets/libs/@fortawesome/fontawesome-free/css/all.min.css') }} ">
+    <!-- Markdowm -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}">
+    {{ simplemde.js }}
 
     {% block head_links %}
     {% endblock %}
@@ -143,7 +146,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                             <div class="d-flex">
                                                 <!-- Media body -->
                                                 <div class="ml-3">
-                                                    <small class="text-sm">Архив курсовых и ВКР</small>
+                                                    <small class="text-sm">Архив практик и ВКР</small>
                                                 </div>
                                             </div>
                                         </a>
@@ -225,7 +228,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                             <div class="d-flex">
                                                 <!-- Media body -->
                                                 <div class="ml-3">
-                                                    <small class="text-sm">Архив курсовых и ВКР</small>
+                                                    <small class="text-sm">Архив практик и ВКР</small>
                                                 </div>
                                             </div>
                                         </a>
@@ -237,6 +240,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                 </div>
                                             </div>
                                         </a>
+                                        <a href="{{ url_for('practice_index') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Написание практик и ВКР</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        {% if current_user.is_authenticated and current_user.is_staff() %}
+                                        <a id="practice_staff_button" href="{{ url_for('index_staff') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Написание практик и ВКР (для преподавателей)</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        {% endif %}
+                                        {% if current_user.is_authenticated and current_user.is_staff() %}
+                                        <a href="{{ url_for('index_admin') }}" class="list-group-item list-group-item-action" role="button">
+                                            <div class="d-flex">
+                                                <!-- Media body -->
+                                                <div class="ml-3">
+                                                    <small class="text-sm">Написание практик и ВКР (для руководителей практик)</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </li>
@@ -260,7 +291,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </nav>
     </header>
 
+    <div id="content">
     {% block content %}{% endblock %}
+    </div>
 
     <footer class="position-relative" id="footer-main">
         <div class="footer pt-lg-7 footer-dark bg-dark">
@@ -289,7 +322,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <li><p class="text-sm opacity-8 mb-0">Университетский проспект, дом 28</p></li>
                             <li><p class="text-sm opacity-8 mb-0">Телефон: <a href="tel:+78124287109">+7 (812) 428-71-09</a></p></li>
                             <li><p class="text-sm opacity-8 mb-0">Email: <a href="mailto:a.terekhov@spbu.ru">a.terekhov@spbu.ru</a></p></li>
-                            <li><p class="text-sm opacity-8 mb-0">Telegram: <a target="_blank" href="https://t.me/sysprog2020admission">@sysprog2020admission</a></p></li>
+                            <li><p class="text-sm opacity-8 mb-0">Telegram: <a target="_blank" href="https://t.me/sysprog_admission">@sysprog_admission</a></p></li>
                             <li><p class="text-sm opacity-8 mb-0">Старая версия сайта: <a target="_blank" href="https://oops.math.spbu.ru/SE">oops.math.spbu.ru/SE</a></p></li>
                         </ul>
                     </div>
@@ -309,7 +342,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <li><a href="{{ url_for('scholarships') }}">Стипендии и гранты</a></li>
                             <li><a href="{{ url_for('summer_school') }}">Летняя школа 2021</a></li>
                             <li><a href="{{ url_for('summer_school_2022') }}">Летняя школа 2022</a></li>
-                            <li><a href="{{ url_for('theses_search') }}">Архив курсовых и ВКР</a></li>
+                            <li><a href="{{ url_for('theses_search') }}">Архив практик и ВКР</a></li>
                             <li><a href="{{ url_for('internships_index') }}">Поиск IT-стажировок</a></li>
                         </ul>
                     </div>
@@ -319,8 +352,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <li><a href="{{ url_for('diplomas_index') }}">Темы практик и ВКР</a></li>
                             <li><a href="{{ url_for('thesis_review_index') }}">Рецензирование практик и ВКР</a></li>
                             <li><a href="{{ url_for('list_news') }}">Новости</a></li>
-                            <li><a href="{{ url_for('theses_search') }}">Архив курсовых и ВКР</a></li>
+                            <li><a href="{{ url_for('theses_search') }}">Архив практик и ВКР</a></li>
                             <li><a href="{{ url_for('internships_index') }}">Поиск IT-стажировок</a></li>
+                            <li><a href="{{ url_for('practice_index') }}">Написание практик и ВКР</a></li>
+                            {% if current_user.is_authenticated and current_user.is_staff() %}
+                            <li><a href="{{ url_for('index_staff') }}">Написание практик и ВКР (для преподавателей)</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                     <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
@@ -340,7 +377,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 <a href="{{url_for('nooffer')}}" class="text-white">Данный сайт носит информационный характер и не является публичной офертой.</a>
                             </div>
                             <div class="copyright text-sm font-weight-bold text-center text-md-left">
-                                &copy; Кафедра системного программирования, Математико-механический факультет, СПбГУ, 1996-2021
+                                &copy; Кафедра системного программирования, Математико-механический факультет, СПбГУ, 1996-2023
                             </div>
                         </div>
                 </div>
@@ -364,6 +401,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- Quick JS -->
     <script src="{{ url_for('static', filename='/assets/js/quick-website.min.js') }}"></script>
     <script src="{{ url_for('static', filename='/assets/js/se_scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='/assets/js/se_practice_script.js') }}"></script>
 
     <!-- Feather Icons -->
     <script>

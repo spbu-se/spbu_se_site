@@ -1,0 +1,12 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    ignore:
+      - dependency-name: "Flask-SQLAlchemy"
+    groups:
+      pip-dependencies:
+        patterns:
+          - "*" # All dependabot updates are grouped

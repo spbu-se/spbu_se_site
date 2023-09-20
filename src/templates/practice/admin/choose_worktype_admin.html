@@ -1,0 +1,65 @@
+{% extends "base_light.html" %}
+{% block title %}Выбор работ{% endblock %}
+
+{% block content %}
+
+<section class="mt-7 pt-4 bg-section-secondary">
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col-12">
+                <h2>Написание учебных практик и ВКР (Руководитель практики)</h2>
+            </div>
+        </div>
+
+        {% with errors = get_flashed_messages(category_filter=["error"]) %}
+        {% if errors %}
+        <div class="row">
+            <div class="col-12">
+                {%- for message in errors %}
+                <div class="alert alert-warning" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    {{message}}
+                </div>
+                {% endfor -%}
+            </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <div class="col-12">
+                <h5 class="mb-0">Выберите тип работы и направление</h5>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('choose_worktype_admin', source=source) }}">
+            {{ form.csrf_token }}
+
+            <div class="row">
+                <div class="col-xl-4 col-md-5 col-12">
+                    <div class="form-group mb-0 mt-3">
+                        <label for="worktype">Тип работы:</label>
+                        {{ form.worktype(class_="custom-select pl-3") }}
+                    </div>
+                </div>
+
+                <div class="col-xl-8 col-md-7 col-12">
+                    <div class="form-group mb-0 mt-3">
+                        <label for="area">Направление обучения:</label>
+                        {{ form.area(class_="custom-select pl-3") }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <button type="submit" class="btn btn-sm btn-primary mt-3">Выбрать</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}

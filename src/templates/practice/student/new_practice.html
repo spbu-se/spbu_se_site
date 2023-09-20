@@ -1,0 +1,60 @@
+{% extends "practice/student/base_practice.html" %}
+
+{% block title %}Новая работа{% endblock %}
+
+{% block content_account %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col">
+            <h5>Новая работа</h5>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="form-group mb-0">
+                <label for="usr">ФИО:</label>
+                <input type="text" class="form-control" name="username" value="{{user.get_name()}}" disabled>
+            </div>
+       </div>
+    </div>
+
+    <form method="POST" action="{{url_for('practice_new_thesis') }}">
+        <!-- General information -->
+        {{ form.csrf_token }}
+
+        <div class="row">
+            <div class="col-xl-4 col-md-5 col-12">
+                <div class="form-group mb-0 mt-3">
+                    <label for="worktype">Тип работы*:</label>
+                    {{ review_filter.worktype(class_="custom-select pl-3") }}
+                </div>
+            </div>
+
+            <div class="col-xl-8 col-md-7 col-12">
+                <div class="form-group mb-0 mt-3">
+                    <label for="area">Направление обучения:</label>
+                    {{ review_filter.area(class_="custom-select pl-3") }}
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-1">
+            <div class="col">
+                <span class="text-sm">*Если Ваша учебная практика рассчитана на несколько семестров, выбирайте практику для текущего семестра.</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <button type="submit" class="btn btn-sm btn-primary mt-2">Создать</button>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}
