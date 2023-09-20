@@ -49,15 +49,19 @@
         <p class="text-sm mb-0">Руководитель: <i>{{t.supervisor.user.get_name()}}</i></p>
         <p class="text-sm">Направление: <i>{{t.course.name}}</i></p>
         {% if context[t] %}
-            <p class="text-sm" >Контекст:
+            <h6 class="mb-0" style="color:black;
+                                    font-family: 'YS Text',Arial,Helvetica,'Arial Unicode MS',sans-serif;
+                                    font-weight: 500;
+                                    font-size: 14px;
+                                    ">
                 {% for word in context[t] %}
                     {% if search.lower().strip() in word %}
                         <mark>{{word}}</mark>
                     {% else %}
-                        <i> {{word}} <i>
+                        <i> {{word}} </i>
                     {% endif %}
                 {% endfor %}
-            </p>
+            </h6>
         {% endif %}
         {% for tag in t.tags %}
         <a href="#" class="badge badge-info mr-2">

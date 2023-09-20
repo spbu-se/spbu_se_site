@@ -146,16 +146,27 @@ def fetch_theses():
         third_priority = []
 
         for item in records.items:
-            if not item.text:
-                third_priority.append(item)
-                continue
+            search_in_name = False
 
-            text_index = item.text.find(search.lower())
-            search_in_name = (
-                str(item.name_ru).lower().find(search.lower()) != -1
-                or str(item.description).lower().find(search.lower()) != -1
-                or str(item.author).lower().find(search.lower()) != -1
-            )
+            if item.text is None:
+                text_index = -1
+            else:
+                text_index = item.text.find(search.lower())
+
+            if item.name_ru is not None:
+                search_in_name = str(item.name_ru).lower().find(search.lower()) != -1
+
+            if item.description is not None:
+                search_in_name = (
+                    search_in_name
+                    or str(item.description).lower().find(search.lower()) != -1
+                )
+
+            if item.author is not None:
+                search_in_name = (
+                    search_in_name
+                    or str(item.author).lower().find(search.lower()) != -1
+                )
 
             if search_in_name and text_index != -1:
                 first_priority.append(item)
