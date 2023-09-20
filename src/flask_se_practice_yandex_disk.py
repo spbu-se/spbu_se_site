@@ -25,7 +25,14 @@ import yadisk
 from flask import redirect, url_for, request, flash, session, get_flashed_messages
 from flask_se_auth import login_required
 from flask_se_practice_table import edit_table
-from flask_se_practice_config import FOLDER_FOR_TABLE, YANDEX_CLIENT_ID, YANDEX_SECRET
+from flask_se_practice_config import (
+    FOLDER_FOR_TABLE,
+    YANDEX_CLIENT_ID,
+    YANDEX_SECRET,
+    ROOT_URL,
+    YANDEX_AUTHORIZE_URL_TEMPLATE,
+    YANDEX_GET_TOKEN_URL,
+)
 
 COLUMN_NAMES = None
 
@@ -41,26 +48,20 @@ def handle_yandex_table(table_name, sheet_name, area_id, worktype_id, column_nam
 
 
 def get_code():
-    if __debug__:
-        redirect_uri = "http://127.0.0.1:5000/practice_admin/yandex_code"
-    else:
-        redirect_uri = "https://se.math.spbu.ru/practice_admin/yandex_code"
-
-    url = (
-        f"https://oauth.yandex.ru/authorize?response_type=code"
-        f"&client_id={YANDEX_CLIENT_ID}&redirect_uri={redirect_uri}"
+    redirect_uri = ROOT_URL + url_for(yandex_code.__name__)
+    url = YANDEX_AUTHORIZE_URL_TEMPLATE.substitute(
+        yandex_client_id=YANDEX_CLIENT_ID, redirect_uri=redirect_uri
     )
     return redirect(url)
 
 
 def get_token(code):
-    token_url = "https://oauth.yandex.ru/token"
     credentials_string = base64.b64encode(
         (YANDEX_CLIENT_ID + ":" + YANDEX_SECRET).encode("ascii")
     ).decode("ascii")
     headers = {"Authorization": "Basic " + credentials_string}
     content = "grant_type=authorization_code&code=" + code
-    response = requests.post(token_url, headers=headers, data=content)
+    response = requests.post(YANDEX_GET_TOKEN_URL, headers=headers, data=content)
     if not response.ok:
         return 0
 

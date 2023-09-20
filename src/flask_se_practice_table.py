@@ -123,6 +123,7 @@ def find_current_thesis(user: Users, area_id, worktype_id) -> CurrentThesis or N
         .filter_by(worktype_id=worktype_id)
         .filter_by(deleted=False)
         .filter_by(status=1)
+        .filter(CurrentThesis.title != None)
         .first()
     )
     return thesis
@@ -134,6 +135,7 @@ def get_all_thesises(area_id, worktype_id) -> list:
         .filter_by(worktype_id=worktype_id)
         .filter_by(deleted=False)
         .filter_by(status=1)
+        .filter(CurrentThesis.title != None)
         .all()
     )
     return thesises
