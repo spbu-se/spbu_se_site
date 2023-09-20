@@ -355,7 +355,7 @@ function themes_update() {
 
     // Page first
     if (page && page > 1){
-        params.append('page', page);
+        params.append('page', 1);
     }
 
     // Supervisor?
@@ -639,7 +639,7 @@ function internships_load() {
         params.append('page', page);
     }
     if (internships_format_select){
-    params.append('format', internships_format_select.innerText);
+    params.append('format', internships_format_select.value);
     }
 
     if (internships_company_select){
@@ -647,7 +647,7 @@ function internships_load() {
     }
 
     if (internships_tag_select){
-    params.append('tag', internships_tag_select.innerText);
+    params.append('tag', internships_tag_select.value);
     }
 
     fetch('fetch_internships?' + params.toString()).then(function(response){
@@ -677,9 +677,10 @@ function internships_update() {
 
     let params = new URLSearchParams();
 
-    if (page && page > 1){
-        params.append('page', page);
-    }
+    //if (page && page > 1){
+    //    params.append('page', page);
+    //}
+    params.append('page', 1);
 
     if (internships_format_select){
         params.append('format', internships_format_select.value);
@@ -773,8 +774,10 @@ if (internships_filter_element){
 }
 
 // Coursework
-let coursework_filter_element = document.getElementById('PrepareToDefense');
+let practice_student_filter_element = document.getElementById('practice-student-title');
+let practice_admin_filter_element = document.getElementById('practice-admin-title');
 
-if (coursework_filter_element){
+if (practice_student_filter_element || practice_admin_filter_element){
     $('[data-toggle="popoverhover"]').popover({ trigger: "hover" });
 }
+

@@ -1,0 +1,42 @@
+{% extends "practice/staff/base_practice_staff.html" %}
+
+{% block title %}Завершённые работы{% endblock %}
+
+{% block content_writing_thesis_staff %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col">
+            <h5>Завершённые работы</h5>
+        </div>
+    </div>
+
+    {% if not thesises %}
+    <div class="row">
+        <div class="col text-center">
+            <p>Здесь будут отображаться завершённые работы, в которых Вы были научным руководителем</p>
+        </div>
+    </div>
+    {% else %}
+    {% for thesis in thesises %}
+    <div class="card border-0 mb-3">
+        <div class="card-header">
+            <h6 class="mb-0">
+                <a id="{{thesis.id}}" name="thesis_link" href="{{ url_for('thesis_staff', id=thesis.id) }}" class="link text-primary">
+                    <strong>{{ thesis.title }}</strong>
+                </a>
+            </h6>
+        </div>
+        <div class="card-body pt-2 pb-3">
+            <p class="text-sm mb-0">Студент: {{ thesis.user.get_name() }}</p>
+            <p class="text-sm mb-0">Тип работы: {{ thesis.worktype }}</p>
+            <p class="text-sm mb-2">Направление: {{ thesis.area }}</p>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+</div>
+
+{% endblock %}
