@@ -84,13 +84,23 @@ fabric.properties
 # Do not track site DB files
 /**/se.db
 
-# Do not config file
+# Do not track config file
 /**/flask_se_secret.conf
 */src/flask_se_secret.conf
 flask_se_secret.conf
 /**/flask_se_mail.conf
 */src/flask_se_mail.conf
 flask_se_mail.conf
+/**/flask_se_practice_yandex_secret.conf
+*/src/flask_se_practice_yandex_secret.conf
+flask_se_practice_yandex_secret.conf
 
 # Do not track __pycache__
 **/__pycache__/
+
+# Do not track documents for thesises
+src/static/zip/*
+src/static/practice/result_table/*
+src/static/practice/reviews/*
+src/static/practice/slides/*
+src/static/texts/texts/*
