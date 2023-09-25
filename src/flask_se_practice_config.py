@@ -61,10 +61,6 @@ TABLE_COLUMNS = {
     "presentation": "Презентация",
 }
 
-
-# Folder for downloading of materials about all practices
-ARCHIVE_FOLDER = "static/zip/"
-
 TEXT_UPLOAD_FOLDER = "static/practice/texts/"
 REVIEW_UPLOAD_FOLDER = "static/practice/reviews/"
 PRESENTATION_UPLOAD_FOLDER = "static/practice/slides/"

@@ -21,6 +21,7 @@ from enum import Enum
 from functools import wraps
 import pytz
 import shutil
+import tempfile
 
 from flask import flash, redirect, request, render_template, url_for, send_file, session
 from datetime import datetime
@@ -50,7 +51,6 @@ from templates.notification.templates import NotificationTemplates
 from flask_se_practice_yandex_disk import handle_yandex_table
 from flask_se_practice_config import (
     TABLE_COLUMNS,
-    ARCHIVE_FOLDER,
     TEXT_UPLOAD_FOLDER,
     PRESENTATION_UPLOAD_FOLDER,
     REVIEW_UPLOAD_FOLDER,
@@ -231,40 +231,32 @@ def download_materials(area, worktype):
         + translit(area.area, "ru", reversed=True).replace(" ", "_")
         + ".zip"
     )
-    full_filename = ARCHIVE_FOLDER + filename
 
-    with ZipFile(full_filename, "w") as zip_file:
-        for thesis in thesises:
-            if thesis.text_uri is not None:
-                zip_file.write(
-                    TEXT_UPLOAD_FOLDER + thesis.text_uri, arcname=thesis.text_uri
-                )
-            if thesis.supervisor_review_uri is not None:
-                zip_file.write(
-                    REVIEW_UPLOAD_FOLDER + thesis.supervisor_review_uri,
-                    arcname=thesis.supervisor_review_uri,
-                )
-            if thesis.reviewer_review_uri is not None:
-                zip_file.write(
-                    REVIEW_UPLOAD_FOLDER + thesis.reviewer_review_uri,
-                    arcname=thesis.reviewer_review_uri,
-                )
-            if thesis.presentation_uri is not None:
-                zip_file.write(
-                    PRESENTATION_UPLOAD_FOLDER + thesis.presentation_uri,
-                    arcname=thesis.presentation_uri,
-                )
+    with tempfile.NamedTemporaryFile() as tmp:
+        with ZipFile(tmp.name, "w") as zip_file:
+            for thesis in thesises:
+                if thesis.text_uri is not None:
+                    zip_file.write(
+                        TEXT_UPLOAD_FOLDER + thesis.text_uri,
+                        arcname=thesis.text_uri
+                    )
+                if thesis.supervisor_review_uri is not None:
+                    zip_file.write(
+                        REVIEW_UPLOAD_FOLDER + thesis.supervisor_review_uri,
+                        arcname=thesis.supervisor_review_uri,
+                    )
+                if thesis.reviewer_review_uri is not None:
+                    zip_file.write(
+                        REVIEW_UPLOAD_FOLDER + thesis.reviewer_review_uri,
+                        arcname=thesis.reviewer_review_uri,
+                    )
+                if thesis.presentation_uri is not None:
+                    zip_file.write(
+                        PRESENTATION_UPLOAD_FOLDER + thesis.presentation_uri,
+                        arcname=thesis.presentation_uri,
+                    )
 
-    return __send_file_and_remove(full_filename, filename)
-
-
-def __send_file_and_remove(full_filename, filename):
-    return_data = io.BytesIO()
-    with open(full_filename, "rb") as fo:
-        return_data.write(fo.read())
-    return_data.seek(0)
-    os.remove(full_filename)
-    return send_file(return_data, mimetype=full_filename, download_name=filename)
+        return send_file(tmp.name, download_name=filename, as_attachment=True)
 
 
 @login_required
