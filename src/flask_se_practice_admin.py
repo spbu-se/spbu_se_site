@@ -60,7 +60,6 @@ from flask_se_practice_config import (
     ARCHIVE_PRESENTATION_FOLDER,
     get_filename,
     TypeOfFile,
-    FOLDER_FOR_TABLE,
 )
 from flask_se_practice_table import edit_table
 
@@ -171,22 +170,18 @@ def index_admin():
                 )
             else:
                 table_filename = table_name.split("/")[-1]
-                full_filename = FOLDER_FOR_TABLE + table_filename
-                edit_table(
-                    path_to_table=full_filename,
-                    sheet_name=sheet_name,
-                    area_id=area.id,
-                    worktype_id=worktype.id,
-                    column_names=column_names,
-                )
-                table = io.BytesIO()
-                with open(full_filename, "rb") as fo:
-                    table.write(fo.read())
-                table.seek(0)
-                os.remove(full_filename)
-                return send_file(
-                    table, mimetype=full_filename, download_name=table_filename
-                )
+                with tempfile.TemporaryDirectory() as tmp:
+                    full_filename = tmp + "/" + table_filename
+                    edit_table(
+                        path_to_table=full_filename,
+                        sheet_name=sheet_name,
+                        area_id=area.id,
+                        worktype_id=worktype.id,
+                        column_names=column_names,
+                    )
+                    return send_file(
+                        full_filename, download_name=table_filename, as_attachment=True
+                    )
 
     list_of_thesises = (
         CurrentThesis.query.filter_by(area_id=area_id)
@@ -237,8 +232,7 @@ def download_materials(area, worktype):
             for thesis in thesises:
                 if thesis.text_uri is not None:
                     zip_file.write(
-                        TEXT_UPLOAD_FOLDER + thesis.text_uri,
-                        arcname=thesis.text_uri
+                        TEXT_UPLOAD_FOLDER + thesis.text_uri, arcname=thesis.text_uri
                     )
                 if thesis.supervisor_review_uri is not None:
                     zip_file.write(

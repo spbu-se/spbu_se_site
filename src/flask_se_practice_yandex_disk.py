@@ -19,6 +19,8 @@
 import base64
 import json
 import os
+import tempfile
+
 import requests
 import yadisk
 
@@ -26,7 +28,6 @@ from flask import redirect, url_for, request, flash, session, get_flashed_messag
 from flask_se_auth import login_required
 from flask_se_practice_table import edit_table
 from flask_se_practice_config import (
-    FOLDER_FOR_TABLE,
     YANDEX_CLIENT_ID,
     YANDEX_SECRET,
     ROOT_URL,
@@ -89,25 +90,26 @@ def yandex_code():
 
     table_path = session.get("table_path")
     table_name = table_path.split("/")[-1]
-    try:
-        disk.download(table_path, FOLDER_FOR_TABLE + table_name)
-    except yadisk.exceptions.PathNotFoundError:
-        os.remove(FOLDER_FOR_TABLE + table_name)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        full_filename = tmp_dir + "/" + table_name
+        try:
+            disk.download(table_path, full_filename)
+        except yadisk.exceptions.PathNotFoundError:
+            os.remove(full_filename)
 
-    edit_table(
-        path_to_table=(FOLDER_FOR_TABLE + table_name),
-        sheet_name=session.get("sheet_name"),
-        area_id=area_id,
-        worktype_id=worktype_id,
-        column_names=COLUMN_NAMES,
-    )
+        edit_table(
+            path_to_table=full_filename,
+            sheet_name=session.get("sheet_name"),
+            area_id=area_id,
+            worktype_id=worktype_id,
+            column_names=COLUMN_NAMES,
+        )
 
-    try:
-        disk.upload(FOLDER_FOR_TABLE + table_name, table_path, overwrite=True)
-    except yadisk.exceptions.ParentNotFoundError:
-        flash("Указанный путь не существует на диске", category="error")
+        try:
+            disk.upload(full_filename, table_path, overwrite=True)
+        except yadisk.exceptions.ParentNotFoundError:
+            flash("Указанный путь не существует на диске", category="error")
 
-    os.remove(FOLDER_FOR_TABLE + table_name)
     flashed_messages = get_flashed_messages(category_filter=["error"])
     if len(flashed_messages) > 0:
         for message in flashed_messages:
