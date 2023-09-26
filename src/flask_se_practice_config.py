@@ -26,9 +26,6 @@ from string import Template
 from flask_se_config import get_thesis_type_id_string
 from se_models import CurrentThesis
 
-ROOT_URL = "http://127.0.0.1:5000"
-# "https://se.math.spbu.ru"
-
 # Yandex disk
 YANDEX_CLIENT_ID = "10e079e42b49492295a39e2767e7b049"
 YANDEX_SECRET_FILE = os.path.join(
@@ -75,7 +72,7 @@ MIN_LENGTH_OF_FIELD_PLANNED_TO_DO = 10
 
 FORMAT_DATE_TIME = "%d.%m.%Y %H:%M"
 
-# Folders for materials of archive thesises
+# Folders for materials of archive theses
 ARCHIVE_TEXT_FOLDER = "./static/thesis/texts/"
 ARCHIVE_PRESENTATION_FOLDER = "./static/thesis/slides/"
 ARCHIVE_REVIEW_FOLDER = "./static/thesis/reviews/"
