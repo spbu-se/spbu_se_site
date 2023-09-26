@@ -30,7 +30,6 @@ from flask_se_practice_table import edit_table
 from flask_se_practice_config import (
     YANDEX_CLIENT_ID,
     YANDEX_SECRET,
-    ROOT_URL,
     YANDEX_AUTHORIZE_URL_TEMPLATE,
     YANDEX_GET_TOKEN_URL,
 )
@@ -49,7 +48,12 @@ def handle_yandex_table(table_name, sheet_name, area_id, worktype_id, column_nam
 
 
 def get_code():
-    redirect_uri = ROOT_URL + url_for(yandex_code.__name__)
+    redirect_uri = (
+        request.environ.get("wsgi.url_scheme")
+        + "://"
+        + request.environ.get("HTTP_HOST")
+        + url_for(yandex_code.__name__)
+    )
     url = YANDEX_AUTHORIZE_URL_TEMPLATE.substitute(
         yandex_client_id=YANDEX_CLIENT_ID, redirect_uri=redirect_uri
     )
