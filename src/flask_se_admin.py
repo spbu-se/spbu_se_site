@@ -8,7 +8,7 @@ from flask_login import current_user
 from wtforms import TextAreaField, SelectField
 
 from flask_se_config import SECRET_KEY_THESIS
-from se_models import db, ThemesLevel
+from se_models import db
 
 ADMIN_ROLE_LEVEL = 5
 REVIEW_ROLE_LEVEL = 3
@@ -95,6 +95,7 @@ class SeAdminModelViewUsers(SeAdminModelView):
         "thesis_on_review_author",
         "thesises",
     ]
+    column_display_pk = True
 
     pass
 
@@ -120,6 +121,20 @@ class SeAdminModelViewSummerSchool(SeAdminModelView):
 
 
 class SeAdminModelViewStaff(SeAdminModelView):
+    column_list = (
+        "user",
+        "official_email",
+        "position",
+        "science_degree",
+        "still_working",
+    )
+    form_columns = (
+        "user_id",
+        "official_email",
+        "position",
+        "science_degree",
+        "still_working",
+    )
     form_choices = {
         "science_degree": [
             ("", ""),
@@ -129,9 +144,6 @@ class SeAdminModelViewStaff(SeAdminModelView):
             ("к.т.н.", "к.т.н."),
         ]
     }
-
-    column_exclude_list = ["supervisor", "adviser", "current_thesises"]
-    form_excluded_columns = ["supervisor", "adviser", "current_thesises"]
 
     pass
 

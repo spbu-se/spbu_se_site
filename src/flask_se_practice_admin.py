@@ -15,8 +15,6 @@
 """
 # -*- coding: utf-8 -*-
 
-import os
-import io
 from enum import Enum
 from functools import wraps
 import pytz
