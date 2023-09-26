@@ -23,13 +23,14 @@ from flask import flash
 from se_models import Users, CurrentThesis
 
 
-def edit_table(path_to_table, sheet_name, area_id, worktype_id, column_names):
+def edit_table(path_to_table, sheet_name, area_id, worktype_id, column_names_list):
     if os.path.exists(path_to_table):
         table_df = read_table(path_to_table, sheet_name)
         if table_df is None:
             return
     else:
-        table_df = pd.DataFrame(columns=list(column_names.values()))
+        columns = [pair[1] for pair in column_names_list]
+        table_df = pd.DataFrame(columns=columns)
 
         table = openpyxl.Workbook()
         if sheet_name == "":
@@ -38,6 +39,7 @@ def edit_table(path_to_table, sheet_name, area_id, worktype_id, column_names):
             table.active.title = sheet_name
         table.save(path_to_table)
 
+    column_names = dict(column_names_list)
     checked_thesis_ids = set()
     for index, row in table_df.iterrows():
         try:

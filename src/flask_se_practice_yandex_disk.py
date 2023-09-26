@@ -34,16 +34,15 @@ from flask_se_practice_config import (
     YANDEX_GET_TOKEN_URL,
 )
 
-COLUMN_NAMES = None
 
-
-def handle_yandex_table(table_name, sheet_name, area_id, worktype_id, column_names):
+def handle_yandex_table(
+    table_name, sheet_name, area_id, worktype_id, column_names_list
+):
     session["table_path"] = table_name
     session["sheet_name"] = sheet_name
     session["area_id"] = area_id
     session["worktype_id"] = worktype_id
-    global COLUMN_NAMES
-    COLUMN_NAMES = column_names
+    session["column_names_list"] = column_names_list
     return get_code()
 
 
@@ -106,7 +105,7 @@ def yandex_code():
             sheet_name=session.get("sheet_name"),
             area_id=area_id,
             worktype_id=worktype_id,
-            column_names=COLUMN_NAMES,
+            column_names_list=session.get("column_names_list"),
         )
 
         try:
