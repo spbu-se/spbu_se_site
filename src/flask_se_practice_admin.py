@@ -68,6 +68,21 @@ class PracticeAdminPage(Enum):
     THESIS = "thesis"
 
 
+request_column_names = {
+    "name": "user_name_column",
+    "how_to_contact": "how_to_contact_column",
+    "supervisor": "supervisor_column",
+    "consultant": "consultant_column",
+    "theme": "theme_column",
+    "text": "text_column",
+    "supervisor_review": "supervisor_review_column",
+    "reviewer_review": "reviewer_review_column",
+    "code": "code_column",
+    "committer": "committer_column",
+    "presentation": "presentation_column",
+}
+
+
 def user_is_staff(func):
     @wraps(func)
     def check_user_is_staff_decorator(*args, **kwargs):
@@ -135,21 +150,10 @@ def index_admin():
                     url_for("index_admin", area_id=area.id, worktype_id=worktype.id)
                 )
 
-            column_names = {
-                "name": request.form.get("user_name_column", ""),
-                "how_to_contact": request.form.get("how_to_contact_column", ""),
-                "supervisor": request.form.get("supervisor_column", ""),
-                "consultant": request.form.get("consultant_column", ""),
-                "theme": request.form.get("theme_column", ""),
-                "text": request.form.get("text_column", ""),
-                "supervisor_review": request.form.get("supervisor_review_column", ""),
-                "reviewer_review": request.form.get("reviewer_review_column", ""),
-                "code": request.form.get("code_column", ""),
-                "committer": request.form.get("committer_column", ""),
-                "presentation": request.form.get("presentation_column", ""),
-            }
-            for value in column_names.values():
-                if not value or value == "":
+            column_names = []
+            for column in TABLE_COLUMNS:
+                column_value = request.form.get(request_column_names[column], "")
+                if not column_value or column_value == "":
                     flash(
                         "Название столбца таблицы не может быть пустым",
                         category="error",
@@ -157,6 +161,7 @@ def index_admin():
                     return redirect(
                         url_for("index_admin", area_id=area.id, worktype_id=worktype.id)
                     )
+                column_names.append((column, column_value))
 
             if "yandex_button" in request.form:
                 return handle_yandex_table(
@@ -164,7 +169,7 @@ def index_admin():
                     sheet_name=sheet_name,
                     area_id=area.id,
                     worktype_id=worktype.id,
-                    column_names=column_names,
+                    column_names_list=column_names,
                 )
             else:
                 table_filename = table_name.split("/")[-1]
@@ -175,7 +180,7 @@ def index_admin():
                         sheet_name=sheet_name,
                         area_id=area.id,
                         worktype_id=worktype.id,
-                        column_names=column_names,
+                        column_names_list=column_names,
                     )
                     return send_file(
                         full_filename, download_name=table_filename, as_attachment=True
