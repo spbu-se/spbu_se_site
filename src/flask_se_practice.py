@@ -177,8 +177,12 @@ def practice_choosing_topic(current_thesis):
                 current_thesis.title = topic
                 current_thesis.supervisor_id = supervisor_id
                 db.session.commit()
+
+                supervisor_user_id = (
+                    Staff.query.filter_by(id=supervisor_id).first().user_id
+                )
                 add_mail_notification(
-                    supervisor_id,
+                    supervisor_user_id,
                     "Добавлена новая учебная практика/ВКР",
                     render_template(
                         NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
@@ -242,8 +246,11 @@ def practice_edit_theme(current_thesis):
                 current_thesis.title = topic
                 current_thesis.consultant = consultant
                 if current_thesis.supervisor_id != supervisor_id:
+                    supervisor_user_id = (
+                        Staff.query.filter_by(id=supervisor_id).first().user_id
+                    )
                     add_mail_notification(
-                        supervisor_id,
+                        supervisor_user_id,
                         "Добавлена новая учебная практика/ВКР",
                         render_template(
                             NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
@@ -417,8 +424,12 @@ def practice_add_new_report(current_thesis):
             )
             db.session.add(new_report)
             db.session.commit()
+
+            supervisor_user_id = (
+                Staff.query.filter_by(id=current_thesis.supervisor_id).first().user_id
+            )
             add_mail_notification(
-                current_thesis.supervisor_id,
+                supervisor_user_id,
                 "Новый отчёт по учебной практике",
                 render_template(
                     NotificationTemplates.NEW_REPORT_TO_SUPERVISOR.value,
