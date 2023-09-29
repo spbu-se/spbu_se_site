@@ -472,7 +472,7 @@ def archive_thesis():
 
             add_mail_notification(
                 current_thesis.author_id,
-                "[SE site] Ваша работы перенесена в архив практик и ВКР",
+                "[SE site] Ваша работа перенесена в архив практик и ВКР",
                 render_template(
                     NotificationTemplates.THESIS_WAS_ARCHIVED_BY_ADMIN.value,
                     curator=current_user,
