@@ -110,7 +110,7 @@ def practice_index():
 
     return render_template(
         PracticeStudentTemplates.MAIN.value,
-        thesises=get_list_of_thesises(),
+        thesises=get_list_of_theses(),
         notifications=notifications,
         notifications_not_viewed=notifications_not_viewed,
         type_notifications=type_notifications,
@@ -120,7 +120,7 @@ def practice_index():
 @login_required
 def practice_guide():
     return render_template(
-        PracticeStudentTemplates.GUIDE.value, thesises=get_list_of_thesises()
+        PracticeStudentTemplates.GUIDE.value, thesises=get_list_of_theses()
     )
 
 
@@ -153,7 +153,7 @@ def practice_new_thesis():
 
     return render_template(
         PracticeStudentTemplates.NEW_PRACTICE.value,
-        thesises=get_list_of_thesises(),
+        thesises=get_list_of_theses(),
         user=current_user,
         review_filter=form,
         form=form,
@@ -207,6 +207,7 @@ def practice_choosing_topic(current_thesis):
     form.staff.choices.append((0, "Выберите научного руководителя"))
     for supervisor in (
         Staff.query.join(Users, Staff.user_id == Users.id)
+        .filter(Staff.still_working)
         .order_by(asc(Users.last_name))
         .all()
     ):
@@ -214,7 +215,7 @@ def practice_choosing_topic(current_thesis):
 
     return render_template(
         PracticeStudentTemplates.CHOOSING_TOPIC.value,
-        thesises=get_list_of_thesises(),
+        thesises=get_list_of_theses(),
         form=form,
         practice=current_thesis,
         deadline=deadline,
@@ -263,6 +264,7 @@ def practice_edit_theme(current_thesis):
     for supervisor in (
         Staff.query.join(Users, Staff.user_id == Users.id)
         .filter(Staff.id != current_thesis.supervisor_id)
+        .filter(Staff.still_working)
         .order_by(asc(Users.last_name))
         .all()
     ):
@@ -270,7 +272,7 @@ def practice_edit_theme(current_thesis):
 
     return render_template(
         PracticeStudentTemplates.EDIT_TOPIC.value,
-        thesises=get_list_of_thesises(),
+        thesises=get_list_of_theses(),
         form=form,
         practice=current_thesis,
     )
@@ -352,7 +354,7 @@ def practice_goals_tasks(current_thesis):
 
     return render_template(
         PracticeStudentTemplates.GOALS_TASKS.value,
-        thesises=get_list_of_thesises(),
+        thesises=get_list_of_theses(),
         practice=current_thesis,
     )
 
@@ -376,7 +378,7 @@ def practice_workflow(current_thesis):
     )
     return render_template(
         PracticeStudentTemplates.WORKFLOW.value,
-        thesises=get_list_of_thesises(),
+        thesises=get_list_of_theses(),
         practice=current_thesis,
         reports=reports,
     )
@@ -431,7 +433,7 @@ def practice_add_new_report(current_thesis):
     add_thesis_report_form = UserAddReport()
     return render_template(
         PracticeStudentTemplates.NEW_REPORT.value,
-        thesises=get_list_of_thesises(),
+        thesises=get_list_of_theses(),
         practice=current_thesis,
         form=add_thesis_report_form,
         user=current_user,
@@ -668,7 +670,7 @@ def practice_preparation(current_thesis):
         elif "delete_reviewer_review_button" in request.form:
             current_thesis.reviewer_review_uri = None
             db.session.commit()
-        elif "delete_supevisor_review_button" in request.form:
+        elif "delete_supervisor_review_button" in request.form:
             current_thesis.supervisor_review_uri = None
             db.session.commit()
         elif "delete_code_link_button" in request.form:
@@ -686,7 +688,7 @@ def practice_preparation(current_thesis):
 
     return render_template(
         PracticeStudentTemplates.PREPARATION.value,
-        thesises=get_list_of_thesises(),
+        thesises=get_list_of_theses(),
         practice=current_thesis,
         deadline=deadline,
         remaining_time_submit=get_remaining_time(deadline, "submit_work_for_review"),
@@ -699,7 +701,7 @@ def practice_preparation(current_thesis):
 def practice_thesis_defense(current_thesis):
     return render_template(
         PracticeStudentTemplates.DEFENSE.value,
-        thesises=get_list_of_thesises(),
+        thesises=get_list_of_theses(),
         practice=current_thesis,
     )
 
@@ -747,14 +749,14 @@ def practice_data_for_practice(current_thesis):
 
     return render_template(
         PracticeStudentTemplates.SETTINGS.value,
-        thesises=get_list_of_thesises(),
+        thesises=get_list_of_theses(),
         user=current_user,
         form=form,
         practice=current_thesis,
     )
 
 
-def get_list_of_thesises() -> List[CurrentThesis]:
+def get_list_of_theses() -> List[CurrentThesis]:
     return [thesis for thesis in current_user.current_thesises if not thesis.deleted]
 
 
