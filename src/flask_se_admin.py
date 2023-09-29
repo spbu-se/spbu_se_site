@@ -17,6 +17,8 @@ THESIS_ROLE_LEVEL = 2
 
 # Base model view with access and inaccess methods
 class SeAdminModelView(ModelView):
+    can_set_page_size = True
+
     def is_accessible(self):
         if current_user.is_authenticated:
             if current_user.role >= ADMIN_ROLE_LEVEL:
@@ -230,10 +232,10 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
             "rows": 10,
             "style": "width: 100%;",
         },
-        "requirements": {"rows": 3, "style": "width: 100%;", "readonly": True},
-        "title": {"readonly": True},
+        "requirements": {"rows": 3, "style": "width: 100%;"},
+        "title": {"readonly": False},
         "level": {"disabled": True},
-        "company": {"disabled": True},
+        "company": {"disabled": False},
         "author": {"readonly": True},
         "comment": {
             "rows": 5,
