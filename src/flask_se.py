@@ -657,7 +657,7 @@ def frequently_asked_questions():
     return render_template("frequently_asked_questions.html")
 
 
-@app.route("/nooffer.html")
+@app.route("/nooffer")
 def nooffer():
     return render_template("nooffer.html")
 
@@ -680,7 +680,7 @@ def sitemap():
     """Generate sitemap.xml. Makes a list of urls and date modified."""
     pages = []
     skip_pages = [
-        "/nooffer.html",
+        "/nooffer",
         "/fetch_theses",
         "/Sitemap.xml",
         "/sitemap.xml",
