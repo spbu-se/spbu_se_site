@@ -99,6 +99,8 @@ flask_se_practice_yandex_secret.conf
 **/__pycache__/
 
 # Do not track documents for thesises
-src/static/practice/reviews/*.pdf
-src/static/practice/slides/*.pdf
-src/static/practice/texts/*.pdf
+src/static/practice/*/*.pdf
+src/static/thesis/*/*.pdf
+
+# Do not track fulltext search files
+src/msearch/*
