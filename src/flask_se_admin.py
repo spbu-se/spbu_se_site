@@ -3,12 +3,12 @@
 from flask import redirect, url_for
 from flask_admin import AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.contrib.sqla.fields import QuerySelectField
 from flask_login import current_user
-
 from wtforms import TextAreaField, SelectField
 
 from flask_se_config import SECRET_KEY_THESIS
-from se_models import db
+from se_models import db, Users, Staff, Worktype, Courses, AreasOfStudy
 
 ADMIN_ROLE_LEVEL = 5
 REVIEW_ROLE_LEVEL = 3
@@ -31,8 +31,46 @@ class SeAdminModelView(ModelView):
 
 
 class SeAdminModelViewThesis(SeAdminModelView):
-    column_exclude_list = ["text"]
-    pass
+    column_list = (
+        "name_ru",
+        "name_en",
+        "author",
+        "supervisor",
+        "publish_year",
+        "recomended",
+        "temporary",
+        "review_status",
+        "download_thesis",
+        "download_presentation",
+    )
+    form_extra_fields = {
+        "supervisor": QuerySelectField(
+            "Научный руководитель",
+            query_factory=lambda: Staff.query.all(),
+            get_pk=lambda staff: staff.id,
+        ),
+        "owner": QuerySelectField(
+            "Author user",
+            query_factory=lambda: Users.query.all(),
+            get_pk=lambda user: user.id,
+        ),
+        "type": QuerySelectField(
+            "Тип работы",
+            query_factory=lambda: Worktype.query.all(),
+            get_pk=lambda t: t.id,
+        ),
+        "course": QuerySelectField(
+            "Курс",
+            query_factory=lambda: Courses.query.all(),
+            get_label=lambda c: c.name,
+            get_pk=lambda c: c.id,
+        ),
+        "area": QuerySelectField(
+            "Направление обучения",
+            query_factory=lambda: AreasOfStudy.query.all(),
+            get_pk=lambda c: c.id,
+        ),
+    }
 
 
 class SeAdminModelViewReviewer(ModelView):
@@ -131,7 +169,7 @@ class SeAdminModelViewStaff(SeAdminModelView):
         "still_working",
     )
     form_columns = (
-        "user_id",
+        "user",
         "official_email",
         "position",
         "science_degree",
@@ -146,8 +184,13 @@ class SeAdminModelViewStaff(SeAdminModelView):
             ("к.т.н.", "к.т.н."),
         ]
     }
-
-    pass
+    form_extra_fields = {
+        "user": QuerySelectField(
+            "User",
+            query_factory=lambda: Users.query.all(),
+            get_pk=lambda user: user.id,
+        )
+    }
 
 
 class SeAdminModelViewNews(SeAdminModelView):
@@ -272,5 +315,3 @@ class SeAdminModelViewCurrentThesis(SeAdminModelView):
         status="Статус",
     )
     column_choices = {"status": [(1, "Текущая работа"), (2, "Завершенная работа")]}
-
-    pass
