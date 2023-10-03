@@ -1,10 +1,5 @@
 {"type": "FeatureCollection",
 "features": [
-{"type": "FormerFeature",
-	"properties": {
-		"popupContent": "Астрономический вход"
-	},
-	"geometry": {"type": "Point", "coordinates": [29.82713348223101, 59.88005840377496]}},
 {"type": "Feature",
 	"properties": {
 		"popupContent": "Остановка «Ректорский проезд»"
