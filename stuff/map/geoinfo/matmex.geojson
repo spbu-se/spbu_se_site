@@ -1,6 +1,6 @@
 {"type": "FeatureCollection",
 "features": [
-{"type": "Feature",
+{"type": "FormerFeature",
 	"properties": {
 		"popupContent": "Астрономический вход"
 	},
