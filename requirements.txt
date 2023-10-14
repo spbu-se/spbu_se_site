@@ -5,6 +5,9 @@ bs4==0.0.1
 chardet==5.2.0
 connexion==2.14.2
 Flask-Admin==1.6.1
+# Flask-Admin 1.6.1 is incompatible with new release of WTForms 3.1.0
+# https://github.com/flask-admin/flask-admin/issues/2391
+WTForms==3.0.1 # Added manually, to be removed later
 Flask-APScheduler==1.13.0
 Flask-BasicAuth==0.2.0
 Flask-Login==0.6.2
