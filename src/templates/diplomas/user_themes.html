@@ -74,6 +74,10 @@
                 {% elif t.status == 3 %}
                 <span class="badge badge-primary badge-pill">В архиве</span>
                 <p class="pt-2">Ваша тема в архиве. Чтобы отправить ее на проверку, внесите любые изменения и сохраните их.</p>
+
+                {% elif t.status == 4 %}
+                <span class="badge badge-danger badge-pill">Отклонена</span>
+                <p class="pt-2">Результат проверки: {% if t.comment %} {{t.comment}} {% else %} Странно, тему отклонили, но не указали комментарий.{% endif %}</p>
                 {% endif %}
             </div>
         </div>

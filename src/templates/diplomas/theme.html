@@ -60,6 +60,8 @@
                             <span class="badge badge-success badge-pill" data-container="body" data-toggle="tooltip" data-placement="right" data-title="Ваша тема одобрена, ей назначен научный руководитель и она доступна в общем списке актуальных тем.">Одобрена</span>
                         {% elif theme.status == 3 %}
                             <span class="badge badge-primary badge-pill" data-container="body" data-toggle="tooltip" data-placement="right" data-title="Ваша тема в архиве. Чтобы отправить ее на проверку, внесите любые изменения и сохраните их.">В архиве</span>
+                        {% elif theme.status == 4 %}
+                            <span class="badge badge-danger badge-pill" data-container="body" data-toggle="tooltip" data-placement="right" data-title="{% if theme.comment %} {{theme.comment}} {% else %} Странно, тему отклонили, но не указали комментарий.{% endif %}">Отклонена</span>
                         {% endif %}
                         <hr class="my-2" />
                     {% endif %}
@@ -116,39 +118,41 @@
                     {% if theme.author_id == current_user.id %}
                         <hr class="my-2" />
                         <h6 class="">Управление</h6>
+                        {% if theme.status != 4 %}
                         <a href="{{ url_for('edit_user_theme', theme_id=theme.id) }}" class="btn btn-xs btn-primary">
                             <span class="btn-inner--text">Редактировать</span>
                         </a>
+                        {% endif %}
                         <a href="#" data-toggle="modal" data-target="#exitModal" class="btn btn-xs btn-danger">
                             <span class="btn-inner--text">Удалить</span>
                         </a>
 
-         <!-- Modal -->
-        <div class="modal fade" id="exitModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="ModalLabel">Подтверждение</h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    Вы точно хотите удалить эту тему'?
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <a href="{{url_for('delete_theme', theme_id=theme.id)}}" type="button" class="btn btn-secondary">Да, точно</a>
-                                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
-                                                </div>
-                                            </div>
-                                        </div>
+                        <!-- Modal -->
+                        <div class="modal fade" id="exitModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ModalLabel">Подтверждение</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
                                     </div>
-        {% endif %}
-        {% endif %}
+                                    <div class="modal-body">
+                                        Вы точно хотите удалить эту тему'?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="{{url_for('delete_theme', theme_id=theme.id)}}" type="button" class="btn btn-secondary">Да, точно</a>
+                                        <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
 
-                    {% if current_user.is_authenticated %}
+                {% if current_user.is_authenticated %}
                     {% if theme.author_id == current_user.id %}
-                    {% if theme.status != 3 %}
+                    {% if theme.status != 3 and theme.status != 4 %}
 
                         <hr class="my-2" />
                         <h6 class="">Архив</h6>
@@ -158,29 +162,29 @@
                             </a>
                         </p>
 
-         <!-- Modal -->
-        <div class="modal fade" id="archiveModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel2" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="ModalLabel2">Подтверждение</h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    Вы всегда сможете вернуть и опубликовать тему из архива. Убрать текущую тему в архив?
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <a href="{{url_for('archive_theme', theme_id=theme.id)}}" type="button" class="btn btn-secondary">Да, убрать</a>
-                                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
-                                                </div>
-                                            </div>
-                                        </div>
+                        <!-- Modal -->
+                        <div class="modal fade" id="archiveModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel2" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ModalLabel2">Подтверждение</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
                                     </div>
-        {% endif %}
-        {% endif %}
-        {% endif %}
+                                    <div class="modal-body">
+                                        Вы всегда сможете вернуть и опубликовать тему из архива. Убрать текущую тему в архив?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="{{url_for('archive_theme', theme_id=theme.id)}}" type="button" class="btn btn-secondary">Да, убрать</a>
+                                        <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% endif %}
+                {% endif %}
 
                     {% if current_user.is_authenticated %}
                     {% if theme.author_id == current_user.id %}
