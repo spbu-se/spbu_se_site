@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import redirect, url_for
+from flask import redirect, url_for, session, render_template
 from flask_admin import AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.contrib.sqla.fields import QuerySelectField
@@ -8,7 +8,17 @@ from flask_login import current_user
 from wtforms import TextAreaField, SelectField
 
 from flask_se_config import SECRET_KEY_THESIS
-from se_models import db, Users, Staff, Worktype, Courses, AreasOfStudy
+from se_models import (
+    db,
+    Users,
+    Staff,
+    Worktype,
+    Courses,
+    AreasOfStudy,
+    DiplomaThemes,
+    add_mail_notification,
+)
+from templates.notification.templates import NotificationTemplates
 
 ADMIN_ROLE_LEVEL = 5
 REVIEW_ROLE_LEVEL = 3
@@ -211,13 +221,32 @@ class SeAdminModelViewDiplomaThemes(SeAdminModelView):
         consultant="Консультант",
         author="Автор темы (кто предложил)",
     )
+    column_choices = {
+        "status": [
+            (0, "На проверке"),
+            (1, "Требуется доработка"),
+            (2, "Одобрена"),
+            (4, "Отклонена"),
+        ]
+    }
 
     form_overrides = {
         "description": TextAreaField,
         "requirements": TextAreaField,
         "comment": TextAreaField,
+        "status": SelectField,
     }
-
+    form_args = dict(
+        status=dict(
+            choices=[
+                (0, "На проверке"),
+                (1, "Требуется доработка"),
+                (2, "Одобрена"),
+                (4, "Отклонена"),
+            ],
+            coerce=int,
+        )
+    )
     form_widget_args = {
         "description": {"rows": 10, "style": "width: 100%;"},
         "comment": {"rows": 4, "style": "width: 100%;"},
@@ -241,7 +270,7 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
     column_labels = dict(
         supervisor_thesis="Научный руководитель ВКР",
         supervisor="Научный руководитель учебных практик",
-        comment="Комментарий (что нужно исправить)",
+        comment="Комментарий (что нужно исправить, если требуется доработка, или почему тема отклонена)",
         status="Статус темы",
         requirements="Требования к студенту",
         title="Название темы",
@@ -261,7 +290,12 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
 
     form_args = dict(
         status=dict(
-            choices=[(0, "На проверке"), (1, "Требуется доработка"), (2, "Одобрена")],
+            choices=[
+                (0, "На проверке"),
+                (1, "Требуется доработка"),
+                (2, "Одобрена"),
+                (4, "Отклонена"),
+            ],
             coerce=int,
         )
     )
@@ -285,6 +319,32 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
             "style": "width: 100%;",
         },
     }
+
+    def on_form_prefill(self, form, id):
+        session["previous_status"] = DiplomaThemes.query.filter_by(id=id).first().status
+
+    def on_model_change(self, form, model, is_created):
+        previous_status = session.get("previous_status")
+        if previous_status != model.status and model.status == 4:
+            add_mail_notification(
+                model.author_id,
+                "[SE site] Ваша тема отклонена",
+                render_template(
+                    NotificationTemplates.DIPLOMA_THEMES_REJECTED.value,
+                    title=model.title,
+                    comment=model.comment,
+                ),
+            )
+        if previous_status != model.status and model.status == 1:
+            add_mail_notification(
+                model.author_id,
+                "[SE site] Требуется доработка для Вашей темы",
+                render_template(
+                    NotificationTemplates.DIPLOMA_THEMES_NEED_UPDATE.value,
+                    title=model.title,
+                    comment=model.comment,
+                ),
+            )
 
     def get_query(self):
         return self.session.query(self.model).filter(self.model.status < 2)

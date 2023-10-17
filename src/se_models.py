@@ -627,7 +627,7 @@ class DiplomaThemes(db.Model):
     requirements = db.Column(db.String(2048), nullable=True)
     status = db.Column(
         db.Integer, default=0, nullable=False
-    )  # 0 - new, 1 - need update, 2 - approved, 3 - archive
+    )  # 0 - new, 1 - need update, 2 - approved, 3 - archive, 4 - rejected
 
     comment = db.Column(db.String(2048), nullable=True)
 
