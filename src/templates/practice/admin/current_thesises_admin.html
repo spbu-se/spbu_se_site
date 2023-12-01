@@ -70,23 +70,22 @@
                         <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        Введите полный путь и название файла таблицы (в формате .xlsx)
+                    <div class="modal-body pb-2">
+                        Введите полный путь и название файла таблицы (расширение <b>.xlsx</b>)
                         <ul class="mb-0">
                             <li>Если файл существует на диске, он будет скачан, отредактирован и загружен обратно.</li>
                             <li>Если файла на диске нет, он будет создан.</li>
                         </ul>
-                        <div class="form-group mb-2 mt-1">
-                            <input type="text" class="form-control" placeholder="path/to/table/table_with_results.xlsx" name="table_name">
+                        <div class="form-group mb-3 mt-1">
+                            <input type="text" class="form-control" placeholder="path/to/table/table_with_results.xlsx" name="table_name" value="{{ default_table_name }}">
                         </div>
 
                         Введите название листа таблицы
                         <ul class="mb-0">
                             <li>Лист таблицы, который будет отредактирован / создан (при создании таблицы).</li>
-                            <li>По умолчанию (пустое значение) - первый лист таблицы.</li>
                         </ul>
                         <div class="form-group mb-3 mt-1">
-                            <input id="sheet-name-input" type="text" class="form-control" placeholder="Название листа таблицы" name="sheet_name">
+                            <input id="sheet-name-input" type="text" class="form-control" placeholder="По умолчанию - первый лист таблицы" name="sheet_name">
                         </div>
                         <a id="arrow-column-name" data-toggle="collapse" href="#collapseColumnNames" role="button" aria-expanded="false" aria-controls="collapseColumnNames" onclick="ChangeArrow()">
                             Настроить названия столбцов в таблице
@@ -135,7 +134,7 @@
                                 <label for="committer-input" class="text-sm mb-0">Имя коммитера</label>
                                 <input id="committer-input" type="text" class="form-control" placeholder="Имя коммитера" name="committer_column" value="{{ table_columns['committer'] }}">
                             </div>
-                            <div class="form-group mb-0">
+                            <div class="form-group mb-1">
                                 <label for="presentation-input" class="text-sm mb-0">Презентация</label>
                                 <input id="presentation-input" type="text" class="form-control" placeholder="Презентация" name="presentation_column" value="{{ table_columns['presentation'] }}">
                             </div>
