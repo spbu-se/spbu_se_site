@@ -5,7 +5,6 @@ bs4==0.0.1
 chardet==5.2.0
 connexion==2.14.2
 Flask-Admin==1.6.1
-WTForms==3.1.1
 Flask-APScheduler==1.13.1
 Flask-BasicAuth==0.2.0
 Flask-Login==0.6.3
