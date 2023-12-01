@@ -136,7 +136,26 @@ def index_admin():
             for thesis in thesises:
                 thesis.status = 2
             db.session.commit()
-        if "yandex_button" in request.form or "download_table" in request.form:
+        if "download_table" in request.form:
+            filename = (
+                get_thesis_type_id_string(worktype.id)
+                + "_"
+                + translit(area.area, "ru", reversed=True).replace(" ", "_")
+                + ".xlsx"
+            )
+            with tempfile.TemporaryDirectory() as tmp:
+                full_filename = tmp + "/" + filename
+                edit_table(
+                    path_to_table=full_filename,
+                    sheet_name="",
+                    area_id=area.id,
+                    worktype_id=worktype.id,
+                    column_names_list=list(TABLE_COLUMNS.items()),
+                )
+                return send_file(
+                    full_filename, download_name=filename, as_attachment=True
+                )
+        if "yandex_button" in request.form:
             table_name = request.form["table_name"]
             sheet_name = request.form["sheet_name"]
             if table_name is None or table_name == "":
@@ -163,28 +182,13 @@ def index_admin():
                     )
                 column_names.append((column, column_value))
 
-            if "yandex_button" in request.form:
-                return handle_yandex_table(
-                    table_name=table_name,
-                    sheet_name=sheet_name,
-                    area_id=area.id,
-                    worktype_id=worktype.id,
-                    column_names_list=column_names,
-                )
-            else:
-                table_filename = table_name.split("/")[-1]
-                with tempfile.TemporaryDirectory() as tmp:
-                    full_filename = tmp + "/" + table_filename
-                    edit_table(
-                        path_to_table=full_filename,
-                        sheet_name=sheet_name,
-                        area_id=area.id,
-                        worktype_id=worktype.id,
-                        column_names_list=column_names,
-                    )
-                    return send_file(
-                        full_filename, download_name=table_filename, as_attachment=True
-                    )
+            return handle_yandex_table(
+                table_name=table_name,
+                sheet_name=sheet_name,
+                area_id=area.id,
+                worktype_id=worktype.id,
+                column_names_list=column_names,
+            )
 
     list_of_thesises = (
         CurrentThesis.query.filter_by(area_id=area_id)
