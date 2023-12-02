@@ -5,7 +5,7 @@ from datetime import datetime
 
 import pytz
 from dateutil import tz
-from flask import Flask, render_template, make_response, redirect, url_for, request
+from flask import Flask, render_template, make_response, redirect, url_for
 from flask_admin import Admin
 from flask_apscheduler import APScheduler
 from flask_frozen import Freezer
@@ -137,7 +137,6 @@ from flask_se_practice_staff import (
 )
 from flask_se_practice_admin import (
     index_admin,
-    deadline_admin,
     choose_area_and_worktype_admin,
     thesis_admin,
     finished_thesises_admin,
@@ -363,9 +362,6 @@ app.add_url_rule(
     "/practice_admin/finished_thesises",
     methods=["GET"],
     view_func=finished_thesises_admin,
-)
-app.add_url_rule(
-    "/practice_admin/deadline", methods=["GET", "POST"], view_func=deadline_admin
 )
 app.add_url_rule(
     "/practice_admin/thesis", methods=["GET", "POST"], view_func=thesis_admin

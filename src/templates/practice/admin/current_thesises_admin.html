@@ -21,13 +21,17 @@
     {% else %}
 
     <form method="POST" action="{{ url_for('index_admin', area_id=area.id, worktype_id=worktype.id) }}">
-        <div class="row mb-3">
+        <div class="row mb-2">
             <div class="col">
-                <input type="submit" class="btn btn-sm btn-primary" name="download_materials_button" value="Скачать материалы работ">
-                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#yandexDiskModal">
+                <button type="button" class="btn btn-sm btn-primary dropdown-toggle mx-0 mb-2" id="dropdownMenuTableButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Таблица с результатами
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#finishAllWorksModal">
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuTableButton">
+                    <input type="submit" class="dropdown-item" name="download_table" value="Скачать">
+                    <button type="button" class="dropdown-item" data-toggle="modal" data-target="#yandexDiskModal">Выгрузить на Яндекс Диск</button>
+                </div>
+                <input type="submit" class="btn btn-sm btn-primary mx-0 mb-2" name="download_materials_button" value="Скачать материалы работ">
+                <button type="button" class="btn btn-sm btn-outline-danger mx-0 mb-2" data-toggle="modal" data-target="#finishAllWorksModal">
                     Завершить все работы
                 </button>
             </div>
@@ -61,28 +65,27 @@
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="yandexDiskModalLabel">Выгрузка таблицы с результатами</h5>
+                        <h5 class="modal-title" id="yandexDiskModalLabel">Выгрузка таблицы с результатами на Яндекс Диск</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        Введите полный путь и название файла таблицы (в формате .xlsx)
+                    <div class="modal-body pb-2">
+                        Введите полный путь и название файла таблицы (расширение <b>.xlsx</b>)
                         <ul class="mb-0">
                             <li>Если файл существует на диске, он будет скачан, отредактирован и загружен обратно.</li>
                             <li>Если файла на диске нет, он будет создан.</li>
                         </ul>
-                        <div class="form-group mb-2 mt-1">
-                            <input type="text" class="form-control" placeholder="path/to/table/table_with_results.xlsx" name="table_name">
+                        <div class="form-group mb-3 mt-1">
+                            <input type="text" class="form-control" placeholder="path/to/table/table_with_results.xlsx" name="table_name" value="{{ default_table_name }}">
                         </div>
 
                         Введите название листа таблицы
                         <ul class="mb-0">
                             <li>Лист таблицы, который будет отредактирован / создан (при создании таблицы).</li>
-                            <li>По умолчанию (пустое значение) - первый лист таблицы.</li>
                         </ul>
                         <div class="form-group mb-3 mt-1">
-                            <input id="sheet-name-input" type="text" class="form-control" placeholder="Название листа таблицы" name="sheet_name">
+                            <input id="sheet-name-input" type="text" class="form-control" placeholder="По умолчанию - первый лист таблицы" name="sheet_name">
                         </div>
                         <a id="arrow-column-name" data-toggle="collapse" href="#collapseColumnNames" role="button" aria-expanded="false" aria-controls="collapseColumnNames" onclick="ChangeArrow()">
                             Настроить названия столбцов в таблице
@@ -131,7 +134,7 @@
                                 <label for="committer-input" class="text-sm mb-0">Имя коммитера</label>
                                 <input id="committer-input" type="text" class="form-control" placeholder="Имя коммитера" name="committer_column" value="{{ table_columns['committer'] }}">
                             </div>
-                            <div class="form-group mb-0">
+                            <div class="form-group mb-1">
                                 <label for="presentation-input" class="text-sm mb-0">Презентация</label>
                                 <input id="presentation-input" type="text" class="form-control" placeholder="Презентация" name="presentation_column" value="{{ table_columns['presentation'] }}">
                             </div>
@@ -140,7 +143,6 @@
 
                     </div>
                     <div class="modal-footer py-2">
-                        <input type="submit" class="btn btn-sm btn-primary" name="download_table" value="Скачать">
                         <input type="submit" class="btn btn-sm btn-primary" name="yandex_button" value="Выгрузить на Яндекс Диск">
                     </div>
                 </div>
@@ -149,7 +151,7 @@
     </form>
 
     {% for thesis in list_of_thesises %}
-    <div class="card border-0 mb-3">
+    <div class="card border-0 mb-3 mt-0">
         <div class="card-header">
             <h6 class="mb-0">
                 <a href="{{ url_for('thesis_admin', id=thesis.id) }}" class="link text-primary">

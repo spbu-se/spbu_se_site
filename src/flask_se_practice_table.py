@@ -21,9 +21,15 @@ import pandas as pd
 
 from flask import flash
 from se_models import Users, CurrentThesis
+from flask_se_practice_config import TABLE_COLUMNS
 
 
-def edit_table(path_to_table, sheet_name, area_id, worktype_id, column_names_list):
+def edit_table(
+    path_to_table, area_id, worktype_id, column_names_list=None, sheet_name=""
+):
+    if column_names_list is None:
+        column_names_list = list(TABLE_COLUMNS.items())
+
     if os.path.exists(path_to_table):
         table_df = read_table(path_to_table, sheet_name)
         if table_df is None:
@@ -80,6 +86,8 @@ def edit_table(path_to_table, sheet_name, area_id, worktype_id, column_names_lis
         except KeyError:
             return
 
+    table_df = table_df.sort_values(by=column_names["name"])
+
     with pd.ExcelWriter(path_to_table, mode="a", if_sheet_exists="overlay") as writer:
         if sheet_name == "":
             table_df.to_excel(writer, index=False)
@@ -105,15 +113,12 @@ def read_table(path_to_table, sheet_name) -> pd.DataFrame or None:
 
 
 def find_user(full_name: str) -> Users or None:
-    if len(full_name.split()) != 3:
+    name = full_name.split()
+    if len(name) < 2:
         return None
 
-    last_name, first_name, middle_name = full_name.split()
     user = (
-        Users.query.filter_by(last_name=last_name)
-        .filter_by(first_name=first_name)
-        .filter_by(middle_name=middle_name)
-        .first()
+        Users.query.filter_by(last_name=name[0]).filter_by(first_name=name[1]).first()
     )
     return user
 
