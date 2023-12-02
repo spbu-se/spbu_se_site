@@ -3,7 +3,7 @@
 blinker==1.7.0 # Added manually, to be removed later.
 bs4==0.0.1
 chardet==5.2.0
-connexion==2.14.2
+connexion==3.0.3
 Flask-Admin==1.6.1
 Flask-APScheduler==1.13.1
 Flask-BasicAuth==0.2.0
