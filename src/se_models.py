@@ -35,7 +35,7 @@ convention = {
 
 metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
-search = Search()
+search = Search(None, db, None)
 
 
 tag = db.Table(
