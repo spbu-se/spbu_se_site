@@ -35,7 +35,9 @@ convention = {
 
 metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
-search = Search(None, db, None)
+# Workaround: flask-msearch does not work with recent Flask-SQLAlchemy.
+# Pass 'db' parameter explicitly to mitigate this problem.
+search = Search(db=db)
 
 
 tag = db.Table(
