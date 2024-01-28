@@ -1,9 +1,6 @@
-# It is useful because connexion  2.14.2 requires Flask <2.3,
-# which in turn is missing this dependency. Can be removed after Flask 2.3
-blinker==1.7.0 # Added manually, to be removed later.
-bs4==0.0.2
+beautifulsoup4==4.12.3
 chardet==5.2.0
-connexion==2.14.2
+Flask==2.3.3
 Flask-Admin==1.6.1
 Flask-APScheduler==1.13.1
 Flask-BasicAuth==0.2.0
@@ -11,9 +8,6 @@ Flask-Login==0.6.3
 Flask-Markdown==0.3
 Flask-Migrate==4.0.5
 flask-msearch==0.2.9.4
-# Flask-SQLAlchemy <= 3.0.5 is required for flask-msearch
-# because in Flask-SQLAlchemy > 3.0.5 the deprecated code that flask-msearch uses was removed.
-Flask-SQLAlchemy==3.0.5
 Flask-SimpleMDE==0.3.0
 Flask-WTF==1.2.1
 Frozen-Flask==1.0.1
