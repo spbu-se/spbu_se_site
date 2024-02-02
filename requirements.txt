@@ -1,6 +1,6 @@
 beautifulsoup4==4.12.3
 chardet==5.2.0
-Flask==3.0.1
+Flask==2.3.3
 Flask-Admin==1.6.1
 Flask-APScheduler==1.13.1
 Flask-BasicAuth==0.2.0
