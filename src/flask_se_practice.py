@@ -415,6 +415,11 @@ def practice_add_new_report(current_thesis):
                 "Слишком короткое описание дальнейших планов, напишите подробнее!",
                 category="error",
             )
+        elif not current_thesis.supervisor_id:
+            flash(
+                "Научный руководитель не найден, выберите научного руководителя в разделе \"Выбор темы\"!",
+                category="error",
+            )
         else:
             new_report = ThesisReport(
                 was_done=was_done,
