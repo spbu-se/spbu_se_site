@@ -415,7 +415,7 @@ def practice_add_new_report(current_thesis):
                 "Слишком короткое описание дальнейших планов, напишите подробнее!",
                 category="error",
             )
-        elif not current_thesis.supervisor_id:
+        elif current_thesis.supervisor_id is None:
             flash(
                 "Научный руководитель не найден, выберите научного руководителя в разделе \"Выбор темы\"!",
                 category="error",
