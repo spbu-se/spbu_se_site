@@ -417,7 +417,7 @@ def practice_add_new_report(current_thesis):
             )
         elif current_thesis.supervisor_id is None:
             flash(
-                "Научный руководитель не найден, выберите научного руководителя в разделе \"Выбор темы\"!",
+                'Научный руководитель не найден, выберите научного руководителя в разделе "Выбор темы"!',
                 category="error",
             )
         else:
