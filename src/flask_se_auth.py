@@ -92,12 +92,22 @@ def login_index():
         user = Users.query.filter_by(email=email).first()
         if user:
             password_hash = user.password_hash
-            if (password_hash is not None) and password_hash.startswith('pbkdf2') and check_password_hash(password_hash, password):
+            if (
+                (password_hash is not None)
+                and password_hash.startswith("pbkdf2")
+                and check_password_hash(password_hash, password)
+            ):
                 login_user(user, remember=True)
                 return redirect_next_url(fallback=url_for("user_profile"))
-            elif (password_hash is not None):
-                hs = password_hash.split('$')
-                if len(hs) == 3 and hmac.HMAC(hs[1].encode('utf-8'), password.encode('utf-8'), hs[0]).hexdigest() == hs[2]:
+            elif password_hash is not None:
+                hs = password_hash.split("$")
+                if (
+                    len(hs) == 3
+                    and hmac.HMAC(
+                        hs[1].encode("utf-8"), password.encode("utf-8"), hs[0]
+                    ).hexdigest()
+                    == hs[2]
+                ):
                     login_user(user, remember=True)
                     return redirect_next_url(fallback=url_for("user_profile"))
                 else:
