@@ -23,7 +23,7 @@ jobs:
       steps:
       
         # Checks-out to branch that triggered the action
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v4
           with:
             ref: ${{ github.ref_name }}
             
@@ -33,19 +33,19 @@ jobs:
             branches: temp
             soft_fail: true
         
-        - uses: peterjgrainger/action-create-branch@v2.0.1
+        - uses: peterjgrainger/action-create-branch@v3.0.0
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
             branch: 'temp'
             
         # Checks-out repository branch ver2_dev
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v4
           with:
             ref: 'temp'
         
         # Set up Python 3.8 environment
-        - uses: actions/setup-python@v2
+        - uses: actions/setup-python@v5
           with:
               python-version: '3.8'
               
@@ -60,7 +60,7 @@ jobs:
             
         # install npm and run script
         - name: install npm and run script
-          uses: actions/setup-node@v2
+          uses: actions/setup-node@v4
           with: 
             node-version: '14'
 
@@ -75,7 +75,7 @@ jobs:
         - run: purgecss --css docs/assets/css/*.css --content src/templates/*.html --safelist show --output docs/assets/css
 
         - name: Deploy
-          uses: peaceiris/actions-gh-pages@v3
+          uses: peaceiris/actions-gh-pages@v4
           with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             publish_dir: ./docs
