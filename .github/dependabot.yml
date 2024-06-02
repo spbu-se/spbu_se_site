@@ -4,9 +4,16 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-    ignore:
-      - dependency-name: "Flask-SQLAlchemy"
     groups:
       pip-dependencies:
         patterns:
           - "*" # All dependabot updates are grouped
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
