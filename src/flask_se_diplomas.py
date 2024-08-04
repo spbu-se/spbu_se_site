@@ -9,6 +9,8 @@ from flask_se_auth import login_required
 from se_forms import UserAddTheme, UserEditTheme, DiplomaThemesFilter
 from se_models import db, DiplomaThemes, ThemesLevel, Company, Staff, Users
 
+from sqlalchemy import or_
+
 
 def diplomas_index():
     diploma_filter = DiplomaThemesFilter()
@@ -29,6 +31,7 @@ def diplomas_index():
     for sid in (
         DiplomaThemes.query.with_entities(DiplomaThemes.supervisor_id)
         .filter_by(status=2)
+        .union(DiplomaThemes.query.with_entities(DiplomaThemes.supervisor_id))
         .distinct()
         .all()
     ):
@@ -95,11 +98,19 @@ def fetch_themes():
         # Check if supervisor exists
         ids = (
             DiplomaThemes.query.with_entities(DiplomaThemes.supervisor_id)
+            .union(
+                DiplomaThemes.query.with_entities(DiplomaThemes.supervisor_thesis_id)
+            )
             .distinct()
             .all()
         )
         if [item for item in ids if item[0] == supervisor]:
-            records = records.filter(DiplomaThemes.supervisor_id == supervisor)
+            records = records.filter(
+                or_(
+                    DiplomaThemes.supervisor_id == supervisor,
+                    DiplomaThemes.supervisor_thesis_id == supervisor,
+                )
+            )
         else:
             supervisor = 0
 
