@@ -11,11 +11,15 @@
         {
             'name': "Студентам",
             'options': [
+                {'name': 'Темы практик и ВКР', 'href': url_for('diplomas_index')},
+                {'name': 'Рецензирование практик и ВКР', 'href': url_for('thesis_review_index')},    
+                {'name': 'Архив практик и ВКР', 'href': url_for('theses_search')},    
+                {'name': 'Написание практик и ВКР', 'href': url_for('practice_index')},    
+                {'name': 'Новости', 'href': url_for('list_news')},    
+                {'name': "Поиск IT-стажировок", 'href': url_for('internships_index')},    
                 {'name': 'Стипендии и гранты', 'href': url_for('scholarships')},    
                 {'name': "Летняя школа 2021", 'href': url_for('summer_school')},    
                 {'name': "Летняя школа 2022", 'href': url_for('summer_school_2022')},    
-                {'name': "Архив практик и ВКР", 'href': url_for('theses_search')},    
-                {'name': "Поиск IT-стажировок", 'href': url_for('internships_index')},    
             ]
         },
         {
@@ -27,21 +31,17 @@
             ]
         },
         {
-            'name': 'Сервисы',
+            'name': 'Преподавателям',
             'options': [
-                {'name': 'Темы практик и ВКР', 'href': url_for('diplomas_index')},    
-                {'name': 'Рецензирование практик и ВКР', 'href': url_for('thesis_review_index')},    
-                {'name': 'Новости', 'href': url_for('list_news')},    
-                {'name': 'Архив практик и ВКР', 'href': url_for('theses_search')},    
-                {'name': 'Поиск IT-стажировок', 'href': url_for('internships_index')},    
-                {'name': 'Написание практик и ВКР', 'href': url_for('practice_index')},    
-                {'name': 'Написание практик и ВКР (для преподавателей)', 'href': url_for('theses_search'), "for_stuff": true, "id": "practice_staff_button"},    
-                {'name': 'Написание практик и ВКР (для руководителей практик)', 'href': url_for('index_admin'), "for_stuff": true},    
-            ]
+                {'name': 'Написание практик и ВКР (для преподавателей)', 'href': url_for('theses_search'), "id": "practice_staff_button"},    
+                {'name': 'Написание практик и ВКР (для руководителей практик)', 'href': url_for('index_admin')},    
+            ],
+            'for_stuff': true
         }
     ] %}
 
     {% for headerOption in headerMenuOptions %}
+        {% if (not headerOption['for_stuff']) or (current_user.is_authenticated and current_user.is_staff()) %}
         <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
             <a class="nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
                 {{ headerOption['name'] }}
@@ -49,7 +49,6 @@
             <div class="dropdown-menu dropdown-menu-md p-0">
                 <div class="list-group list-group-flush px-lg-4">
                 {% for option in headerOption['options'] %}
-                    {% if (not option['for_stuff']) or (current_user.is_authenticated and current_user.is_staff()) %}
                     <a href="{{ option['href'] }}" {% if option.target %} target= {{option.target}} {% endif %} {% if option.id %} id={{option.id}} {% endif %}  class="list-group-item list-group-item-action" role="button">
                         <div class="d-flex">
                             <!-- Media body -->
@@ -58,9 +57,9 @@
                             </div>
                         </div>
                     </a>
-                    {% endif %}
                 {% endfor %}
         </li>
+        {% endif %}
     {% endfor %}
 
     <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
