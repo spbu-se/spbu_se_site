@@ -11,13 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: deploy_environment
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
       - name: Run deploy on staging server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          port: ${{ secrets.PORT }}
-          username: ${{ secrets.USERNAME2 }}
-          key: ${{ secrets.SSHKEY }}
-          script:
+        env:
+          AUTHKEY: ${{ secrets.XSEAUTH }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL_STAGING }}
+        run: |
+          curl -X POST -H "X-SE-Auth: $AUTHKEY" $WEBHOOK_URL
