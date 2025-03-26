@@ -15,6 +15,7 @@ jobs:
                   version: "~= 23.0"
             - name: Run deploy on production server
               env:
+                  AUTHKEY: ${{ secrets.XSEAUTH }}
                   WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
               run: |
-                  echo $WEBHOOK_URL
+                  echo URL: $WEBHOOK_URL AUTH: ${AUTHKEY:0:4}
