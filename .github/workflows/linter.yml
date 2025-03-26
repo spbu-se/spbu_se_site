@@ -5,6 +5,7 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
     lint:
         runs-on: ubuntu-latest
+        environment: deploy_environment
         steps:
             - uses: actions/checkout@v4
             - uses: psf/black@stable
