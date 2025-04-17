@@ -302,6 +302,9 @@ function themes_load() {
     let url_string = window.location.href
     let url = new URL(url_string);
     let page = url.searchParams.get("page");
+    let supervisor = url.searchParams.get("supervisor");
+    let company = url.searchParams.get("company");
+    let level = url.searchParams.get("level");
 
     let params = new URLSearchParams();
 
@@ -311,18 +314,26 @@ function themes_load() {
     }
 
     // Supervisor?
-    if (themes_supervisor_select){
+    if (supervisor) {
+        themes_supervisor_select.value = supervisor
+        params.append('supervisor', supervisor);
+    } else if (themes_supervisor_select) {
         params.append('supervisor', themes_supervisor_select.value);
     }
 
     // level?
-    if (themes_level_select){
+    if (level) {
+        themes_level_select.value = level
+        params.append('level', level)
+    } else if (themes_level_select) {
         params.append('level', themes_level_select.value);
     }
 
-    if (themes_company_select)
-    {
-        params.append('company', themes_company_select.value);
+    if (company) {
+        themes_company_select.value = company
+        params.append('company', company)
+    } else if (themes_company_select) {
+        params.append('company', themes_company_select.value)
     }
 
     fetch('fetch_themes?' + params.toString()).then(function(response){
