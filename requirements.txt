@@ -1,4 +1,4 @@
-beautifulsoup4==4.13.3
+beautifulsoup4==4.13.4
 chardet==5.2.0
 Flask==2.3.3
 Flask-Admin==1.6.1
@@ -11,16 +11,16 @@ Flask-SimpleMDE==0.3.0
 Flask-Whooshee==0.9.1
 Flask-WTF==1.2.2
 Frozen-Flask==1.0.2
-google-auth-oauthlib==1.2.1
-Pillow==11.1.0
+google-auth-oauthlib==1.2.2
+Pillow==11.2.1
 PyMuPDF==1.25.5
 pyparsing==3.2.3
 python-editor==1.0.4
 textile==4.0.3
 zipp==3.21.0
-yadisk==3.2.0
+yadisk==3.3.0
 pandas==2.2.3
 openpyxl~=3.1.5
 transliterate==1.10.2
-uWSGI==2.0.28
+uWSGI==2.0.29
 Whoosh==2.7.4
