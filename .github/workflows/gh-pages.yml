@@ -23,7 +23,7 @@ jobs:
       steps:
       
         # Checks-out to branch that triggered the action
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v5
           with:
             ref: ${{ github.ref_name }}
             
@@ -40,7 +40,7 @@ jobs:
             branch: 'temp'
             
         # Checks-out repository branch ver2_dev
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v5
           with:
             ref: 'temp'
         
