@@ -99,7 +99,9 @@ def login_index():
             ):
                 login_user(user, remember=True)
                 return redirect_next_url(fallback=url_for("user_profile"))
-            elif password_hash is not None:
+            elif (password_hash is not None) and (
+                not password_hash.startswith("pbkdf2")
+            ):
                 hs = password_hash.split("$")
                 if (
                     len(hs) == 3
