@@ -496,6 +496,7 @@ def index():
 def index_html():
     return redirect(url_for("index"))
 
+
 @app.route("/research-directions")
 def research_directions():
     directions = [
@@ -511,6 +512,7 @@ def research_directions():
         "Компьютерное зрение, машинное обучение, фотограмметрия (М.Н.Смирнов)",
     ]
     return render_template("research_directions.html", directions=directions)
+
 
 @app.errorhandler(404)
 def page_not_found(e):
