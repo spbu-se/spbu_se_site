@@ -7,6 +7,7 @@ import pytz
 from dateutil import tz
 from flask import Flask, render_template, make_response, redirect, url_for
 from flask_admin import Admin
+from flask_admin.theme import Bootstrap4Theme
 from flask_apscheduler import APScheduler
 from flask_frozen import Freezer
 from flask_migrate import Migrate
