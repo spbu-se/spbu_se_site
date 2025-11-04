@@ -7,6 +7,7 @@ import pytz
 from dateutil import tz
 from flask import Flask, render_template, make_response, redirect, url_for
 from flask_admin import Admin
+from flask_admin.theme import Bootstrap4Theme
 from flask_apscheduler import APScheduler
 from flask_frozen import Freezer
 from flask_migrate import Migrate
@@ -444,7 +445,7 @@ scheduler.add_job(
 scheduler.start()
 
 # Init Flask-admin
-admin = Admin(app, index_view=SeAdminIndexView(), template_mode="bootstrap4")
+admin = Admin(app, index_view=SeAdminIndexView(), theme=Bootstrap4Theme())
 # Add views to the Flask-admin
 admin.add_view(SeAdminModelViewUsers(Users, db.session))
 admin.add_view(SeAdminModelViewStaff(Staff, db.session))
