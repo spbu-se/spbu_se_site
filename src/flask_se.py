@@ -444,7 +444,7 @@ scheduler.add_job(
 scheduler.start()
 
 # Init Flask-admin
-admin = Admin(app, index_view=SeAdminIndexView(), theme="bootstrap4")
+admin = Admin(app, index_view=SeAdminIndexView(), theme=Bootstrap4Theme())
 # Add views to the Flask-admin
 admin.add_view(SeAdminModelViewUsers(Users, db.session))
 admin.add_view(SeAdminModelViewStaff(Staff, db.session))
