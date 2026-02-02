@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
-import pytz
 from dateutil import tz
 from flask import Flask, render_template, make_response, redirect, url_for
 from flask_admin import Admin
@@ -473,7 +472,7 @@ SimpleMDE(app)
 
 @app.template_filter("datatime_convert")
 def datetime_convert(value, format="%d.%m.%Y %H:%M"):
-    return value.replace(tzinfo=pytz.UTC).astimezone(tz.tzlocal()).strftime(format)
+    return value.replace(tzinfo=timezone.UTC).astimezone(tz.tzlocal()).strftime(format)
 
 
 # Flask routes goes

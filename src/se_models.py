@@ -6,7 +6,6 @@ import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 
-import pytz
 from dateutil import tz
 from sqlalchemy import MetaData
 from flask import render_template
