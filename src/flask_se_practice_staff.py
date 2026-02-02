@@ -17,7 +17,6 @@
 
 import datetime
 
-import pytz
 from dateutil import tz
 from flask import flash, redirect, request, render_template, url_for
 from sqlalchemy import desc
@@ -44,7 +43,7 @@ DATE_AND_TIME_FORMAT = "%d.%m.%Y %H:%M"
 
 def datetime_convert(value):
     return (
-        value.replace(tzinfo=pytz.UTC)
+        value.replace(tzinfo=datetime.timezone.UTC)
         .astimezone(tz.tzlocal())
         .strftime(DATE_AND_TIME_FORMAT)
     )
