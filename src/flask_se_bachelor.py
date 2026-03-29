@@ -26,12 +26,12 @@ class BachelorInfo:
 
 
 bachelor_score_info = BachelorInfo(
-    score_url="https://abiturient.spbu.ru/upload/medialibrary/3c0/kcumiyzfm0hqey258970uohhdt75qnr8/priem_bac_spec_2024.pdf",
+    score_url="https://abiturient.spbu.ru/upload/medialibrary/77c/wmxvldiywg1jx4u1ew6tpsyl61ipq5oc/priem_bac_spec_2025.pdf",
     cost_url="https://abiturient.spbu.ru/medialibrary/ru/2025/bac/cost_bac_spec_2025.pdf",
     min_score_and_count_url="https://abiturient.spbu.ru/medialibrary/ru/2025/bac/bak_spec_prog_VI_2025.pdf",
-    year=2024,
+    year=2025,
     se=Score(
-        pass_rate=283,
+        pass_rate=282,
         budget_count=45,
         contract_count=12,
         cost_year="396 500 ₽",
@@ -40,7 +40,7 @@ bachelor_score_info = BachelorInfo(
         min_score_russian_language=50,
     ),
     tp=Score(
-        pass_rate=262,
+        pass_rate=252,
         budget_count=55,
         contract_count=6,
         cost_year="457 300 ₽",
