@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from flask_se_bachelor import bachelor_admission, bachelor_programming_technology, bachelor_software_engineering, bachelor_application
+from flask_se_bachelor import (
+    bachelor_admission,
+    bachelor_programming_technology,
+    bachelor_software_engineering,
+    bachelor_application,
+)
 import sys
 from datetime import datetime, timezone
 
@@ -491,7 +496,9 @@ def index():
     for post in news:
         ages.append(plural_hours(int(get_hours_since(post.created_on))))
 
-    return render_template("index.html", news=news, ages=ages, score_info=bachelor_score_info)
+    return render_template(
+        "index.html", news=news, ages=ages, score_info=bachelor_score_info
+    )
 
 
 @app.route("/index.html")
@@ -542,12 +549,14 @@ def scholarships():
     return render_template("students_scholarships.html")
 
 
-
 app.add_url_rule("/bachelor/admission.html", view_func=bachelor_admission)
-app.add_url_rule("/bachelor/programming-technology.html", view_func=bachelor_programming_technology)
-app.add_url_rule("/bachelor/software-engineering.html", view_func=bachelor_software_engineering)
+app.add_url_rule(
+    "/bachelor/programming-technology.html", view_func=bachelor_programming_technology
+)
+app.add_url_rule(
+    "/bachelor/software-engineering.html", view_func=bachelor_software_engineering
+)
 app.add_url_rule("/bachelor/application.html", view_func=bachelor_application)
-
 
 
 @app.route("/master/information-systems-administration.html")
