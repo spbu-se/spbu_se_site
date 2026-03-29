@@ -67,15 +67,15 @@
                             <div class="row align-items-center">
                                 <div class="col-lg-6">
                                     <h2 class="font-weight-normal text-center mb-0">
-                                        <a href="https://abiturient.spbu.ru/upload/medialibrary/3c0/kcumiyzfm0hqey258970uohhdt75qnr8/priem_bac_spec_2024.pdf" target="_blank" class="text-primary">262</a>
+                                        <a href={{ score_info.score_url }} target="_blank" class="text-primary">{{ score_info.tp.pass_rate }}</a>
                                     </h2>
                                     <p class="text-center mb-0">
-                                        Средний балл 2024г.
+                                        Проходной балл {{score_info.year}}г.
                                     </p>
                                 </div>
                                 <div class="col-lg-6">
                                     <h2 class="font-weight-normal text-center mb-0">
-                                        55
+                                        {{ score_info.tp.budget_count }}
                                     </h2>
                                     <p class="text-center mb-0">
                                         Бюджетных мест
@@ -91,7 +91,7 @@
                             <div class="row align-items-center">
                                 <div class="col-lg-6">
                                     <h2 class="font-weight-normal text-center mb-0">
-                                        6
+                                        {{ score_info.tp.contract_count }}
                                     </h2>
                                     <p class="text-center mb-0">
                                         Мест по контракту
@@ -99,7 +99,7 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <h2 class="font-weight-normal text-center mb-0">
-                                        <a href="https://abiturient.spbu.ru/medialibrary/ru/2025/bac/cost_bac_spec_2025.pdf" target="_blank" class="text-primary">457 300 ₽</a>
+                                        <a href={{ score_info.cost_url }} target="_blank" class="text-primary">{{ score_info.tp.cost_year }}</a>
                                     </h2>
                                     <p class="text-center mb-0">
                                         Стоимость обучения в год
@@ -164,15 +164,15 @@
                                     <tbody>
                                     <tr>
                                         <td class="px-0">Информатика и ИКТ</td>
-                                        <td class="px-0 text-center">55</td>
+                                        <td class="px-0 text-center">{{ score_info.tp.min_score_computer_science }}</td>
                                     </tr>
                                     <tr>
                                         <td class="px-0">Математика</td>
-                                        <td class="px-0 text-center">55</td>
+                                        <td class="px-0 text-center">{{ score_info.tp.min_score_math }}</td>
                                     </tr>
                                     <tr>
                                         <td class="px-0">Русский язык</td>
-                                        <td class="px-0 text-center">50</td>
+                                        <td class="px-0 text-center">{{ score_info.tp.min_score_russian_language }}</td>
                                     </tr>
                                     </tbody>
                                 </table>

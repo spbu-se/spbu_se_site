@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from flask_se_bachelor import bachelor_admission, bachelor_programming_technology, bachelor_software_engineering, bachelor_application
 import sys
 from datetime import datetime, timezone
 
@@ -10,6 +11,7 @@ from flask_admin.theme import Bootstrap4Theme
 from flask_apscheduler import APScheduler
 from flask_frozen import Freezer
 from flask_migrate import Migrate
+from flask_se_bachelor import bachelor_score_info
 from flaskext.markdown import Markdown
 from sqlalchemy.sql.expression import func
 from flask_simplemde import SimpleMDE
@@ -489,7 +491,7 @@ def index():
     for post in news:
         ages.append(plural_hours(int(get_hours_since(post.created_on))))
 
-    return render_template("index.html", news=news, ages=ages)
+    return render_template("index.html", news=news, ages=ages, score_info=bachelor_score_info)
 
 
 @app.route("/index.html")
@@ -540,81 +542,12 @@ def scholarships():
     return render_template("students_scholarships.html")
 
 
-@app.route("/bachelor/application.html")
-def bachelor_application():
-    return render_template("bachelor_application.html")
 
+app.add_url_rule("/bachelor/admission.html", view_func=bachelor_admission)
+app.add_url_rule("/bachelor/programming-technology.html", view_func=bachelor_programming_technology)
+app.add_url_rule("/bachelor/software-engineering.html", view_func=bachelor_software_engineering)
+app.add_url_rule("/bachelor/application.html", view_func=bachelor_application)
 
-@app.route("/bachelor/programming-technology.html")
-def bachelor_programming_technology():
-    curricula1 = (
-        Curriculum.query.filter(Curriculum.course_id == 1)
-        .filter(Curriculum.study_year == 1)
-        .order_by(Curriculum.type)
-        .all()
-    )
-    curricula2 = (
-        Curriculum.query.filter(Curriculum.course_id == 1)
-        .filter(Curriculum.study_year == 2)
-        .order_by(Curriculum.type)
-        .all()
-    )
-    curricula3 = (
-        Curriculum.query.filter(Curriculum.course_id == 1)
-        .filter(Curriculum.study_year == 3)
-        .order_by(Curriculum.type)
-        .all()
-    )
-    curricula4 = (
-        Curriculum.query.filter(Curriculum.course_id == 1)
-        .filter(Curriculum.study_year == 4)
-        .order_by(Curriculum.type)
-        .all()
-    )
-
-    return render_template(
-        "bachelor_programming-technology.html",
-        curricula1=curricula1,
-        curricula2=curricula2,
-        curricula3=curricula3,
-        curricula4=curricula4,
-    )
-
-
-@app.route("/bachelor/software-engineering.html")
-def bachelor_software_engineering():
-    curricula1 = (
-        Curriculum.query.filter(Curriculum.course_id == 2)
-        .filter(Curriculum.study_year == 1)
-        .order_by(Curriculum.type)
-        .all()
-    )
-    curricula2 = (
-        Curriculum.query.filter(Curriculum.course_id == 2)
-        .filter(Curriculum.study_year == 2)
-        .order_by(Curriculum.type)
-        .all()
-    )
-    curricula3 = (
-        Curriculum.query.filter(Curriculum.course_id == 2)
-        .filter(Curriculum.study_year == 3)
-        .order_by(Curriculum.type)
-        .all()
-    )
-    curricula4 = (
-        Curriculum.query.filter(Curriculum.course_id == 2)
-        .filter(Curriculum.study_year == 4)
-        .order_by(Curriculum.type)
-        .all()
-    )
-
-    return render_template(
-        "bachelor_software-engineering.html",
-        curricula1=curricula1,
-        curricula2=curricula2,
-        curricula3=curricula3,
-        curricula4=curricula4,
-    )
 
 
 @app.route("/master/information-systems-administration.html")
@@ -649,21 +582,6 @@ def department_staff():
         )
 
     return render_template("department_staff.html", staff=staff)
-
-
-@app.route("/bachelor/admission.html")
-def bachelor_admission():
-    students = []
-
-    records = Thesis.query.filter_by(recomended=True)
-    if records.count():
-        theses = records.order_by(func.random()).limit(4).all()
-    else:
-        theses = []
-    staff = Staff.query.filter_by(still_working=True).limit(6).all()
-    return render_template(
-        "bachelor_admission.html", students=students, theses=theses, staff=staff
-    )
 
 
 @app.route("/frequently-asked-questions.html")
