@@ -119,15 +119,15 @@
                             <div class="card-footer border-0 delimiter-top">
                                 <div class="row align-items-center mx-0">
                                     <div class="col-lg-4 text-center text-lg-left px-0">
-                                        <h4 class="mb-0 text-white">283</h4>
-                                        <p class="text-white text-sm opacity-8">Проходной балл 2024</p>
+                                        <h4 class="mb-0 text-white">{{ score_info.se.pass_rate }}</h4>
+                                        <p class="text-white text-sm opacity-8">Проходной балл {{ score_info.year }}</p>
                                     </div>
                                     <div class="col-lg-4 text-center text-lg-left px-0">
-                                        <h4 class="mb-0 text-white">45</h4>
+                                        <h4 class="mb-0 text-white">{{ score_info.se.budget_count }}</h4>
                                         <p class="text-white text-sm opacity-8">Мест (бюджет)</p>
                                     </div>
                                     <div class="col-lg-4 text-center text-lg-left px-0">
-                                        <h4 class="mb-0 text-white">12</h4>
+                                        <h4 class="mb-0 text-white">{{ score_info.se.contract_count }}</h4>
                                         <p class="text-white text-sm opacity-8">Мест (контракт)</p>
                                     </div>
                                 </div>
@@ -153,15 +153,15 @@
                             <div class="card-footer border-0 delimiter-top">
                                 <div class="row align-items-center mx-0">
                                     <div class="col-lg-4 text-center text-lg-left px-0">
-                                        <h4 class="mb-0 text-white">268</h4>
-                                        <p class="text-white text-sm opacity-8">Средний балл 2024</p>
+                                        <h4 class="mb-0 text-white">{{ score_info.tp.pass_rate }}</h4>
+                                        <p class="text-white text-sm opacity-8">Средний балл {{ score_info.year }}</p>
                                     </div>
                                     <div class="col-lg-4 text-center text-lg-left px-0">
-                                        <h4 class="mb-0 text-white">55</h4>
+                                        <h4 class="mb-0 text-white">{{ score_info.tp.budget_count }}</h4>
                                         <p class="text-white text-sm opacity-8">Мест (бюджет)</p>
                                     </div>
                                     <div class="col-lg-4 text-center text-lg-left px-0">
-                                        <h4 class="mb-0 text-white">6</h4>
+                                        <h4 class="mb-0 text-white">{{ score_info.tp.contract_count }}</h4>
                                         <p class="text-white text-sm opacity-8">Мест (контракт)</p>
                                     </div>
                                 </div>
