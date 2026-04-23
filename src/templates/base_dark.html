@@ -6,14 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="{% block description %}{% endblock %}">
     <meta name="author" content="{% block author %}Илья Зеленчук{% endblock %}">
+    <meta property="og:title" content="Сайт кафедры системного программирования">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:image" content="{{ url_for('static', filename='assets/img/favicon.png') }}">
+    <meta property="og:description" content="{{ self.description() }}">
+    <meta property="og:locale" content="ru_RU">
     <title>{% block title %}{% endblock %}</title>
 
     <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+<!--script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-NGT2J3Z');</script>
+})(window,document,'script','dataLayer','GTM-NGT2J3Z');</script-->
 <!-- End Google Tag Manager -->
 
     <!-- Favicon -->
