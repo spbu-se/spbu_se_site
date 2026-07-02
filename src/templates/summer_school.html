@@ -37,7 +37,7 @@
 
             <div class="row">
                 {% for proj in projects %}
-                <div class="col-lg-6 my-2 d-flex align-items-stretch">
+                <div class="col-lg-6 my-2 align-items-stretch">
                     <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
                         <div class="card-header">
                             <h3 class="h5 mb-0 text-left"><strong>{{proj.project_name}}</strong></h3>
@@ -49,7 +49,6 @@
                         <div class="card-body pt-0">
 
                             {%  if proj.description %}
-
                             <h6 class="h6 mb-0">Описание</h6>
                             {{proj.description | safe}}
                             {% endif %}
@@ -64,8 +63,10 @@
                             <p class="text-sm mb-0">{{proj.demos | safe}}</p>
                             {% endif %}
 
+                            {% if proj.requirements %}
                             <h6 class="h6 mt-4 mb-0">Требования к кандидату</h6>
                             <p class="text-sm">{{proj.requirements}}</p>
+                            {% endif %}
 
                             <h6 class="h6 mt-4 mb-0">Руководители</h6>
                             <p class="text-sm">{{proj.advisors | safe}}</p>
