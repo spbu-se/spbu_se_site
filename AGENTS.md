@@ -13,10 +13,10 @@ uv run python src/wsgi.py                     # run via WSGI
 uv run pytest                                 # run tests
 uv run ruff check src/                        # lint
 uv run ruff format src/                       # format
-uv export --no-dev --no-hashes > requirements.txt  # update prod requirements
+uv export --no-dev --no-hashes > requirements.txt  # update prod requirements (PowerShell: use `[System.IO.File]::WriteAllText("requirements.txt", $(uv export --no-dev --no-hashes), [System.Text.UTF8Encoding]::new($false))` to avoid BOM)
 ```
 
-Commit sequence: `format → uv export --no-dev --no-hashes > requirements.txt → git add && git commit (hooks auto-run) → test`.
+Commit sequence: `format → uv export --no-dev --no-hashes > requirements.txt (PowerShell: use WriteAllText) → git add && git commit (hooks auto-run) → test`.
 
 ## Quirks & Gotchas
 
