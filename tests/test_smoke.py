@@ -9,9 +9,10 @@ def test_index_returns_200(client):
     assert resp.status_code == 200
 
 
-def test_index_html_returns_200(client):
+def test_index_html_redirects_to_root(client):
     resp = client.get("/index.html")
-    assert resp.status_code == 200
+    assert resp.status_code == 302
+    assert resp.location == "/"
 
 
 def test_nonexistent_returns_404(client):
