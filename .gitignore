@@ -75,6 +75,9 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
+# uv virtual environment
+.venv/
+
 # MacOS files.
 /**/.DS_Store
 

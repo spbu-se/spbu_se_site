@@ -98,6 +98,31 @@ Practice templates use `templates.py` enum files for path references rather than
 
 ## Design Decisions
 
+### [2026-07-03] Dual Dep Management: uv (dev) + pip (prod)
+
+Development uses `uv` for speed and lockfile consistency (`uv.lock`). Production
+(Docker, CI on `current`) uses `pip install -r requirements.txt` — no `uv`
+dependency.
+
+`requirements.txt` is generated from `uv.lock` via:
+
+```bash
+uv export --no-dev --no-hashes > requirements.txt
+```
+
+**Why keep pip in prod**:
+
+- Docker image stays smaller (no uv binary, no Rust toolchain)
+- CI on `current` matches prod exactly (pip, Python 3.9)
+- No runtime coupling to uv — prod can be deployed anywhere pip works
+- uv is a dev tool only, like ruff or pre-commit
+
+**Process implications**:
+
+- Before every `staging → current` merge, `requirements.txt` must be regenerated
+- Staging CI validates `requirements.txt` is fresh (fails if stale)
+- New dep workflow: `uv add <pkg>` → commit → staging CI auto-verifies refresh
+
 ### [2026-06-27] No Flask Blueprints
 
 Routes are registered via `app.add_url_rule()` in `flask_se.py` rather than Flask Blueprints. This keeps all routes visible in one file at the cost of module isolation. Each view function is imported from a separate module.

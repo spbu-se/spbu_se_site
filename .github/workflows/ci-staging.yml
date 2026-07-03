@@ -1,0 +1,29 @@
+name: CI (staging)
+
+on:
+  push:
+    branches: [staging]
+  pull_request:
+    branches: [staging]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v5
+
+      - run: uv sync
+
+      - run: uv run ruff format --check src/
+      - run: uv run ruff check src/
+      - run: uv run mdformat --check .
+      - run: uv run pytest
+
+      - name: Verify requirements.txt is current
+        run: |
+          uv export --no-dev --no-hashes > /tmp/requirements-expected.txt
+          diff /tmp/requirements-expected.txt requirements.txt

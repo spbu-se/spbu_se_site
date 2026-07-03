@@ -6,20 +6,22 @@
 ## Commands
 
 ```bash
-pip install -r requirements.txt              # install dependencies
-python src/flask_se.py                       # run dev server (http://127.0.0.1:5000)
-python src/flask_se.py init                  # initialize database
-python src/wsgi.py                           # run via WSGI
-pytest                                       # run tests
-ruff check src/                              # lint
-ruff format src/                             # format
+uv sync                                       # install dependencies (dev + main)
+uv run python src/flask_se.py                 # run dev server (http://127.0.0.1:5000)
+uv run python src/flask_se.py init            # initialize database
+uv run python src/wsgi.py                     # run via WSGI
+uv run pytest                                 # run tests
+uv run ruff check src/                        # lint
+uv run ruff format src/                       # format
+uv export --no-dev --no-hashes > requirements.txt  # update prod requirements
 ```
 
-Commit sequence: `format → git add && git commit (hooks auto-run) → test`.
+Commit sequence: `format → uv export --no-dev --no-hashes > requirements.txt → git add && git commit (hooks auto-run) → test`.
 
 ## Quirks & Gotchas
 
-- **Python**: 3.9 (production), 3.13 (dev tooling)
+- **Python**: 3.9 (production), 3.13 (dev tooling, pinned in `.python-version`)
+- **Dependency mgmt**: `uv` for dev, `pip` for prod — see `doc/ARCHITECTURE.md` Design Decisions
 - **Main branch**: `current` (not `main`)
 - **Database**: SQLite (`se.db`), initialized via `flask_se.py init`
 - **Config files**: `flask_se_secret.conf`, `flask_se_mail.conf`, `flask_se_practice_yandex_secret.conf` — never committed

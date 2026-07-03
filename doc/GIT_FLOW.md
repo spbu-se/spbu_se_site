@@ -22,7 +22,7 @@ Covers: branching, commit rules, staging workflow, session start/end rituals, gu
 
 ## 2. Workflow
 
-1. **Branch** — `git checkout -b <prefix>/<name>` from `current`.
+1. **Branch** — `git checkout -b <prefix>/<name>` from `staging`.
 1. **Architecture first** — write design decisions in `doc/ARCHITECTURE.md -> Design Decisions` before implementation.
 1. **Doc first** — update docs that describe code that does not exist yet, commit, then implement.
 1. **TDD**: write tests from docs -> implement -> format -> test -> commit.
@@ -34,8 +34,9 @@ Covers: branching, commit rules, staging workflow, session start/end rituals, gu
    - Merge directly to current (bypasses staging)
    - Tag `git tag v<version>`
    - Sync staging: `git checkout staging && git merge current`
-1. **Merge into staging** — `git merge --squash <branch>` into `staging`. Tests must pass.
+1. **Merge into staging** — `git merge --squash <branch>` into `staging`. Tests must pass. Staging CI runs automatically.
 1. **Enforcement self-check** — can it be automated (layer 1)? CI-checked (layer 2)? Or only documented (layer 3)?
+1. **Pre-merge refresh** — before proposing merge to current, run `uv export --no-dev --no-hashes > requirements.txt` and commit if changed.
 1. **Staging->current gate** — full verification against the checklist in `doc/DEVELOPMENT_PROCESS.md`.
 1. **Propose finalization** — show diff, await user approval, run gate, merge `--ff-only`.
 1. **Context Compaction** — update ARCHITECTURE.md, TODO.md, verify docs sync.
@@ -48,14 +49,13 @@ Covers: branching, commit rules, staging workflow, session start/end rituals, gu
 
 1. `git fetch --prune origin`
 1. `git status` — check for orphaned WIP
-1. `git log --oneline origin/current..current` — push if ahead
-1. `git log --oneline origin/staging ^origin/current` — check staging
-1. `git checkout current && git rebase origin/current`
+1. `git checkout staging && git pull --ff-only origin staging` — sync staging
+1. `git log --oneline origin/staging ^origin/current` — check staging ahead of current
 1. `git checkout -b <prefix>/<name>`
 
 ### Stale branch awareness
 
-List stale branches before new tasks: `git branch -r --no-merged origin/current`.
+List stale branches before new tasks: `git branch -r --no-merged origin/current` + `git branch -r --no-merged origin/staging`.
 
 ### Rebase policy
 
@@ -101,7 +101,8 @@ During a documentation extraction session, the agent committed a docs commit dir
 **What went wrong**: The plan mode guard was documented in the session prompt but had no automated enforcement. A single user approval to "proceed" unlocked all subsequent git write commands. The session-start ritual (fetch, status, branch) was also skipped — orphaned WIP from a prior session (ruff formatting + accidentally deleted workflow files) was present but not handled at session start.
 
 **Root causes**:
+
 1. No tool-level deny for git write operations during plan mode — the guard was human-enforced only
-2. Orphaned WIP was visible at session start (`git status`) but was not branched or committed before new work began
+1. Orphaned WIP was visible at session start (`git status`) but was not branched or committed before new work began
 
 **Fix**: Added bash permission rules to the AI tooling config (`.opencode/opencode.json` or equivalent) that explicitly deny `git reset`, `git checkout`, `git commit`, `git add`, `git merge`, `git push`, `git tag` during plan mode. Only read-only git commands (`log`, `status`, `diff`, `branch`) are allowed. See `doc/OPENSE_CONFIG.md` for the permission configuration.
