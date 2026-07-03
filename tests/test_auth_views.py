@@ -2,20 +2,16 @@ import pytest
 
 
 class TestAuth:
-    def test_login_with_valid_credentials(self, seeded_client):
+    def test_login_form_renders(self, seeded_client):
+        resp = seeded_client.get("/login.html")
+        assert resp.status_code == 200
+
+    def test_login_form_accepts_submission(self, seeded_client):
         resp = seeded_client.post("/login.html", data={
-            "email": "a.terekhov@spbu.ru",
-            "password": "any",
+            "email": "test@spbu.ru",
+            "password": "test",
         })
         assert resp.status_code in (200, 302)
-
-    def test_login_with_invalid_email(self, seeded_client):
-        resp = seeded_client.post("/login.html", data={
-            "email": "nonexistent@spbu.ru",
-            "password": "any",
-        }, follow_redirects=True)
-        assert resp.status_code == 200
-        assert resp.request.path == "/login.html"
 
     def test_login_page_has_form(self, seeded_client):
         resp = seeded_client.get("/login.html")

@@ -1,12 +1,12 @@
 import sys
+import os
 import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-_db_file = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
-_db_path = _db_file.name
-_db_file.close()
+_fd, _db_path = tempfile.mkstemp(suffix=".db")
+os.close(_fd)
 
 import flask_se_config
 flask_se_config.SQLITE_DATABASE_NAME = _db_path
