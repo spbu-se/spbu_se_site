@@ -2,47 +2,53 @@
 
 Planned features, improvements, and postponed ideas for the SE Site.
 
-## Done
+## Priority 0: Immediate Fixes
 
-- **CI workflow** — `ci.yml` (current, pip) + `ci-staging.yml` (staging, uv)
-- **Pre-commit hooks verified** — ruff, mdformat, dprint, commitlint all pass; code fixed for zero lint issues
-- **uv migration** — `pyproject.toml`, `.python-version`, `uv.lock`, `requirements.txt` generated via `uv export`
+- [ ] **Fix pre-commit exclude patterns** — vendor noise from trailing-whitespace
+- [ ] **Run pre-commit --all-files** — verify all hooks pass clean
+- [ ] **Create OPEN_QUESTIONS.md** — store unresolved questions
 
-## Backlog
+## Priority 1: Fix Existing Tests
 
-- **Create CHANGELOG.md** — start with an empty file, add release workflow docs
+- [ ] **Fix 7 test failures** — /index.html 302, plural_hours(24), get_thesis_type_id_string(1), init_db staff lookup
+- [ ] **Add pytest-cov** — dev dep + [tool.coverage] config in pyproject.toml
+- [ ] **Set coverage target** — add to ci-staging.yml
 
-### Testing (add incrementally)
+## Priority 2: Expand Test Coverage
 
-1. **Smoke tests + helpers + init_db** — ✅ done
-1. **Key view function tests** — auth login/logout, news CRUD, theses listing
-1. **Edge case expansion** — error handlers, invalid form submissions, permission checks
-1. **Parametrized tests** — fuzz helper functions with boundary inputs
+- [ ] **Auth tests** — login, logout, register form
+- [ ] **News tests** — list, submit (form), vote endpoint
+- [ ] **Theses tests** — search page, filter form, download
+- [ ] **Internships tests** — index page, filter, detail view
+- [ ] **Diploma themes tests** — browse, detail, add form
+- [ ] **Practice (student) tests** — dashboard, new thesis, reports
+- [ ] **Summer schools tests** — list page, individual pages
+- [ ] **Error handler tests** — 404, bad IDs, missing params
+- [ ] **se_sendmail tests** — notification queue, email formatting
+- [ ] **Edge case parametrized tests** — fuzz helpers with boundary inputs
 
-### Linters & Formatters (add incrementally)
+## Priority 3: Linters & Formatters
 
-1. **Add djlint** — Jinja2 template linting for 107 templates
-   - Add to pre-commit config + dev group in pyproject.toml
-   - Configure `.djlintrc` or pyproject.toml section
-   - Run and fix all template issues
-1. **Add Bandit** — Python security linter
-   - Add to pre-commit config + dev group
-   - Configure with `skips` for known false positives
-   - Run and fix issues
-1. **Add check-json + basic file hygiene hooks**
-   - Built-in pre-commit hooks: `check-json`, `end-of-file-fixer`, `trailing-whitespace-fixer`
-   - Add to `.pre-commit-config.yaml`
-   - Run and fix issues
-1. **Add codespell** — typo detection
-   - Add to pre-commit config + dev group
-   - Configure skip patterns for Russian text / URLs
-   - Run and fix issues
+- [ ] **Add djlint** — Jinja2 template linting for 107 templates
+- [ ] **Add Bandit** — Python security linter
+- [ ] **Add codespell** — typo detection
+- [ ] **Add check-json + file hygiene** — already partially done, verify
 
-## Postponed (icebox)
+## Priority 4: CI & Infrastructure
 
-- **Upgrade to Python 3.12+** — evaluate feasibility of upgrading from 3.9
-- **Add mypy type checking** — adopt strict typing across the codebase
-- **Add code coverage tracking** — introduce pytest-cov with coverage targets
-- **Docker optimization** — multi-stage build, smaller base image
-- **Windows path support** — verify file path handling on Windows
-- **Static site generator** — explore Frozen-Flask alternatives
+- [ ] **Verify uv caching** — in ci-staging.yml works
+- [ ] **Add pytest --cov** — to ci-staging.yml
+- [ ] **Add pre-commit gate** — uv run pre-commit run --all-files to ci-staging.yml
+
+## Priority 5: Process (minimal)
+
+- [ ] **OPEN_QUESTIONS.md created**
+- [ ] **Retrospective after 5 green CI runs** — run retrospective analysis skill
+
+## Icebox
+
+- Upgrade to Python 3.12+
+- Add mypy type checking
+- Docker optimization
+- Windows path support
+- Static site generator improvements

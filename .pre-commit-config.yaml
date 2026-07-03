@@ -38,6 +38,6 @@ repos:
     hooks:
       - id: check-json
       - id: end-of-file-fixer
-        exclude: ^src/static/assets/libs/
+        exclude: ^src/static/|^src/se_site\.egg-info/
       - id: trailing-whitespace
-        exclude: ^src/static/assets/libs/|\.(svg|min\.(css|js))$
+        exclude: ^src/static/|\.svg$|\.min\.(css|js)$

@@ -108,3 +108,6 @@ src/static/thesis/*/*.pdf
 # Do not track fulltext search files
 src/whooshee/*
 whooshee/
+
+# Build artifacts
+*.egg-info/

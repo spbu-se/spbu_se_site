@@ -1,5 +1,3 @@
-
-
 def test_init_db_creates_areas(app_ctx):
     from se_models import AreasOfStudy, init_db
 

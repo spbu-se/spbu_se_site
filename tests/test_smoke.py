@@ -1,5 +1,3 @@
-
-
 def test_app_exists():
     from flask_se import app
 

@@ -1,5 +1,3 @@
-
-
 class TestSecureFilename:
     def test_normal_filename(self):
         from flask_se_config import secure_filename
