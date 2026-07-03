@@ -8,16 +8,13 @@ from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
 from transliterate import translit
 
-from flask_se_config import secure_filename, get_thesis_type_id_string
+from flask_se_config import get_thesis_type_id_string
 from flask_se_auth import login_required
 from se_forms import AddThesisOnReview, ThesisReviewFilter, EditThesisOnReview
 from se_review_forms import ReviewForm
 from se_models import (
     db,
-    Thesis,
-    Worktype,
     AreasOfStudy,
-    Staff,
     ThesisReview,
     ThesisOnReview,
     Reviewer,
@@ -326,7 +323,6 @@ def edit_thesis_on_review():
 
 @login_required
 def delete_thesis_on_review():
-    user = current_user
     thesis_id = request.args.get("thesis_review_id", type=int)
 
     if not thesis_id:

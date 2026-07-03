@@ -16,7 +16,7 @@ from flask_login import (
     current_user,
     LoginManager,
 )
-from flask import session, request, flash, render_template, redirect, url_for
+from flask import request, flash, render_template, redirect, url_for
 from google_auth_oauthlib.flow import Flow
 import google.auth.transport.requests
 from google.oauth2 import id_token
@@ -67,7 +67,7 @@ def redirect_next_url(fallback):
     try:
         dest_url = url_for(session["next_url"])
         return redirect(dest_url)
-    except:
+    except Exception:
         return redirect(fallback)
 
 

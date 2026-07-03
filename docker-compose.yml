@@ -31,7 +31,7 @@ services:
     networks:
       - se_site_network
     ports:
-     - "80:80"
+      - "80:80"
     logging:
       driver: "json-file"
       options:

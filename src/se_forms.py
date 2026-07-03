@@ -12,12 +12,9 @@ from wtforms import (
     validators,
 )
 
-from flask_wtf.file import FileField, FileRequired
-from wtforms import SelectField, StringField, SelectMultipleField, RadioField, widgets
+from flask_wtf.file import FileField
 from wtforms.widgets import TextArea
 from wtforms.validators import DataRequired
-
-from se_models import Worktype, AreasOfStudy
 
 
 # Thesis forms

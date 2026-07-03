@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import markdown
 
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
@@ -12,7 +11,7 @@ from se_forms import (
     DiplomaThemesFilter,
     UserDiplomaThemesFilter,
 )
-from se_models import db, DiplomaThemes, ThemesLevel, Company, Staff, Users
+from se_models import db, DiplomaThemes, ThemesLevel, Company, Users
 
 from sqlalchemy import or_
 

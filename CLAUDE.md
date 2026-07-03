@@ -10,7 +10,7 @@ See `AGENTS.md` for commands, quirks, and workflow.
 
 Load skill workflows from `.skills/<name>/README.md` when the task matches:
 
-| Skill                    | Load when ...                                      |
+| Skill | Load when ... |
 | ------------------------ | -------------------------------------------------- |
-| `test-writer`            | Writing hermetic pytest tests — load before coding |
-| `retrospective-analysis` | Analyzing process gaps after merges or sessions    |
+| `test-writer` | Writing hermetic pytest tests — load before coding |
+| `retrospective-analysis` | Analyzing process gaps after merges or sessions |

@@ -40,7 +40,6 @@ def get_2020_02_03_03():
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/diploma/2020/index"
     base_url = "https://oops.math.spbu.ru/SE/diploma/2020/"
-    course = "Математическое обеспечение и администрирование информационных систем"
     code = "02.03.03"
 
     print(url)
@@ -69,7 +68,7 @@ def get_2020_02_03_03():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            consultant = cols[3].text
+            cols[3].text
             old_text_uri = ""
             text_uri = ""
             presentation_uri = ""
@@ -191,7 +190,6 @@ def get_2020_09_03_04():
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/diploma/2020/index"
     base_url = "https://oops.math.spbu.ru/SE/diploma/2020/"
-    course = "Программная инженерия"
     code = "09.03.04"
 
     print(url)
@@ -221,7 +219,7 @@ def get_2020_09_03_04():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            consultant = cols[3].text
+            cols[3].text
             old_text_uri = ""
             text_uri = ""
             presentation_uri = ""
@@ -343,7 +341,6 @@ def get_2019_09_03_04():
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/diploma/2019/vypusknye-kvalifikacionnye-raboty"
     base_url = "https://oops.math.spbu.ru/SE/diploma/2019/"
-    course = "Программная инженерия"
     code = "09.03.04"
 
     print(url)
@@ -373,7 +370,7 @@ def get_2019_09_03_04():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            consultant = cols[3].text
+            cols[3].text
             old_text_uri = ""
             text_uri = ""
             presentation_uri = ""
@@ -501,7 +498,6 @@ def get_2019_02_03_03():
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/diploma/2019/vypusknye-kvalifikacionnye-raboty"
     base_url = "https://oops.math.spbu.ru/SE/diploma/2019/"
-    course = "Математическое обеспечение и администрирование информационных систем"
     code = "02.03.03"
 
     print(url)
@@ -531,7 +527,7 @@ def get_2019_02_03_03():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            consultant = cols[3].text
+            cols[3].text
             old_text_uri = ""
             text_uri = ""
             presentation_uri = ""
@@ -660,7 +656,6 @@ def get_2019_02_04_03():
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/diploma/2019/vypusknye-kvalifikacionnye-raboty"
     base_url = "https://oops.math.spbu.ru/SE/diploma/2019/"
-    course = "Математическое обеспечение и администрирование информационных систем"
     code = "02.04.03"
 
     print(url)
@@ -690,7 +685,6 @@ def get_2019_02_04_03():
             name_ru = cols[1].text
             supervisor = cols[5].text
             supervisor_id = 1
-            consultant = ""
             old_text_uri = ""
             text_uri = ""
             presentation_uri = ""
@@ -814,7 +808,6 @@ def get_2020_371():
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020"
     base_url = "https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020/"
-    course = "Бакалавры, 371 группа"
     code = "371"
 
     print(url)
@@ -844,7 +837,6 @@ def get_2020_371():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            consultant = ""
             old_text_uri = None
             text_uri = None
             presentation_uri = None
@@ -953,7 +945,6 @@ def get_report_2020_02_03_03():
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020"
     base_url = "https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020/"
-    course = "Математическое обеспечение и администрирование информационных систем"
     code = "02.03.03"
 
     print(url)
@@ -982,7 +973,7 @@ def get_report_2020_02_03_03():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            consultant = cols[3].text
+            cols[3].text
             old_text_uri = None
             text_uri = None
             presentation_uri = None
@@ -1127,13 +1118,11 @@ def get_2019_371():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            consultant = ""
             old_text_uri = None
             text_uri = None
             presentation_uri = None
             supervisor_review_uri = None
             reviewer_review_uri = None
-            source_uri = None
             pablish_year = 2019
 
             print("Add " + name_ru)
@@ -1169,8 +1158,6 @@ def get_2019_371():
                 download_file(
                     base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
                 )
-
-                source_uri = None
 
             last_name = supervisor.split()[0]
 
@@ -1239,13 +1226,11 @@ def get_2019_343():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            consultant = ""
             old_text_uri = None
             text_uri = None
             presentation_uri = None
             supervisor_review_uri = None
             reviewer_review_uri = None
-            source_uri = None
             pablish_year = 2019
 
             print("Add " + name_ru)
@@ -1281,8 +1266,6 @@ def get_2019_343():
                 download_file(
                     base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
                 )
-
-            source_uri = None
 
             last_name = supervisor.split()[-1]
 
@@ -1351,13 +1334,11 @@ def get_2019_344():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            consultant = ""
             old_text_uri = None
             text_uri = None
             presentation_uri = None
             supervisor_review_uri = None
             reviewer_review_uri = None
-            source_uri = None
             pablish_year = 2019
 
             print("Add " + name_ru)
@@ -1393,8 +1374,6 @@ def get_2019_344():
                 download_file(
                     base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
                 )
-
-            source_uri = None
 
             last_name = supervisor.split()[-1]
 
@@ -1628,13 +1607,11 @@ def get_2022_271():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            consultant = ""
             old_text_uri = None
             text_uri = None
             presentation_uri = None
             supervisor_review_uri = None
             reviewer_review_uri = None
-            source_uri = None
             pablish_year = 2022
 
             print("Add " + name_ru)
@@ -1670,8 +1647,6 @@ def get_2022_271():
                 download_file(
                     base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
                 )
-
-            source_uri = None
 
             last_name = supervisor.split()[-3]
 
@@ -1746,13 +1721,11 @@ def get_2022_371():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            consultant = ""
             old_text_uri = None
             text_uri = None
             presentation_uri = None
             supervisor_review_uri = None
             reviewer_review_uri = None
-            source_uri = None
             pablish_year = 2022
 
             print("Add " + name_ru)
@@ -1793,8 +1766,6 @@ def get_2022_371():
                 download_file(
                     base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
                 )
-
-            source_uri = None
 
             last_name = supervisor.split()[-3]
 
@@ -1840,7 +1811,6 @@ def get_2022_09_03_04():
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/diploma/2022/index"
     base_url = "https://oops.math.spbu.ru/SE/diploma/2022/"
-    course = "Математическое обеспечение и администрирование информационных систем"
     code = "09.03.04"
 
     print(url)
@@ -1870,7 +1840,7 @@ def get_2022_09_03_04():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            consultant = cols[3].text
+            cols[3].text
             old_text_uri = ""
             text_uri = ""
             presentation_uri = ""

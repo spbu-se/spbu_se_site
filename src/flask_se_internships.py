@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import markdown
-import os.path
 
 from flask import flash, redirect, request, render_template, url_for
 from flask_login import current_user
@@ -156,7 +154,7 @@ def add_internship():
             db.session.add(internship)
             db.session.commit()
             return redirect(url_for("internships_index"))
-        except:
+        except Exception:
             return "Что-то пошло не так"
 
     return render_template(
@@ -184,7 +182,7 @@ def delete_internship(id):
         db.session.delete(internship)
         db.session.commit()
         return redirect(url_for("internships_index"))
-    except:
+    except Exception:
         flash("При удалении стажировки произошла ошибка.")
         return render_template(
             "internships/page_internship.html", internship=internship, user=user
@@ -309,7 +307,7 @@ def update_internship(id):
         try:
             db.session.commit()
             return redirect(url_for("page_internship", id=internship.id))
-        except:
+        except Exception:
             return "Что-то пошло не так"
     else:
         return render_template(

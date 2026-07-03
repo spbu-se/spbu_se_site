@@ -1,4 +1,3 @@
-import requests
 from flask_se import app
 from se_models import db, Thesis
 from flask_se_theses import get_text

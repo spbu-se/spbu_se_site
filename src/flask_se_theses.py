@@ -43,7 +43,7 @@ def theses_search():
 
     dates = [
         theses.publish_year
-        for theses in Thesis.query.filter(Thesis.temporary == False)
+        for theses in Thesis.query.filter(~Thesis.temporary)
         .with_entities(Thesis.publish_year)
         .distinct()
     ]
@@ -88,7 +88,7 @@ def fetch_theses():
 
     dates = [
         theses.publish_year
-        for theses in Thesis.query.filter(Thesis.temporary == False)
+        for theses in Thesis.query.filter(~Thesis.temporary)
         .with_entities(Thesis.publish_year)
         .distinct()
     ]
@@ -108,14 +108,14 @@ def fetch_theses():
     if search:
         records = (
             Thesis.query.whooshee_search(search)
-            .filter(Thesis.temporary == False)
+            .filter(~Thesis.temporary)
             .filter(Thesis.publish_year >= startdate)
             .filter(Thesis.publish_year <= enddate)
             .order_by(Thesis.publish_year.desc())
         )
     else:
         records = (
-            Thesis.query.filter(Thesis.temporary == False)
+            Thesis.query.filter(~Thesis.temporary)
             .filter(Thesis.publish_year >= startdate)
             .filter(Thesis.publish_year <= enddate)
             .order_by(Thesis.publish_year.desc())

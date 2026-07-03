@@ -135,7 +135,7 @@ def index_admin():
                 .filter_by(worktype_id=worktype_id)
                 .filter_by(deleted=False)
                 .filter_by(status=1)
-                .filter(CurrentThesis.title != None)
+                .filter(CurrentThesis.title.isnot(None))
                 .all()
             )
             for thesis in thesises:
@@ -198,7 +198,7 @@ def index_admin():
                     worktype_id=worktype.id,
                     column_names_list=column_names,
                 )
-            except:
+            except Exception:
                 flash(
                     "Что-то пошло не так, измените параметры и попробуйте заново",
                     category="error",
@@ -216,7 +216,7 @@ def index_admin():
         .filter_by(worktype_id=worktype_id)
         .filter_by(deleted=False)
         .filter_by(status=1)
-        .filter(CurrentThesis.title != None)
+        .filter(CurrentThesis.title.isnot(None))
         .all()
     )
     table_name = __get_filename_without_extension(worktype, area) + ".xlsx"
@@ -541,7 +541,7 @@ def finished_thesises_admin():
         .filter_by(worktype_id=worktype_id)
         .filter_by(status=2)
         .filter_by(deleted=False)
-        .filter(CurrentThesis.title != None)
+        .filter(CurrentThesis.title.isnot(None))
         .all()
     )
 

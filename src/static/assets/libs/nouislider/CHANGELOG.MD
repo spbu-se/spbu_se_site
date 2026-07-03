@@ -1,41 +1,51 @@
 # Changelog
 
 ### 13.1.5 (*2019-04-24*)
+
 - Fixed: Full-range padding (#880);
 
 ### 13.1.4 (*2019-03-20*)
+
 - Fixed: Keyboard interaction does not work with `snap` option (#961);
 
 ### 13.1.3 (*2019-03-15*)
+
 - Fixed: Keyboard interaction allows handles to "push" other handles (#960);
 - Fixed: Update event fires for all handles during keyboard interaction (#960);
 
 ### 13.1.2 (*2019-03-13*)
+
 - Fixed: Handle disappears in Safari on tap (#927);
 - Fixed: Disabled slider still accepts keyboard interaction (#953);
 
 ### 13.1.1 (*2019-02-14*)
+
 - Fixed: Slider hang when using a zero-length range (#948);
 
 ### 13.1.0 (*2019-02-08*)
+
 - Fixed: Updating `pips` using `updateOptions` (#933);
 - Added: Updating `tooltips` using `updateOptions` (#946);
 
 ### 13.0.0 (*2019-02-06*)
+
 noUiSlider 13 does not include any breaking API changes.
 Keyboard support is now built-in, so any custom implementations should be removed when upgrading.
 Alternatively, built-in keyboard support can be disabled using `keyboardSupport: false`.
+
 - Added: Built-in keyboard support (#724);
 - Added: `.noUi-touch-area` element (#924);
 - Fixed: Dragging a range does not check for handle disabled state (#938);
 - Fixed: Incorrect CSS transform in pips (#931);
 
 ### 12.1.0 (*2018-10-25*)
+
 - Added: `unconstrained` behaviour (#747, #815, #913);
 - Added: `setHandle` API (#917);
 - Changed: point to `nouislider.js` in `package.json`.`main` (#921);
 
-### 12.0.0 (*2018-09-14*) 
+### 12.0.0 (*2018-09-14*)
+
 - Change: License changed to MIT;
 - Change: Build process is now based on NPM scripts, phasing out the Grunt task runner.
 - Fixed: Aria values are now as per spec (#889);
@@ -46,22 +56,27 @@ Alternatively, built-in keyboard support can be disabled using `keyboardSupport:
 - Added: `documentElement` option (#821);
 
 ### 11.1.0 (*2018-04-02*)
+
 - Change: `null` options are now handled consistently (#856);
 - Fixed: Missing transform origin in IE9 (#870);
 - Fixed: `padding` on one side of the slider could not exceed `50%` (#865);
 
 ### 11.0.3 (*2018-01-21*)
+
 Refactor of source code. There are no meaningful changes in the distributed files;
 
 ### 11.0.2 (*2018-01-20*)
+
 - Fixed: Slider ignores clicks on `.noUi-target` outside of `.noUi-base` (#842);
 - Fixed: `.noUi-origin` moving out of the page causes horizontal scrolling (#852);
 - Fixed: Relative `.noUi-handle` has unintended margin (#854);
 
 ### 11.0.0 (*2018-01-12*)
+
 noUiSlider 11 does not include any breaking API changes.
 Unless major changes were made to the stylesheet or you specifically depend
 on the handle/connect order in the DOM, there should be no issues upgrading.
+
 - Change: Use CSS transforms for handle movement, resulting in a massive performance improvement (#718);
 - Change: Support multitouch by default;
 - Change: Handle stacking is now on `.noUi-origin` instead of `.noUi-handle`;
@@ -77,9 +92,11 @@ on the handle/connect order in the DOM, there should be no issues upgrading.
 - Fixed: Several issues regarding pips (#812, #826, #832);
 
 ### 10.1.0 (*2017-07-26*)
+
 - Added: `multitouch` option (#793);
 
 ### 10.0.0 (*2017-05-28*)
+
 - Change: Change event listeners to be passive (#785);
 - Fixed: Pips are now updated when calling `updateOptions` (#669);
 - Fixed: Content Security Policy issue with pips;
@@ -92,12 +109,14 @@ on the handle/connect order in the DOM, there should be no issues upgrading.
 - Fixed: Slider now uses `ownerDocument` instead of `document` (#767);
 
 ### 9.2.0 (*2017-01-17*)
+
 - Added: Version number to exceptions;
 - Added: `noUiSlider.version` holds current version number;
 - Added: Throw exception on invalid `pips` configuration (#721);
 - Added: Merged pull request that uses less preprocessor to generate CSS (#735);
 
 ### 9.1.0 (*2016-12-10*)
+
 - Fixed: Slider not properly handling multitouch (#700, #704);
 - Fixed: Removed a querySelector for the currently active handle (#720);
 - Fixed: Removed iOS/webkit flashes on tap;
@@ -108,6 +127,7 @@ on the handle/connect order in the DOM, there should be no issues upgrading.
 - Added: Compatibility for legacy `connect` options removed in 9.0.0;
 
 ### 9.0.0 (*2016-09-26*)
+
 - Added: Support for **more than 2 handles**;
 - Added: `format` option can be updated (#641);
 - Added: `reset` method the return slider to start values (#673);

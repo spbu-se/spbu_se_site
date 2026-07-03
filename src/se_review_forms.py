@@ -2,10 +2,9 @@
 
 from flask import Markup
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SelectMultipleField, RadioField, widgets
-from flask_wtf.file import FileField, FileRequired
+from wtforms import StringField, RadioField
+from flask_wtf.file import FileField
 from wtforms.widgets import TextArea
-from wtforms.validators import DataRequired
 
 
 class ReviewForm(FlaskForm):

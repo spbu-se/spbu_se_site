@@ -19,13 +19,13 @@ gh pr list --state open --json number,title,headRefName,baseRefName --limit 50
 
 ### 3. Map to TODO.md Structure
 
-| Issue label   | TODO.md section         |
+| Issue label | TODO.md section |
 | ------------- | ----------------------- |
-| `backlog`     | Backlog — numbered item |
+| `backlog` | Backlog — numbered item |
 | `enhancement` | Backlog — numbered item |
-| `icebox`      | Icebox — bullet point   |
-| `bug`         | Backlog — "BUG:" prefix |
-| `ci`          | Backlog — first item    |
+| `icebox` | Icebox — bullet point |
+| `bug` | Backlog — "BUG:" prefix |
+| `ci` | Backlog — first item |
 
 ### 4. Report Result
 

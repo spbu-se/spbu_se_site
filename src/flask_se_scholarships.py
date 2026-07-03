@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import flash, redirect, request, render_template, url_for
+from flask import render_template
 
 
 def get_scholarships_1():

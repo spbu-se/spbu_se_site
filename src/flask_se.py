@@ -18,7 +18,6 @@ from flask_frozen import Freezer
 from flask_migrate import Migrate
 from flask_se_bachelor import bachelor_score_info
 from flaskext.markdown import Markdown
-from sqlalchemy.sql.expression import func
 from flask_simplemde import SimpleMDE
 
 
@@ -37,7 +36,6 @@ from se_models import (
     Staff,
     Users,
     Thesis,
-    Curriculum,
     SummerSchool,
     Posts,
     DiplomaThemes,

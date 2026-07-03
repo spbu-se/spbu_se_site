@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import smtplib, ssl
+import smtplib
 
 from se_models import db, Notification, Users, DiplomaThemes
 from flask_se_config import MAIL_PASSWORD
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.header import Header
 
 MAIL_DEFAULT_SENDER = "sysprog_notification@spbu.ru"
 MAIL_DEFAULT_SENDER_STRING = "SE уведомления <sysprog_notification@spbu.ru>"
