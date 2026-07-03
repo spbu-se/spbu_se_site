@@ -20,7 +20,7 @@ from flask import request, flash, render_template, redirect, url_for
 from google_auth_oauthlib.flow import Flow
 import google.auth.transport.requests
 from google.oauth2 import id_token
-from pip._vendor import cachecontrol
+import cachecontrol
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash, check_password_hash
 import hmac

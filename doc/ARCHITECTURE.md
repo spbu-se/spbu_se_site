@@ -166,6 +166,7 @@ All SQLAlchemy models live in `se_models.py` (not split by domain). The `init_db
 - Route registration: `app.add_url_rule()` with explicit endpoint names
 - Template rendering: `render_template()` with context dicts
 - Form handling: WTForms with `validate_on_submit()` pattern
+- **SPDX headers**: every `.py` file starts with `# SPDX-License-Identifier: MIT`
 
 ### Database
 

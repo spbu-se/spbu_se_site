@@ -12,6 +12,13 @@ Planned features, improvements, and postponed ideas for the SE Site.
 
 - **Create CHANGELOG.md** — start with an empty file, add release workflow docs
 
+### Testing (add incrementally)
+
+1. **Smoke tests + helpers + init_db** — ✅ done
+2. **Key view function tests** — auth login/logout, news CRUD, theses listing
+3. **Edge case expansion** — error handlers, invalid form submissions, permission checks
+4. **Parametrized tests** — fuzz helper functions with boundary inputs
+
 ### Linters & Formatters (add incrementally)
 
 1. **Add djlint** — Jinja2 template linting for 107 templates

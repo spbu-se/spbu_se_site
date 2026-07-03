@@ -5,6 +5,7 @@ description = "SPbSU System Programming Department website"
 requires-python = ">=3.11"
 dependencies = [
     "beautifulsoup4==4.14.3",
+    "CacheControl",
     "chardet==7.4.3",
     "Flask==2.3.3",
     "Flask-Admin==2.2.0",
@@ -34,3 +35,6 @@ dependencies = [
 
 [dependency-groups]
 dev = ["ruff", "mdformat", "pre-commit", "pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

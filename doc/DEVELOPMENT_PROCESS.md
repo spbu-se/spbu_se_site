@@ -48,6 +48,26 @@ Before any implementation: enter **planning phase** (read-only analysis). Always
 
 Planning phase is non-negotiable. Never jump to implementation without prior discussion.
 
+## 0.6 Skill Conventions
+
+Skills live in `.skills/<name>/README.md` (vendor-agnostic). Per-vendor stubs in `.claude/skills/`, `.opencode/skills/`, `.agents/skills/` point to the canonical skill.
+
+## 0.7 Tool Source of Truth
+
+Python tools (ruff, pytest, mypy, mdformat, pre-commit) are installed via `uv` — managed in `pyproject.toml` `[dependency-groups]`. Non-Python tools (dprint, commitlint) are managed via pre-commit repo hooks. Never install linting/formatting tools globally — always use `uv run`.
+
+## 0.8 Decision Enforcement
+
+Every process rule is enforced at one of three layers:
+
+| Layer | Mechanism | Example |
+|---|---|---|
+| 1 — Tool config | Automated guard in tooling | Pre-commit hooks, ruff rules, commitlint |
+| 2 — CI check | Fails in CI pipeline | Staging CI verifies requirements.txt freshness |
+| 3 — Documentation | Documented, manually enforced | Planning phase, doc-first cycle |
+
+When adding a new rule: enforce at the lowest possible layer. Only document (layer 3) what cannot be automated (layers 1-2).
+
 ## 1. Version Control
 
 See `doc/GIT_FLOW.md` — branching, guardrails, commit sequence, staging.

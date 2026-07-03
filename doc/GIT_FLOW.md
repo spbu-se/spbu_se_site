@@ -2,7 +2,7 @@
 
 Version control workflow, branching model, commit conventions, and guardrails for the SE Site project.
 
-Covers: branching, commit rules, staging workflow, session start/end rituals, guardrails, stale branch audit. Does not cover: planning phase, testing requirements, code review — see `doc/DEVELOPMENT_PROCESS.md`.
+Covers: branching, commit rules, staging workflow, session start/end rituals, guardrails, stale branch audit, commit conventions. Does not cover: planning phase, testing requirements, code review — see `doc/DEVELOPMENT_PROCESS.md`.
 
 ## 1. Branching
 
@@ -88,11 +88,35 @@ Staging is a permanent branch — never deleted.
 
 **Rules**: Every non-hotfix branch merges into staging first. Direct-to-current forbidden (exception: hotfix).
 
-## 6. Versioning
+## 6. Commit Rules & Versioning
+
+### Linter-only commits
+
+Commits that only touch formatters/linters (ruff, mdformat, dprint) and pass all checks need no user review. The agent may commit and push directly to staging.
+
+### AI instruction changes
+
+Facts must originate in canonical docs (`doc/*.md`) before being referenced in AI instructions (`AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`). Never author facts directly in AI instructions. Confirm with user before committing AI instruction changes.
+
+### .editorconfig sync
+
+Every new file type should have an `.editorconfig` entry. Keep `.editorconfig` in sync with formatter configs (dprint, ruff).
+
+## 7. Session End Ritual
+
+When pausing or ending a session with unfinished work:
+
+1. Check `git status --short` for dirty/uncommitted files
+2. Write `.unfinished.plan.md` with: date/time, focus task, branch, last commit hash, dirty files, completed steps, remaining actions, undocumented decisions, next steps
+3. If on feature branch with unfinished code: `git add -A && git commit -m "wip: <description>"`, create `_UNFINISHED.md` summarizing state, commit it
+4. Run `uv export --no-dev --no-hashes > requirements.txt` if deps changed
+5. Verify working tree is clean
+
+## 8. Versioning
 
 SemVer: MAJOR (breaking), MINOR (feat), PATCH (fix, docs, etc.). Tag every merge to current: `git tag v<version>`.
 
-## 7. Retrospectives
+## 9. Retrospectives
 
 ### Retrospective — session-start ritual violated
 
