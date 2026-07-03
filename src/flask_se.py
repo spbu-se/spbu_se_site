@@ -171,7 +171,7 @@ app.config["SESSION_COOKIE_NAME"] = "se_session"
 # Secret for API
 app.config["SECRET_KEY_THESIS"] = SECRET_KEY_THESIS
 
-# Basci auth config
+# Basic auth config
 app.config["BASIC_AUTH_USERNAME"] = "se_staff"
 app.config["BASIC_AUTH_PASSWORD"] = app.config["SECRET_KEY_THESIS"]
 

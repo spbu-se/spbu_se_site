@@ -34,7 +34,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ruff", "mdformat", "pre-commit", "pytest", "pytest-cov"]
+dev = ["ruff", "mdformat", "pre-commit", "pytest", "pytest-cov", "djlint", "bandit", "codespell"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -54,3 +54,17 @@ ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/conftest.py" = ["E402"]
+
+[tool.djlint]
+indent = 2
+profile = "jinja"
+ignore = "H006,H008,H020,H021,H023,H031"
+
+[tool.bandit]
+exclude_dirs = ["tests", "migrations"]
+skips = ["B101", "B311"]
+
+[tool.codespell]
+skip = ".git,.venv,node_modules,src/static/assets/libs"
+ignore-words-list = "crate,principale,organise,organised,re-use,re-uses,re-using,theses,recomended"
+

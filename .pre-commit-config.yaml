@@ -41,3 +41,25 @@ repos:
         exclude: ^src/static/|^src/se_site\.egg-info/
       - id: trailing-whitespace
         exclude: ^src/static/|\.svg$|\.min\.(css|js)$
+
+  - repo: https://github.com/Riverside-Healthcare/djlint
+    rev: v1.36.4
+    hooks:
+      - id: djlint
+        args: ["--reformat"]
+        types: [html]
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.3
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml"]
+        additional_dependencies: ["bandit[toml]"]
+        exclude: ^tests/|^src/migrations/
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        args: ["--toml", "pyproject.toml"]
+        exclude: ^src/static/assets/libs/|\.svg$|\.min\.(css|js)$|uv\.lock$

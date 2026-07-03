@@ -69,3 +69,4 @@ src/templates/practice/student/templates.py
 tests/test_helpers.py
 tests/test_init_db.py
 tests/test_smoke.py
+tests/test_views.py
