@@ -2,11 +2,15 @@
 
 Planned features, improvements, and postponed ideas for the SE Site.
 
+## Done
+
+- **CI workflow** — `ci.yml` (current, pip) + `ci-staging.yml` (staging, uv)
+- **Pre-commit hooks verified** — ruff, mdformat, dprint, commitlint all pass; code fixed for zero lint issues
+- **uv migration** — `pyproject.toml`, `.python-version`, `uv.lock`, `requirements.txt` generated via `uv export`
+
 ## Backlog
 
-- **Verify pre-commit hooks work** — run and confirm commitlint, ruff, mdformat all pass
 - **Create CHANGELOG.md** — start with an empty file, add release workflow docs
-- **Add CI workflow** — set up GitHub Actions with Python 3.9, pytest, linting
 
 ## Postponed (icebox)
 
