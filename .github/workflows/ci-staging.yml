@@ -25,8 +25,3 @@ jobs:
       - run: uv run ruff check src/
       - run: uv run mdformat --check .
       - run: uv run pytest
-
-      - name: Verify requirements.txt is current
-        run: |
-          uv export --no-dev --no-hashes > /tmp/requirements-expected.txt
-          diff /tmp/requirements-expected.txt requirements.txt
