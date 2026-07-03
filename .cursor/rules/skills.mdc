@@ -1,0 +1,5 @@
+---
+description: Load skill workflows from canonical .skills/ directory
+globs: "*.py,*.md,*.csv,*.json"
+---
+Refer to `.skills/<task-matching-name>/README.md` for implementation workflows. Available skills: `api-client`, `model-definer`, `test-writer`, `js-bundle-analysis`, `gh-todo-sync`, `retrospective-analysis`. See `.skills/` directory for details.
