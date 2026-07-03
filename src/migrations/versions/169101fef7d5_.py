@@ -6,9 +6,8 @@ Create Date: 2022-10-18 21:46:57.781740
 
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "169101fef7d5"
@@ -34,21 +33,11 @@ def downgrade():
         batch_op.drop_column("comment")
 
     with op.batch_alter_table("summer_school", schema=None) as batch_op:
-        batch_op.alter_column(
-            "requirements", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
-        batch_op.alter_column(
-            "advisors", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
-        batch_op.alter_column(
-            "tech", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
-        batch_op.alter_column(
-            "description", existing_type=sa.VARCHAR(length=2048), nullable=True
-        )
-        batch_op.alter_column(
-            "project_name", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
+        batch_op.alter_column("requirements", existing_type=sa.VARCHAR(length=1024), nullable=True)
+        batch_op.alter_column("advisors", existing_type=sa.VARCHAR(length=1024), nullable=True)
+        batch_op.alter_column("tech", existing_type=sa.VARCHAR(length=1024), nullable=True)
+        batch_op.alter_column("description", existing_type=sa.VARCHAR(length=2048), nullable=True)
+        batch_op.alter_column("project_name", existing_type=sa.VARCHAR(length=1024), nullable=True)
 
     with op.batch_alter_table("staff", schema=None) as batch_op:
         batch_op.drop_constraint(batch_op.f("uq_staff_official_email"), type_="unique")
@@ -58,9 +47,7 @@ def downgrade():
 
     with op.batch_alter_table("deadline", schema=None) as batch_op:
         batch_op.add_column(sa.Column("course", sa.INTEGER(), nullable=False))
-        batch_op.drop_constraint(
-            batch_op.f("fk_deadline_worktype_id_worktype"), type_="foreignkey"
-        )
+        batch_op.drop_constraint(batch_op.f("fk_deadline_worktype_id_worktype"), type_="foreignkey")
         batch_op.drop_column("worktype_id")
 
     with op.batch_alter_table("current_thesis", schema=None) as batch_op:

@@ -7134,7 +7134,7 @@ const components = [
   Browser$1,
   Resize,
   Observer$1,
-  
+
 ];
 
 if (typeof Swiper.use === 'undefined') {

@@ -471,7 +471,7 @@ if (user_diploma_filter) {
   let themes_archived_select = document.getElementById("archived");
 
   user_diploma_filter.onchange = () => {
-    const display_style = themes_archived_select.value == 0 ? 'block' : 'none' 
+    const display_style = themes_archived_select.value == 0 ? 'block' : 'none'
 
     const themes = document.querySelectorAll("#ThemesList > div");
     themes.forEach(theme => {
@@ -810,4 +810,3 @@ let practice_admin_filter_element = document.getElementById('practice-admin-titl
 if (practice_student_filter_element || practice_admin_filter_element){
     $('[data-toggle="popoverhover"]').popover({ trigger: "hover" });
 }
-

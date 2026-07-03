@@ -5,16 +5,16 @@ import logging
 import os
 import random
 import re
-import fitz
 from os.path import splitext
 from urllib.parse import urlparse
 
-from flask import render_template, request, jsonify, redirect, url_for
+import fitz
+from flask import jsonify, redirect, render_template, request, url_for
 from transliterate import translit
 
 from flask_se_config import SECRET_KEY_THESIS
 from se_forms import ThesisFilter
-from se_models import db, Staff, Users, Thesis, Worktype, Courses
+from se_models import Courses, Staff, Thesis, Users, Worktype, db
 
 log = logging.getLogger("flask_se.sub")
 
@@ -158,14 +158,12 @@ def fetch_theses():
 
             if item.description is not None:
                 search_in_name = (
-                    search_in_name
-                    or str(item.description).lower().find(search.lower()) != -1
+                    search_in_name or str(item.description).lower().find(search.lower()) != -1
                 )
 
             if item.author is not None:
                 search_in_name = (
-                    search_in_name
-                    or str(item.author).lower().find(search.lower()) != -1
+                    search_in_name or str(item.author).lower().find(search.lower()) != -1
                 )
 
             if search_in_name and text_index != -1:
@@ -290,9 +288,7 @@ def post_theses():
         return jsonify(status=error_status, string="Key " + str(e) + " not found")
 
     if secret_key != SECRET_KEY_THESIS:
-        return jsonify(
-            status=error_status, string="Invalid secret key: " + str(secret_key)
-        )
+        return jsonify(status=error_status, string="Invalid secret key: " + str(secret_key))
 
     if "source_uri" in thesis_info:
         source_uri = thesis_info["source_uri"]
@@ -339,9 +335,7 @@ def post_theses():
     # Before we going on, check if this thesis already exists?
     records = Thesis.query.filter_by(text_uri=thesis_filename)
     if records.count():
-        return jsonify(
-            status=error_status, string="Work already exists: " + str(thesis_filename)
-        )
+        return jsonify(status=error_status, string="Work already exists: " + str(thesis_filename))
 
     # Save file to TMP
     thesis_text.save(os.path.join("./static/tmp/texts/", thesis_filename))
@@ -350,12 +344,8 @@ def post_theses():
 
     if presentation:
         presentation_filename = author_en
-        presentation_filename = (
-            presentation_filename + "_" + type_id_string[type_id - 1]
-        )
-        presentation_filename = (
-            presentation_filename + "_" + str(publish_year) + "_slides"
-        )
+        presentation_filename = presentation_filename + "_" + type_id_string[type_id - 1]
+        presentation_filename = presentation_filename + "_" + str(publish_year) + "_slides"
 
         path = urlparse(presentation.filename).path
         extension = splitext(path)[1]
@@ -365,9 +355,7 @@ def post_theses():
 
     if supervisor_review:
         supervisor_review_filename = author_en
-        supervisor_review_filename = (
-            supervisor_review_filename + "_" + type_id_string[type_id - 1]
-        )
+        supervisor_review_filename = supervisor_review_filename + "_" + type_id_string[type_id - 1]
         supervisor_review_filename = (
             supervisor_review_filename + "_" + str(publish_year) + "_supervisor_review"
         )
@@ -376,15 +364,11 @@ def post_theses():
         extension = splitext(path)[1]
         supervisor_review_filename = supervisor_review_filename + extension
 
-        supervisor_review.save(
-            os.path.join("./static/tmp/reviews/", supervisor_review_filename)
-        )
+        supervisor_review.save(os.path.join("./static/tmp/reviews/", supervisor_review_filename))
 
     if reviewer_review:
         reviewer_review_filename = author_en
-        reviewer_review_filename = (
-            reviewer_review_filename + "_" + type_id_string[type_id - 1]
-        )
+        reviewer_review_filename = reviewer_review_filename + "_" + type_id_string[type_id - 1]
         reviewer_review_filename = (
             reviewer_review_filename + "_" + str(publish_year) + "_reviewer_review"
         )
@@ -393,9 +377,7 @@ def post_theses():
         extension = splitext(path)[1]
         reviewer_review_filename = reviewer_review_filename + extension
 
-        reviewer_review.save(
-            os.path.join("./static/tmp/reviews/", reviewer_review_filename)
-        )
+        reviewer_review.save(os.path.join("./static/tmp/reviews/", reviewer_review_filename))
 
     if source_uri:
         t = Thesis(

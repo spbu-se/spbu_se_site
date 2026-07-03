@@ -24,4 +24,3 @@ glob('docs/assets/img/**/*.png', function(err, files) {
     console.log(c);
   })
 });
-

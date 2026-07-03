@@ -107,10 +107,10 @@ Every new file type should have an `.editorconfig` entry. Keep `.editorconfig` i
 When pausing or ending a session with unfinished work:
 
 1. Check `git status --short` for dirty/uncommitted files
-2. Write `.unfinished.plan.md` with: date/time, focus task, branch, last commit hash, dirty files, completed steps, remaining actions, undocumented decisions, next steps
-3. If on feature branch with unfinished code: `git add -A && git commit -m "wip: <description>"`, create `_UNFINISHED.md` summarizing state, commit it
-4. Run `uv export --no-dev --no-hashes > requirements.txt` if deps changed
-5. Verify working tree is clean
+1. Write `.unfinished.plan.md` with: date/time, focus task, branch, last commit hash, dirty files, completed steps, remaining actions, undocumented decisions, next steps
+1. If on feature branch with unfinished code: `git add -A && git commit -m "wip: <description>"`, create `_UNFINISHED.md` summarizing state, commit it
+1. Run `uv export --no-dev --no-hashes > requirements.txt` if deps changed
+1. Verify working tree is clean
 
 ## 8. Versioning
 

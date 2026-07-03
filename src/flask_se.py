@@ -1,71 +1,116 @@
 # -*- coding: utf-8 -*-
 
-from flask_se_bachelor import (
-    bachelor_admission,
-    bachelor_programming_technology,
-    bachelor_software_engineering,
-    bachelor_application,
-)
 import sys
 from datetime import datetime, timezone
 
 from dateutil import tz
-from flask import Flask, render_template, make_response, redirect, url_for
+from flask import Flask, make_response, redirect, render_template, url_for
 from flask_admin import Admin
 from flask_admin.theme import Bootstrap4Theme
 from flask_apscheduler import APScheduler
 from flask_frozen import Freezer
 from flask_migrate import Migrate
-from flask_se_bachelor import bachelor_score_info
-from flaskext.markdown import Markdown
 from flask_simplemde import SimpleMDE
-
+from flaskext.markdown import Markdown
 
 import flask_se_theses
-from flask_se_config import (
-    SECRET_KEY_THESIS,
-    SECRET_KEY,
-    SQLITE_DATABASE_NAME,
-    SQLITE_DATABASE_PATH,
-    plural_hours,
-    get_hours_since,
-)
-from se_models import (
-    db,
-    init_db,
-    Staff,
-    Users,
-    Thesis,
-    SummerSchool,
-    Posts,
-    DiplomaThemes,
-    CurrentThesis,
-    recalculate_post_rank,
-    whooshee,
+from flask_se_admin import (
+    SeAdminIndexView,
+    SeAdminModelViewCurrentThesis,
+    SeAdminModelViewDiplomaThemes,
+    SeAdminModelViewNews,
+    SeAdminModelViewReviewDiplomaThemes,
+    SeAdminModelViewStaff,
+    SeAdminModelViewSummerSchool,
+    SeAdminModelViewThesis,
+    SeAdminModelViewUsers,
 )
 from flask_se_auth import (
-    login_manager,
-    register_basic,
-    login_index,
-    password_recovery,
-    user_profile,
-    upload_avatar,
-    logout,
-    vk_callback,
-    google_login,
     google_callback,
+    google_login,
+    login_index,
+    login_manager,
+    logout,
+    password_recovery,
+    register_basic,
+    upload_avatar,
+    user_profile,
+    vk_callback,
 )
-from flask_se_news import list_news, get_post, submit_post, post_vote, delete_post
-from flask_se_admin import (
-    SeAdminModelViewThesis,
-    SeAdminIndexView,
-    SeAdminModelViewUsers,
-    SeAdminModelViewSummerSchool,
-    SeAdminModelViewStaff,
-    SeAdminModelViewNews,
-    SeAdminModelViewDiplomaThemes,
-    SeAdminModelViewReviewDiplomaThemes,
-    SeAdminModelViewCurrentThesis,
+from flask_se_bachelor import (
+    bachelor_admission,
+    bachelor_application,
+    bachelor_programming_technology,
+    bachelor_score_info,
+    bachelor_software_engineering,
+)
+from flask_se_config import (
+    SECRET_KEY,
+    SECRET_KEY_THESIS,
+    SQLITE_DATABASE_NAME,
+    SQLITE_DATABASE_PATH,
+    get_hours_since,
+    plural_hours,
+)
+from flask_se_diplomas import (
+    add_user_theme,
+    archive_theme,
+    delete_theme,
+    diplomas_index,
+    edit_user_theme,
+    fetch_themes,
+    get_theme,
+    unarchive_theme,
+    user_diplomas_index,
+)
+from flask_se_internships import (
+    add_internship,
+    delete_internship,
+    fetch_internships,
+    internships_index,
+    old_internships_index,
+    page_internship,
+    update_internship,
+)
+from flask_se_news import delete_post, get_post, list_news, post_vote, submit_post
+from flask_se_practice import (
+    practice_add_new_report,
+    practice_choosing_topic,
+    practice_data_for_practice,
+    practice_edit_theme,
+    practice_goals_tasks,
+    practice_guide,
+    practice_index,
+    practice_new_thesis,
+    practice_preparation,
+    practice_thesis_defense,
+    practice_workflow,
+)
+from flask_se_practice_admin import (
+    archive_thesis,
+    choose_area_and_worktype_admin,
+    finished_thesises_admin,
+    index_admin,
+    thesis_admin,
+)
+from flask_se_practice_staff import (
+    finished_thesises_staff,
+    index_staff,
+    reports_staff,
+    thesis_staff,
+)
+from flask_se_practice_yandex_disk import yandex_code
+from flask_se_review import (
+    delete_thesis_on_review,
+    edit_thesis_on_review,
+    fetch_thesis_on_review,
+    review_become_thesis_reviewer_ask,
+    review_become_thesis_reviewer_confirm,
+    review_result_thesis_on_review,
+    review_submit_review,
+    review_thesis_on_review,
+    submit_thesis_on_review,
+    thesis_review_index,
 )
 from flask_se_scholarships import (
     get_scholarships_1,
@@ -82,73 +127,24 @@ from flask_se_scholarships import (
     get_scholarships_12,
     get_scholarships_13,
 )
-from flask_se_diplomas import (
-    diplomas_index,
-    get_theme,
-    add_user_theme,
-    user_diplomas_index,
-    delete_theme,
-    edit_user_theme,
-    fetch_themes,
-    archive_theme,
-    unarchive_theme,
-)
-
-from flask_se_review import (
-    submit_thesis_on_review,
-    thesis_review_index,
-    edit_thesis_on_review,
-    delete_thesis_on_review,
-    review_thesis_on_review,
-    review_submit_review,
-    review_result_thesis_on_review,
-    fetch_thesis_on_review,
-    review_become_thesis_reviewer_ask,
-    review_become_thesis_reviewer_confirm,
-)
-from flask_se_internships import (
-    add_internship,
-    internships_index,
-    page_internship,
-    delete_internship,
-    update_internship,
-    fetch_internships,
-    old_internships_index,
-)
-
-from se_sendmail import (
-    notification_send_mail,
-    notification_send_diploma_themes_on_review,
-)
-
-from flask_se_practice import (
-    practice_index,
-    practice_guide,
-    practice_new_thesis,
-    practice_choosing_topic,
-    practice_add_new_report,
-    practice_preparation,
-    practice_thesis_defense,
-    practice_data_for_practice,
-    practice_edit_theme,
-    practice_workflow,
-    practice_goals_tasks,
-)
-from flask_se_practice_staff import (
-    index_staff,
-    thesis_staff,
-    reports_staff,
-    finished_thesises_staff,
-)
-from flask_se_practice_admin import (
-    index_admin,
-    choose_area_and_worktype_admin,
-    thesis_admin,
-    finished_thesises_admin,
-    archive_thesis,
-)
-from flask_se_practice_yandex_disk import yandex_code
 from flask_se_summer_schools import create_summer_school_view, summer_school_list
+from se_models import (
+    CurrentThesis,
+    DiplomaThemes,
+    Posts,
+    Staff,
+    SummerSchool,
+    Thesis,
+    Users,
+    db,
+    init_db,
+    recalculate_post_rank,
+    whooshee,
+)
+from se_sendmail import (
+    notification_send_diploma_themes_on_review,
+    notification_send_mail,
+)
 
 app = Flask(
     __name__,
@@ -183,12 +179,8 @@ app.config["BASIC_AUTH_PASSWORD"] = app.config["SECRET_KEY_THESIS"]
 # App add_url_rule
 # Login
 app.add_url_rule("/login.html", methods=["GET", "POST"], view_func=login_index)
-app.add_url_rule(
-    "/register_basic.html", methods=["GET", "POST"], view_func=register_basic
-)
-app.add_url_rule(
-    "/password_recovery.html", methods=["GET", "POST"], view_func=password_recovery
-)
+app.add_url_rule("/register_basic.html", methods=["GET", "POST"], view_func=register_basic)
+app.add_url_rule("/password_recovery.html", methods=["GET", "POST"], view_func=password_recovery)
 app.add_url_rule("/profile.html", methods=["GET", "POST"], view_func=user_profile)
 app.add_url_rule("/upload_avatar", methods=["GET", "POST"], view_func=upload_avatar)
 app.add_url_rule("/logout", methods=["GET"], view_func=logout)
@@ -200,9 +192,7 @@ app.add_url_rule("/google_callback", methods=["GET"], view_func=google_callback)
 # Theses
 app.add_url_rule("/theses.html", view_func=flask_se_theses.theses_search)
 app.add_url_rule("/fetch_theses", view_func=flask_se_theses.fetch_theses)
-app.add_url_rule(
-    "/post_theses", methods=["GET", "POST"], view_func=flask_se_theses.post_theses
-)
+app.add_url_rule("/post_theses", methods=["GET", "POST"], view_func=flask_se_theses.post_theses)
 app.add_url_rule("/theses_tmp.html", view_func=flask_se_theses.theses_tmp)
 app.add_url_rule("/theses_delete_tmp", view_func=flask_se_theses.theses_delete_tmp)
 app.add_url_rule("/theses_add_tmp", view_func=flask_se_theses.theses_add_tmp)
@@ -238,14 +228,10 @@ app.add_url_rule("/scholarships/13.html", view_func=get_scholarships_13)
 app.add_url_rule("/diplomas/", view_func=diplomas_index)
 app.add_url_rule("/diplomas/index.html", view_func=diplomas_index)
 app.add_url_rule("/diplomas/theme.html", view_func=get_theme)
-app.add_url_rule(
-    "/diplomas/add_theme.html", methods=["GET", "POST"], view_func=add_user_theme
-)
+app.add_url_rule("/diplomas/add_theme.html", methods=["GET", "POST"], view_func=add_user_theme)
 app.add_url_rule("/diplomas/user_themes.html", view_func=user_diplomas_index)
 app.add_url_rule("/diplomas/delete_theme.html", view_func=delete_theme)
-app.add_url_rule(
-    "/diplomas/edit_theme.html", methods=["GET", "POST"], view_func=edit_user_theme
-)
+app.add_url_rule("/diplomas/edit_theme.html", methods=["GET", "POST"], view_func=edit_user_theme)
 app.add_url_rule("/diplomas/fetch_themes", view_func=fetch_themes)
 app.add_url_rule("/diplomas/archive_theme", view_func=archive_theme)
 app.add_url_rule("/diplomas/unarchive_theme", view_func=unarchive_theme)
@@ -254,20 +240,12 @@ app.add_url_rule("/diplomas/unarchive_theme", view_func=unarchive_theme)
 # Review thesis
 app.add_url_rule("/review/", methods=["GET"], view_func=thesis_review_index)
 app.add_url_rule("/review/index.html", methods=["GET"], view_func=thesis_review_index)
-app.add_url_rule(
-    "/review/submit", methods=["GET", "POST"], view_func=submit_thesis_on_review
-)
-app.add_url_rule(
-    "/review/edit", methods=["GET", "POST"], view_func=edit_thesis_on_review
-)
+app.add_url_rule("/review/submit", methods=["GET", "POST"], view_func=submit_thesis_on_review)
+app.add_url_rule("/review/edit", methods=["GET", "POST"], view_func=edit_thesis_on_review)
 app.add_url_rule("/review/delete", methods=["GET"], view_func=delete_thesis_on_review)
 app.add_url_rule("/review/review", methods=["GET"], view_func=review_thesis_on_review)
-app.add_url_rule(
-    "/review/reviewed", methods=["GET", "POST"], view_func=review_submit_review
-)
-app.add_url_rule(
-    "/review/review_result", methods=["GET"], view_func=review_result_thesis_on_review
-)
+app.add_url_rule("/review/reviewed", methods=["GET", "POST"], view_func=review_submit_review)
+app.add_url_rule("/review/review_result", methods=["GET"], view_func=review_result_thesis_on_review)
 app.add_url_rule(
     "/review/fetch_thesis_on_review", methods=["GET"], view_func=fetch_thesis_on_review
 )
@@ -288,13 +266,9 @@ app.add_url_rule("/internships/index", methods=["GET"], view_func=old_internship
 app.add_url_rule(
     "/internships/internships_index.html", methods=["GET"], view_func=internships_index
 )
-app.add_url_rule(
-    "/internships/fetch_internships", methods=["GET"], view_func=fetch_internships
-)
+app.add_url_rule("/internships/fetch_internships", methods=["GET"], view_func=fetch_internships)
 app.add_url_rule("/internships/add", methods=["GET", "POST"], view_func=add_internship)
-app.add_url_rule(
-    "/internships/<int:id>", methods=["GET", "POST"], view_func=page_internship
-)
+app.add_url_rule("/internships/<int:id>", methods=["GET", "POST"], view_func=page_internship)
 app.add_url_rule("/internships/<int:id>/delete", view_func=delete_internship)
 app.add_url_rule(
     "/internships/<int:id>/update", methods=["GET", "POST"], view_func=update_internship
@@ -305,9 +279,7 @@ app.add_url_rule(
 app.add_url_rule("/practice", methods=["GET", "POST"], view_func=practice_index)
 app.add_url_rule("/practice/", methods=["GET", "POST"], view_func=practice_index)
 app.add_url_rule("/practice/guide/", methods=["GET"], view_func=practice_guide)
-app.add_url_rule(
-    "/practice/new/", methods=["GET", "POST"], view_func=practice_new_thesis
-)
+app.add_url_rule("/practice/new/", methods=["GET", "POST"], view_func=practice_new_thesis)
 app.add_url_rule(
     "/practice/data_for_practice/",
     methods=["GET", "POST"],
@@ -318,38 +290,26 @@ app.add_url_rule(
     methods=["GET", "POST"],
     view_func=practice_choosing_topic,
 )
-app.add_url_rule(
-    "/practice/edit_theme/", methods=["GET", "POST"], view_func=practice_edit_theme
-)
-app.add_url_rule(
-    "/practice/goals_tasks/", methods=["GET", "POST"], view_func=practice_goals_tasks
-)
+app.add_url_rule("/practice/edit_theme/", methods=["GET", "POST"], view_func=practice_edit_theme)
+app.add_url_rule("/practice/goals_tasks/", methods=["GET", "POST"], view_func=practice_goals_tasks)
 app.add_url_rule(
     "/practice/add_new_report/",
     methods=["GET", "POST"],
     view_func=practice_add_new_report,
 )
-app.add_url_rule(
-    "/practice/workflow/", methods=["GET", "POST"], view_func=practice_workflow
-)
+app.add_url_rule("/practice/workflow/", methods=["GET", "POST"], view_func=practice_workflow)
 app.add_url_rule(
     "/practice/preparation_for_defense/",
     methods=["GET", "POST"],
     view_func=practice_preparation,
 )
-app.add_url_rule(
-    "/practice/defense/", methods=["GET"], view_func=practice_thesis_defense
-)
+app.add_url_rule("/practice/defense/", methods=["GET"], view_func=practice_thesis_defense)
 
 # Practice staff
 app.add_url_rule("/practice_staff", methods=["GET"], view_func=index_staff)
 app.add_url_rule("/practice_staff/", methods=["GET"], view_func=index_staff)
-app.add_url_rule(
-    "/practice_staff/thesis/", methods=["GET", "POST"], view_func=thesis_staff
-)
-app.add_url_rule(
-    "/practice_staff/reports/", methods=["GET", "POST"], view_func=reports_staff
-)
+app.add_url_rule("/practice_staff/thesis/", methods=["GET", "POST"], view_func=thesis_staff)
+app.add_url_rule("/practice_staff/reports/", methods=["GET", "POST"], view_func=reports_staff)
 app.add_url_rule(
     "/practice_staff/finished_thesises/",
     methods=["GET"],
@@ -369,9 +329,7 @@ app.add_url_rule(
     methods=["GET"],
     view_func=finished_thesises_admin,
 )
-app.add_url_rule(
-    "/practice_admin/thesis", methods=["GET", "POST"], view_func=thesis_admin
-)
+app.add_url_rule("/practice_admin/thesis", methods=["GET", "POST"], view_func=thesis_admin)
 app.add_url_rule("/practice_admin/yandex_code", methods=["GET"], view_func=yandex_code)
 app.add_url_rule(
     "/practice_admin/thesis_to_archive",
@@ -457,9 +415,7 @@ admin.add_view(SeAdminModelViewStaff(Staff, db.session))
 admin.add_view(SeAdminModelViewThesis(Thesis, db.session))
 admin.add_view(SeAdminModelViewSummerSchool(SummerSchool, db.session))
 admin.add_view(SeAdminModelViewNews(Posts, db.session))
-admin.add_view(
-    SeAdminModelViewDiplomaThemes(DiplomaThemes, db.session, endpoint="diplomathemes")
-)
+admin.add_view(SeAdminModelViewDiplomaThemes(DiplomaThemes, db.session, endpoint="diplomathemes"))
 admin.add_view(
     SeAdminModelViewReviewDiplomaThemes(
         DiplomaThemes,
@@ -485,19 +441,12 @@ def datetime_convert(value, format="%d.%m.%Y %H:%M"):
 @app.route("/")
 def index():
     ages = []
-    news = (
-        Posts.query.filter(Posts.type_id > 0)
-        .order_by(Posts.rank.desc())
-        .limit(10)
-        .all()
-    )
+    news = Posts.query.filter(Posts.type_id > 0).order_by(Posts.rank.desc()).limit(10).all()
 
     for post in news:
         ages.append(plural_hours(int(get_hours_since(post.created_on))))
 
-    return render_template(
-        "index.html", news=news, ages=ages, score_info=bachelor_score_info
-    )
+    return render_template("index.html", news=news, ages=ages, score_info=bachelor_score_info)
 
 
 @app.route("/index.html")
@@ -549,12 +498,8 @@ def scholarships():
 
 
 app.add_url_rule("/bachelor/admission.html", view_func=bachelor_admission)
-app.add_url_rule(
-    "/bachelor/programming-technology.html", view_func=bachelor_programming_technology
-)
-app.add_url_rule(
-    "/bachelor/software-engineering.html", view_func=bachelor_software_engineering
-)
+app.add_url_rule("/bachelor/programming-technology.html", view_func=bachelor_programming_technology)
+app.add_url_rule("/bachelor/software-engineering.html", view_func=bachelor_software_engineering)
 app.add_url_rule("/bachelor/application.html", view_func=bachelor_application)
 
 

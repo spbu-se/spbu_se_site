@@ -1,6 +1,6 @@
 from flask_se import app
-from se_models import db, Thesis
 from flask_se_theses import get_text
+from se_models import Thesis, db
 
 db.app = app
 db.init_app(app)

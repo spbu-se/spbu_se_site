@@ -1,14 +1,16 @@
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 import flask_se_config
+
 flask_se_config.SQLITE_DATABASE_NAME = ":memory:"
+
+import pytest
 
 from flask_se import app, db
 from se_models import init_db
-
-import pytest
 
 
 @pytest.fixture

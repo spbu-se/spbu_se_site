@@ -1,6 +1,6 @@
 from flask import render_template
-from se_models import SummerSchool
 
+from se_models import SummerSchool
 
 schools = {
     2021: {
@@ -34,9 +34,7 @@ def create_summer_school_view(year: int):
     def summer_school():
         projects = SummerSchool.query.filter_by(year=year).all()
 
-        return render_template(
-            "summer_school.html", projects=projects, school=schools[year]
-        )
+        return render_template("summer_school.html", projects=projects, school=schools[year])
 
     # flask makes function identification by name
     summer_school.__name__ = "summer_school_" + str(year)

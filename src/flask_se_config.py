@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
-import re
 import pathlib
+import re
+import sys
 from datetime import datetime
 
 SECRET_KEY = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_secret.conf")
-MAIL_PASSWORD_FILE = os.path.join(
-    pathlib.Path(__file__).parent, "configs/flask_se_mail.conf"
-)
+MAIL_PASSWORD_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_mail.conf")
 SECRET_KEY_THESIS = os.urandom(16).hex()
 SQLITE_DATABASE_NAME = "se.db"
 SQLITE_DATABASE_PATH = pathlib.Path("databases/").absolute().as_posix()
@@ -73,11 +71,7 @@ def secure_filename(filename: str) -> str:
 
     filename = str(_filename_strip_re.sub("", "_".join(filename.split()))).strip("._")
 
-    if (
-        os.name == "nt"
-        and filename
-        and filename.split(".")[0].upper() in _windows_device_files
-    ):
+    if os.name == "nt" and filename and filename.split(".")[0].upper() in _windows_device_files:
         filename = "_{filename}"
 
     return filename

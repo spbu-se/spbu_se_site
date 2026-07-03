@@ -16,17 +16,16 @@ limitations under the License.
 # -*- coding: utf-8 -*-
 
 import os.path
+
 import openpyxl
 import pandas as pd
-
 from flask import flash
-from se_models import Users, CurrentThesis
+
 from flask_se_practice_config import TABLE_COLUMNS
+from se_models import CurrentThesis, Users
 
 
-def edit_table(
-    path_to_table, area_id, worktype_id, column_names_list=None, sheet_name=""
-):
+def edit_table(path_to_table, area_id, worktype_id, column_names_list=None, sheet_name=""):
     if column_names_list is None:
         column_names_list = list(TABLE_COLUMNS.items())
 
@@ -117,9 +116,7 @@ def find_user(full_name: str) -> Users or None:
     if len(name) < 2:
         return None
 
-    user = (
-        Users.query.filter_by(last_name=name[0]).filter_by(first_name=name[1]).first()
-    )
+    user = Users.query.filter_by(last_name=name[0]).filter_by(first_name=name[1]).first()
     return user
 
 
@@ -148,17 +145,13 @@ def get_all_thesises(area_id, worktype_id) -> list:
     return thesises
 
 
-def add_new_data_to_table(
-    row: pd.Series, current_thesis: CurrentThesis, user: Users, column_names
-):
+def add_new_data_to_table(row: pd.Series, current_thesis: CurrentThesis, user: Users, column_names):
     update_if_cell_is_empty(row, column_names["name"], user.get_name())
     update_if_cell_is_empty(row, column_names["theme"], current_thesis.title)
     update_if_cell_is_empty(row, column_names["supervisor"], current_thesis.supervisor)
     update_if_cell_is_empty(row, column_names["consultant"], current_thesis.consultant)
     update_if_cell_is_empty(row, column_names["how_to_contact"], user.how_to_contact)
-    update_if_cell_is_empty(
-        row, column_names["text"], "да" if current_thesis.text_uri else ""
-    )
+    update_if_cell_is_empty(row, column_names["text"], "да" if current_thesis.text_uri else "")
     update_if_cell_is_empty(
         row,
         column_names["supervisor_review"],

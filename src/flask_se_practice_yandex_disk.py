@@ -23,21 +23,19 @@ import tempfile
 
 import requests
 import yadisk
+from flask import flash, get_flashed_messages, redirect, request, session, url_for
 
-from flask import redirect, url_for, request, flash, session, get_flashed_messages
 from flask_se_auth import login_required
-from flask_se_practice_table import edit_table
 from flask_se_practice_config import (
-    YANDEX_CLIENT_ID,
-    YANDEX_SECRET,
     YANDEX_AUTHORIZE_URL_TEMPLATE,
+    YANDEX_CLIENT_ID,
     YANDEX_GET_TOKEN_URL,
+    YANDEX_SECRET,
 )
+from flask_se_practice_table import edit_table
 
 
-def handle_yandex_table(
-    table_name, sheet_name, area_id, worktype_id, column_names_list
-):
+def handle_yandex_table(table_name, sheet_name, area_id, worktype_id, column_names_list):
     session["table_path"] = table_name
     session["sheet_name"] = sheet_name
     session["area_id"] = area_id
@@ -79,17 +77,13 @@ def yandex_code():
     worktype_id = session.get("worktype_id")
     code = request.args.get("code", type=str)
     if code is None:
-        return redirect(
-            url_for("index_admin", area_id=area_id, worktype_id=worktype_id)
-        )
+        return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
 
     token = get_token(code)
     disk = yadisk.YaDisk(token=token)
     if not disk.check_token():
         flash("Неверный токен для Яндекс Диска", category="error")
-        return redirect(
-            url_for("index_admin", area_id=area_id, worktype_id=worktype_id)
-        )
+        return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
 
     table_path = session.get("table_path")
     table_name = table_path.split("/")[-1]

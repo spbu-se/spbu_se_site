@@ -16,27 +16,25 @@ limitations under the License.
 # -*- coding: utf-8 -*-
 
 import datetime
-
-from dateutil import tz
-from flask import flash, redirect, request, render_template, url_for
-from sqlalchemy import desc
 from functools import wraps
 
-from flask_se_auth import login_required
+from dateutil import tz
+from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user
+from sqlalchemy import desc
 
+from flask_se_auth import login_required
 from se_forms import StaffAddCommentToReport
 from se_models import (
-    db,
-    Staff,
     CurrentThesis,
-    ThesisReport,
     NotificationPractice,
+    Staff,
+    ThesisReport,
     add_mail_notification,
+    db,
 )
-
-from templates.practice.staff.templates import PracticeStaffTemplates
 from templates.notification.templates import NotificationTemplates
+from templates.practice.staff.templates import PracticeStaffTemplates
 
 DATE_AND_TIME_FORMAT = "%d.%m.%Y %H:%M"
 
@@ -89,9 +87,7 @@ def index_staff(user_staff):
         .order_by(desc(ThesisReport.time))
         .all()
     )
-    return render_template(
-        PracticeStaffTemplates.CURRENT_THESISES.value, thesises=current_thesises
-    )
+    return render_template(PracticeStaffTemplates.CURRENT_THESISES.value, thesises=current_thesises)
 
 
 @login_required

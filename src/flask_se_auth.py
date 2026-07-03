@@ -1,32 +1,29 @@
 # -*- coding: utf-8 -*-
 
-import os
+import hmac
 import json
+import os
 import pathlib
 
-import requests
-
-from PIL import Image
-
-from flask import session
-from flask_login import (
-    login_user,
-    login_required,
-    logout_user,
-    current_user,
-    LoginManager,
-)
-from flask import request, flash, render_template, redirect, url_for
-from google_auth_oauthlib.flow import Flow
-import google.auth.transport.requests
-from google.oauth2 import id_token
 import cachecontrol
+import google.auth.transport.requests
+import requests
+from flask import flash, redirect, render_template, request, session, url_for
+from flask_login import (
+    LoginManager,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
+from google.oauth2 import id_token
+from google_auth_oauthlib.flow import Flow
+from PIL import Image
 from sqlalchemy.exc import SQLAlchemyError
-from werkzeug.security import generate_password_hash, check_password_hash
-import hmac
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from flask_se_config import secure_filename
-from se_models import db, Users
+from se_models import Users, db
 
 # Global variables
 UPLOAD_FOLDER = "static/images/avatars/"
@@ -43,9 +40,7 @@ login_required = login_required
 # Google auth (https://github.com/code-specialist/flask_google_login/blob/main/app.py)
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
-GOOGLE_CLIENT_ID = (
-    "593053078492-i6hf335m9hm0vtj23df62q09j07esbhu.apps.googleusercontent.com"
-)
+GOOGLE_CLIENT_ID = "593053078492-i6hf335m9hm0vtj23df62q09j07esbhu.apps.googleusercontent.com"
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_google.json")
 
 
@@ -99,9 +94,7 @@ def login_index():
             ):
                 login_user(user, remember=True)
                 return redirect_next_url(fallback=url_for("user_profile"))
-            elif (password_hash is not None) and (
-                not password_hash.startswith("pbkdf2")
-            ):
+            elif (password_hash is not None) and (not password_hash.startswith("pbkdf2")):
                 hs = password_hash.split("$")
                 if (
                     len(hs) == 3
@@ -168,9 +161,7 @@ def vk_callback():
             avatar_uri = avatar_uri + ".jpg"
 
             if "photo_100" in vk_user["response"][0]:
-                r = requests.get(
-                    vk_user["response"][0]["photo_100"], allow_redirects=True
-                )
+                r = requests.get(vk_user["response"][0]["photo_100"], allow_redirects=True)
                 open("static/images/avatars/" + avatar_uri, "wb").write(r.content)
 
             new_user = Users(
@@ -283,9 +274,7 @@ def upload_avatar():
                 file.save(os.path.join(UPLOAD_FOLDER + "/" + new_filename + ".jpg"))
             else:
                 try:
-                    file.save(
-                        os.path.join(UPLOAD_TMP_FOLDER + "/" + new_filename + ext)
-                    )
+                    file.save(os.path.join(UPLOAD_TMP_FOLDER + "/" + new_filename + ext))
                     with Image.open(UPLOAD_TMP_FOLDER + "/" + new_filename + ext) as im:
                         rgb_im = im.convert("RGB")
                         rgb_im.save(UPLOAD_FOLDER + "/" + new_filename + ".jpg")

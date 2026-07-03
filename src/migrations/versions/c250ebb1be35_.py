@@ -6,9 +6,8 @@ Create Date: 2022-05-03 22:06:38.549935
 
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "c250ebb1be35"
@@ -27,9 +26,7 @@ def upgrade():
         sa.ForeignKeyConstraint(
             ["company_id"], ["company.id"], name=op.f("fk_reviewer_company_id_company")
         ),
-        sa.ForeignKeyConstraint(
-            ["user_id"], ["users.id"], name=op.f("fk_reviewer_user_id_users")
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_reviewer_user_id_users")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_reviewer")),
     )
     op.create_table(
@@ -74,9 +71,7 @@ def upgrade():
     )
 
     with op.batch_alter_table("thesis_review", schema=None) as batch_op:
-        batch_op.add_column(
-            sa.Column("thesis_on_review_id", sa.Integer(), nullable=True)
-        )
+        batch_op.add_column(sa.Column("thesis_on_review_id", sa.Integer(), nullable=True))
         batch_op.create_foreign_key(
             batch_op.f("fk_thesis_review_thesis_on_review_id_thesis_on_review"),
             "thesis_on_review",
@@ -97,21 +92,11 @@ def downgrade():
         batch_op.drop_column("thesis_on_review_id")
 
     with op.batch_alter_table("summer_school", schema=None) as batch_op:
-        batch_op.alter_column(
-            "requirements", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
-        batch_op.alter_column(
-            "advisors", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
-        batch_op.alter_column(
-            "tech", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
-        batch_op.alter_column(
-            "description", existing_type=sa.VARCHAR(length=2048), nullable=True
-        )
-        batch_op.alter_column(
-            "project_name", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
+        batch_op.alter_column("requirements", existing_type=sa.VARCHAR(length=1024), nullable=True)
+        batch_op.alter_column("advisors", existing_type=sa.VARCHAR(length=1024), nullable=True)
+        batch_op.alter_column("tech", existing_type=sa.VARCHAR(length=1024), nullable=True)
+        batch_op.alter_column("description", existing_type=sa.VARCHAR(length=2048), nullable=True)
+        batch_op.alter_column("project_name", existing_type=sa.VARCHAR(length=1024), nullable=True)
 
     with op.batch_alter_table("staff", schema=None) as batch_op:
         batch_op.drop_constraint(batch_op.f("uq_staff_official_email"), type_="unique")

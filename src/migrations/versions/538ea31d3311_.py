@@ -6,9 +6,8 @@ Create Date: 2022-02-04 08:52:12.130525
 
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "538ea31d3311"
@@ -104,9 +103,7 @@ def downgrade():
         existing_type=sa.VARCHAR(length=1024),
         nullable=True,
     )
-    op.alter_column(
-        "summer_school", "tech", existing_type=sa.VARCHAR(length=1024), nullable=True
-    )
+    op.alter_column("summer_school", "tech", existing_type=sa.VARCHAR(length=1024), nullable=True)
     op.alter_column(
         "summer_school",
         "description",

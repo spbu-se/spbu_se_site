@@ -19,9 +19,10 @@ import os
 import pathlib
 from datetime import date
 from enum import Enum
-from typing import Tuple
-from transliterate import translit
 from string import Template
+from typing import Tuple
+
+from transliterate import translit
 
 from flask_se_config import get_thesis_type_id_string
 from se_models import CurrentThesis
@@ -90,9 +91,7 @@ def allowed_file(filename) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def get_filename(
-    current_thesis: CurrentThesis, folder: str, type_of_file: str
-) -> Tuple[str, str]:
+def get_filename(current_thesis: CurrentThesis, folder: str, type_of_file: str) -> Tuple[str, str]:
     author_en = translit(current_thesis.user.get_name(), "ru", reversed=True)
     author_en = author_en.replace(" ", "_")
 

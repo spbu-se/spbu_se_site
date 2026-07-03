@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
 
-from flask import flash, redirect, request, render_template, url_for
+from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user
 
 from flask_se_auth import login_required
 from se_forms import AddInternship, InternshipsFilter
 from se_models import (
-    db,
-    Internships,
-    InternshipFormat,
     InternshipCompany,
+    InternshipFormat,
+    Internships,
     InternshipTag,
+    db,
 )
 
 
@@ -55,12 +55,8 @@ def add_internship():
     add_intern.format.choices = [
         (g.id, g.format) for g in InternshipFormat.query.order_by("id").all()
     ]
-    add_intern.tag.choices = [
-        (t.id, t.tag) for t in InternshipTag.query.order_by("tag").all()
-    ]
-    add_intern.company.choices = [
-        g.name for g in InternshipCompany.query.order_by("id")
-    ]
+    add_intern.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by("tag").all()]
+    add_intern.company.choices = [g.name for g in InternshipCompany.query.order_by("id")]
 
     if request.method == "POST":
         name_vacancy = request.form.get("name_vacancy", type=str)
@@ -75,27 +71,19 @@ def add_internship():
 
         if not tags:
             flash("Пожалуйста, укажите технологии.")
-            return render_template(
-                "internships/add_internship.html", form=add_intern, user=user
-            )
+            return render_template("internships/add_internship.html", form=add_intern, user=user)
 
         if not name_vacancy:
             flash("Пожалуйста, укажите название вакансии.")
-            return render_template(
-                "internships/add_internship.html", form=add_intern, user=user
-            )
+            return render_template("internships/add_internship.html", form=add_intern, user=user)
 
         if not format:
             flash("Пожалуйста, выберите формат стажировки.")
-            return render_template(
-                "internships/add_internship.html", form=add_intern, user=user
-            )
+            return render_template("internships/add_internship.html", form=add_intern, user=user)
 
         if not company:
             flash("Пожалуйста, укажите название компании")
-            return render_template(
-                "internships/add_internship.html", form=add_intern, user=user
-            )
+            return render_template("internships/add_internship.html", form=add_intern, user=user)
 
         tag_list = []
         list_of_tags = list(map(lambda x: x.strip(), tags.rstrip(",").split(",")))
@@ -157,9 +145,7 @@ def add_internship():
         except Exception:
             return "Что-то пошло не так"
 
-    return render_template(
-        "internships/add_internship.html", form=add_intern, user=user
-    )
+    return render_template("internships/add_internship.html", form=add_intern, user=user)
 
 
 def page_internship(id):
@@ -184,9 +170,7 @@ def delete_internship(id):
         return redirect(url_for("internships_index"))
     except Exception:
         flash("При удалении стажировки произошла ошибка.")
-        return render_template(
-            "internships/page_internship.html", internship=internship, user=user
-        )
+        return render_template("internships/page_internship.html", internship=internship, user=user)
 
 
 @login_required
@@ -200,16 +184,10 @@ def update_internship(id):
     upd_internship.format.choices = [
         (g.id, g.format) for g in InternshipFormat.query.order_by("id").all()
     ]
-    upd_internship.tag.choices = [
-        (t.id, t.tag) for t in InternshipTag.query.order_by("id").all()
-    ]
-    upd_internship.tag.data = "".join([t.tag + ", " for t in internship.tag]).strip(
-        ", "
-    )
+    upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by("id").all()]
+    upd_internship.tag.data = "".join([t.tag + ", " for t in internship.tag]).strip(", ")
     upd_internship.format.data = [c.id for c in internship.format]
-    upd_internship.company.choices = [
-        g.name for g in InternshipCompany.query.order_by("id")
-    ]
+    upd_internship.company.choices = [g.name for g in InternshipCompany.query.order_by("id")]
 
     if request.method == "POST":
         name_vacancy = request.form.get("name_vacancy", type=str)

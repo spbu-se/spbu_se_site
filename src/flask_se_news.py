@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 
-import textile
 from urllib.parse import urlparse
 
-from flask import flash, redirect, request, render_template, url_for
+import textile
+from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user
 
-from flask_se_config import post_ranking_score, get_hours_since, plural_hours
 from flask_se_auth import login_required
-from se_models import db, Posts, PostVote
+from flask_se_config import get_hours_since, plural_hours, post_ranking_score
+from se_models import Posts, PostVote, db
 
 
 def list_news():
     page = request.args.get("page", default=1, type=int)
     ages = []
 
-    news = Posts.query.order_by(Posts.rank.desc()).paginate(
-        per_page=20, page=page, error_out=False
-    )
+    news = Posts.query.order_by(Posts.rank.desc()).paginate(per_page=20, page=page, error_out=False)
 
     for post in news.items:
         ages.append(plural_hours(int(get_hours_since(post.created_on))))
@@ -114,9 +112,7 @@ def submit_post():
 
         if post_uri:
             domain = urlparse(post_uri).netloc
-            post = Posts(
-                title=title, uri=post_uri, domain=domain, author_id=current_user.id
-            )
+            post = Posts(title=title, uri=post_uri, domain=domain, author_id=current_user.id)
         else:
             formated_text = textile.textile(post_text)
             post = Posts(title=title, text=formated_text, author_id=current_user.id)

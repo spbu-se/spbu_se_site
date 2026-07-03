@@ -15,46 +15,45 @@ limitations under the License.
 """
 # -*- coding: utf-8 -*-
 
-from enum import Enum
-from functools import wraps
 import shutil
 import tempfile
-
-from flask import flash, redirect, request, render_template, url_for, send_file, session
-from flask_login import current_user
+from enum import Enum
+from functools import wraps
 from zipfile import ZipFile
+
+from flask import flash, redirect, render_template, request, send_file, session, url_for
+from flask_login import current_user
 from transliterate import translit
 
 from flask_se_auth import login_required
+from flask_se_config import get_thesis_type_id_string
+from flask_se_practice_config import (
+    ARCHIVE_PRESENTATION_FOLDER,
+    ARCHIVE_REVIEW_FOLDER,
+    ARCHIVE_TEXT_FOLDER,
+    PRESENTATION_UPLOAD_FOLDER,
+    REVIEW_UPLOAD_FOLDER,
+    TABLE_COLUMNS,
+    TEXT_UPLOAD_FOLDER,
+    TypeOfFile,
+    get_filename,
+)
+from flask_se_practice_table import edit_table
+from flask_se_practice_yandex_disk import handle_yandex_table
 from se_forms import ChooseCourseAndYear
 from se_models import (
     AreasOfStudy,
-    CurrentThesis,
-    Worktype,
-    NotificationPractice,
-    db,
-    add_mail_notification,
-    Staff,
     Courses,
+    CurrentThesis,
+    NotificationPractice,
+    Staff,
     Thesis,
+    Worktype,
+    add_mail_notification,
+    db,
 )
-
-from flask_se_config import get_thesis_type_id_string
-from templates.practice.admin.templates import PracticeAdminTemplates
 from templates.notification.templates import NotificationTemplates
-from flask_se_practice_yandex_disk import handle_yandex_table
-from flask_se_practice_config import (
-    TABLE_COLUMNS,
-    TEXT_UPLOAD_FOLDER,
-    PRESENTATION_UPLOAD_FOLDER,
-    REVIEW_UPLOAD_FOLDER,
-    ARCHIVE_TEXT_FOLDER,
-    ARCHIVE_REVIEW_FOLDER,
-    ARCHIVE_PRESENTATION_FOLDER,
-    get_filename,
-    TypeOfFile,
-)
-from flask_se_practice_table import edit_table
+from templates.practice.admin.templates import PracticeAdminTemplates
 
 
 class PracticeAdminPage(Enum):
@@ -107,9 +106,7 @@ def choose_area_and_worktype_admin():
 
     previous_page = session.get("previous_page")
     if previous_page == PracticeAdminPage.CURRENT_THESISES.value:
-        return redirect(
-            url_for("index_admin", area_id=area_id, worktype_id=worktype_id)
-        )
+        return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
     elif previous_page == PracticeAdminPage.FINISHED_THESISES.value:
         return redirect(
             url_for("finished_thesises_admin", area_id=area_id, worktype_id=worktype_id)
@@ -151,9 +148,7 @@ def index_admin():
                     area_id=area.id,
                     worktype_id=worktype.id,
                 )
-                return send_file(
-                    full_filename, download_name=filename, as_attachment=True
-                )
+                return send_file(full_filename, download_name=filename, as_attachment=True)
 
         if "yandex_button" in request.form:
             try:
@@ -169,9 +164,7 @@ def index_admin():
                     )
 
                 if table_name.split(".")[-1] != "xlsx":
-                    flash(
-                        "Файл таблицы должен быть с расширением .xlsx", category="error"
-                    )
+                    flash("Файл таблицы должен быть с расширением .xlsx", category="error")
                     return redirect(
                         url_for("index_admin", area_id=area.id, worktype_id=worktype.id)
                     )
@@ -185,9 +178,7 @@ def index_admin():
                             category="error",
                         )
                         return redirect(
-                            url_for(
-                                "index_admin", area_id=area.id, worktype_id=worktype.id
-                            )
+                            url_for("index_admin", area_id=area.id, worktype_id=worktype.id)
                         )
                     column_names.append((column, column_value))
 
@@ -203,13 +194,9 @@ def index_admin():
                     "Что-то пошло не так, измените параметры и попробуйте заново",
                     category="error",
                 )
-                return redirect(
-                    url_for("index_admin", area_id=area.id, worktype_id=worktype.id)
-                )
+                return redirect(url_for("index_admin", area_id=area.id, worktype_id=worktype.id))
 
-    list_of_areas = (
-        AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
-    )
+    list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     list_of_thesises = (
         CurrentThesis.query.filter_by(area_id=area_id)
@@ -250,9 +237,7 @@ def download_materials(area, worktype):
         with ZipFile(tmp.name, "w") as zip_file:
             for thesis in thesises:
                 if thesis.text_uri is not None:
-                    zip_file.write(
-                        TEXT_UPLOAD_FOLDER + thesis.text_uri, arcname=thesis.text_uri
-                    )
+                    zip_file.write(TEXT_UPLOAD_FOLDER + thesis.text_uri, arcname=thesis.text_uri)
                 if thesis.supervisor_review_uri is not None:
                     zip_file.write(
                         REVIEW_UPLOAD_FOLDER + thesis.supervisor_review_uri,
@@ -336,9 +321,7 @@ def thesis_admin():
             current_thesis.status = 1
             db.session.commit()
 
-    list_of_areas = (
-        AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
-    )
+    list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     not_deleted_tasks = [task for task in current_thesis.tasks if not task.deleted]
     session["previous_page"] = PracticeAdminPage.THESIS.value
@@ -360,9 +343,7 @@ def archive_thesis():
     if not current_thesis_id:
         return redirect(url_for("index_admin"))
 
-    current_thesis: CurrentThesis = CurrentThesis.query.filter_by(
-        id=current_thesis_id
-    ).first()
+    current_thesis: CurrentThesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
     if not current_thesis:
         return redirect(url_for("index_admin"))
 
@@ -385,9 +366,7 @@ def archive_thesis():
                 return redirect(url_for("archive_thesis", id=current_thesis.id))
 
             presentation_file = (
-                request.files["presentation"]
-                if "presentation" in request.files
-                else None
+                request.files["presentation"] if "presentation" in request.files else None
             )
             if not current_thesis.presentation_uri and not presentation_file:
                 flash(
@@ -397,9 +376,7 @@ def archive_thesis():
                 return redirect(url_for("archive_thesis", id=current_thesis.id))
 
             supervisor_review_file = (
-                request.files["supervisor_review"]
-                if "supervisor_review" in request.files
-                else None
+                request.files["supervisor_review"] if "supervisor_review" in request.files else None
             )
             if not current_thesis.supervisor_review_uri and not supervisor_review_file:
                 flash(
@@ -422,9 +399,7 @@ def archive_thesis():
                 current_thesis, ARCHIVE_TEXT_FOLDER, TypeOfFile.TEXT.value
             )
             if current_thesis.text_uri:
-                shutil.copyfile(
-                    TEXT_UPLOAD_FOLDER + current_thesis.text_uri, path_to_archive_text
-                )
+                shutil.copyfile(TEXT_UPLOAD_FOLDER + current_thesis.text_uri, path_to_archive_text)
             else:
                 text_file.save(path_to_archive_text)
             thesis.text_uri = archive_text_filename
@@ -508,9 +483,7 @@ def archive_thesis():
             flash("Работа перенесена в архив!", category="success")
             return redirect(url_for("thesis_admin", id=current_thesis.id))
 
-    list_of_areas = (
-        AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
-    )
+    list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     course_and_year_form = ChooseCourseAndYear()
     course_and_year_form.course.choices.append((0, "Выберите направление"))
@@ -545,9 +518,7 @@ def finished_thesises_admin():
         .all()
     )
 
-    list_of_areas = (
-        AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
-    )
+    list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     session["previous_page"] = PracticeAdminPage.FINISHED_THESISES.value
     return render_template(

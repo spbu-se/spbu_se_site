@@ -2,8 +2,8 @@
 
 from flask import Markup
 from flask_wtf import FlaskForm
-from wtforms import StringField, RadioField
 from flask_wtf.file import FileField
+from wtforms import RadioField, StringField
 from wtforms.widgets import TextArea
 
 
@@ -111,9 +111,7 @@ class ReviewForm(FlaskForm):
         ],
     )
 
-    review_t1_comment = StringField(
-        "review_t1_comment", description="Ваш ответ", widget=TextArea()
-    )
+    review_t1_comment = StringField("review_t1_comment", description="Ваш ответ", widget=TextArea())
 
     t2_label_5 = Markup(
         "<strong>Отлично (5)</strong>: в работе приведен полный сравнительный анализ с аналогами"
@@ -146,9 +144,7 @@ class ReviewForm(FlaskForm):
         ],
     )
 
-    review_t2_comment = StringField(
-        "review_t2_comment", description="Ваш ответ", widget=TextArea()
-    )
+    review_t2_comment = StringField("review_t2_comment", description="Ваш ответ", widget=TextArea())
 
     p1_label_5 = Markup(
         "<strong>Отлично (5)</strong>: качество кода на высоком уровне с соблюдением рекомендаций по архитектуре, стилю и тестированию ПО. Продемонстрированно владение современными технологиями и библиотеками. Также по открытому репозиторию исходного кода видно, что работа велась в течение всего года"
@@ -185,9 +181,7 @@ class ReviewForm(FlaskForm):
         ],
     )
 
-    review_p1_comment = StringField(
-        "review_p1_comment", description="Ваш ответ", widget=TextArea()
-    )
+    review_p1_comment = StringField("review_p1_comment", description="Ваш ответ", widget=TextArea())
 
     p2_label_5 = Markup(
         "<strong>Отлично (5)</strong>: экспериментальная методология полностью описана, соответствует принятым в данной области стандартам, и сама по себе не вызывает вопросов, непосредственные результаты задокументированы и доступны, обработка результатов методологически корректна"
@@ -224,9 +218,7 @@ class ReviewForm(FlaskForm):
         ],
     )
 
-    review_p2_comment = StringField(
-        "review_p2_comment", description="Ваш ответ", widget=TextArea()
-    )
+    review_p2_comment = StringField("review_p2_comment", description="Ваш ответ", widget=TextArea())
 
     review_overall_comment = StringField(
         "review_overall_comment", description="Ваш ответ", widget=TextArea()

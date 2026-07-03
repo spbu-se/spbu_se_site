@@ -15,9 +15,9 @@ Planned features, improvements, and postponed ideas for the SE Site.
 ### Testing (add incrementally)
 
 1. **Smoke tests + helpers + init_db** — ✅ done
-2. **Key view function tests** — auth login/logout, news CRUD, theses listing
-3. **Edge case expansion** — error handlers, invalid form submissions, permission checks
-4. **Parametrized tests** — fuzz helper functions with boundary inputs
+1. **Key view function tests** — auth login/logout, news CRUD, theses listing
+1. **Edge case expansion** — error handlers, invalid form submissions, permission checks
+1. **Parametrized tests** — fuzz helper functions with boundary inputs
 
 ### Linters & Formatters (add incrementally)
 
@@ -25,15 +25,15 @@ Planned features, improvements, and postponed ideas for the SE Site.
    - Add to pre-commit config + dev group in pyproject.toml
    - Configure `.djlintrc` or pyproject.toml section
    - Run and fix all template issues
-2. **Add Bandit** — Python security linter
+1. **Add Bandit** — Python security linter
    - Add to pre-commit config + dev group
    - Configure with `skips` for known false positives
    - Run and fix issues
-3. **Add check-json + basic file hygiene hooks**
+1. **Add check-json + basic file hygiene hooks**
    - Built-in pre-commit hooks: `check-json`, `end-of-file-fixer`, `trailing-whitespace-fixer`
    - Add to `.pre-commit-config.yaml`
    - Run and fix issues
-4. **Add codespell** — typo detection
+1. **Add codespell** — typo detection
    - Add to pre-commit config + dev group
    - Configure skip patterns for Russian text / URLs
    - Run and fix issues

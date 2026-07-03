@@ -6,9 +6,8 @@ Create Date: 2022-08-23 16:08:27.816212
 
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "975cdf37ae8e"
@@ -22,9 +21,7 @@ def upgrade():
 
     with op.batch_alter_table("thesis", schema=None) as batch_op:
         batch_op.add_column(sa.Column("download_thesis", sa.Integer(), nullable=True))
-        batch_op.add_column(
-            sa.Column("download_presentation", sa.Integer(), nullable=True)
-        )
+        batch_op.add_column(sa.Column("download_presentation", sa.Integer(), nullable=True))
 
     # ### end Alembic commands ###
 
@@ -36,21 +33,11 @@ def downgrade():
         batch_op.drop_column("download_thesis")
 
     with op.batch_alter_table("summer_school", schema=None) as batch_op:
-        batch_op.alter_column(
-            "requirements", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
-        batch_op.alter_column(
-            "advisors", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
-        batch_op.alter_column(
-            "tech", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
-        batch_op.alter_column(
-            "description", existing_type=sa.VARCHAR(length=2048), nullable=True
-        )
-        batch_op.alter_column(
-            "project_name", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
+        batch_op.alter_column("requirements", existing_type=sa.VARCHAR(length=1024), nullable=True)
+        batch_op.alter_column("advisors", existing_type=sa.VARCHAR(length=1024), nullable=True)
+        batch_op.alter_column("tech", existing_type=sa.VARCHAR(length=1024), nullable=True)
+        batch_op.alter_column("description", existing_type=sa.VARCHAR(length=2048), nullable=True)
+        batch_op.alter_column("project_name", existing_type=sa.VARCHAR(length=1024), nullable=True)
 
     with op.batch_alter_table("staff", schema=None) as batch_op:
         batch_op.drop_constraint(batch_op.f("uq_staff_official_email"), type_="unique")

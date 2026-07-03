@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
-import requests
-from bs4 import BeautifulSoup
-import re
-from se_models import Thesis, Staff, Users, db
-from flask_se import app
-from transliterate import translit
 import os
+import re
+import sys
 from os.path import splitext
 from urllib.parse import urlparse
+
+import requests
+from bs4 import BeautifulSoup
+from transliterate import translit
+
+from flask_se import app
+from se_models import Staff, Thesis, Users, db
 
 # Init Database
 db.app = app
@@ -94,9 +96,7 @@ def get_2020_02_03_03():
                 extension = splitext(path)[1]
                 filename = author_en + "_Bachelor_Thesis_2020_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
             else:
                 continue
 
@@ -104,13 +104,9 @@ def get_2020_02_03_03():
                 supervisor_review_uri_d = cols[6].find("a").get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Thesis_2020_supervisor_review" + extension
-                )
+                filename = author_en + "_Bachelor_Thesis_2020_supervisor_review" + extension
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 continue
 
@@ -118,13 +114,9 @@ def get_2020_02_03_03():
                 reviewer_review_uri_d = cols[7].find("a").get("href")
                 path = urlparse(reviewer_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Thesis_2020_reviewer_review" + extension
-                )
+                filename = author_en + "_Bachelor_Thesis_2020_reviewer_review" + extension
                 reviewer_review_uri = filename
-                download_file(
-                    base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 continue
 
@@ -147,8 +139,7 @@ def get_2020_02_03_03():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri="https://oops.math.spbu.ru/SE/diploma/2020/"
-                    + old_text_uri,
+                    old_text_uri="https://oops.math.spbu.ru/SE/diploma/2020/" + old_text_uri,
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -164,8 +155,7 @@ def get_2020_02_03_03():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri="https://oops.math.spbu.ru/SE/diploma/2020/"
-                    + old_text_uri,
+                    old_text_uri="https://oops.math.spbu.ru/SE/diploma/2020/" + old_text_uri,
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -245,9 +235,7 @@ def get_2020_09_03_04():
                 extension = splitext(path)[1]
                 filename = author_en + "_Bachelor_Thesis_2020_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
             else:
                 presentation_uri = ""
 
@@ -255,13 +243,9 @@ def get_2020_09_03_04():
                 supervisor_review_uri_d = cols[7].find("a").get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Thesis_2020_supervisor_review" + extension
-                )
+                filename = author_en + "_Bachelor_Thesis_2020_supervisor_review" + extension
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 supervisor_review_uri = ""
 
@@ -269,13 +253,9 @@ def get_2020_09_03_04():
                 reviewer_review_uri_d = cols[8].find("a").get("href")
                 path = urlparse(reviewer_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Thesis_2020_reviewer_review" + extension
-                )
+                filename = author_en + "_Bachelor_Thesis_2020_reviewer_review" + extension
                 reviewer_review_uri = filename
-                download_file(
-                    base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 reviewer_review_uri = ""
 
@@ -298,8 +278,7 @@ def get_2020_09_03_04():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri="https://oops.math.spbu.ru/SE/diploma/2020/"
-                    + old_text_uri,
+                    old_text_uri="https://oops.math.spbu.ru/SE/diploma/2020/" + old_text_uri,
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -315,8 +294,7 @@ def get_2020_09_03_04():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri="https://oops.math.spbu.ru/SE/diploma/2020/"
-                    + old_text_uri,
+                    old_text_uri="https://oops.math.spbu.ru/SE/diploma/2020/" + old_text_uri,
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -385,9 +363,7 @@ def get_2019_09_03_04():
                 old_text_uri = cols[4].find("a").get("href")
                 path = urlparse(old_text_uri).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Thesis_" + str(year) + "_text" + extension
-                )
+                filename = author_en + "_Bachelor_Thesis_" + str(year) + "_text" + extension
                 text_uri = filename
                 download_file(base_url + old_text_uri, filename, "static/tmp/texts/")
             else:
@@ -397,13 +373,9 @@ def get_2019_09_03_04():
                 presentation_uri_d = cols[5].find("a").get("href")
                 path = urlparse(presentation_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Thesis_" + str(year) + "_slides" + extension
-                )
+                filename = author_en + "_Bachelor_Thesis_" + str(year) + "_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
             else:
                 presentation_uri = ""
 
@@ -412,16 +384,10 @@ def get_2019_09_03_04():
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
                 filename = (
-                    author_en
-                    + "_Bachelor_Thesis_"
-                    + str(year)
-                    + "_supervisor_review"
-                    + extension
+                    author_en + "_Bachelor_Thesis_" + str(year) + "_supervisor_review" + extension
                 )
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 supervisor_review_uri = ""
 
@@ -430,16 +396,10 @@ def get_2019_09_03_04():
                 path = urlparse(reviewer_review_uri_d).path
                 extension = splitext(path)[1]
                 filename = (
-                    author_en
-                    + "_Bachelor_Thesis_"
-                    + str(year)
-                    + "_reviewer_review"
-                    + extension
+                    author_en + "_Bachelor_Thesis_" + str(year) + "_reviewer_review" + extension
                 )
                 reviewer_review_uri = filename
-                download_file(
-                    base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 reviewer_review_uri = ""
 
@@ -554,9 +514,7 @@ def get_2019_02_03_03():
                 extension = splitext(path)[1]
                 filename = author_en + "_Bachelor_Thesis_2019_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
             else:
                 presentation_uri = ""
 
@@ -564,13 +522,9 @@ def get_2019_02_03_03():
                 supervisor_review_uri_d = cols[6].find("a").get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Thesis_2019_supervisor_review" + extension
-                )
+                filename = author_en + "_Bachelor_Thesis_2019_supervisor_review" + extension
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 supervisor_review_uri = ""
 
@@ -578,13 +532,9 @@ def get_2019_02_03_03():
                 reviewer_review_uri_d = cols[7].find("a").get("href")
                 path = urlparse(reviewer_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Thesis_2019_reviewer_review" + extension
-                )
+                filename = author_en + "_Bachelor_Thesis_2019_reviewer_review" + extension
                 reviewer_review_uri = filename
-                download_file(
-                    base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 reviewer_review_uri = ""
 
@@ -597,7 +547,7 @@ def get_2019_02_03_03():
             if supervisor.find("Ханов") != -1:
                 last_name = "Ханов"
             else:
-                m = re.search("([\w]{7,16})", supervisor)
+                m = re.search(r"([\w]{7,16})", supervisor)
                 if m:
                     last_name = m.group(1)
                 else:
@@ -711,9 +661,7 @@ def get_2019_02_04_03():
                 extension = splitext(path)[1]
                 filename = author_en + "_Master_Thesis_2019_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
             else:
                 presentation_uri = ""
 
@@ -721,13 +669,9 @@ def get_2019_02_04_03():
                 supervisor_review_uri_d = cols[5].find("a").get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Master_Thesis_2019_supervisor_review" + extension
-                )
+                filename = author_en + "_Master_Thesis_2019_supervisor_review" + extension
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 supervisor_review_uri = ""
 
@@ -737,9 +681,7 @@ def get_2019_02_04_03():
                 extension = splitext(path)[1]
                 filename = author_en + "_Master_Thesis_2019_reviewer_review" + extension
                 reviewer_review_uri = filename
-                download_file(
-                    base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 reviewer_review_uri = ""
 
@@ -749,7 +691,7 @@ def get_2019_02_04_03():
                 source_uri = ""
 
             # Try to get supervisor_id
-            m = re.search("([\w]{5,16})", supervisor)
+            m = re.search(r"([\w]{5,16})", supervisor)
             if m:
                 last_name = m.group(1)
             else:
@@ -865,9 +807,7 @@ def get_2020_371():
                 extension = splitext(path)[1]
                 filename = author_en + "_Bachelor_Report_2020_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
             else:
                 presentation_uri = None
 
@@ -875,13 +815,9 @@ def get_2020_371():
                 supervisor_review_uri_d = data[2].get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Report_2020_supervisor_review" + extension
-                )
+                filename = author_en + "_Bachelor_Report_2020_supervisor_review" + extension
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 supervisor_review_uri = None
 
@@ -998,33 +934,23 @@ def get_report_2020_02_03_03():
                 extension = splitext(path)[1]
                 filename = author_en + "_Bachelor_Report_2020_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
 
             if cols[6].find("a"):
                 supervisor_review_uri_d = cols[6].find("a").get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Report_2020_supervisor_review" + extension
-                )
+                filename = author_en + "_Bachelor_Report_2020_supervisor_review" + extension
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
 
             if cols[7].find("a"):
                 reviewer_review_uri_d = cols[7].find("a").get("href")
                 path = urlparse(reviewer_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Report_2020_reviewer_review" + extension
-                )
+                filename = author_en + "_Bachelor_Report_2020_reviewer_review" + extension
                 reviewer_review_uri = filename
-                download_file(
-                    base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/")
 
             if cols[8].find("a"):
                 source_uri = cols[8].find("a").get("href")
@@ -1143,21 +1069,15 @@ def get_2019_371():
                 extension = splitext(path)[1]
                 filename = author_en + "_Bachelor_Report_2019_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
 
             if len(data) > 2:
                 supervisor_review_uri_d = data[2].get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Report_2019_supervisor_review" + extension
-                )
+                filename = author_en + "_Bachelor_Report_2019_supervisor_review" + extension
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
 
             last_name = supervisor.split()[0]
 
@@ -1251,21 +1171,15 @@ def get_2019_343():
                 extension = splitext(path)[1]
                 filename = author_en + "_Bachelor_Report_2019_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
 
             if len(data) > 2:
                 supervisor_review_uri_d = data[2].get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Report_2019_supervisor_review" + extension
-                )
+                filename = author_en + "_Bachelor_Report_2019_supervisor_review" + extension
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
 
             last_name = supervisor.split()[-1]
 
@@ -1359,21 +1273,15 @@ def get_2019_344():
                 extension = splitext(path)[1]
                 filename = author_en + "_Bachelor_Report_2019_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
 
             if len(data) > 2:
                 supervisor_review_uri_d = data[2].get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Report_2019_supervisor_review" + extension
-                )
+                filename = author_en + "_Bachelor_Report_2019_supervisor_review" + extension
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
 
             last_name = supervisor.split()[-1]
 
@@ -1632,31 +1540,21 @@ def get_2022_271():
                 extension = splitext(path)[1]
                 filename = author_en + "_Bachelor_Report_2022_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
 
             if len(data) > 2:
                 supervisor_review_uri_d = data[2].get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Report_2022_supervisor_review" + extension
-                )
+                filename = author_en + "_Bachelor_Report_2022_supervisor_review" + extension
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
 
             last_name = supervisor.split()[-3]
 
             # q = Users.query.filter_by(last_name=last_name).first()
             print(last_name)
-            r = (
-                Staff.query.join(Staff.user)
-                .filter(Users.last_name == last_name)
-                .first()
-            )
+            r = Staff.query.join(Staff.user).filter(Users.last_name == last_name).first()
             if r:
                 supervisor_id = r.id
             else:
@@ -1751,31 +1649,21 @@ def get_2022_371():
                 extension = splitext(path)[1]
                 filename = author_en + "_Bachelor_Report_2022_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
 
             if len(data) > 2:
                 supervisor_review_uri_d = data[2].get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Report_2022_supervisor_review" + extension
-                )
+                filename = author_en + "_Bachelor_Report_2022_supervisor_review" + extension
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
 
             last_name = supervisor.split()[-3]
 
             # q = Users.query.filter_by(last_name=last_name).first()
             print(last_name)
-            r = (
-                Staff.query.join(Staff.user)
-                .filter(Users.last_name == last_name)
-                .first()
-            )
+            r = Staff.query.join(Staff.user).filter(Users.last_name == last_name).first()
             if r:
                 supervisor_id = r.id
             else:
@@ -1867,9 +1755,7 @@ def get_2022_09_03_04():
                 extension = splitext(path)[1]
                 filename = author_en + "_Bachelor_Thesis_2019_slides" + extension
                 presentation_uri = filename
-                download_file(
-                    base_url + presentation_uri_d, filename, "static/tmp/slides/"
-                )
+                download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
             else:
                 presentation_uri = ""
 
@@ -1877,13 +1763,9 @@ def get_2022_09_03_04():
                 supervisor_review_uri_d = cols[6].find("a").get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Thesis_2019_supervisor_review" + extension
-                )
+                filename = author_en + "_Bachelor_Thesis_2019_supervisor_review" + extension
                 supervisor_review_uri = filename
-                download_file(
-                    base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 supervisor_review_uri = ""
 
@@ -1891,13 +1773,9 @@ def get_2022_09_03_04():
                 reviewer_review_uri_d = cols[7].find("a").get("href")
                 path = urlparse(reviewer_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = (
-                    author_en + "_Bachelor_Thesis_2019_reviewer_review" + extension
-                )
+                filename = author_en + "_Bachelor_Thesis_2019_reviewer_review" + extension
                 reviewer_review_uri = filename
-                download_file(
-                    base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/"
-                )
+                download_file(base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/")
             else:
                 reviewer_review_uri = ""
 
@@ -1910,7 +1788,7 @@ def get_2022_09_03_04():
             if supervisor.find("Ханов") != -1:
                 last_name = "Ханов"
             else:
-                m = re.search("([\w]{7,16})", supervisor)
+                m = re.search(r"([\w]{7,16})", supervisor)
                 if m:
                     last_name = m.group(1)
                 else:

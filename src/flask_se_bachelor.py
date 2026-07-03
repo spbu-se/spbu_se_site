@@ -1,7 +1,9 @@
-from flask import render_template
-from se_models import Curriculum, Thesis, Staff
-from sqlalchemy.sql.expression import func
 from dataclasses import dataclass
+
+from flask import render_template
+from sqlalchemy.sql.expression import func
+
+from se_models import Curriculum, Staff, Thesis
 
 
 @dataclass

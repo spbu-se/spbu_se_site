@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SelectMultipleField, widgets
+from wtforms import SelectField, SelectMultipleField, StringField, widgets
 from wtforms.widgets import TextArea
 
 

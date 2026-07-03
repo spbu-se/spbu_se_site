@@ -1572,7 +1572,7 @@ wheels = [
 [[package]]
 name = "se-site"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "cachecontrol" },
@@ -1614,7 +1614,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = "==4.14.3" },
-    { name = "cachecontrol" },
+    { name = "cachecontrol", specifier = "==0.14.4" },
     { name = "chardet", specifier = "==7.4.3" },
     { name = "flask", specifier = "==2.3.3" },
     { name = "flask-admin", specifier = "==2.2.0" },

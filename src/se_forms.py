@@ -2,19 +2,17 @@
 from datetime import datetime
 
 from flask_wtf import FlaskForm
-
-from wtforms import (
-    SelectField,
-    StringField,
-    SelectMultipleField,
-    DateTimeField,
-    widgets,
-    validators,
-)
-
 from flask_wtf.file import FileField
-from wtforms.widgets import TextArea
+from wtforms import (
+    DateTimeField,
+    SelectField,
+    SelectMultipleField,
+    StringField,
+    validators,
+    widgets,
+)
 from wtforms.validators import DataRequired
+from wtforms.widgets import TextArea
 
 
 # Thesis forms
@@ -56,9 +54,7 @@ class UserAddTheme(FlaskForm):
 class UserEditTheme(FlaskForm):
     comment = StringField("comment")
     title = StringField("title", validators=[DataRequired()])
-    description = StringField(
-        "description", widget=TextArea(), validators=[DataRequired()]
-    )
+    description = StringField("description", widget=TextArea(), validators=[DataRequired()])
     requirements = StringField("requirements", widget=TextArea())
     levels = MultiCheckboxField("Levels", coerce=int)
     consultant = StringField("consultant")
@@ -92,9 +88,7 @@ class AddThesisOnReview(FlaskForm):
         validators=[DataRequired()],
     )
     thesis = FileField()
-    author = StringField(
-        "author", description="Ваше полное ФИО. Например, Иванов Иван Иванович"
-    )
+    author = StringField("author", description="Ваше полное ФИО. Например, Иванов Иван Иванович")
     supervisor = SelectField("supervisor", choices=[])
     type = SelectField("type", choices=[])
     area = SelectField("area", choices=[])
@@ -107,9 +101,7 @@ class EditThesisOnReview(FlaskForm):
         validators=[DataRequired()],
     )
     text_uri = FileField()
-    author = StringField(
-        "author", description="Ваше полное ФИО. Например, Иванов Иван Иванович"
-    )
+    author = StringField("author", description="Ваше полное ФИО. Например, Иванов Иван Иванович")
     supervisor = SelectField("supervisor", choices=[])
     type = SelectField("type", coerce=int, choices=[])
     area = SelectField("area", coerce=int, choices=[])
@@ -155,9 +147,7 @@ class ChooseTopic(FlaskForm):
         description="Например, реализация алгоритма контекстно-свободной достижимости на OpenCL",
     )
     staff = SelectField("staff", choices=[])
-    consultant = StringField(
-        "consultant", description="ФИО консультанта, должность и компания"
-    )
+    consultant = StringField("consultant", description="ФИО консультанта, должность и компания")
 
 
 class DeadlineTemp(FlaskForm):
@@ -178,9 +168,7 @@ class AddGoal(FlaskForm):
 
 
 class AddTask(FlaskForm):
-    task_text = StringField(
-        "task_text", description="Например, научиться работать с ajax."
-    )
+    task_text = StringField("task_text", description="Например, научиться работать с ajax.")
 
 
 class UserAddReport(FlaskForm):
@@ -213,7 +201,5 @@ class ChooseCourseAndYear(FlaskForm):
     course = SelectField("course", choices=[])
 
     current_year = datetime.now().year
-    years = [
-        (str(year), str(year)) for year in range(current_year - 5, current_year + 3)
-    ]
+    years = [(str(year), str(year)) for year in range(current_year - 5, current_year + 3)]
     publish_year = SelectField("publish_year", choices=years, default=str(current_year))

@@ -4,25 +4,24 @@ import os
 from datetime import date
 from pathlib import Path
 
-from flask import flash, redirect, request, render_template, url_for
+from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user
 from transliterate import translit
 
-from flask_se_config import get_thesis_type_id_string
 from flask_se_auth import login_required
-from se_forms import AddThesisOnReview, ThesisReviewFilter, EditThesisOnReview
-from se_review_forms import ReviewForm
+from flask_se_config import get_thesis_type_id_string
+from se_forms import AddThesisOnReview, EditThesisOnReview, ThesisReviewFilter
 from se_models import (
-    db,
     AreasOfStudy,
-    ThesisReview,
-    ThesisOnReview,
-    Reviewer,
-    ThesisOnReviewWorktype,
     PromoCode,
+    Reviewer,
+    ThesisOnReview,
+    ThesisOnReviewWorktype,
+    ThesisReview,
     add_mail_notification,
+    db,
 )
-
+from se_review_forms import ReviewForm
 
 # Global variables
 UPLOAD_FOLDER = "static/thesis/onreview/"
@@ -58,9 +57,7 @@ def thesis_review_index():
     form.areasofstudy.choices.sort(key=lambda tup: tup[0])
 
     thesis = ThesisOnReview.query.all()
-    return render_template(
-        "thesis_review/index.html", review_filter=form, thesis=thesis, user=user
-    )
+    return render_template("thesis_review/index.html", review_filter=form, thesis=thesis, user=user)
 
 
 def fetch_thesis_on_review():
@@ -143,25 +140,19 @@ def submit_thesis_on_review():
             author_en = translit(author, "ru", reversed=True)
             author_en = author_en.replace(" ", "_")
             thesis_filename = author_en
-            thesis_filename = (
-                thesis_filename + "_" + get_thesis_type_id_string(worktype)
-            )
+            thesis_filename = thesis_filename + "_" + get_thesis_type_id_string(worktype)
 
             todays_date = date.today()
             thesis_filename = thesis_filename + "_" + str(todays_date.year) + "_text"
             thesis_filename_with_ext = thesis_filename + ".pdf"
 
-            full_thesis_filename = os.path.join(
-                UPLOAD_FOLDER + "/" + thesis_filename_with_ext
-            )
+            full_thesis_filename = os.path.join(UPLOAD_FOLDER + "/" + thesis_filename_with_ext)
 
             # Check if file already exist
             if os.path.isfile(full_thesis_filename):
                 thesis_filename = thesis_filename + "_" + str(os.urandom(8).hex())
                 thesis_filename_with_ext = thesis_filename + ".pdf"
-                full_thesis_filename = os.path.join(
-                    UPLOAD_FOLDER + "/" + thesis_filename_with_ext
-                )
+                full_thesis_filename = os.path.join(UPLOAD_FOLDER + "/" + thesis_filename_with_ext)
 
             file.save(full_thesis_filename)
 
@@ -190,11 +181,7 @@ def submit_thesis_on_review():
     form.type.choices.append((0, "Тип работы"))
     form.area.choices.append((0, "Направление обучения"))
 
-    for type in (
-        ThesisOnReviewWorktype.query.filter(ThesisOnReviewWorktype.id > 1)
-        .distinct()
-        .all()
-    ):
+    for type in ThesisOnReviewWorktype.query.filter(ThesisOnReviewWorktype.id > 1).distinct().all():
         form.type.choices.append((type.id, type.type))
 
     form.type.choices.sort(key=lambda tup: tup[0])
@@ -258,14 +245,10 @@ def edit_thesis_on_review():
                     author_en = translit(author, "ru", reversed=True)
                     author_en = author_en.replace(" ", "_")
                     thesis_filename = author_en
-                    thesis_filename = (
-                        thesis_filename + "_" + get_thesis_type_id_string(worktype)
-                    )
+                    thesis_filename = thesis_filename + "_" + get_thesis_type_id_string(worktype)
 
                     todays_date = date.today()
-                    thesis_filename = (
-                        thesis_filename + "_" + str(todays_date.year) + "_text"
-                    )
+                    thesis_filename = thesis_filename + "_" + str(todays_date.year) + "_text"
                     thesis_filename_with_ext = thesis_filename + ".pdf"
 
                     full_thesis_filename = os.path.join(
@@ -274,9 +257,7 @@ def edit_thesis_on_review():
 
                     # Check if file already exist
                     if os.path.isfile(full_thesis_filename):
-                        thesis_filename = (
-                            thesis_filename + "_" + str(os.urandom(8).hex())
-                        )
+                        thesis_filename = thesis_filename + "_" + str(os.urandom(8).hex())
                         thesis_filename_with_ext = thesis_filename + ".pdf"
                         full_thesis_filename = os.path.join(
                             UPLOAD_FOLDER + "/" + thesis_filename_with_ext
@@ -295,13 +276,10 @@ def edit_thesis_on_review():
     edit_thesis_onreview = EditThesisOnReview()
     edit_thesis_onreview.type.choices = [
         (g.id, g.type)
-        for g in ThesisOnReviewWorktype.query.filter(
-            ThesisOnReviewWorktype.id > 1
-        ).order_by("id")
+        for g in ThesisOnReviewWorktype.query.filter(ThesisOnReviewWorktype.id > 1).order_by("id")
     ]
     edit_thesis_onreview.area.choices = [
-        (g.id, g.area)
-        for g in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by("id")
+        (g.id, g.area) for g in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by("id")
     ]
 
     edit_thesis_onreview.type.default = int(thesis_review.thesis_on_review_type_id)
@@ -374,9 +352,7 @@ def review_thesis_on_review():
         db.session.commit()
 
         data = render_template("notification/thesis_on_review_get.html", thesis=thesis)
-        add_mail_notification(
-            thesis.author_id, "[SE site] Ваша работа на рецензировании", data
-        )
+        add_mail_notification(thesis.author_id, "[SE site] Ваша работа на рецензировании", data)
 
     review_form = ReviewForm()
     return render_template(
@@ -497,14 +473,10 @@ def review_submit_review():
     # Review status = 3 (Need to be fixed)
     if verdict != "0":
         thesis.review_status = 0
-        data = render_template(
-            "notification/thesis_on_review_success.html", thesis=thesis
-        )
+        data = render_template("notification/thesis_on_review_success.html", thesis=thesis)
     else:
         thesis.review_status = 3
-        data = render_template(
-            "notification/thesis_on_review_failed.html", thesis=thesis
-        )
+        data = render_template("notification/thesis_on_review_failed.html", thesis=thesis)
 
     db.session.add(review)
     db.session.commit()
@@ -576,9 +548,7 @@ def review_become_thesis_reviewer_ask():
     if reviewer:
         return render_template("thesis_review/already_reviewer.html", user=user)
 
-    return render_template(
-        "thesis_review/become_reviewer.html", user=user, promocode=promocode
-    )
+    return render_template("thesis_review/become_reviewer.html", user=user, promocode=promocode)
 
 
 @login_required

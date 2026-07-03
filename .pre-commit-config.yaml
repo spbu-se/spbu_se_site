@@ -32,3 +32,12 @@ repos:
         stages: [commit-msg]
         additional_dependencies:
           - "@commitlint/config-conventional"
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-json
+      - id: end-of-file-fixer
+        exclude: ^src/static/assets/libs/
+      - id: trailing-whitespace
+        exclude: ^src/static/assets/libs/|\.(svg|min\.(css|js))$

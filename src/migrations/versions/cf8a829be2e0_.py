@@ -6,9 +6,8 @@ Create Date: 2022-02-10 17:53:52.829147
 
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "cf8a829be2e0"
@@ -31,9 +30,7 @@ def upgrade():
         batch_op.drop_column("level_id")
 
     with op.batch_alter_table("users", schema=None) as batch_op:
-        batch_op.add_column(
-            sa.Column("how_to_contact", sa.String(length=512), nullable=True)
-        )
+        batch_op.add_column(sa.Column("how_to_contact", sa.String(length=512), nullable=True))
         batch_op.create_unique_constraint(batch_op.f("uq_users_email"), ["email"])
 
     # ### end Alembic commands ###
@@ -46,21 +43,11 @@ def downgrade():
         batch_op.drop_column("how_to_contact")
 
     with op.batch_alter_table("summer_school", schema=None) as batch_op:
-        batch_op.alter_column(
-            "requirements", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
-        batch_op.alter_column(
-            "advisors", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
-        batch_op.alter_column(
-            "tech", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
-        batch_op.alter_column(
-            "description", existing_type=sa.VARCHAR(length=2048), nullable=True
-        )
-        batch_op.alter_column(
-            "project_name", existing_type=sa.VARCHAR(length=1024), nullable=True
-        )
+        batch_op.alter_column("requirements", existing_type=sa.VARCHAR(length=1024), nullable=True)
+        batch_op.alter_column("advisors", existing_type=sa.VARCHAR(length=1024), nullable=True)
+        batch_op.alter_column("tech", existing_type=sa.VARCHAR(length=1024), nullable=True)
+        batch_op.alter_column("description", existing_type=sa.VARCHAR(length=2048), nullable=True)
+        batch_op.alter_column("project_name", existing_type=sa.VARCHAR(length=1024), nullable=True)
 
     with op.batch_alter_table("staff", schema=None) as batch_op:
         batch_op.drop_constraint(batch_op.f("uq_staff_official_email"), type_="unique")

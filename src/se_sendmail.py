@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import smtplib
-
-from se_models import db, Notification, Users, DiplomaThemes
-from flask_se_config import MAIL_PASSWORD
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+from flask_se_config import MAIL_PASSWORD
+from se_models import DiplomaThemes, Notification, Users, db
 
 MAIL_DEFAULT_SENDER = "sysprog_notification@spbu.ru"
 MAIL_DEFAULT_SENDER_STRING = "SE уведомления <sysprog_notification@spbu.ru>"
@@ -67,17 +67,14 @@ def notification_send_mail():
         except smtplib.SMTPSenderRefused:
             print("The server didn’t accept the from_addr.")
         except smtplib.SMTPNotSupportedError:
-            print(
-                "SMTPUTF8 was given in the mail_options but is not supported by the server."
-            )
+            print("SMTPUTF8 was given in the mail_options but is not supported by the server.")
 
 
 def notification_send_diploma_themes_on_review():
     diploma_themes_on_review_count = DiplomaThemes.query.filter_by(status=0).count()
 
     print(
-        "Invoke notification_send_diploma_themes_on_review = "
-        + str(diploma_themes_on_review_count)
+        "Invoke notification_send_diploma_themes_on_review = " + str(diploma_themes_on_review_count)
     )
 
     if not diploma_themes_on_review_count:
@@ -135,6 +132,4 @@ def notification_send_diploma_themes_on_review():
     except smtplib.SMTPSenderRefused:
         print("The server didn’t accept the from_addr.")
     except smtplib.SMTPNotSupportedError:
-        print(
-            "SMTPUTF8 was given in the mail_options but is not supported by the server."
-        )
+        print("SMTPUTF8 was given in the mail_options but is not supported by the server.")

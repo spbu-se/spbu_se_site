@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
 
-from os import urandom
 import shutil
-
 from datetime import datetime
+from os import urandom
 from pathlib import Path
 
-from sqlalchemy import MetaData
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from flask_sqlalchemy import SQLAlchemy
 from flask_whooshee import Whooshee
+from sqlalchemy import MetaData
 from werkzeug.security import generate_password_hash
 
-
 from flask_se_config import (
-    post_ranking_score,
-    get_hours_since,
-    SQLITE_DATABASE_NAME,
     SQLITE_DATABASE_BACKUP_NAME,
+    SQLITE_DATABASE_NAME,
     SQLITE_DATABASE_PATH,
+    get_hours_since,
+    post_ranking_score,
 )
 
 convention = {
@@ -79,9 +77,7 @@ internships_format = db.Table(
         db.ForeignKey("internship_format.id"),
         primary_key=True,
     ),
-    db.Column(
-        "internships_id", db.Integer, db.ForeignKey("internships.id"), primary_key=True
-    ),
+    db.Column("internships_id", db.Integer, db.ForeignKey("internships.id"), primary_key=True),
 )
 
 internships_tag = db.Table(
@@ -92,9 +88,7 @@ internships_tag = db.Table(
         db.ForeignKey("internship_tag.id"),
         primary_key=True,
     ),
-    db.Column(
-        "internships_id", db.Integer, db.ForeignKey("internships.id"), primary_key=True
-    ),
+    db.Column("internships_id", db.Integer, db.ForeignKey("internships.id"), primary_key=True),
 )
 
 
@@ -114,9 +108,7 @@ class Staff(db.Model):
     adviser = db.relationship(
         "Thesis", backref=db.backref("reviewer"), foreign_keys="Thesis.reviewer_id"
     )
-    current_thesises = db.relationship(
-        "CurrentThesis", backref=db.backref("supervisor")
-    )
+    current_thesises = db.relationship("CurrentThesis", backref=db.backref("supervisor"))
 
     def __repr__(self):
         return "<%r>" % self.official_email
@@ -168,9 +160,7 @@ class Users(db.Model, UserMixin):
         foreign_keys="DiplomaThemes.author_id",
     )
 
-    current_thesises = db.relationship(
-        "CurrentThesis", backref=db.backref("user", uselist=False)
-    )
+    current_thesises = db.relationship("CurrentThesis", backref=db.backref("user", uselist=False))
     thesises = db.relationship("Thesis", backref=db.backref("owner", uselist=False))
     thesis_on_review_author = db.relationship(
         "ThesisOnReview", backref=db.backref("author", uselist=False)
@@ -418,9 +408,7 @@ class Worktype(db.Model):
         "ThesisOnReview", backref=db.backref("worktype", uselist=False)
     )
     current_thesis = db.relationship("CurrentThesis", backref=db.backref("worktype"))
-    deadline = db.relationship(
-        "Deadline", backref=db.backref("worktype", uselist=False)
-    )
+    deadline = db.relationship("Deadline", backref=db.backref("worktype", uselist=False))
 
     def __repr__(self):
         return self.type
@@ -446,9 +434,7 @@ class Courses(db.Model):
     code = db.Column(db.String(15), nullable=False)
 
     thesis = db.relationship("Thesis", backref=db.backref("course", uselist=False))
-    curriculum = db.relationship(
-        "Curriculum", backref=db.backref("course", uselist=False)
-    )
+    curriculum = db.relationship("Curriculum", backref=db.backref("course", uselist=False))
 
     def __repr__(self):
         return "<%r>" % (self.name)
@@ -500,13 +486,9 @@ class AreasOfStudy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     area = db.Column(db.String(512), nullable=False)
 
-    current_thesis = db.relationship(
-        "CurrentThesis", backref=db.backref("area", uselist=False)
-    )
+    current_thesis = db.relationship("CurrentThesis", backref=db.backref("area", uselist=False))
     thesis = db.relationship("Thesis", backref=db.backref("area", uselist=False))
-    thesis_on_review = db.relationship(
-        "ThesisOnReview", backref=db.backref("area", uselist=False)
-    )
+    thesis_on_review = db.relationship("ThesisOnReview", backref=db.backref("area", uselist=False))
 
     def __repr__(self):
         return self.area
@@ -583,9 +565,7 @@ class PostVote(db.Model):
             vote = "Up"
         else:
             vote = "Down"
-        return "<Vote - {}, from {} for {}>".format(
-            vote, self.user.get_name(), self.post.title
-        )
+        return "<Vote - {}, from {} for {}>".format(vote, self.user.get_name(), self.post.title)
 
 
 class PostType(db.Model):
@@ -637,9 +617,7 @@ class DiplomaThemes(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     supervisor_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
-    supervisor_thesis_id = db.Column(
-        db.Integer, db.ForeignKey("users.id"), nullable=True
-    )
+    supervisor_thesis_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     consultant_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
     def __repr__(self):

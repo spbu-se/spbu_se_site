@@ -7,12 +7,12 @@
               {% if i.more_inf %}
                 <a href="{{ i.more_inf }}" target="_blank">
               {% else %}
-                <a href="/internships/{{ i.id }}" target="_blank"> 
+                <a href="/internships/{{ i.id }}" target="_blank">
               {% endif %}
-                <strong> 
-                  {{i.name_vacancy}} 
+                <strong>
+                  {{i.name_vacancy}}
                   {% if i.author_id == user.id %}
-                    <a href="/internships/{{ i.id }}" target="_blank"><img src="/images/redact.png" style="height: 15px"></a> 
+                    <a href="/internships/{{ i.id }}" target="_blank"><img src="/images/redact.png" style="height: 15px"></a>
                   {% endif %}
                 </strong></a>
             </h4>
@@ -26,7 +26,7 @@
       <div class="card-body pt-2">
         <p style="font-size: 100%" class="text m-0">{{i.company}}</p>
         <p style="font-size: 100%" class="text mb-1 mt-0"> {{i.location}}</p>
-        <p style="font-size: 100%" class="text mb-1 mt-0"> 
+        <p style="font-size: 100%" class="text mb-1 mt-0">
           {% for tag in i.tag %}
             <a href="internships_index.html?format=0&company=0&tag={{tag.id}}">{{tag}} </a>
           {% endfor %}

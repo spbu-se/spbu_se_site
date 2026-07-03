@@ -874,7 +874,7 @@ var NavbarSticky = (function() {
 	if ($nav.length) {
 
 		navOffsetTop = $nav.offset().top;
-		
+
 		$(window).on({
 			'scroll': function() {
 				scrolling = true;

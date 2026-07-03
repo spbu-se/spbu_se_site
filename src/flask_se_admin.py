@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 
-from flask import redirect, url_for, session, render_template
+from flask import redirect, render_template, session, url_for
 from flask_admin import AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.contrib.sqla.fields import QuerySelectField
 from flask_login import current_user
-from wtforms import TextAreaField, SelectField
+from wtforms import SelectField, TextAreaField
 
 from flask_se_config import SECRET_KEY_THESIS
 from se_models import (
-    db,
-    Users,
-    Staff,
-    Worktype,
-    Courses,
     AreasOfStudy,
+    Courses,
     DiplomaThemes,
+    Staff,
+    Users,
+    Worktype,
     add_mail_notification,
+    db,
 )
 from templates.notification.templates import NotificationTemplates
 
@@ -300,9 +300,7 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
         )
     )
 
-    column_choices = {
-        "status": [(0, "На проверке"), (1, "Требуется доработка"), (2, "Одобрена")]
-    }
+    column_choices = {"status": [(0, "На проверке"), (1, "Требуется доработка"), (2, "Одобрена")]}
 
     form_widget_args = {
         "description": {

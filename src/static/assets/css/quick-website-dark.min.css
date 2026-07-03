@@ -631,7 +631,7 @@ pre {
 .custom-select {
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; }
   @media (prefers-reduced-motion: reduce) {
-    
+
     .custom-select {
       transition: none; } }
 
@@ -1273,13 +1273,13 @@ button.bg-dark:focus {
   .pr-lg-4,
   .px-lg-4 {
     padding-right: 1.5rem !important; }
-  
+
   .px-lg-4 {
     padding-left: 1.5rem !important; }
   .pt-lg-6,
   .py-lg-6 {
     padding-top: 4.5rem !important; }
-  
+
   .py-lg-6 {
     padding-bottom: 4.5rem !important; }
   .pl-lg-6 {
