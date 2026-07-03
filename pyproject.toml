@@ -34,10 +34,11 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ruff", "mdformat", "pre-commit", "pytest"]
+dev = ["ruff", "mdformat", "pre-commit", "pytest", "pytest-cov"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "--cov=src --cov-report=term-missing --cov-fail-under=10"
 
 [build-system]
 requires = ["setuptools>=64"]
