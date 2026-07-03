@@ -1,0 +1,114 @@
+﻿# Development Process
+
+Flask-based website for the SPbSU System Programming Department. See `AGENTS.md` for commands, `doc/GIT_FLOW.md` for version control, and `doc/OPENSE_CONFIG.md` for AI tooling.
+
+## Process Identity
+
+This project blends agile practices suited for single-agent development:
+
+| From | We use | We deliberately reject |
+|---|---|---|
+| **XP** | TDD (test-first from specs), CI, coding standards (ruff), collective ownership, zero bugs | Pair Programming (replaced with batched staging review), fixed cadence |
+| **Kanban** | Continuous flow, pull-based work selection (priority ladder), WIP-limited (one task) | Cycle time tracking, explicit board |
+| **Shape Up** | Shaping phase (planning + doc-first), appetite sizing (S/M/L estimates) | 6-week cycles, betting table |
+
+Design decisions about deliberate deviations are recorded in `doc/ARCHITECTURE.md -> Design Decisions`.
+
+Covers: planning, testing, linting, code review, release, dependencies. Does not cover: CLI commands, architecture design, AI tooling, version control.
+
+## 0. CLI Quick Reference
+
+```bash
+pip install -r requirements.txt              # install dependencies
+python src/flask_se.py                       # run dev server
+python src/flask_se.py init                  # initialize database
+python src/wsgi.py                           # run via WSGI
+pytest                                       # run tests
+ruff check src/                              # lint
+ruff format src/                             # format
+python flask_se.py build                     # build static site (Frozen-Flask)
+```
+
+## 0.5 Planning Phase
+
+Before any implementation: enter **planning phase** (read-only analysis). Always:
+
+1. Check CI status
+1. Apply the priority ladder (see `doc/GIT_FLOW.md`): CI failures -> PRs -> backlog -> icebox
+1. Present findings and top candidate tasks to the user, each with effort estimate (S/M/L)
+1. User reviews, adjusts, approves
+1. Discuss approach, confirm scope, get approval
+1. Only then branch and implement
+
+**Effort sizing:**
+
+- **S**: Single-file change, no new deps, ~1h
+- **M**: Multi-file, 2-3 modules, ~half day
+- **L**: Multi-module, new patterns/deps, ~1d+
+
+Planning phase is non-negotiable. Never jump to implementation without prior discussion.
+
+## 1. Version Control
+
+See `doc/GIT_FLOW.md` — branching, guardrails, commit sequence, staging.
+
+## 2. Testing
+
+```bash
+pytest
+```
+
+- Aim for 100% line coverage where feasible
+- **Test-first**: tests are authored before implementation where possible
+- Tests live alongside source code under `tests/`
+- Run before every commit
+
+## 3. Styling & Linting
+
+```bash
+ruff check src/
+ruff format src/
+mdformat .
+```
+
+Ruff and mdformat are enforced via pre-commit hooks. See `.pre-commit-config.yaml`.
+
+## 3.5 Code Review Checklist
+
+Every item must pass before staging -> current merge:
+
+| # | Check | What to verify |
+|---|---|---|
+| 1 | **Tests pass** | `pytest` green |
+| 2 | **Lint** | `ruff` clean |
+| 3 | **Format** | `ruff format` + `mdformat` applied |
+| 4 | **Edge cases** | Empty/null inputs, boundary values, failure modes tested |
+| 5 | **Error messages** | Actionable, follow existing patterns |
+| 6 | **Docs sync** | ARCHITECTURE.md, API_REFERENCE.md, SCHEMA.md updated |
+| 7 | **AI instructions** | New quirks added? Existing ones accurate? |
+| 8 | **Backward compat** | Existing behavior unchanged |
+| 9 | **No secrets** | No hardcoded keys, tokens, or production URLs |
+| 10 | **Conventions** | Code style matches existing patterns |
+| 11 | **Process compliance** | Architecture-first cycle followed? Zero bug policy respected? |
+
+## 4. Dependencies
+
+Production dependencies in `requirements.txt` (pinned versions):
+
+```bash
+pip install -r requirements.txt
+```
+
+Use `pip install <package>` and update `requirements.txt` via `pip freeze > requirements.txt` when adding new deps.
+
+## 5. Release
+
+1. Determine SemVer bump from commit log since last tag
+1. Update version references if any
+1. Tag: `git tag v<version>`
+1. Build static site if needed: `python flask_se.py build`
+1. Update Dockerfile if dependency changes
+
+### Open Source Recommendations
+
+For public deployment, consider: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CHANGELOG.md`.

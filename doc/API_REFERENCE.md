@@ -1,0 +1,194 @@
+﻿# API Reference — Flask Routes
+
+All routes, methods, view functions, and descriptions for the SE Site.
+
+Covers: all route endpoints, HTTP methods, view function names, descriptions. Does not cover: database models — see `doc/SCHEMA.md`, architecture — see `doc/ARCHITECTURE.md`, feature requirements — see `doc/REQUIREMENTS.md`.
+
+## Public Pages
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/` | GET | `index` | Homepage with top 10 news |
+| `/index.html` | GET | `index_html` | Redirect to `/` |
+| `/research-directions` | GET | `research_directions` | Research areas listing |
+| `/contacts.html` | GET | `contacts` | Contact page |
+| `/department/staff.html` | GET | `department_staff` | Staff listing from DB |
+| `/frequently-asked-questions.html` | GET | `frequently_asked_questions` | FAQ page |
+| `/nooffer` | GET | `nooffer` | No-offer page |
+| `/404.html` | GET | `status_404` | Custom 404 page |
+| `/sitemap.xml` | GET | `sitemap` | Dynamic sitemap XML |
+
+## Student Pages
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/students/index.html` | GET | `students` | Students overview |
+| `/students/scholarships.html` | GET | `scholarships` | Scholarships listing |
+
+## Bachelor Programs
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/bachelor/admission.html` | GET | `bachelor_admission` | Admission info with random thesis samples |
+| `/bachelor/programming-technology.html` | GET | `bachelor_programming_technology` | PT curriculum page |
+| `/bachelor/software-engineering.html` | GET | `bachelor_software_engineering` | SE curriculum page |
+| `/bachelor/application.html` | GET | `bachelor_application` | Application info |
+
+## Master Programs
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/master/information-systems-administration.html` | GET | `master_information_systems_administration` | ISA program page |
+| `/master/software-engineering.html` | GET | `master_software_engineering` | SE master page |
+
+## Authentication
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/login.html` | GET, POST | `login_index` | Login form |
+| `/register_basic.html` | GET, POST | `register_basic` | Register with email/password |
+| `/password_recovery.html` | GET, POST | `password_recovery` | Password recovery (stub) |
+| `/profile.html` | GET, POST | `user_profile` | Edit user profile |
+| `/upload_avatar` | GET, POST | `upload_avatar` | Upload avatar image |
+| `/logout` | GET | `logout` | Logout |
+| `/vk_callback` | GET | `vk_callback` | VK OAuth callback |
+| `/google_login` | GET | `google_login` | Google OAuth redirect |
+| `/google_callback` | GET | `google_callback` | Google OAuth callback |
+
+## Thesis Archive
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/theses.html` | GET | `theses_search` | Thesis search with filters |
+| `/fetch_theses` | GET | `fetch_theses` | AJAX paginated thesis list |
+| `/post_theses` | GET, POST | `post_theses` | Upload new thesis |
+| `/theses_tmp.html` | GET | `theses_tmp` | List temp theses for review |
+| `/theses_delete_tmp` | GET | `theses_delete_tmp` | Delete temp thesis |
+| `/theses_add_tmp` | GET | `theses_add_tmp` | Approve/publish temp thesis |
+| `/thesis_download` | GET | `download_thesis` | Download thesis PDF (tracks count) |
+
+## News
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/news/` | GET | `list_news` | News listing (paginated by rank) |
+| `/news/item.html` | GET | `get_post` | Single news post |
+| `/news/submit.html` | GET, POST | `submit_post` | Submit news |
+| `/news/post_vote` | GET, POST | `post_vote` | Upvote/downvote news |
+| `/news/delete` | GET | `delete_post` | Delete own news post |
+
+## Diploma Themes
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/diplomas/` | GET | `diplomas_index` | Browse approved themes |
+| `/diplomas/theme.html` | GET | `get_theme` | View single theme |
+| `/diplomas/add_theme.html` | GET, POST | `add_user_theme` | Add new theme |
+| `/diplomas/user_themes.html` | GET | `user_diplomas_index` | User own themes |
+| `/diplomas/delete_theme.html` | GET | `delete_theme` | Delete own theme |
+| `/diplomas/edit_theme.html` | GET, POST | `edit_user_theme` | Edit own theme |
+| `/diplomas/fetch_themes` | GET | `fetch_themes` | AJAX paginated themes |
+| `/diplomas/archive_theme` | GET | `archive_theme` | Archive own theme |
+| `/diplomas/unarchive_theme` | GET | `unarchive_theme` | Unarchive own theme |
+
+## Thesis Review
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/review/` | GET | `thesis_review_index` | Review dashboard |
+| `/review/submit` | GET, POST | `submit_thesis_on_review` | Submit thesis for review |
+| `/review/edit` | GET, POST | `edit_thesis_on_review` | Edit submitted thesis |
+| `/review/delete` | GET | `delete_thesis_on_review` | Delete own submission |
+| `/review/review` | GET | `review_thesis_on_review` | Enter review form |
+| `/review/reviewed` | GET, POST | `review_submit_review` | Submit completed review |
+| `/review/review_result` | GET | `review_result_thesis_on_review` | View review result |
+| `/review/fetch_thesis_on_review` | GET | `fetch_thesis_on_review` | AJAX filtered list |
+| `/review/become_thesis_reviewer` | GET | `review_become_thesis_reviewer_ask` | Reviewer signup |
+| `/review/become_thesis_reviewer_confirm` | GET | `review_become_thesis_reviewer_confirm` | Confirm signup |
+
+## Internships
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/internships/internships_index.html` | GET | `internships_index` | Browse internships |
+| `/internships/fetch_internships` | GET | `fetch_internships` | AJAX filtered list |
+| `/internships/add` | GET, POST | `add_internship` | Add internship |
+| `/internships/<int:id>` | GET, POST | `page_internship` | View single internship |
+| `/internships/<int:id>/delete` | GET | `delete_internship` | Delete internship |
+| `/internships/<int:id>/update` | GET, POST | `update_internship` | Update internship |
+
+## Practice — Student
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/practice` | GET, POST | `practice_index` | Student dashboard + notifications |
+| `/practice/guide/` | GET | `practice_guide` | Practice guide |
+| `/practice/new/` | GET, POST | `practice_new_thesis` | Create new practice/thesis |
+| `/practice/data_for_practice/` | GET, POST | `practice_data_for_practice` | Edit worktype/area |
+| `/practice/choosing_topic/` | GET, POST | `practice_choosing_topic` | Choose topic + supervisor |
+| `/practice/edit_theme/` | GET, POST | `practice_edit_theme` | Edit thesis topic |
+| `/practice/goals_tasks/` | GET, POST | `practice_goals_tasks` | Set goal + tasks |
+| `/practice/add_new_report/` | GET, POST | `practice_add_new_report` | Submit weekly report |
+| `/practice/workflow/` | GET, POST | `practice_workflow` | View/edit reports |
+| `/practice/preparation_for_defense/` | GET, POST | `practice_preparation` | Upload materials for defense |
+| `/practice/defense/` | GET | `practice_thesis_defense` | Defense info page |
+
+## Practice — Staff/Supervisor
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/practice_staff` | GET | `index_staff` | Staff dashboard (advisees) |
+| `/practice_staff/thesis/` | GET, POST | `thesis_staff` | View/send notifications to student |
+| `/practice_staff/reports/` | GET, POST | `reports_staff` | View/comment reports |
+| `/practice_staff/finished_thesises/` | GET | `finished_thesises_staff` | Completed theses |
+
+## Practice — Admin/Curator
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/practice_admin` | GET, POST | `index_admin` | Admin dashboard |
+| `/practice_admin/choose_area_worktype` | GET | `choose_area_and_worktype_admin` | Area/worktype redirect |
+| `/practice_admin/finished_thesises` | GET | `finished_thesises_admin` | Completed works |
+| `/practice_admin/thesis` | GET, POST | `thesis_admin` | View/edit single thesis |
+| `/practice_admin/yandex_code` | GET | `yandex_code` | Yandex OAuth callback |
+| `/practice_admin/thesis_to_archive` | GET, POST | `archive_thesis` | Archive thesis to main repository |
+
+## Summer Schools
+
+| Route | View Function |
+|---|---|
+| `/summer_school_2021.html` | `create_summer_school_view(2021)` |
+| `/summer_school_2022.html` | `create_summer_school_view(2022)` |
+| `/summer_school_2024.html` | `create_summer_school_view(2024)` |
+| `/summer_school_2026.html` | `create_summer_school_view(2026)` |
+| `/summer_school_list.html` | `summer_school_list` |
+
+## Scholarships
+
+| Route | View Function |
+|---|---|
+| `/scholarships/{1..13}.html` | `get_scholarships_{1..13}` (13 individual pages) |
+
+## Admin
+
+| Route | Description |
+|---|---|
+| `/admin/` | Flask-Admin dashboard (shows thesis secret key) |
+| `/admin/user/` | Users CRUD |
+| `/admin/staff/` | Staff CRUD |
+| `/admin/thesis/` | Thesis CRUD |
+| `/admin/summerschool/` | Summer school projects CRUD |
+| `/admin/news/` | News CRUD |
+| `/admin/diplomathemes/` | Diploma themes CRUD |
+| `/admin/reviewdiplomathemes/` | Review/moderate diploma themes |
+| `/admin/currentthesis/` | Current theses CRUD |
+
+## Error Handling
+
+| Route | Status | Description |
+|---|---|---|
+| `/404.html` | 404 | Custom 404 page |
+
+### Error response pattern
+
+Errors are rendered as HTML pages to the user. No JSON API endpoints exist — all endpoints return rendered templates.

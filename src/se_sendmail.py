@@ -99,9 +99,7 @@ def notification_send_diploma_themes_on_review():
 
     data = """
     Сейчас на сайте {0} тем находятся на проверке (<a href="https://se.math.spbu.ru/admin/reviewdiplomathemes/" target="_blank">Проверка тем</a>).
-    """.format(
-        diploma_themes_on_review_count
-    )
+    """.format(diploma_themes_on_review_count)
 
     part1 = MIMEText(data, "plain")
     part2 = MIMEText(data, "html")

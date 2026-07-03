@@ -1,10 +1,11 @@
 """Add google auth + hackernews 4
 
 Revision ID: c4e88555c985
-Revises: 
+Revises:
 Create Date: 2022-01-19 17:54:30.755371
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
