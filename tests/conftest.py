@@ -34,6 +34,7 @@ def app_ctx():
     sqlalchemy_uri = f"sqlite:///{_p}"
     with app.app_context():
         app.config["SQLALCHEMY_DATABASE_URI"] = sqlalchemy_uri
+        db.engine.dispose()
         db.create_all()
         yield
         db.session.remove()
@@ -50,6 +51,7 @@ def client():
     app.config["SQLALCHEMY_DATABASE_URI"] = sqlalchemy_uri
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
+        db.engine.dispose()
         db.create_all()
         yield app.test_client()
         db.session.remove()
@@ -66,6 +68,7 @@ def seeded_client():
     app.config["SQLALCHEMY_DATABASE_URI"] = sqlalchemy_uri
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
+        db.engine.dispose()
         db.create_all()
         init_db()
         yield app.test_client()
