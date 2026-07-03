@@ -1,16 +1,18 @@
 import sys
 import os
 import tempfile
+import shutil
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-_fd, _db_path = tempfile.mkstemp(suffix=".db")
-os.close(_fd)
+_db_dir = tempfile.mkdtemp()
+_db_name = "test.db"
+_db_path = str(Path(_db_dir) / _db_name)
 
 import flask_se_config
-flask_se_config.SQLITE_DATABASE_NAME = _db_path
-flask_se_config.SQLITE_DATABASE_PATH = str(Path(_db_path).parent)
+flask_se_config.SQLITE_DATABASE_NAME = _db_name
+flask_se_config.SQLITE_DATABASE_PATH = _db_dir
 
 from flask_se import app, db
 from se_models import init_db
@@ -29,10 +31,7 @@ def _teardown_db():
             db.session.remove()
             db.drop_all()
     finally:
-        try:
-            Path(_db_path).unlink(missing_ok=True)
-        except PermissionError:
-            pass
+        shutil.rmtree(_db_dir, ignore_errors=True)
 
 
 @pytest.fixture
