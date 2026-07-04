@@ -38,7 +38,7 @@ dev = ["ruff", "mdformat", "pre-commit", "pytest", "pytest-cov", "djlint", "band
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=src --cov-report=term-missing --cov-fail-under=25"
+addopts = "--cov=src --cov-report=term-missing --cov-fail-under=30"
 
 [build-system]
 requires = ["setuptools>=64"]
