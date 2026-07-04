@@ -82,6 +82,7 @@ git diff --cached --name-only
 ```
 
 **Reject any staged file that is:**
+
 - A build artifact (`.coverage`, `*.egg-info/`, `*.pyc`, `.ruff_cache/`, `.pytest_cache/`)
 - A generated binary/dump (`.db`, `.sqlite`, `.log`)
 - A vendored dependency that should be managed elsewhere
@@ -91,8 +92,8 @@ git diff --cached --name-only
 When introducing a new linter, formatter, or build tool that produces files:
 
 1. Add its artifact patterns to `.gitignore` **before** running the tool
-2. Verify with `git status --short` that nothing unexpected appeared
-3. Only then commit the tool config
+1. Verify with `git status --short` that nothing unexpected appeared
+1. Only then commit the tool config
 
 **Default pattern for any new tool:** `git check-ignore <path>` should return a rule. If it doesn't, the artifact is not protected.
 
