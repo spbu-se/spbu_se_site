@@ -109,10 +109,12 @@ class TestPluralHours:
 
     def test_exactly_24_hours_returns_24_hours(self):
         from flask_se_config import plural_hours
+
         assert plural_hours(24) == "24 часа"
 
     def test_25_hours_returns_one_day(self):
         from flask_se_config import plural_hours
+
         assert plural_hours(25) == "1 день"
 
     def test_48_hours_returns_two_days(self):
@@ -139,18 +141,22 @@ class TestPluralHours:
 class TestGetThesisTypeIdString:
     def test_id_1_returns_empty(self):
         from flask_se_config import get_thesis_type_id_string
+
         assert get_thesis_type_id_string(1) == ""
 
     def test_id_2_returns_bachelor_report(self):
         from flask_se_config import get_thesis_type_id_string
+
         assert get_thesis_type_id_string(2) == "Bachelor_Report"
 
     def test_id_4_returns_master_thesis(self):
         from flask_se_config import get_thesis_type_id_string
+
         assert get_thesis_type_id_string(4) == "Master_Thesis"
 
     def test_id_10_returns_pre_graduate(self):
         from flask_se_config import get_thesis_type_id_string
+
         assert get_thesis_type_id_string(10) == "Pre_graduate_practice"
 
 

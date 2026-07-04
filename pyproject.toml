@@ -67,4 +67,3 @@ skips = ["B101", "B311"]
 [tool.codespell]
 skip = ".git,.venv,node_modules,src/static/assets/libs"
 ignore-words-list = "crate,principale,organise,organised,re-use,re-uses,re-using,theses,recomended"
-

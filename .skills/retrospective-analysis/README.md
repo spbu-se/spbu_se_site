@@ -71,6 +71,7 @@ Signal strength: high-confidence finds are config-duplicates (the config IS the 
 ### 5c. Improve skills used during the session
 
 Identify which `.skills/<name>/README.md` were loaded during the analyzed session. For each:
+
 - Did the session reveal a gap or improvement in the skill's workflow?
 - Does the skill reference tooling patterns that changed during the session?
 - Should a "Lessons Learned" section or updated step be added?

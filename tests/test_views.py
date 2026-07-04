@@ -49,10 +49,14 @@ def test_master_isa(seeded_client):
 
 
 def test_login_with_invalid_credentials(seeded_client):
-    resp = seeded_client.post("/login.html", data={
-        "email": "nonexistent@spbu.ru",
-        "password": "wrong",
-    }, follow_redirects=True)
+    resp = seeded_client.post(
+        "/login.html",
+        data={
+            "email": "nonexistent@spbu.ru",
+            "password": "wrong",
+        },
+        follow_redirects=True,
+    )
     assert resp.status_code == 200
 
 

@@ -1,16 +1,16 @@
-import pytest
-
-
 class TestAuth:
     def test_login_form_renders(self, seeded_client):
         resp = seeded_client.get("/login.html")
         assert resp.status_code == 200
 
     def test_login_form_accepts_submission(self, seeded_client):
-        resp = seeded_client.post("/login.html", data={
-            "email": "test@spbu.ru",
-            "password": "test",
-        })
+        resp = seeded_client.post(
+            "/login.html",
+            data={
+                "email": "test@spbu.ru",
+                "password": "test",
+            },
+        )
         assert resp.status_code in (200, 302)
 
     def test_login_page_has_form(self, seeded_client):

@@ -18,6 +18,7 @@ repos:
         entry: uv run mdformat
         language: system
         types: [markdown]
+        exclude: ^src/static/assets/libs/
 
   - repo: https://github.com/trim21/dprint-pre-commit
     rev: v0.55.1.4
@@ -37,6 +38,7 @@ repos:
     rev: v5.0.0
     hooks:
       - id: check-json
+        exclude: ^src/static/assets/libs/
       - id: end-of-file-fixer
         exclude: ^src/static/|^src/se_site\.egg-info/
       - id: trailing-whitespace
@@ -48,6 +50,7 @@ repos:
       - id: djlint
         args: ["--reformat"]
         types: [html]
+        exclude: ^src/static/assets/libs/
 
   - repo: https://github.com/PyCQA/bandit
     rev: 1.8.3

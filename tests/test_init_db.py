@@ -7,16 +7,16 @@ def test_init_db_creates_areas(app_ctx):
 
 
 def test_init_db_creates_users(app_ctx):
-    from se_models import Users, db
-    from se_models import init_db
+    from se_models import Users, init_db
+
     init_db()
     users = Users.query.all()
     assert len(users) > 0
 
 
 def test_init_db_creates_first_user(app_ctx):
-    from se_models import Users, db
-    from se_models import init_db
+    from se_models import Users, init_db
+
     init_db()
     user = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
     assert user is not None
@@ -64,8 +64,18 @@ def test_init_db_creates_themes_levels(app_ctx):
 
 
 def test_init_db_creates_all_expected_tables(app_ctx):
-    from se_models import AreasOfStudy, Users, Staff, Worktype, Courses, Posts, ThemesLevel, DiplomaThemes, InternshipFormat, Company, db
-    from se_models import init_db
+    from se_models import (
+        AreasOfStudy,
+        Courses,
+        DiplomaThemes,
+        Posts,
+        Staff,
+        ThemesLevel,
+        Users,
+        Worktype,
+        init_db,
+    )
+
     init_db()
     assert AreasOfStudy.query.count() > 0
     assert Users.query.count() > 0

@@ -1,7 +1,6 @@
-import sys
-import os
-import tempfile
 import shutil
+import sys
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
@@ -16,15 +15,17 @@ def _init_db_path():
     _db_dir = tempfile.mkdtemp()
     _db_path = str(Path(_db_dir) / _db_name)
     import flask_se_config
+
     flask_se_config.SQLITE_DATABASE_NAME = _db_name
     flask_se_config.SQLITE_DATABASE_PATH = _db_dir
 
+
 _init_db_path()
+
+import pytest
 
 from flask_se import app, db
 from se_models import init_db
-
-import pytest
 
 
 @pytest.fixture

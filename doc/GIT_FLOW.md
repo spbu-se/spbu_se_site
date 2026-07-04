@@ -83,6 +83,7 @@ Pre-commit hooks run automatically (see `.pre-commit-config.yaml`). Conventional
 ### Signoff policy
 
 Only merge commits to `current` require GPG signoff:
+
 - `staging → current` merge
 - `hotfix/ → current` merge
 - `git tag v<version>` (tagged merge commit)

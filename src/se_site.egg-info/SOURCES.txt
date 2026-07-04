@@ -66,6 +66,7 @@ src/templates/notification/templates.py
 src/templates/practice/admin/templates.py
 src/templates/practice/staff/templates.py
 src/templates/practice/student/templates.py
+tests/test_auth_views.py
 tests/test_helpers.py
 tests/test_init_db.py
 tests/test_smoke.py
