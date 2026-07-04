@@ -80,6 +80,19 @@ Pre-commit hooks run automatically (see `.pre-commit-config.yaml`). Conventional
 | `ci/` | `ci:` |
 | `chore/` | `chore:` |
 
+### Signoff policy
+
+Only merge commits to `current` require GPG signoff:
+- `staging → current` merge
+- `hotfix/ → current` merge
+- `git tag v<version>` (tagged merge commit)
+
+Regular commits to staging or feature branches use `--no-gpg-sign` (no signoff).
+This avoids GPG agent timeouts when password storage (KeePass) is locked.
+
+**Guardrail — never touch global git config** (`git config --global`).
+Signoff policy is enforced via commit flags, not global settings.
+
 ## 5. Staging Phase
 
 Staging is a permanent branch — never deleted.
