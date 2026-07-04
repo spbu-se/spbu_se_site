@@ -114,3 +114,7 @@ whooshee/
 
 # Build artifacts
 *.egg-info/
+
+# Coverage data
+.coverage
+.coverage.*
