@@ -163,7 +163,9 @@ def vk_callback():
             avatar_uri = avatar_uri + ".jpg"
 
             if "photo_100" in vk_user["response"][0]:
-                r = requests.get(vk_user["response"][0]["photo_100"], allow_redirects=True, timeout=30)
+                r = requests.get(
+                    vk_user["response"][0]["photo_100"], allow_redirects=True, timeout=30
+                )
                 open("static/images/avatars/" + avatar_uri, "wb").write(r.content)
 
             new_user = Users(
