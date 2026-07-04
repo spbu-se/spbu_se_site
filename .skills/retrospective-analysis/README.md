@@ -69,6 +69,8 @@ Scan the session's changed docs for three signal patterns:
 
 Signal strength: high-confidence finds are config-duplicates (the config IS the truth). Low-confidence are self-evident rules (may be project-specific — ask if unsure).
 
+**Pre-commit vs CI parity** — verify every check that runs in CI also runs locally via pre-commit hooks. If CI catches something that pre-commit doesn't flag, either add a pre-commit hook or document the gap (and accept that CI will catch it).
+
 **SPDX/licensing audit** — verify every new or modified source file has an SPDX header matching the repo's LICENSE file. If LICENSE is missing, flag it. If multiple licenses exist, document coverage per directory.
 
 ### 5c. Improve skills used during the session
@@ -133,6 +135,10 @@ The user redirected output 3 times in one session (test SLOC, doc split, unatten
 ### [2026-07-04] Add cross-project knowledge transfer + SPDX audit steps
 
 Session extracted process ideas from another private repo. Agent accidentally referenced the source repo by name in docs. Also discovered 60 Python files with no SPDX headers despite LICENSE existing. Added cross-project leak check to step 2 and SPDX/licensing audit to step 5b.
+
+### [2026-07-04] Add pre-commit vs CI parity check
+
+CI repeatedly caught `mdformat` issues that pre-commit didn't flag. Root cause: pre-commit only checked STAGED files (`pass_filenames: true`), CI checked ALL files (`mdformat --check .`). This gap affected 3 different push attempts. Added "Pre-commit vs CI parity" check to step 5b. Pre-commit hook fixed with `pass_filenames: false` so mdformat now checks all markdown files on every commit.
 
 ## Output template
 

@@ -276,4 +276,4 @@ Merged 30 commits from `staging-auto-20260704T154021Z` into staging via squash-m
 
 **What went wrong**: logged_client fixture was wrong from the start, causing all authenticated route tests to not actually authenticate. The gap was only found when coverage numbers didn't improve with more tests.
 
-**Fix**: Updated TOOLING.md with the correct `_user_id` session key. Added mdformat run to the commit sequence in auto-mode workflow. Documented this retrospective entry.
+**Fix**: Updated TOOLING.md with the correct `_user_id` session key. Added `pass_filenames: false` to the mdformat pre-commit hook so it checks ALL markdown files (not just staged ones) — aligns pre-commit behavior with CI. Documented retro entry.
