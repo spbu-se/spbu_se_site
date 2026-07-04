@@ -32,13 +32,13 @@ For each change, ask:
 
 ### 3. Classify the gap
 
-| Gap type | Root cause | Fix action |
-| ---------------------- | ------------------------------------------ | ---------------------------------------------------- |
-| **Missing convention** | No rule described how to do this | Add rule to `doc/DEVELOPMENT_PROCESS.md` |
-| **Missing template** | No template existed for this artifact type | Add template or checklist (e.g., §0.7) |
-| **Missing config** | Toolchain didn't catch this | Add linter, pre-commit hook, CI step |
-| **Human error** | Process was documented but not followed | Add guardrail or automation |
-| **Pattern recurrence** | Same gap appeared in a previous retro | Previous fix was insufficient — revisit and escalate |
+| Gap type | Root cause | Fix action | Also check skill? |
+| ---------------------- | ------------------------------------------ | ---------------------------------------------------- | ------------------------------- |
+| **Missing convention** | No rule described how to do this | Add rule to `doc/DEVELOPMENT_PROCESS.md` | Could this be a `.skills/` workflow? |
+| **Missing template** | No template existed for this artifact type | Add template or checklist (e.g., §0.7) | Could this be a skill README? |
+| **Missing config** | Toolchain didn't catch this | Add linter, pre-commit hook, CI step | No — tool config, not skill |
+| **Human error** | Process was documented but not followed | Add guardrail or automation | Could a skill have prevented this? |
+| **Pattern recurrence** | Same gap appeared in a previous retro | Previous fix was insufficient — revisit and escalate | Was the skill updated last time? |
 
 ### 4. Check for pattern recurrence
 
@@ -67,6 +67,15 @@ Scan the session's changed docs for three signal patterns:
 | **Self-evident rule** | Rule describes standard git/developer practice (e.g., "never commit to main", "stash before branching") | Delete. If the rule was added because someone violated it, keep as a retrospective entry instead. |
 
 Signal strength: high-confidence finds are config-duplicates (the config IS the truth). Low-confidence are self-evident rules (may be project-specific — ask if unsure).
+
+### 5c. Improve skills used during the session
+
+Identify which `.skills/<name>/README.md` were loaded during the analyzed session. For each:
+- Did the session reveal a gap or improvement in the skill's workflow?
+- Does the skill reference tooling patterns that changed during the session?
+- Should a "Lessons Learned" section or updated step be added?
+
+If yes, update the skill README immediately as part of the retrospective commit.
 
 ### 6. Suggest improvements
 
