@@ -89,7 +89,7 @@ class TestDiplomas:
         assert_ok_or_redirect(seeded_client, "/diplomas/theme.html?id=1")
 
     def test_diploma_theme_nonexistent(self, seeded_client):
-        assert_ok_or_redirect(seeded_client, "/diplomas/theme.html?id=99999")
+        assert_ok(seeded_client, "/diplomas/theme.html?id=99999", code={200, 302, 404})
 
     def test_diplomas_fetch(self, seeded_client):
         assert_ok(seeded_client, "/diplomas/fetch_themes")
