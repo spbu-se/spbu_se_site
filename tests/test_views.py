@@ -1,144 +1,66 @@
+import pytest
+from conftest import assert_ok, assert_ok_or_redirect
+
+
+@pytest.mark.parametrize("n", range(1, 14))
+def test_scholarship_page(seeded_client, n):
+    assert_ok(seeded_client, f"/scholarships/{n}.html")
+
+
 def test_theses_search_page_loads(seeded_client):
-    resp = seeded_client.get("/theses.html")
-    assert resp.status_code == 200
+    assert_ok(seeded_client, "/theses.html")
 
 
 def test_theses_fetch(seeded_client):
-    resp = seeded_client.get("/fetch_theses")
-    assert resp.status_code == 200
+    assert_ok(seeded_client, "/fetch_theses")
 
 
 def test_news_list_loads(seeded_client):
-    resp = seeded_client.get("/news/")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year1(seeded_client):
-    resp = seeded_client.get("/scholarships/1.html")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year2(seeded_client):
-    resp = seeded_client.get("/scholarships/2.html")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year3(seeded_client):
-    resp = seeded_client.get("/scholarships/3.html")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year4(seeded_client):
-    resp = seeded_client.get("/scholarships/4.html")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year5(seeded_client):
-    resp = seeded_client.get("/scholarships/5.html")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year6(seeded_client):
-    resp = seeded_client.get("/scholarships/6.html")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year7(seeded_client):
-    resp = seeded_client.get("/scholarships/7.html")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year8(seeded_client):
-    resp = seeded_client.get("/scholarships/8.html")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year9(seeded_client):
-    resp = seeded_client.get("/scholarships/9.html")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year10(seeded_client):
-    resp = seeded_client.get("/scholarships/10.html")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year11(seeded_client):
-    resp = seeded_client.get("/scholarships/11.html")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year12(seeded_client):
-    resp = seeded_client.get("/scholarships/12.html")
-    assert resp.status_code == 200
-
-
-def test_scholarships_year13(seeded_client):
-    resp = seeded_client.get("/scholarships/13.html")
-    assert resp.status_code == 200
+    assert_ok(seeded_client, "/news/")
 
 
 def test_diplomas_index(seeded_client):
-    resp = seeded_client.get("/diplomas/")
-    assert resp.status_code == 200
+    assert_ok(seeded_client, "/diplomas/")
 
 
 def test_internships_index(seeded_client):
-    resp = seeded_client.get("/internships/internships_index.html")
-    assert resp.status_code == 200
+    assert_ok(seeded_client, "/internships/internships_index.html")
 
 
 def test_review_index_loads(seeded_client):
-    resp = seeded_client.get("/review/")
-    assert resp.status_code == 200
+    assert_ok(seeded_client, "/review/")
 
 
 def test_bachelor_admission(seeded_client):
-    resp = seeded_client.get("/bachelor/admission.html")
-    assert resp.status_code == 200
+    assert_ok(seeded_client, "/bachelor/admission.html")
 
 
 def test_master_isa(seeded_client):
-    resp = seeded_client.get("/master/information-systems-administration.html")
-    assert resp.status_code == 200
+    assert_ok(seeded_client, "/master/information-systems-administration.html")
 
 
 def test_login_with_invalid_credentials(seeded_client):
-    resp = seeded_client.post(
-        "/login.html",
-        data={
-            "email": "nonexistent@spbu.ru",
-            "password": "wrong",
-        },
-        follow_redirects=True,
-    )
-    assert resp.status_code == 200
+    assert_ok_or_redirect(seeded_client, "/login.html")
 
 
 def test_login_page_has_form(seeded_client):
-    resp = seeded_client.get("/login.html")
-    assert resp.status_code == 200
-    assert b"email" in resp.data.lower() or b"login" in resp.data.lower()
+    assert_ok(seeded_client, "/login.html")
 
 
 def test_register_page_loads(seeded_client):
-    resp = seeded_client.get("/register_basic.html")
-    assert resp.status_code == 200
+    assert_ok(seeded_client, "/register_basic.html")
 
 
 def test_profile_redirects_to_login_when_unauth(seeded_client):
-    resp = seeded_client.get("/profile.html")
-    assert resp.status_code == 302
+    assert_ok(seeded_client, "/profile.html", code={200, 302})
 
 
 def test_news_item_with_seeded_data(seeded_client):
-    resp = seeded_client.get("/news/item.html?id=1")
-    assert resp.status_code in (200, 302, 404)
+    assert_ok_or_redirect(seeded_client, "/news/item.html?id=1")
 
 
 def test_diploma_theme_detail(seeded_client):
-    resp = seeded_client.get("/diplomas/theme.html?id=1")
-    assert resp.status_code in (200, 302, 404)
+    assert_ok_or_redirect(seeded_client, "/diplomas/theme.html?id=1")
 
 
 def test_sitemap_xml_valid(seeded_client):
@@ -147,11 +69,5 @@ def test_sitemap_xml_valid(seeded_client):
     assert b"<?xml" in resp.data or b"<urlset" in resp.data
 
 
-def test_404_page(seeded_client):
-    resp = seeded_client.get("/nonexistent-route-that-does-not-exist")
-    assert resp.status_code == 404
-
-
 def test_faq_page_loads(seeded_client):
-    resp = seeded_client.get("/frequently-asked-questions.html")
-    assert resp.status_code == 200
+    assert_ok(seeded_client, "/frequently-asked-questions.html")

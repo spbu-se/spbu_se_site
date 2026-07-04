@@ -76,3 +76,24 @@ def seeded_client():
         db.session.remove()
         db.drop_all()
     shutil.rmtree(_dir, ignore_errors=True)
+
+
+def assert_ok(client, path, methods=None, data=None, code=None):
+    """Helper: GET (or POST) a path, assert status matches."""
+    if methods is None:
+        methods = {"GET"}
+    if code is None:
+        code = {200}
+    if isinstance(code, int):
+        code = {code}
+    for method in methods:
+        if method == "GET":
+            resp = client.get(path)
+        elif method == "POST":
+            resp = client.post(path, data=data or {})
+        assert resp.status_code in code, f"{method} {path}: expected {code}, got {resp.status_code}"
+
+
+def assert_ok_or_redirect(client, path):
+    """GET a path, assert 200 or 302."""
+    assert_ok(client, path, code={200, 302})
