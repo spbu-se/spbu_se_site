@@ -94,8 +94,38 @@ class TestSummerSchools:
         resp = seeded_client.get("/summer_school_2026.html")
         assert resp.status_code == 200
 
+    def test_summer_school_2024(self, seeded_client):
+        resp = seeded_client.get("/summer_school_2024.html")
+        assert resp.status_code == 200
+
+    def test_summer_school_2022(self, seeded_client):
+        resp = seeded_client.get("/summer_school_2022.html")
+        assert resp.status_code == 200
+
+    def test_summer_school_2021(self, seeded_client):
+        resp = seeded_client.get("/summer_school_2021.html")
+        assert resp.status_code == 200
+
     def test_summer_school_list(self, seeded_client):
         resp = seeded_client.get("/summer_school_list.html")
+        assert resp.status_code == 200
+
+
+class TestBachelor:
+    def test_bachelor_application(self, seeded_client):
+        resp = seeded_client.get("/bachelor/application.html")
+        assert resp.status_code == 200
+
+    def test_bachelor_admission(self, seeded_client):
+        resp = seeded_client.get("/bachelor/admission.html")
+        assert resp.status_code == 200
+
+    def test_bachelor_programming_technology(self, seeded_client):
+        resp = seeded_client.get("/bachelor/programming-technology.html")
+        assert resp.status_code == 200
+
+    def test_bachelor_software_engineering(self, seeded_client):
+        resp = seeded_client.get("/bachelor/software-engineering.html")
         assert resp.status_code == 200
 
 

@@ -18,6 +18,61 @@ def test_scholarships_year1(seeded_client):
     assert resp.status_code == 200
 
 
+def test_scholarships_year2(seeded_client):
+    resp = seeded_client.get("/scholarships/2.html")
+    assert resp.status_code == 200
+
+
+def test_scholarships_year3(seeded_client):
+    resp = seeded_client.get("/scholarships/3.html")
+    assert resp.status_code == 200
+
+
+def test_scholarships_year4(seeded_client):
+    resp = seeded_client.get("/scholarships/4.html")
+    assert resp.status_code == 200
+
+
+def test_scholarships_year5(seeded_client):
+    resp = seeded_client.get("/scholarships/5.html")
+    assert resp.status_code == 200
+
+
+def test_scholarships_year6(seeded_client):
+    resp = seeded_client.get("/scholarships/6.html")
+    assert resp.status_code == 200
+
+
+def test_scholarships_year7(seeded_client):
+    resp = seeded_client.get("/scholarships/7.html")
+    assert resp.status_code == 200
+
+
+def test_scholarships_year8(seeded_client):
+    resp = seeded_client.get("/scholarships/8.html")
+    assert resp.status_code == 200
+
+
+def test_scholarships_year9(seeded_client):
+    resp = seeded_client.get("/scholarships/9.html")
+    assert resp.status_code == 200
+
+
+def test_scholarships_year10(seeded_client):
+    resp = seeded_client.get("/scholarships/10.html")
+    assert resp.status_code == 200
+
+
+def test_scholarships_year11(seeded_client):
+    resp = seeded_client.get("/scholarships/11.html")
+    assert resp.status_code == 200
+
+
+def test_scholarships_year12(seeded_client):
+    resp = seeded_client.get("/scholarships/12.html")
+    assert resp.status_code == 200
+
+
 def test_scholarships_year13(seeded_client):
     resp = seeded_client.get("/scholarships/13.html")
     assert resp.status_code == 200
