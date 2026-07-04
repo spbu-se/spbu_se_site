@@ -109,5 +109,8 @@ src/static/thesis/*/*.pdf
 src/whooshee/*
 whooshee/
 
+# Ruff cache
+.ruff_cache/
+
 # Build artifacts
 *.egg-info/
