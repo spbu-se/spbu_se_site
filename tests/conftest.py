@@ -23,19 +23,40 @@ def _init_db_path():
 _init_db_path()
 
 import pytest
+from sqlalchemy import create_engine
 
 from flask_se import app, db
 from se_models import init_db
+
+
+def _set_db_uri(uri):
+    """Set SQLAlchemy URI and reset engine cache."""
+    app.config["SQLALCHEMY_DATABASE_URI"] = uri
+    db.engines[None] = create_engine(uri)
+
+
+# Create a single seeded database template once per session
+@pytest.fixture(scope="session")
+def _seeded_db_path():
+    _dir = tempfile.mkdtemp()
+    _p = str(Path(_dir) / _db_name)
+    uri = "sqlite:///" + _p
+    with app.app_context():
+        _set_db_uri(uri)
+        db.create_all()
+        init_db()
+        db.session.remove()
+    yield _p
+    shutil.rmtree(_dir, ignore_errors=True)
 
 
 @pytest.fixture
 def app_ctx():
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
-    sqlalchemy_uri = f"sqlite:///{_p}"
+    uri = "sqlite:///" + _p
     with app.app_context():
-        app.config["SQLALCHEMY_DATABASE_URI"] = sqlalchemy_uri
-        db.engine.dispose()
+        _set_db_uri(uri)
         db.create_all()
         yield
         db.session.remove()
@@ -47,12 +68,11 @@ def app_ctx():
 def client():
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
-    sqlalchemy_uri = f"sqlite:///{_p}"
+    uri = "sqlite:///" + _p
     app.config["TESTING"] = True
-    app.config["SQLALCHEMY_DATABASE_URI"] = sqlalchemy_uri
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
-        db.engine.dispose()
+        _set_db_uri(uri)
         db.create_all()
         yield app.test_client()
         db.session.remove()
@@ -61,21 +81,31 @@ def client():
 
 
 @pytest.fixture
-def seeded_client():
+def seeded_client(_seeded_db_path):
+    """Copy the pre-seeded template DB once per test — fast (~ms)."""
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
-    sqlalchemy_uri = f"sqlite:///{_p}"
+    shutil.copy2(str(_seeded_db_path), _p)
+    uri = "sqlite:///" + _p
     app.config["TESTING"] = True
-    app.config["SQLALCHEMY_DATABASE_URI"] = sqlalchemy_uri
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
-        db.engine.dispose()
+        _set_db_uri(uri)
         db.create_all()
-        init_db()
         yield app.test_client()
         db.session.remove()
         db.drop_all()
     shutil.rmtree(_dir, ignore_errors=True)
+
+
+@pytest.fixture
+def logged_client(seeded_client):
+    """Seeded client with logged-in test user. Bypasses login to avoid scrypt hash issues on 3.13."""
+    from se_models import Users
+    u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+    with seeded_client.session_transaction() as sess:
+        sess["_user_id"] = str(u.id)
+    return seeded_client
 
 
 def assert_ok(client, path, methods=None, data=None, code=None):

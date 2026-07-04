@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: Apache-2.0
 
 from urllib.parse import urlparse
 
@@ -50,7 +51,7 @@ def post_vote():
     action_vote = request.args.get("action_vote", type=int)
 
     if not post_id:
-        return render_template(url_for("index"))
+        return redirect(url_for("index"))
 
     post = Posts.query.filter_by(id=post_id).first_or_404()
 

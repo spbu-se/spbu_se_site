@@ -1,10 +1,10 @@
-name: CI (staging)
+name: CI (staging + auto)
 
 on:
   push:
-    branches: [staging]
+    branches: [staging, staging-auto-*]
   pull_request:
-    branches: [staging]
+    branches: [staging, staging-auto-*]
 
 jobs:
   test:

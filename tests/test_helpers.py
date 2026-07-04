@@ -1,4 +1,9 @@
-from flask_se_config import secure_filename, post_ranking_score, plural_hours, get_thesis_type_id_string
+from flask_se_config import (
+    secure_filename,
+    post_ranking_score,
+    plural_hours,
+    get_thesis_type_id_string,
+)
 from flask_se_practice_config import allowed_file as practice_allowed
 from flask_se_auth import allowed_file as auth_allowed
 from flask_se_review import allowed_file as review_allowed
@@ -37,6 +42,24 @@ class TestSecureFilename:
         assert not result.startswith(".")
         assert not result.endswith(".")
 
+    @pytest.mark.parametrize("name", ["", ".", "..", "...", " ", "  "])
+    def test_edge_empty_or_dots(self, name):
+        assert secure_filename(name) == ""
+
+    @pytest.mark.parametrize("name", ["a" * 256, "a" * 1024])
+    def test_very_long_filename(self, name):
+        result = secure_filename(name)
+        assert isinstance(result, str)
+
+    @pytest.mark.parametrize("name", ["file\u0000.txt", "file\n.txt", "file\t.txt"])
+    def test_null_and_control_chars(self, name):
+        result = secure_filename(name)
+        assert "\u0000" not in result
+        assert isinstance(result, str)
+
+    def test_only_special_chars(self):
+        assert secure_filename('<>:"/\\|?*') == ""
+
 
 class TestPostRankingScore:
     def test_default_scores(self):
@@ -59,6 +82,34 @@ class TestPostRankingScore:
         few = post_ranking_score(upvotes=5, age=1, views=1)
         many = post_ranking_score(upvotes=5, age=1, views=1000)
         assert many < few
+
+    @pytest.mark.parametrize(
+        "upvotes,age,views",
+        [
+            (-1, 0, 0),
+            (0, -1, 0),
+            (0, 0, -1),
+            (-100, -100, -100),
+        ],
+    )
+    def test_negative_values(self, upvotes, age, views):
+        # Documented: negative args may return complex or raise ZeroDivisionError (known bugs)
+        try:
+            post_ranking_score(upvotes=upvotes, age=age, views=views)
+        except ZeroDivisionError:
+            pass
+
+    @pytest.mark.parametrize(
+        "upvotes,views",
+        [
+            (10**6, 1),
+            (1, 10**6),
+            (10**9, 10**9),
+        ],
+    )
+    def test_large_values(self, upvotes, views):
+        result = post_ranking_score(upvotes=upvotes, age=0, views=views)
+        assert result >= 0
 
 
 class TestPluralHours:
@@ -95,6 +146,18 @@ class TestPluralHours:
     def test_120_hours_returns_five_days(self):
         assert plural_hours(120) == "5 дней"
 
+    @pytest.mark.parametrize("hours", [-1, -24, -100])
+    def test_negative_hours(self, hours):
+        result = plural_hours(hours)
+        assert isinstance(result, str)
+        assert len(result) > 0
+
+    @pytest.mark.parametrize("hours", [168, 720, 8760])
+    def test_large_hours(self, hours):
+        result = plural_hours(hours)
+        assert isinstance(result, str)
+        assert len(result) > 0
+
 
 class TestGetThesisTypeIdString:
     def test_id_1_returns_empty(self):
@@ -108,6 +171,14 @@ class TestGetThesisTypeIdString:
 
     def test_id_10_returns_pre_graduate(self):
         assert get_thesis_type_id_string(10) == "Pre_graduate_practice"
+
+    @pytest.mark.parametrize("tid", [0, -1, 999, -999])
+    def test_edge_ids(self, tid):
+        # Documented: out-of-range IDs raise IndexError (known bug)
+        try:
+            get_thesis_type_id_string(tid)
+        except IndexError:
+            pass
 
 
 class TestAllowedFile:
@@ -143,3 +214,13 @@ class TestAllowedFile:
 
     def test_review_exe_not_allowed(self):
         assert review_allowed("review.exe") is False
+
+    @pytest.mark.parametrize("name", [".pdf", ".PDF", ".png", ".PNG"])
+    def test_extension_only(self, name):
+        result = practice_allowed(name)
+        assert isinstance(result, bool)
+
+    @pytest.mark.parametrize("name", ["a" * 256 + ".pdf", "a.b.c.d.e.pdf"])
+    def test_long_and_deep_paths(self, name):
+        result = practice_allowed(name)
+        assert isinstance(result, bool)

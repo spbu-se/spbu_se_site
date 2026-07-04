@@ -28,7 +28,7 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 
 - **Always branch from staging** at the very beginning: `git checkout staging && git pull --ff-only origin staging && git checkout -b staging-auto-<UTC-timestamp>`
 - Use this branch for all commits. Never commit to staging directly.
-- `staging-auto-*` branches are **scratch space** — commit freely, no garbage rules.
+- `staging-auto-*` branches are **scratch space** — commit freely, no garbage rules. CI runs automatically via `ci-staging.yml` (trigger `staging-auto-*`).
 - These branches are **never merged raw**. Later, the user squash-merges to staging with clean, feature-grouped commits.
 - In non-auto (interactive) mode, merges to staging require GPG signoff.
 - UTC timestamp format: `YYYYMMDDTHHMMSSZ` (e.g., `staging-auto-20260704T150706Z`).
@@ -37,6 +37,7 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 
 1. Record start time (UTC ISO 8601)
 1. `git checkout staging && git pull --ff-only origin staging`
+1. `uv run pre-commit install --install-hooks` — ensure hooks are active before any commits
 1. `git checkout -b staging-auto-<UTC-timestamp>`
 1. Accept approved plan
 1. Work through items — skip any blocker immediately

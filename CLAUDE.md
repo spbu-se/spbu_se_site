@@ -19,3 +19,5 @@ Load skill workflows from `.skills/<name>/README.md` when the task matches:
 | `gh-todo-sync` | Syncing TODO.md from GitHub / CI |
 | `js-bundle-analysis` | Reverse-engineering JS bundles |
 | `unattended-mode` | Running autonomously — no questions, no signoff, fix CI first |
+| `repo-review` | Evaluating repo health against doc/REPO_REVIEW.md checklist — load to audit and create backlog |
+| `readme-generator` | Generating/updating project README — load to create a polished project-specific README |

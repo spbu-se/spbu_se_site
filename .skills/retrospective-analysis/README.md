@@ -29,6 +29,7 @@ For each change, ask:
 | Was this re-active (fixing something missing)? | **Classify the gap** (next step) |
 | Was this a user request? | Record as completed work |
 | Could this rule have been automated? | It was left at doc-only — **classify as missing config** |
+| Was knowledge imported from another project? | **Check for cross-project leaks** — verify no private references, proprietary names, or source-repo mentions leaked into docs. Document adaptation decisions. |
 
 ### 3. Classify the gap
 
@@ -52,7 +53,7 @@ Determine where the retrospective belongs based on the gap's or change's area:
 | ----------------------------------------------------------------- | ------------------------------------------- |
 | Git flow, branching, commits, staging, guardrails, hotfixes | `doc/GIT_FLOW.md` §7 |
 | Planning, TDD, testing, types, release, dependencies, conventions | `doc/DEVELOPMENT_PROCESS.md` |
-| Tooling, environment, PowerShell, local config, platform quirks | `.tooling-environment.md` (mistake journal) |
+| Tooling, environment, PowerShell, local config, platform quirks | `.tooling.md` (mistake journal) |
 
 If gaps span multiple categories, split across documents. Each document is scoped to its own area — never duplicate a retrospective across docs.
 
@@ -63,10 +64,12 @@ Scan the session's changed docs for three signal patterns:
 | Pattern | How to detect | Action |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
 | **Config duplication** | Rule is described in doc AND enforced by `.pre-commit-config.yaml`, `.github/workflows/ci.yml`, `.gitignore`, `pyproject.toml`, or `dprint.json` | Remove from doc. Cross-reference the config file. |
-| **Cross-doc duplication** | Same rule appears in 2+ docs (e.g., `AGENTS.md` + `GIT_FLOW.md`) | Keep in one canonical doc. Replace others with cross-reference (`See X.md §Y`). |
+| **Cross-doc duplication** | Same rule appears in 2+ non-trivial docs (e.g., `GIT_FLOW.md` + `DEVELOPMENT_PROCESS.md`). **Exempt**: `AGENTS.md`, `CLAUDE.md`, `README.md` — these are intentional summary extracts. | Keep in one canonical doc. Replace others with cross-reference (`See X.md §Y`). |
 | **Self-evident rule** | Rule describes standard git/developer practice (e.g., "never commit to main", "stash before branching") | Delete. If the rule was added because someone violated it, keep as a retrospective entry instead. |
 
 Signal strength: high-confidence finds are config-duplicates (the config IS the truth). Low-confidence are self-evident rules (may be project-specific — ask if unsure).
+
+**SPDX/licensing audit** — verify every new or modified source file has an SPDX header matching the repo's LICENSE file. If LICENSE is missing, flag it. If multiple licenses exist, document coverage per directory.
 
 ### 5c. Improve skills used during the session
 
@@ -91,7 +94,10 @@ Include concrete file paths and exact changes needed.
 
 ### 7. Store lessons
 
-Append a structured retrospective entry to the target document identified in §5a under the appropriate heading (`### Retrospective — <title>` in `doc/GIT_FLOW.md` §7 or `doc/DEVELOPMENT_PROCESS.md`; add to the mistake journal table in `.tooling-environment.md`):
+Append a structured retrospective entry to the target document identified in §5a.
+**Every classified gap must have a corresponding retrospective entry** — even if the fix was already applied directly (code changes, doc updates, config changes). The entry records why the gap existed, not just what was done about it.
+
+If no existing heading matches, create a new one: `### Retrospective — <title>` in `doc/GIT_FLOW.md` §7 or `doc/DEVELOPMENT_PROCESS.md`; add to the mistake journal table in `.tooling.md`:
 
 ```markdown
 ### Retrospective — <title>
@@ -117,10 +123,16 @@ If yes, append an entry to the `## Self-improvement log` section at the bottom o
 ## Self-improvement log
 
 ### [2026-07-04] Add step 8 — self-improve retrospective
+
 The retrospective analyzed every process and skill but had no mechanism to improve itself. Added step 8 and this log.
 
 ### [2026-07-04] Add "user correction" pattern to classification
+
 The user redirected output 3 times in one session (test SLOC, doc split, unattended mode rules). The root cause was over-engineering (solving completeness over practicality). Added to unattended-mode skill principles and retrospective step 3 classification.
+
+### [2026-07-04] Add cross-project knowledge transfer + SPDX audit steps
+
+Session extracted process ideas from another private repo. Agent accidentally referenced the source repo by name in docs. Also discovered 60 Python files with no SPDX headers despite LICENSE existing. Added cross-project leak check to step 2 and SPDX/licensing audit to step 5b.
 
 ## Output template
 
@@ -143,4 +155,4 @@ Pattern recurrence: <yes/no — if yes, escalate>
 - `git` — to inspect commit history
 - Read access to `doc/GIT_FLOW.md` — to check §7 previous retros
 - Read access to `doc/DEVELOPMENT_PROCESS.md` — to check previous retros
-- Read access to `.tooling-environment.md` — to check mistake journal
+- Read access to `.tooling.md` — to check mistake journal

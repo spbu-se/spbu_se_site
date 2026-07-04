@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: Apache-2.0
 
 import smtplib
 from email.mime.multipart import MIMEMultipart

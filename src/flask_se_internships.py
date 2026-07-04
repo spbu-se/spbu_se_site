@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: Apache-2.0
 
 
 from flask import flash, redirect, render_template, request, url_for

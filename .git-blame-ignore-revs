@@ -1,0 +1,6 @@
+# .git-blame-ignore-revs
+# Formatter-only commits that touch many files at once.
+# These are excluded from `git blame` to avoid formatting noise.
+# After each formatter-only commit on staging/current, add its hash here.
+
+f967ac8269e99cd744812e91b93043315b466172  # djlint --reformat 104 templates

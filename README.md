@@ -1,64 +1,111 @@
-## Сайт кафедры cистемного программирования СПбГУ
+# SE Site — SPbSU System Programming Department
 
-Основная ветка - **current**
+[![CI (staging)](https://github.com/iakov/spbu_se_site/actions/workflows/ci-staging.yml/badge.svg)](https://github.com/iakov/spbu_se_site/actions)
+[![Python](https://img.shields.io/badge/python-3.13-blue)](.python-version)
+[![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-### Установка
+Сайт кафедры системного программирования Математико-механического факультета СПбГУ.
 
-Для установки требуется *Python 3.9*
+Веб-сайт для публикации информации о кафедре: новости, дипломные темы, практики, отзывы, информация для абитуриентов и студентов.
 
-1. Клонировать репозиторий
+## Prerequisites
 
-1. Перейти в корневую папку
+- Python 3.9+ (production via pip), 3.13 (development via uv)
+- SQLite (zero-config)
+- uv (for development)
 
-1. Переключиться на ветку *current*
-
-```bash
-git checkout current
-```
-
-4. Создать виртуальное окружение
-
-```bash
-python -m venv venv
-```
-
-5. Активировать виртуальное окружение
-
-Windows
+## Setup
 
 ```bash
-venv\Scripts\activate
-```
+git clone <repo-url>
+cd spbu_se_site
 
-Linux
-
-```bash
-. venv/bin/activate
-```
-
-6. Обновить `pip` и установить необходимые пакеты
-
-```bash
-pip install --upgrade pip
+# Production
 pip install -r requirements.txt
+python src/flask_se.py init
+python src/flask_se.py
+
+# Development
+uv sync
+uv run python src/flask_se.py init
+uv run python src/flask_se.py
 ```
 
-7. Перейти в папку *src*
+The site runs at `http://127.0.0.1:5000`.
 
-```bash
-cd src
+## Configuration
+
+Create these files in the project root (never committed):
+
+| File | Purpose |
+|------|---------|
+| `flask_se_secret.conf` | Secret key, database path, thesis API key |
+| `flask_se_mail.conf` | SMTP settings for email notifications |
+| `flask_se_practice_yandex_secret.conf` | Yandex OAuth for practice file storage |
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `uv run python src/flask_se.py` | Run development server |
+| `uv run python src/flask_se.py init` | Initialize database |
+| `uv run python src/wsgi.py` | Run via WSGI (production) |
+| `uv run pytest` | Run tests |
+| `uv run ruff check src/` | Lint |
+| `uv run ruff format src/` | Format |
+| `uv run mdformat .` | Format markdown |
+
+## Deployment
+
+The project includes Docker configuration:
+
+- `Dockerfile` — uWSGI-based Flask container
+- `docker-compose.yml` — Flask + nginx
+
+Production uses `current` branch with uWSGI behind nginx.
+
+## Project structure
+
+```
+se-site/
+├── src/                    # Application code (60 files)
+│   ├── flask_se.py         # Main app, routes
+│   ├── flask_se_auth.py    # Authentication (email, VK, Google)
+│   ├── flask_se_news.py    # News posts
+│   ├── flask_se_theses.py  # Thesis search and management
+│   ├── flask_se_diplomas.py# Diploma themes
+│   ├── flask_se_practice.py# Student practice workflows
+│   ├── flask_se_review.py  # Thesis review system
+│   ├── se_models.py        # SQLAlchemy models
+│   └── templates/          # Jinja2 templates (107 files)
+├── tests/                  # Test suite (258+ tests, 47% coverage)
+├── doc/                    # Process and architecture documentation
+├── .github/workflows/      # CI/CD pipelines
+└── docker-compose.yml      # Production deployment
 ```
 
-8. Инициализировать базу данных
+## Documentation
 
-```
-python flask_se.py init
-```
+| File | Purpose |
+|------|---------|
+| [doc/DEVELOPMENT_PROCESS.md](doc/DEVELOPMENT_PROCESS.md) | Development workflow, conventions, testing |
+| [doc/GIT_FLOW.md](doc/GIT_FLOW.md) | Branching, commits, staging workflow |
+| [doc/ARCHITECTURE.md](doc/ARCHITECTURE.md) | Module design and data flow |
+| [doc/REVERSE_ENGINEERING.md](doc/REVERSE_ENGINEERING.md) | Extracting knowledge from legacy code |
+| [doc/TOOLING.md](doc/TOOLING.md) | Cross-platform tooling knowledge |
+| [doc/TROUBLESHOOTING.md](doc/TROUBLESHOOTING.md) | Common errors and fixes |
+| [doc/API_REFERENCE.md](doc/API_REFERENCE.md) | API endpoint reference |
+| [doc/SCHEMA.md](doc/SCHEMA.md) | Database schema |
+| [doc/REPO_REVIEW.md](doc/REPO_REVIEW.md) | Repository audit checklist |
 
-9. Для локального тестирования запустить сайт (для деплоя надо использовать uWSGI)
+## Contributing
 
-```
-python flask_se.py
-```
+See [doc/GIT_FLOW.md](doc/GIT_FLOW.md) for branching model and commit conventions.
+See [doc/DEVELOPMENT_PROCESS.md](doc/DEVELOPMENT_PROCESS.md) for full development workflow.
 
-10. Сайт запускается по адресу `http://127.0.0.1:5000`
+All contributions are welcome. Please ensure tests pass and code is formatted before committing.
+
+## License
+
+Apache 2.0 — see [LICENSE](LICENSE).

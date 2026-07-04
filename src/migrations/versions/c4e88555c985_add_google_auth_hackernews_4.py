@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Add google auth + hackernews 4
 
 Revision ID: c4e88555c985

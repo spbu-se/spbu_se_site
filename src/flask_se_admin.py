@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: Apache-2.0
 
 from flask import redirect, render_template, session, url_for
 from flask_admin import AdminIndexView, expose

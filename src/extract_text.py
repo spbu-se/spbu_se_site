@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 from flask_se import app
 from flask_se_theses import get_text
 from se_models import Thesis, db

@@ -47,13 +47,71 @@ Each test fixture that needs a database must create its own `tempfile.mkdtemp()`
 
 `tempfile.NamedTemporaryFile` on Linux keeps the file descriptor open. SQLAlchemy gets "attempt to write a readonly database" on CREATE TABLE. Always use `tempfile.mkdtemp()` and let SQLAlchemy create the `.db` file.
 
+### Windows SQLite URI path format
+
+On Windows, SQLite URIs with forward slashes (`sqlite:///C:/Users/.../test.db`) silently fail — `db.create_all()` does NOT create the file and raises no error. Use backslash paths from `str(Path() / ...)` instead:
+
+```python
+# Works on all platforms:
+_p = str(Path(_dir) / "test.db")
+uri = f"sqlite:///{_p}"
+
+# Does NOT work on Windows (silent failure):
+_p = Path(_dir).as_posix() + "/test.db"
+uri = f"sqlite:///{_p}"
+```
+
 ### Engine caching
 
-Changing `app.config["SQLALCHEMY_DATABASE_URI"]` after the app is initialized requires `db.engine.dispose()` before `db.create_all()`. Without it, the old engine is reused.
+Changing `app.config["SQLALCHEMY_DATABASE_URI"]` after the app is initialized requires replacing the cached engine directly. `db.engine.dispose()` alone does NOT reset the cached engine — it only disposes the connection pool.
+
+**Correct pattern:**
+
+```python
+from sqlalchemy import create_engine
+
+app.config["SQLALCHEMY_DATABASE_URI"] = new_uri
+db.engines[None] = create_engine(new_uri)
+```
+
+This replaces the engine in Flask-SQLAlchemy's internal engine cache, so subsequent calls to `db.engine`, `db.create_all()`, etc. use the new URI.
 
 ### Test data seeding is slow
 
-Seeded DB tests (`init_db()`) take 10-15s each due to seed data insertion. With ~20 seeded tests, expect 3-5 min total runtime. Keep seeded tests focused.
+Seeded DB tests (`init_db()`) take 10-15s each due to seed data insertion. Mitigate by creating a session-scoped template and copying it per test:
+
+```python
+@pytest.fixture(scope="session")
+def _seeded_db_path():
+    ...  # create + seed once
+    yield _p
+
+@pytest.fixture
+def seeded_client(_seeded_db_path):
+    _p = str(Path(_dir) / _db_name)
+    shutil.copy2(_seeded_db_path, _p)
+    uri = "sqlite:///" + _p
+    app.config["SQLALCHEMY_DATABASE_URI"] = uri
+    db.engines[None] = create_engine(uri)
+    ...
+```
+
+### Login-required test fixture (session injection)
+
+When testing `@login_required` routes and the password hash is unavailable (e.g., scrypt unsupported on Python 3.13), inject the user ID directly into the Flask session instead of going through the login POST:
+
+```python
+@pytest.fixture
+def logged_client(seeded_client):
+    from se_models import Users
+    u = Users.query.first()
+    with seeded_client.session_transaction() as sess:
+        sess["user_id"] = str(u.id)
+        sess["_fresh"] = True
+    return seeded_client
+```
+
+This works because Flask-Login reads `session["user_id"]` on every request to load the current user via `user_loader`.
 
 ## pytest config
 
@@ -131,3 +189,15 @@ Signoff policy is defined in `doc/GIT_FLOW.md §4`. This doc only adds cross-cut
 ### Never touch global git config
 
 Global git options (`git config --global`) are user-specific and should never be modified by automation without explicit user approval.
+
+## Retrospectives
+
+### Retrospective — Windows SQLite URI path format undocumented
+
+After introducing a session-scoped seeded DB template, the `Path.as_posix()` URI format silently failed on Windows — `db.create_all()` raised no error but didn't create the file. The fix (`str(Path() / ...)`) was applied directly to `conftest.py` but never extracted as a documented quirk. A later retro session identified the gap and added the note above.
+
+**What went wrong**: The fix was code-only — no doc entry was created even though the issue (Windows path format) is a portable tooling knowledge item that affects all Windows developers.
+
+**Root cause**: Missing convention — agent applied a fix but didn't create the corresponding doc note because the retrospective hadn't been run yet. The retro skill didn't require retro entries for every gap found.
+
+**Fix**: Added the Windows SQLite URI path format section above. Updated the retrospective-analysis skill §7 to require that every classified gap gets a retrospective entry, even if the fix was applied directly.

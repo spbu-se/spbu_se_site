@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """empty message
 
 Revision ID: c250ebb1be35

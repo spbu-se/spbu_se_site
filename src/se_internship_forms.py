@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: Apache-2.0
 
 from flask_wtf import FlaskForm
 from wtforms import SelectField, SelectMultipleField, StringField, widgets

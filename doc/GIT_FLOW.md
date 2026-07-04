@@ -19,13 +19,14 @@ Covers: branching, commit rules, staging workflow, session start/end rituals, gu
 | `chore/` | Maintenance, deps, build config |
 | `staging-auto-*` | Auto-mode throwaway branches — scratch space for batch work, later squash-merged to staging with clean feature-grouped commits (never raw). See `.skills/unattended-mode/README.md` |
 
-**Guardrail — branch creation**: before `git checkout -b`, commit or stash all working tree changes. Never branch with a dirty tree.
+**Guardrail — branch creation**: before `git checkout -b`, commit or stash all working tree changes. Never branch with a dirty tree — uncommitted edits silently leak into the wrong commits.
 
 ## 2. Workflow
 
 1. **Branch** — `git checkout -b <prefix>/<name>` from `staging`.
 1. **Architecture first** — write design decisions in `doc/ARCHITECTURE.md -> Design Decisions` before implementation.
 1. **Doc first** — update docs that describe code that does not exist yet, commit, then implement.
+1. **Mid-sprint violation** — if architecture-first or doc-first step was skipped, create a `TODO.md` Backlog entry. Fixing it (document decision, rearrange code if needed) is a **must-have** before the next feature.
 1. **TDD**: write tests from docs -> implement -> format -> test -> commit.
 1. Suggest merge into **staging** after every commit.
 1. Fail -> `git branch -D experiment/<name>`.
@@ -35,13 +36,27 @@ Covers: branching, commit rules, staging workflow, session start/end rituals, gu
    - Merge directly to current (bypasses staging)
    - Tag `git tag v<version>`
    - Sync staging: `git checkout staging && git merge current`
+   - **Log debt**: add `[HOTFIX_DEBT] Review origin of hotfix/<name>, then backfill docs, expand test coverage, and verify the fix is complete` to TODO.md Backlog — P0 priority, must resolve before any new feature work
 1. **Merge into staging** — `git merge --squash <branch>` into `staging`. Tests must pass. Staging CI runs automatically.
-1. **Enforcement self-check** — can it be automated (layer 1)? CI-checked (layer 2)? Or only documented (layer 3)?
-1. **Pre-merge refresh** — before proposing merge to current, run `uv export --no-dev --no-hashes > requirements.txt` and commit if changed.
-1. **Staging->current gate** — full verification against the checklist in `doc/DEVELOPMENT_PROCESS.md`.
-1. **Propose finalization** — show diff, await user approval, run gate, merge `--ff-only`.
-1. **Context Compaction** — update ARCHITECTURE.md, TODO.md, verify docs sync.
-1. **Retrospective & stale branch audit** — after each merge to current.
+1. **Enforcement self-check** — before staging→current gate, audit each decision from this session:
+   - Can it be automated? → tool config (layer 1)
+   - Can it be CI-checked? → add a workflow step (layer 2)
+   - Is documentation the only option? → document (layer 3)
+   - Is its git tracking status correct? → every new file must be either `.gitignored` (local-only) or tracked (shared). Verify intent before commit.
+   - If a rule is documented WITHOUT checking layers 1-2 first, the session is incomplete. Add the automated check before proceeding to the gate.
+1. **Pre-merge refresh** — before proposing merge to current, run `uv export --no-dev --no-hashes` and commit if changed.
+1. **Staging→current gate** — full verification against the checklist in `doc/DEVELOPMENT_PROCESS.md`. Before gate:
+   - Check every `.md` file has: H1 → one-sentence aim → scope note covering what it does and does not document
+   - Verify no content duplicates another doc — cross-reference instead
+   - Fix hidden issues, improve process docs, add retrospective findings
+1. **Propose finalization** — show diff (`git log --oneline current..staging`), await user approval, run gate, merge `--ff-only`. If CI fails on current after merge → stop, don't push, fix in a branch.
+1. **Context Compaction** — before compacting context or ending session:
+   - Update ARCHITECTURE.md Design Decisions with new choices
+   - Update TODO.md (remove completed, reorder backlog)
+   - **AI instructions drift check**: verify no unique content in AI instructions — every claim must cross-reference a canonical source. If a new quirk is needed, write the full version in the canonical doc first, then extract a condensed cross-reference.
+   - Audit cross-references: scan every `.md` file under `doc/` and `.skills/` for hardcoded step numbers. Replace with section-title references (e.g. `§2 — Task selection priority ladder` instead of `step 50`).
+1. **Retrospective & stale branch audit** — after each merge to current. Run `git branch --merged current | Select-String -NotMatch "current"` and auto-delete. If 5+ merges since last doc audit, run a doc health check (verify scope, no cross-doc duplication). If tasks are needed, optionally run `repo-review` skill to generate backlog.
+1. **TODO management** — every unimplemented idea MUST live in `TODO.md` Backlog or Icebox. Removing from Icebox requires explicit user request. Document rejection reasons in ARCHITECTURE.md Design Decisions when declining a feature. The product includes what is NOT implemented — document why.
 1. **Task priority ladder**: CI fixes > PRs > stale branches > backlog > icebox.
 
 ## 3. Guardrails
@@ -49,7 +64,8 @@ Covers: branching, commit rules, staging workflow, session start/end rituals, gu
 ### Session start
 
 1. `git fetch --prune origin`
-1. `git status` — check for orphaned WIP
+1. **Read `.unfinished.plan.md`** — if it exists, it contains the previous focus task, dirty files, and next steps. Read it BEFORE checking git status so you know what was interrupted.
+1. `git status` — check for orphaned WIP. If dirty: branch and commit. Also check for new untracked dotfiles not in `.gitignore` — they may need an exception.
 1. `git checkout staging && git pull --ff-only origin staging` — sync staging
 1. `git log --oneline origin/staging ^origin/current` — check staging ahead of current
 1. `uv run pre-commit run --all-files` — verify all hooks pass before starting new work (catches repo-wide format/lint drift)
@@ -63,9 +79,11 @@ List stale branches before new tasks: `git branch -r --no-merged origin/current`
 
 Feature branches only, pre-stage only, solo branches only, `--force-with-lease`.
 
+Exception: if a stale branch has 10+ commits or 5+ file conflicts, rebasing onto staging before squash-merging is **recommended** — it turns a single huge conflict resolution into manageable per-commit steps.
+
 ### When to hotfix
 
-Only for production-blocking bugs or broken CI. Never for improvements.
+Only for production-blocking bugs that prevent users from completing a critical workflow, or when a GitHub CI workflow is broken. Never for improvements — hotfix is only initiated on explicit user request. If unsure, ask the user.
 
 ## 4. Commit Sequence
 
@@ -120,7 +138,7 @@ Pre-commit hooks run automatically (see `.pre-commit-config.yaml`). The followin
 | `check-case-conflict` | Case conflicts on case-insensitive FS |
 | `check-json` / `check-yaml` | Invalid syntax in structured files |
 
-Conventional Commits enforced by commitlint.
+Conventional Commits enforced by commitlint. Test manually: `pre-commit run commitlint --hook-stage commit-msg`.
 
 ### 4.5 Branch prefix to commit type
 
@@ -158,13 +176,33 @@ Staging is a permanent branch — never deleted.
 
 **Two-tier quality gate**: Feature -> staging (tests pass). Staging -> current (100% coverage, docs sync).
 
+**Self-certify process changes** — if this session added or modified an audit/check step (lint, CI, doc audit, etc.), run it against current staging before merging. Process improvements must demonstrate they find real issues in the state they're being merged into.
+
 **Rules**: Every non-hotfix branch merges into staging first. Direct-to-current forbidden (exception: hotfix).
 
 ## 6. Commit Rules & Versioning
 
+### Process docs during code work
+
+Do not update process documentation while implementing features or fixing bugs on a feature branch. Instead, gather observations and suggest improvements. Process doc changes happen during **staging→current gate** (see §2) or on dedicated `docs/` branches.
+
+**Exception**: if the architecture-first or doc-first cycle was violated (code before doc), add a `TODO.md` debt entry mid-sprint — this is a violation record, not a doc change.
+
 ### Linter-only commits
 
 Commits that only touch formatters/linters (ruff, mdformat, dprint) and pass all checks need no user review. The agent may commit and push directly to staging.
+
+After such a commit lands on staging, add its hash to `.git-blame-ignore-revs` (create if missing). Run `git blame --ignore-revs-file .git-blame-ignore-revs` to skip formatting noise.
+
+### Stop signal
+
+When any commit requires user review (AI instruction change, process change, non-trivial decision), output a visible stop banner and do NOT proceed:
+
+```
+🟡 STOP — <reason>
+```
+
+Do not commit, stash, or proceed without user approval. This overrides all automation rules — if in doubt, STOP.
 
 ### AI instruction changes
 
@@ -180,7 +218,9 @@ When pausing or ending a session with unfinished work:
 
 1. Check `git status --short` for dirty/uncommitted files
 1. Write `.unfinished.plan.md` with: date/time, focus task, branch, last commit hash, dirty files, completed steps, remaining actions, undocumented decisions, next steps
-1. If on feature branch with unfinished code: `git add -A && git commit -m "wip: <description>"`, create `_UNFINISHED.md` summarizing state, commit it
+1. If on feature branch with unfinished code: `git add -A && git commit --no-gpg-sign -m "wip: <description>"`. Then create `_UNFINISHED.md` summarizing state, commit it as a separate **final commit**.
+1. `_UNFINISHED.md` is always the **last commit** on the branch. This makes it easy to strip during squash-merge into staging (squash condenses all commits, so it's naturally dropped).
+1. `.unfinished.plan.md` is **never committed** — it's in `.gitignore`. It guides the next session start.
 1. Run `uv export --no-dev --no-hashes > requirements.txt` if deps changed
 1. Verify working tree is clean
 
