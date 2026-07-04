@@ -67,7 +67,59 @@ Only for production-blocking bugs or broken CI. Never for improvements.
 
 ## 4. Commit Sequence
 
-Pre-commit hooks run automatically (see `.pre-commit-config.yaml`). Conventional Commits enforced by commitlint.
+### 4.1 Staging discipline
+
+Never use `git add .` or `git add -A` without reviewing what is staged. Always stage files explicitly:
+
+```bash
+git add src/flask_se.py tests/test_smoke.py
+```
+
+Before committing, verify only source files are staged:
+
+```bash
+git diff --cached --name-only
+```
+
+**Reject any staged file that is:**
+- A build artifact (`.coverage`, `*.egg-info/`, `*.pyc`, `.ruff_cache/`, `.pytest_cache/`)
+- A generated binary/dump (`.db`, `.sqlite`, `.log`)
+- A vendored dependency that should be managed elsewhere
+
+### 4.2 Adding a new tool
+
+When introducing a new linter, formatter, or build tool that produces files:
+
+1. Add its artifact patterns to `.gitignore` **before** running the tool
+2. Verify with `git status --short` that nothing unexpected appeared
+3. Only then commit the tool config
+
+**Default pattern for any new tool:** `git check-ignore <path>` should return a rule. If it doesn't, the artifact is not protected.
+
+### 4.3 Rescue
+
+If an artifact was committed by accident:
+
+```bash
+git rm --cached <path/to/artifact>
+echo "<pattern>" >> .gitignore
+git add .gitignore
+git commit -m "chore: remove <artifact> from tracking"
+```
+
+### 4.4 Pre-commit hooks
+
+Pre-commit hooks run automatically (see `.pre-commit-config.yaml`). The following hooks block obvious garbage:
+
+| Hook | Blocks |
+|---|---|
+| `check-added-large-files` | Files > 500 KB |
+| `check-case-conflict` | Case conflicts on case-insensitive FS |
+| `check-json` / `check-yaml` | Invalid syntax in structured files |
+
+Conventional Commits enforced by commitlint.
+
+### 4.5 Branch prefix to commit type
 
 | Branch prefix | Commit type |
 |---|---|
