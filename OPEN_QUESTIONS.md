@@ -4,7 +4,7 @@ Unresolved questions from this session — to be answered by user review.
 
 ## Current
 
-- _None yet_
+- `password_recovery.html` returns 500 on production (se.math.spbu.ru) — same `TemplateNotFound` as local. Confirmed live bug.
 
 ## Resolved
 
