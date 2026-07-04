@@ -1,77 +1,78 @@
 <ul class="navbar-nav align-items-lg-center ml-lg-auto">
-    {% set headerMenuOptions = [
-        {
-            'name': "Поступающим",
-            'options': [
-                {'name': 'Бакалавриат', 'href': url_for('bachelor_admission') },
-                {'name': 'Магистратура', 'href': url_for('index', _anchor='magistracy')},
-                {'name': 'Вопросы и ответы', 'href': url_for('frequently_asked_questions')},
-            ]
-        },
-        {
-            'name': "Студентам",
-            'options': [
-                {'name': 'Темы практик и ВКР', 'href': url_for('diplomas_index')},
-                {'name': 'Рецензирование практик и ВКР', 'href': url_for('thesis_review_index')},
-                {'name': 'Архив практик и ВКР', 'href': url_for('theses_search')},
-                {'name': 'Написание практик и ВКР', 'href': url_for('practice_index')},
-                {'name': 'Новости', 'href': url_for('list_news')},
-                {'name': "Поиск IT-стажировок", 'href': url_for('internships_index')},
-                {'name': 'Стипендии и гранты', 'href': url_for('scholarships')},
-                {'name': "Летняя школа", 'href': url_for('summer_school_2026')}
-            ]
-        },
-        {
-            'name': 'Кафедра',
-            'options': [
-                {'name': 'Сотрудники', 'href': url_for('department_staff')},
-                {'name': 'Направления исследований', 'href': url_for('research_directions')},
-                {'name': 'Выпускники кафедры', 'href': "https://oops.math.spbu.ru/SE/alumni", 'target': "_blank"},
-                {'name': 'Контакты', 'href': url_for('contacts')},
-            ]
-        },
-        {
-            'name': 'Преподавателям',
-            'options': [
-                {'name': 'Написание практик и ВКР (для преподавателей)', 'href': url_for('index_staff'), "id": "practice_staff_button"},
-                {'name': 'Написание практик и ВКР (для руководителей практик)', 'href': url_for('index_admin')},
-            ],
-            'for_stuff': true
-        }
+  {% set headerMenuOptions = [
+      {
+        'name': "Поступающим",
+        'options': [
+          {'name': 'Бакалавриат', 'href': url_for('bachelor_admission') },
+          {'name': 'Магистратура', 'href': url_for('index', _anchor='magistracy')},
+          {'name': 'Вопросы и ответы', 'href': url_for('frequently_asked_questions')},
+        ]
+      },
+      {
+        'name': "Студентам",
+        'options': [
+          {'name': 'Темы практик и ВКР', 'href': url_for('diplomas_index')},
+          {'name': 'Рецензирование практик и ВКР', 'href': url_for('thesis_review_index')},
+          {'name': 'Архив практик и ВКР', 'href': url_for('theses_search')},
+          {'name': 'Написание практик и ВКР', 'href': url_for('practice_index')},
+          {'name': 'Новости', 'href': url_for('list_news')},
+          {'name': "Поиск IT-стажировок", 'href': url_for('internships_index')},
+          {'name': 'Стипендии и гранты', 'href': url_for('scholarships')},
+          {'name': "Летняя школа", 'href': url_for('summer_school_2026')}
+        ]
+      },
+      {
+        'name': 'Кафедра',
+        'options': [
+          {'name': 'Сотрудники', 'href': url_for('department_staff')},
+          {'name': 'Направления исследований', 'href': url_for('research_directions')},
+          {'name': 'Выпускники кафедры', 'href': "https://oops.math.spbu.ru/SE/alumni", 'target': "_blank"},
+          {'name': 'Контакты', 'href': url_for('contacts')},
+        ]
+      },
+      {
+        'name': 'Преподавателям',
+        'options': [
+          {'name': 'Написание практик и ВКР (для преподавателей)', 'href': url_for('index_staff'), "id": "practice_staff_button"},
+          {'name': 'Написание практик и ВКР (для руководителей практик)', 'href': url_for('index_admin')},
+        ],
+        'for_stuff': true
+      }
     ] %}
-
-    {% for headerOption in headerMenuOptions %}
-        {% if (not headerOption['for_stuff']) or (current_user.is_authenticated and current_user.is_staff()) %}
-        <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
-            <a class="nav-link" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
-                {{ headerOption['name'] }}
-            </a>
-            <div class="dropdown-menu dropdown-menu-md p-0">
-                <div class="list-group list-group-flush px-lg-4">
-                {% for option in headerOption['options'] %}
-                    <a href="{{ option['href'] }}" {% if option.target %} target= {{option.target}} {% endif %} {% if option.id %} id={{option.id}} {% endif %}  class="list-group-item list-group-item-action" role="button">
-                        <div class="d-flex">
-                            <!-- Media body -->
-                            <div class="ml-3">
-                                <small class="text-sm">{{ option['name'] }}</small>
-                            </div>
-                        </div>
-                    </a>
-                {% endfor %}
-        </li>
+  {% for headerOption in headerMenuOptions %}
+    {% if (not headerOption['for_stuff']) or (current_user.is_authenticated and current_user.is_staff()) %}
+      <li class="nav-item nav-item-spaced dropdown dropdown-animate"
+          data-toggle="hover">
+        <a class="nav-link"
+           data-toggle="dropdown"
+           href="#"
+           aria-haspopup="true"
+           aria-expanded="false">{{ headerOption['name'] }}</a>
+        <div class="dropdown-menu dropdown-menu-md p-0">
+          <div class="list-group list-group-flush px-lg-4">
+            {% for option in headerOption['options'] %}
+              <a href="{{ option['href'] }}"
+                 {% if option.target %}target= {{ option.target }}{% endif %}
+                 {% if option.id %}id={{ option.id }}{% endif %}
+                 class="list-group-item list-group-item-action"
+                 role="button">
+                <div class="d-flex">
+                  <!-- Media body -->
+                  <div class="ml-3">
+                    <small class="text-sm">{{ option['name'] }}</small>
+                  </div>
+                </div>
+              </a>
+            {% endfor %}
+          </li>
         {% endif %}
-    {% endfor %}
-
-    <li class="nav-item nav-item-spaced dropdown dropdown-animate" data-toggle="hover">
+      {% endfor %}
+      <li class="nav-item nav-item-spaced dropdown dropdown-animate"
+          data-toggle="hover">
         {% if current_user.is_authenticated %}
-        <a href="{{ url_for('user_profile') }}" class="nav-link">
-                Профиль
-        </a>
-
+          <a href="{{ url_for('user_profile') }}" class="nav-link">Профиль</a>
         {% else %}
-        <a href="{{ url_for('login_index') }}" class="nav-link">
-                Вход
-        </a>
+          <a href="{{ url_for('login_index') }}" class="nav-link">Вход</a>
         {% endif %}
-    </li>
-</ul>
+      </li>
+    </ul>

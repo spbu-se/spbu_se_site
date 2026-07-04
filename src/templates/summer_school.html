@@ -1,82 +1,68 @@
 {% extends "base_light.html" %}
 {% block title %}Летняя школа на мат-мехе СПбГУ (2024){% endblock %}
 {% block description %}Летняя проектная онлайн-школа программирования для обучающихся СПбГУ (2024, онлайн). Школа проводилась с 8 июля по 3 августа 2024 года.{% endblock %}
-
 {% block headers %}
-<link rel="canonical" href="https://se.math.spbu.ru/{{school.href}}.html" />
+  <link rel="canonical" href="https://se.math.spbu.ru/{{ school.href }}.html" />
 {% endblock %}
-
 {% block content %}
-     <!-- Main content -->
-<section xmlns="http://www.w3.org/1999/html" class="mt-7 pt-6">
-        <!-- Container -->
-        <div class="container d-flex align-items-center pb-5">
-            <div class="col px-0">
-                <div class="row">
-                    <div class="col-lg-9">
-                        <a href="{{ url_for('summer_school_list') }}">Архив описаний прошлых летних школ</a>
-                        <!-- Heading -->
-                        <h1 class="h2 mb-2">{{ school.full_name|safe }}</h1>
-                        <!-- Text -->
-                        <p class="lead">{{ school.description|safe }}</p>
-                    </div>
-                </div>
-            </div>
+  <!-- Main content -->
+  <section xmlns="http://www.w3.org/1999/html" class="mt-7 pt-6">
+    <!-- Container -->
+    <div class="container d-flex align-items-center pb-5">
+      <div class="col px-0">
+        <div class="row">
+          <div class="col-lg-9">
+            <a href="{{ url_for('summer_school_list') }}">Архив описаний прошлых летних школ</a>
+            <!-- Heading -->
+            <h1 class="h2 mb-2">{{ school.full_name|safe }}</h1>
+            <!-- Text -->
+            <p class="lead">{{ school.description|safe }}</p>
+          </div>
         </div>
-</section>
-
-<section class="slice slice-lg pb-0 pt-5 bg-section-secondary">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="text-center">
-                        <h2 class="h2 mb-2">Проекты летней школы</h2>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                {% for proj in projects %}
-                <div class="col-lg-6 my-2 align-items-stretch">
-                    <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
-                        <div class="card-header">
-                            <h3 class="h5 mb-0 text-left"><strong>{{proj.project_name}}</strong></h3>
-                            <p class="text-sm mt-0">
-                                {{proj.tech}}
-                            </p>
-                        </div>
-
-                        <div class="card-body pt-0">
-
-                            {%  if proj.description %}
-                            <h6 class="h6 mb-0">Описание</h6>
-                            {{proj.description | safe}}
-                            {% endif %}
-
-                            {% if proj.repo %}
-                            <h6 class="h6 mb-0">Репозиторий</h6>
-                            <p class="text-sm mb-0">{{proj.repo | safe}}</p>
-                            {% endif %}
-
-                            {% if proj.demos %}
-                            <h6 class="h6 mb-0">Демо</h6>
-                            <p class="text-sm mb-0">{{proj.demos | safe}}</p>
-                            {% endif %}
-
-                            {% if proj.requirements %}
-                            <h6 class="h6 mt-4 mb-0">Требования к кандидату</h6>
-                            <p class="text-sm">{{proj.requirements}}</p>
-                            {% endif %}
-
-                            <h6 class="h6 mt-4 mb-0">Руководители</h6>
-                            <p class="text-sm">{{proj.advisors | safe}}</p>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+      </div>
+    </div>
+  </section>
+  <section class="slice slice-lg pb-0 pt-5 bg-section-secondary">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="text-center">
+            <h2 class="h2 mb-2">Проекты летней школы</h2>
+          </div>
         </div>
-</section>
-
-
+      </div>
+      <div class="row">
+        {% for proj in projects %}
+          <div class="col-lg-6 my-2 align-items-stretch">
+            <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
+              <div class="card-header">
+                <h3 class="h5 mb-0 text-left"><strong>{{ proj.project_name }}</strong></h3>
+                <p class="text-sm mt-0">{{ proj.tech }}</p>
+              </div>
+              <div class="card-body pt-0">
+                {% if proj.description %}
+                  <h6 class="h6 mb-0">Описание</h6>
+                  {{ proj.description | safe }}
+                {% endif %}
+                {% if proj.repo %}
+                  <h6 class="h6 mb-0">Репозиторий</h6>
+                  <p class="text-sm mb-0">{{ proj.repo | safe }}</p>
+                {% endif %}
+                {% if proj.demos %}
+                  <h6 class="h6 mb-0">Демо</h6>
+                  <p class="text-sm mb-0">{{ proj.demos | safe }}</p>
+                {% endif %}
+                {% if proj.requirements %}
+                  <h6 class="h6 mt-4 mb-0">Требования к кандидату</h6>
+                  <p class="text-sm">{{ proj.requirements }}</p>
+                {% endif %}
+                <h6 class="h6 mt-4 mb-0">Руководители</h6>
+                <p class="text-sm">{{ proj.advisors | safe }}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
 {% endblock %}
