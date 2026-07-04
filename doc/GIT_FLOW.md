@@ -51,6 +51,7 @@ Covers: branching, commit rules, staging workflow, session start/end rituals, gu
 1. `git status` — check for orphaned WIP
 1. `git checkout staging && git pull --ff-only origin staging` — sync staging
 1. `git log --oneline origin/staging ^origin/current` — check staging ahead of current
+1. `uv run pre-commit run --all-files` — verify all hooks pass before starting new work (catches repo-wide format/lint drift)
 1. `git checkout -b <prefix>/<name>`
 
 ### Stale branch awareness
@@ -184,6 +185,26 @@ When pausing or ending a session with unfinished work:
 SemVer: MAJOR (breaking), MINOR (feat), PATCH (fix, docs, etc.). Tag every merge to current: `git tag v<version>`.
 
 ## 9. Retrospectives
+
+### Retrospective — 2026-07-04: cross-doc duplication, CI mismatch, over-engineering recurrence
+
+This session touched 22 files across docs, tests, config, and skills. Gaps found:
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| GPG/signoff rule duplicated across GIT_FLOW.md, TOOLING.md, .tooling.md, CLAUDE.md | Cross-doc duplication | Canonical source is GIT_FLOW.md §4 — other docs cross-reference instead |
+| Test expectations failed in CI (test data mismatched) | Missing config — no CI environment parity check | Added to DEVELOPMENT_PROCESS.md §3.5 code review checklist |
+| Vendor libs, .coverage, .ruff_cache, egg-info tracked in git | Missing config — .gitignore incomplete | Fixed during session |
+| Pre-existing code didn't pass new pre-commit hooks | Missing config — hooks added retroactively, no bulk-format step | Added `pre-commit run --all-files` to session-start ritual |
+| User correction: unattended-mode over-engineered twice | Pattern recurrence — same over-engineering from previous retro | Added "check existing first" guard to planning phase (DEVELOPMENT_PROCESS.md §0.5) |
+
+**Pattern recurrence**: YES — over-engineering pattern appears in 2nd consecutive retro. Escalated with planning-phase guard.
+
+**What went wrong**: Multiple config gaps (gitignore, linter exclusions, CI parity) accumulated because tooling was added incrementally without a systematic artifact audit. The over-engineering pattern recurred despite being flagged in the previous retro — the fix was too weak (skill documentation) and needed a process-level guard.
+
+**Root causes**: Missing config (4 gaps), pattern recurrence (1 gap), cross-doc duplication (1 gap).
+
+**Fix**: Session-start ritual now includes pre-commit --all-files check. Code review checklist now includes CI parity check. Planning phase now includes "check existing" guard. GPG policy consolidated to GIT_FLOW.md only.
 
 ### Retrospective — session-start ritual violated
 

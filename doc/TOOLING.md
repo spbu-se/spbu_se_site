@@ -124,11 +124,9 @@ Exclude scripts that run once (importers, migrations) from coverage for realisti
 omit = ["src/thesesImport.py", "src/migrations/*"]
 ```
 
-## Commits & GPG
+## Commit signing
 
-### Signoff policy pattern
-
-Regular commits to staging/feature branches don't need signoff — only merge commits to production. This avoids GPG agent timeouts when password storage is locked.
+Signoff policy is defined in `doc/GIT_FLOW.md §4`. This doc only adds cross-cutting notes.
 
 ### Never touch global git config
 

@@ -37,6 +37,7 @@ Before any implementation: enter **planning phase** (read-only analysis). Always
 1. Apply the priority ladder (see `doc/GIT_FLOW.md`): CI failures -> PRs -> backlog -> icebox
 1. Present findings and top candidate tasks to the user, each with effort estimate (S/M/L)
 1. User reviews, adjusts, approves
+1. **Check existing first** — before creating a new skill, doc, or tool, verify existing ones don't already cover the need. Over-engineering (solving completeness over practicality) is the #1 repeated gap.
 1. Discuss approach, confirm scope, get approval
 1. Only then branch and implement
 
@@ -99,7 +100,7 @@ Every item must pass before staging -> current merge:
 
 | # | Check | What to verify |
 |---|---|---|
-| 1 | **Tests pass** | `pytest` green |
+| 1 | **Tests pass** | `pytest` green — run locally AND verify against CI environment (fresh DB, no stale artifacts) |
 | 2 | **Lint** | `ruff` clean |
 | 3 | **Format** | `ruff format` + `mdformat` applied |
 | 4 | **Edge cases** | Empty/null inputs, boundary values, failure modes tested |
