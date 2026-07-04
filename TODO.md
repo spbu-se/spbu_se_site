@@ -20,10 +20,16 @@
 - **Verify uv caching** in ci-staging.yml
 - **Run retrospective after 5 green CI runs** (1/5 done)
 
+## Backlog (next items, one by one)
+
+- **Clean up stale CI workflows** — `linter.yml` (Black vs Ruff), `ci.yml` (duplicates staging), 3 of 9 are stale
+- **Raise coverage threshold** — bump from 10% to 25-30% (actual is 30%)
+- **Merge staging → current** — 30 commits ahead, CI green, merge and tag
+- **Run djlint on 107 templates** — trigger the reformat commit
+- **Fix Bandit findings** — `debug=True` on `app.run()`, `requests` without timeout
+
 ## Icebox
 
-- Run djlint reformat on 107 templates
-- Fix Bandit findings (debug=True, request timeout)
 - Upgrade to Python 3.12+
 - Add mypy type checking
 - Docker optimization
