@@ -39,10 +39,12 @@ repos:
     hooks:
       - id: check-json
         exclude: ^src/static/assets/libs/
+      - id: check-added-large-files
+      - id: check-case-conflict
       - id: end-of-file-fixer
-        exclude: ^src/static/|^src/se_site\.egg-info/
+        exclude: ^src/static/
       - id: trailing-whitespace
-        exclude: ^src/static/|\.svg$|\.min\.(css|js)$
+        exclude: ^src/static/
 
   - repo: https://github.com/Riverside-Healthcare/djlint
     rev: v1.36.4
