@@ -103,6 +103,25 @@ Append a structured retrospective entry to the target document identified in §5
 **Fix**: <what was done to prevent recurrence>
 ```
 
+### 8. Self-improve retrospective
+
+The retrospective itself is a tool. Every time it runs, check if it revealed a gap in the retrospective process:
+
+- Was any classification ambiguous? (Step 3)
+- Was the target document unclear? (Step 5a)
+- Did the session include user corrections that the retrospective should track? (e.g., "do X instead of Y" — classify as **task ambiguity** or **over-engineering**)
+- Was a skill used during the session that should be updated? (Step 5c) — did that actually happen?
+
+If yes, append an entry to the `## Self-improvement log` section at the bottom of this file. This creates a feedback loop: retrospectives improve themselves.
+
+## Self-improvement log
+
+### [2026-07-04] Add step 8 — self-improve retrospective
+The retrospective analyzed every process and skill but had no mechanism to improve itself. Added step 8 and this log.
+
+### [2026-07-04] Add "user correction" pattern to classification
+The user redirected output 3 times in one session (test SLOC, doc split, unattended mode rules). The root cause was over-engineering (solving completeness over practicality). Added to unattended-mode skill principles and retrospective step 3 classification.
+
 ## Output template
 
 At the end, produce:
