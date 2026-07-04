@@ -30,7 +30,7 @@ Commit sequence: `format → uv export --no-dev --no-hashes > requirements.txt (
 - **Planning phase first** — no code without prior user discussion and approval
 - **Staging is mandatory** — all branches merge to `staging` first, never directly to `main`
 - **Plan mode: NO git writes** — in plan mode, only `git log`, `git status`, `git diff`, `git branch` are allowed. No `reset`, `checkout -b`, `add`, `commit`, `merge`, `push`, `tag`.
-- **Auto-mode branching**: in unattended/batch mode, branch `staging-auto-<UTC-timestamp>` from staging — never commit to staging directly, never merge the branch
+- **Auto-mode branching**: in unattended/batch mode, branch `staging-auto-<UTC-timestamp>` from staging — never commit to staging directly, never merge the branch, retrospective + report commit before handoff. Later squash-merged to staging. Non-auto staging merges require GPG signoff.
 - **Tool source of truth**: Python tools via `uv` (pyproject.toml `[dependency-groups]`), non-Python tools via pre-commit repo hooks — see `doc/DEVELOPMENT_PROCESS.md` §0.7
 
 See `doc/GIT_FLOW.md` section 3 for the session start ritual.

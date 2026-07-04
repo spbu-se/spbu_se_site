@@ -17,7 +17,7 @@ Covers: branching, commit rules, staging workflow, session start/end rituals, gu
 | `hotfix/` | Emergency production bug fixes or broken CI (bypasses staging) |
 | `ci/` | CI workflow changes |
 | `chore/` | Maintenance, deps, build config |
-| `staging-auto-*` | Auto-mode throwaway branches — branched from staging, never merged (see `.skills/unattended-mode/README.md`) |
+| `staging-auto-*` | Auto-mode throwaway branches — scratch space for batch work, later squash-merged to staging with clean feature-grouped commits (never raw). See `.skills/unattended-mode/README.md` |
 
 **Guardrail — branch creation**: before `git checkout -b`, commit or stash all working tree changes. Never branch with a dirty tree.
 
@@ -145,6 +145,9 @@ Only merge commits to `current` require GPG signoff:
 
 Regular commits to staging or feature branches use `--no-gpg-sign` (no signoff).
 This avoids GPG agent timeouts when password storage (KeePass) is locked.
+
+**Auto-mode (unattended):** all commits on `staging-auto-*` branches use `--no-gpg-sign`.\
+**Non-auto (interactive):** merges to `staging` require GPG signoff.
 
 **Guardrail — never touch global git config** (`git config --global`).
 Signoff policy is enforced via commit flags, not global settings.

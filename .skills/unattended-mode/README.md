@@ -28,7 +28,9 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 
 - **Always branch from staging** at the very beginning: `git checkout staging && git pull --ff-only origin staging && git checkout -b staging-auto-<UTC-timestamp>`
 - Use this branch for all commits. Never commit to staging directly.
-- Never merge this branch — it's a throwaway artifact for traceability.
+- `staging-auto-*` branches are **scratch space** — commit freely, no garbage rules.
+- These branches are **never merged raw**. Later, the user squash-merges to staging with clean, feature-grouped commits.
+- In non-auto (interactive) mode, merges to staging require GPG signoff.
 - UTC timestamp format: `YYYYMMDDTHHMMSSZ` (e.g., `staging-auto-20260704T150706Z`).
 
 ## Workflow
@@ -40,8 +42,9 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 1. Work through items — skip any blocker immediately
 1. Commit + push after each logical change
 1. If blocked → document in `OPEN_QUESTIONS.md`, move to next
-1. After last item → make a final report commit with structured summary
-1. Report start time, end time, elapsed, successes, blockers
+1. After last item → run retrospective, commit lessons to staging-auto branch
+1. Make final report commit with structured summary
+1. Report start time, end time, elapsed, results, blockers, full OPEN_QUESTIONS.md dump
 
 ## Report commit format
 
@@ -59,4 +62,7 @@ Elapsed: <HH:MM:SS>
 
 ## Blockers
 - <if any>
+
+## Open Questions
+<full contents of OPEN_QUESTIONS.md here>
 ```
