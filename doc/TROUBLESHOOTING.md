@@ -2,6 +2,30 @@
 
 Common errors, root causes, and fixes encountered during development.
 
+## APScheduler: background jobs fire during tests
+
+**When:** Running pytest — `SendMailNotification` fires every 10s against the test DB.
+**Cause:** `Flask-APScheduler` auto-starts at import time. Background jobs see the test DB with no tables.
+**Fix:** Set `app.config["TESTING"] = True` before yielding the test client, or disable the scheduler in test fixtures.
+
+## init_db: crashes on second call
+
+**When:** Calling `init_db()` twice in the same test.
+**Cause:** `init_db()` runs `db.session.commit()` before `db.drop_all()`. If the session has expired objects from the first call, the flush crashes.
+**Fix:** Call `db.session.remove()` before the second `init_db()` call.
+
+## Whooshee: creates index directory in CWD
+
+**When:** Running any Whooshee-enabled query (thesis search).
+**Cause:** Whooshee creates its index at the configured path relative to CWD at query time.
+**Effect:** `whooshee/` directory appears at project root. Already in `.gitignore`.
+
+## VK/Google OAuth: import crashes with missing deps
+
+**When:** Importing `flask_se_auth` without all OAuth dependencies installed.
+**Cause:** OAuth libraries are imported at module level. `vk_api` or `google_auth_oauthlib` failures propagate up.
+**Fix:** Ensure all OAuth deps are in `pyproject.toml`. During testing, the monkeypatch in `conftest.py` must happen before any `from flask_se import` line.
+
 ## SQLite: "attempt to write a readonly database"
 
 **When:** CI (Linux) test fixtures try to `CREATE TABLE`.

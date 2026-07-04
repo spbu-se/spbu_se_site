@@ -22,6 +22,17 @@ uv run pre-commit install --install-hooks
 
 ## pytest + SQLAlchemy
 
+### Flask app test setup (no factory pattern)
+When the app uses module-level globals (no `create_app()` factory), monkeypatch configs BEFORE importing the app:
+
+```python
+import flask_se_config
+flask_se_config.SQLITE_DATABASE_NAME = "test.db"
+from flask_se import app, db
+```
+
+This works because `flask_se` reads the config values at import time. Any imports triggered by `flask_se` (auth libs, scheduler) also see the patched values.
+
 ### Per-test temp directories
 Each test fixture that needs a database must create its own `tempfile.mkdtemp()`. Shared global paths cause cross-test pollution — one test's teardown breaks the next test's setup.
 
