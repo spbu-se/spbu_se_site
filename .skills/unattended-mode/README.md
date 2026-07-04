@@ -6,6 +6,13 @@ Run autonomously — no questions, no interaction. Maximize throughput.
 
 User says "execute in auto mode", "go", or "execute" after plan approval.
 
+## Principles
+
+- **Solve first, optimize later** — implement the solution, then refactor if needed. Never optimize prematurely.
+- **Never add complexity over practical value** — if a change doesn't directly solve the current task, skip it.
+- **Safeguards are valuable, but throughput is priority** — in auto mode, keep moving. User reviews returns. Blocked? Skip. Unanswered questions? `OPEN_QUESTIONS.md`.
+- **Clear boundaries in code and docs always** — keep docs and code cleanly separated. Never merge categories.
+
 ## Rules
 
 1. **No questions** — make decisions autonomously. Store unresolved questions in `OPEN_QUESTIONS.md`.
