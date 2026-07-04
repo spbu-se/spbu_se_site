@@ -17,6 +17,7 @@ Covers: branching, commit rules, staging workflow, session start/end rituals, gu
 | `hotfix/` | Emergency production bug fixes or broken CI (bypasses staging) |
 | `ci/` | CI workflow changes |
 | `chore/` | Maintenance, deps, build config |
+| `staging-auto-*` | Auto-mode throwaway branches — branched from staging, never merged (see `.skills/unattended-mode/README.md`) |
 
 **Guardrail — branch creation**: before `git checkout -b`, commit or stash all working tree changes. Never branch with a dirty tree.
 
