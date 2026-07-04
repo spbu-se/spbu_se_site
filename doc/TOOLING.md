@@ -42,6 +42,13 @@ Each test fixture that needs a database must create its own `tempfile.mkdtemp()`
 ### Engine caching
 Changing `app.config["SQLALCHEMY_DATABASE_URI"]` after the app is initialized requires `db.engine.dispose()` before `db.create_all()`. Without it, the old engine is reused.
 
+### Test data seeding is slow
+Seeded DB tests (`init_db()`) take 10-15s each due to seed data insertion. With ~20 seeded tests, expect 3-5 min total runtime. Keep seeded tests focused.
+
+## pytest config
+
+`pytest` reads `[tool.pytest.ini_options]` from `pyproject.toml` directly — no separate `pytest.ini` or `setup.cfg` needed.
+
 ## pre-commit
 
 ### Hook ordering

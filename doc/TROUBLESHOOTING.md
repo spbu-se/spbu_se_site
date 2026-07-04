@@ -56,6 +56,17 @@ Common errors, root causes, and fixes encountered during development.
 **Cause:** `SECRET_KEY` is set to the config file path, not its contents.
 **Effect:** App still works (any string works as a key). Not a bug.
 
+## Coverage metrics accumulate across runs
+
+**When:** Running `pytest --cov` multiple times.
+**Cause:** `.coverage` file appends data, not replaces. Subsequent runs include old data.
+**Fix:** Delete `.coverage` before each session, or use `coverage erase`.
+
+## Restoring vendor files bypassing hooks
+
+**When:** Formatters (trailing-whitespace, dprint) modify vendor/static files.
+**Fix:** `git checkout HEAD -- path/to/dir` restores files and bypasses pre-commit hooks entirely — no need to disable hooks.
+
 ## uv lock fails with "No solution found"
 
 **When:** Adding a new dependency with `requires-python` constraints.
