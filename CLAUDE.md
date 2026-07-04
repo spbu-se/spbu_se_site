@@ -18,3 +18,4 @@ Load skill workflows from `.skills/<name>/README.md` when the task matches:
 | `model-definer` | Defining/modifying SQLAlchemy models or WTForms |
 | `gh-todo-sync` | Syncing TODO.md from GitHub / CI |
 | `js-bundle-analysis` | Reverse-engineering JS bundles |
+| `unattended-mode` | Running autonomously — no questions, no signoff, fix CI first |
