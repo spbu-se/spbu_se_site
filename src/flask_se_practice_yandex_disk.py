@@ -63,7 +63,7 @@ def get_token(code):
     ).decode("ascii")
     headers = {"Authorization": "Basic " + credentials_string}
     content = "grant_type=authorization_code&code=" + code
-    response = requests.post(YANDEX_GET_TOKEN_URL, headers=headers, data=content)
+    response = requests.post(YANDEX_GET_TOKEN_URL, headers=headers, data=content, timeout=10)
     if not response.ok:
         return 0
 

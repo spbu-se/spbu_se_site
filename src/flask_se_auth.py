@@ -128,7 +128,8 @@ def vk_callback():
     # Get access token
     response = requests.get(
         "https://oauth.vk.com/access_token?client_id=8051225&client_secret=ZPNX8y5nQmzGCghUKdJ9&redirect_uri=https://se.math.spbu.ru/vk_callback&code="
-        + user_code
+        + user_code,
+        timeout=10,
     )
     access_token_json = json.loads(response.text)
 
@@ -147,7 +148,8 @@ def vk_callback():
         + str(vk_id)
         + "&fields=photo_100&access_token="
         + str(access_token)
-        + "&v=5.130"
+        + "&v=5.130",
+        timeout=10,
     )
     vk_user = json.loads(response.text)
 
@@ -161,7 +163,7 @@ def vk_callback():
             avatar_uri = avatar_uri + ".jpg"
 
             if "photo_100" in vk_user["response"][0]:
-                r = requests.get(vk_user["response"][0]["photo_100"], allow_redirects=True)
+                r = requests.get(vk_user["response"][0]["photo_100"], allow_redirects=True, timeout=30)
                 open("static/images/avatars/" + avatar_uri, "wb").write(r.content)
 
             new_user = Users(
@@ -355,7 +357,7 @@ def google_callback():
             avatar_uri = avatar_uri + ".jpg"
 
             if "picture" in id_info:
-                r = requests.get(id_info.get("picture"), allow_redirects=True)
+                r = requests.get(id_info.get("picture"), allow_redirects=True, timeout=30)
                 open("static/images/avatars/" + avatar_uri, "wb").write(r.content)
 
             new_user = Users(

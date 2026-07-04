@@ -594,4 +594,4 @@ if __name__ == "__main__":
     else:
         with app.app_context():
             whooshee.reindex()
-        app.run(port=5000, debug=True)
+        app.run(port=5000, debug=True)  # noqa: S201 — dev server only

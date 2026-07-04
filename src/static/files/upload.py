@@ -72,5 +72,5 @@ files = [
     ("thesis_info", ("thesis_info", json.dumps(thesis_info), "application/json")),
 ]
 
-r = requests.post(url, files=files, allow_redirects=False)
+r = requests.post(url, files=files, allow_redirects=False, timeout=30)
 print(str(r.content, "utf-8"))

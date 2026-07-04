@@ -27,7 +27,7 @@ def download_file(uri, safe_filename, save_path):
     if not download:
         return
 
-    r = requests.get(uri, allow_redirects=True)
+    r = requests.get(uri, allow_redirects=True, timeout=30)
     print("Download: " + str(uri))
     open(safe_filename, "wb").write(r.content)
     os.rename(safe_filename, save_path + safe_filename)
