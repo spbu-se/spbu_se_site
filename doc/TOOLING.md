@@ -106,12 +106,11 @@ def logged_client(seeded_client):
     from se_models import Users
     u = Users.query.first()
     with seeded_client.session_transaction() as sess:
-        sess["user_id"] = str(u.id)
-        sess["_fresh"] = True
+        sess["_user_id"] = str(u.id)
     return seeded_client
 ```
 
-This works because Flask-Login reads `session["user_id"]` on every request to load the current user via `user_loader`.
+This works because Flask-Login reads `session["_user_id"]` on every request to load the current user via `user_loader`.
 
 ## pytest config
 

@@ -262,3 +262,18 @@ During a documentation extraction session, the agent committed a docs commit dir
 1. Orphaned WIP was visible at session start (`git status`) but was not branched or committed before new work began
 
 **Fix**: Added bash permission rules to the AI tooling config (`.opencode/opencode.json` or equivalent) that explicitly deny `git reset`, `git checkout`, `git commit`, `git add`, `git merge`, `git push`, `git tag` during plan mode. Only read-only git commands (`log`, `status`, `diff`, `branch`) are allowed. See `doc/OPENSE_CONFIG.md` for the permission configuration.
+
+### Retrospective — 2026-07-04: squash-merge from auto branch, CI green, test gaps found
+
+Merged 30 commits from `staging-auto-20260704T154021Z` into staging via squash-merge (89 files, 1120 insertions). Key findings during the merge cycle:
+
+- **logged_client session key**: fixture used `sess["user_id"]` but Flask-Login 0.6.3 reads `sess["_user_id"]` (with underscore). All practice/review tests were returning 302 instead of 200, masking low coverage. Fixing this immediately raised coverage from 47% to 51%.
+- **post_vote bug**: `render_template(url_for("index"))` passes a URL path to `render_template()` instead of a template name — raises `TemplateNotFound`. This was a real production bug found by the test suite.
+- **mdformat on Linux**: CI uses Linux which has different mdformat behavior than Windows. Several markdown files that looked fine locally failed mdformat --check on CI. Fix: always run `uv run mdformat .` before pushing.
+- **Squash-merge with report commits**: 2× auto-run report commits were naturally absorbed by the squash. The single commit message grouped changes by feature/module/topic for human readability.
+
+**What went well**: Session-scoped seeded DB brought full suite from 10+ min to 3.2 min. Coverage went from 31% to 51% in one session. The squash-merge workflow (branch → work → retro → report → merge) worked end-to-end.
+
+**What went wrong**: logged_client fixture was wrong from the start, causing all authenticated route tests to not actually authenticate. The gap was only found when coverage numbers didn't improve with more tests.
+
+**Fix**: Updated TOOLING.md with the correct `_user_id` session key. Added mdformat run to the commit sequence in auto-mode workflow. Documented this retrospective entry.
