@@ -22,6 +22,13 @@ Run these BEFORE any commit — CI runs them and will fail:
   uv run ruff format src/    # Python files
   uv run ruff check src/     # Python lint (pre-commit also runs this)
 
+Before pushing to remote, simulate CI locally:
+  uv run mdformat --check . && uv run ruff format --check src/ && uv run ruff check src/
+
+Also verify requirements.txt is fresh (serviceability.yml uses pip, not uv):
+  uv export --no-dev --no-hashes > requirements.txt
+  (PowerShell: use WriteAllText to avoid BOM)
+
 Then:
   git add && git commit (hooks auto-run) → git push
 
@@ -42,5 +49,7 @@ After staging merge: verify CI is green before further work.
 - **Plan mode: NO git writes** — in plan mode, only `git log`, `git status`, `git diff`, `git branch` are allowed. No `reset`, `checkout -b`, `add`, `commit`, `merge`, `push`, `tag`.
 - **Auto-mode branching**: in unattended/batch mode, branch `staging-auto-<UTC-timestamp>` from staging — never commit to staging directly, never merge the branch, retrospective + report commit before handoff. Later squash-merged to staging. Non-auto staging merges require GPG signoff.
 - **Tool source of truth**: Python tools via `uv` (pyproject.toml `[dependency-groups]`), non-Python tools via pre-commit repo hooks — see `doc/DEVELOPMENT_PROCESS.md` §0.7
+- **CI pitfall — requirements.txt staleness**: `serviceability.yml` runs `pip install -r requirements.txt` on EVERY push to ANY branch. If `requirements.txt` doesn't match current `uv.lock`, it fails. Always run `uv export --no-dev --no-hashes > requirements.txt` before pushing.
+- **mdformat CI vs local**: CI uses Linux which formats markdown differently (LF vs CRLF). Always run `uv run mdformat .` (not just `--check`) before committing to ensure files are in CI-compatible format.
 
 See `doc/GIT_FLOW.md` section 3 for the session start ritual.
