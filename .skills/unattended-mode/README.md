@@ -10,7 +10,7 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 
 - **Solve first, optimize later** — implement the solution, then refactor if needed. Never optimize prematurely.
 - **Never add complexity over practical value** — if a change doesn't directly solve the current task, skip it.
-- **Safeguards are valuable, but throughput is priority** — in auto mode, keep moving. User reviews returns. Blocked? Skip. Unanswered questions? `OPEN_QUESTIONS.md`.
+- **Try hard before declaring blocked** — attempt at least 3 distinct approaches before declaring a blocker. Each approach must be real code written and executed. Commit each attempt. Only then document with error evidence and move on.
 - **Clear boundaries in code and docs always** — keep docs and code cleanly separated. Never merge categories.
 
 ## Rules
@@ -19,10 +19,11 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 1. **No signoff** — always commit with `--no-gpg-sign`.
 1. **Commit granular** — one commit per logical change. Push frequently to trigger CI.
 1. **CI is NOT a gate** — if CI fails, note in `OPEN_QUESTIONS.md`, move to next task. Don't stop on red.
-1. **If blocked → skip** — never change the goal. Leave documented state, note blocker in `OPEN_QUESTIONS.md`, move to next task. We return later.
+1. **If blocked → try 3 approaches first** — a "blocker" means you attempted at least 3 distinct approaches, each with real code committed, and each failed with a specific error. Only after 3 failed approaches: document the blocker with full error output in `OPEN_QUESTIONS.md`, skip, move to next task.
 1. **Document as you go** — findings go to `.tooling.md`, `doc/TROUBLESHOOTING.md`, or `doc/TOOLING.md` immediately, not at session end.
 1. **Process docs are sacred** — minimize updates to process docs (`doc/GIT_FLOW.md`, `doc/DEVELOPMENT_PROCESS.md`) unless user explicitly approved.
 1. **Any quality improvement** — features, tests, docs, tooling. Not limited to a priority list.
+1. **Plan completion is mandatory** — do not stop before every task in the approved plan has been attempted with 3 approaches each. The final report must contain evidence for every uncompleted task.
 
 ## Branching
 
@@ -40,12 +41,15 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 1. `uv run pre-commit install --install-hooks` — ensure hooks are active before any commits
 1. `git checkout -b staging-auto-<UTC-timestamp>`
 1. Accept approved plan
-1. Work through items — skip any blocker immediately
-1. Commit + push after each logical change
-1. If blocked → document in `OPEN_QUESTIONS.md`, move to next
+1. Work through items. For each item:
+   - Write tests / code
+   - Run, check coverage delta
+   - If it fails: try a different approach. Repeat up to 3 times.
+   - After 3 failed approaches: commit the attempt, document blocker with error output, move to next item.
+1. Commit + push after each logical change (including failed attempts)
 1. After last item → run retrospective, commit lessons to staging-auto branch
-1. Make final report commit with structured summary
-1. Report start time, end time, elapsed, results, blockers, full OPEN_QUESTIONS.md dump
+1. Make final report commit with structured summary including evidence for every task
+1. Report start time, end time, elapsed, results, blockers with error output
 
 ## Report commit format
 
@@ -61,8 +65,10 @@ Elapsed: <HH:MM:SS>
 ## Tasks
 - <task description> — <result>
 
-## Blockers
-- <if any>
+## Blockers (with evidence)
+- <task>: Attempt 1: <what was tried and error>
+- <task>: Attempt 2: <what was tried and error>
+- <task>: Attempt 3: <what was tried and error>
 
 ## Open Questions
 <full contents of OPEN_QUESTIONS.md here>

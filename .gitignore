@@ -118,3 +118,10 @@ whooshee/
 # Coverage data
 .coverage
 .coverage.*
+
+# Private/local directories
+.private/
+databases/
+
+# Generated doc
+doc/REPO_REVIEW.md

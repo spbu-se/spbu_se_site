@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -14,7 +13,7 @@ SQLITE_DATABASE_NAME = "se.db"
 SQLITE_DATABASE_PATH = pathlib.Path("databases/").absolute().as_posix()
 
 if os.path.exists(MAIL_PASSWORD_FILE):
-    with open(MAIL_PASSWORD_FILE, "r") as file:
+    with open(MAIL_PASSWORD_FILE) as file:
         MAIL_PASSWORD = file.read().rstrip()
 else:
     print("There is no MAIL_PASSWORD_FILE, generate random MAIL_PASSWORD")
@@ -38,10 +37,7 @@ type_id_string = [
 ]
 
 PY2 = sys.version_info[0] == 2
-if PY2:
-    text_type = unicode  # noqa: F821
-else:
-    text_type = str
+text_type: type = str
 
 _windows_device_files = (
     "CON",
@@ -79,20 +75,26 @@ def secure_filename(filename: str) -> str:
 
 
 # https://felx.me/2021/08/29/improving-the-hacker-news-ranking-algorithm.html
-def post_ranking_score(upvotes=1, age=0, views=1):
-    u = upvotes**0.8
-    a = (age + 2) ** 1.8
-    return (u / a) / (views + 1)
+def post_ranking_score(upvotes: int = 1, age: int = 0, views: int = 1) -> float:
+    if upvotes < 0:
+        upvotes = 0
+    if age < 0:
+        age = 0
+    if views < 0:
+        views = 0
+    u = float(upvotes) ** 0.8
+    a = float(age + 2) ** 1.8
+    return float((u / a) / (views + 1))
 
 
-def get_hours_since(date):
+def get_hours_since(date: datetime) -> int:
     time_diff = datetime.utcnow() - date
     return int(time_diff.total_seconds() / 3600)
 
 
-def plural_hours(n):
-    hours = ["час", "часа", "часов"]
-    days = ["день", "дня", "дней"]
+def plural_hours(n: int | float) -> str:
+    hours: list[str] = ["час", "часа", "часов"]
+    days: list[str] = ["день", "дня", "дней"]
 
     if n > 24:
         n = int(n / 24)
@@ -117,5 +119,7 @@ def plural_hours(n):
     return str(n) + " " + hours[p]
 
 
-def get_thesis_type_id_string(id):
+def get_thesis_type_id_string(id: int) -> str:
+    if id < 1 or id > len(type_id_string):
+        return ""
     return type_id_string[id - 1]

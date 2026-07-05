@@ -1,9 +1,9 @@
 {% extends "base_light.html" %}
 {% block title %}Летняя школа на мат-мехе СПбГУ (2024){% endblock %}
-{% block description %}Летняя проектная онлайн-школа программирования для обучающихся СПбГУ (2024, онлайн). Школа проводилась с 8 июля по 3 августа 2024 года.{% endblock %}
-{% block headers %}
-  <link rel="canonical" href="https://se.math.spbu.ru/{{ school.href }}.html" />
+{% block description %}
+  Летняя проектная онлайн-школа программирования для обучающихся СПбГУ (2024, онлайн). Школа проводилась с 8 июля по 3 августа 2024 года.
 {% endblock %}
+{% block headers %}<link rel="canonical" href="https://se.math.spbu.ru/{{ school.href }}.html" />{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section xmlns="http://www.w3.org/1999/html" class="mt-7 pt-6">
@@ -36,7 +36,9 @@
           <div class="col-lg-6 my-2 align-items-stretch">
             <div class="card hover-shadow-lg border-0 mb-lg-4 mb-0">
               <div class="card-header">
-                <h3 class="h5 mb-0 text-left"><strong>{{ proj.project_name }}</strong></h3>
+                <h3 class="h5 mb-0 text-left">
+                  <strong>{{ proj.project_name }}</strong>
+                </h3>
                 <p class="text-sm mt-0">{{ proj.tech }}</p>
               </div>
               <div class="card-body pt-0">

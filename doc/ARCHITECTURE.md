@@ -158,6 +158,24 @@ All SQLAlchemy models live in `se_models.py` (not split by domain). The `init_db
 
 **Why single file**: Keeps the schema visible in one place. Database migrations (Alembic/Flask-Migrate) handle schema evolution; models are read-only references to the current schema.
 
+### [2026-07-05] Mypy Per-Module Opt-Out Strategy
+
+Mypy strict mode is enabled globally, but view-heavy modules get `[[tool.mypy.overrides]]` entries that disable specific error codes:
+
+- `no-untyped-def`, `no-untyped-call` — disabled for all Flask view modules (functions return `Response`, type inference is noisy)
+- `attr-defined`, `assignment` — disabled for SQLAlchemy model-heavy files (relationship properties trigger false positives)
+- `union-attr`, `arg-type` — disabled for files with heavy `request.form.get()` usage
+
+**Why not fix all violations**: The codebase has ~193 untyped functions out of ~202. Strict typing across all modules would require ~500+ annotations. The per-module opt-out allows progressive typing: files that are simple (config, forms) get full strict checking; complex files (views, models) get gradual coverage.
+
+**Process**: When a module reaches 90%+ test coverage, add it to mypy's `files` list with appropriate overrides. Overrides are tightened as annotations are added.
+
+### [2026-07-05] Test-First, No Production Code Before 90% Coverage
+
+Production code is frozen until test coverage reaches 90%. Rationale: safe refactoring requires tested behavior as ground truth. All bug fixes, code quality improvements, and mypy expansion wait for the coverage threshold.
+
+**Exceptions**: Trivial one-line fixes (e.g., adding `.get("field", "")` default) that unblock tests can be applied during the coverage phase if they directly enable testing.
+
 ## Conventions
 
 ### Coding

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
@@ -595,4 +594,4 @@ if __name__ == "__main__":
     else:
         with app.app_context():
             whooshee.reindex()
-        app.run(port=5000, debug=True)  # noqa: S201 — dev server only
+        app.run(port=5000, debug=True)

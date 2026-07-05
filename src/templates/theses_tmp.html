@@ -1,9 +1,11 @@
 {% extends "base_dark.html" %}
-{% block title %}Курсовые и выпускные квалификационные работы студентов Кафедры Системного Программирования{% endblock %}
-{% block description %}Список курсовых и выпускных квалификационных работ бакалавров и магистров Кафедры Системного программирования Математико-механического факультета СПбГУ.{% endblock %}
-{% block headers %}
-  <link rel="canonical" href="https://se.math.spbu.ru/theses_tmp.html" />
+{% block title %}
+  Курсовые и выпускные квалификационные работы студентов Кафедры Системного Программирования
 {% endblock %}
+{% block description %}
+  Список курсовых и выпускных квалификационных работ бакалавров и магистров Кафедры Системного программирования Математико-механического факультета СПбГУ.
+{% endblock %}
+{% block headers %}<link rel="canonical" href="https://se.math.spbu.ru/theses_tmp.html" />{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section class="slice pt-8 bg-dark bg-cover bg-size--cover"
@@ -30,7 +32,9 @@
               <div class="card-header">
                 <div class="row align-items-center">
                   <div class="col">
-                    <h6 class="mb-0"><strong>{{ t.name_ru }} [{{ t.publish_year }}]</strong></h6>
+                    <h6 class="mb-0">
+                      <strong>{{ t.name_ru }} [{{ t.publish_year }}]</strong>
+                    </h6>
                   </div>
                   <div class="col-auto ml-auto text-right">
                     {% if t.text_uri %}
@@ -100,9 +104,15 @@
                 </div>
               </div>
               <div class="card-body pt-2">
-                <p class="text-sm mb-0">Автор: <i>{{ t.author }}</i></p>
-                <p class="text-sm mb-0">Руководитель: <i>{{ t.supervisor.user.get_name() }}</i></p>
-                <p class="text-sm">Направление: <i>{{ t.course.name }}</i></p>
+                <p class="text-sm mb-0">
+                  Автор: <i>{{ t.author }}</i>
+                </p>
+                <p class="text-sm mb-0">
+                  Руководитель: <i>{{ t.supervisor.user.get_name() }}</i>
+                </p>
+                <p class="text-sm">
+                  Направление: <i>{{ t.course.name }}</i>
+                </p>
                 <a href="{{ url_for('theses_add_tmp', thesis_id=t.id) }}"
                    class="btn btn-primary btn-lg">
                   <span class="btn-inner--text">Добавить</span>

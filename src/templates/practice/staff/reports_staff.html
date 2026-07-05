@@ -4,9 +4,11 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        <p><a id="{{ thesis.id }}"
-   name="thesis_link"
-   href="{{ url_for('thesis_staff', id=thesis.id) }}"><i data-feather="arrow-left"></i> К материалам работы</a></p>
+        <p>
+          <a id="{{ thesis.id }}"
+             name="thesis_link"
+             href="{{ url_for('thesis_staff', id=thesis.id) }}"><i data-feather="arrow-left"></i> К материалам работы</a>
+        </p>
       </div>
     </div>
     <div class="row">
@@ -16,15 +18,23 @@
     </div>
     <div class="row">
       <div class="col">
-        <p class="mb-0">Студент: <b>{{ thesis.user.get_name() }}</b></p>
-        <p class="mb-0">Тип работы: <b>{{ thesis.worktype }}</b></p>
-        <p>Направление: <b>{{ thesis.area }}</b></p>
+        <p class="mb-0">
+          Студент: <b>{{ thesis.user.get_name() }}</b>
+        </p>
+        <p class="mb-0">
+          Тип работы: <b>{{ thesis.worktype }}</b>
+        </p>
+        <p>
+          Направление: <b>{{ thesis.area }}</b>
+        </p>
       </div>
     </div>
     {% if not reports %}
       <div class="row">
         <div class="col">
-          <p class="text-center"><b>Студент еще не отправлял отчеты.</b></p>
+          <p class="text-center">
+            <b>Студент еще не отправлял отчеты.</b>
+          </p>
         </div>
       </div>
     {% else %}
@@ -43,7 +53,9 @@
                    data-target="{{ '#collapse-'+(report.id|string() ) }}"
                    aria-expanded="false"
                    aria-controls="{{ 'collapse-'+(report.id|string() ) }}">
-                <h6 class="mb-0"><i data-feather="file-text" class="mr-3"></i>Отчёт за {{ report.time|datatime_convert }}</h6>
+                <h6 class="mb-0">
+                  <i data-feather="file-text" class="mr-3"></i>Отчёт за {{ report.time|datatime_convert }}
+                </h6>
               </div>
               <div class="card-body py-0">
                 <div id="{{ 'collapse-'+(report.id|string() ) }}"
@@ -65,7 +77,9 @@
                       <div class="row">
                         <div class="col">
                           <div class="form-group mb-0">
-                            <h6 class="mb-0">Комментарий к отчету (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>):</h6>
+                            <h6 class="mb-0">
+                              Комментарий к отчету (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>):
+                            </h6>
                             <p class="text-sm pb-0 mb-2">Отделяйте пустой строкой каждый абзац, списки и т.п.</p>
                             <textarea class="form-control"
                                       id="{{'comment' + (report.id|string)}}"

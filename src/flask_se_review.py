@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -419,29 +418,25 @@ def review_submit_review():
             # If the user does not select a file, the browser submits an
             # empty file without a filename.
 
-            if file.filename != "":
-                if file and allowed_file(file.filename):
-                    if thesis.text_uri:
-                        filename = Path(thesis.text_uri).stem
-                        review_filename = filename + "_review"
-                        review_filename_with_ext = review_filename + ".pdf"
+            if file.filename != "" and file and allowed_file(file.filename) and thesis.text_uri:
+                filename = Path(thesis.text_uri).stem
+                review_filename = filename + "_review"
+                review_filename_with_ext = review_filename + ".pdf"
 
-                        full_filename = os.path.join(
-                            REVIEW_UPLOAD_FOLDER + "/" + review_filename_with_ext
-                        )
+                full_filename = os.path.join(REVIEW_UPLOAD_FOLDER + "/" + review_filename_with_ext)
 
-                        # Check if file already exist
-                        if os.path.isfile(full_filename):
-                            filename = filename + "_" + str(os.urandom(8).hex())
-                            review_filename = filename + "_review"
-                            review_filename_with_ext = review_filename + ".pdf"
+                # Check if file already exist
+                if os.path.isfile(full_filename):
+                    filename = filename + "_" + str(os.urandom(8).hex())
+                    review_filename = filename + "_review"
+                    review_filename_with_ext = review_filename + ".pdf"
 
-                            full_filename = os.path.join(
-                                REVIEW_UPLOAD_FOLDER + "/" + review_filename_with_ext
-                            )
+                    full_filename = os.path.join(
+                        REVIEW_UPLOAD_FOLDER + "/" + review_filename_with_ext
+                    )
 
-                        review_file_name = review_filename_with_ext
-                        file.save(full_filename)
+                review_file_name = review_filename_with_ext
+                file.save(full_filename)
 
     except KeyError:
         flash(

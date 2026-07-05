@@ -189,7 +189,57 @@ Signoff policy is defined in `doc/GIT_FLOW.md §4`. This doc only adds cross-cut
 
 Global git options (`git config --global`) are user-specific and should never be modified by automation without explicit user approval.
 
-## Retrospectives
+## pytest-xdist + Whoosh
+
+Whoosh indexes are not thread-safe. Using `pytest-xdist -n auto` causes sporadic `LockError` or `EmptyIndexError` because multiple workers share the same index directory. Fix: use `-n 2` (proven stable) and set a per-worker temp dir in conftest.py:
+
+```python
+_whoosh_dir = tempfile.mkdtemp()
+app.config["WHOOSHEE_DIR"] = _whoosh_dir
+```
+
+This ensures each worker process gets its own Whoosh index. Still insufficient for tests that create new DB state and then trigger Whoosh queries — the index must be rebuilt via `whooshee.reindex()` after each DB change.
+
+## Scrypt mock for tests on Python 3.13+
+
+Python 3.13 OpenSSL builds may lack scrypt support, causing `check_password_hash` to raise `ValueError: unsupported hash type scrypt`. Mock at conftest module level before any auth module is imported:
+
+```python
+import werkzeug.security as _ws
+_ws.check_password_hash = lambda pwhash, password: True
+_ws.generate_password_hash = lambda password, method="pbkdf2:sha256": f"mock:{password}"
+```
+
+This is safe for testing view logic and route behavior, but means password security logic is never exercised in tests.
+
+## APScheduler shutdown in tests
+
+`Flask-APScheduler` starts background jobs at import time (every 10 seconds for `SendMailNotification`). During tests, these jobs fire against the test DB which may not have the `notification` table, causing `sqlite3.OperationalError: no such table: notification`. Shut down at conftest module level:
+
+```python
+import flask_se as _fs
+_fs.scheduler.shutdown(wait=False)
+```
+
+## pytest config in pyproject.toml
+
+`pytest` reads `[tool.pytest.ini_options]` from `pyproject.toml` directly — no separate `pytest.ini` or `setup.cfg` needed.
+
+## pre-commit
+
+### Hook ordering
+
+Run formatters before linters. `ruff-format` before `ruff check --fix` avoids formatting-then-linting false positives.
+
+### System hooks
+
+`language: system` hooks run whatever is on PATH. Use `uv run <tool>` as the entry point to ensure the project's venv version is used.
+
+### First run performance
+
+First invocation downloads and caches hook environments. Install hooks early to make repeated runs fast.
+
+## GitHub CLI
 
 ### Retrospective — Windows SQLite URI path format undocumented
 

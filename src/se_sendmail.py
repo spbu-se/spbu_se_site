@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import smtplib
@@ -58,11 +57,7 @@ def notification_send_mail():
             db.session.commit()
 
         except smtplib.SMTPRecipientsRefused:
-            print(
-                "All recipients were refused. Nobody got the mail. User.email: {0}".format(
-                    user.email
-                )
-            )
+            print(f"All recipients were refused. Nobody got the mail. User.email: {user.email}")
         except smtplib.SMTPDataError:
             print("The server didn’t accept the from_addr.")
         except smtplib.SMTPSenderRefused:
@@ -94,9 +89,9 @@ def notification_send_diploma_themes_on_review():
     message["To"] = "ilya@hackerdom.ru"
     message["CC"] = ", ".join(recipients)
 
-    data = """
-    Сейчас на сайте {0} тем находятся на проверке (<a href="https://se.math.spbu.ru/admin/reviewdiplomathemes/" target="_blank">Проверка тем</a>).
-    """.format(diploma_themes_on_review_count)
+    data = f"""
+    Сейчас на сайте {diploma_themes_on_review_count} тем находятся на проверке (<a href="https://se.math.spbu.ru/admin/reviewdiplomathemes/" target="_blank">Проверка тем</a>).
+    """
 
     part1 = MIMEText(data, "plain")
     part2 = MIMEText(data, "html")

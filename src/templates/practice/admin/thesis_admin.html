@@ -41,24 +41,34 @@
     </form>
     <div class="row mb-2">
       <div class="col">
-        <p class="mb-0">Студент: <b>{{ thesis.user.get_name() }}</b></p>
+        <p class="mb-0">
+          Студент: <b>{{ thesis.user.get_name() }}</b>
+        </p>
         {% if thesis.consultant %}
-          <p class="mb-0">Консультант: <b>{{ thesis.consultant }}</b></p>
+          <p class="mb-0">
+            Консультант: <b>{{ thesis.consultant }}</b>
+          </p>
         {% endif %}
-        <p class="mb-0">Тип работы: <b>{{ thesis.worktype }}</b></p>
-        <p class="mb-0">Направление: <b>{{ thesis.area }}</b></p>
-        {% if thesis.user.how_to_contact %}
-          <p class="mb-0">Как связаться: {{ thesis.user.how_to_contact }}</p>
-        {% endif %}
+        <p class="mb-0">
+          Тип работы: <b>{{ thesis.worktype }}</b>
+        </p>
+        <p class="mb-0">
+          Направление: <b>{{ thesis.area }}</b>
+        </p>
+        {% if thesis.user.how_to_contact %}<p class="mb-0">Как связаться: {{ thesis.user.how_to_contact }}</p>{% endif %}
       </div>
     </div>
     <div class="row mb-2">
       <div class="col">
         {% if thesis.status == 2 %}
-          <div class="text-warning"><b>Завершённая работа</b></div>
+          <div class="text-warning">
+            <b>Завершённая работа</b>
+          </div>
         {% endif %}
         {% if thesis.archived %}
-          <div class="text-warning"><b>Работа перенесена в архив</b></div>
+          <div class="text-warning">
+            <b>Работа перенесена в архив</b>
+          </div>
         {% endif %}
       </div>
     </div>
@@ -78,9 +88,7 @@
                   <h6 class="mb-0">Задачи</h6>
                   <ul class="mb-0">
                     {% for task in tasks %}
-                      {% if not task.deleted %}
-                        <li>{{ task.task_text }}</li>
-                      {% endif %}
+                      {% if not task.deleted %}<li>{{ task.task_text }}</li>{% endif %}
                     {% endfor %}
                   </ul>
                 </div>

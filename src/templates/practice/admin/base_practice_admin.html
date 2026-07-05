@@ -17,10 +17,14 @@
                 <div class="form-group">
                   <select class="custom-select pl-3" onchange="location = this.value;">
                     <option {% if not area %}selected{% endif %}
-                            value="{{ url_for('choose_area_and_worktype_admin', worktype_id=worktype.id) }}">Выберите направление обучения</option>
+                            value="{{ url_for('choose_area_and_worktype_admin', worktype_id=worktype.id) }}">
+                      Выберите направление обучения
+                    </option>
                     {% for area_of_study in list_of_areas %}
                       <option {% if area.id == area_of_study.id %}selected{% endif %}
-                              value="{{ url_for('choose_area_and_worktype_admin', area_id=area_of_study.id, worktype_id=worktype.id) }}">{{ area_of_study }}</option>
+                              value="{{ url_for('choose_area_and_worktype_admin', area_id=area_of_study.id, worktype_id=worktype.id) }}">
+                        {{ area_of_study }}
+                      </option>
                     {% endfor %}
                   </select>
                 </div>
@@ -28,10 +32,14 @@
                 <div class="form-group">
                   <select class="custom-select pl-3" onchange="location = this.value;">
                     <option {% if not worktype %}selected{% endif %}
-                            value="{{ url_for('choose_area_and_worktype_admin', area_id=area.id) }}">Выберите тип работы</option>
+                            value="{{ url_for('choose_area_and_worktype_admin', area_id=area.id) }}">
+                      Выберите тип работы
+                    </option>
                     {% for work_type in list_of_worktypes %}
                       <option {% if worktype.id == work_type.id %}selected{% endif %}
-                              value="{{ url_for('choose_area_and_worktype_admin', area_id=area.id, worktype_id=work_type.id) }}">{{ work_type }}</option>
+                              value="{{ url_for('choose_area_and_worktype_admin', area_id=area.id, worktype_id=work_type.id) }}">
+                        {{ work_type }}
+                      </option>
                     {% endfor %}
                   </select>
                 </div>

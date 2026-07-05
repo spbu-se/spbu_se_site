@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import hmac
@@ -167,7 +166,8 @@ def vk_callback():
                 r = requests.get(
                     vk_user["response"][0]["photo_100"], allow_redirects=True, timeout=30
                 )
-                open("static/images/avatars/" + avatar_uri, "wb").write(r.content)
+                with open("static/images/avatars/" + avatar_uri, "wb") as f:
+                    f.write(r.content)
 
             new_user = Users(
                 last_name=vk_user["response"][0]["last_name"],
@@ -291,9 +291,10 @@ def upload_avatar():
 
             # If user have avatar -> remove it from disk
             new_full_filename = new_filename + ".jpg"
-            if user.avatar_uri != "empty.jpg":
-                if os.path.isfile(UPLOAD_FOLDER + "/" + user.avatar_uri):
-                    os.unlink(UPLOAD_FOLDER + "/" + user.avatar_uri)
+            if user.avatar_uri != "empty.jpg" and os.path.isfile(
+                UPLOAD_FOLDER + "/" + user.avatar_uri
+            ):
+                os.unlink(UPLOAD_FOLDER + "/" + user.avatar_uri)
 
             user.avatar_uri = new_full_filename
             db.session.commit()
@@ -361,7 +362,8 @@ def google_callback():
 
             if "picture" in id_info:
                 r = requests.get(id_info.get("picture"), allow_redirects=True, timeout=30)
-                open("static/images/avatars/" + avatar_uri, "wb").write(r.content)
+                with open("static/images/avatars/" + avatar_uri, "wb") as f:
+                    f.write(r.content)
 
             new_user = Users(
                 last_name=id_info.get("family_name"),

@@ -3,7 +3,9 @@
     <div class="card-header">
       <div class="row align-items-center">
         <div class="col">
-          <h6 class="mb-0"><strong>{{ t.name_ru }} ({{ t.thesis_on_review_worktype }})</strong></h6>
+          <h6 class="mb-0">
+            <strong>{{ t.name_ru }} ({{ t.thesis_on_review_worktype }})</strong>
+          </h6>
         </div>
         <div class="col-auto ml-auto text-right">
           {% if t.text_uri %}
@@ -73,16 +75,44 @@
     </div>
     <div class="card-body pt-2 pb-4">
       {% if t.review_status == 0 %}
-        <p class="text-sm mb-0">Статус: Работа зачтена {% if t.author_id == user.id or user.reviewer %} (<i class="text-primary"><a href="{{ url_for('review_result_thesis_on_review', thesis_review_id=t.id) }}">посмотреть рецензию</a></i>) {% endif %} </p>
+        <p class="text-sm mb-0">
+          Статус: Работа зачтена
+          {% if t.author_id == user.id or user.reviewer %}
+            (<i class="text-primary"><a href="{{ url_for('review_result_thesis_on_review', thesis_review_id=t.id) }}">посмотреть рецензию</a></i>)
+          {% endif %}
+        </p>
       {% elif t.review_status == 1 %}
-        <p class="text-sm mb-0">Статус: <i>Требуется рецензия</i> {% if user.reviewer %} {% if t.author_id != user.id %} <a href="{{ url_for('review_thesis_on_review', thesis_review_id=t.id) }}">(<i class="text-warning">взять на рецензию</i>)</a> {% endif %} {% endif %}</p>
+        <p class="text-sm mb-0">
+          Статус: <i>Требуется рецензия</i>
+          {% if user.reviewer %}
+            {% if t.author_id != user.id %}
+              <a href="{{ url_for('review_thesis_on_review', thesis_review_id=t.id) }}">(<i class="text-warning">взять на рецензию</i>)</a>
+            {% endif %}
+          {% endif %}
+        </p>
       {% elif t.review_status == 2 %}
-        <p class="text-sm mb-0">Статус: {% if t.reviewer.user_id == user.id %} <a href="{{ url_for('review_thesis_on_review', thesis_review_id=t.id) }}"><i>На рецензии...</i></a> {% else %} <i>На рецензии...</i> {% endif %} </p>
+        <p class="text-sm mb-0">
+          Статус:
+          {% if t.reviewer.user_id == user.id %}
+            <a href="{{ url_for('review_thesis_on_review', thesis_review_id=t.id) }}"><i>На рецензии...</i></a>
+          {% else %}
+            <i>На рецензии...</i>
+          {% endif %}
+        </p>
       {% elif t.review_status == 3 %}
-        <p class="text-sm mb-0">Статус: Требуется доработка {% if t.author_id == user.id or user.reviewer %} (<i class="text-primary"><a href="{{ url_for('review_result_thesis_on_review', thesis_review_id=t.id) }}">посмотреть рецензию</a></i>) {% endif %}</p>
+        <p class="text-sm mb-0">
+          Статус: Требуется доработка
+          {% if t.author_id == user.id or user.reviewer %}
+            (<i class="text-primary"><a href="{{ url_for('review_result_thesis_on_review', thesis_review_id=t.id) }}">посмотреть рецензию</a></i>)
+          {% endif %}
+        </p>
       {% endif %}
-      <p class="text-sm mb-0">Автор: <i>{{ t.author.get_name() }}</i></p>
-      <p class="text-sm mb-0">Направление: <i>{{ t.area.area }}</i></p>
+      <p class="text-sm mb-0">
+        Автор: <i>{{ t.author.get_name() }}</i>
+      </p>
+      <p class="text-sm mb-0">
+        Направление: <i>{{ t.area.area }}</i>
+      </p>
     </div>
   </div>
 {% endfor %}
@@ -100,13 +130,19 @@
       {% for curr_page in thesis.iter_pages() %}
         {% if curr_page %}
           {% if curr_page != thesis.page %}
-            <li class="page-item"><a class="page-link"
-   href="{{ url_for ('thesis_review_index', page=curr_page, status=status, worktype=worktype, area=area) }}">{{ curr_page }}</a></li>
+            <li class="page-item">
+              <a class="page-link"
+                 href="{{ url_for ('thesis_review_index', page=curr_page, status=status, worktype=worktype, area=area) }}">{{ curr_page }}</a>
+            </li>
           {% else %}
-            <li class="page-item active"><span class="page-link">{{ curr_page }}<span class="sr-only">(current)</span></span></li>
+            <li class="page-item active">
+              <span class="page-link">{{ curr_page }}<span class="sr-only">(current)</span></span>
+            </li>
           {% endif %}
         {% else %}
-          <li class="page-item"><span class="page-link">...</span></li>
+          <li class="page-item">
+            <span class="page-link">...</span>
+          </li>
         {% endif %}
       {% endfor %}
       {% if thesis.has_next %}

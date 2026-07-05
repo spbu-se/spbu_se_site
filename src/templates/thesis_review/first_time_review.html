@@ -15,7 +15,9 @@
             <div class="card-header">
               <div class="row align-items-center">
                 <div class="col">
-                  <h6 class="mb-0"><strong>{{ thesis.name_ru }}</strong></h6>
+                  <h6 class="mb-0">
+                    <strong>{{ thesis.name_ru }}</strong>
+                  </h6>
                 </div>
                 <div class="col-auto ml-auto text-right">
                   {% if thesis.text_uri %}
@@ -35,8 +37,12 @@
               </div>
             </div>
             <div class="card-body pt-2">
-              <p class="text-sm mb-0">Автор: <i>{{ thesis.author }}</i></p>
-              <p class="text-sm">Направление: <i>{{ thesis.area.area }}</i></p>
+              <p class="text-sm mb-0">
+                Автор: <i>{{ thesis.author }}</i>
+              </p>
+              <p class="text-sm">
+                Направление: <i>{{ thesis.area.area }}</i>
+              </p>
             </div>
           </div>
         </div>

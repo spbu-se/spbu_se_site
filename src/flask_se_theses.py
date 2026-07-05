@@ -1,4 +1,3 @@
-# -*- coding:utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import json
@@ -149,10 +148,7 @@ def fetch_theses():
         for item in records.items:
             search_in_name = False
 
-            if item.text is None:
-                text_index = -1
-            else:
-                text_index = item.text.find(search.lower())
+            text_index = -1 if item.text is None else item.text.find(search.lower())
 
             if item.name_ru is not None:
                 search_in_name = str(item.name_ru).lower().find(search.lower()) != -1

@@ -21,7 +21,6 @@ import pathlib
 from datetime import date
 from enum import Enum
 from string import Template
-from typing import Tuple
 
 from transliterate import translit
 
@@ -34,7 +33,7 @@ YANDEX_SECRET_FILE = os.path.join(
     pathlib.Path(__file__).parent, "configs/flask_se_practice_yandex_secret.conf"
 )
 if os.path.exists(YANDEX_SECRET_FILE):
-    with open(YANDEX_SECRET_FILE, "r") as file:
+    with open(YANDEX_SECRET_FILE) as file:
         YANDEX_SECRET = file.read().rstrip()
 else:
     YANDEX_SECRET = ""
@@ -92,7 +91,7 @@ def allowed_file(filename) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def get_filename(current_thesis: CurrentThesis, folder: str, type_of_file: str) -> Tuple[str, str]:
+def get_filename(current_thesis: CurrentThesis, folder: str, type_of_file: str) -> tuple[str, str]:
     author_en = translit(current_thesis.user.get_name(), "ru", reversed=True)
     author_en = author_en.replace(" ", "_")
 

@@ -1,9 +1,15 @@
+import os
 import shutil
 import sys
 import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+
+# Mock scrypt hash before any auth import (Python 3.13 lacks scrypt)
+import werkzeug.security as _ws
+_ws.check_password_hash = lambda pwhash, password: True
+_ws.generate_password_hash = lambda password, method="pbkdf2:sha256": f"mock:{password}"
 
 _db_dir = None
 _db_name = "test.db"
@@ -26,6 +32,13 @@ import pytest
 from sqlalchemy import create_engine
 
 from flask_se import app, db
+
+_whoosh_dir = tempfile.mkdtemp()
+app.config["WHOOSHEE_DIR"] = _whoosh_dir
+
+import flask_se as _fs
+_fs.scheduler.shutdown(wait=False)
+
 from se_models import init_db
 
 
@@ -102,10 +115,31 @@ def seeded_client(_seeded_db_path):
 def logged_client(seeded_client):
     """Seeded client with logged-in test user. Bypasses login to avoid scrypt hash issues on 3.13."""
     from se_models import Users
+
     u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
     with seeded_client.session_transaction() as sess:
         sess["_user_id"] = str(u.id)
     return seeded_client
+
+
+@pytest.fixture
+def practice_thesis(logged_client):
+    """Seeded client + a CurrentThesis belonging to the logged-in user."""
+    from se_models import CurrentThesis, ThesisReport, ThesisTask, db
+
+    ct = CurrentThesis(author_id=1, worktype_id=1, area_id=1)
+    ct.title = "Test Practice Thesis"
+    ct.supervisor_id = 1
+    db.session.add(ct)
+    db.session.flush()
+
+    task = ThesisTask("Test task", ct.id)
+    db.session.add(task)
+
+    report = ThesisReport("Completed task 1", "Task 2", ct.id, 1)
+    db.session.add(report)
+    db.session.commit()
+    return logged_client
 
 
 def assert_ok(client, path, methods=None, data=None, code=None):
@@ -127,3 +161,12 @@ def assert_ok(client, path, methods=None, data=None, code=None):
 def assert_ok_or_redirect(client, path):
     """GET a path, assert 200 or 302."""
     assert_ok(client, path, code={200, 302})
+
+
+@pytest.fixture
+def seeded_app_ctx(app_ctx):
+    from se_models import Users, db
+    u = Users(email="test@spbu.ru", first_name="Test", last_name="User")
+    db.session.add(u)
+    db.session.commit()
+    return app_ctx

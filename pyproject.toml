@@ -34,11 +34,31 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ruff", "mdformat", "pre-commit", "pytest", "pytest-cov", "djlint", "bandit", "codespell"]
+dev = [
+    "ruff",
+    "mdformat",
+    "pre-commit",
+    "pytest",
+    "pytest-cov",
+    "djlint",
+    "bandit",
+    "codespell",
+    "pytest-xdist>=3.8.0",
+    "mypy>=2.1.0",
+    "types-flask>=1.1.6",
+    "types-werkzeug>=1.0.9",
+    "types-jinja2>=2.11.9",
+    "types-markupsafe>=1.1.10",
+    "types-click>=7.1.8",
+    "types-itsdangerous>=1.1.6",
+    "types-sqlalchemy>=1.4.53.38",
+    "types-python-dateutil>=2.9.0.20260518",
+    "types-pillow>=10.2.0.20240822",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=src --cov-report=term-missing --cov-fail-under=50"
+addopts = "--cov=src --cov-report=term-missing --cov-fail-under=50 -n 2 --durations=10"
 
 [tool.coverage.run]
 omit = ["src/thesesImport.py", "src/wsgi.py", "src/extract_text.py", "src/static/files/*"]
@@ -52,11 +72,13 @@ target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W"]
+select = ["E", "F", "I", "N", "W", "UP", "SIM", "RUF100"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/conftest.py" = ["E402"]
+"src/static/files/*" = ["SIM115"]
+"src/thesesImport.py" = ["SIM115"]
 
 [tool.djlint]
 indent = 2
@@ -70,3 +92,21 @@ skips = ["B101", "B311"]
 [tool.codespell]
 skip = ".git,.venv,node_modules,src/static/assets/libs"
 ignore-words-list = "crate,principale,organise,organised,re-use,re-uses,re-using,theses,recomended"
+
+[tool.mypy]
+strict = true
+python_version = "3.11"
+ignore_missing_imports = true
+no_site_packages = true
+disable_error_code = ["no-untyped-def", "no-untyped-call"]
+files = [
+    "tests/",
+]
+
+exclude = [
+    "numpy",
+]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disable_error_code = ["no-untyped-def", "no-untyped-call"]

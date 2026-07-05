@@ -3,6 +3,7 @@ from conftest import assert_ok
 
 def test_app_exists():
     from flask_se import app
+
     assert app is not None
 
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import shutil
@@ -112,7 +111,7 @@ class Staff(db.Model):
     current_thesises = db.relationship("CurrentThesis", backref=db.backref("supervisor"))
 
     def __repr__(self):
-        return "<%r>" % self.official_email
+        return f"<{self.official_email!r}>"
 
     def __str__(self):
         return self.user.get_name()
@@ -438,7 +437,7 @@ class Courses(db.Model):
     curriculum = db.relationship("Curriculum", backref=db.backref("course", uselist=False))
 
     def __repr__(self):
-        return "<%r>" % (self.name)
+        return f"<{self.name!r}>"
 
 
 @whooshee.register_model("name_ru", "description", "author", "text")
@@ -562,11 +561,8 @@ class PostVote(db.Model):
     timestamp = db.Column(db.DateTime, server_default=db.func.now())
 
     def __repr__(self):
-        if self.upvote:
-            vote = "Up"
-        else:
-            vote = "Down"
-        return "<Vote - {}, from {} for {}>".format(vote, self.user.get_name(), self.post.title)
+        vote = "Up" if self.upvote else "Down"
+        return f"<Vote - {vote}, from {self.user.get_name()} for {self.post.title}>"
 
 
 class PostType(db.Model):

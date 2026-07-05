@@ -1,58 +1,35 @@
 # TODO
 
-## Done This Session
+## Planned
 
-- [x] **README rewrite** — badges, quick start, config table, doc links, project structure
-- [x] **SPDX headers** — added `SPDX-License-Identifier: Apache-2.0` to all 60 `src/*.py` files
-- [x] **readme-generator skill** — licensing rules, cross-platform Python probe, SPDX mapping
-- [x] **REVERSE_ENGINEERING.md** — re-engineering cycle for legacy code extraction
-- [x] **Process doc updates** — doc-to-code sync, artifact checklist, session start order, gate checks, mid-sprint violation, process docs during code work
+| Priority | Task | Effort | Depends on |
+|----------|------|--------|------------|
+| **P0** | Fix `None.strip()` crashes in `flask_se_auth.py:197,239-242`, `flask_se_review.py` | S | none |
+| **P0** | Fix `read_table()` FileNotFoundError in `flask_se_practice_table.py` | S | none |
+| **P0** | Test optimization — reduce SLOC, deduplicate parametrized lists, consolidate test files | M | Now |
+| **P1** | Push coverage 59% → 90% (~200 tests across practice/review/theses) | XL | After test optimization |
+| **P2** | Fix custom `__init__` kwargs in `se_models.py` (CurrentThesis, ThesisTask, ThesisReport) | S | After coverage |
+| **P3** | Mypy strict for `src/` (~20 files, per-module overrides) | L | After code fixes |
+| **P3** | Fix `AdminModelView(db.session)` → `db` deprecation | S | After coverage |
+| **P3** | Fix `Users.query.get()` → `db.session.get()` deprecation | S | After coverage |
+| **P4** | Test optimization (reduce SLOC, deduplicate parametrized lists) | M | After mypy |
+| **P5** | Python 3.12+, Docker, static site, open source docs | M-S | Icebox |
 
-## Running Plan
+## Blocked (with evidence)
 
-### P0: Speed up tests
+| Task | Attempts | Result | What's needed |
+|------|----------|--------|---------------|
+| Practice deeper upload branches | 6 tests | ~30 branches remain | ~50 multipart fixture tests |
+| Review full workflow | 14 tests (ThesisOnReview) | Multi-request state untestable | ~30 sequenced request tests |
+| Thesis admin approval (Whoosh+xdist) | 3 tests, 2 xfailed | Whoosh `EmptyIndexError` | Whoosh index sync with per-test DB |
+| Google OAuth full flow | 2 tests pass with patch | Needs `client_google.json` file | Config stub or file-level mock |
 
-Full test suite takes 2.8min. Target: \<1min.
+## Module Coverage
 
-### P1: 100% line coverage
-
-Current: 50%. Target: 100%.
-
-| Module | Est. coverage | Remaining |
-|--------|--------------|-----------|
-| auth | 30-40% | login flows, OAuth callbacks |
-| news | 50% | submit, vote, delete |
-| theses | 30% | download, CRUD |
-| diplomas | 40% | CRUD, archive |
-| internships | 40% | CRUD |
-| practice | 10% | staff, admin, student flows |
-
-### P2: Document API surface + requirements
-
-Create `doc/API_SURFACE.md` and `doc/REQUIREMENTS.md`.
-
-### P3: Fix existing staging-auto branches
-
-Chain-merge all `staging-auto-*` branches to green CI, then merge to staging.
-
-### P4: Add mypy type checking
-
-Configure `strict = true` in pyproject.toml, exclude tests, add pre-commit hook, fix initial violations. Use `# type: ignore[code]` only when wire format differs.
-
-### P6: Tooling quick wins
-
-- **`uv lock --check` hook** — add to `.pre-commit-config.yaml` as `repo: local`, `language: system`, `entry: uv lock --check`, `pass_filenames: false`
-- **`pytest-xdist`** — add to dev deps, update pytest command to `pytest -n auto` in `pyproject.toml` and `AGENTS.md`
-- **`.editorconfig`** — add `[*.{yaml,yml}]`, `[*.json]`, `[*.toml]`, `[Makefile]` sections; set `trim_trailing_whitespace = false` for `[*.md]`
-
-### P7: Ruff rules + test-writer skill
-
-- **Enable `UP`, `SIM`, `RUF100`** ruff rules — add to `pyproject.toml [tool.ruff.lint] select`, fix any violations
-- **Update `test-writer` skill** — add SE Site patterns: `seeded_client`, `logged_client`, `assert_ok`, SQLAlchemy `db.session`, `init_db()`, Flask test client conventions
-
-## Icebox
-
-- Upgrade to Python 3.12+
-- Docker optimization
-- Windows path support
-- Static site generator improvements
+| Module | Coverage | Status |
+|--------|----------|--------|
+| `flask_se_config.py`, `bachelor.py`, `scholarships.py`, `summer_schools.py`, `se_forms.py` | 97-100% | Done |
+| `se_models.py`, `se_sendmail.py` | 75-92% | Mostly done |
+| `flask_se_news.py`, `auth.py`, `admin.py`, `diplomas.py`, `internships.py`, `practice_yandex_disk.py` | 45-60% | Partial |
+| `flask_se_review.py`, `theses.py`, `practice_table.py`, `practice.py`, `practice_staff.py`, `practice_admin.py`, `flask_se.py` | 35-50% | Partial |
+| **TOTAL** | **59%** | |

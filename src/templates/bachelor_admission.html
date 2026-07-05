@@ -1,6 +1,8 @@
 {% extends "base_dark.html" %}
 {% block title %}Поступление в бакалавриат на кафедру Системного Программирования{% endblock %}
-{% block description %}Готовим программистов высокой квалификации, способных решать любые задачи в самых разных областях информационных технологий. {% endblock %}
+{% block description %}
+  Готовим программистов высокой квалификации, способных решать любые задачи в самых разных областях информационных технологий.
+{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section class="slice py-8 bg-dark bg-cover bg-size--cover"
@@ -134,7 +136,9 @@
               </div>
               <div class="card-body">
                 <div class="pt-2 pb-3">
-                  <p class="text-white mb-0">Для тех, кто хочет решать алгоритмические и технические задачи и больше узнать о современных задачах и способах их решения</p>
+                  <p class="text-white mb-0">
+                    Для тех, кто хочет решать алгоритмические и технические задачи и больше узнать о современных задачах и способах их решения
+                  </p>
                 </div>
               </div>
               <div class="card-footer border-0 delimiter-top">
@@ -287,7 +291,9 @@
               <div class="card-header">
                 <div class="row align-items-center">
                   <div class="col">
-                    <h6 class="mb-0"><strong>{{ t.name_ru }} [{{ t.publish_year }}]</strong></h6>
+                    <h6 class="mb-0">
+                      <strong>{{ t.name_ru }} [{{ t.publish_year }}]</strong>
+                    </h6>
                   </div>
                   <div class="col-auto ml-auto text-right">
                     {% if t.text_uri %}
@@ -357,12 +363,16 @@
                 </div>
               </div>
               <div class="card-body pt-2">
-                <p class="text-sm mb-0">Автор: <i>{{ t.author }}</i></p>
-                <p class="text-sm mb-0">Руководитель: <i>{{ t.supervisor.user.get_name() }}</i></p>
-                <p class="text-sm">Направление: <i>{{ t.course.name }}</i></p>
-                {% for tag in t.tags %}
-                  <a href="#" class="badge badge-info mr-2">{{ tag.name }}</a>
-                {% endfor %}
+                <p class="text-sm mb-0">
+                  Автор: <i>{{ t.author }}</i>
+                </p>
+                <p class="text-sm mb-0">
+                  Руководитель: <i>{{ t.supervisor.user.get_name() }}</i>
+                </p>
+                <p class="text-sm">
+                  Направление: <i>{{ t.course.name }}</i>
+                </p>
+                {% for tag in t.tags %}<a href="#" class="badge badge-info mr-2">{{ tag.name }}</a>{% endfor %}
               </div>
             </div>
           {% endfor %}
@@ -403,7 +413,9 @@
                 <span itemscope
                       itemprop="acceptedAnswer"
                       itemtype="https://schema.org/Answer">
-                  <p itemprop="text">В Петергофе, 7 минут пешком до учебного корпуса, до метро час. Подробнее <a href="{{ url_for('index', _anchor='mm_map') }}" target="_blank">тут</a>.</p>
+                  <p itemprop="text">
+                    В Петергофе, 7 минут пешком до учебного корпуса, до метро час. Подробнее <a href="{{ url_for('index', _anchor='mm_map') }}" target="_blank">тут</a>.
+                  </p>
                 </span>
               </div>
             </div>
@@ -416,8 +428,10 @@
                 <span itemscope
                       itemprop="acceptedAnswer"
                       itemtype="https://schema.org/Answer">
-                  <p itemprop="text"><a href="https://spbu.ru/openuniversity/documents/ob-ustanovlenii-dlya-obuchayuschikhsya-spbgu-razmera-platy-za-0"
-   target="_blank">Примерно 1200 руб/мес для бюджетников</a> и &mdash; 2400 для контрактников.</p>
+                  <p itemprop="text">
+                    <a href="https://spbu.ru/openuniversity/documents/ob-ustanovlenii-dlya-obuchayuschikhsya-spbgu-razmera-platy-za-0"
+                       target="_blank">Примерно 1200 руб/мес для бюджетников</a> и &mdash; 2400 для контрактников.
+                  </p>
                 </span>
               </div>
             </div>
@@ -430,8 +444,10 @@
                 <span itemscope
                       itemprop="acceptedAnswer"
                       itemtype="https://schema.org/Answer">
-                  <p itemprop="text">Стандартная примерно 1.6к, социальная &mdash; 2.4к (сверху), <a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya.html"
-    target="_blank">ПГАС</a> &mdash; 5-20к, повышенная социальная &mdash; 27к. И ещё есть разные стипендии за успехи в науке и учёбе: от частных фондов, государственные  (президентская, губернаторская, правительственная и т.д.). Эти стипендии очень разные, от 5к и сильно больше, бывают и по 40к. Тут уж как пойдёт.</p>
+                  <p itemprop="text">
+                    Стандартная примерно 1.6к, социальная &mdash; 2.4к (сверху), <a href="https://students.spbu.ru/mmen-stipendii/stipendii/povyshennaya-akademicheskaya-stipendiya.html"
+    target="_blank">ПГАС</a> &mdash; 5-20к, повышенная социальная &mdash; 27к. И ещё есть разные стипендии за успехи в науке и учёбе: от частных фондов, государственные  (президентская, губернаторская, правительственная и т.д.). Эти стипендии очень разные, от 5к и сильно больше, бывают и по 40к. Тут уж как пойдёт.
+                  </p>
                 </span>
               </div>
             </div>
@@ -444,7 +460,9 @@
                 <span itemscope
                       itemprop="acceptedAnswer"
                       itemtype="https://schema.org/Answer">
-                  <p itemprop="text">Выбор есть. Информации о стажировках в инфополе мат-меха очень много и уровень подготовки вполне позволяет на них претендовать. Это и широко известные компании, и интересные небольшие проекты. Кроме общих объявлений есть традиция приватных “инвайтов”. В чатики иногда заходят выпускники, приглашают напрямую. Ещё бывает, что в лабы приглашают тех, кто хорошо проявил себя на учёбе. В общем, варианты есть.</p>
+                  <p itemprop="text">
+                    Выбор есть. Информации о стажировках в инфополе мат-меха очень много и уровень подготовки вполне позволяет на них претендовать. Это и широко известные компании, и интересные небольшие проекты. Кроме общих объявлений есть традиция приватных “инвайтов”. В чатики иногда заходят выпускники, приглашают напрямую. Ещё бывает, что в лабы приглашают тех, кто хорошо проявил себя на учёбе. В общем, варианты есть.
+                  </p>
                 </span>
               </div>
             </div>
@@ -457,7 +475,9 @@
                 <span itemscope
                       itemprop="acceptedAnswer"
                       itemtype="https://schema.org/Answer">
-                  <p itemprop="text">Нет, физики нет. На направлении "Технологии программирования" будет матфизика (3 курс), но это совсем не то, что было в школе.</p>
+                  <p itemprop="text">
+                    Нет, физики нет. На направлении "Технологии программирования" будет матфизика (3 курс), но это совсем не то, что было в школе.
+                  </p>
                 </span>
               </div>
             </div>
@@ -470,7 +490,9 @@
                 <span itemscope
                       itemprop="acceptedAnswer"
                       itemtype="https://schema.org/Answer">
-                  <p itemprop="text">Много разных. Надо различать курсы и проекты. На проектах вообще всё может случиться. По учёбе примерно следующее: C, C++, ООП и параллельное программирование на Java/Kotlin и C#. Python для обработки изображений, данных, Машинное обучение (ML). Обязательно будет функциональное программирование, там Haskell, OCaml, бывает F#.</p>
+                  <p itemprop="text">
+                    Много разных. Надо различать курсы и проекты. На проектах вообще всё может случиться. По учёбе примерно следующее: C, C++, ООП и параллельное программирование на Java/Kotlin и C#. Python для обработки изображений, данных, Машинное обучение (ML). Обязательно будет функциональное программирование, там Haskell, OCaml, бывает F#.
+                  </p>
                 </span>
               </div>
             </div>
@@ -513,7 +535,9 @@
                   <div class="media-body">
                     <span class="h6">{{ person.user }}</span>
                     <br>
-                    <span class="h6 text-sm">{{ person.position }}{% if person.science_degree %}, {{ person.science_degree }} {% endif %} </span>
+                    <span class="h6 text-sm">{{ person.position }}
+                      {% if person.science_degree %}, {{ person.science_degree }}{% endif %}
+                    </span>
                   </div>
                 </div>
                 <hr class="my-2">

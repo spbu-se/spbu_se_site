@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -121,10 +120,7 @@ def get_2020_02_03_03():
             else:
                 continue
 
-            if cols[8].find("a"):
-                source_uri = cols[8].find("a").get("href")
-            else:
-                source_uri = ""
+            source_uri = cols[8].find("a").get("href") if cols[8].find("a") else ""
 
             # Try to get supervisor_id
             last_name = supervisor.split()[-1]
@@ -260,10 +256,7 @@ def get_2020_09_03_04():
             else:
                 reviewer_review_uri = ""
 
-            if cols[9].find("a"):
-                source_uri = cols[9].find("a").get("href")
-            else:
-                source_uri = ""
+            source_uri = cols[9].find("a").get("href") if cols[9].find("a") else ""
 
             # Try to get supervisor_id
             last_name = supervisor.split()[-1]
@@ -539,20 +532,14 @@ def get_2019_02_03_03():
             else:
                 reviewer_review_uri = ""
 
-            if cols[8].find("a"):
-                source_uri = cols[8].find("a").get("href")
-            else:
-                source_uri = ""
+            source_uri = cols[8].find("a").get("href") if cols[8].find("a") else ""
 
             # Try to get supervisor_id
             if supervisor.find("Ханов") != -1:
                 last_name = "Ханов"
             else:
                 m = re.search(r"([\w]{7,16})", supervisor)
-                if m:
-                    last_name = m.group(1)
-                else:
-                    last_name = "Терехов"
+                last_name = m.group(1) if m else "Терехов"
 
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
@@ -686,17 +673,11 @@ def get_2019_02_04_03():
             else:
                 reviewer_review_uri = ""
 
-            if cols[4].find("a"):
-                source_uri = cols[4].find("a").get("href")
-            else:
-                source_uri = ""
+            source_uri = cols[4].find("a").get("href") if cols[4].find("a") else ""
 
             # Try to get supervisor_id
             m = re.search(r"([\w]{5,16})", supervisor)
-            if m:
-                last_name = m.group(1)
-            else:
-                last_name = "Терехов"
+            last_name = m.group(1) if m else "Терехов"
 
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
@@ -822,10 +803,7 @@ def get_2020_371():
             else:
                 supervisor_review_uri = None
 
-            if len(data) > 3:
-                source_uri = data[3].get("href")
-            else:
-                source_uri = None
+            source_uri = data[3].get("href") if len(data) > 3 else None
 
             last_name = supervisor.split()[-3]
 
@@ -958,10 +936,7 @@ def get_report_2020_02_03_03():
 
             # Try to get supervisor_id
 
-            if supervisor.find("Сагунов") != -1:
-                last_name = "Сагунов"
-            else:
-                last_name = supervisor.split()[-1]
+            last_name = "Сагунов" if supervisor.find("Сагунов") != -1 else supervisor.split()[-1]
 
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
@@ -1780,20 +1755,14 @@ def get_2022_09_03_04():
             else:
                 reviewer_review_uri = ""
 
-            if cols[8].find("a"):
-                source_uri = cols[8].find("a").get("href")
-            else:
-                source_uri = ""
+            source_uri = cols[8].find("a").get("href") if cols[8].find("a") else ""
 
             # Try to get supervisor_id
             if supervisor.find("Ханов") != -1:
                 last_name = "Ханов"
             else:
                 m = re.search(r"([\w]{7,16})", supervisor)
-                if m:
-                    last_name = m.group(1)
-                else:
-                    last_name = "Терехов"
+                last_name = m.group(1) if m else "Терехов"
 
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
@@ -1840,9 +1809,8 @@ def get_2022_09_03_04():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "load":
-            download = True
+    if len(sys.argv) > 1 and sys.argv[1] == "load":
+        download = True
 
     # get_2020_02_03_03()
     # get_2020_09_03_04()

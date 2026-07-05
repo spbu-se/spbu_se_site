@@ -46,32 +46,32 @@
           {##}
           {#                        </div>#}
           {#                    {% endfor %}#}
-      </div>
-      <div class="col-lg-3 ml-lg-auto" id="InternshipsFilter">
-        <div data-toggle="sticky" data-sticky-offset="10">
-          <div class="card">
-            <div class="card-header px-3">
-              <span class="h6 mb-0">Фильтры</span>
-            </div>
-            <div class="card-body px-3">
-              {{ internship_filter.csrf_token }}
-              <p class="text-sm mb-0">Формат стажировки</p>
-              <div class="form-group">{{ internship_filter.format(class_="custom-select pl-3") }}</div>
-              <p class="text-sm mb-0">Технология</p>
-              <div class="form-group">{{ internship_filter.tag(class_="custom-select pl-3") }}</div>
-              <p class="text-sm mb-0">Компания</p>
-              <div class="form-group">{{ internship_filter.company(class_="custom-select pl-3") }}</div>
-              <div class="row mt-4 d-flex justify-content-center">
-                <hr class="my-2" />
-                <p class="text-sm mb-0 mr-4">
-                  <a href={{ url_for("add_internship") }} "> <big><u>Предложить стажировку <u /><big /></a>
-                </p>
+        </div>
+        <div class="col-lg-3 ml-lg-auto" id="InternshipsFilter">
+          <div data-toggle="sticky" data-sticky-offset="10">
+            <div class="card">
+              <div class="card-header px-3">
+                <span class="h6 mb-0">Фильтры</span>
+              </div>
+              <div class="card-body px-3">
+                {{ internship_filter.csrf_token }}
+                <p class="text-sm mb-0">Формат стажировки</p>
+                <div class="form-group">{{ internship_filter.format(class_="custom-select pl-3") }}</div>
+                <p class="text-sm mb-0">Технология</p>
+                <div class="form-group">{{ internship_filter.tag(class_="custom-select pl-3") }}</div>
+                <p class="text-sm mb-0">Компания</p>
+                <div class="form-group">{{ internship_filter.company(class_="custom-select pl-3") }}</div>
+                <div class="row mt-4 d-flex justify-content-center">
+                  <hr class="my-2" />
+                  <p class="text-sm mb-0 mr-4">
+                    <a href={{ url_for('add_internship') }} "> <big><u>Предложить стажировку <u /><big /></a>
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  </div>
-</section>
+      </section>
+    </div>
+  </section>
 {% endblock %}

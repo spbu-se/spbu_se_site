@@ -10,7 +10,7 @@ uv sync                                       # install dependencies (dev + main
 uv run python src/flask_se.py                 # run dev server (http://127.0.0.1:5000)
 uv run python src/flask_se.py init            # initialize database
 uv run python src/wsgi.py                     # run via WSGI
-uv run pytest                                 # run tests
+uv run pytest                                 # run tests (parallel -n 2)
 uv run ruff check src/                        # lint
 uv run ruff format src/                       # format
 uv export --no-dev --no-hashes > requirements.txt  # update prod requirements (PowerShell: use `[System.IO.File]::WriteAllText("requirements.txt", $(uv export --no-dev --no-hashes), [System.Text.UTF8Encoding]::new($false))` to avoid BOM)

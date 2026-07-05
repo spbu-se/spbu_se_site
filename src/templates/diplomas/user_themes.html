@@ -38,7 +38,9 @@
               <div class="card-header">
                 <div class="row align-items-center">
                   <div class="col">
-                    <h6 class="mb-0"><a href="{{ url_for('get_theme', id=t.id) }}" class="link text-primary"><strong>{{ t.title }}</strong></a></h6>
+                    <h6 class="mb-0">
+                      <a href="{{ url_for('get_theme', id=t.id) }}" class="link text-primary"><strong>{{ t.title }}</strong></a>
+                    </h6>
                   </div>
                   <div class="col-auto ml-auto text-right">
                     {% if t.company.id == 1 %}
@@ -55,9 +57,31 @@
                 </div>
               </div>
               <div class="card-body py-2">
-                <p class="mb-0">Уровень: {% if t.levels %} {% for level in t.levels %} {{ level.level }} {% if not loop.last %},{% endif %} {% endfor %} {% endif %}</p>
-                <p class="mb-0">Источник темы: {% if t.company.id == 1 %} {{ t.author.get_name() }} {% else %} {{ t.company.name }} {% endif %}</p>
-                <p class="mb-0">Руководитель: {% if t.supervisor_id %}{{ t.supervisor.get_name() }} {% else %} Еще не назначен {% endif %}</p>
+                <p class="mb-0">
+                  Уровень:
+                  {% if t.levels %}
+                    {% for level in t.levels %}
+                      {{ level.level }}
+                      {% if not loop.last %},{% endif %}
+                    {% endfor %}
+                  {% endif %}
+                </p>
+                <p class="mb-0">
+                  Источник темы:
+                  {% if t.company.id == 1 %}
+                    {{ t.author.get_name() }}
+                  {% else %}
+                    {{ t.company.name }}
+                  {% endif %}
+                </p>
+                <p class="mb-0">
+                  Руководитель:
+                  {% if t.supervisor_id %}
+                    {{ t.supervisor.get_name() }}
+                  {% else %}
+                    Еще не назначен
+                  {% endif %}
+                </p>
                 {% if t.supervisor_thesis %}<p class="mb-0">Руководитель ВКР: {{ t.supervisor_thesis.get_name() }}</p>{% endif %}
                 <p class="">Консультант: {{ t.consultant.get_name() }}</p>
               </div>
@@ -73,7 +97,14 @@
                         <span class="btn-inner--icon"><i data-feather="edit-2"></i></span>
                         <span class="btn-inner--text">Требуется доработка</span>
                       </a>
-                      <p class="pt-2">Результат проверки: {% if t.comment %} {{ t.comment }} {% else %} Странно, тему отправили на доработку, но не указали комментарий. Так быть не должно, свяжитесь со мной для выяснения причин (телеграм @Zelenchuk) {% endif %}</p>
+                      <p class="pt-2">
+                        Результат проверки:
+                        {% if t.comment %}
+                          {{ t.comment }}
+                        {% else %}
+                          Странно, тему отправили на доработку, но не указали комментарий. Так быть не должно, свяжитесь со мной для выяснения причин (телеграм @Zelenchuk)
+                        {% endif %}
+                      </p>
                     {% elif t.status == 2 %}
                       <span class="badge badge-success badge-pill">Одобрена</span>
                       <p class="pt-2">Ваша тема одобрена, ей назначен научный руководитель и она доступна в общем списке актуальных тем.</p>
@@ -89,7 +120,14 @@
                         <span class="btn-inner--icon"><i data-feather="edit-2"></i></span>
                         <span class="btn-inner--text">Отклонена</span>
                       </a>
-                      <p class="pt-2">Результат проверки: {% if t.comment %} {{ t.comment }} {% else %} Странно, тему отклонили, но не указали комментарий.{% endif %}</p>
+                      <p class="pt-2">
+                        Результат проверки:
+                        {% if t.comment %}
+                          {{ t.comment }}
+                        {% else %}
+                          Странно, тему отклонили, но не указали комментарий.
+                        {% endif %}
+                      </p>
                     {% endif %}
                   </div>
                 </div>

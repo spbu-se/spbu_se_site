@@ -30,7 +30,9 @@
             <div class="card-header">
               <div class="row align-items-center">
                 <div class="col">
-                  <h6 class="mb-0"><strong>{{ thesis.name_ru }}</strong></h6>
+                  <h6 class="mb-0">
+                    <strong>{{ thesis.name_ru }}</strong>
+                  </h6>
                 </div>
                 <div class="col-auto ml-auto text-right">
                   {% if thesis.text_uri %}
@@ -50,8 +52,12 @@
               </div>
             </div>
             <div class="card-body pt-2">
-              <p class="text-sm mb-0">Автор: <i>{{ thesis.author }}</i></p>
-              <p class="text-sm">Направление: <i>{{ thesis.area.area }}</i></p>
+              <p class="text-sm mb-0">
+                Автор: <i>{{ thesis.author }}</i>
+              </p>
+              <p class="text-sm">
+                Направление: <i>{{ thesis.area.area }}</i>
+              </p>
             </div>
           </div>
           <h5 class="mb-3">Общая информация</h5>
@@ -90,13 +96,17 @@
               <div class="card-header">
                 <div class="row">
                   <div class="col">
-                    <h6 class="mb-0"><strong>О1. Соответствие содержания и оформления предъявленным требованиям</strong></h6>
+                    <h6 class="mb-0">
+                      <strong>О1. Соответствие содержания и оформления предъявленным требованиям</strong>
+                    </h6>
                   </div>
                 </div>
                 <div class="row">
                   <div class="col">
-                    <p>Общая адекватность содержания и оформления текста. При сомнениях насчёт предъявляемых требований можно <a href="https://docs.google.com/document/d/1xWYVVVzD1EDo0SLj8elCQeFKLF4R9e-ZH-1f3P0KP_M"
-    target="_blank">обратиться к документу</a>, где эти требования перечислены.</p>
+                    <p>
+                      Общая адекватность содержания и оформления текста. При сомнениях насчёт предъявляемых требований можно <a href="https://docs.google.com/document/d/1xWYVVVzD1EDo0SLj8elCQeFKLF4R9e-ZH-1f3P0KP_M"
+    target="_blank">обратиться к документу</a>, где эти требования перечислены.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -121,7 +131,9 @@
               <div class="card-header">
                 <div class="row">
                   <div class="col">
-                    <h6 class="mb-0"><strong>О2. Умение работать с информацией, опубликованной в научных и иных источниках</strong></h6>
+                    <h6 class="mb-0">
+                      <strong>О2. Умение работать с информацией, опубликованной в научных и иных источниках</strong>
+                    </h6>
                   </div>
                 </div>
                 <div class="row">
@@ -152,7 +164,9 @@
               <div class="card-header">
                 <div class="row">
                   <div class="col">
-                    <h6 class="mb-0"><strong>Т1. Обоснование принятых решений/Теоретический анализ</strong></h6>
+                    <h6 class="mb-0">
+                      <strong>Т1. Обоснование принятых решений/Теоретический анализ</strong>
+                    </h6>
                   </div>
                 </div>
               </div>
@@ -177,7 +191,9 @@
               <div class="card-header">
                 <div class="row">
                   <div class="col">
-                    <h6 class="mb-0"><strong>Т2. Сравнение с аналогами</strong></h6>
+                    <h6 class="mb-0">
+                      <strong>Т2. Сравнение с аналогами</strong>
+                    </h6>
                   </div>
                 </div>
               </div>
@@ -203,7 +219,9 @@
               <div class="card-header">
                 <div class="row">
                   <div class="col">
-                    <h6 class="mb-0"><strong>П1. Качество практической части</strong></h6>
+                    <h6 class="mb-0">
+                      <strong>П1. Качество практической части</strong>
+                    </h6>
                   </div>
                 </div>
                 <div class="row">
@@ -233,7 +251,9 @@
               <div class="card-header">
                 <div class="row">
                   <div class="col">
-                    <h6 class="mb-0"><strong>П2. Качество проводимых измерений и постановки экспериментов</strong></h6>
+                    <h6 class="mb-0">
+                      <strong>П2. Качество проводимых измерений и постановки экспериментов</strong>
+                    </h6>
                   </div>
                 </div>
               </div>
@@ -267,7 +287,9 @@
               <div class="card-header">
                 <div class="row">
                   <div class="col">
-                    <h6 class="mb-0"><strong>Ревью в виде файла</strong></h6>
+                    <h6 class="mb-0">
+                      <strong>Ревью в виде файла</strong>
+                    </h6>
                   </div>
                 </div>
               </div>
@@ -282,7 +304,13 @@
                     <i data-feather="upload"></i>
                     <span>В формате .PDF (опционально)</span>
                   </label>
-                  {% if review.review_file_uri %}<label class="form-control-label">Текущий файл: <a href="/onreview/reviews/{{ review.review_file_uri }}">{{ review.review_file_uri }}</a></label>{% else %} <label class="form-control-label">Файл не был загружен</label> {% endif %}
+                  {% if review.review_file_uri %}
+                    <label class="form-control-label">
+                      Текущий файл: <a href="/onreview/reviews/{{ review.review_file_uri }}">{{ review.review_file_uri }}</a>
+                    </label>
+                  {% else %}
+                    <label class="form-control-label">Файл не был загружен</label>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -290,7 +318,9 @@
               <div class="card-header">
                 <div class="row">
                   <div class="col">
-                    <h6 class="mb-0"><strong>Вердикт</strong></h6>
+                    <h6 class="mb-0">
+                      <strong>Вердикт</strong>
+                    </h6>
                   </div>
                 </div>
               </div>

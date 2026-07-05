@@ -174,48 +174,47 @@ def reports_staff(user_staff, current_thesis):
         if current_report.practice.supervisor_id != user_staff.id:
             return redirect(url_for("index_staff"))
 
-        if request.method == "POST":
-            if "submit_button" + str(current_report_id) in request.form:
-                new_comment = request.form.get("comment", type=str)
+        if request.method == "POST" and "submit_button" + str(current_report_id) in request.form:
+            new_comment = request.form.get("comment", type=str)
 
-                if not new_comment:
-                    flash("Нельзя отправить пустой комментарий!", category="error")
-                else:
-                    current_report.comment = new_comment
-                    current_report.comment_time = datetime.datetime.now()
-                    db.session.commit()
+            if not new_comment:
+                flash("Нельзя отправить пустой комментарий!", category="error")
+            else:
+                current_report.comment = new_comment
+                current_report.comment_time = datetime.datetime.now()
+                db.session.commit()
 
-                    content = (
-                        f"Научный руководитель {user_staff.user.get_name()} прокомментировал "
-                        + f"Ваш отчет от {datetime_convert(current_report.time)} "
-                        + f'по работе "{current_thesis.title}"'
-                    )
-
-                    notification = NotificationPractice(
-                        recipient_id=current_thesis.author_id, content=content
-                    )
-
-                    add_mail_notification(
-                        current_thesis.author_id,
-                        "[SE site] Отчёт прокомментирован",
-                        render_template(
-                            NotificationTemplates.SUPERVISOR_COMMENT_TO_REPORT.value,
-                            user_staff=user_staff,
-                            current_report=current_report,
-                            current_thesis=current_thesis,
-                        ),
-                    )
-
-                    db.session.add(notification)
-                    db.session.commit()
-                    flash("Комментарий успешно отправлен!", category="success")
-
-                return render_template(
-                    PracticeStaffTemplates.REPORTS.value,
-                    thesis=current_thesis,
-                    reports=reports,
-                    form=add_report_comment,
+                content = (
+                    f"Научный руководитель {user_staff.user.get_name()} прокомментировал "
+                    + f"Ваш отчет от {datetime_convert(current_report.time)} "
+                    + f'по работе "{current_thesis.title}"'
                 )
+
+            notification = NotificationPractice(
+                recipient_id=current_thesis.author_id, content=content
+            )
+
+            add_mail_notification(
+                current_thesis.author_id,
+                "[SE site] Отчёт прокомментирован",
+                render_template(
+                    NotificationTemplates.SUPERVISOR_COMMENT_TO_REPORT.value,
+                    user_staff=user_staff,
+                    current_report=current_report,
+                    current_thesis=current_thesis,
+                ),
+            )
+
+            db.session.add(notification)
+            db.session.commit()
+            flash("Комментарий успешно отправлен!", category="success")
+
+        return render_template(
+            PracticeStaffTemplates.REPORTS.value,
+            thesis=current_thesis,
+            reports=reports,
+            form=add_report_comment,
+        )
 
     return render_template(
         PracticeStaffTemplates.REPORTS.value,

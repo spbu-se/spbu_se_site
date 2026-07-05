@@ -50,7 +50,9 @@
                      data-target="{{ '#collapse-'+(practice.id|string() )+'-'+(report.id|string()) }}"
                      aria-expanded="false"
                      aria-controls="{{ 'collapse-'+(practice.id|string() )+'-'+(report.id|string()) }}">
-                  <h6 class="mb-0"><i data-feather="file-text" class="mr-3"></i>Отчёт за {{ report.time | datatime_convert }}</h6>
+                  <h6 class="mb-0">
+                    <i data-feather="file-text" class="mr-3"></i>Отчёт за {{ report.time | datatime_convert }}
+                  </h6>
                 </div>
                 <div id="{{ 'collapse-'+(report.practice.id|string() )+'-'+(report.id|string()) }}"
                      class="collapse"

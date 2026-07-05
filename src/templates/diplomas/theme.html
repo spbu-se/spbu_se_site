@@ -76,7 +76,14 @@
             {% endif %}
           {% endif %}
           <h6 class="mb-0">Уровень</h6>
-          <p class="text-sm">{% if theme.levels %} {% for level in theme.levels %} {{ level.level }}{% if not loop.last %}, {% endif %} {% endfor %} {% endif %}</p>
+          <p class="text-sm">
+            {% if theme.levels %}
+              {% for level in theme.levels %}
+                {{ level.level }}
+                {% if not loop.last %},{% endif %}
+              {% endfor %}
+            {% endif %}
+          </p>
           <hr class="my-2" />
           <h6 class="mb-0">Руководитель</h6>
           <p class="text-sm">
@@ -102,7 +109,9 @@
             {% else %}
               {% if theme.author_id == current_user.id %}
                 <h6 class="mb-0">Способ связи</h6>
-                <p class="text-sm text-danger">Заполнте поле "Как с вами связаться" в <a href="{{ url_for('user_profile') }}">вашем профиле.</a></p>
+                <p class="text-sm text-danger">
+                  Заполнте поле "Как с вами связаться" в <a href="{{ url_for('user_profile') }}">вашем профиле.</a>
+                </p>
               {% endif %}
             {% endif %}
           {% endif %}

@@ -30,9 +30,7 @@
           <p style="font-size: 100%" class="text m-0">{{ i.company }}</p>
           <p style="font-size: 100%" class="text mb-1 mt-0">{{ i.location }}</p>
           <p style="font-size: 100%" class="text mb-1 mt-0">
-            {% for tag in i.tag %}
-              <a href="internships_index.html?format=0&company=0&tag={{ tag.id }}">{{ tag }}</a>
-            {% endfor %}
+            {% for tag in i.tag %}<a href="internships_index.html?format=0&company=0&tag={{ tag.id }}">{{ tag }}</a>{% endfor %}
           </p>
         </div>
       </div>
@@ -51,13 +49,19 @@
           {% for curr_page in internships.iter_pages() %}
             {% if curr_page %}
               {% if curr_page != internships.page %}
-                <li class="page-item"><a class="page-link"
-   href="{{ url_for ('internships_index', page=curr_page, format=format, company=company, tag=tag) }}">{{ curr_page }}</a></li>
+                <li class="page-item">
+                  <a class="page-link"
+                     href="{{ url_for ('internships_index', page=curr_page, format=format, company=company, tag=tag) }}">{{ curr_page }}</a>
+                </li>
               {% else %}
-                <li class="page-item active"><span class="page-link">{{ curr_page }}<span class="sr-only">(current)</span></span></li>
+                <li class="page-item active">
+                  <span class="page-link">{{ curr_page }}<span class="sr-only">(current)</span></span>
+                </li>
               {% endif %}
             {% else %}
-              <li class="page-item"><span class="page-link">...</span></li>
+              <li class="page-item">
+                <span class="page-link">...</span>
+              </li>
             {% endif %}
           {% endfor %}
           {% if internships.has_next %}

@@ -1,9 +1,7 @@
 {% extends "base_dark.html" %}
 {% block title %}Сервис по предложению и выбору тем для учебных практик и ВКР{% endblock %}
 {% block description %}Сервис по предложению и выбору тем для учебных практик и ВКР{% endblock %}
-{% block headers %}
-  <link rel="canonical" href="https://se.math.spbu.ru/diplomas/index.html" />
-{% endblock %}
+{% block headers %}<link rel="canonical" href="https://se.math.spbu.ru/diplomas/index.html" />{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section class="slice pt-8 bg-dark bg-cover bg-size--cover"
@@ -43,7 +41,9 @@
               <div class="card-header">
                 <div class="row align-items-center">
                   <div class="col">
-                    <h6 class="mb-0"><a href="{{ url_for('get_theme', id=t.id) }}" class="link text-primary"><strong>{{ t.title }}</strong></a></h6>
+                    <h6 class="mb-0">
+                      <a href="{{ url_for('get_theme', id=t.id) }}" class="link text-primary"><strong>{{ t.title }}</strong></a>
+                    </h6>
                   </div>
                   <div class="col-auto ml-auto text-right">
                     {% if t.company.id == 1 %}
@@ -61,10 +61,30 @@
               </div>
               <div class="card-body pt-2">
                 {% set ns = namespace(found = false) %}
-                <p class="mb-0">Уровень: {% if t.levels %} {% for level in t.levels %} {% if 'ВКР' in level.level %} {% set ns.found = true %} {% endif %} {{ level.level }} {% if not loop.last %} , {% endif %} {% endfor %} {% endif %}</p>
-                <p class="mb-0">Источник темы: {% if t.company.id == 1 %} {{ t.author.get_name() }} {% else %} {{ t.company.name }} {% endif %}</p>
+                <p class="mb-0">
+                  Уровень:
+                  {% if t.levels %}
+                    {% for level in t.levels %}
+                      {% if 'ВКР' in level.level %}
+                        {% set ns.found = true %}
+                      {% endif %}
+                      {{ level.level }}
+                      {% if not loop.last %},{% endif %}
+                    {% endfor %}
+                  {% endif %}
+                </p>
+                <p class="mb-0">
+                  Источник темы:
+                  {% if t.company.id == 1 %}
+                    {{ t.author.get_name() }}
+                  {% else %}
+                    {{ t.company.name }}
+                  {% endif %}
+                </p>
                 <p class="mb-0">Руководитель: {{ t.supervisor.get_name() }}</p>
-                {% if t.supervisor_thesis %} {% if ns.found %}<p class="mb-0">Руководитель ВКР: {{ t.supervisor_thesis.get_name() }}</p>{% endif %} {% endif %}
+                {% if t.supervisor_thesis %}
+                  {% if ns.found %}<p class="mb-0">Руководитель ВКР: {{ t.supervisor_thesis.get_name() }}</p>{% endif %}
+                {% endif %}
                 <p class="">Консультант: {{ t.consultant.get_name() }}</p>
               </div>
             </div>

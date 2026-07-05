@@ -18,7 +18,6 @@ limitations under the License.
 
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import List
 
 from flask import (
     flash,
@@ -83,13 +82,12 @@ def current_thesis_exists_or_redirect(func):
 
 @login_required
 def practice_index():
-    if request.method == "POST":
-        if "read_notification_button" in request.form:
-            notification_id = request.form["read_notification_button"]
-            notification = NotificationPractice.query.filter_by(id=notification_id).first()
-            if notification:
-                notification.viewed = True
-                db.session.commit()
+    if request.method == "POST" and "read_notification_button" in request.form:
+        notification_id = request.form["read_notification_button"]
+        notification = NotificationPractice.query.filter_by(id=notification_id).first()
+        if notification:
+            notification.viewed = True
+            db.session.commit()
 
     user = current_user
     type_notifications = request.args.get("notifications", type=str, default="new")
@@ -224,35 +222,34 @@ def practice_choosing_topic(current_thesis):
 @login_required
 @current_thesis_exists_or_redirect
 def practice_edit_theme(current_thesis):
-    if request.method == "POST":
-        if "save_topic_button" in request.form:
-            topic = request.form.get("topic", type=str)
-            supervisor_id = request.form.get("staff", type=int)
-            consultant = request.form.get("consultant", type=str)
+    if request.method == "POST" and "save_topic_button" in request.form:
+        topic = request.form.get("topic", type=str)
+        supervisor_id = request.form.get("staff", type=int)
+        consultant = request.form.get("consultant", type=str)
 
-            if not topic:
-                flash("Введите название темы.", category="error")
-            elif len(topic) <= MIN_LENGTH_OF_TOPIC:
-                flash("Слишком короткое название темы.", category="error")
-            elif not supervisor_id:
-                flash("Выберите научного руководителя.", category="error")
-            else:
-                current_thesis.title = topic
-                current_thesis.consultant = consultant
-                if current_thesis.supervisor_id != supervisor_id:
-                    supervisor_user_id = Staff.query.filter_by(id=supervisor_id).first().user_id
-                    add_mail_notification(
-                        supervisor_user_id,
-                        "Добавлена новая учебная практика/ВКР",
-                        render_template(
-                            NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
-                            user=current_user,
-                            practice=current_thesis,
-                        ),
-                    )
-                    current_thesis.supervisor_id = supervisor_id
-                db.session.commit()
-                return redirect(url_for("practice_choosing_topic", id=current_thesis.id))
+        if not topic:
+            flash("Введите название темы.", category="error")
+        elif len(topic) <= MIN_LENGTH_OF_TOPIC:
+            flash("Слишком короткое название темы.", category="error")
+        elif not supervisor_id:
+            flash("Выберите научного руководителя.", category="error")
+        else:
+            current_thesis.title = topic
+            current_thesis.consultant = consultant
+            if current_thesis.supervisor_id != supervisor_id:
+                supervisor_user_id = Staff.query.filter_by(id=supervisor_id).first().user_id
+                add_mail_notification(
+                    supervisor_user_id,
+                    "Добавлена новая учебная практика/ВКР",
+                    render_template(
+                        NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
+                        user=current_user,
+                        practice=current_thesis,
+                    ),
+                )
+                current_thesis.supervisor_id = supervisor_id
+            db.session.commit()
+            return redirect(url_for("practice_choosing_topic", id=current_thesis.id))
 
     form = ChooseTopic()
     form.topic.data = current_thesis.title
@@ -353,13 +350,12 @@ def practice_goals_tasks(current_thesis):
 @login_required
 @current_thesis_exists_or_redirect
 def practice_workflow(current_thesis):
-    if request.method == "POST":
-        if "delete_button" in request.form:
-            report_id = request.form["delete_button"]
-            report = ThesisReport.query.filter_by(id=report_id).first()
-            report.deleted = True
-            db.session.commit()
-            flash("Отчёт удален!", category="success")
+    if request.method == "POST" and "delete_button" in request.form:
+        report_id = request.form["delete_button"]
+        report = ThesisReport.query.filter_by(id=report_id).first()
+        report.deleted = True
+        db.session.commit()
+        flash("Отчёт удален!", category="success")
 
     reports = (
         ThesisReport.query.filter_by(current_thesis_id=current_thesis.id)
@@ -445,7 +441,7 @@ def practice_add_new_report(current_thesis):
 def practice_preparation(current_thesis):
     if request.method == "POST":
         if "submit_text_button" in request.form:
-            text_file = request.files["text"] if "text" in request.files else None
+            text_file = request.files.get("text", None)
 
             if (
                 text_file is not None
@@ -496,12 +492,8 @@ def practice_preparation(current_thesis):
                 flash("Текст успешно загружен!", category="success")
 
         elif "submit_review_button" in request.form:
-            supervisor_review = (
-                request.files["supervisor_review"] if "supervisor_review" in request.files else None
-            )
-            reviewer_review = (
-                request.files["consultant_review"] if "consultant_review" in request.files else None
-            )
+            supervisor_review = request.files.get("supervisor_review", None)
+            reviewer_review = request.files.get("consultant_review", None)
 
             if supervisor_review is None and reviewer_review is None:
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
@@ -525,14 +517,11 @@ def practice_preparation(current_thesis):
             if (
                 supervisor_review is not None
                 and (
-                    not supervisor_review.filename == ""
+                    supervisor_review.filename != ""
                     and not allowed_file(supervisor_review.filename)
                 )
                 or reviewer_review is not None
-                and (
-                    not reviewer_review.filename == ""
-                    and not allowed_file(reviewer_review.filename)
-                )
+                and (reviewer_review.filename != "" and not allowed_file(reviewer_review.filename))
             ):
                 flash("Текст отзывов должен быть в формате .PDF", category="error")
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
@@ -560,9 +549,7 @@ def practice_preparation(current_thesis):
                 flash("Отзыв консультанта успешно загружен!", category="success")
 
         elif "submit_presentation_button" in request.form:
-            presentation_file = (
-                request.files["presentation"] if "presentation" in request.files else None
-            )
+            presentation_file = request.files.get("presentation", None)
 
             if (
                 presentation_file is not None
@@ -611,8 +598,8 @@ def practice_preparation(current_thesis):
                 flash("Презентация успешно загружена!", category="success")
 
         elif "submit_code_button" in request.form:
-            code_link = request.form["code_link"] if "code_link" in request.form else None
-            account_name = request.form["account_name"] if "account_name" in request.form else None
+            code_link = request.form.get("code_link", None)
+            account_name = request.form.get("account_name", None)
 
             if code_link in {None, ""} and account_name in {None, ""}:
                 flash(
@@ -737,7 +724,7 @@ def practice_data_for_practice(current_thesis):
     )
 
 
-def get_list_of_theses() -> List[CurrentThesis]:
+def get_list_of_theses() -> list[CurrentThesis]:
     return [thesis for thesis in current_user.current_thesises if not thesis.deleted]
 
 

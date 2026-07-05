@@ -1,13 +1,14 @@
+import pytest
+
+from flask_se_auth import allowed_file as auth_allowed
 from flask_se_config import (
-    secure_filename,
-    post_ranking_score,
-    plural_hours,
     get_thesis_type_id_string,
+    plural_hours,
+    post_ranking_score,
+    secure_filename,
 )
 from flask_se_practice_config import allowed_file as practice_allowed
-from flask_se_auth import allowed_file as auth_allowed
 from flask_se_review import allowed_file as review_allowed
-import pytest
 
 
 class TestSecureFilename:
@@ -93,11 +94,8 @@ class TestPostRankingScore:
         ],
     )
     def test_negative_values(self, upvotes, age, views):
-        # Documented: negative args may return complex or raise ZeroDivisionError (known bugs)
-        try:
-            post_ranking_score(upvotes=upvotes, age=age, views=views)
-        except ZeroDivisionError:
-            pass
+        result = post_ranking_score(upvotes=upvotes, age=age, views=views)
+        assert result >= 0
 
     @pytest.mark.parametrize(
         "upvotes,views",
@@ -174,11 +172,7 @@ class TestGetThesisTypeIdString:
 
     @pytest.mark.parametrize("tid", [0, -1, 999, -999])
     def test_edge_ids(self, tid):
-        # Documented: out-of-range IDs raise IndexError (known bug)
-        try:
-            get_thesis_type_id_string(tid)
-        except IndexError:
-            pass
+        assert get_thesis_type_id_string(tid) == ""
 
 
 class TestAllowedFile:

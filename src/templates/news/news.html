@@ -44,7 +44,9 @@
                   </div>
                   <div class="col-10 my-auto">
                     {% if n.uri %}
-                      <h6 class="font-weight-light mb-0"><a href="{{ url_for ('get_post', post=n.id) }}" target="_blank">{{ n.title }}</a>&nbsp;({{ n.domain }})</h6>
+                      <h6 class="font-weight-light mb-0">
+                        <a href="{{ url_for ('get_post', post=n.id) }}" target="_blank">{{ n.title }}</a>&nbsp;({{ n.domain }})
+                      </h6>
                       {% if n.type.type == 1 %}
                         <span class="badge badge-success">{{ n.type }}</span>
                       {% elif n.type.type == 2 %}
@@ -56,7 +58,9 @@
                       {% endif %}
                       <span class="text-sm text-muted">опубликовано {{ ages[loop.index-1] }} назад</span>
                     {% else %}
-                      <h6 class="font-weight-light mb-0"><a href="{{ url_for ('get_post', post=n.id) }}" target="_blank">{{ n.title }}</a></h6>
+                      <h6 class="font-weight-light mb-0">
+                        <a href="{{ url_for ('get_post', post=n.id) }}" target="_blank">{{ n.title }}</a>
+                      </h6>
                       {% if n.type.type == 1 %}
                         <span class="badge badge-success">{{ n.type }}</span>
                       {% elif n.type.type == 2 %}
@@ -126,12 +130,18 @@
                 {% for curr_page in news.iter_pages() %}
                   {% if curr_page %}
                     {% if curr_page != news.page %}
-                      <li class="page-item"><a class="page-link" href="{{ url_for ('list_news', page=curr_page) }}">{{ curr_page }}</a></li>
+                      <li class="page-item">
+                        <a class="page-link" href="{{ url_for ('list_news', page=curr_page) }}">{{ curr_page }}</a>
+                      </li>
                     {% else %}
-                      <li class="page-item active"><span class="page-link">{{ curr_page }}<span class="sr-only">(current)</span></span></li>
+                      <li class="page-item active">
+                        <span class="page-link">{{ curr_page }}<span class="sr-only">(current)</span></span>
+                      </li>
                     {% endif %}
                   {% else %}
-                    <li class="page-item"><span class="page-link">...</span></li>
+                    <li class="page-item">
+                      <span class="page-link">...</span>
+                    </li>
                   {% endif %}
                 {% endfor %}
                 {% if news.has_next %}

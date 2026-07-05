@@ -157,7 +157,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               <p class="mt-4 text-sm opacity-8 pr-lg-4"
                  itemprop="founder"
                  itemscope
-                 itemtype="https://schema.org/Person">Основатель <span itemprop="name">профессор А.Н. Терехов.</span></p>
+                 itemtype="https://schema.org/Person">
+                Основатель <span itemprop="name">профессор А.Н. Терехов.</span>
+              </p>
             </div>
             <div class="col-lg-4 col-4 col-sm-4 mb-5 mb-lg-0">
               <h6 class="heading mb-4">Контактная информация</h6>
@@ -166,34 +168,52 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                       itemscope
                       itemtype="http://schema.org/PostalAddress">
                   <li>
-                    <p class="text-sm opacity-8 mb-0"><span itemprop="postalCode">198504</span>, <span itemprop="addressLocality">Санкт-Петербург</span></p>
+                    <p class="text-sm opacity-8 mb-0">
+                      <span itemprop="postalCode">198504</span>, <span itemprop="addressLocality">Санкт-Петербург</span>
+                    </p>
                   </li>
                   <li>
-                    <p class="text-sm opacity-8 mb-0"><span itemprop="streetAddress">Университетский проспект, дом 28</span></p>
+                    <p class="text-sm opacity-8 mb-0">
+                      <span itemprop="streetAddress">Университетский проспект, дом 28</span>
+                    </p>
                   </li>
                 </span>
                 <li>
-                  <p class="text-sm opacity-8 mb-0">Телефон: <a href="tel:+78124287109" itemprop="telephone">+7 (812) 428-71-09</a></p>
+                  <p class="text-sm opacity-8 mb-0">
+                    Телефон: <a href="tel:+78124287109" itemprop="telephone">+7 (812) 428-71-09</a>
+                  </p>
                 </li>
                 <li>
-                  <p class="text-sm opacity-8 mb-0">Email: <a href="mailto:a.terekhov@spbu.ru" itemprop="email">a.terekhov@spbu.ru</a></p>
+                  <p class="text-sm opacity-8 mb-0">
+                    Email: <a href="mailto:a.terekhov@spbu.ru" itemprop="email">a.terekhov@spbu.ru</a>
+                  </p>
                 </li>
                 <li>
-                  <p class="text-sm opacity-8 mb-0">Telegram: <a target="_blank"
+                  <p class="text-sm opacity-8 mb-0">
+                    Telegram: <a target="_blank"
     href="https://t.me/sysprog_admission"
-    itemprop="sameAs">@sysprog_admission</a></p>
+    itemprop="sameAs">@sysprog_admission</a>
+                  </p>
                 </li>
                 <li>
-                  <p class="text-sm opacity-8 mb-0">Старая версия сайта: <a target="_blank" href="https://oops.math.spbu.ru/SE" itemprop="sameAs">oops.math.spbu.ru/SE</a></p>
+                  <p class="text-sm opacity-8 mb-0">
+                    Старая версия сайта: <a target="_blank" href="https://oops.math.spbu.ru/SE" itemprop="sameAs">oops.math.spbu.ru/SE</a>
+                  </p>
                 </li>
               </ul>
             </div>
             <div class="col-lg-4 col-4 col-sm-4 mb-5 mb-lg-0">
               <h6 class="heading mb-3">Поступающим</h6>
               <ul class="list-unstyled">
-                <li><a href="{{ url_for('bachelor_admission') }}">В&nbsp;бакалавриат</a></li>
-                <li><a href="{{ url_for('index', _anchor='magistracy') }}">В&nbsp;магистратуру</a></li>
-                <li><a href="{{ url_for('frequently_asked_questions') }}">Вопросы и ответы</a></li>
+                <li>
+                  <a href="{{ url_for('bachelor_admission') }}">В&nbsp;бакалавриат</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('index', _anchor='magistracy') }}">В&nbsp;магистратуру</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('frequently_asked_questions') }}">Вопросы и ответы</a>
+                </li>
               </ul>
             </div>
           </div>
@@ -201,35 +221,69 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
               <h6 class="heading mb-3">Студентам</h6>
               <ul class="list-unstyled">
-                <li><a href="{{ url_for('scholarships') }}">Стипендии и гранты</a></li>
-                <li><a href="{{ url_for('summer_school_2021') }}">Летняя школа 2021</a></li>
-                <li><a href="{{ url_for('summer_school_2022') }}">Летняя школа 2022</a></li>
-                <li><a href="{{ url_for('summer_school_2024') }}">Летняя школа 2024</a></li>
-                <li><a href="{{ url_for('theses_search') }}">Архив практик и ВКР</a></li>
-                <li><a href="{{ url_for('internships_index') }}">Поиск IT-стажировок</a></li>
+                <li>
+                  <a href="{{ url_for('scholarships') }}">Стипендии и гранты</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('summer_school_2021') }}">Летняя школа 2021</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('summer_school_2022') }}">Летняя школа 2022</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('summer_school_2024') }}">Летняя школа 2024</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('theses_search') }}">Архив практик и ВКР</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('internships_index') }}">Поиск IT-стажировок</a>
+                </li>
               </ul>
             </div>
             <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
               <h6 class="heading mb-3">Сервисы</h6>
               <ul class="list-unstyled">
-                <li><a href="{{ url_for('diplomas_index') }}">Темы практик и ВКР</a></li>
-                <li><a href="{{ url_for('thesis_review_index') }}">Рецензирование практик и ВКР</a></li>
-                <li><a href="{{ url_for('list_news') }}">Новости</a></li>
-                <li><a href="{{ url_for('theses_search') }}">Архив практик и ВКР</a></li>
-                <li><a href="{{ url_for('internships_index') }}">Поиск IT-стажировок</a></li>
-                <li><a href="{{ url_for('practice_index') }}">Написание практик и ВКР</a></li>
+                <li>
+                  <a href="{{ url_for('diplomas_index') }}">Темы практик и ВКР</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('thesis_review_index') }}">Рецензирование практик и ВКР</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('list_news') }}">Новости</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('theses_search') }}">Архив практик и ВКР</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('internships_index') }}">Поиск IT-стажировок</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('practice_index') }}">Написание практик и ВКР</a>
+                </li>
                 {% if current_user.is_authenticated and current_user.is_staff() %}
-                  <li><a href="{{ url_for('index_staff') }}">Написание практик и ВКР (для преподавателей)</a></li>
+                  <li>
+                    <a href="{{ url_for('index_staff') }}">Написание практик и ВКР (для преподавателей)</a>
+                  </li>
                 {% endif %}
               </ul>
             </div>
             <div class="col-lg-4 col-4 col-sm-4 mb-lg-0">
               <h6 class="heading mb-3">Кафедра</h6>
               <ul class="list-unstyled">
-                <li><a href="{{ url_for('department_staff') }}">Сотрудники</a></li>
-                <li><a href="{{ url_for('research_directions') }}">Направления исследований</a></li>
-                <li><a href="https://oops.math.spbu.ru/SE/alumni" target="_blank">Выпускники кафедры</a></li>
-                <li><a href="{{ url_for('contacts') }}">Контакты</a></li>
+                <li>
+                  <a href="{{ url_for('department_staff') }}">Сотрудники</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('research_directions') }}">Направления исследований</a>
+                </li>
+                <li>
+                  <a href="https://oops.math.spbu.ru/SE/alumni" target="_blank">Выпускники кафедры</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('contacts') }}">Контакты</a>
+                </li>
               </ul>
             </div>
           </div>
