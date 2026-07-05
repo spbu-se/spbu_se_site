@@ -20,6 +20,8 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 1. **Commit granular** — one commit per logical change. Push frequently to trigger CI.
 1. **CI is NOT a gate** — if CI fails, note in `OPEN_QUESTIONS.md`, move to next task. Don't stop on red.
 1. **If blocked → try 3 approaches first** — a "blocker" means you attempted at least 3 distinct approaches, each with real code committed, and each failed with a specific error. Only after 3 failed approaches: document the blocker with full error output in `OPEN_QUESTIONS.md`, skip, move to next task.
+1. **Re-check target every 5 commits** — after every 5 commits on the auto branch, compare current metric(s) against the plan's goal(s). If the gap is >15% of the target, continue. If the gap is \<15%, evaluate whether to push through or conclude. For non-numeric goals, ask: "am I closer to the goal than 5 commits ago?" If no, pivot. This applies to ALL auto runs, not just coverage targets.
+1. **Verify CI after push** — after each push, run `gh run list --branch <branch> --limit 1 --json conclusion` and confirm green before proceeding. If red, fix immediately — do not continue with new work while CI is broken.
 1. **Document as you go** — findings go to `.tooling.md`, `doc/TROUBLESHOOTING.md`, or `doc/TOOLING.md` immediately, not at session end.
 1. **Process docs are sacred** — minimize updates to process docs (`doc/GIT_FLOW.md`, `doc/DEVELOPMENT_PROCESS.md`) unless user explicitly approved.
 1. **Any quality improvement** — features, tests, docs, tooling. Not limited to a priority list.
@@ -47,6 +49,8 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
    - If it fails: try a different approach. Repeat up to 3 times.
    - After 3 failed approaches: commit the attempt, document blocker with error output, move to next item.
 1. Commit + push after each logical change (including failed attempts)
+1. After every 5th commit: pause, re-check target (Rule 6), document progress in OPEN_QUESTIONS.md.
+1. After each push: verify CI is green (Rule 7). If red, fix immediately before new work.
 1. After last item → run retrospective, commit lessons to staging-auto branch
 1. Make final report commit with structured summary including evidence for every task
 1. Report start time, end time, elapsed, results, blockers with error output
