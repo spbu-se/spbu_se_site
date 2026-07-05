@@ -37,6 +37,7 @@ def assert_ok_or_redirect(client, path):
 ### Writing Tests
 
 **Route test pattern** (public page):
+
 ```python
 class TestPublicPages:
     def test_index_loads(self, client):
@@ -45,6 +46,7 @@ class TestPublicPages:
 ```
 
 **Route test pattern** (authenticated page):
+
 ```python
 class TestAuthPages:
     def test_profile_loads(self, logged_client):
@@ -53,6 +55,7 @@ class TestAuthPages:
 ```
 
 **Parametrized route tests**:
+
 ```python
 @pytest.mark.parametrize("path,code", [
     ("/login.html", {200}),
@@ -63,6 +66,7 @@ def test_public_routes(self, client, path, code):
 ```
 
 **DB interaction tests** (no web client needed):
+
 ```python
 def test_some_query(self, app_ctx):
     from se_models import Users
@@ -72,6 +76,7 @@ def test_some_query(self, app_ctx):
 ```
 
 **Session injection** (bypass login for authenticated routes):
+
 ```python
 def test_with_logged_in_user(self, seeded_client):
     from se_models import Users
