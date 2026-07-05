@@ -16,7 +16,17 @@ uv run ruff format src/                       # format
 uv export --no-dev --no-hashes > requirements.txt  # update prod requirements (PowerShell: use `[System.IO.File]::WriteAllText("requirements.txt", $(uv export --no-dev --no-hashes), [System.Text.UTF8Encoding]::new($false))` to avoid BOM)
 ```
 
-Commit sequence: `format → uv export --no-dev --no-hashes > requirements.txt (PowerShell: use WriteAllText) → git add && git commit (hooks auto-run) → test`.
+```
+Run these BEFORE any commit — CI runs them and will fail:
+  uv run mdformat .          # all markdown files (CI runs --check on Linux)
+  uv run ruff format src/    # Python files
+  uv run ruff check src/     # Python lint (pre-commit also runs this)
+
+Then:
+  git add && git commit (hooks auto-run) → git push
+
+After staging merge: verify CI is green before further work.
+```
 
 ## Quirks & Gotchas
 
