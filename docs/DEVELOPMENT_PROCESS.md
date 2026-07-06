@@ -177,12 +177,13 @@ pytest
 ```bash
 ruff check src/
 ruff format src/
-mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .opencode/commands/
+mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
 ```
 
 Ruff and mdformat are enforced via pre-commit hooks. See `.pre-commit-config.yaml`.
 
-The mdformat pre-commit hook uses **explicit paths** matching the CI workflow.
+The mdformat pre-commit hook uses **explicit paths** matching the CI workflow:
+`docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/`.
 Never use `mdformat .` — on Windows it traverses `.venv/` which contains
 vendor `.md` files with non-UTF-8 bytes, causing a silent crash and allowing
 unformatted files through.

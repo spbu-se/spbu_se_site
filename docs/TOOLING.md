@@ -148,6 +148,24 @@ gh run watch <run-id>
 gh run list --branch staging --limit 1 --json databaseId --jq ".[0].databaseId"
 ```
 
+### Diagnosis: mdformat failure with truncated path
+
+When CI mdformat fails and the filename is truncated in logs, use:
+
+```powershell
+gh run view <run-id> --log | Select-String -Pattern "not formatted" -Context 0,1
+```
+
+## Ruff
+
+### N801 (class name convention) suppressed for tests
+
+`pyproject.toml` has `"tests/*.py" = ["N801"]` — test class names don't need to follow PascalCase conventions (e.g., `test_basic_auth` as a class is acceptable). This is intentional: test classes often describe scenarios rather than being named after the class under test.
+
+## lxml dependency for BeautifulSoup HTML parsing
+
+`lxml>=6.1.1` is a dev dependency in `pyproject.toml` (`[dependency-groups] dev`). It's required for BeautifulSoup HTML parser tests (`features="lxml"`) in scrape tests under `test_theses_import.py`. The built-in `html.parser` is too lenient — it doesn't raise on malformed HTML that triggers different code paths.
+
 ## Ruff
 
 ### Unsafe fixes

@@ -22,7 +22,7 @@ repos:
 
       - id: mdformat
         name: mdformat
-        entry: uv run mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .opencode/commands/
+        entry: uv run mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
         language: system
         pass_filenames: false
         always_run: true

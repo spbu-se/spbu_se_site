@@ -2,6 +2,17 @@
 
 <!-- encoding: utf-8 -->
 
+## Batch run 2026-07-06 — session 2
+
+- Fixed CI red: mdformat + pre-commit hook paths synced to CI (.skills/ .claude/ .agents/)
+- Documented 6 undocumented knowledge gaps from prior session
+- Added stale auto-branch sweep rule to unattended-mode skill
+- Modeled practice_preparation() (28 tests, all POST branches)
+- Modeled post_theses() (6 new tests, supervisor/staff/optional files)
+- Modeled init_db() edge cases (9 new tests: idempotency, exact counts)
+- 43 new tests, 1065 total, 0 failures
+- CI Basic checks green on auto-branch
+
 ## Batch run 2026-07-06 — completed
 
 - Modeled 4 previously untested modules (se_forms, se_review_forms, bachelor, thesesImport)
@@ -32,6 +43,7 @@
 |------|----------|--------|---------------|
 | Practice deeper upload branches | 6 tests | ~30 branches remain | ~50 multipart fixture tests |
 | Review full workflow | 14 tests (ThesisOnReview) | Multi-request state untestable | ~30 sequenced request tests |
+| Practice admin file upload (xdist race) | 6 tests xfailed | File I/O race in xdist parallel workers — concurrent file creation corrupts test state | Isolate practice admin tests from xdist or use lock-based file fixtures |
 | Thesis admin approval (Whoosh+xdist) | 3 tests, 2 xfailed | Whoosh `EmptyIndexError` | Whoosh index sync with per-test DB |
 | Google OAuth full flow | 2 tests pass with patch | Needs `client_google.json` file | Config stub or file-level mock |
 

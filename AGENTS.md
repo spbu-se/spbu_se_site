@@ -21,7 +21,7 @@ Before committing:
 
 - [ ] Run `uv run pytest -n 2` — full suite must pass
 - [ ] Run `uv run ruff check src/ && uv run ruff format --check src/`
-- [ ] Run `uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .opencode/commands/`
+- [ ] Run `uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/`
 - [ ] Run `uv run pre-commit run --all-files` — parity with CI
 - [ ] Check for secrets in staged files — if any real secret found, DO NOT PUSH
 - [ ] Verify `requirements.txt` is fresh
@@ -47,12 +47,12 @@ uv export --no-dev --no-hashes > requirements.txt  # update prod requirements (P
 
 ```
 Run these BEFORE any commit вЂ” CI runs them and will fail:
-  uv run mdformat .          # all markdown files (CI runs --check on Linux)
+  uv run mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/   # all markdown files (CI runs --check on Linux)
   uv run ruff format src/    # Python files
   uv run ruff check src/     # Python lint (pre-commit also runs this)
 
 Before pushing to remote, simulate CI locally:
-  uv run mdformat --check . && uv run ruff format --check src/ && uv run ruff check src/
+  uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/ && uv run ruff format --check src/ && uv run ruff check src/
 
 Also verify requirements.txt is fresh (serviceability.yml uses pip, not uv):
   uv run python -c "import subprocess; r=subprocess.run(['uv','export','--no-dev','--no-hashes'],capture_output=True,text=True); r.check_returncode(); open('requirements.txt','w',encoding='utf-8',newline='\n').write(r.stdout)"
@@ -79,7 +79,7 @@ After staging merge: verify CI is green before further work.
 - **Auto-mode branching**: in unattended/batch mode, branch `staging-auto-<UTC-timestamp>` from staging вЂ” never commit to staging directly, never merge the branch, retrospective + report commit before handoff. Later squash-merged to staging. Non-auto staging merges require GPG signoff.
 - **Tool source of truth**: Python tools via `uv` (pyproject.toml `[dependency-groups]`), non-Python tools via pre-commit repo hooks вЂ” see `doc/DEVELOPMENT_PROCESS.md` В§0.7
 - **CI pitfall вЂ” requirements.txt staleness**: `serviceability.yml` runs `pip install -r requirements.txt` on EVERY push to ANY branch. If `requirements.txt` doesn't match current `uv.lock`, it fails. Always run `uv export --no-dev --no-hashes > requirements.txt` before pushing.
-- **mdformat CI vs local**: CI uses Linux which formats markdown differently (LF vs CRLF). Always run `uv run mdformat .` (not just `--check`) before committing to ensure files are in CI-compatible format.
+- **mdformat CI vs local**: CI uses Linux which formats markdown differently (LF vs CRLF). Always run `uv run mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/` (not just `--check`) before committing to ensure files are in CI-compatible format.
 - **Encoding audit**: See `.skills/encoding-audit/README.md` — detect and fix non-UTF-8 encoding on Windows.
 - **Flask test patterns**: See `.skills/flask-test-patterns/README.md` — reusable fixtures for Flask + SQLAlchemy + xdist tests.
 

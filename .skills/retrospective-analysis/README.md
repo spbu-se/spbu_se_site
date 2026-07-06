@@ -88,6 +88,7 @@ If yes, update the skill README immediately as part of the retrospective commit.
 ### 5d. Extract reusable techniques
 
 Scan the session for patterns, code snippets, and workarounds that are:
+
 - Not already documented in `docs/TROUBLESHOOTING.md` or `docs/TOOLING.md`
 - Likely to be needed again (e.g., patching patterns, fixture setups, encoding workarounds)
 - Discovered as a fix for a bug or a workaround for a module-level side effect
@@ -95,6 +96,7 @@ Scan the session for patterns, code snippets, and workarounds that are:
 For each, add an entry to the appropriate doc with the exact code or command. Do not bury techniques in the retrospective entry — they must be searchable independently.
 
 Examples of what to extract:
+
 - `contextlib.suppress(RuntimeError)` for catching double `db.init_app()` — in `TROUBLESHOOTING.md`
 - `try/finally` for restoring module-level flags like `thesesImport.download` — in `TROUBLESHOOTING.md`
 - `[System.IO.File]::WriteAllText()` for PowerShell UTF-8 encoding — in `TOOLING.md`

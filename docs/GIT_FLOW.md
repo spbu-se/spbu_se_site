@@ -147,7 +147,7 @@ CI on origin/staging must be green at all times. Violations block all further wo
 
 1. Run full test suite locally: `uv run pytest -n 2`
 1. Run lint + format: `uv run ruff check src/ && uv run ruff format --check src/`
-1. Run mdformat: `uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .opencode/commands/`
+1. Run mdformat: `uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/`
 1. Verify pre-commit hooks work: `uv run pre-commit run --all-files`
 1. Check for secrets in staged files — if any real secret (API key, password, token) is found in code, do not push. Fix the leak first (remove from code, rotate the secret).
 1. Only push if all checks green

@@ -27,6 +27,7 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 1. **Verify CI after push** вЂ” run `gh run list --branch <branch> --limit 1 --json databaseId -q ".[0].databaseId"` to get the run ID, then `gh run view <id> --json conclusion`. Confirm `"success"`. For failure details: `gh run view <id> --log-failed | Select-String "FAIL|Error"`. If red, fix immediately вЂ” do not continue while CI is broken. The `gh run view --exit-status` flag is unreliable for pending runs.
 1. **Document as you go** вЂ” findings go to `.tooling.md`, `doc/TROUBLESHOOTING.md`, or `doc/TOOLING.md` immediately, not at session end.
 1. **Process docs are sacred** вЂ” minimize updates to process docs (`doc/GIT_FLOW.md`, `doc/DEVELOPMENT_PROCESS.md`) unless user explicitly approved.
+1. **Sweep stale auto-branches at end** вЂ” after the final report commit, delete local and remote `staging-auto-*` branches except the current one. Use `git branch --list "staging-auto-*" | ForEach-Object { if ($_ -ne (git branch --show-current)) { git branch -D $_.Trim() } }` and `git push origin --delete staging-auto-*` (warning: use `--delete` per-branch, not glob). This prevents orphan branches from accumulating.
 1. **Any quality improvement** вЂ” features, tests, docs, tooling. Not limited to a priority list.
 1. **Plan completion is mandatory** вЂ” do not stop before every task in the approved plan has been attempted with 3 approaches each. The final report must contain evidence for every uncompleted task.
 

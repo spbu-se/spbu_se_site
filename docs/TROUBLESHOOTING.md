@@ -107,6 +107,27 @@ Common errors, root causes, and fixes encountered during development.
 **Cause:** Mypy's `files` option is a whitelist, not a "check these additionally" list.
 **Fix:** To check both src and tests, list both: `files = ["src/", "tests/"]`. Use `[[tool.mypy.overrides]] module = "tests.*"` to apply relaxed rules for tests.
 
+## CI mdformat failure: truncated filename in logs
+
+**When:** CI (staging) fails on `mdformat --check` but the log output only shows `Error: File ... is not formatted` — the filename is truncated.
+
+**Cause:** GitHub Actions log lines are wrapped at ~80 characters. The filename is on a separate line from "Error:" and both get captured separately.
+
+**Fix:** Use `Select-String -Context` to see the full path:
+
+```powershell
+gh run view <run-id> --log | Select-String -Pattern "not formatted" -Context 0,1
+```
+
+Or get the run ID dynamically:
+
+```powershell
+$id = gh run list --branch staging --limit 1 --json databaseId --jq ".[0].databaseId"
+gh run view $id --log | Select-String -Pattern "not formatted" -Context 0,1
+```
+
+**Prevention:** Run `uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/` locally before pushing. This uses the same paths as CI.
+
 ## linecache returns stale content after file edits
 
 **When:** Using `linecache.getlines()` or `linecache.getline()` to read a Python file that was modified during the same test run.
