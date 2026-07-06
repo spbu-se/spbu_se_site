@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 from dataclasses import dataclass
 
@@ -37,7 +38,7 @@ bachelor_score_info = BachelorInfo(
         pass_rate=282,
         budget_count=45,
         contract_count=12,
-        cost_year="396 500 ₽",
+        cost_year="396 500 в‚Ѕ",
         min_score_computer_science=55,
         min_score_math=55,
         min_score_russian_language=50,
@@ -46,7 +47,7 @@ bachelor_score_info = BachelorInfo(
         pass_rate=252,
         budget_count=55,
         contract_count=6,
-        cost_year="457 300 ₽",
+        cost_year="457 300 в‚Ѕ",
         min_score_computer_science=55,
         min_score_math=55,
         min_score_russian_language=50,
@@ -131,7 +132,7 @@ def bachelor_software_engineering():
 
 
 def bachelor_admission():
-    students = []
+    students: list[str] = []
 
     records = Thesis.query.filter_by(recomended=True)
     theses = records.order_by(func.random()).limit(4).all() if records.count() else []

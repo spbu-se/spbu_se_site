@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 """
 Copyright 2023 Alexander Slugin
@@ -45,17 +46,17 @@ YANDEX_AUTHORIZE_URL_TEMPLATE = Template(
 YANDEX_GET_TOKEN_URL = "https://oauth.yandex.ru/token"
 
 TABLE_COLUMNS = {
-    "name": "ФИО",
-    "how_to_contact": "Способ оперативной связи (почта, Teams, Telegram, ...)",
-    "supervisor": "Научный руководитель",
-    "consultant": "Консультант (если есть), полностью ФИО, должность и компания",
-    "theme": "Тема",
-    "text": "Текст",
-    "supervisor_review": "Отзыв научника",
-    "reviewer_review": "Отзыв консультанта",
-    "code": "Код",
-    "committer": "Имя коммитера",
-    "presentation": "Презентация",
+    "name": "Р¤РРћ",
+    "how_to_contact": "РЎРїРѕСЃРѕР± РѕРїРµСЂР°С‚РёРІРЅРѕР№ СЃРІСЏР·Рё (РїРѕС‡С‚Р°, Teams, Telegram, ...)",
+    "supervisor": "РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ",
+    "consultant": "РљРѕРЅСЃСѓР»СЊС‚Р°РЅС‚ (РµСЃР»Рё РµСЃС‚СЊ), РїРѕР»РЅРѕСЃС‚СЊСЋ Р¤РРћ, РґРѕР»Р¶РЅРѕСЃС‚СЊ Рё РєРѕРјРїР°РЅРёСЏ",
+    "theme": "РўРµРјР°",
+    "text": "РўРµРєСЃС‚",
+    "supervisor_review": "РћС‚Р·С‹РІ РЅР°СѓС‡РЅРёРєР°",
+    "reviewer_review": "РћС‚Р·С‹РІ РєРѕРЅСЃСѓР»СЊС‚Р°РЅС‚Р°",
+    "code": "РљРѕРґ",
+    "committer": "РРјСЏ РєРѕРјРјРёС‚РµСЂР°",
+    "presentation": "РџСЂРµР·РµРЅС‚Р°С†РёСЏ",
 }
 
 TEXT_UPLOAD_FOLDER = "static/practice/texts/"

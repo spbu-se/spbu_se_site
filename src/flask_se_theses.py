@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import json
@@ -22,9 +23,9 @@ log = logging.getLogger("flask_se.sub")
 def theses_search():
     filter = ThesisFilter()
     hints = [
-        '"Максим" можно искать как Максим, максим, Макс* или *акс*.',
-        "Полнотекстовый поиск по названиям работ и авторам",
-        '"Дом" можно искать как дом, д?м или д*м',
+        '"РњР°РєСЃРёРј" РјРѕР¶РЅРѕ РёСЃРєР°С‚СЊ РєР°Рє РњР°РєСЃРёРј, РјР°РєСЃРёРј, РњР°РєСЃ* РёР»Рё *Р°РєСЃ*.',
+        "РџРѕР»РЅРѕС‚РµРєСЃС‚РѕРІС‹Р№ РїРѕРёСЃРє РїРѕ РЅР°Р·РІР°РЅРёСЏРј СЂР°Р±РѕС‚ Рё Р°РІС‚РѕСЂР°Рј",
+        '"Р”РѕРј" РјРѕР¶РЅРѕ РёСЃРєР°С‚СЊ РєР°Рє РґРѕРј, Рґ?Рј РёР»Рё Рґ*Рј',
     ]
 
     hint = random.choice(hints)
@@ -71,9 +72,9 @@ def theses_search():
         filter.supervisor.choices.append((sid[0], last_name + " " + initials))
         filter.supervisor.choices.sort(key=lambda tup: tup[1])
 
-    filter.supervisor.choices.insert(0, (0, "Все"))
-    filter.course.choices.insert(0, (0, "Все"))
-    filter.worktype.choices.insert(0, (0, "Все"))
+    filter.supervisor.choices.insert(0, (0, "Р’СЃРµ"))
+    filter.course.choices.insert(0, (0, "Р’СЃРµ"))
+    filter.worktype.choices.insert(0, (0, "Р’СЃРµ"))
 
     return render_template("theses.html", filter=filter, hint=hint)
 
@@ -200,7 +201,7 @@ def get_text(filename):
         page = doc.load_page(current_page)
         text += page.get_text("text").lower() + "\n"
         text = text.replace("-\n", "")
-        text = re.sub(r"[^a-z а-я \n : / . () # - ]", "", text)
+        text = re.sub(r"[^a-z Р°-СЏ \n : / . () # - ]", "", text)
 
     return text
 

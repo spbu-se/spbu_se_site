@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import smtplib
@@ -8,7 +9,7 @@ from flask_se_config import MAIL_PASSWORD
 from se_models import DiplomaThemes, Notification, Users, db
 
 MAIL_DEFAULT_SENDER = "sysprog_notification@spbu.ru"
-MAIL_DEFAULT_SENDER_STRING = "SE уведомления <sysprog_notification@spbu.ru>"
+MAIL_DEFAULT_SENDER_STRING = "SE СѓРІРµРґРѕРјР»РµРЅРёСЏ <sysprog_notification@spbu.ru>"
 
 
 def notification_send_mail():
@@ -38,10 +39,10 @@ def notification_send_mail():
             server.login(MAIL_DEFAULT_SENDER, MAIL_PASSWORD)
 
         except smtplib.SMTPHeloError:
-            print("The server didn’t reply properly to the HELO greeting.")
+            print("The server didnвЂ™t reply properly to the HELO greeting.")
         except smtplib.SMTPAuthenticationError:
             print(
-                "The server didn’t accept the username/password combination. Username:"
+                "The server didnвЂ™t accept the username/password combination. Username:"
                 + MAIL_DEFAULT_SENDER
                 + ", PASS:"
                 + MAIL_PASSWORD
@@ -59,9 +60,9 @@ def notification_send_mail():
         except smtplib.SMTPRecipientsRefused:
             print(f"All recipients were refused. Nobody got the mail. User.email: {user.email}")
         except smtplib.SMTPDataError:
-            print("The server didn’t accept the from_addr.")
+            print("The server didnвЂ™t accept the from_addr.")
         except smtplib.SMTPSenderRefused:
-            print("The server didn’t accept the from_addr.")
+            print("The server didnвЂ™t accept the from_addr.")
         except smtplib.SMTPNotSupportedError:
             print("SMTPUTF8 was given in the mail_options but is not supported by the server.")
 
@@ -84,13 +85,15 @@ def notification_send_diploma_themes_on_review():
     ]
 
     message = MIMEMultipart("alternative")
-    message["Subject"] = "[SE site] Есть неодобренные темы учебных практик и ВКР"
+    message["Subject"] = (
+        "[SE site] Р•СЃС‚СЊ РЅРµРѕРґРѕР±СЂРµРЅРЅС‹Рµ С‚РµРјС‹ СѓС‡РµР±РЅС‹С… РїСЂР°РєС‚РёРє Рё Р’РљР "
+    )
     message["From"] = MAIL_DEFAULT_SENDER
     message["To"] = "ilya@hackerdom.ru"
     message["CC"] = ", ".join(recipients)
 
     data = f"""
-    Сейчас на сайте {diploma_themes_on_review_count} тем находятся на проверке (<a href="https://se.math.spbu.ru/admin/reviewdiplomathemes/" target="_blank">Проверка тем</a>).
+    РЎРµР№С‡Р°СЃ РЅР° СЃР°Р№С‚Рµ {diploma_themes_on_review_count} С‚РµРј РЅР°С…РѕРґСЏС‚СЃСЏ РЅР° РїСЂРѕРІРµСЂРєРµ (<a href="https://se.math.spbu.ru/admin/reviewdiplomathemes/" target="_blank">РџСЂРѕРІРµСЂРєР° С‚РµРј</a>).
     """
 
     part1 = MIMEText(data, "plain")
@@ -105,10 +108,10 @@ def notification_send_diploma_themes_on_review():
         server.login(MAIL_DEFAULT_SENDER, MAIL_PASSWORD)
 
     except smtplib.SMTPHeloError:
-        print("The server didn’t reply properly to the HELO greeting.")
+        print("The server didnвЂ™t reply properly to the HELO greeting.")
     except smtplib.SMTPAuthenticationError:
         print(
-            "The server didn’t accept the username/password combination. Username:"
+            "The server didnвЂ™t accept the username/password combination. Username:"
             + MAIL_DEFAULT_SENDER
             + ", PASS:"
             + MAIL_PASSWORD
@@ -124,8 +127,8 @@ def notification_send_diploma_themes_on_review():
     except smtplib.SMTPRecipientsRefused:
         print("All recipients were refused. Nobody got the mail.")
     except smtplib.SMTPDataError:
-        print("The server didn’t accept the from_addr.")
+        print("The server didnвЂ™t accept the from_addr.")
     except smtplib.SMTPSenderRefused:
-        print("The server didn’t accept the from_addr.")
+        print("The server didnвЂ™t accept the from_addr.")
     except smtplib.SMTPNotSupportedError:
         print("SMTPUTF8 was given in the mail_options but is not supported by the server.")

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -39,11 +40,11 @@ def thesis_review_index():
     form = ThesisReviewFilter()
 
     form.status.choices = [
-        (4, "Все статусы"),
-        (1, "Требуется рецензия"),
-        (2, "На рецензии"),
-        (3, "Требуется доработка"),
-        (0, "Работа зачтена"),
+        (4, "Р’СЃРµ СЃС‚Р°С‚СѓСЃС‹"),
+        (1, "РўСЂРµР±СѓРµС‚СЃСЏ СЂРµС†РµРЅР·РёСЏ"),
+        (2, "РќР° СЂРµС†РµРЅР·РёРё"),
+        (3, "РўСЂРµР±СѓРµС‚СЃСЏ РґРѕСЂР°Р±РѕС‚РєР°"),
+        (0, "Р Р°Р±РѕС‚Р° Р·Р°С‡С‚РµРЅР°"),
     ]
 
     for type in ThesisOnReviewWorktype.query.distinct().all():
@@ -108,32 +109,35 @@ def submit_thesis_on_review():
     author = user.get_name()
 
     if request.method == "POST":
-        title = request.form.get("title").strip()
-        worktype = request.form.get("type", type=int)
-        area_of_study = request.form.get("area", type=int)
+        title = request.form.get("title", "").strip()
+        worktype = request.form.get("type", 0, type=int)
+        area_of_study = request.form.get("area", 0, type=int)
 
         if not title:
-            flash("Укажите название вашей работы", "error")
+            flash("РЈРєР°Р¶РёС‚Рµ РЅР°Р·РІР°РЅРёРµ РІР°С€РµР№ СЂР°Р±РѕС‚С‹", "error")
             return redirect(request.url)
 
         if worktype <= 0 or worktype > ThesisOnReviewWorktype.query.distinct().count():
-            flash("Укажите тип работы", "error")
+            flash("РЈРєР°Р¶РёС‚Рµ С‚РёРї СЂР°Р±РѕС‚С‹", "error")
             return redirect(request.url)
 
         if area_of_study <= 0 or area_of_study > AreasOfStudy.query.distinct().count():
-            flash("Укажите направление вашего обучения", "error")
+            flash("РЈРєР°Р¶РёС‚Рµ РЅР°РїСЂР°РІР»РµРЅРёРµ РІР°С€РµРіРѕ РѕР±СѓС‡РµРЅРёСЏ", "error")
             return redirect(request.url)
 
         # check if the post request has the file part
         if "thesis" not in request.files:
-            flash("Вы не загрузили файл с работой", "error")
+            flash("Р’С‹ РЅРµ Р·Р°РіСЂСѓР·РёР»Рё С„Р°Р№Р» СЃ СЂР°Р±РѕС‚РѕР№", "error")
             return redirect(request.url)
 
         file = request.files["thesis"]
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
         if file.filename == "":
-            flash("Укажите файл с вашей работой для загрузки", "error")
+            flash(
+                "РЈРєР°Р¶РёС‚Рµ С„Р°Р№Р» СЃ РІР°С€РµР№ СЂР°Р±РѕС‚РѕР№ РґР»СЏ Р·Р°РіСЂСѓР·РєРё",
+                "error",
+            )
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
@@ -170,16 +174,16 @@ def submit_thesis_on_review():
             db.session.commit()
 
             flash(
-                "Ваша работа успешно загружена. Информацию о начале и окончании рецензирования вы будете получать на почту",
+                "Р’Р°С€Р° СЂР°Р±РѕС‚Р° СѓСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅР°. РРЅС„РѕСЂРјР°С†РёСЋ Рѕ РЅР°С‡Р°Р»Рµ Рё РѕРєРѕРЅС‡Р°РЅРёРё СЂРµС†РµРЅР·РёСЂРѕРІР°РЅРёСЏ РІС‹ Р±СѓРґРµС‚Рµ РїРѕР»СѓС‡Р°С‚СЊ РЅР° РїРѕС‡С‚Сѓ",
                 "error",
             )
             return redirect(url_for("thesis_review_index"))
         else:
-            flash("Текст работы должен быть в формате .PDF", "error")
+            flash("РўРµРєСЃС‚ СЂР°Р±РѕС‚С‹ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РІ С„РѕСЂРјР°С‚Рµ .PDF", "error")
             return redirect(request.url)
 
-    form.type.choices.append((0, "Тип работы"))
-    form.area.choices.append((0, "Направление обучения"))
+    form.type.choices.append((0, "РўРёРї СЂР°Р±РѕС‚С‹"))
+    form.area.choices.append((0, "РќР°РїСЂР°РІР»РµРЅРёРµ РѕР±СѓС‡РµРЅРёСЏ"))
 
     for type in ThesisOnReviewWorktype.query.filter(ThesisOnReviewWorktype.id > 1).distinct().all():
         form.type.choices.append((type.id, type.type))
@@ -213,18 +217,18 @@ def edit_thesis_on_review():
         area = request.form.get("area", type=int)
 
         if not title:
-            flash("Укажите название вашей работы", "error")
+            flash("РЈРєР°Р¶РёС‚Рµ РЅР°Р·РІР°РЅРёРµ РІР°С€РµР№ СЂР°Р±РѕС‚С‹", "error")
             return redirect(request.url)
 
         title = title.strip()
         author = thesis_review.author.get_name()
 
         if worktype <= 0 or worktype > ThesisOnReviewWorktype.query.distinct().count():
-            flash("Укажите тип работы", "error")
+            flash("РЈРєР°Р¶РёС‚Рµ С‚РёРї СЂР°Р±РѕС‚С‹", "error")
             return redirect(request.url)
 
         if area <= 0 or area > AreasOfStudy.query.distinct().count():
-            flash("Укажите направление вашего обучения", "error")
+            flash("РЈРєР°Р¶РёС‚Рµ РЅР°РїСЂР°РІР»РµРЅРёРµ РІР°С€РµРіРѕ РѕР±СѓС‡РµРЅРёСЏ", "error")
             return redirect(request.url)
 
         thesis_review.name_ru = title
@@ -266,7 +270,10 @@ def edit_thesis_on_review():
                     file.save(full_thesis_filename)
                     thesis_review.text_uri = thesis_filename_with_ext
                 else:
-                    flash("Текст работы должен быть в формате .PDF", "error")
+                    flash(
+                        "РўРµРєСЃС‚ СЂР°Р±РѕС‚С‹ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РІ С„РѕСЂРјР°С‚Рµ .PDF",
+                        "error",
+                    )
                     return redirect(request.url)
 
         thesis_review.review_status = 1
@@ -309,7 +316,7 @@ def delete_thesis_on_review():
     thesis = ThesisOnReview.query.filter_by(id=thesis_id).first_or_404()
 
     if thesis.author_id != current_user.id:
-        flash("Только автор может удалить свою работу", "error")
+        flash("РўРѕР»СЊРєРѕ Р°РІС‚РѕСЂ РјРѕР¶РµС‚ СѓРґР°Р»РёС‚СЊ СЃРІРѕСЋ СЂР°Р±РѕС‚Сѓ", "error")
         return redirect(url_for("thesis_review_index"))
 
     db.session.delete(thesis)
@@ -336,7 +343,7 @@ def review_thesis_on_review():
     # Check if this users thesis.
     # User can't review it's own thesis.
     if thesis.author_id == user.id:
-        flash("Вы не можете рецензировать свою работу", "error")
+        flash("Р’С‹ РЅРµ РјРѕР¶РµС‚Рµ СЂРµС†РµРЅР·РёСЂРѕРІР°С‚СЊ СЃРІРѕСЋ СЂР°Р±РѕС‚Сѓ", "error")
         return redirect(url_for("thesis_review_index"))
 
     # Ok, we have thesis and user permission.
@@ -352,7 +359,11 @@ def review_thesis_on_review():
         db.session.commit()
 
         data = render_template("notification/thesis_on_review_get.html", thesis=thesis)
-        add_mail_notification(thesis.author_id, "[SE site] Ваша работа на рецензировании", data)
+        add_mail_notification(
+            thesis.author_id,
+            "[SE site] Р’Р°С€Р° СЂР°Р±РѕС‚Р° РЅР° СЂРµС†РµРЅР·РёСЂРѕРІР°РЅРёРё",
+            data,
+        )
 
     review_form = ReviewForm()
     return render_template(
@@ -367,15 +378,18 @@ def review_submit_review():
     thesis_id = request.args.get("thesis_review_id", type=int)
 
     if request.method != "POST":
-        flash("Неверный метод, разрешается только метод POST", "error")
+        flash(
+            "РќРµРІРµСЂРЅС‹Р№ РјРµС‚РѕРґ, СЂР°Р·СЂРµС€Р°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РјРµС‚РѕРґ POST",
+            "error",
+        )
         return redirect(url_for("thesis_review_index"))
 
     if not user_reviewer:
-        flash("Вы не состоите в группе рецензентов", "error")
+        flash("Р’С‹ РЅРµ СЃРѕСЃС‚РѕРёС‚Рµ РІ РіСЂСѓРїРїРµ СЂРµС†РµРЅР·РµРЅС‚РѕРІ", "error")
         return redirect(url_for("thesis_review_index"))
 
     if not thesis_id:
-        flash("Не указан идентификатор работы", "error")
+        flash("РќРµ СѓРєР°Р·Р°РЅ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЂР°Р±РѕС‚С‹", "error")
         return redirect(url_for("thesis_review_index"))
 
     thesis = ThesisOnReview.query.filter_by(id=thesis_id).first_or_404()
@@ -383,12 +397,12 @@ def review_submit_review():
     # Check if this users thesis.
     # User can't review it's own thesis.
     if thesis.author_id == user.id:
-        flash("Вы не можете рецензировать свою работу", "error")
+        flash("Р’С‹ РЅРµ РјРѕР¶РµС‚Рµ СЂРµС†РµРЅР·РёСЂРѕРІР°С‚СЊ СЃРІРѕСЋ СЂР°Р±РѕС‚Сѓ", "error")
         return redirect(url_for("thesis_review_index"))
 
     # Only status == 2 allow us to review this thesis.
     if thesis.review_status != 2:
-        flash("Работа не находится на рецензировании", "error")
+        flash("Р Р°Р±РѕС‚Р° РЅРµ РЅР°С…РѕРґРёС‚СЃСЏ РЅР° СЂРµС†РµРЅР·РёСЂРѕРІР°РЅРёРё", "error")
         return redirect(url_for("thesis_review_index"))
 
     # Ok, we can read the review form
@@ -440,7 +454,7 @@ def review_submit_review():
 
     except KeyError:
         flash(
-            "В рецензии есть пропущенные вопросы. Нужно ответить на все вопросы, поля с комментариями являются опциональными.",
+            "Р’ СЂРµС†РµРЅР·РёРё РµСЃС‚СЊ РїСЂРѕРїСѓС‰РµРЅРЅС‹Рµ РІРѕРїСЂРѕСЃС‹. РќСѓР¶РЅРѕ РѕС‚РІРµС‚РёС‚СЊ РЅР° РІСЃРµ РІРѕРїСЂРѕСЃС‹, РїРѕР»СЏ СЃ РєРѕРјРјРµРЅС‚Р°СЂРёСЏРјРё СЏРІР»СЏСЋС‚СЃСЏ РѕРїС†РёРѕРЅР°Р»СЊРЅС‹РјРё.",
             "error",
         )
         return redirect(url_for("review_thesis_on_review", thesis_review_id=thesis_id))
@@ -477,7 +491,9 @@ def review_submit_review():
     db.session.add(review)
     db.session.commit()
 
-    add_mail_notification(thesis.author_id, "[SE site] Результат рецензирования", data)
+    add_mail_notification(
+        thesis.author_id, "[SE site] Р РµР·СѓР»СЊС‚Р°С‚ СЂРµС†РµРЅР·РёСЂРѕРІР°РЅРёСЏ", data
+    )
 
     return redirect(url_for("thesis_review_index"))
 
@@ -488,18 +504,18 @@ def review_result_thesis_on_review():
     thesis_id = request.args.get("thesis_review_id", type=int)
 
     if not thesis_id:
-        flash("Не указан идентификатор работы", "error")
+        flash("РќРµ СѓРєР°Р·Р°РЅ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЂР°Р±РѕС‚С‹", "error")
         return redirect(url_for("thesis_review_index"))
 
     thesis = ThesisOnReview.query.filter_by(id=thesis_id).first_or_404()
     review = ThesisReview.query.filter_by(thesis_on_review_id=thesis_id).first_or_404()
 
     # if thesis.author_id != user.id:
-    #    flash("Вы не можете просматривать рецензию на чужую работу", 'error')
+    #    flash("Р’С‹ РЅРµ РјРѕР¶РµС‚Рµ РїСЂРѕСЃРјР°С‚СЂРёРІР°С‚СЊ СЂРµС†РµРЅР·РёСЋ РЅР° С‡СѓР¶СѓСЋ СЂР°Р±РѕС‚Сѓ", 'error')
     #    return redirect(url_for('thesis_review_index'))
 
     if (thesis.review_status == 1) or (thesis.review_status == 2):
-        flash("Рецензия по данной работе не завершена", "error")
+        flash("Р РµС†РµРЅР·РёСЏ РїРѕ РґР°РЅРЅРѕР№ СЂР°Р±РѕС‚Рµ РЅРµ Р·Р°РІРµСЂС€РµРЅР°", "error")
         return redirect(url_for("thesis_review_index"))
 
     review_form = ReviewForm(

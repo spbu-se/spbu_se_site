@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import hmac
 import json
 import os
+
+__all__ = ["login_required"]
 import pathlib
 
 import cachecontrol
@@ -46,12 +49,14 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_google
 
 @login_manager.user_loader
 def load_user(user_id):
-    return Users.query.get(int(user_id))
+    return db.session.get(Users, int(user_id))
 
 
 @login_manager.unauthorized_handler
 def handle_needs_login():
-    flash("Для выполнения этого действия необходимо войти.")
+    flash(
+        "Р”Р»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ СЌС‚РѕРіРѕ РґРµР№СЃС‚РІРёСЏ РЅРµРѕР±С…РѕРґРёРјРѕ РІРѕР№С‚Рё."
+    )
     return redirect(url_for("login_index", next=request.endpoint))
 
 
@@ -106,13 +111,22 @@ def login_index():
                     login_user(user, remember=True)
                     return redirect_next_url(fallback=url_for("user_profile"))
                 else:
-                    flash("Пара логин и пароль указаны неверно", category="error")
+                    flash(
+                        "РџР°СЂР° Р»РѕРіРёРЅ Рё РїР°СЂРѕР»СЊ СѓРєР°Р·Р°РЅС‹ РЅРµРІРµСЂРЅРѕ",
+                        category="error",
+                    )
                     return render_template("auth/login.html", user=current_user)
             else:
-                flash("Пара логин и пароль указаны неверно", category="error")
+                flash(
+                    "РџР°СЂР° Р»РѕРіРёРЅ Рё РїР°СЂРѕР»СЊ СѓРєР°Р·Р°РЅС‹ РЅРµРІРµСЂРЅРѕ",
+                    category="error",
+                )
                 return render_template("auth/login.html", user=current_user)
         else:
-            flash("Пользователя с таким почтовым адресом нет", category="error")
+            flash(
+                "РџРѕР»СЊР·РѕРІР°С‚РµР»СЏ СЃ С‚Р°РєРёРј РїРѕС‡С‚РѕРІС‹Рј Р°РґСЂРµСЃРѕРј РЅРµС‚",
+                category="error",
+            )
             return render_template("auth/login.html", user=current_user)
 
     return render_template("auth/login.html", user=current_user)
@@ -194,19 +208,28 @@ def vk_callback():
 
 def register_basic():
     if request.method == "POST":
-        email = request.form.get("email").strip()
-        password = request.form.get("password")
-        first_name = request.form.get("first_name").strip()
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
+        first_name = request.form.get("first_name", "").strip()
 
         user = Users.query.filter_by(email=email).first()
         if user:
-            flash("Такой почтовый адрес уже зарегистрирован.", category="error")
+            flash(
+                "РўР°РєРѕР№ РїРѕС‡С‚РѕРІС‹Р№ Р°РґСЂРµСЃ СѓР¶Рµ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ.",
+                category="error",
+            )
         elif len(email) < 5:
-            flash("Почтовый адрес должен быть больше чем 5 символов", category="error")
+            flash(
+                "РџРѕС‡С‚РѕРІС‹Р№ Р°РґСЂРµСЃ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ С‡РµРј 5 СЃРёРјРІРѕР»РѕРІ",
+                category="error",
+            )
         elif len(password) < 5:
-            flash("Пароль должен быть больше чем 5 символов", category="error")
+            flash(
+                "РџР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ С‡РµРј 5 СЃРёРјРІРѕР»РѕРІ",
+                category="error",
+            )
         elif len(first_name) < 1:
-            flash("Имя не может быть пустым")
+            flash("РРјСЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј")
         else:
             new_user = Users(
                 email=email,
@@ -236,10 +259,10 @@ def user_profile():
     user = Users.query.filter_by(id=current_user.id).first()
 
     if request.method == "POST":
-        last_name = request.form.get("last_name").strip()
-        first_name = request.form.get("first_name").strip()
-        middle_name = request.form.get("middle_name").strip()
-        how_to_contact = request.form.get("how_to_contact").strip()
+        last_name = request.form.get("last_name", "").strip()
+        first_name = request.form.get("first_name", "").strip()
+        middle_name = request.form.get("middle_name", "").strip()
+        how_to_contact = request.form.get("how_to_contact", "").strip()
 
         if first_name:
             user.first_name = first_name

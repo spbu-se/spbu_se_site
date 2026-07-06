@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 """
 Copyright 2023 Alexander Slugin
@@ -52,7 +53,7 @@ def edit_table(path_to_table, area_id, worktype_id, column_names_list=None, shee
             user = find_user(full_name=row[column_names["name"]])
         except KeyError:
             flash(
-                f'В таблице не существует столбца с названием "{column_names["name"]}"',
+                f'Р’ С‚Р°Р±Р»РёС†Рµ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ СЃС‚РѕР»Р±С†Р° СЃ РЅР°Р·РІР°РЅРёРµРј "{column_names["name"]}"',
                 category="error",
             )
             return
@@ -95,7 +96,7 @@ def edit_table(path_to_table, area_id, worktype_id, column_names_list=None, shee
             table_df.to_excel(writer, index=False, sheet_name=sheet_name)
 
 
-def read_table(path_to_table, sheet_name) -> pd.DataFrame or None:
+def read_table(path_to_table, sheet_name) -> pd.DataFrame | None:
     # Read all records from sheet with <sheet_name> name
     try:
         table_df = (
@@ -105,14 +106,20 @@ def read_table(path_to_table, sheet_name) -> pd.DataFrame or None:
         )
     except ValueError:
         flash(
-            f"В существующей таблице нет листа с названием {sheet_name}",
+            f"Р’ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµР№ С‚Р°Р±Р»РёС†Рµ РЅРµС‚ Р»РёСЃС‚Р° СЃ РЅР°Р·РІР°РЅРёРµРј {sheet_name}",
+            category="error",
+        )
+        return None
+    except FileNotFoundError:
+        flash(
+            f"РўР°Р±Р»РёС†Р° {path_to_table} РЅРµ РЅР°Р№РґРµРЅР°",
             category="error",
         )
         return None
     return table_df
 
 
-def find_user(full_name: str) -> Users or None:
+def find_user(full_name: str) -> Users | None:
     name = full_name.split()
     if len(name) < 2:
         return None
@@ -121,7 +128,7 @@ def find_user(full_name: str) -> Users or None:
     return user
 
 
-def find_current_thesis(user: Users, area_id, worktype_id) -> CurrentThesis or None:
+def find_current_thesis(user: Users, area_id, worktype_id) -> CurrentThesis | None:
     thesis = (
         CurrentThesis.query.filter_by(author_id=user.id)
         .filter_by(area_id=area_id)
@@ -134,7 +141,7 @@ def find_current_thesis(user: Users, area_id, worktype_id) -> CurrentThesis or N
     return thesis
 
 
-def get_all_thesises(area_id, worktype_id) -> list:
+def get_all_thesises(area_id, worktype_id) -> list[CurrentThesis]:
     thesises = (
         CurrentThesis.query.filter_by(area_id=area_id)
         .filter_by(worktype_id=worktype_id)
@@ -152,23 +159,23 @@ def add_new_data_to_table(row: pd.Series, current_thesis: CurrentThesis, user: U
     update_if_cell_is_empty(row, column_names["supervisor"], current_thesis.supervisor)
     update_if_cell_is_empty(row, column_names["consultant"], current_thesis.consultant)
     update_if_cell_is_empty(row, column_names["how_to_contact"], user.how_to_contact)
-    update_if_cell_is_empty(row, column_names["text"], "да" if current_thesis.text_uri else "")
+    update_if_cell_is_empty(row, column_names["text"], "РґР°" if current_thesis.text_uri else "")
     update_if_cell_is_empty(
         row,
         column_names["supervisor_review"],
-        "да" if current_thesis.supervisor_review_uri else "",
+        "РґР°" if current_thesis.supervisor_review_uri else "",
     )
     update_if_cell_is_empty(
         row,
         column_names["reviewer_review"],
-        "да" if current_thesis.reviewer_review_uri else "",
+        "РґР°" if current_thesis.reviewer_review_uri else "",
     )
     update_if_cell_is_empty(row, column_names["code"], current_thesis.code_link)
     update_if_cell_is_empty(row, column_names["committer"], current_thesis.account_name)
     update_if_cell_is_empty(
         row,
         column_names["presentation"],
-        "да" if current_thesis.presentation_uri else "",
+        "РґР°" if current_thesis.presentation_uri else "",
     )
 
 
@@ -178,7 +185,7 @@ def update_if_cell_is_empty(row: pd.Series, column_name, new_value):
             row[column_name] = new_value
     except KeyError:
         flash(
-            f'В таблице не существует столбца с названием "{column_name}"',
+            f'Р’ С‚Р°Р±Р»РёС†Рµ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ СЃС‚РѕР»Р±С†Р° СЃ РЅР°Р·РІР°РЅРёРµРј "{column_name}"',
             category="error",
         )
         raise KeyError

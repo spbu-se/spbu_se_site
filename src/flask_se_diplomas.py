@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -64,9 +65,9 @@ def diplomas_index():
         diploma_filter.level.choices.append((sid.id, sid.level))
         diploma_filter.level.choices.sort(key=lambda tup: tup[1])
 
-    diploma_filter.supervisor.choices.insert(0, (0, "Все"))
-    diploma_filter.level.choices.insert(0, (0, "Все"))
-    diploma_filter.company.choices.insert(0, (0, "Все"))
+    diploma_filter.supervisor.choices.insert(0, (0, "Р’СЃРµ"))
+    diploma_filter.level.choices.insert(0, (0, "Р’СЃРµ"))
+    diploma_filter.company.choices.insert(0, (0, "Р’СЃРµ"))
 
     if current_user.is_authenticated:
         user = current_user
@@ -137,8 +138,8 @@ def fetch_themes():
 @login_required
 def user_diplomas_index():
     filter = UserDiplomaThemesFilter()
-    filter.archived.choices.insert(0, (0, "Нет"))
-    filter.archived.choices.insert(1, (1, "Да"))
+    filter.archived.choices.insert(0, (0, "РќРµС‚"))
+    filter.archived.choices.insert(1, (1, "Р”Р°"))
 
     user = current_user
     themes = (
@@ -182,19 +183,25 @@ def add_user_theme():
         level_accepted = []
 
         if not title:
-            flash("Заголовок у темы является обязательным полем.")
+            flash(
+                "Р—Р°РіРѕР»РѕРІРѕРє Сѓ С‚РµРјС‹ СЏРІР»СЏРµС‚СЃСЏ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рј РїРѕР»РµРј."
+            )
             return render_template("diplomas/add_theme.html", form=add_theme, user=user)
 
         if not description:
-            flash("Описание у темы является обязательным полем.")
+            flash(
+                "РћРїРёСЃР°РЅРёРµ Сѓ С‚РµРјС‹ СЏРІР»СЏРµС‚СЃСЏ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рј РїРѕР»РµРј."
+            )
             return render_template("diplomas/add_theme.html", form=add_theme, user=user)
 
         if not levels:
-            flash("Необходимо указать уровень темы.")
+            flash("РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ СѓСЂРѕРІРµРЅСЊ С‚РµРјС‹.")
             return render_template("diplomas/add_theme.html", form=add_theme, user=user)
 
         if not company:
-            flash("Необходимо указать, от кого предлагается тема.")
+            flash(
+                "РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ, РѕС‚ РєРѕРіРѕ РїСЂРµРґР»Р°РіР°РµС‚СЃСЏ С‚РµРјР°."
+            )
             return render_template("diplomas/add_theme.html", form=add_theme, user=user)
 
         themes_level = ThemesLevel.query.all()
@@ -205,11 +212,11 @@ def add_user_theme():
                 level_accepted.append(tl)
 
         if not level_accepted:
-            flash("Уровень темы указан неверно")
+            flash("РЈСЂРѕРІРµРЅСЊ С‚РµРјС‹ СѓРєР°Р·Р°РЅ РЅРµРІРµСЂРЅРѕ")
             return render_template("diplomas/add_theme.html", form=add_theme, user=user)
 
         if company < 1 or company > company_count:
-            flash("Уровень темы указан неверно")
+            flash("РЈСЂРѕРІРµРЅСЊ С‚РµРјС‹ СѓРєР°Р·Р°РЅ РЅРµРІРµСЂРЅРѕ")
             return render_template("diplomas/add_theme.html", form=add_theme, user=user)
 
         c = DiplomaThemes(
@@ -284,19 +291,25 @@ def edit_user_theme():
         level_accepted = []
 
         if not title:
-            flash("Заголовок у темы является обязательным полем.")
+            flash(
+                "Р—Р°РіРѕР»РѕРІРѕРє Сѓ С‚РµРјС‹ СЏРІР»СЏРµС‚СЃСЏ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рј РїРѕР»РµРј."
+            )
             return render_template("diplomas/edit_theme.html", form=edit_theme, user=user)
 
         if not description:
-            flash("Описание у темы является обязательным полем.")
+            flash(
+                "РћРїРёСЃР°РЅРёРµ Сѓ С‚РµРјС‹ СЏРІР»СЏРµС‚СЃСЏ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рј РїРѕР»РµРј."
+            )
             return render_template("diplomas/edit_theme.html", form=edit_theme, user=user)
 
         if not levels:
-            flash("Необходимо указать уровень темы.")
+            flash("РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ СѓСЂРѕРІРµРЅСЊ С‚РµРјС‹.")
             return render_template("diplomas/edit_theme.html", form=edit_theme, user=user)
 
         if not company:
-            flash("Необходимо указать, от кого предлагается тема.")
+            flash(
+                "РќРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ, РѕС‚ РєРѕРіРѕ РїСЂРµРґР»Р°РіР°РµС‚СЃСЏ С‚РµРјР°."
+            )
             return render_template("diplomas/edit_theme.html", form=edit_theme, user=user)
 
         themes_level = ThemesLevel.query.all()
@@ -307,11 +320,11 @@ def edit_user_theme():
                 level_accepted.append(tl)
 
         if not level_accepted:
-            flash("Уровень темы указан неверно")
+            flash("РЈСЂРѕРІРµРЅСЊ С‚РµРјС‹ СѓРєР°Р·Р°РЅ РЅРµРІРµСЂРЅРѕ")
             return render_template("diplomas/add_theme.html", form=edit_theme, user=user)
 
         if company < 1 or company > company_count:
-            flash("Уровень темы указан неверно")
+            flash("РЈСЂРѕРІРµРЅСЊ С‚РµРјС‹ СѓРєР°Р·Р°РЅ РЅРµРІРµСЂРЅРѕ")
             return render_template("diplomas/edit_theme.html", form=edit_theme, user=user)
 
         theme.title = title

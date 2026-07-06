@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 """
 Copyright 2023 Alexander Slugin
@@ -42,9 +43,7 @@ DATE_AND_TIME_FORMAT = "%d.%m.%Y %H:%M"
 
 def datetime_convert(value):
     return (
-        value.replace(tzinfo=datetime.timezone.UTC)
-        .astimezone(tz.tzlocal())
-        .strftime(DATE_AND_TIME_FORMAT)
+        value.replace(tzinfo=datetime.UTC).astimezone(tz.tzlocal()).strftime(DATE_AND_TIME_FORMAT)
     )
 
 
@@ -112,7 +111,10 @@ def thesis_staff(user_staff, current_thesis):
     if request.method == "POST":
         if "submit_notification_button" in request.form:
             if request.form["content"] in {None, ""}:
-                flash("Нельзя отправить пустое уведомление!", category="error")
+                flash(
+                    "РќРµР»СЊР·СЏ РѕС‚РїСЂР°РІРёС‚СЊ РїСѓСЃС‚РѕРµ СѓРІРµРґРѕРјР»РµРЅРёРµ!",
+                    category="error",
+                )
                 return redirect(url_for("thesis_staff", id=current_thesis.id))
 
             mail_notification = render_template(
@@ -123,12 +125,12 @@ def thesis_staff(user_staff, current_thesis):
             )
             add_mail_notification(
                 current_thesis.author_id,
-                "[SE site] Уведомление от научного руководителя",
+                "[SE site] РЈРІРµРґРѕРјР»РµРЅРёРµ РѕС‚ РЅР°СѓС‡РЅРѕРіРѕ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ",
                 mail_notification,
             )
             notification_content = (
-                f"Научный руководитель {user_staff.user.get_name()} "
-                f'отправил Вам уведомление по работе "{current_thesis.title}": '
+                f"РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ {user_staff.user.get_name()} "
+                f'РѕС‚РїСЂР°РІРёР» Р’Р°Рј СѓРІРµРґРѕРјР»РµРЅРёРµ РїРѕ СЂР°Р±РѕС‚Рµ "{current_thesis.title}": '
                 f"{request.form['content']}"
             )
             notification = NotificationPractice(
@@ -136,7 +138,7 @@ def thesis_staff(user_staff, current_thesis):
             )
             db.session.add(notification)
             db.session.commit()
-            flash("Уведомление отправлено!", category="success")
+            flash("РЈРІРµРґРѕРјР»РµРЅРёРµ РѕС‚РїСЂР°РІР»РµРЅРѕ!", category="success")
         elif "submit_finish_work_button" in request.form:
             current_thesis.status = 2
             db.session.commit()
@@ -178,17 +180,23 @@ def reports_staff(user_staff, current_thesis):
             new_comment = request.form.get("comment", type=str)
 
             if not new_comment:
-                flash("Нельзя отправить пустой комментарий!", category="error")
-            else:
-                current_report.comment = new_comment
-                current_report.comment_time = datetime.datetime.now()
-                db.session.commit()
-
-                content = (
-                    f"Научный руководитель {user_staff.user.get_name()} прокомментировал "
-                    + f"Ваш отчет от {datetime_convert(current_report.time)} "
-                    + f'по работе "{current_thesis.title}"'
+                flash(
+                    "РќРµР»СЊР·СЏ РѕС‚РїСЂР°РІРёС‚СЊ РїСѓСЃС‚РѕР№ РєРѕРјРјРµРЅС‚Р°СЂРёР№!",
+                    category="error",
                 )
+                return redirect(
+                    url_for("reports_staff", id=current_thesis.id, report_id=current_report_id)
+                )
+
+            current_report.comment = new_comment
+            current_report.comment_time = datetime.datetime.now()
+            db.session.commit()
+
+            content = (
+                f"РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ {user_staff.user.get_name()} РїСЂРѕРєРѕРјРјРµРЅС‚РёСЂРѕРІР°Р» "
+                + f"Р’Р°С€ РѕС‚С‡РµС‚ РѕС‚ {datetime_convert(current_report.time)} "
+                + f'РїРѕ СЂР°Р±РѕС‚Рµ "{current_thesis.title}"'
+            )
 
             notification = NotificationPractice(
                 recipient_id=current_thesis.author_id, content=content
@@ -196,7 +204,7 @@ def reports_staff(user_staff, current_thesis):
 
             add_mail_notification(
                 current_thesis.author_id,
-                "[SE site] Отчёт прокомментирован",
+                "[SE site] РћС‚С‡С‘С‚ РїСЂРѕРєРѕРјРјРµРЅС‚РёСЂРѕРІР°РЅ",
                 render_template(
                     NotificationTemplates.SUPERVISOR_COMMENT_TO_REPORT.value,
                     user_staff=user_staff,
@@ -207,7 +215,7 @@ def reports_staff(user_staff, current_thesis):
 
             db.session.add(notification)
             db.session.commit()
-            flash("Комментарий успешно отправлен!", category="success")
+            flash("РљРѕРјРјРµРЅС‚Р°СЂРёР№ СѓСЃРїРµС€РЅРѕ РѕС‚РїСЂР°РІР»РµРЅ!", category="success")
 
         return render_template(
             PracticeStaffTemplates.REPORTS.value,

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 from flask import redirect, render_template, session, url_for
@@ -55,7 +56,7 @@ class SeAdminModelViewThesis(SeAdminModelView):
     )
     form_extra_fields = {
         "supervisor": QuerySelectField(
-            "Научный руководитель",
+            "РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ",
             query_factory=lambda: Staff.query.all(),
             get_pk=lambda staff: staff.id,
         ),
@@ -65,18 +66,18 @@ class SeAdminModelViewThesis(SeAdminModelView):
             get_pk=lambda user: user.id,
         ),
         "type": QuerySelectField(
-            "Тип работы",
+            "РўРёРї СЂР°Р±РѕС‚С‹",
             query_factory=lambda: Worktype.query.all(),
             get_pk=lambda t: t.id,
         ),
         "course": QuerySelectField(
-            "Курс",
+            "РљСѓСЂСЃ",
             query_factory=lambda: Courses.query.all(),
             get_label=lambda c: c.name,
             get_pk=lambda c: c.id,
         ),
         "area": QuerySelectField(
-            "Направление обучения",
+            "РќР°РїСЂР°РІР»РµРЅРёРµ РѕР±СѓС‡РµРЅРёСЏ",
             query_factory=lambda: AreasOfStudy.query.all(),
             get_pk=lambda c: c.id,
         ),
@@ -188,10 +189,10 @@ class SeAdminModelViewStaff(SeAdminModelView):
     form_choices = {
         "science_degree": [
             ("", ""),
-            ("д.ф.-м.н.", "д.ф.-м.н."),
-            ("д.т.н.", "д.т.н."),
-            ("к.ф.-м.н.", "к.ф.-м.н."),
-            ("к.т.н.", "к.т.н."),
+            ("Рґ.С„.-Рј.РЅ.", "Рґ.С„.-Рј.РЅ."),
+            ("Рґ.С‚.РЅ.", "Рґ.С‚.РЅ."),
+            ("Рє.С„.-Рј.РЅ.", "Рє.С„.-Рј.РЅ."),
+            ("Рє.С‚.РЅ.", "Рє.С‚.РЅ."),
         ]
     }
     form_extra_fields = {
@@ -209,24 +210,24 @@ class SeAdminModelViewNews(SeAdminModelView):
 
 class SeAdminModelViewDiplomaThemes(SeAdminModelView):
     column_labels = dict(
-        supervisor_thesis="Научный руководитель ВКР",
-        supervisor="Научный руководитель учебных практик",
-        comment="Комментарий (что необходимо исправить)",
-        status="Статус темы",
-        requirements="Требования к студенту",
-        title="Название темы",
-        description="Описание темы",
-        company="Кто представляет тему",
-        levels="Уровень темы",
-        consultant="Консультант",
-        author="Автор темы (кто предложил)",
+        supervisor_thesis="РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ Р’РљР ",
+        supervisor="РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ СѓС‡РµР±РЅС‹С… РїСЂР°РєС‚РёРє",
+        comment="РљРѕРјРјРµРЅС‚Р°СЂРёР№ (С‡С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ РёСЃРїСЂР°РІРёС‚СЊ)",
+        status="РЎС‚Р°С‚СѓСЃ С‚РµРјС‹",
+        requirements="РўСЂРµР±РѕРІР°РЅРёСЏ Рє СЃС‚СѓРґРµРЅС‚Сѓ",
+        title="РќР°Р·РІР°РЅРёРµ С‚РµРјС‹",
+        description="РћРїРёСЃР°РЅРёРµ С‚РµРјС‹",
+        company="РљС‚Рѕ РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚ С‚РµРјСѓ",
+        levels="РЈСЂРѕРІРµРЅСЊ С‚РµРјС‹",
+        consultant="РљРѕРЅСЃСѓР»СЊС‚Р°РЅС‚",
+        author="РђРІС‚РѕСЂ С‚РµРјС‹ (РєС‚Рѕ РїСЂРµРґР»РѕР¶РёР»)",
     )
     column_choices = {
         "status": [
-            (0, "На проверке"),
-            (1, "Требуется доработка"),
-            (2, "Одобрена"),
-            (4, "Отклонена"),
+            (0, "РќР° РїСЂРѕРІРµСЂРєРµ"),
+            (1, "РўСЂРµР±СѓРµС‚СЃСЏ РґРѕСЂР°Р±РѕС‚РєР°"),
+            (2, "РћРґРѕР±СЂРµРЅР°"),
+            (4, "РћС‚РєР»РѕРЅРµРЅР°"),
         ]
     }
 
@@ -239,10 +240,10 @@ class SeAdminModelViewDiplomaThemes(SeAdminModelView):
     form_args = dict(
         status=dict(
             choices=[
-                (0, "На проверке"),
-                (1, "Требуется доработка"),
-                (2, "Одобрена"),
-                (4, "Отклонена"),
+                (0, "РќР° РїСЂРѕРІРµСЂРєРµ"),
+                (1, "РўСЂРµР±СѓРµС‚СЃСЏ РґРѕСЂР°Р±РѕС‚РєР°"),
+                (2, "РћРґРѕР±СЂРµРЅР°"),
+                (4, "РћС‚РєР»РѕРЅРµРЅР°"),
             ],
             coerce=int,
         )
@@ -268,17 +269,17 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
         "company",
     )
     column_labels = dict(
-        supervisor_thesis="Научный руководитель ВКР",
-        supervisor="Научный руководитель учебных практик",
-        comment="Комментарий (что нужно исправить, если требуется доработка, или почему тема отклонена)",
-        status="Статус темы",
-        requirements="Требования к студенту",
-        title="Название темы",
-        description="Описание темы",
-        company="Кто представляет тему",
-        levels="Уровень темы",
-        consultant="Консультант",
-        author="Автор темы (кто предложил)",
+        supervisor_thesis="РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ Р’РљР ",
+        supervisor="РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ СѓС‡РµР±РЅС‹С… РїСЂР°РєС‚РёРє",
+        comment="РљРѕРјРјРµРЅС‚Р°СЂРёР№ (С‡С‚Рѕ РЅСѓР¶РЅРѕ РёСЃРїСЂР°РІРёС‚СЊ, РµСЃР»Рё С‚СЂРµР±СѓРµС‚СЃСЏ РґРѕСЂР°Р±РѕС‚РєР°, РёР»Рё РїРѕС‡РµРјСѓ С‚РµРјР° РѕС‚РєР»РѕРЅРµРЅР°)",
+        status="РЎС‚Р°С‚СѓСЃ С‚РµРјС‹",
+        requirements="РўСЂРµР±РѕРІР°РЅРёСЏ Рє СЃС‚СѓРґРµРЅС‚Сѓ",
+        title="РќР°Р·РІР°РЅРёРµ С‚РµРјС‹",
+        description="РћРїРёСЃР°РЅРёРµ С‚РµРјС‹",
+        company="РљС‚Рѕ РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚ С‚РµРјСѓ",
+        levels="РЈСЂРѕРІРµРЅСЊ С‚РµРјС‹",
+        consultant="РљРѕРЅСЃСѓР»СЊС‚Р°РЅС‚",
+        author="РђРІС‚РѕСЂ С‚РµРјС‹ (РєС‚Рѕ РїСЂРµРґР»РѕР¶РёР»)",
     )
 
     form_overrides = {
@@ -291,16 +292,22 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
     form_args = dict(
         status=dict(
             choices=[
-                (0, "На проверке"),
-                (1, "Требуется доработка"),
-                (2, "Одобрена"),
-                (4, "Отклонена"),
+                (0, "РќР° РїСЂРѕРІРµСЂРєРµ"),
+                (1, "РўСЂРµР±СѓРµС‚СЃСЏ РґРѕСЂР°Р±РѕС‚РєР°"),
+                (2, "РћРґРѕР±СЂРµРЅР°"),
+                (4, "РћС‚РєР»РѕРЅРµРЅР°"),
             ],
             coerce=int,
         )
     )
 
-    column_choices = {"status": [(0, "На проверке"), (1, "Требуется доработка"), (2, "Одобрена")]}
+    column_choices = {
+        "status": [
+            (0, "РќР° РїСЂРѕРІРµСЂРєРµ"),
+            (1, "РўСЂРµР±СѓРµС‚СЃСЏ РґРѕСЂР°Р±РѕС‚РєР°"),
+            (2, "РћРґРѕР±СЂРµРЅР°"),
+        ]
+    }
 
     form_widget_args = {
         "description": {
@@ -326,7 +333,7 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
         if previous_status != model.status and model.status == 4:
             add_mail_notification(
                 model.author_id,
-                "[SE site] Ваша тема отклонена",
+                "[SE site] Р’Р°С€Р° С‚РµРјР° РѕС‚РєР»РѕРЅРµРЅР°",
                 render_template(
                     NotificationTemplates.DIPLOMA_THEMES_REJECTED.value,
                     title=model.title,
@@ -336,7 +343,7 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
         if previous_status != model.status and model.status == 1:
             add_mail_notification(
                 model.author_id,
-                "[SE site] Требуется доработка для Вашей темы",
+                "[SE site] РўСЂРµР±СѓРµС‚СЃСЏ РґРѕСЂР°Р±РѕС‚РєР° РґР»СЏ Р’Р°С€РµР№ С‚РµРјС‹",
                 render_template(
                     NotificationTemplates.DIPLOMA_THEMES_NEED_UPDATE.value,
                     title=model.title,
@@ -364,12 +371,14 @@ class SeAdminModelViewCurrentThesis(SeAdminModelView):
         "status",
     )
     column_labels = dict(
-        title="Название темы",
-        user="Студент",
-        area="Направление обучения",
-        worktype="Тип работы",
-        supervisor="Научный руководитель",
-        deleted="Удалена",
-        status="Статус",
+        title="РќР°Р·РІР°РЅРёРµ С‚РµРјС‹",
+        user="РЎС‚СѓРґРµРЅС‚",
+        area="РќР°РїСЂР°РІР»РµРЅРёРµ РѕР±СѓС‡РµРЅРёСЏ",
+        worktype="РўРёРї СЂР°Р±РѕС‚С‹",
+        supervisor="РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ",
+        deleted="РЈРґР°Р»РµРЅР°",
+        status="РЎС‚Р°С‚СѓСЃ",
     )
-    column_choices = {"status": [(1, "Текущая работа"), (2, "Завершенная работа")]}
+    column_choices = {
+        "status": [(1, "РўРµРєСѓС‰Р°СЏ СЂР°Р±РѕС‚Р°"), (2, "Р—Р°РІРµСЂС€РµРЅРЅР°СЏ СЂР°Р±РѕС‚Р°")]
+    }

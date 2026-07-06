@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -53,7 +54,7 @@ _windows_device_files = (
     "NUL",
 )
 
-_filename_strip_re = re.compile(r"[^A-Za-zа-яА-ЯёЁ0-9_.-]")
+_filename_strip_re = re.compile(r"[^A-Za-zР°-СЏРђ-РЇС‘РЃ0-9_.-]")
 
 
 def secure_filename(filename: str) -> str:
@@ -93,8 +94,8 @@ def get_hours_since(date: datetime) -> int:
 
 
 def plural_hours(n: int | float) -> str:
-    hours: list[str] = ["час", "часа", "часов"]
-    days: list[str] = ["день", "дня", "дней"]
+    hours: list[str] = ["С‡Р°СЃ", "С‡Р°СЃР°", "С‡Р°СЃРѕРІ"]
+    days: list[str] = ["РґРµРЅСЊ", "РґРЅСЏ", "РґРЅРµР№"]
 
     if n > 24:
         n = int(n / 24)
@@ -108,7 +109,7 @@ def plural_hours(n: int | float) -> str:
         return str(n) + " " + days[p]
 
     if n == 0:
-        return "меньше часа"
+        return "РјРµРЅСЊС€Рµ С‡Р°СЃР°"
     if n % 10 == 1 and n % 100 != 11:
         p = 0
     elif 2 <= n % 10 <= 4 and (n % 100 < 10 or n % 100 >= 20):

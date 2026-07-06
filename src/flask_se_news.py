@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 from urllib.parse import urlparse
@@ -55,7 +56,7 @@ def post_vote():
     post = Posts.query.filter_by(id=post_id).first_or_404()
 
     if post.author.id == current_user.id:
-        flash("Нельзя голосовать за свой пост!", category="error")
+        flash("РќРµР»СЊР·СЏ РіРѕР»РѕСЃРѕРІР°С‚СЊ Р·Р° СЃРІРѕР№ РїРѕСЃС‚!", category="error")
         return redirect(request.referrer)
 
     vote = PostVote.query.filter_by(user=current_user, post=post).first()
@@ -76,7 +77,9 @@ def post_vote():
 
             return redirect(request.referrer)
         else:
-            flash("Вы уже проголосовали за этот пост!", category="error")
+            flash(
+                "Р’С‹ СѓР¶Рµ РїСЂРѕРіРѕР»РѕСЃРѕРІР°Р»Рё Р·Р° СЌС‚РѕС‚ РїРѕСЃС‚!", category="error"
+            )
             return redirect(request.referrer)
 
     vote = PostVote(user=current_user, post=post, upvote=bool(int(action_vote)))
@@ -103,11 +106,11 @@ def submit_post():
         post_text = request.form.get("post_text")
 
         if not title:
-            flash("Заголовок у новости обязательное поле.")
+            flash("Р—Р°РіРѕР»РѕРІРѕРє Сѓ РЅРѕРІРѕСЃС‚Рё РѕР±СЏР·Р°С‚РµР»СЊРЅРѕРµ РїРѕР»Рµ.")
             return render_template("news/submit.html")
 
         if not post_uri and not post_text:
-            flash("У новости должна быть ссылка или текст")
+            flash("РЈ РЅРѕРІРѕСЃС‚Рё РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЃСЃС‹Р»РєР° РёР»Рё С‚РµРєСЃС‚")
             return render_template("news/submit.html")
 
         if post_uri:

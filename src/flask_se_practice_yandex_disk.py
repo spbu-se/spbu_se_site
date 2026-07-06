@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 """
 Copyright 2023 Alexander Slugin
@@ -83,7 +84,7 @@ def yandex_code():
     token = get_token(code)
     disk = yadisk.YaDisk(token=token)
     if not disk.check_token():
-        flash("Неверный токен для Яндекс Диска", category="error")
+        flash("РќРµРІРµСЂРЅС‹Р№ С‚РѕРєРµРЅ РґР»СЏ РЇРЅРґРµРєСЃ Р”РёСЃРєР°", category="error")
         return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
 
     table_path = session.get("table_path")
@@ -106,12 +107,18 @@ def yandex_code():
         try:
             disk.upload(full_filename, table_path, overwrite=True)
         except yadisk.exceptions.ParentNotFoundError:
-            flash("Указанный путь не существует на диске", category="error")
+            flash(
+                "РЈРєР°Р·Р°РЅРЅС‹Р№ РїСѓС‚СЊ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РЅР° РґРёСЃРєРµ",
+                category="error",
+            )
 
     flashed_messages = get_flashed_messages(category_filter=["error"])
     if len(flashed_messages) > 0:
         for message in flashed_messages:
             flash(message, category="error")
     else:
-        flash("Таблица успешно загружена на Яндекс Диск", category="success")
+        flash(
+            "РўР°Р±Р»РёС†Р° СѓСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅР° РЅР° РЇРЅРґРµРєСЃ Р”РёСЃРє",
+            category="success",
+        )
     return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
