@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import shutil
 import sys
 import tempfile
@@ -97,7 +98,7 @@ def client():
 
 @pytest.fixture
 def seeded_client(_seeded_db_path):
-    """Copy the pre-seeded template DB once per test вЂ” fast (~ms)."""
+    """Copy the pre-seeded template DB once per test — fast (~ms)."""
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
     shutil.copy2(str(_seeded_db_path), _p)
