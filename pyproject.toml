@@ -78,6 +78,7 @@ ignore = ["E501", "UP009"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/conftest.py" = ["E402"]
+"tests/*.py" = ["N801"]
 "src/static/files/*" = ["SIM115"]
 "src/thesesImport.py" = ["SIM115"]
 

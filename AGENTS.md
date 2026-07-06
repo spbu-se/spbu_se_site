@@ -13,6 +13,7 @@ Before writing ANY code in auto/batch mode:
 - [ ] Check `origin/staging` CI status — if red, stop and fix first
 - [ ] Record start UTC timestamp
 - [ ] Create branch: `git checkout -b staging-auto-<UTC-ts> origin/staging`
+- [ ] Load relevant skills: `uv run pre-commit run --all-files` to verify hooks work, then load `.skills/<name>/` for the task
 - [ ] Never commit to `staging` — all work goes to the auto-branch
 - [ ] Never trust memory — encode every finding in docs
 
@@ -20,6 +21,8 @@ Before committing:
 
 - [ ] Run `uv run pytest -n 2` — full suite must pass
 - [ ] Run `uv run ruff check src/ && uv run ruff format --check src/`
+- [ ] Run `uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .opencode/commands/`
+- [ ] Run `uv run pre-commit run --all-files` — parity with CI
 - [ ] Check for secrets in staged files — if any real secret found, DO NOT PUSH
 - [ ] Verify `requirements.txt` is fresh
 

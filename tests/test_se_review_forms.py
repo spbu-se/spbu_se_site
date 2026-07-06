@@ -8,6 +8,7 @@ from wtforms.widgets import TextArea
 @pytest.fixture(autouse=True)
 def _form_ctx():
     from flask_se import app
+
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
         yield

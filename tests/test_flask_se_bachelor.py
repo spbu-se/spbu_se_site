@@ -35,8 +35,15 @@ class TestBachelorScoreInfo:
     def test_score_dataclass_has_expected_fields(self):
         from flask_se_bachelor import Score
 
-        s = Score(pass_rate=250, budget_count=30, contract_count=10, cost_year="300 000",
-                  min_score_computer_science=60, min_score_math=55, min_score_russian_language=45)
+        s = Score(
+            pass_rate=250,
+            budget_count=30,
+            contract_count=10,
+            cost_year="300 000",
+            min_score_computer_science=60,
+            min_score_math=55,
+            min_score_russian_language=45,
+        )
         assert s.pass_rate == 250
         assert s.budget_count == 30
         assert s.contract_count == 10
@@ -48,8 +55,15 @@ class TestBachelorScoreInfo:
     def test_bachelor_info_dataclass_has_expected_fields(self):
         from flask_se_bachelor import BachelorInfo, Score
 
-        se = Score(pass_rate=282, budget_count=45, contract_count=12, cost_year="396 500",
-                   min_score_computer_science=55, min_score_math=55, min_score_russian_language=50)
+        se = Score(
+            pass_rate=282,
+            budget_count=45,
+            contract_count=12,
+            cost_year="396 500",
+            min_score_computer_science=55,
+            min_score_math=55,
+            min_score_russian_language=50,
+        )
         info = BachelorInfo(
             score_url="https://example.com/score.pdf",
             cost_url="https://example.com/cost.pdf",

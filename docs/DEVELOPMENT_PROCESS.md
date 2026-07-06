@@ -100,6 +100,47 @@ Every process rule is enforced at one of three layers:
 
 When adding a new rule: enforce at the lowest possible layer. Only document (layer 3) what cannot be automated (layers 1-2). Add CI checks (layer 2) to verify layer-1 configs are honored.
 
+## 0.10 Tooling Parity
+
+Every CI check must have a corresponding local check that behaves identically.
+A CI check with no local equivalent, or a local check that silently passes while
+CI fails, creates false confidence and wastes server time.
+
+### Parity rules
+
+1. **Match entry points** — pre-commit hook `entry:` must match the CI workflow
+   command exactly (minus `--check` flag). If CI runs `uv run mdformat --check docs/`,
+   the hook must run `uv run mdformat docs/`.
+1. **Test locally** — after adding or modifying a pre-commit hook, verify it
+   actually runs and catches violations:
+   ```bash
+   uv run pre-commit run <hook-id> --all-files
+   ```
+   If this passes, but the file violates the hook's rule, the hook is broken.
+1. **Same paths** — if CI uses explicit file paths, the local check must use the
+   same paths. A hook that uses `mdformat .` while CI uses `docs/ AGENTS.md ...`
+   will work on Linux (no `.venv/` traversal issue) but silently fail on Windows.
+1. **No silent failures** — every pre-commit hook must exit non-zero on
+   violation. If a hook can crash (UnicodeDecodeError, missing tool, path issue),
+   fix the entry point rather than ignoring the failure.
+
+### What to do when adding a new CI step
+
+1. Add the check to the CI workflow file
+1. Add a matching pre-commit hook in `.pre-commit-config.yaml`
+1. Run the hook locally to verify it catches a deliberate violation
+1. Run the CI workflow to verify it produces the same result
+
+### Diagnosis: pre-commit hook not catching what CI catches
+
+If CI fails on a check that pre-commit should have caught:
+
+1. Run the hook manually: `uv run pre-commit run <hook-id> --all-files`
+1. Does it crash? (check exit code + error output)
+1. Does it use different paths/arguments than the CI workflow?
+1. Does it work on one platform but not another?
+1. Fix the entry point so the local check matches the CI check exactly.
+
 ## 0.11 Encoding Policy
 
 All source files (`.py`, `.md`, `.yaml`, `.json`, `.toml`, `.cfg`) **must be UTF-8**. No exceptions unless explicitly documented.
@@ -136,10 +177,15 @@ pytest
 ```bash
 ruff check src/
 ruff format src/
-mdformat .
+mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .opencode/commands/
 ```
 
 Ruff and mdformat are enforced via pre-commit hooks. See `.pre-commit-config.yaml`.
+
+The mdformat pre-commit hook uses **explicit paths** matching the CI workflow.
+Never use `mdformat .` — on Windows it traverses `.venv/` which contains
+vendor `.md` files with non-UTF-8 bytes, causing a silent crash and allowing
+unformatted files through.
 
 ## 3.5 Code Review Checklist
 

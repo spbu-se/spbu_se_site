@@ -140,12 +140,15 @@ CI on origin/staging must be green at all times. Violations block all further wo
 1. Check `origin/staging` CI status — if red, stop and fix first
 1. Record start timestamp
 1. Create auto-branch: `git checkout -b staging-auto-<UTC-timestamp> origin/staging`
+1. Load relevant `.skills/<name>/` skills before writing code
 1. Never commit to `staging` directly — all work goes to `staging-auto-*`
 
 **Before any push to any branch:**
 
 1. Run full test suite locally: `uv run pytest -n 2`
-1. Run lint: `uv run ruff check src/ && uv run ruff format --check src/`
+1. Run lint + format: `uv run ruff check src/ && uv run ruff format --check src/`
+1. Run mdformat: `uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .opencode/commands/`
+1. Verify pre-commit hooks work: `uv run pre-commit run --all-files`
 1. Check for secrets in staged files — if any real secret (API key, password, token) is found in code, do not push. Fix the leak first (remove from code, rotate the secret).
 1. Only push if all checks green
 

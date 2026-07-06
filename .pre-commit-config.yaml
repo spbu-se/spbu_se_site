@@ -22,11 +22,10 @@ repos:
 
       - id: mdformat
         name: mdformat
-        entry: uv run mdformat
+        entry: uv run mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .opencode/commands/
         language: system
-        types: [markdown]
-        exclude: ^src/static/assets/libs/
         pass_filenames: false
+        always_run: true
 
   - repo: https://github.com/trim21/dprint-pre-commit
     rev: v0.55.1.4

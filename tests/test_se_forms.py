@@ -9,6 +9,7 @@ from wtforms.widgets import TextArea
 @pytest.fixture(autouse=True)
 def _form_ctx():
     from flask_se import app
+
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
         yield
@@ -65,10 +66,11 @@ class TestMultiCheckboxField:
         assert MultiCheckboxField.option_widget.__class__.__name__ == "CheckboxInput"
 
     def test_coerce_is_int(self):
-        from se_forms import MultiCheckboxField
-        from wtforms.fields.choices import SelectMultipleField as SMF
+        from wtforms.fields.choices import SelectMultipleField
 
-        assert issubclass(MultiCheckboxField, SMF)
+        from se_forms import MultiCheckboxField
+
+        assert issubclass(MultiCheckboxField, SelectMultipleField)
 
 
 class TestUserAddTheme:
@@ -556,16 +558,18 @@ class TestChooseCourseAndYear:
         assert isinstance(f.course, SelectField)
 
     def test_field_publish_year_is_select_with_default_current(self):
-        from se_forms import ChooseCourseAndYear
         from datetime import datetime
+
+        from se_forms import ChooseCourseAndYear
 
         f = ChooseCourseAndYear()
         assert isinstance(f.publish_year, SelectField)
         assert f.publish_year.default == str(datetime.now().year)
 
     def test_field_publish_year_choices_span_eight_years(self):
-        from se_forms import ChooseCourseAndYear
         from datetime import datetime
+
+        from se_forms import ChooseCourseAndYear
 
         f = ChooseCourseAndYear()
         current = datetime.now().year
