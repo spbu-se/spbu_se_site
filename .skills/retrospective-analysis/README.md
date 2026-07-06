@@ -85,6 +85,22 @@ Identify which `.skills/<name>/README.md` were loaded during the analyzed sessio
 
 If yes, update the skill README immediately as part of the retrospective commit.
 
+### 5d. Extract reusable techniques
+
+Scan the session for patterns, code snippets, and workarounds that are:
+- Not already documented in `docs/TROUBLESHOOTING.md` or `docs/TOOLING.md`
+- Likely to be needed again (e.g., patching patterns, fixture setups, encoding workarounds)
+- Discovered as a fix for a bug or a workaround for a module-level side effect
+
+For each, add an entry to the appropriate doc with the exact code or command. Do not bury techniques in the retrospective entry — they must be searchable independently.
+
+Examples of what to extract:
+- `contextlib.suppress(RuntimeError)` for catching double `db.init_app()` — in `TROUBLESHOOTING.md`
+- `try/finally` for restoring module-level flags like `thesesImport.download` — in `TROUBLESHOOTING.md`
+- `[System.IO.File]::WriteAllText()` for PowerShell UTF-8 encoding — in `TOOLING.md`
+
+**Check after extraction**: If a future session encounters the same problem, would a `grep` or `TROUBLESHOOTING.md` search find the fix? If not, improve the entry's discoverability (better section title, more keywords, cross-reference from related docs).
+
 ### 6. Suggest improvements
 
 Present findings in a structured table:
@@ -152,6 +168,18 @@ The 2026-07-06 retrospective revealed two gaps in the retrospective process itse
 1. The retro itself violated process rules — created standalone `doc/RETROSPECTIVE_*.md` instead of appending to `GIT_FLOW.md` §9. The retro had no self-check for rule compliance.
 
 **Fix**: Added two new questions to step 8: "Did I load any skills?" and "Did the retrospective itself violate any process rules?" This creates a feedback loop for the retro process itself.
+
+### [2026-07-06] Add step 5d — extract reusable techniques
+
+This batch session discovered the `contextlib.suppress(RuntimeError)` pattern for patching
+`db.init_app`, the `try/finally` pattern for restoring module-level flags, and 5 production
+bugs in `thesesImport.py`. None of these were extracted to searchable docs during the
+retrospective — they were only mentioned in the retro entry. The user pointed out the gap
+after the retro was finalized.
+
+**Fix**: Added step 5d "Extract reusable techniques" — scans the session for code patterns,
+workarounds, and fixes, and ensures they land in `TROUBLESHOOTING.md` or `TOOLING.md`
+with discoverable section titles and keywords.
 
 ## Output template
 
