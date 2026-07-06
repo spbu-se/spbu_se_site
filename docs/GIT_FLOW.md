@@ -299,33 +299,39 @@ Post-coverage session covering `doc/`→`docs/` rename, encoding policy enforcem
 | `doc/REPO_REVIEW.md` not updated to `docs/` in `.gitignore` | Human error | Fixed. |
 
 **Pattern recurrence**: YES — "facts in AGENTS.md without canonical source" and "pre-creation without checking existing scope" both recurred from previous retros. Escalated with:
+
 - Pre-creation audit step in skill workflow
 - Pre-write gate for process docs
 - Canonical source discipline in `DEVELOPMENT_PROCESS.md §0.10`
 
 **What went well**:
+
 - Cross-reference update completed across ~25 files with no manual errors.
 - Encoding declarations added to 139 files across all formats.
 - `git checkout --` saved the session from corruption twice.
 - Pyright config added — no more false LSP import errors.
 
 **What went wrong**:
+
 - PowerShell encoding ambush cost ~45 min of recovery (find corruption → restore → run mdformat → hit next corruption → repeat).
 - Initial `doc/`→`docs/` rename created confusion because `docs/` already existed as Flask-Freezer build output.
 - Encoding `replace-all` script destroyed Russian UTF-8 text in 7 docs files before `git checkout` restored them.
 
 **Root causes**:
+
 1. No PowerShell encoding policy documented — `Set-Content` silently corrupted files.
-2. No pre-write guard for "does this path conflict?" before file operations.
-3. No pre-commit hook validating UTF-8 encoding — corruption was only caught when mdformat failed.
+1. No pre-write guard for "does this path conflict?" before file operations.
+1. No pre-commit hook validating UTF-8 encoding — corruption was only caught when mdformat failed.
 
 **Fix**: Documented PowerShell encoding policy. Added encoding declaration to every file. `_flask_freezed/` moved to `.gitignore`. Workflow updated to use `[System.IO.File]::WriteAllText()`.
 
 **Knowledge extracted**:
+
 - PowerShell encoding workaround → `docs/TOOLING.md`
 - pyright config for uv venv → `pyproject.toml [tool.pyright]`
 
 **Agent handoff**:
+
 - mdformat `.` will fail on vendor files — always use explicit paths
 - PowerShell `Set-Content` is Windows-1252 — use `[System.IO.File]::WriteAllText`
 - `git checkout -- <paths>` is the safety net for encoding corruption

@@ -1,4 +1,5 @@
 ﻿<!-- encoding: utf-8 -->
+
 ______________________________________________________________________
 
 ## description: Finalize staging — run the gate and merge to main if approved
@@ -13,4 +14,3 @@ Follow `doc/GIT_FLOW.md` §2 step 11 — Propose finalization:
 1. If CI on staging is green after the gate:
    `git checkout main && git merge --ff-only staging`
 1. If CI fails on main after merge → stop, don't push, fix in a branch
-
