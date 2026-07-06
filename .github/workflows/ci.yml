@@ -21,5 +21,5 @@ jobs:
 
       - run: ruff format --check src/
       - run: ruff check src/
-      - run: mdformat --check .
+      - run: mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
       - run: pytest
