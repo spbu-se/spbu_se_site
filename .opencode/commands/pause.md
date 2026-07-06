@@ -1,3 +1,4 @@
+﻿<!-- encoding: utf-8 -->
 ______________________________________________________________________
 
 ## description: Graceful exit — save session state and unfinished plan
@@ -18,3 +19,4 @@ Save session state to `.unfinished.plan.md`:
    b. Create `_UNFINISHED.md` with richer context (why partial, design rationale, next steps)
    c. `git add _UNFINISHED.md && git commit -m "docs: save _UNFINISHED.md with context"`
 1. Output compaction summary to user: what was done, what remains
+

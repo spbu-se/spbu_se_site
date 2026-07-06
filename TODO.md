@@ -1,4 +1,6 @@
-# TODO
+﻿# TODO
+
+<!-- encoding: utf-8 -->
 
 ## Planned
 
@@ -6,12 +8,12 @@
 |----------|------|--------|------------|
 | **P0** | Fix `None.strip()` crashes in `flask_se_auth.py:197,239-242`, `flask_se_review.py` | S | none |
 | **P0** | Fix `read_table()` FileNotFoundError in `flask_se_practice_table.py` | S | none |
-| **P0** | Test optimization — reduce SLOC, deduplicate parametrized lists, consolidate test files | M | Now |
-| **P1** | Push coverage 59% → 90% (~200 tests across practice/review/theses) | XL | After test optimization |
+| **P0** | Test optimization вЂ” reduce SLOC, deduplicate parametrized lists, consolidate test files | M | Now |
+| **P1** | Push coverage 59% в†’ 90% (~200 tests across practice/review/theses) | XL | After test optimization |
 | **P2** | Fix custom `__init__` kwargs in `se_models.py` (CurrentThesis, ThesisTask, ThesisReport) | S | After coverage |
 | **P3** | Mypy strict for `src/` (~20 files, per-module overrides) | L | After code fixes |
-| **P3** | Fix `AdminModelView(db.session)` → `db` deprecation | S | After coverage |
-| **P3** | Fix `Users.query.get()` → `db.session.get()` deprecation | S | After coverage |
+| **P3** | Fix `AdminModelView(db.session)` в†’ `db` deprecation | S | After coverage |
+| **P3** | Fix `Users.query.get()` в†’ `db.session.get()` deprecation | S | After coverage |
 | **P4** | Test optimization (reduce SLOC, deduplicate parametrized lists) | M | After mypy |
 | **P5** | Python 3.12+, Docker, static site, open source docs | M-S | Icebox |
 

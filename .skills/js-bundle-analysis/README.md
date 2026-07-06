@@ -1,4 +1,6 @@
-# js-bundle-analysis
+﻿# js-bundle-analysis
+
+<!-- encoding: utf-8 -->
 
 Extract API contracts, data models, validation rules, and architectural patterns from JS bundles.
 
@@ -34,13 +36,13 @@ Extract API contracts, data models, validation rules, and architectural patterns
 
 ## Tools
 
-- **Prettier / dprint** — format minified JS for readability
-- **ripgrep** — search for endpoint patterns (`api/`, `/v1/`, `fetch(`, `axios.`)
-- **curl** — verify extracted endpoints against live API
-- **Manual analysis** — trace React component tree and data flow
+- **Prettier / dprint** вЂ” format minified JS for readability
+- **ripgrep** вЂ” search for endpoint patterns (`api/`, `/v1/`, `fetch(`, `axios.`)
+- **curl** вЂ” verify extracted endpoints against live API
+- **Manual analysis** вЂ” trace React component tree and data flow
 
 ## Rules
 
-- Never modify originals — work on copies in `private/`
+- Never modify originals вЂ” work on copies in `private/`
 - No prod traffic without permission
 - Cross-reference with `doc/ARCHITECTURE.md` before recording decisions

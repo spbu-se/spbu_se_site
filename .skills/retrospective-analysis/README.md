@@ -1,11 +1,13 @@
-# retrospective-analysis
+﻿# retrospective-analysis
+
+<!-- encoding: utf-8 -->
 
 Analyze a session or merge to identify process gaps, classify root causes, and suggest improvements.
 
 ## When to load
 
-- After every merge to main (see `doc/GIT_FLOW.md` §2 — Merge staging → main)
-- At session end, during context compaction (see `doc/GIT_FLOW.md` §2 — Context Compaction)
+- After every merge to main (see `doc/GIT_FLOW.md` В§2 вЂ” Merge staging в†’ main)
+- At session end, during context compaction (see `doc/GIT_FLOW.md` В§2 вЂ” Context Compaction)
 - When the user says "retrospective" or "lessons learned"
 - When a bug or mistake reveals a process gap
 
@@ -23,27 +25,27 @@ List all files touched and categorize: source code, tests, docs, config, tooling
 
 For each change, ask:
 
-| Question | If yes → |
+| Question | If yes в†’ |
 | ---------------------------------------------- | -------------------------------------------------------- |
-| Was this planned (pro-active)? | No fix needed — record as completed work |
+| Was this planned (pro-active)? | No fix needed вЂ” record as completed work |
 | Was this re-active (fixing something missing)? | **Classify the gap** (next step) |
 | Was this a user request? | Record as completed work |
-| Could this rule have been automated? | It was left at doc-only — **classify as missing config** |
-| Was knowledge imported from another project? | **Check for cross-project leaks** — verify no private references, proprietary names, or source-repo mentions leaked into docs. Document adaptation decisions. |
+| Could this rule have been automated? | It was left at doc-only вЂ” **classify as missing config** |
+| Was knowledge imported from another project? | **Check for cross-project leaks** вЂ” verify no private references, proprietary names, or source-repo mentions leaked into docs. Document adaptation decisions. |
 
 ### 3. Classify the gap
 
 | Gap type | Root cause | Fix action | Also check skill? |
 | ---------------------- | ------------------------------------------ | ---------------------------------------------------- | ------------------------------- |
 | **Missing convention** | No rule described how to do this | Add rule to `doc/DEVELOPMENT_PROCESS.md` | Could this be a `.skills/` workflow? |
-| **Missing template** | No template existed for this artifact type | Add template or checklist (e.g., §0.7) | Could this be a skill README? |
-| **Missing config** | Toolchain didn't catch this | Add linter, pre-commit hook, CI step | No — tool config, not skill |
+| **Missing template** | No template existed for this artifact type | Add template or checklist (e.g., В§0.7) | Could this be a skill README? |
+| **Missing config** | Toolchain didn't catch this | Add linter, pre-commit hook, CI step | No вЂ” tool config, not skill |
 | **Human error** | Process was documented but not followed | Add guardrail or automation | Could a skill have prevented this? |
-| **Pattern recurrence** | Same gap appeared in a previous retro | Previous fix was insufficient — revisit and escalate | Was the skill updated last time? |
+| **Pattern recurrence** | Same gap appeared in a previous retro | Previous fix was insufficient вЂ” revisit and escalate | Was the skill updated last time? |
 
 ### 4. Check for pattern recurrence
 
-Scan previous retrospective entries in the relevant target document (see §5a). If this gap or a similar one was already fixed, the fix was incomplete — propose a stronger solution.
+Scan previous retrospective entries in the relevant target document (see В§5a). If this gap or a similar one was already fixed, the fix was incomplete вЂ” propose a stronger solution.
 
 ### 5. Classify target document
 
@@ -51,11 +53,11 @@ Determine where the retrospective belongs based on the gap's or change's area:
 
 | Gap category | Target document |
 | ----------------------------------------------------------------- | ------------------------------------------- |
-| Git flow, branching, commits, staging, guardrails, hotfixes | `doc/GIT_FLOW.md` §7 |
+| Git flow, branching, commits, staging, guardrails, hotfixes | `doc/GIT_FLOW.md` В§7 |
 | Planning, TDD, testing, types, release, dependencies, conventions | `doc/DEVELOPMENT_PROCESS.md` |
 | Tooling, environment, PowerShell, local config, platform quirks | `.tooling.md` (mistake journal) |
 
-If gaps span multiple categories, split across documents. Each document is scoped to its own area — never duplicate a retrospective across docs.
+If gaps span multiple categories, split across documents. Each document is scoped to its own area вЂ” never duplicate a retrospective across docs.
 
 ### 5b. Audit doc health
 
@@ -64,14 +66,14 @@ Scan the session's changed docs for three signal patterns:
 | Pattern | How to detect | Action |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
 | **Config duplication** | Rule is described in doc AND enforced by `.pre-commit-config.yaml`, `.github/workflows/ci.yml`, `.gitignore`, `pyproject.toml`, or `dprint.json` | Remove from doc. Cross-reference the config file. |
-| **Cross-doc duplication** | Same rule appears in 2+ non-trivial docs (e.g., `GIT_FLOW.md` + `DEVELOPMENT_PROCESS.md`). **Exempt**: `AGENTS.md`, `CLAUDE.md`, `README.md` — these are intentional summary extracts. | Keep in one canonical doc. Replace others with cross-reference (`See X.md §Y`). |
+| **Cross-doc duplication** | Same rule appears in 2+ non-trivial docs (e.g., `GIT_FLOW.md` + `DEVELOPMENT_PROCESS.md`). **Exempt**: `AGENTS.md`, `CLAUDE.md`, `README.md` вЂ” these are intentional summary extracts. | Keep in one canonical doc. Replace others with cross-reference (`See X.md В§Y`). |
 | **Self-evident rule** | Rule describes standard git/developer practice (e.g., "never commit to main", "stash before branching") | Delete. If the rule was added because someone violated it, keep as a retrospective entry instead. |
 
-Signal strength: high-confidence finds are config-duplicates (the config IS the truth). Low-confidence are self-evident rules (may be project-specific — ask if unsure).
+Signal strength: high-confidence finds are config-duplicates (the config IS the truth). Low-confidence are self-evident rules (may be project-specific вЂ” ask if unsure).
 
-**Pre-commit vs CI parity** — verify every check that runs in CI also runs locally via pre-commit hooks. If CI catches something that pre-commit doesn't flag, either add a pre-commit hook or document the gap (and accept that CI will catch it).
+**Pre-commit vs CI parity** вЂ” verify every check that runs in CI also runs locally via pre-commit hooks. If CI catches something that pre-commit doesn't flag, either add a pre-commit hook or document the gap (and accept that CI will catch it).
 
-**SPDX/licensing audit** — verify every new or modified source file has an SPDX header matching the repo's LICENSE file. If LICENSE is missing, flag it. If multiple licenses exist, document coverage per directory.
+**SPDX/licensing audit** вЂ” verify every new or modified source file has an SPDX header matching the repo's LICENSE file. If LICENSE is missing, flag it. If multiple licenses exist, document coverage per directory.
 
 ### 5c. Improve skills used during the session
 
@@ -89,20 +91,20 @@ Present findings in a structured table:
 
 | Change | Trigger | Root gap | Fix |
 | ------------------------- | ------------- | ------------------- | -------------------- |
-| `doc/XXX.md` | User request | Missing template | Added §0.7 checklist |
+| `doc/XXX.md` | User request | Missing template | Added В§0.7 checklist |
 | `.pre-commit-config.yaml` | Retro finding | No formatting guard | Added mdformat hook |
 
 Include concrete file paths and exact changes needed.
 
 ### 7. Store lessons
 
-Append a structured retrospective entry to the target document identified in §5a.
-**Every classified gap must have a corresponding retrospective entry** — even if the fix was already applied directly (code changes, doc updates, config changes). The entry records why the gap existed, not just what was done about it.
+Append a structured retrospective entry to the target document identified in В§5a.
+**Every classified gap must have a corresponding retrospective entry** вЂ” even if the fix was already applied directly (code changes, doc updates, config changes). The entry records why the gap existed, not just what was done about it.
 
-If no existing heading matches, create a new one: `### Retrospective — <title>` in `doc/GIT_FLOW.md` §7 or `doc/DEVELOPMENT_PROCESS.md`; add to the mistake journal table in `.tooling.md`:
+If no existing heading matches, create a new one: `### Retrospective вЂ” <title>` in `doc/GIT_FLOW.md` В§7 or `doc/DEVELOPMENT_PROCESS.md`; add to the mistake journal table in `.tooling.md`:
 
 ```markdown
-### Retrospective — <title>
+### Retrospective вЂ” <title>
 
 <Brief description of what happened>
 
@@ -117,14 +119,14 @@ The retrospective itself is a tool. Every time it runs, check if it revealed a g
 
 - Was any classification ambiguous? (Step 3)
 - Was the target document unclear? (Step 5a)
-- Did the session include user corrections that the retrospective should track? (e.g., "do X instead of Y" — classify as **task ambiguity** or **over-engineering**)
-- Was a skill used during the session that should be updated? (Step 5c) — did that actually happen?
+- Did the session include user corrections that the retrospective should track? (e.g., "do X instead of Y" вЂ” classify as **task ambiguity** or **over-engineering**)
+- Was a skill used during the session that should be updated? (Step 5c) вЂ” did that actually happen?
 
 If yes, append an entry to the `## Self-improvement log` section at the bottom of this file. This creates a feedback loop: retrospectives improve themselves.
 
 ## Self-improvement log
 
-### [2026-07-04] Add step 8 — self-improve retrospective
+### [2026-07-04] Add step 8 вЂ” self-improve retrospective
 
 The retrospective analyzed every process and skill but had no mechanism to improve itself. Added step 8 and this log.
 
@@ -149,16 +151,16 @@ At the end, produce:
 
 Changes analyzed: <N>
 Gaps found: <M>
-- <gap 1> → <fix>
-- <gap 2> → <fix>
+- <gap 1> в†’ <fix>
+- <gap 2> в†’ <fix>
 No action needed: <planned changes, user requests>
 
-Pattern recurrence: <yes/no — if yes, escalate>
+Pattern recurrence: <yes/no вЂ” if yes, escalate>
 ```
 
 ## Dependencies
 
-- `git` — to inspect commit history
-- Read access to `doc/GIT_FLOW.md` — to check §7 previous retros
-- Read access to `doc/DEVELOPMENT_PROCESS.md` — to check previous retros
-- Read access to `.tooling.md` — to check mistake journal
+- `git` вЂ” to inspect commit history
+- Read access to `doc/GIT_FLOW.md` вЂ” to check В§7 previous retros
+- Read access to `doc/DEVELOPMENT_PROCESS.md` вЂ” to check previous retros
+- Read access to `.tooling.md` вЂ” to check mistake journal

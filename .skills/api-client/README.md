@@ -1,4 +1,6 @@
-# api-client
+﻿# api-client
+
+<!-- encoding: utf-8 -->
 
 Implement or modify HTTP client with retry logic.
 

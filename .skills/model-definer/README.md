@@ -1,4 +1,6 @@
-# model-definer
+﻿# model-definer
+
+<!-- encoding: utf-8 -->
 
 Define or modify SQLAlchemy models and WTForms following SE Site conventions.
 
@@ -25,7 +27,7 @@ class ExampleModel(db.Model):
 
 - All models in `se_models.py` (single-file pattern)
 - Use `sa.Column()` with explicit types, not TypeDecorator shortcuts
-- `nullable=True` is the default — be explicit when setting `nullable=False`
+- `nullable=True` is the default вЂ” be explicit when setting `nullable=False`
 - Foreign keys: `sa.Column(sa.Integer, sa.ForeignKey("table.id"))`
 - Relationships: `db.relationship("Model", backref=...)`
 - Composite keys: `__table_args__ = (sa.PrimaryKeyConstraint("col1", "col2"),)`
