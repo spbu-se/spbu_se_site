@@ -119,8 +119,10 @@ The retrospective itself is a tool. Every time it runs, check if it revealed a g
 
 - Was any classification ambiguous? (Step 3)
 - Was the target document unclear? (Step 5a)
-- Did the session include user corrections that the retrospective should track? (e.g., "do X instead of Y" вЂ” classify as **task ambiguity** or **over-engineering**)
-- Was a skill used during the session that should be updated? (Step 5c) вЂ” did that actually happen?
+- Did the session include user corrections that the retrospective should track? (e.g., "do X instead of Y" — classify as **task ambiguity** or **over-engineering**)
+- Was a skill used during the session that should be updated? (Step 5c) — did that actually happen?
+- **Did I load any skills during this session?** If not, list which relevant skills were available (`test-writer`, `retrospective-analysis`, `unattended-mode`, etc.) and why they weren't loaded. This surfaces "custom is faster" bias.
+- **Did the retrospective itself violate any process rules?** (creating standalone files instead of appending, skipping skill loading, committing without testing, etc.) The retrospective must model the behavior it enforces.
 
 If yes, append an entry to the `## Self-improvement log` section at the bottom of this file. This creates a feedback loop: retrospectives improve themselves.
 
@@ -141,6 +143,15 @@ Session extracted process ideas from another private repo. Agent accidentally re
 ### [2026-07-04] Add pre-commit vs CI parity check
 
 CI repeatedly caught `mdformat` issues that pre-commit didn't flag. Root cause: pre-commit only checked STAGED files (`pass_filenames: true`), CI checked ALL files (`mdformat --check .`). This gap affected 3 different push attempts. Added "Pre-commit vs CI parity" check to step 5b. Pre-commit hook fixed with `pass_filenames: false` so mdformat now checks all markdown files on every commit.
+
+### [2026-07-06] Add skill-loading and process-violation self-checks
+
+The 2026-07-06 retrospective revealed two gaps in the retrospective process itself:
+
+1. "Custom is faster" bias — relevant skills (`retrospective-analysis`, `test-writer`, `unattended-mode`) existed but were not loaded during the session. The retro never asked "did you load skills?"
+1. The retro itself violated process rules — created standalone `doc/RETROSPECTIVE_*.md` instead of appending to `GIT_FLOW.md` §9. The retro had no self-check for rule compliance.
+
+**Fix**: Added two new questions to step 8: "Did I load any skills?" and "Did the retrospective itself violate any process rules?" This creates a feedback loop for the retro process itself.
 
 ## Output template
 
