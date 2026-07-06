@@ -53,5 +53,7 @@ After staging merge: verify CI is green before further work.
 - **Tool source of truth**: Python tools via `uv` (pyproject.toml `[dependency-groups]`), non-Python tools via pre-commit repo hooks вЂ” see `doc/DEVELOPMENT_PROCESS.md` В§0.7
 - **CI pitfall вЂ” requirements.txt staleness**: `serviceability.yml` runs `pip install -r requirements.txt` on EVERY push to ANY branch. If `requirements.txt` doesn't match current `uv.lock`, it fails. Always run `uv export --no-dev --no-hashes > requirements.txt` before pushing.
 - **mdformat CI vs local**: CI uses Linux which formats markdown differently (LF vs CRLF). Always run `uv run mdformat .` (not just `--check`) before committing to ensure files are in CI-compatible format.
+- **Encoding audit**: See `.skills/encoding-audit/README.md` — detect and fix non-UTF-8 encoding on Windows.
+- **Flask test patterns**: See `.skills/flask-test-patterns/README.md` — reusable fixtures for Flask + SQLAlchemy + xdist tests.
 
 See `doc/GIT_FLOW.md` section 3 for the session start ritual.

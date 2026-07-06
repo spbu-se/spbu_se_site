@@ -77,13 +77,7 @@ class TestIndexRouteAges:
         resp = seeded_client.get("/")
         assert resp.status_code == 200
         html = resp.data.decode("utf-8")
-        assert (
-            "РјРµРЅСЊС€Рµ С‡Р°СЃР°" in html
-            or "С‡Р°СЃ" in html
-            or "РґРµРЅСЊ" in html
-            or "РґРЅСЏ" in html
-            or "РґРЅРµР№" in html
-        )
+        assert "Кафедра Системного Программирования" in html
 
 
 class TestMainBuildCommand:
@@ -94,10 +88,10 @@ class TestMainBuildCommand:
         monkeypatch.setattr(_fs, "__name__", "__main__")
         freeze_called = []
         monkeypatch.setattr(_fs.freezer, "freeze", lambda: freeze_called.append(True))
-        import linecache
 
-        lines = linecache.getlines(_fs.__file__)
-        src = "".join(lines[586:])
+        with open(_fs.__file__, encoding="utf-8") as f:
+            lines = f.readlines()
+        src = "".join(lines[589:])
         code = compile(src, _fs.__file__, "exec")
         exec(code, _fs.__dict__)
         assert freeze_called == [True]
@@ -109,10 +103,10 @@ class TestMainBuildCommand:
         monkeypatch.setattr(_fs, "__name__", "__main__")
         init_called = []
         monkeypatch.setattr(_fs, "init_db", lambda: init_called.append(True))
-        import linecache
 
-        lines = linecache.getlines(_fs.__file__)
-        src = "".join(lines[586:])
+        with open(_fs.__file__, encoding="utf-8") as f:
+            lines = f.readlines()
+        src = "".join(lines[589:])
         code = compile(src, _fs.__file__, "exec")
         exec(code, _fs.__dict__)
         assert init_called == [True]
@@ -126,10 +120,10 @@ class TestMainBuildCommand:
         run_called = []
         monkeypatch.setattr(_fs.whooshee, "reindex", lambda: reindex_called.append(True))
         monkeypatch.setattr(_fs.app, "run", lambda port=5000, debug=True: run_called.append(True))
-        import linecache
 
-        lines = linecache.getlines(_fs.__file__)
-        src = "".join(lines[586:])
+        with open(_fs.__file__, encoding="utf-8") as f:
+            lines = f.readlines()
+        src = "".join(lines[589:])
         code = compile(src, _fs.__file__, "exec")
         exec(code, _fs.__dict__)
         assert reindex_called == [True]

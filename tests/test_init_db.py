@@ -43,7 +43,7 @@ def test_init_db_creates_tables(seeded, model):
 def test_init_db_creates_first_user(seeded):
     user = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
     assert user is not None
-    assert user.last_name == "РўРµСЂРµС…РѕРІ"
+    assert user.last_name == "Терехов"
 
 
 def test_init_db_creates_diploma_themes(seeded):

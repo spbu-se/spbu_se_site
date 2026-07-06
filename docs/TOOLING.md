@@ -255,6 +255,8 @@ After introducing a session-scoped seeded DB template, the `Path.as_posix()` URI
 
 ## PowerShell encoding
 
+See `.skills/encoding-audit/README.md` for detection scripts, git recovery workflow, fix patterns, and encoding declaration templates.
+
 ### `Set-Content` / `Out-File` default to Windows-1252 on en-US systems
 
 PowerShell's `Set-Content` and `Out-File` cmdlets default to the system's active ANSI code page (Windows-1252 on en-US Windows), NOT UTF-8. This corrupts any file containing non-ASCII characters when the file is expected to be UTF-8.

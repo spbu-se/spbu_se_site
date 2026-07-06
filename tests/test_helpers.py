@@ -113,37 +113,37 @@ class TestPostRankingScore:
 
 class TestPluralHours:
     def test_less_than_hour(self):
-        assert plural_hours(0) == "РјРµРЅСЊС€Рµ С‡Р°СЃР°"
+        assert plural_hours(0) == "меньше часа"
 
     def test_one_hour(self):
-        assert plural_hours(1) == "1 С‡Р°СЃ"
+        assert plural_hours(1) == "1 час"
 
     def test_two_hours(self):
-        assert plural_hours(2) == "2 С‡Р°СЃР°"
+        assert plural_hours(2) == "2 часа"
 
     def test_five_hours(self):
-        assert plural_hours(5) == "5 С‡Р°СЃРѕРІ"
+        assert plural_hours(5) == "5 часов"
 
     def test_21_hours(self):
-        assert plural_hours(21) == "21 С‡Р°СЃ"
+        assert plural_hours(21) == "21 час"
 
     def test_exactly_24_hours_returns_24_hours(self):
-        assert plural_hours(24) == "24 С‡Р°СЃР°"
+        assert plural_hours(24) == "24 часа"
 
     def test_25_hours_returns_one_day(self):
-        assert plural_hours(25) == "1 РґРµРЅСЊ"
+        assert plural_hours(25) == "1 день"
 
     def test_48_hours_returns_two_days(self):
-        assert plural_hours(48) == "2 РґРЅСЏ"
+        assert plural_hours(48) == "2 дня"
 
     def test_72_hours_returns_three_days(self):
-        assert plural_hours(72) == "3 РґРЅСЏ"
+        assert plural_hours(72) == "3 дня"
 
     def test_100_hours_returns_four_days(self):
-        assert plural_hours(100) == "4 РґРЅСЏ"
+        assert plural_hours(100) == "4 дня"
 
     def test_120_hours_returns_five_days(self):
-        assert plural_hours(120) == "5 РґРЅРµР№"
+        assert plural_hours(120) == "5 дней"
 
     @pytest.mark.parametrize("hours", [-1, -24, -100])
     def test_negative_hours(self, hours):

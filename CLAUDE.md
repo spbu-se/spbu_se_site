@@ -1,4 +1,4 @@
-﻿# SE Site
+# SE Site
 
 <!-- encoding: utf-8 -->
 
@@ -22,4 +22,6 @@ Load skill workflows from `.skills/<name>/README.md` when the task matches:
 | `js-bundle-analysis` | Reverse-engineering JS bundles |
 | `unattended-mode` | Running autonomously вЂ” no questions, no signoff, fix CI first |
 | `repo-review` | Evaluating repo health against doc/REPO_REVIEW.md checklist вЂ” load to audit and create backlog |
+| `encoding-audit` | Detect and fix non-UTF-8 encoding in source files on Windows — load when mdformat/re rejects files or text shows garbled characters |
+| `flask-test-patterns` | Reusable fixture templates for Flask + SQLAlchemy + pytest with xdist — load when adding test infrastructure |
 | `readme-generator` | Generating/updating project README вЂ” load to create a polished project-specific README |

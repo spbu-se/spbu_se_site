@@ -659,7 +659,7 @@ class TestBecomeReviewer:
         resp = logged_client.get(f"/review/become_thesis_reviewer?code={promocode.code}")
         assert resp.status_code == 200
         html = resp.data.decode("utf-8").lower()
-        assert "reviewer" in html or "СЂРµС†РµРЅР·РµРЅС‚" in html
+        assert "reviewer" in html or "рецензент" in html
 
     def test_become_reviewer_confirm_no_code(self, logged_client):
         resp = logged_client.get("/review/become_thesis_reviewer_confirm")
@@ -683,7 +683,7 @@ class TestBecomeReviewer:
         resp = logged_client.get(f"/review/become_thesis_reviewer_confirm?code={promocode.code}")
         assert resp.status_code == 200
         html = resp.data.decode("utf-8").lower()
-        assert "already" in html or "СѓР¶Рµ" in html
+        assert "already" in html or "уже" in html
 
 
 class TestFullReviewFlow:
