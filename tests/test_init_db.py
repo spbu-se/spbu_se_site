@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pytest
 
 from se_models import (
@@ -42,7 +43,7 @@ def test_init_db_creates_tables(seeded, model):
 def test_init_db_creates_first_user(seeded):
     user = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
     assert user is not None
-    assert user.last_name == "Терехов"
+    assert user.last_name == "РўРµСЂРµС…РѕРІ"
 
 
 def test_init_db_creates_diploma_themes(seeded):
@@ -90,6 +91,7 @@ def test_model_relationships(seeded):
 def test_notification_create_and_query(seeded):
     n = Notification(recipient=1, title="Test", content="Test body", type=0)
     from se_models import db
+
     db.session.add(n)
     db.session.commit()
     assert Notification.query.count() > 0

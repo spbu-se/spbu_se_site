@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pytest
 from conftest import assert_ok
 
@@ -5,6 +6,7 @@ from conftest import assert_ok
 @pytest.fixture
 def thesis_on_review(seeded_client):
     from se_models import ThesisOnReview, db
+
     tor = ThesisOnReview(
         name_ru="Test thesis for review",
         author_id=1,
@@ -19,6 +21,7 @@ def thesis_on_review(seeded_client):
 @pytest.fixture
 def review_with_thesis(thesis_on_review):
     from se_models import Reviewer, db
+
     r = Reviewer(user_id=1)
     db.session.add(r)
     db.session.commit()
@@ -63,12 +66,14 @@ class TestReviewAuthenticated:
 
 
 class TestReviewSubmitFlow:
-    @pytest.mark.xfail(strict=False, reason="KNOWN BUG: .get('title') returns None when form field is not present")
     def test_review_submit_post(self, logged_client):
-        resp = logged_client.post("/review/submit", data={
-            "title": "Test thesis",
-            "author": "Test Author",
-        })
+        resp = logged_client.post(
+            "/review/submit",
+            data={
+                "title": "Test thesis",
+                "author": "Test Author",
+            },
+        )
         assert resp.status_code in (200, 302)
 
     def test_review_edit_post(self, logged_client):

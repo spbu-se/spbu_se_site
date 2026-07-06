@@ -1,7 +1,4 @@
-import pytest
-from conftest import assert_ok
-
-
+# -*- coding: utf-8 -*-
 class TestAdminAccess:
     def test_admin_redirects_when_unauth(self, seeded_client):
         resp = seeded_client.get("/admin/")

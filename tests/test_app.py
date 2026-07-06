@@ -1,15 +1,13 @@
-from unittest.mock import patch, MagicMock
-
-from conftest import assert_ok
-
-
+# -*- coding: utf-8 -*-
 class TestAppFactory:
     def test_app_exists(self):
         from flask_se import app
+
         assert app is not None
 
     def test_app_has_routes(self):
         from flask_se import app
+
         rules = [r.rule for r in app.url_map.iter_rules()]
         assert "/" in rules
         assert "/login.html" in rules
@@ -17,6 +15,7 @@ class TestAppFactory:
 
     def test_app_config(self):
         from flask_se import app
+
         assert app.config["SCHEDULER_TIMEZONE"] == "UTC"
 
     def test_sitemap(self, seeded_client):
@@ -55,4 +54,5 @@ class TestErrorHandlers:
 class TestScheduler:
     def test_scheduler_imports(self):
         from flask_se import scheduler
+
         assert scheduler is not None

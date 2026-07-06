@@ -1,4 +1,4 @@
-import os
+# -*- coding: utf-8 -*-
 import shutil
 import sys
 import tempfile
@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 # Mock scrypt hash before any auth import (Python 3.13 lacks scrypt)
 import werkzeug.security as _ws
+
 _ws.check_password_hash = lambda pwhash, password: True
 _ws.generate_password_hash = lambda password, method="pbkdf2:sha256": f"mock:{password}"
 
@@ -37,6 +38,7 @@ _whoosh_dir = tempfile.mkdtemp()
 app.config["WHOOSHEE_DIR"] = _whoosh_dir
 
 import flask_se as _fs
+
 _fs.scheduler.shutdown(wait=False)
 
 from se_models import init_db
@@ -95,7 +97,7 @@ def client():
 
 @pytest.fixture
 def seeded_client(_seeded_db_path):
-    """Copy the pre-seeded template DB once per test — fast (~ms)."""
+    """Copy the pre-seeded template DB once per test вЂ” fast (~ms)."""
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
     shutil.copy2(str(_seeded_db_path), _p)
@@ -166,6 +168,7 @@ def assert_ok_or_redirect(client, path):
 @pytest.fixture
 def seeded_app_ctx(app_ctx):
     from se_models import Users, db
+
     u = Users(email="test@spbu.ru", first_name="Test", last_name="User")
     db.session.add(u)
     db.session.commit()

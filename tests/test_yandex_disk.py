@@ -1,6 +1,6 @@
-from unittest.mock import patch, MagicMock
+# -*- coding: utf-8 -*-
+from unittest.mock import MagicMock, patch
 
-import pytest
 from conftest import assert_ok
 
 
@@ -67,8 +67,11 @@ class TestYandexDiskOAuth:
 
     def test_imports(self):
         from flask_se_practice_yandex_disk import (
-            handle_yandex_table, get_code, yandex_code,
+            get_code,
+            handle_yandex_table,
+            yandex_code,
         )
+
         assert callable(handle_yandex_table)
         assert callable(get_code)
         assert callable(yandex_code)
