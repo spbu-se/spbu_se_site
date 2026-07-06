@@ -5,6 +5,30 @@
 РЎР°Р№С‚ РєР°С„РµРґСЂС‹ СЃРёСЃС‚РµРјРЅРѕРіРѕ РїСЂРѕРіСЂР°РјРјРёСЂРѕРІР°РЅРёСЏ РЎРџР±Р“РЈ.
 `doc/DEVELOPMENT_PROCESS.md` for full workflow.
 
+## Pre-flight checklist (auto/batch mode)
+
+Before writing ANY code in auto/batch mode:
+
+- [ ] `git fetch --prune origin` — sync remote
+- [ ] Check `origin/staging` CI status — if red, stop and fix first
+- [ ] Record start UTC timestamp
+- [ ] Create branch: `git checkout -b staging-auto-<UTC-ts> origin/staging`
+- [ ] Never commit to `staging` — all work goes to the auto-branch
+- [ ] Never trust memory — encode every finding in docs
+
+Before committing:
+
+- [ ] Run `uv run pytest -n 2` — full suite must pass
+- [ ] Run `uv run ruff check src/ && uv run ruff format --check src/`
+- [ ] Check for secrets in staged files — if any real secret found, DO NOT PUSH
+- [ ] Verify `requirements.txt` is fresh
+
+After push to auto-branch:
+
+- [ ] Wait for CI (staging) to complete
+- [ ] If CI red → fix before any further work
+- [ ] Compile retrospective report (start time, branch, outcomes, bugs found)
+
 ## Commands
 
 ```bash

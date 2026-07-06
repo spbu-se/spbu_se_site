@@ -131,3 +131,5 @@ docs/REPO_REVIEW.md
 
 # Flask-Freezer static build output
 _flask_freezed/
+
+# Temporary files for opencode batch work.tmp/
