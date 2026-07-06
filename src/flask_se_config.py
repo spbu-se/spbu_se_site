@@ -4,7 +4,6 @@
 import os
 import pathlib
 import re
-import sys
 from datetime import datetime
 
 SECRET_KEY = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_secret.conf")
@@ -37,9 +36,6 @@ type_id_string = [
     "Pre_graduate_practice",
 ]
 
-PY2 = sys.version_info[0] == 2
-text_type: type = str
-
 _windows_device_files = (
     "CON",
     "AUX",
@@ -58,7 +54,7 @@ _filename_strip_re = re.compile(r"[^A-Za-zа-яА-ЯёЁ0-9_.-]")
 
 
 def secure_filename(filename: str) -> str:
-    if isinstance(filename, text_type):
+    if isinstance(filename, str):
         from unicodedata import normalize
 
         filename = normalize("NFKD", filename)
@@ -76,26 +72,26 @@ def secure_filename(filename: str) -> str:
 
 
 # https://felx.me/2021/08/29/improving-the-hacker-news-ranking-algorithm.html
-def post_ranking_score(upvotes: int = 1, age: int = 0, views: int = 1) -> float:
+def post_ranking_score(upvotes=1, age=0, views=1):
     if upvotes < 0:
         upvotes = 0
     if age < 0:
         age = 0
     if views < 0:
         views = 0
-    u = float(upvotes) ** 0.8
-    a = float(age + 2) ** 1.8
-    return float((u / a) / (views + 1))
+    u = upvotes**0.8
+    a = (age + 2) ** 1.8
+    return (u / a) / (views + 1)
 
 
-def get_hours_since(date: datetime) -> int:
+def get_hours_since(date):
     time_diff = datetime.utcnow() - date
     return int(time_diff.total_seconds() / 3600)
 
 
-def plural_hours(n: int | float) -> str:
-    hours: list[str] = ["час", "часа", "часов"]
-    days: list[str] = ["день", "дня", "дней"]
+def plural_hours(n):
+    hours = ["час", "часа", "часов"]
+    days = ["день", "дня", "дней"]
 
     if n > 24:
         n = int(n / 24)
@@ -120,7 +116,7 @@ def plural_hours(n: int | float) -> str:
     return str(n) + " " + hours[p]
 
 
-def get_thesis_type_id_string(id: int) -> str:
+def get_thesis_type_id_string(id):
     if id < 1 or id > len(type_id_string):
         return ""
     return type_id_string[id - 1]
