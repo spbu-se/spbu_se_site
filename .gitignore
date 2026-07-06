@@ -105,6 +105,9 @@ flask_se_practice_yandex_secret.conf
 src/static/practice/*/*.pdf
 src/static/thesis/*/*.pdf
 
+# Test artifacts (practice file upload tests)
+static/practice/
+
 # Do not track fulltext search files
 src/whooshee/*
 whooshee/
@@ -124,4 +127,7 @@ whooshee/
 databases/
 
 # Generated doc
-doc/REPO_REVIEW.md
+docs/REPO_REVIEW.md
+
+# Flask-Freezer static build output
+_flask_freezed/
