@@ -1,5 +1,7 @@
 ﻿# API Reference — Flask Routes
 
+<!-- encoding: utf-8 -->
+
 All routes, methods, view functions, and descriptions for the SE Site.
 
 Covers: all route endpoints, HTTP methods, view function names, descriptions. Does not cover: database models — see `doc/SCHEMA.md`, architecture — see `doc/ARCHITECTURE.md`, feature requirements — see `doc/REQUIREMENTS.md`.
