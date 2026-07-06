@@ -6,7 +6,7 @@
 
 - Modeled 4 previously untested modules (se_forms, se_review_forms, bachelor, thesesImport)
 - 163 new tests, 1030 total, 0 failures
-- CI green on staging-auto-*
+- CI green on staging-auto-\*
 - Pre-flight checklist added to AGENTS.md
 - Staging green rule §4.4 added to GIT_FLOW.md
 - .tmp/ added to .gitignore for temporary files

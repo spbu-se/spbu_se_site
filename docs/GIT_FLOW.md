@@ -426,5 +426,5 @@ step added to pre-flight checklist.
 - Coverage: 38% (full suite with new tests lowers overall % due to added
   test-only modules; actual production coverage stable at ~91%)
 - Tests: 1030 passed, 0 failed, 1 skipped, 24 xfailed, 15 xpassed
-- CI: Green on staging-auto-*
+- CI: Green on staging-auto-\*
 - Remaining: squash-merge to staging pending user approval
