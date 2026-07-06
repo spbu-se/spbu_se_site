@@ -112,3 +112,65 @@ Common errors, root causes, and fixes encountered during development.
 **When:** Using `linecache.getlines()` or `linecache.getline()` to read a Python file that was modified during the same test run.
 **Cause:** `linecache` caches file contents on first read and never invalidates the cache unless explicitly told to. File modifications (adding/removing lines) shift line numbers, but `linecache` still returns the pre-modification content.
 **Fix:** Use `open().readlines()` directly, or call `linecache.clearcache()` before each read that follows a file modification.
+
+## db.init_app: "already registered" on module-level import
+
+**When:** Importing a module that calls `db.init_app(app)` at module level when `conftest.py`
+has already registered the same `db` on the same `app`.
+
+**Error:** `RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app.`
+
+**Occurs in:** `thesesImport.py:20` — `from flask_se import app; db.init_app(app)` runs at import time.
+
+**Root cause:** Flask-SQLAlchemy v3 raises when `init_app` is called twice on the same app.
+`conftest.py` calls it first via `from flask_se import app, db`. Any later import of `thesesImport`
+calls it again.
+
+**Fix for tests:** Patch `init_app` before importing the module:
+
+```python
+import flask_sqlalchemy
+import contextlib
+
+_orig_init_app = flask_sqlalchemy.SQLAlchemy.init_app
+
+def _patched_init_app(self, app):
+    with contextlib.suppress(RuntimeError):
+        _orig_init_app(self, app)
+
+with patch.object(flask_sqlalchemy.SQLAlchemy, "init_app", _patched_init_app):
+    import thesesImport  # now safe to import
+```
+
+## thesesImport: module-level state breaks test isolation
+
+**When:** Writing tests for functions in `thesesImport.py` that share module-level state.
+
+**Symptoms:**
+
+- Tests pass when run individually but fail when run as part of the full suite.
+- `TypeError: can only concatenate str (not "NoneType") to str` — caused by `thesesImport.download`
+  flag being accidentally left `True` by a previous test.
+- `sys.exit` is called by the function under test, terminating the test process.
+
+**Root cause:** `thesesImport.py` has two mutable module-level variables:
+
+1. `download = False` — controls whether `download_file()` actually writes files.
+   If a test sets `download = True` and doesn't restore it, subsequent tests that call
+   scraper functions will try to write files to disk.
+1. Direct calls to `sys.exit()` on error conditions — when mocked with `patch.object(sys, "exit")`,
+   the mock prevents process exit but the function continues executing, potentially corrupting
+   state for the next test.
+
+**Fix for tests:**
+
+- Always restore `thesesImport.download` after any test that modifies it (use `try/finally`).
+- Mock `Users.query`, `Staff.query`, and `db.session` in every test that calls a scraper function.
+- Use `app.app_context()` when patching `thesesImport.Users.query` — the model descriptor
+  requires an active app context.
+
+**Long-term fix:** Refactor `thesesImport.py` to remove module-level side effects:
+
+- Move `db.app = app; db.init_app(app)` into a function called on demand
+- Remove the `download` flag in favor of config injection
+- Replace `sys.exit()` with raising a custom exception
