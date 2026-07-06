@@ -1,5 +1,7 @@
 ﻿# AI Tooling Configuration
 
+<!-- encoding: utf-8 -->
+
 AI tooling configuration, agents, commands, skills, and workflow for the SE Site project.
 
 ## Permission Recommendation

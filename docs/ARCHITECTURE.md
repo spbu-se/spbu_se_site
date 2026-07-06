@@ -1,5 +1,7 @@
 ﻿# Architecture
 
+<!-- encoding: utf-8 -->
+
 Module map, data flow, design decisions, and conventions for the SE Site.
 
 Covers: module responsibilities, execution flow, template structure, design rationale. Does not cover: endpoint schemas — see `doc/API_REFERENCE.md`, data models — see `doc/SCHEMA.md`.

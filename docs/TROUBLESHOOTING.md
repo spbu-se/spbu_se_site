@@ -1,10 +1,12 @@
-# Troubleshooting
+﻿# Troubleshooting
+
+<!-- encoding: utf-8 -->
 
 Common errors, root causes, and fixes encountered during development.
 
 ## APScheduler: background jobs fire during tests
 
-**When:** Running pytest — `SendMailNotification` fires every 10s against the test DB.
+**When:** Running pytest вЂ” `SendMailNotification` fires every 10s against the test DB.
 **Cause:** `Flask-APScheduler` auto-starts at import time. Background jobs see the test DB with no tables.
 **Fix:** Set `app.config["TESTING"] = True` before yielding the test client, or disable the scheduler in test fixtures.
 
@@ -29,7 +31,7 @@ Common errors, root causes, and fixes encountered during development.
 ## SQLite: "attempt to write a readonly database"
 
 **When:** CI (Linux) test fixtures try to `CREATE TABLE`.
-**Cause:** `tempfile.NamedTemporaryFile` keeps the fd open — SQLAlchemy engine can't write.
+**Cause:** `tempfile.NamedTemporaryFile` keeps the fd open вЂ” SQLAlchemy engine can't write.
 **Fix:** Use `tempfile.mkdtemp()` instead; let SQLAlchemy create the `.db` file.
 
 ## SQLite: "no such table: notification"
@@ -65,7 +67,7 @@ Common errors, root causes, and fixes encountered during development.
 ## Restoring vendor files bypassing hooks
 
 **When:** Formatters (trailing-whitespace, dprint) modify vendor/static files.
-**Fix:** `git checkout HEAD -- path/to/dir` restores files and bypasses pre-commit hooks entirely — no need to disable hooks.
+**Fix:** `git checkout HEAD -- path/to/dir` restores files and bypasses pre-commit hooks entirely вЂ” no need to disable hooks.
 
 ## uv lock fails with "No solution found"
 
@@ -91,7 +93,7 @@ Common errors, root causes, and fixes encountered during development.
 **When:** Running `pytest -n auto` or `pytest -n N` with `N > 2`.
 **Error:** `whoosh.index.EmptyIndexError: Index 'MAIN' does not exist in FileStorage('whooshee\thesis')`.
 **Cause:** Whoosh index is created in a shared temp directory. Multiple xdist workers try to access the same index simultaneously. The index may not exist yet when a worker queries it.
-**Fix:** Use `-n 2` (stable), ensure `whooshee.reindex()` is called during DB seeding. See `doc/TOOLING.md § pytest-xdist + Whoosh`.
+**Fix:** Use `-n 2` (stable), ensure `whooshee.reindex()` is called during DB seeding. See `doc/TOOLING.md В§ pytest-xdist + Whoosh`.
 
 ## datetime.timezone.UTC vs datetime.timezone.utc
 
@@ -101,6 +103,6 @@ Common errors, root causes, and fixes encountered during development.
 
 ## Mypy skips analyzing src/ when tests/ is configured
 
-**When:** `pyproject.toml [tool.mypy] files = ["tests/"]` — mypy only checks listed files. Source files are not checked even if they're imported by tests.
+**When:** `pyproject.toml [tool.mypy] files = ["tests/"]` вЂ” mypy only checks listed files. Source files are not checked even if they're imported by tests.
 **Cause:** Mypy's `files` option is a whitelist, not a "check these additionally" list.
 **Fix:** To check both src and tests, list both: `files = ["src/", "tests/"]`. Use `[[tool.mypy.overrides]] module = "tests.*"` to apply relaxed rules for tests.

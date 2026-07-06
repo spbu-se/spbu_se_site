@@ -101,6 +101,9 @@ no_site_packages = true
 disable_error_code = ["no-untyped-def", "no-untyped-call"]
 files = [
     "tests/",
+    "src/flask_se_config.py",
+    "src/flask_se_news.py",
+    "src/flask_se_bachelor.py",
 ]
 
 exclude = [
@@ -108,5 +111,29 @@ exclude = [
 ]
 
 [[tool.mypy.overrides]]
-module = "tests.*"
-disable_error_code = ["no-untyped-def", "no-untyped-call"]
+module = [
+    "tests.*",
+    "se_models",
+    "flask_se",
+    "flask_se_auth",
+    "flask_se_admin",
+    "flask_se_internships",
+    "flask_se_practice",
+    "flask_se_practice_admin",
+    "flask_se_practice_config",
+    "flask_se_practice_staff",
+    "flask_se_practice_table",
+    "flask_se_practice_yandex_disk",
+    "flask_se_review",
+    "flask_se_theses",
+    "se_forms",
+    "se_review_forms",
+    "se_internship_forms",
+]
+ignore_errors = true
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.13"
+include = ["src", "tests"]

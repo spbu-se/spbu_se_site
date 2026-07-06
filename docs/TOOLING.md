@@ -1,4 +1,6 @@
-# TOOLING
+﻿# TOOLING
+
+<!-- encoding: utf-8 -->
 
 Portable tooling knowledge reusable across projects.
 Not local host quirks (see `.tooling.md`) and not project-specific errors (see `doc/TROUBLESHOOTING.md`).
@@ -11,7 +13,7 @@ Not local host quirks (see `.tooling.md`) and not project-specific errors (see `
 
 ### Cross-platform export differences
 
-`uv export` output differs between platforms — wheel comment hashes for platform-specific packages (e.g., `msgpack`, `cachecontrol`) vary. CI checks that `diff` the exported output against a committed file are inherently fragile.
+`uv export` output differs between platforms вЂ” wheel comment hashes for platform-specific packages (e.g., `msgpack`, `cachecontrol`) vary. CI checks that `diff` the exported output against a committed file are inherently fragile.
 
 ### Build artifacts
 
@@ -41,7 +43,7 @@ This works because `flask_se` reads the config values at import time. Any import
 
 ### Per-test temp directories
 
-Each test fixture that needs a database must create its own `tempfile.mkdtemp()`. Shared global paths cause cross-test pollution — one test's teardown breaks the next test's setup.
+Each test fixture that needs a database must create its own `tempfile.mkdtemp()`. Shared global paths cause cross-test pollution вЂ” one test's teardown breaks the next test's setup.
 
 ### NamedTemporaryFile on Linux
 
@@ -49,7 +51,7 @@ Each test fixture that needs a database must create its own `tempfile.mkdtemp()`
 
 ### Windows SQLite URI path format
 
-On Windows, SQLite URIs with forward slashes (`sqlite:///C:/Users/.../test.db`) silently fail — `db.create_all()` does NOT create the file and raises no error. Use backslash paths from `str(Path() / ...)` instead:
+On Windows, SQLite URIs with forward slashes (`sqlite:///C:/Users/.../test.db`) silently fail вЂ” `db.create_all()` does NOT create the file and raises no error. Use backslash paths from `str(Path() / ...)` instead:
 
 ```python
 # Works on all platforms:
@@ -63,7 +65,7 @@ uri = f"sqlite:///{_p}"
 
 ### Engine caching
 
-Changing `app.config["SQLALCHEMY_DATABASE_URI"]` after the app is initialized requires replacing the cached engine directly. `db.engine.dispose()` alone does NOT reset the cached engine — it only disposes the connection pool.
+Changing `app.config["SQLALCHEMY_DATABASE_URI"]` after the app is initialized requires replacing the cached engine directly. `db.engine.dispose()` alone does NOT reset the cached engine вЂ” it only disposes the connection pool.
 
 **Correct pattern:**
 
@@ -114,7 +116,7 @@ This works because Flask-Login reads `session["_user_id"]` on every request to l
 
 ## pytest config
 
-`pytest` reads `[tool.pytest.ini_options]` from `pyproject.toml` directly — no separate `pytest.ini` or `setup.cfg` needed.
+`pytest` reads `[tool.pytest.ini_options]` from `pyproject.toml` directly вЂ” no separate `pytest.ini` or `setup.cfg` needed.
 
 ## pre-commit
 
@@ -152,9 +154,9 @@ gh run list --branch staging --limit 1 --json databaseId --jq ".[0].databaseId"
 
 `--unsafe-fixes` enables rules that safe mode skips:
 
-- E722 — bare `except`
-- E711 — `!= None` comparison
-- F841 — unused variable assignment
+- E722 вЂ” bare `except`
+- E711 вЂ” `!= None` comparison
+- F841 вЂ” unused variable assignment
 
 Run: `ruff check --fix --unsafe-fixes`
 
@@ -166,7 +168,7 @@ Set `target-version` in `[tool.ruff]` to match minimum supported Python. Affects
 
 ### Never use pip.\_vendor
 
-Importing from `pip._vendor` is fragile — it depends on pip being installed and its internal structure being stable. Always install vendored packages as explicit dependencies.
+Importing from `pip._vendor` is fragile вЂ” it depends on pip being installed and its internal structure being stable. Always install vendored packages as explicit dependencies.
 
 ### Generated artifact diff fragility
 
@@ -183,7 +185,7 @@ omit = ["src/thesesImport.py", "src/migrations/*"]
 
 ## Commit signing
 
-Signoff policy is defined in `doc/GIT_FLOW.md §4`. This doc only adds cross-cutting notes.
+Signoff policy is defined in `doc/GIT_FLOW.md В§4`. This doc only adds cross-cutting notes.
 
 ### Never touch global git config
 
@@ -198,7 +200,7 @@ _whoosh_dir = tempfile.mkdtemp()
 app.config["WHOOSHEE_DIR"] = _whoosh_dir
 ```
 
-This ensures each worker process gets its own Whoosh index. Still insufficient for tests that create new DB state and then trigger Whoosh queries — the index must be rebuilt via `whooshee.reindex()` after each DB change.
+This ensures each worker process gets its own Whoosh index. Still insufficient for tests that create new DB state and then trigger Whoosh queries вЂ” the index must be rebuilt via `whooshee.reindex()` after each DB change.
 
 ## Scrypt mock for tests on Python 3.13+
 
@@ -223,7 +225,7 @@ _fs.scheduler.shutdown(wait=False)
 
 ## pytest config in pyproject.toml
 
-`pytest` reads `[tool.pytest.ini_options]` from `pyproject.toml` directly — no separate `pytest.ini` or `setup.cfg` needed.
+`pytest` reads `[tool.pytest.ini_options]` from `pyproject.toml` directly вЂ” no separate `pytest.ini` or `setup.cfg` needed.
 
 ## pre-commit
 
@@ -241,12 +243,65 @@ First invocation downloads and caches hook environments. Install hooks early to 
 
 ## GitHub CLI
 
-### Retrospective — Windows SQLite URI path format undocumented
+### Retrospective вЂ” Windows SQLite URI path format undocumented
 
-After introducing a session-scoped seeded DB template, the `Path.as_posix()` URI format silently failed on Windows — `db.create_all()` raised no error but didn't create the file. The fix (`str(Path() / ...)`) was applied directly to `conftest.py` but never extracted as a documented quirk. A later retro session identified the gap and added the note above.
+After introducing a session-scoped seeded DB template, the `Path.as_posix()` URI format silently failed on Windows вЂ” `db.create_all()` raised no error but didn't create the file. The fix (`str(Path() / ...)`) was applied directly to `conftest.py` but never extracted as a documented quirk. A later retro session identified the gap and added the note above.
 
-**What went wrong**: The fix was code-only — no doc entry was created even though the issue (Windows path format) is a portable tooling knowledge item that affects all Windows developers.
+**What went wrong**: The fix was code-only вЂ” no doc entry was created even though the issue (Windows path format) is a portable tooling knowledge item that affects all Windows developers.
 
-**Root cause**: Missing convention — agent applied a fix but didn't create the corresponding doc note because the retrospective hadn't been run yet. The retro skill didn't require retro entries for every gap found.
+**Root cause**: Missing convention вЂ” agent applied a fix but didn't create the corresponding doc note because the retrospective hadn't been run yet. The retro skill didn't require retro entries for every gap found.
 
-**Fix**: Added the Windows SQLite URI path format section above. Updated the retrospective-analysis skill §7 to require that every classified gap gets a retrospective entry, even if the fix was applied directly.
+**Fix**: Added the Windows SQLite URI path format section above. Updated the retrospective-analysis skill В§7 to require that every classified gap gets a retrospective entry, even if the fix was applied directly.
+
+## PowerShell encoding
+
+### `Set-Content` / `Out-File` default to Windows-1252 on en-US systems
+
+PowerShell's `Set-Content` and `Out-File` cmdlets default to the system's active ANSI code page (Windows-1252 on en-US Windows), NOT UTF-8. This corrupts any file containing non-ASCII characters when the file is expected to be UTF-8.
+
+```powershell
+# вќЊ WRONG вЂ” writes Windows-1252
+Set-Content -Path file.md -Value $content
+
+# вќЊ WRONG вЂ” also Windows-1252
+$content > file.md
+
+# вќЊ WRONG вЂ” also Windows-1252
+Out-File -FilePath file.md -InputObject $content
+
+# вњ… CORRECT вЂ” writes UTF-8 without BOM
+[System.IO.File]::WriteAllText($path, $content, [System.Text.UTF8Encoding]::new($false))
+
+# вњ… CORRECT вЂ” reads UTF-8
+[System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
+
+# вњ… CORRECT вЂ” writes bytes as UTF-8
+[System.IO.File]::WriteAllBytes($path, [System.Text.Encoding]::UTF8.GetBytes($content))
+```
+
+**Applies to**: Any `.py`, `.md`, `.yaml`, `.json`, `.toml`, `.cfg` file вЂ” anything that should be UTF-8.
+
+### `Get-Content` with `-Raw` still defaults to Windows-1252
+
+Even `Get-Content -Path file.md -Raw` uses Windows-1252. Always use the .NET overload.
+
+### mdformat doesn't show file path on UnicodeDecodeError
+
+When `uv run mdformat .` encounters a non-UTF-8 file, the error message omits the file path. To find the offending file:
+
+```powershell
+Get-ChildItem -Recurse -Include "*.md" | ForEach-Object {
+    try { $null = [System.Text.UTF8Encoding]::UTF8.GetString([System.IO.File]::ReadAllBytes($_.FullName)) }
+    catch { Write-Host $_.FullName }
+}
+```
+
+### Encoding declaration policy
+
+Every file that supports encoding declarations must declare UTF-8 at the very beginning:
+
+- **Python (`.py`)**: `# -*- coding: utf-8 -*-` on line 1, before SPDX header
+- **Markdown (`.md`)**: `<!-- encoding: utf-8 -->` on line 2 (after H1 title), before any content
+- **Other formats** (TOML, YAML, JSON): format doesn't support inline declaration вЂ” documented exception in `doc/DEVELOPMENT_PROCESS.md`
+
+This rule prevents silent re-encoding when files are opened or saved by tools that default to system locale encoding. All 92 Python files and all markdown files must comply.

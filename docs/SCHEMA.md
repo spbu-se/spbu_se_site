@@ -1,5 +1,7 @@
 ﻿# Schema Reference — Database Model Definitions
 
+<!-- encoding: utf-8 -->
+
 All SQLAlchemy models used by the SE Site. Database: SQLite (`se.db`).
 
 Covers: table schemas with field types and relationships, seed data structure. Does not cover: endpoint documentation — see `doc/API_REFERENCE.md`, module architecture — see `doc/ARCHITECTURE.md`.

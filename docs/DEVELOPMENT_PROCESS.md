@@ -1,5 +1,7 @@
 ﻿# Development Process
 
+<!-- encoding: utf-8 -->
+
 Flask-based website for the SPbSU System Programming Department. See `AGENTS.md` for commands, `doc/GIT_FLOW.md` for version control, and `doc/OPENSE_CONFIG.md` for AI tooling.
 
 ## Process Identity
@@ -97,6 +99,20 @@ Every process rule is enforced at one of three layers:
 | 3 — Documentation | Documented, manually enforced | Planning phase, doc-first cycle |
 
 When adding a new rule: enforce at the lowest possible layer. Only document (layer 3) what cannot be automated (layers 1-2). Add CI checks (layer 2) to verify layer-1 configs are honored.
+
+## 0.11 Encoding Policy
+
+All source files (`.py`, `.md`, `.yaml`, `.json`, `.toml`, `.cfg`) **must be UTF-8**. No exceptions unless explicitly documented.
+
+Every file that supports encoding declarations must declare it at the very beginning:
+
+| Format | Declaration | Position |
+|--------|-------------|----------|
+| `.py` | `# -*- coding: utf-8 -*-` | Line 1 (before SPDX header) |
+| `.md` | `<!-- encoding: utf-8 -->` | Line 2 (after H1 title, before content) |
+| Others | Format doesn't support inline declaration | Exception documented here |
+
+On Windows, PowerShell `Set-Content`/`Out-File` default to Windows-1252, not UTF-8. Always use `[System.IO.File]::WriteAllText()` with explicit UTF-8 encoding. See `docs/TOOLING.md §PowerShell encoding`.
 
 ## 1. Version Control
 

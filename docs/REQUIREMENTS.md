@@ -1,5 +1,7 @@
 ﻿# Requirements — SE Site (SPbSU System Programming Department)
 
+<!-- encoding: utf-8 -->
+
 Full feature specification for the department website. The site serves as an information portal, thesis archive, practice management system, and peer review platform.
 
 Covers: feature modules, page descriptions, user roles, navigation structure. Does not cover: implementation details, database schema — see `doc/SCHEMA.md`, route documentation — see `doc/API_REFERENCE.md`.
