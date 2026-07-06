@@ -142,3 +142,28 @@ for sha in commits:
     has_valid = b'<known-utf8-bytes>' in r.stdout
     print(f'{sha}: valid={has_valid}')
 ```
+
+## Related PowerShell pitfalls
+
+### `uv export` stderr contamination
+
+`uv export` prints progress to stderr (`uv : Resolved 115 packages in 3ms`). Shell redirections that merge stderr into stdout (`2>&1`) or use `$(...)` interpolation can embed this garbage into `requirements.txt`.
+
+```powershell
+# ❌ WRONG — stderr bleeds into file
+uv export --no-dev --no-hashes > requirements.txt
+
+# ❌ WRONG — $(...) flattens multi-line into single line
+[System.IO.File]::WriteAllText("reqs.txt", $(uv export --no-dev --no-hashes), ...)
+
+# ✅ CORRECT — use Python to capture stdout cleanly
+uv run python -c "import subprocess; r=subprocess.run(['uv','export','--no-dev','--no-hashes'],capture_output=True,text=True); r.check_returncode(); open('requirements.txt','w',encoding='utf-8',newline='\n').write(r.stdout)"
+```
+
+### CI `mdformat --check .` traverses vendored `.venv/` and `node_modules/`
+
+On CI (Ubuntu), `mdformat --check .` traverses into `.venv/Lib/site-packages/*.md` and `.opencode/node_modules/*.md` which contain non-UTF-8 vendored files. Always use explicit paths in CI workflows:
+
+```yaml
+- run: mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
+```

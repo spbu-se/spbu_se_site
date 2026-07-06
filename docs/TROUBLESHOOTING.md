@@ -106,3 +106,9 @@ Common errors, root causes, and fixes encountered during development.
 **When:** `pyproject.toml [tool.mypy] files = ["tests/"]` вЂ” mypy only checks listed files. Source files are not checked even if they're imported by tests.
 **Cause:** Mypy's `files` option is a whitelist, not a "check these additionally" list.
 **Fix:** To check both src and tests, list both: `files = ["src/", "tests/"]`. Use `[[tool.mypy.overrides]] module = "tests.*"` to apply relaxed rules for tests.
+
+## linecache returns stale content after file edits
+
+**When:** Using `linecache.getlines()` or `linecache.getline()` to read a Python file that was modified during the same test run.
+**Cause:** `linecache` caches file contents on first read and never invalidates the cache unless explicitly told to. File modifications (adding/removing lines) shift line numbers, but `linecache` still returns the pre-modification content.
+**Fix:** Use `open().readlines()` directly, or call `linecache.clearcache()` before each read that follows a file modification.

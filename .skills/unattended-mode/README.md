@@ -21,9 +21,10 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 1. **No signoff** вЂ” always commit with `--no-gpg-sign`.
 1. **Commit granular** вЂ” one commit per logical change. Push frequently to trigger CI.
 1. **CI is NOT a gate** вЂ” if CI fails, note in `OPEN_QUESTIONS.md`, move to next task. Don't stop on red.
+1. **Full test run after auto-fix commits** — after any bulk auto-fix (encoding, lint, mypy), run `uv run pytest -n 2 --tb=short -q` before continuing, not just `ruff`/`mypy`. Auto-fixes can corrupt string content while leaving syntax valid.
 1. **If blocked в†’ try 3 approaches first** вЂ” a "blocker" means you attempted at least 3 distinct approaches, each with real code committed, and each failed with a specific error. Only after 3 failed approaches: document the blocker with full error output in `OPEN_QUESTIONS.md`, skip, move to next task.
 1. **Re-check target every 5 commits** вЂ” after every 5 commits on the auto branch, compare current metric(s) against the plan's goal(s). If the gap is >15% of the target, continue. If the gap is \<15%, evaluate whether to push through or conclude. For non-numeric goals, ask: "am I closer to the goal than 5 commits ago?" If no, pivot. This applies to ALL auto runs, not just coverage targets.
-1. **Verify CI after push** вЂ” after each push, run `gh run list --branch <branch> --limit 1 --json conclusion` and confirm green before proceeding. If red, fix immediately вЂ” do not continue with new work while CI is broken.
+1. **Verify CI after push** вЂ” run `gh run list --branch <branch> --limit 1 --json databaseId -q ".[0].databaseId"` to get the run ID, then `gh run view <id> --json conclusion`. Confirm `"success"`. For failure details: `gh run view <id> --log-failed | Select-String "FAIL|Error"`. If red, fix immediately вЂ” do not continue while CI is broken. The `gh run view --exit-status` flag is unreliable for pending runs.
 1. **Document as you go** вЂ” findings go to `.tooling.md`, `doc/TROUBLESHOOTING.md`, or `doc/TOOLING.md` immediately, not at session end.
 1. **Process docs are sacred** вЂ” minimize updates to process docs (`doc/GIT_FLOW.md`, `doc/DEVELOPMENT_PROCESS.md`) unless user explicitly approved.
 1. **Any quality improvement** вЂ” features, tests, docs, tooling. Not limited to a priority list.

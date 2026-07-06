@@ -28,8 +28,8 @@ Before pushing to remote, simulate CI locally:
   uv run mdformat --check . && uv run ruff format --check src/ && uv run ruff check src/
 
 Also verify requirements.txt is fresh (serviceability.yml uses pip, not uv):
-  uv export --no-dev --no-hashes > requirements.txt
-  (PowerShell: use WriteAllText to avoid BOM)
+  uv run python -c "import subprocess; r=subprocess.run(['uv','export','--no-dev','--no-hashes'],capture_output=True,text=True); r.check_returncode(); open('requirements.txt','w',encoding='utf-8',newline='\n').write(r.stdout)"
+  (PowerShell: use the above — `uv export > file` and `[IO.File]::WriteAllText` both corrupt output with stderr or flatten newlines)
 
 Then:
   git add && git commit (hooks auto-run) в†’ git push
