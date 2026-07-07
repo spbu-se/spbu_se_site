@@ -3,7 +3,6 @@ import io
 import os
 
 import pytest
-from conftest import assert_ok
 
 UPLOAD_DIRS = ["static/practice/texts/", "static/practice/reviews/", "static/practice/slides/"]
 

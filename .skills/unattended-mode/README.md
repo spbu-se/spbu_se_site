@@ -14,6 +14,7 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 - **Never add complexity over practical value** вЂ” if a change doesn't directly solve the current task, skip it.
 - **Try hard before declaring blocked** вЂ” attempt at least 3 distinct approaches before declaring a blocker. Each approach must be real code written and executed. Commit each attempt. Only then document with error evidence and move on.
 - **Clear boundaries in code and docs always** вЂ” keep docs and code cleanly separated. Never merge categories.
+- **Never create before checking what exists** — before creating any new file or directory, search for existing scope overlap. A duplicate is harder to fix than to prevent.
 
 ## Rules
 
@@ -25,8 +26,8 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 1. **If blocked в†’ try 3 approaches first** вЂ” a "blocker" means you attempted at least 3 distinct approaches, each with real code committed, and each failed with a specific error. Only after 3 failed approaches: document the blocker with full error output in `OPEN_QUESTIONS.md`, skip, move to next task.
 1. **Re-check target every 5 commits** вЂ” after every 5 commits on the auto branch, compare current metric(s) against the plan's goal(s). If the gap is >15% of the target, continue. If the gap is \<15%, evaluate whether to push through or conclude. For non-numeric goals, ask: "am I closer to the goal than 5 commits ago?" If no, pivot. This applies to ALL auto runs, not just coverage targets.
 1. **Verify CI after push** вЂ” run `gh run list --branch <branch> --limit 1 --json databaseId -q ".[0].databaseId"` to get the run ID, then `gh run view <id> --json conclusion`. Confirm `"success"`. For failure details: `gh run view <id> --log-failed | Select-String "FAIL|Error"`. If red, fix immediately вЂ” do not continue while CI is broken. The `gh run view --exit-status` flag is unreliable for pending runs.
-1. **Document as you go** вЂ” findings go to `.tooling.md`, `doc/TROUBLESHOOTING.md`, or `doc/TOOLING.md` immediately, not at session end.
-1. **Process docs are sacred** вЂ” minimize updates to process docs (`doc/GIT_FLOW.md`, `doc/DEVELOPMENT_PROCESS.md`) unless user explicitly approved.
+1. **Document as you go** вЂ” findings go to `.tooling.md`, `docs/TROUBLESHOOTING.md`, or `docs/TOOLING.md` immediately, not at session end.
+1. **Process docs are sacred** вЂ” minimize updates to process docs (`docs/GIT_FLOW.md`, `docs/DEVELOPMENT_PROCESS.md`) unless user explicitly approved.
 1. **Sweep stale auto-branches at end** вЂ” after the final report commit, delete local and remote `staging-auto-*` branches except the current one. Use `git branch --list "staging-auto-*" | ForEach-Object { if ($_ -ne (git branch --show-current)) { git branch -D $_.Trim() } }` and `git push origin --delete staging-auto-*` (warning: use `--delete` per-branch, not glob). This prevents orphan branches from accumulating.
 1. **Any quality improvement** вЂ” features, tests, docs, tooling. Not limited to a priority list.
 1. **Plan completion is mandatory** вЂ” do not stop before every task in the approved plan has been attempted with 3 approaches each. The final report must contain evidence for every uncompleted task.

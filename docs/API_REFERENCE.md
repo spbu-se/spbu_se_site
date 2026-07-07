@@ -4,7 +4,7 @@
 
 All routes, methods, view functions, and descriptions for the SE Site.
 
-Covers: all route endpoints, HTTP methods, view function names, descriptions. Does not cover: database models — see `doc/SCHEMA.md`, architecture — see `doc/ARCHITECTURE.md`, feature requirements — see `doc/REQUIREMENTS.md`.
+Covers: all route endpoints, HTTP methods, view function names, descriptions. Does not cover: database models — see `docs/SCHEMA.md`, architecture — see `docs/ARCHITECTURE.md`, feature requirements — see `docs/REQUIREMENTS.md`.
 
 ## Public Pages
 
@@ -175,15 +175,15 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 
 | Route | Description |
 |---|---|
-| `/admin/` | Flask-Admin dashboard (shows thesis secret key) |
-| `/admin/user/` | Users CRUD |
-| `/admin/staff/` | Staff CRUD |
-| `/admin/thesis/` | Thesis CRUD |
-| `/admin/summerschool/` | Summer school projects CRUD |
-| `/admin/news/` | News CRUD |
-| `/admin/diplomathemes/` | Diploma themes CRUD |
-| `/admin/reviewdiplomathemes/` | Review/moderate diploma themes |
-| `/admin/currentthesis/` | Current theses CRUD |
+| `/admin/` | Flask-Admin dashboard (shows thesis secret key). Access: role >= 2 |
+| `/admin/user/` | Users CRUD. Access: role >= 5 |
+| `/admin/staff/` | Staff CRUD. Access: role >= 5 |
+| `/admin/thesis/` | Thesis CRUD. Access: role >= 5 |
+| `/admin/summerschool/` | Summer school projects CRUD. Access: role >= 5 |
+| `/admin/news/` | News CRUD. Access: role >= 5 |
+| `/admin/diplomathemes/` | Diploma themes CRUD. Access: role >= 5 |
+| `/admin/reviewdiplomathemes/` | Review/moderate diploma themes. Access: role >= 3 |
+| `/admin/currentthesis/` | Current theses CRUD. Access: role >= 5 |
 
 ## Error Handling
 

@@ -4,7 +4,23 @@
 
 Module map, data flow, design decisions, and conventions for the SE Site.
 
-Covers: module responsibilities, execution flow, template structure, design rationale. Does not cover: endpoint schemas — see `doc/API_REFERENCE.md`, data models — see `doc/SCHEMA.md`.
+Covers: module responsibilities, execution flow, template structure, design rationale. Does not cover: endpoint schemas — see `docs/API_REFERENCE.md`, data models — see `docs/SCHEMA.md`.
+
+## Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Flask 3.x |
+| ORM | SQLAlchemy 2.x |
+| Database | SQLite |
+| Full-text search | Whooshee (Whoosh) |
+| Templates | Jinja2 |
+| Admin panel | Flask-Admin |
+| Auth | Flask-Login + custom (email, VK, Google) |
+| Scheduler | APScheduler |
+| Forms | WTForms |
+| Migrations | Flask-Migrate (Alembic) |
+| Static assets | Quick Website theme (Bootstrap 4) |
 
 ## Module Map
 
@@ -153,6 +169,18 @@ The practice module has three access tiers:
 - **Admin/Curator** (`/practice_admin`): full control, bulk operations, archive to main repository
 
 **Why three tiers**: Mirrors the actual academic workflow. Students own their work, supervisors guide, curators administer.
+
+### [2026-07-07] Factory Pattern for Parametrized Views
+
+Summer school pages use a factory function `create_summer_school_view(year)` that generates distinct view functions at registration time. Each function is renamed via `__name__` assignment so Flask's URL routing distinguishes them.
+
+**Why factory pattern**: Avoids duplicating 4 nearly identical view functions. The `schools` dict provides metadata per year; the view factory queries `SummerSchool.query.filter_by(year=year)`.
+
+### [2026-07-07] Notification Enum for Template Paths
+
+Templates in `templates/notification/`, `practice/student/`, `practice/staff/`, `practice/admin/` use `templates.py` enum classes (`NotificationTemplates`, `PracticeStudentTemplates`, etc.) to reference template paths instead of hardcoded strings.
+
+**Why enum pattern**: Prevents typos in template names, enables IDE autocompletion, centralizes path changes.
 
 ### [2026-06-29] Single-File Models
 

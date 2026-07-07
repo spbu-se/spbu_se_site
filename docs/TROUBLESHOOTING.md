@@ -93,7 +93,7 @@ Common errors, root causes, and fixes encountered during development.
 **When:** Running `pytest -n auto` or `pytest -n N` with `N > 2`.
 **Error:** `whoosh.index.EmptyIndexError: Index 'MAIN' does not exist in FileStorage('whooshee\thesis')`.
 **Cause:** Whoosh index is created in a shared temp directory. Multiple xdist workers try to access the same index simultaneously. The index may not exist yet when a worker queries it.
-**Fix:** Use `-n 2` (stable), ensure `whooshee.reindex()` is called during DB seeding. See `doc/TOOLING.md В§ pytest-xdist + Whoosh`.
+**Fix:** Use `-n 2` (stable), ensure `whooshee.reindex()` is called during DB seeding. See `docs/TOOLING.md В§ pytest-xdist + Whoosh`.
 
 ## datetime.timezone.UTC vs datetime.timezone.utc
 

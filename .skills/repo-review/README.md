@@ -1,10 +1,10 @@
 ______________________________________________________________________
 
-## name: repo-review description: Evaluate repository against doc/REPO_REVIEW.md checklist. Load when user says "review repo", "audit repo", "run repo review".
+## name: repo-review description: Evaluate repository against docs/REPO_REVIEW.md checklist. Load when user says "review repo", "audit repo", "run repo review".
 
 # repo-review
 
-Evaluates the repository against the comprehensive checklist in `doc/REPO_REVIEW.md` and creates backlog items for gaps found.
+Evaluates the repository against the comprehensive checklist in `docs/REPO_REVIEW.md` and creates backlog items for gaps found.
 
 ## Usage policy
 
@@ -14,7 +14,7 @@ Evaluates the repository against the comprehensive checklist in `doc/REPO_REVIEW
 
 ## Workflow
 
-1. Read `doc/REPO_REVIEW.md` — load all 10 phases and scoring criteria
+1. Read `docs/REPO_REVIEW.md` — load all 10 phases and scoring criteria
 1. For each phase, inspect the repository against every checkbox
 1. For each unchecked/missing item, add a backlog entry to `TODO.md` under `## Repo Review Backlog`
 1. Do NOT commit a score or report file — only update `TODO.md` with actionable items
@@ -37,4 +37,4 @@ Evaluates the repository against the comprehensive checklist in `doc/REPO_REVIEW
 
 ## Scoring note
 
-Per `doc/REPO_REVIEW.md` §Evaluation Workflow: calculate scores by phase, but do NOT commit the score. Use findings only to drive backlog creation.
+Per `docs/REPO_REVIEW.md` §Evaluation Workflow: calculate scores by phase, but do NOT commit the score. Use findings only to drive backlog creation.

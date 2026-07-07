@@ -6,8 +6,8 @@ Analyze a session or merge to identify process gaps, classify root causes, and s
 
 ## When to load
 
-- After every merge to main (see `doc/GIT_FLOW.md` В§2 вЂ” Merge staging в†’ main)
-- At session end, during context compaction (see `doc/GIT_FLOW.md` В§2 вЂ” Context Compaction)
+- After every merge to main (see `docs/GIT_FLOW.md` В§2 вЂ” Merge staging в†’ main)
+- At session end, during context compaction (see `docs/GIT_FLOW.md` В§2 вЂ” Context Compaction)
 - When the user says "retrospective" or "lessons learned"
 - When a bug or mistake reveals a process gap
 
@@ -37,7 +37,7 @@ For each change, ask:
 
 | Gap type | Root cause | Fix action | Also check skill? |
 | ---------------------- | ------------------------------------------ | ---------------------------------------------------- | ------------------------------- |
-| **Missing convention** | No rule described how to do this | Add rule to `doc/DEVELOPMENT_PROCESS.md` | Could this be a `.skills/` workflow? |
+| **Missing convention** | No rule described how to do this | Add rule to `docs/DEVELOPMENT_PROCESS.md` | Could this be a `.skills/` workflow? |
 | **Missing template** | No template existed for this artifact type | Add template or checklist (e.g., В§0.7) | Could this be a skill README? |
 | **Missing config** | Toolchain didn't catch this | Add linter, pre-commit hook, CI step | No вЂ” tool config, not skill |
 | **Human error** | Process was documented but not followed | Add guardrail or automation | Could a skill have prevented this? |
@@ -53,21 +53,22 @@ Determine where the retrospective belongs based on the gap's or change's area:
 
 | Gap category | Target document |
 | ----------------------------------------------------------------- | ------------------------------------------- |
-| Git flow, branching, commits, staging, guardrails, hotfixes | `doc/GIT_FLOW.md` В§7 |
-| Planning, TDD, testing, types, release, dependencies, conventions | `doc/DEVELOPMENT_PROCESS.md` |
+| Git flow, branching, commits, staging, guardrails, hotfixes | `docs/GIT_FLOW.md` В§7 |
+| Planning, TDD, testing, types, release, dependencies, conventions | `docs/DEVELOPMENT_PROCESS.md` |
 | Tooling, environment, PowerShell, local config, platform quirks | `.tooling.md` (mistake journal) |
 
 If gaps span multiple categories, split across documents. Each document is scoped to its own area вЂ” never duplicate a retrospective across docs.
 
 ### 5b. Audit doc health
 
-Scan the session's changed docs for three signal patterns:
+Scan the session's changed docs for signal patterns:
 
 | Pattern | How to detect | Action |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
 | **Config duplication** | Rule is described in doc AND enforced by `.pre-commit-config.yaml`, `.github/workflows/ci.yml`, `.gitignore`, `pyproject.toml`, or `dprint.json` | Remove from doc. Cross-reference the config file. |
-| **Cross-doc duplication** | Same rule appears in 2+ non-trivial docs (e.g., `GIT_FLOW.md` + `DEVELOPMENT_PROCESS.md`). **Exempt**: `AGENTS.md`, `CLAUDE.md`, `README.md` вЂ” these are intentional summary extracts. | Keep in one canonical doc. Replace others with cross-reference (`See X.md В§Y`). |
+| **Cross-doc duplication** | Same rule appears in 2+ non-trivial docs (e.g., `GIT_FLOW.md` + `DEVELOPMENT_PROCESS.md`). **Exempt**: `AGENTS.md`, `CLAUDE.md`, `README.md` — these are intentional summary extracts. | Keep in one canonical doc. Replace others with cross-reference (`See X.md §Y`). |
 | **Self-evident rule** | Rule describes standard git/developer practice (e.g., "never commit to main", "stash before branching") | Delete. If the rule was added because someone violated it, keep as a retrospective entry instead. |
+| **Directory collision** | New directory was created during the session — check if a similarly-named directory already exists (e.g., `ls docs/` before creating `doc/`) | Merge unique content, delete duplicate directory. Add pre-creation audit check to the relevant skill. |
 
 Signal strength: high-confidence finds are config-duplicates (the config IS the truth). Low-confidence are self-evident rules (may be project-specific вЂ” ask if unsure).
 
@@ -109,7 +110,7 @@ Present findings in a structured table:
 
 | Change | Trigger | Root gap | Fix |
 | ------------------------- | ------------- | ------------------- | -------------------- |
-| `doc/XXX.md` | User request | Missing template | Added В§0.7 checklist |
+| `docs/XXX.md` | User request | Missing template | Added В§0.7 checklist |
 | `.pre-commit-config.yaml` | Retro finding | No formatting guard | Added mdformat hook |
 
 Include concrete file paths and exact changes needed.
@@ -119,7 +120,7 @@ Include concrete file paths and exact changes needed.
 Append a structured retrospective entry to the target document identified in В§5a.
 **Every classified gap must have a corresponding retrospective entry** вЂ” even if the fix was already applied directly (code changes, doc updates, config changes). The entry records why the gap existed, not just what was done about it.
 
-If no existing heading matches, create a new one: `### Retrospective вЂ” <title>` in `doc/GIT_FLOW.md` В§7 or `doc/DEVELOPMENT_PROCESS.md`; add to the mistake journal table in `.tooling.md`:
+If no existing heading matches, create a new one: `### Retrospective вЂ” <title>` in `docs/GIT_FLOW.md` В§7 or `docs/DEVELOPMENT_PROCESS.md`; add to the mistake journal table in `.tooling.md`:
 
 ```markdown
 ### Retrospective вЂ” <title>
@@ -167,7 +168,7 @@ CI repeatedly caught `mdformat` issues that pre-commit didn't flag. Root cause: 
 The 2026-07-06 retrospective revealed two gaps in the retrospective process itself:
 
 1. "Custom is faster" bias — relevant skills (`retrospective-analysis`, `test-writer`, `unattended-mode`) existed but were not loaded during the session. The retro never asked "did you load skills?"
-1. The retro itself violated process rules — created standalone `doc/RETROSPECTIVE_*.md` instead of appending to `GIT_FLOW.md` §9. The retro had no self-check for rule compliance.
+1. The retro itself violated process rules — created standalone `docs/RETROSPECTIVE_*.md` instead of appending to `GIT_FLOW.md` §9. The retro had no self-check for rule compliance.
 
 **Fix**: Added two new questions to step 8: "Did I load any skills?" and "Did the retrospective itself violate any process rules?" This creates a feedback loop for the retro process itself.
 
@@ -182,6 +183,15 @@ after the retro was finalized.
 **Fix**: Added step 5d "Extract reusable techniques" — scans the session for code patterns,
 workarounds, and fixes, and ensures they land in `TROUBLESHOOTING.md` or `TOOLING.md`
 with discoverable section titles and keywords.
+
+### [2026-07-07] Add directory-collision pattern to step 5b
+
+Session created `doc/` directory while `docs/` already existed — 8 duplicate documentation
+files, 60+ cross-references to update, CI only checked `docs/`. Root cause: no pre-creation
+directory audit in any process step.
+
+**Fix**: Added "Directory collision" as a new signal pattern in step 5b table. Also changed
+the section header from "three signal patterns" to "signal patterns" (no count, may grow).
 
 ## Output template
 
@@ -202,6 +212,6 @@ Pattern recurrence: <yes/no вЂ” if yes, escalate>
 ## Dependencies
 
 - `git` вЂ” to inspect commit history
-- Read access to `doc/GIT_FLOW.md` вЂ” to check В§7 previous retros
-- Read access to `doc/DEVELOPMENT_PROCESS.md` вЂ” to check previous retros
+- Read access to `docs/GIT_FLOW.md` вЂ” to check В§7 previous retros
+- Read access to `docs/DEVELOPMENT_PROCESS.md` вЂ” to check previous retros
 - Read access to `.tooling.md` вЂ” to check mistake journal

@@ -4,7 +4,7 @@ import json
 from unittest.mock import patch
 
 import pytest
-from conftest import assert_ok, assert_ok_or_redirect
+from conftest import assert_ok
 
 
 class TestFetchThesesFilters:
@@ -204,8 +204,9 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Can't find supervisor" in data["string"]
 
-
-    @pytest.mark.xfail(strict=False, reason="xdist race: user creation not visible to parallel worker")
+    @pytest.mark.xfail(
+        strict=False, reason="xdist race: user creation not visible to parallel worker"
+    )
     def test_post_supervisor_found_in_users_not_in_staff(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
         from se_models import Users, db

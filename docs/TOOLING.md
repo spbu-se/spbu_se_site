@@ -3,7 +3,7 @@
 <!-- encoding: utf-8 -->
 
 Portable tooling knowledge reusable across projects.
-Not local host quirks (see `.tooling.md`) and not project-specific errors (see `doc/TROUBLESHOOTING.md`).
+Not local host quirks (see `.tooling.md`) and not project-specific errors (see `docs/TROUBLESHOOTING.md`).
 
 ## uv
 
@@ -203,11 +203,21 @@ omit = ["src/thesesImport.py", "src/migrations/*"]
 
 ## Commit signing
 
-Signoff policy is defined in `doc/GIT_FLOW.md В§4`. This doc only adds cross-cutting notes.
+Signoff policy is defined in `docs/GIT_FLOW.md В§4`. This doc only adds cross-cutting notes.
 
 ### Never touch global git config
 
 Global git options (`git config --global`) are user-specific and should never be modified by automation without explicit user approval.
+
+### Auto-branch commits: disable GPG signoff
+
+On machines with `commit.gpgsign = true` in git config, every commit triggers a keylocker unlock dialog. For auto/batch mode branches (`staging-auto-*`), this is unnecessary overhead and blocks automation:
+
+```bash
+git commit --no-gpg-sign -m "..."
+```
+
+This is safe because auto-branches are throwaway — they are squash-merged to staging and never appear as individual commits in the permanent history.
 
 ## pytest-xdist + Whoosh
 
@@ -322,6 +332,6 @@ Every file that supports encoding declarations must declare UTF-8 at the very be
 
 - **Python (`.py`)**: `# -*- coding: utf-8 -*-` on line 1, before SPDX header
 - **Markdown (`.md`)**: `<!-- encoding: utf-8 -->` on line 2 (after H1 title), before any content
-- **Other formats** (TOML, YAML, JSON): format doesn't support inline declaration вЂ” documented exception in `doc/DEVELOPMENT_PROCESS.md`
+- **Other formats** (TOML, YAML, JSON): format doesn't support inline declaration вЂ” documented exception in `docs/DEVELOPMENT_PROCESS.md`
 
 This rule prevents silent re-encoding when files are opened or saved by tools that default to system locale encoding. All 92 Python files and all markdown files must comply.

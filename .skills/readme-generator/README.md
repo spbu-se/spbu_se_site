@@ -223,7 +223,7 @@ uv sync
 List actual `.conf` and `.env.example` files found. Reference each.
 
 **Documentation:**
-Link to each detected `doc/*.md` file with its purpose from the first line.
+Link to each detected `docs/*.md` file with its purpose from the first line.
 
 ### 4. Format and present
 
@@ -234,6 +234,6 @@ Run `mdformat` on the generated content. Present to user in a code block. **Do N
 - Repo-agnostic: badges use the detected remote from `git remote get-url origin`
 - Preserve existing README — show diff if overwriting
 - If CI workflow not found, omit CI badge
-- Troubleshooting section sourced from `doc/TROUBLESHOOTING.md` and `.tooling.md` if they exist
+- Troubleshooting section sourced from `docs/TROUBLESHOOTING.md` and `.tooling.md` if they exist
 - **SPDX on every push**: any new file you create or edit gets an SPDX header matching the repo's license. If no SPDX scheme exists in the repo, use `# SPDX-License-Identifier: <license>` for `.py` files, `// SPDX-License-Identifier: <license>` for `.js`/`.rs`/`.ts` files.
 - **Missing SPDX in repo**: if existing files lack SPDX headers, suggest adding them in a future task. Do NOT add them without user approval (bulk SPDX addition is a deliberate change, not a formatting fix).

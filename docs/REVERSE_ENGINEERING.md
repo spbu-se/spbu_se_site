@@ -9,7 +9,7 @@ Covers: re-engineering cycle, common sources, design documentation. Does not cov
 ## Re-engineering cycle
 
 1. **Extract** вЂ” read JS bundle / API trace / server response / legacy code
-1. **Decide** вЂ” write architecture decision in `doc/ARCHITECTURE.md` в†’ Design Decisions
+1. **Decide** вЂ” write architecture decision in `docs/ARCHITECTURE.md` в†’ Design Decisions
 1. **Design** вЂ” plan the implementation
 1. **Write tests** from design specs
 1. **Implement** until tests pass

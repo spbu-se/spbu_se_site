@@ -32,7 +32,7 @@ Extract API contracts, data models, validation rules, and architectural patterns
 - Cross-reference extracted schemas against real API traces (curl)
 - Validate models against actual responses
 - Flag discrepancies between bundle and observed behavior
-- Record findings in `doc/` (e.g., `doc/PROJECT_DOCS.md`)
+- Record findings in `docs/` (e.g., `docs/PROJECT_DOCS.md`)
 
 ## Tools
 
@@ -45,4 +45,4 @@ Extract API contracts, data models, validation rules, and architectural patterns
 
 - Never modify originals вЂ” work on copies in `private/`
 - No prod traffic without permission
-- Cross-reference with `doc/ARCHITECTURE.md` before recording decisions
+- Cross-reference with `docs/ARCHITECTURE.md` before recording decisions

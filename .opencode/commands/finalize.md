@@ -4,7 +4,7 @@ ______________________________________________________________________
 
 ## description: Finalize staging — run the gate and merge to main if approved
 
-Follow `doc/GIT_FLOW.md` §2 step 11 — Propose finalization:
+Follow `docs/GIT_FLOW.md` §2 step 11 — Propose finalization:
 
 1. Check CI status on staging branch
 1. Show `git log --oneline main..staging`

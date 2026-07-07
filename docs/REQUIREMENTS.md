@@ -4,7 +4,7 @@
 
 Full feature specification for the department website. The site serves as an information portal, thesis archive, practice management system, and peer review platform.
 
-Covers: feature modules, page descriptions, user roles, navigation structure. Does not cover: implementation details, database schema — see `doc/SCHEMA.md`, route documentation — see `doc/API_REFERENCE.md`.
+Covers: feature modules, page descriptions, user roles, navigation structure. Does not cover: implementation details, database schema — see `docs/SCHEMA.md`, route documentation — see `docs/API_REFERENCE.md`.
 
 ## 1. User Roles
 

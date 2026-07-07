@@ -59,7 +59,7 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=src --cov-report=term-missing --cov-fail-under=50 -n 2 --durations=10"
+addopts = "--cov=src --cov-report=term-missing --cov-fail-under=80 -n 2 --durations=10"
 
 [tool.coverage.run]
 omit = ["src/thesesImport.py", "src/wsgi.py", "src/extract_text.py", "src/static/files/*"]

@@ -91,20 +91,20 @@ se-site/
 
 | File | Purpose |
 |------|---------|
-| [doc/DEVELOPMENT_PROCESS.md](doc/DEVELOPMENT_PROCESS.md) | Development workflow, conventions, testing |
-| [doc/GIT_FLOW.md](doc/GIT_FLOW.md) | Branching, commits, staging workflow |
-| [doc/ARCHITECTURE.md](doc/ARCHITECTURE.md) | Module design and data flow |
-| [doc/REVERSE_ENGINEERING.md](doc/REVERSE_ENGINEERING.md) | Extracting knowledge from legacy code |
-| [doc/TOOLING.md](doc/TOOLING.md) | Cross-platform tooling knowledge |
-| [doc/TROUBLESHOOTING.md](doc/TROUBLESHOOTING.md) | Common errors and fixes |
-| [doc/API_REFERENCE.md](doc/API_REFERENCE.md) | API endpoint reference |
-| [doc/SCHEMA.md](doc/SCHEMA.md) | Database schema |
-| [doc/REPO_REVIEW.md](doc/REPO_REVIEW.md) | Repository audit checklist |
+| [docs/DEVELOPMENT_PROCESS.md](docs/DEVELOPMENT_PROCESS.md) | Development workflow, conventions, testing |
+| [docs/GIT_FLOW.md](docs/GIT_FLOW.md) | Branching, commits, staging workflow |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Module design and data flow |
+| [docs/REVERSE_ENGINEERING.md](docs/REVERSE_ENGINEERING.md) | Extracting knowledge from legacy code |
+| [docs/TOOLING.md](docs/TOOLING.md) | Cross-platform tooling knowledge |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common errors and fixes |
+| [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | API endpoint reference |
+| [docs/SCHEMA.md](docs/SCHEMA.md) | Database schema |
+| [docs/REPO_REVIEW.md](docs/REPO_REVIEW.md) | Repository audit checklist |
 
 ## Contributing
 
-See [doc/GIT_FLOW.md](doc/GIT_FLOW.md) for branching model and commit conventions.
-See [doc/DEVELOPMENT_PROCESS.md](doc/DEVELOPMENT_PROCESS.md) for full development workflow.
+See [docs/GIT_FLOW.md](docs/GIT_FLOW.md) for branching model and commit conventions.
+See [docs/DEVELOPMENT_PROCESS.md](docs/DEVELOPMENT_PROCESS.md) for full development workflow.
 
 All contributions are welcome. Please ensure tests pass and code is formatted before committing.
 

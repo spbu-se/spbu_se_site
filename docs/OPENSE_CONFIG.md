@@ -56,7 +56,7 @@ Skills are auto-registered in `.skills/<name>/README.md`. Available skills:
 
 1. **Plan** -> analyze, apply priority ladder, present to user
 1. User approves or redirects
-1. Branch (see `doc/GIT_FLOW.md`)
+1. Branch (see `docs/GIT_FLOW.md`)
 1. **Doc first** -> commit docs before code
 1. **Implement** -> write tests first (TDD), implement until tests pass, auto-commit iteratively
 1. **Plan** -> final review

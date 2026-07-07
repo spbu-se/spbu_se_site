@@ -4,7 +4,7 @@
 
 Version control workflow, branching model, commit conventions, and guardrails for the SE Site project.
 
-Covers: branching, commit rules, staging workflow, session start/end rituals, guardrails, stale branch audit, commit conventions. Does not cover: planning phase, testing requirements, code review — see `doc/DEVELOPMENT_PROCESS.md`.
+Covers: branching, commit rules, staging workflow, session start/end rituals, guardrails, stale branch audit, commit conventions. Does not cover: planning phase, testing requirements, code review — see `docs/DEVELOPMENT_PROCESS.md`.
 
 ## 1. Branching
 
@@ -26,7 +26,7 @@ Covers: branching, commit rules, staging workflow, session start/end rituals, gu
 ## 2. Workflow
 
 1. **Branch** — `git checkout -b <prefix>/<name>` from `staging`.
-1. **Architecture first** — write design decisions in `doc/ARCHITECTURE.md -> Design Decisions` before implementation.
+1. **Architecture first** — write design decisions in `docs/ARCHITECTURE.md -> Design Decisions` before implementation.
 1. **Doc first** — update docs that describe code that does not exist yet, commit, then implement.
 1. **Mid-sprint violation** — if architecture-first or doc-first step was skipped, create a `TODO.md` Backlog entry. Fixing it (document decision, rearrange code if needed) is a **must-have** before the next feature.
 1. **TDD**: write tests from docs -> implement -> format -> test -> commit.
@@ -47,7 +47,7 @@ Covers: branching, commit rules, staging workflow, session start/end rituals, gu
    - Is its git tracking status correct? → every new file must be either `.gitignored` (local-only) or tracked (shared). Verify intent before commit.
    - If a rule is documented WITHOUT checking layers 1-2 first, the session is incomplete. Add the automated check before proceeding to the gate.
 1. **Pre-merge refresh** — before proposing merge to current, run `uv export --no-dev --no-hashes` and commit if changed.
-1. **Staging→current gate** — full verification against the checklist in `doc/DEVELOPMENT_PROCESS.md`. Before gate:
+1. **Staging→current gate** — full verification against the checklist in `docs/DEVELOPMENT_PROCESS.md`. Before gate:
    - Check every `.md` file has: H1 → one-sentence aim → scope note covering what it does and does not document
    - Verify no content duplicates another doc — cross-reference instead
    - Fix hidden issues, improve process docs, add retrospective findings
@@ -56,7 +56,7 @@ Covers: branching, commit rules, staging workflow, session start/end rituals, gu
    - Update ARCHITECTURE.md Design Decisions with new choices
    - Update TODO.md (remove completed, reorder backlog)
    - **AI instructions drift check**: verify no unique content in AI instructions — every claim must cross-reference a canonical source. If a new quirk is needed, write the full version in the canonical doc first, then extract a condensed cross-reference.
-   - Audit cross-references: scan every `.md` file under `doc/` and `.skills/` for hardcoded step numbers. Replace with section-title references (e.g. `§2 — Task selection priority ladder` instead of `step 50`).
+   - Audit cross-references: scan every `.md` file under `docs/` and `.skills/` for hardcoded step numbers. Replace with section-title references (e.g. `§2 — Task selection priority ladder` instead of `step 50`).
 1. **Retrospective & stale branch audit** — after each merge to current. Run `git branch --merged current | Select-String -NotMatch "current"` and auto-delete. If 5+ merges since last doc audit, run a doc health check (verify scope, no cross-doc duplication). If tasks are needed, optionally run `repo-review` skill to generate backlog.
 1. **TODO management** — every unimplemented idea MUST live in `TODO.md` Backlog or Icebox. Removing from Icebox requires explicit user request. Document rejection reasons in ARCHITECTURE.md Design Decisions when declining a feature. The product includes what is NOT implemented — document why.
 1. **Task priority ladder**: CI fixes > PRs > stale branches > backlog > icebox.
@@ -236,7 +236,7 @@ Do not commit, stash, or proceed without user approval. This overrides all autom
 
 ### AI instruction changes
 
-Facts must originate in canonical docs (`doc/*.md`) before being referenced in AI instructions (`AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`). Never author facts directly in AI instructions. Confirm with user before committing AI instruction changes.
+Facts must originate in canonical docs (`docs/*.md`) before being referenced in AI instructions (`AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`). Never author facts directly in AI instructions. Confirm with user before committing AI instruction changes.
 
 ### .editorconfig sync
 
@@ -291,7 +291,7 @@ During a documentation extraction session, the agent committed a docs commit dir
 1. No tool-level deny for git write operations during plan mode — the guard was human-enforced only
 1. Orphaned WIP was visible at session start (`git status`) but was not branched or committed before new work began
 
-**Fix**: Added bash permission rules to the AI tooling config (`.opencode/opencode.json` or equivalent) that explicitly deny `git reset`, `git checkout`, `git commit`, `git add`, `git merge`, `git push`, `git tag` during plan mode. Only read-only git commands (`log`, `status`, `diff`, `branch`) are allowed. See `doc/OPENSE_CONFIG.md` for the permission configuration.
+**Fix**: Added bash permission rules to the AI tooling config (`.opencode/opencode.json` or equivalent) that explicitly deny `git reset`, `git checkout`, `git commit`, `git add`, `git merge`, `git push`, `git tag` during plan mode. Only read-only git commands (`log`, `status`, `diff`, `branch`) are allowed. See `docs/OPENSE_CONFIG.md` for the permission configuration.
 
 ### Retrospective — 2026-07-04: squash-merge from auto branch, CI green, test gaps found
 
@@ -308,9 +308,9 @@ Merged 30 commits from `staging-auto-20260704T154021Z` into staging via squash-m
 
 **Fix**: Updated TOOLING.md with the correct `_user_id` session key. Added `pass_filenames: false` to the mdformat pre-commit hook so it checks ALL markdown files (not just staged ones) — aligns pre-commit behavior with CI. Documented retro entry.
 
-### Retrospective — 2026-07-06: encoding corruption, doc/docs rename, process fixes
+### Retrospective — 2026-07-06: encoding corruption, docs/docs rename, process fixes
 
-Post-coverage session covering `doc/`→`docs/` rename, encoding policy enforcement, commit cadence clarifications, and retrospective skill updates. Does not cover code changes (see previous retro).
+Post-coverage session covering `docs/`→`docs/` rename, encoding policy enforcement, commit cadence clarifications, and retrospective skill updates. Does not cover code changes (see previous retro).
 
 **Changes analyzed**: ~140 files (92 `.py` + `.md` encoding declarations, cross-reference updates, process doc fixes).
 
@@ -323,8 +323,8 @@ Post-coverage session covering `doc/`→`docs/` rename, encoding policy enforcem
 | mdformat `.` traverses `.venv/`, `.opencode/node_modules/` | Missing config | Updated workflow to use explicit paths only. |
 | No pre-commit guard for non-UTF-8 files | Missing config | Needs `check-encoding` hook — deferred to separate commit. |
 | No encoding declarations in any file | Missing convention | Added `# -*- coding: utf-8 -*-` to 86 `.py` files. Added `<!-- encoding: utf-8 -->` to 53 `.md` files. |
-| Commit cadence rules conflated auto vs interactive mode | Human error | Updated `doc/GIT_FLOW.md §4.0` with mode-dependent table. Updated `.skills/unattended-mode/README.md`. |
-| `doc/REPO_REVIEW.md` not updated to `docs/` in `.gitignore` | Human error | Fixed. |
+| Commit cadence rules conflated auto vs interactive mode | Human error | Updated `docs/GIT_FLOW.md §4.0` with mode-dependent table. Updated `.skills/unattended-mode/README.md`. |
+| `docs/REPO_REVIEW.md` not updated to `docs/` in `.gitignore` | Human error | Fixed. |
 
 **Pattern recurrence**: YES — "facts in AGENTS.md without canonical source" and "pre-creation without checking existing scope" both recurred from previous retros. Escalated with:
 
@@ -342,7 +342,7 @@ Post-coverage session covering `doc/`→`docs/` rename, encoding policy enforcem
 **What went wrong**:
 
 - PowerShell encoding ambush cost ~45 min of recovery (find corruption → restore → run mdformat → hit next corruption → repeat).
-- Initial `doc/`→`docs/` rename created confusion because `docs/` already existed as Flask-Freezer build output.
+- Initial `docs/`→`docs/` rename created confusion because `docs/` already existed as Flask-Freezer build output.
 - Encoding `replace-all` script destroyed Russian UTF-8 text in 7 docs files before `git checkout` restored them.
 
 **Root causes**:
@@ -498,3 +498,21 @@ loaded before work. No recurrence of "custom is faster" bias.
 - CI: Green on staging (Basic checks + CI staging workflow)
 - Remaining: 5 known production bugs in thesesImport.py, Whoosh/OAuth/theses
   blockers (documented in TODO.md)
+
+### Retrospective — 2026-07-07: doc/ vs docs/ directory split
+
+This session created 8 documentation files under `doc/` while the canonical docs already existed under `docs/`. The split was discovered during retrospective and fixed by merging unique content back into `docs/` and deleting `doc/`.
+
+**Gaps found**:
+
+| Gap | Root cause | Fix |
+|-----|-----------|------|
+| Created `doc/` when `docs/` already existed | Missing convention — no pre-creation directory audit | Added directory-collision check to retrospective-analysis skill step 5b |
+| README.md referenced `doc/` paths that didn't exist | Stale reference — README was not updated when `doc/` was renamed to `docs/` in a prior session | Updated all 60+ cross-references across 19 files |
+| `mdformat doc/` passed silently while canonical docs were in `docs/` | Missing CI guard | No automated fix yet — relies on directory-collision audit |
+
+**Pattern recurrence**: Partially — "pre-creation without checking existing scope" was flagged in the 2026-07-06 encoding retro, but the fix was skill-only. This session is the same pattern manifesting again. Escalated with stronger audit step in the retrospective skill.
+
+**What went well**: Unique content was identified correctly (only 3 of 8 files had value). Full test suite passed. Cross-reference update was thorough (19 files, 60+ replacements).
+
+**Knowledge extracted**: Pre-creation directory collision check → retrospective-analysis skill step 5b.

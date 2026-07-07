@@ -307,9 +307,11 @@ class TestMainBlock:
         strict=False, reason="runpy.run_module re-imports thesesImport without patch"
     )
     def test_calls_get_2022_functions(self):
-        with patch.object(thesesImport, "get_2022_271") as m271, patch.object(
-            thesesImport, "get_2022_371"
-        ) as m371, patch.object(thesesImport, "sys") as ms:
+        with (
+            patch.object(thesesImport, "get_2022_271") as m271,
+            patch.object(thesesImport, "get_2022_371") as m371,
+            patch.object(thesesImport, "sys") as ms,
+        ):
             ms.argv = ["prog.py"]
             import runpy
 
