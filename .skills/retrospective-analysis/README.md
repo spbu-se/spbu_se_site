@@ -79,6 +79,8 @@ Signal strength: high-confidence finds are config-duplicates (the config IS the 
 
 **SPDX/licensing audit** вЂ” verify every new or modified source file has an SPDX header matching the repo's LICENSE file. If LICENSE is missing, flag it. If multiple licenses exist, document coverage per directory.
 
+**Secrets in logs** вЂ” scan CI output and application logs for values that look like secrets (API keys, tokens, passwords, `urandom` output). If found, flag whether the value is ephemeral or persistent. Persistent secrets in logs are a P0 security issue. Ephemeral values are at least a P2 code quality issue — the pattern trains developers to ignore ERROR output.
+
 ### 5c. Improve skills used during the session
 
 Identify which `.skills/<name>/README.md` were loaded during the analyzed session. For each:

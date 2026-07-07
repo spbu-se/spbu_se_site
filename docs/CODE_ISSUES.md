@@ -109,6 +109,18 @@ ct = CurrentThesis(author_id=1, worktype_id=1, area_id=1)
 
 Uses `author_id=1` directly, which couples to seed data ordering. Should use a query to find the test user's ID instead.
 
+## P2 — Code Quality / Security
+
+### `flask_se.py:360` — SECRET_KEY_THESIS logged at ERROR level on every startup
+
+```python
+app.logger.error("SECRET_KEY_THESIS: %s", str(app.config["SECRET_KEY_THESIS"]))
+```
+
+The key itself is ephemeral (`os.urandom(16).hex()` in `flask_se_config.py:11` — regenerated on every process restart), so the exposed value is harmless. But the PATTERN is dangerous: logging config values at ERROR level trains developers to ignore ERROR output and would expose a real secret if one were logged the same way.
+
+**Fix**: Either remove the line entirely, reduce to DEBUG level, or use a structured logger that redacts sensitive fields.
+
 ## P4 — Deprecations
 
 ### `flask_se.py:413-427` — `AdminModelView` passes `db.session` instead of `db`
