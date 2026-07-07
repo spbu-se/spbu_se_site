@@ -19,6 +19,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Branch: `git checkout -b staging-auto-<UTC-ts> origin/staging`
 - Never commit to `staging`
 - If `git config commit.gpgsign` is true, use `--no-gpg-sign` on every commit
+- Before writing piped/chained commands, read `.tooling.md` §PowerShell 5.1
 
 ## Before committing
 

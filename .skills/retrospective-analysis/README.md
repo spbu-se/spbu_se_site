@@ -257,6 +257,15 @@ Session replaced scattered implicit values (clean history, robust, low-effort, z
 
 **Fix**: Step 3 and step 8a value-contradiction references now point to `docs/DEVELOPMENT_PROCESS.md` §Process Identity → Project Doctrine. No more duplicate value definitions.
 
+### [2026-07-07] Document PowerShell pipe error pattern
+
+The agent repeatedly used Unix pipe syntax (`head`, `grep`, `&&`) in
+PowerShell. Procedural guard added to AGENTS.md pre-flight checklist:
+read `.tooling.md` §PowerShell 5.1 before writing piped commands.
+
+**Escalation**: If this pattern recurs, replace procedural guard with
+structural fix (command wrapper that validates syntax).
+
 ## Output template
 
 At the end, produce:

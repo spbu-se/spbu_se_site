@@ -262,3 +262,15 @@ This session created 8 documentation files under `doc/` while the canonical docs
 **What went well**: Unique content was identified correctly (only 3 of 8 files had value). Full test suite passed. Cross-reference update was thorough (19 files, 60+ replacements).
 
 **Knowledge extracted**: Pre-creation directory collision check → retrospective-analysis skill step 5b.
+
+### Retrospective — 2026-07-07: PowerShell pipe mistakes (metal illness)
+
+The agent repeatedly used Unix pipe commands (`head`, `grep`, `&&`) in PowerShell 5.1 despite `.tooling.md` documenting the equivalents.
+
+**What went wrong**: Muscle memory — the agent writes bash syntax by default. `.tooling.md` §PowerShell 5.1 exists but wasn't read before command execution.
+
+**Root cause**: Missing procedural guard — no pre-flight step between "I need to write a command" and "let me check if this is a Unix or PowerShell command."
+
+**Fix**: Procedural guard added to `AGENTS.md` pre-flight checklist: before writing any command with pipes, redirects, or chaining operators, read `.tooling.md` §PowerShell 5.1 first.
+
+**Escalation plan**: If this mistake recurs, replace procedural guard with structural fix (e.g., force all commands through a wrapper that validates syntax).
