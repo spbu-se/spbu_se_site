@@ -42,7 +42,7 @@ For each change, ask:
 | **Missing config** | Toolchain didn't catch this | Add linter, pre-commit hook, CI step | No — tool config, not skill |
 | **Human error** | Process was documented but not followed | Add guardrail or automation | Could a skill have prevented this? |
 | **Pattern recurrence** | Same gap appeared in a previous retro | Previous fix was insufficient — revisit and escalate | Was the skill updated last time? |
-| **Value contradiction** | Practice contradicts a documented value (clean, robust, low-effort, etc.) | Flag to user — do NOT fix autonomously. The user decides whether to adjust the value or change the practice. | No — values are user-domain |
+| **Value contradiction** | Practice contradicts a Strategic Priority from the Project Doctrine (see `docs/DEVELOPMENT_PROCESS.md` §Process Identity → Project Doctrine) | Flag to user — do NOT fix autonomously. The user decides whether to adjust the value or change the practice. | No — values are user-domain |
 
 ### 4. Check for pattern recurrence
 
@@ -157,7 +157,7 @@ Ask these questions to surface waste and optimization opportunities:
 | Did I discover a structural issue mid-edit that should have been caught pre-edit? | Missing pre-flight scan (duplicate sections, stale refs, renumbering gaps) |
 | Was there a long feedback loop between writing and validating? | Could have validated incrementally instead of batch-writing everything first |
 | Did `git diff --stat` show unexpected files changed? | Formatting noise or unintended edits hiding real changes |
-| **Did practice conflict with a documented value?** | E.g., a rule we said was "low-effort" turned out high-effort in this context. Classify as **value contradiction** in step 3 — flag to user, do not fix autonomously. |
+| **Did practice conflict with a Strategic Priority in the Project Doctrine?** | E.g., a rule we said was "low-effort" turned out high-effort in this context. Classify as **value contradiction** in step 3 — flag to user, do not fix autonomously. |
 | Did AGENTS.md grow 4+ lines vs branch point? | `git diff --stat origin/staging...HEAD AGENTS.md` — if +4+, run step 5b AI-instruction-file bloat audit |
 | Did CLAUDE.md grow vs branch point? | Any new line in CLAUDE.md is suspicious — must delegate to AGENTS.md, never expand |
 | Is this a docs/ branch finalization? | Mandatory — run step 5b bloat audit on both AGENTS.md and CLAUDE.md regardless of delta |
@@ -250,6 +250,12 @@ and docs/ branch mandatory check in step 8a. Changed exemption: AGENTS.md
 and CLAUDE.md no longer exempt from bloat detection (only README.md
 retains cross-doc duplication exemption). AGENTS.md header now
 self-enforces brevity and the delegation chain.
+
+### [2026-07-07] Replace inline values with Project Doctrine cross-reference
+
+Session replaced scattered implicit values (clean history, robust, low-effort, zero-bugs) with a canonical four-layer Project Doctrine in DEVELOPMENT_PROCESS.md. Retro skill value-contradiction check now references the Doctrine instead of free-text examples.
+
+**Fix**: Step 3 and step 8a value-contradiction references now point to `docs/DEVELOPMENT_PROCESS.md` §Process Identity → Project Doctrine. No more duplicate value definitions.
 
 ## Output template
 

@@ -2,7 +2,7 @@
 
 <!-- encoding: utf-8 -->
 
-Version control workflow, branching model, commit conventions, and guardrails for the SE Site project. Every practice here directly answers: *how does this make our history cleaner, development more robust, or effort lower?*
+Version control workflow, branching model, commit conventions, and guardrails for the SE Site project. Every practice here answers: *which Strategic Priority does this serve? Which Operational Heuristic does it follow?* See `docs/DEVELOPMENT_PROCESS.md` §Process Identity → Project Doctrine.
 
 Covers: branching, merge strategy, commit discipline, rebase policy, signoff policy, versioning. Does not cover: planning phase, development process, code review — see `docs/DEVELOPMENT_PROCESS.md`. Retrospectives — see `docs/RETROSPECTIVES.md`.
 
@@ -33,7 +33,7 @@ Covers: branching, merge strategy, commit discipline, rebase policy, signoff pol
 
 ### 2.1 Feature → staging
 
-**Why**: Squash-merge keeps staging history linear and readable — one commit per feature, easy to review and revert. This aligns with low-effort code review and clean history values.
+**Why**: Squash-merge keeps staging history linear and readable — one commit per feature, easy to review and revert. This aligns with [Strategic Priority: Low effort] and [Strategic Priority: Clean history].
 
 **How**:
 
@@ -47,7 +47,7 @@ git commit -m "feat: <summary>"
 
 ### 2.2 Staging → current
 
-**Why**: Fast-forward merge guarantees `current` is always an ancestor of `staging` — history stays linear, no merge bubbles. If they diverge, something went wrong and must be investigated before proceeding. This aligns with robust development values.
+**Why**: Fast-forward merge guarantees `current` is always an ancestor of `staging` — history stays linear, no merge bubbles. If they diverge, something went wrong and must be investigated before proceeding. This aligns with [Strategic Priority: Robust].
 
 **How**:
 
@@ -58,7 +58,7 @@ git merge --ff-only staging
 
 ### 2.3 Hotfix → current (direct lane)
 
-**Why**: Production-blocking bugs must reach production immediately — aligns with zero-bugs policy. The debt log documents the quality tradeoff: speed now, backfill later.
+**Why**: Production-blocking bugs must reach production immediately — aligns with [Strategic Priority: Zero bugs]. The debt log documents the quality tradeoff: speed now, backfill later.
 
 **How**:
 
@@ -111,7 +111,7 @@ When introducing a linter, formatter, or build tool that produces files:
 
 ### 3.3 Rescue
 
-**Why**: Accidents happen. A documented rescue pattern saves debugging time and prevents further corruption (like accidentally committing the fix instead of removing the artifact). This aligns with low-effort recovery.
+**Why**: Accidents happen. A documented rescue pattern saves debugging time and prevents further corruption (like accidentally committing the fix instead of removing the artifact). This aligns with [Strategic Priority: Low effort].
 
 **What**: If an artifact was committed by accident, remove it from tracking and add its pattern to `.gitignore`.
 
@@ -139,7 +139,7 @@ git commit -m "chore: remove <artifact> from tracking"
 
 ### 3.5 Linter-only commits
 
-**Why**: Formatting-only changes are mechanical — they carry no behavioral risk and blocking the author for review wastes time. This aligns with low-effort development.
+**Why**: Formatting-only changes are mechanical — they carry no behavioral risk and blocking the author for review wastes time. This aligns with [Strategic Priority: Low effort].
 
 **What**: Commits that only touch formatters or linters (ruff, mdformat, dprint) and pass all checks need no user review. May be committed and pushed directly to staging.
 
@@ -166,7 +166,7 @@ git commit -m "chore: remove <artifact> from tracking"
 
 ## 6. Stale Branch Audit
 
-**Why**: Stale branches accumulate and create confusion — which branches are active? which were abandoned? Cleaning after each merge keeps the branch list trustworthy and reduces cognitive load. This aligns with low-effort development.
+**Why**: Stale branches accumulate and create confusion — which branches are active? which were abandoned? Cleaning after each merge keeps the branch list trustworthy and reduces cognitive load. This aligns with [Strategic Priority: Low effort].
 
 **What**: After each merge to current, delete merged local branches. Before new tasks, list stale remote branches.
 
@@ -195,13 +195,13 @@ git tag v<version>
 
 ### 8.1 Branch protection (aspirational)
 
-**Why**: Prevents accidental pushes to `current` and ensures CI quality gates are enforced before production merges. This aligns with robust development values — no bypass of the staging→current gate.
+**Why**: Prevents accidental pushes to `current` and ensures CI quality gates are enforced before production merges. This aligns with [Strategic Priority: Robust] — no bypass of the staging→current gate.
 
 **What**: Protect `current` from direct pushes and enforce status checks. Requires repo admin access.
 
 ### 8.2 CI status
 
-**Why**: Fast CI feedback reduces debugging cost — catching a failure seconds after push is cheaper than finding it hours later. This aligns with low-effort development.
+**Why**: Fast CI feedback reduces debugging cost — catching a failure seconds after push is cheaper than finding it hours later. This aligns with [Strategic Priority: Low effort].
 
 **What**: Before starting new work, verify CI on staging is green. After push, wait for CI completion.
 

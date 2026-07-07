@@ -16,6 +16,39 @@ This project blends agile practices suited for single-agent development:
 | **Kanban** | Continuous flow, pull-based work selection (priority ladder), WIP-limited (one task) | Cycle time tracking, explicit board |
 | **Shape Up** | Shaping phase (planning + doc-first), appetite sizing (S/M/L estimates) | 6-week cycles, betting table |
 
+## Project Doctrine
+
+Four layers guide every decision. A lower layer never violates a higher one.
+
+### Layer 1 — Supreme Directives (inviolable)
+
+| # | Directive | Meaning |
+|---|-----------|---------|
+| I | Never hurt the user | Students, staff, faculty. No technical choice degrades their experience, loses their data, or breaks their workflow. |
+| II | Never hurt the product | Codebase, docs, infra, tests are long-term assets. Architectural debt, test gaps, missing docs erode them. |
+
+### Layer 2 — Strategic Priorities (ordered, drive product success)
+
+| Priority | Meaning |
+|----------|---------|
+| 1. Zero bugs | Any behavior deviating from documented specs blocks feature work |
+| 2. Robust | CI gates, staging flow, pre-commit, test coverage — safety over convenience |
+| 3. Clean history | Linear git, squash-merges, conventional commits, no stale branches |
+| 4. Low effort | Automate, simple solutions, fast feedback — remove friction from all aims |
+
+### Layer 3 — Operational Heuristics (cross-cutting, all apply simultaneously)
+
+Like special ops: each has its mission, they coordinate, no single one dominates.
+
+- **Document first** — intelligence before action. Write the decision, spec, or design before implementing.
+- **Automate toil** — logistics. Anything done twice gets scripted. Manual steps are a risk vector.
+- **Fail fast** — reconnaissance. Validate the riskiest assumption first. Break it on purpose in isolation before integrating.
+- **Prefer simple** — KISS. The simplest correct solution wins. Over-engineering is the #1 repeated gap.
+
+### Layer 4 — Practices (concrete, changeable)
+
+Everything in `docs/GIT_FLOW.md`, `docs/TESTING.md`, `docs/TOOLING.md`, `.pre-commit-config.yaml`, CI workflows. Each practice traces upward to one or more Heuristics or Priorities.
+
 Design decisions about deliberate deviations are recorded in `docs/ARCHITECTURE.md -> Design Decisions`.
 
 Covers: planning, testing, linting, code review, release, dependencies, session lifecycle, workflow discipline. Does not cover: CLI commands, architecture design, AI tooling, version control — see `docs/GIT_FLOW.md`.
