@@ -6,7 +6,9 @@
 
 ## AI Instructions
 
-See `AGENTS.md` for commands, quirks, and workflow. See `docs/` for full process docs: `docs/DEVELOPMENT_PROCESS.md`, `docs/GIT_FLOW.md`, `docs/ARCHITECTURE.md`, `docs/API_REFERENCE.md`, `docs/SCHEMA.md`.
+See `AGENTS.md` for pre-flight checklist, testing quirks, and environment quirks.
+See `docs/DEVELOPMENT_PROCESS.md`, `docs/GIT_FLOW.md`, `docs/TESTING.md`,
+`docs/ARCHITECTURE.md`, `docs/DOCS.md` for process, branching, testing, and architecture.
 
 ## Skills
 

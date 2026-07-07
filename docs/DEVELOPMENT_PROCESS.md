@@ -2,7 +2,9 @@
 
 <!-- encoding: utf-8 -->
 
-Flask-based website for the SPbSU System Programming Department. See `AGENTS.md` for commands, `docs/GIT_FLOW.md` for version control, and `docs/OPENSE_CONFIG.md` for AI tooling.
+Flask-based website for the SPbSU System Programming Department. See `AGENTS.md` for pre-flight and setup quirks, `docs/GIT_FLOW.md` for version control, and `docs/OPENSE_CONFIG.md` for AI tooling.
+
+All doc management rules (creation, formatting, encoding, integrity checks) are in `docs/DOCS.md`.
 
 ## Process Identity
 
@@ -16,7 +18,7 @@ This project blends agile practices suited for single-agent development:
 
 Design decisions about deliberate deviations are recorded in `docs/ARCHITECTURE.md -> Design Decisions`.
 
-Covers: planning, testing, linting, code review, release, dependencies. Does not cover: CLI commands, architecture design, AI tooling, version control.
+Covers: planning, testing, linting, code review, release, dependencies, session lifecycle, workflow discipline. Does not cover: CLI commands, architecture design, AI tooling, version control — see `docs/GIT_FLOW.md`.
 
 ## 0. CLI Quick Reference
 
@@ -39,14 +41,12 @@ When docs describe code that does not yet exist:
 1. Implement in a `feat:` or `fix:` commit
 1. Run tests before merging
 
-Every `.md` file under `docs/` must start with a one-sentence aim description after the H1 title, explaining what the file documents and who it serves.
-
 ## 0.5 Planning Phase
 
 Before any implementation: enter **planning phase** (read-only analysis). Always:
 
-1. Check CI status
-1. Apply the priority ladder (see `docs/GIT_FLOW.md`): CI failures -> PRs -> backlog -> icebox
+1. Check CI status — if `origin/staging` is red, stop and fix first
+1. Apply the priority ladder: CI failures -> PRs -> backlog -> icebox
 1. Present findings and top candidate tasks to the user, each with effort estimate (S/M/L) and brief rationale
 1. User reviews, adjusts, approves
 1. **Check existing first** — before creating a new skill, doc, or tool, verify existing ones don't already cover the need. Over-engineering (solving completeness over practicality) is the #1 repeated gap.
@@ -62,33 +62,138 @@ Before any implementation: enter **planning phase** (read-only analysis). Always
 
 Planning phase is non-negotiable. Never jump to implementation without prior discussion.
 
-## 0.6 Skill Conventions
+## 0.6 Workflow Discipline
 
-Skills live in `.skills/<name>/README.md` (vendor-agnostic). Per-vendor stubs in `.claude/skills/`, `.opencode/skills/`, `.agents/skills/` point to the canonical skill. The `name` must be lowercase alphanumeric with hyphens and match the directory name.
+### Architecture first
 
-### Adding a new skill
+Write design decisions in `docs/ARCHITECTURE.md -> Design Decisions` before implementation.
 
-1. **Canonical source** — create `.skills/<name>/README.md`
-1. **Vendor stubs** — create `SKILL.md` in `.opencode/skills/<name>/`, `.claude/skills/<name>/`, `.agents/skills/<name>/`
-1. **Register** — add to `CLAUDE.md` skills table
-1. **Cross-reference** — add to `AGENTS.md` if needed, reference in relevant process docs
+### Doc first
 
-## 0.7 New Artifact Checklist
+Update docs that describe code that does not exist yet, commit, then implement.
 
-When creating any new file, directory, or tooling config:
+### Mid-sprint violation
 
-1. **Scope** — What does it cover? What does it explicitly not cover? Write a one-sentence aim at the top.
-1. **Vendor lock-in** — Does it reference a specific AI tool? If yes, create a canonical vendor-agnostic version first, then thin wrappers per tool.
-1. **Convention** — Does an existing pattern apply? (e.g., all `.md` under `docs/` need aim + scope, skills go in `.skills/`, formatting via ruff+mdformat)
-1. **Canonical source** — If this could be referenced from multiple places, where does the one true version live? Other locations should be derived cross-references.
+If architecture-first or doc-first step was skipped, create a `TODO.md` Backlog entry. Fixing it (document decision, rearrange code if needed) is a **must-have** before the next feature.
 
-## 0.8 Tool Source of Truth
+### TDD
+
+Write tests from docs → implement → format → test → commit.
+
+### Enforcement self-check
+
+Before staging→current gate, audit each decision from this session:
+
+- Can it be automated? → tool config (layer 1)
+- Can it be CI-checked? → add a workflow step (layer 2)
+- Is documentation the only option? → document (layer 3)
+- Is its git tracking status correct? → every new file must be either `.gitignored` (local-only) or tracked (shared). Verify intent before commit.
+- If a rule is documented WITHOUT checking layers 1-2 first, the session is incomplete. Add the automated check before proceeding to the gate.
+
+### Pre-merge refresh
+
+Before proposing merge to current, ensure `requirements.txt` matches lockfile. See `docs/GIT_FLOW.md §8` for the command.
+
+### Pre-staging validation
+
+Before staging after bulk doc edits, run the `mdformat` command that CI will use — not just `--check`. This catches missing files and path errors early. See `docs/DOCS.md §7.1` for the command.
+
+### Context compaction
+
+Before compacting context or ending session:
+
+- Update `docs/ARCHITECTURE.md` Design Decisions with new choices
+- Update `TODO.md` (remove completed, reorder backlog)
+- Run AI instructions drift check (see `docs/DOCS.md §5.3`)
+- Audit cross-references: scan every `.md` file under `docs/` and `.skills/` for hardcoded step numbers. Replace with section-title references.
+
+### Task management
+
+- **TODO.md**: every unimplemented idea MUST live in TODO.md Backlog or Icebox. Removing from Icebox requires explicit user request. Document rejection reasons in `docs/ARCHITECTURE.md` Design Decisions when declining a feature.
+- **Priority ladder**: CI fixes > PRs > stale branches > backlog > icebox.
+
+### Process docs during code work
+
+Do not update process documentation while implementing features or fixing bugs on a feature branch. Instead, gather observations and suggest improvements. Process doc changes happen during staging→current gate or on dedicated `docs/` branches.
+
+**Exception**: if the architecture-first or doc-first cycle was violated (code before doc), add a `TODO.md` debt entry mid-sprint — this is a violation record, not a doc change.
+
+### Stop signal
+
+When any commit requires user review (AI instruction change, process change, non-trivial decision), output a visible stop banner and do NOT proceed:
+
+```
+🟡 STOP — <reason>
+```
+
+Do not commit, stash, or proceed without user approval. This overrides all automation rules — if in doubt, STOP.
+
+### .editorconfig sync
+
+Every new file type should have an `.editorconfig` entry. Keep `.editorconfig` in sync with formatter configs (dprint, ruff).
+
+## 0.7 Session Lifecycle
+
+### Session start
+
+**Why**: Every session starts from a known state — no orphaned WIP, no stale assumptions, no format drift.
+
+**What**:
+
+1. Sync with remote and check for lingering work from the last session
+1. Read `.unfinished.plan.md` to understand what was interrupted
+1. Sync staging and verify it is not ahead of current unexpectedly
+1. Verify pre-commit hooks pass before touching any code
+1. Branch from staging
+
+The exact commands for each step are in `docs/GIT_FLOW.md §3` (Guardrails — Session start).
+
+### Session end
+
+**Why**: Unfinished work must be preservable across sessions without polluting history.
+
+**What**:
+
+1. Check working tree for dirty or untracked files
+1. Write `.unfinished.plan.md` with date/time, focus task, branch, last commit hash, dirty files, completed and remaining steps, undocumented decisions
+1. If on a feature branch with unfinished code: commit WIP, create `_UNFINISHED.md` as the final commit
+1. `_UNFINISHED.md` is always the last commit — stripped automatically by squash-merge
+1. `.unfinished.plan.md` is never committed (see `.gitignore`)
+1. Refresh `requirements.txt` if dependencies changed
+1. Verify working tree is clean
+
+The exact commands for each step are in `docs/GIT_FLOW.md §7`.
+
+### Staging green rule
+
+**Why**: Broken CI hides regressions from everyone. A red staging blocks all work until fixed.
+
+**What**:
+
+- CI on `origin/staging` must be green at all times
+- Never commit to `staging` directly — all work goes to feature branches (or `staging-auto-*` in batch mode)
+- Before every push: tests, lint, format, pre-commit, secrets check — all must pass
+- After every push: wait for CI, fix immediately if red
+
+The full pre-flight checklists are in `AGENTS.md` (Pre-flight checklist). The push command reference is in `docs/GIT_FLOW.md §4.1`.
+
+## 0.8 Skill Conventions
+
+## 0.8 Skill Conventions
+
+Skills live in `.skills/<name>/README.md` (canonical). Per-vendor stubs in `.opencode/skills/`, `.claude/skills/`, `.agents/skills/`.
+
+## 0.9 New Artifact Checklist
+
+Before creating new files or directories, verify scope and existing overlap.
+
+## 0.10 Tool Source of Truth
 
 Python tools (ruff, pytest, mdformat, pre-commit) are installed via `uv` — managed in `pyproject.toml` `[dependency-groups]`. Non-Python tools (dprint, commitlint) are managed via pre-commit repo hooks. Never install linting/formatting tools globally — always use `uv run`.
 
 To upgrade a Python tool: bump the version in `pyproject.toml` → `uv lock` → commit. No pre-commit config update needed.
 
-## 0.9 Decision Enforcement
+## 0.11 Decision Enforcement
 
 Every process rule is enforced at one of three layers:
 
@@ -100,7 +205,7 @@ Every process rule is enforced at one of three layers:
 
 When adding a new rule: enforce at the lowest possible layer. Only document (layer 3) what cannot be automated (layers 1-2). Add CI checks (layer 2) to verify layer-1 configs are honored.
 
-## 0.10 Tooling Parity
+## 0.12 Tooling Parity
 
 Every CI check must have a corresponding local check that behaves identically.
 A CI check with no local equivalent, or a local check that silently passes while
@@ -141,38 +246,23 @@ If CI fails on a check that pre-commit should have caught:
 1. Does it work on one platform but not another?
 1. Fix the entry point so the local check matches the CI check exactly.
 
-## 0.11 Encoding Policy
+## 0.13 Encoding Policy
 
-All source files (`.py`, `.md`, `.yaml`, `.json`, `.toml`, `.cfg`) **must be UTF-8**. No exceptions unless explicitly documented.
-
-Every file that supports encoding declarations must declare it at the very beginning:
-
-| Format | Declaration | Position |
-|--------|-------------|----------|
-| `.py` | `# -*- coding: utf-8 -*-` | Line 1 (before SPDX header) |
-| `.md` | `<!-- encoding: utf-8 -->` | Line 2 (after H1 title, before content) |
-| Others | Format doesn't support inline declaration | Exception documented here |
-
-On Windows, PowerShell `Set-Content`/`Out-File` default to Windows-1252, not UTF-8. Always use `[System.IO.File]::WriteAllText()` with explicit UTF-8 encoding. See `docs/TOOLING.md §PowerShell encoding`.
+All source files must be UTF-8. Declare encoding at the top of every file.
 
 ## 1. Version Control
 
-See `docs/GIT_FLOW.md` — branching, guardrails, commit sequence, staging.
+See `docs/GIT_FLOW.md` — branching, merge strategy, commit discipline, signoff policy.
 
-## 2. Testing
+## 2. Retrospectives
 
-```bash
-pytest
-```
+See `docs/RETROSPECTIVES.md` — historical record of process gaps and fixes.
 
-- Aim for 100% line coverage where feasible. New modules: tests before first commit — aim for ≥50% initial coverage.
-- **Test-first**: tests are authored before implementation where possible
-- Tests live alongside source code under `tests/`
-- Run before every commit
-- **Zero bugs policy**: any bug found during development blocks all feature work until fixed
-- **Edge case thinking**: during test writing, audit empty inputs, corrupt data, boundary values, failure modes. Where edge cases emerge, improve process documentation (what was missed and how to catch it next time).
+## 3. Testing
 
-## 3. Styling & Linting
+See `docs/TESTING.md` for testing discipline, coverage targets, xfail policy, and long-term gaps.
+
+## 4. Styling & Linting
 
 ```bash
 ruff check src/
@@ -184,31 +274,29 @@ Ruff and mdformat are enforced via pre-commit hooks. See `.pre-commit-config.yam
 
 The mdformat pre-commit hook uses **explicit paths** matching the CI workflow:
 `docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/`.
-Never use `mdformat .` — on Windows it traverses `.venv/` which contains
-vendor `.md` files with non-UTF-8 bytes, causing a silent crash and allowing
-unformatted files through.
+Never use `mdformat .` — on Windows it traverses `.venv/` which contains vendor `.md` files with non-UTF-8 bytes, causing a silent crash.
 
-## 3.5 Code Review Checklist
+## 4.5 Code Review Checklist
 
 Every item must pass before staging -> current merge:
 
 | # | Check | What to verify |
 |---|---|---|
-| 1 | **Tests pass** | `pytest` green — run locally AND verify against CI environment (fresh DB, no stale artifacts) |
+| 1 | **Tests pass** | `docs/TESTING.md` — full suite green, coverage within target |
 | 2 | **Lint** | `ruff` clean |
 | 2a | **Types** (future) | `mypy strict` passes, no new `# type: ignore[code]` — required once mypy is configured |
 | 3 | **Format** | `ruff format` + `mdformat` applied |
-| 4 | **Edge cases** | Empty/null inputs, boundary values, failure modes tested |
+| 4 | **Edge cases** | `docs/TESTING.md §1` — empty inputs, boundary values, failure modes tested |
 | 5 | **Error messages** | Actionable, follow existing pattern (field → reason) |
-| 6 | **Docs sync** | ARCHITECTURE.md, API_REFERENCE.md, SCHEMA.md updated — and every `.md` file has H1 → aim → scope |
-| 7 | **AI instructions** | New quirks added? Existing ones still accurate? Verify no unique content — every claim cross-references a canonical doc. |
+| 6 | **Docs sync** | `docs/DOCS.md §8` integrity checks applied — H1 → aim → scope on every `.md`, encoding declarations, cross-references resolved |
+| 7 | **AI instructions** | New quirks added? Existing ones still accurate? Verify no unique content — every claim cross-references a canonical doc (`docs/DOCS.md §5`). |
 | 8 | **requirements.txt current** | Run `uv export --no-dev --no-hashes > requirements.txt` — committed if changed |
 | 9 | **Backward compat** | Existing behavior unchanged |
 | 10 | **No secrets** | No hardcoded keys, tokens, or production URLs |
 | 11 | **Conventions** | Code style matches existing patterns |
 | 12 | **Process compliance** | Architecture-first cycle followed? Zero bug policy respected? Any violations documented in `TODO.md`? |
 
-## 4. Dependencies
+## 5. Dependencies
 
 Production dependencies in `requirements.txt` (pinned versions, generated by uv):
 
@@ -224,7 +312,7 @@ uv sync                                # install all deps (dev + main)
 uv export --no-dev --no-hashes > requirements.txt  # update prod requirements
 ```
 
-## 5. Release
+## 6. Release
 
 1. Determine SemVer bump from commit log since last tag
 1. Update version references if any
@@ -236,7 +324,7 @@ uv export --no-dev --no-hashes > requirements.txt  # update prod requirements
 
 For public deployment, consider: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CHANGELOG.md`, `CITATION.cff` (academic citation metadata), `.github/FUNDING.yml` (funding channels).
 
-## 6. Process Improvements Backlog
+## 7. Process Improvements Backlog
 
 Acknowledged process improvement ideas that are not yet implemented. These are process-debt items, not project tasks — they live here rather than `TODO.md`.
 

@@ -92,7 +92,7 @@ se-site/
 | File | Purpose |
 |------|---------|
 | [docs/DEVELOPMENT_PROCESS.md](docs/DEVELOPMENT_PROCESS.md) | Development workflow, conventions, testing |
-| [docs/GIT_FLOW.md](docs/GIT_FLOW.md) | Branching, commits, staging workflow |
+| [docs/GIT_FLOW.md](docs/GIT_FLOW.md) | Branching, merge strategy, commit discipline |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Module design and data flow |
 | [docs/REVERSE_ENGINEERING.md](docs/REVERSE_ENGINEERING.md) | Extracting knowledge from legacy code |
 | [docs/TOOLING.md](docs/TOOLING.md) | Cross-platform tooling knowledge |

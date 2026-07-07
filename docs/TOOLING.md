@@ -116,9 +116,20 @@ This works because Flask-Login reads `session["_user_id"]` on every request to l
 
 ## pytest config
 
-`pytest` reads `[tool.pytest.ini_options]` from `pyproject.toml` directly вЂ” no separate `pytest.ini` or `setup.cfg` needed.
+`pytest` reads `[tool.pytest.ini_options]` from `pyproject.toml` directly — no separate `pytest.ini` or `setup.cfg` needed.
 
 ## pre-commit
+
+### Hook listing
+
+The following hooks block obvious garbage (defined in `.pre-commit-config.yaml`):
+
+| Hook | Blocks |
+|---|---|
+| `check-added-large-files` | Files > 500 KB |
+| `check-case-conflict` | Case conflicts on case-insensitive FS |
+| `check-json` / `check-yaml` | Invalid syntax in structured files |
+| `commitlint` | Non-conventional commit messages |
 
 ### Hook ordering
 
@@ -131,6 +142,10 @@ Run formatters before linters. `ruff-format` before `ruff check --fix` avoids fo
 ### First run performance
 
 First invocation downloads and caches hook environments. Install hooks early to make repeated runs fast.
+
+### CLI conciseness
+
+When a CLI option or path is implied by another option or glob, omit the redundant part. A directory path covers all files within it; listing a child file explicitly is noise. Keep commands short and clear — every redundant token distracts from the real structure.
 
 ## GitHub CLI
 
@@ -162,25 +177,23 @@ gh run view <run-id> --log | Select-String -Pattern "not formatted" -Context 0,1
 
 `pyproject.toml` has `"tests/*.py" = ["N801"]` — test class names don't need to follow PascalCase conventions (e.g., `test_basic_auth` as a class is acceptable). This is intentional: test classes often describe scenarios rather than being named after the class under test.
 
-## lxml dependency for BeautifulSoup HTML parsing
-
-`lxml>=6.1.1` is a dev dependency in `pyproject.toml` (`[dependency-groups] dev`). It's required for BeautifulSoup HTML parser tests (`features="lxml"`) in scrape tests under `test_theses_import.py`. The built-in `html.parser` is too lenient — it doesn't raise on malformed HTML that triggers different code paths.
-
-## Ruff
-
 ### Unsafe fixes
 
 `--unsafe-fixes` enables rules that safe mode skips:
 
-- E722 вЂ” bare `except`
-- E711 вЂ” `!= None` comparison
-- F841 вЂ” unused variable assignment
+- E722 — bare `except`
+- E711 — `!= None` comparison
+- F841 — unused variable assignment
 
 Run: `ruff check --fix --unsafe-fixes`
 
 ### Target version
 
 Set `target-version` in `[tool.ruff]` to match minimum supported Python. Affects which syntax is flagged as invalid.
+
+## lxml dependency for BeautifulSoup HTML parsing
+
+`lxml>=6.1.1` is a dev dependency in `pyproject.toml` (`[dependency-groups] dev`). It's required for BeautifulSoup HTML parser tests (`features="lxml"`) in scrape tests under `test_theses_import.py`. The built-in `html.parser` is too lenient — it doesn't raise on malformed HTML that triggers different code paths.
 
 ## General
 
@@ -203,7 +216,7 @@ omit = ["src/thesesImport.py", "src/migrations/*"]
 
 ## Commit signing
 
-Signoff policy is defined in `docs/GIT_FLOW.md В§4`. This doc only adds cross-cutting notes.
+Signoff policy is defined in `docs/GIT_FLOW.md §4`. This doc only adds cross-cutting notes.
 
 ### Never touch global git config
 
@@ -211,13 +224,11 @@ Global git options (`git config --global`) are user-specific and should never be
 
 ### Auto-branch commits: disable GPG signoff
 
-On machines with `commit.gpgsign = true` in git config, every commit triggers a keylocker unlock dialog. For auto/batch mode branches (`staging-auto-*`), this is unnecessary overhead and blocks automation:
+Auto/batch mode branches (`staging-auto-*`) must use `--no-gpg-sign` — they are throwaway branches that are squash-merged and never appear as individual commits in permanent history.
 
 ```bash
 git commit --no-gpg-sign -m "..."
 ```
-
-This is safe because auto-branches are throwaway — they are squash-merged to staging and never appear as individual commits in the permanent history.
 
 ## pytest-xdist + Whoosh
 
@@ -251,36 +262,6 @@ import flask_se as _fs
 _fs.scheduler.shutdown(wait=False)
 ```
 
-## pytest config in pyproject.toml
-
-`pytest` reads `[tool.pytest.ini_options]` from `pyproject.toml` directly вЂ” no separate `pytest.ini` or `setup.cfg` needed.
-
-## pre-commit
-
-### Hook ordering
-
-Run formatters before linters. `ruff-format` before `ruff check --fix` avoids formatting-then-linting false positives.
-
-### System hooks
-
-`language: system` hooks run whatever is on PATH. Use `uv run <tool>` as the entry point to ensure the project's venv version is used.
-
-### First run performance
-
-First invocation downloads and caches hook environments. Install hooks early to make repeated runs fast.
-
-## GitHub CLI
-
-### Retrospective вЂ” Windows SQLite URI path format undocumented
-
-After introducing a session-scoped seeded DB template, the `Path.as_posix()` URI format silently failed on Windows вЂ” `db.create_all()` raised no error but didn't create the file. The fix (`str(Path() / ...)`) was applied directly to `conftest.py` but never extracted as a documented quirk. A later retro session identified the gap and added the note above.
-
-**What went wrong**: The fix was code-only вЂ” no doc entry was created even though the issue (Windows path format) is a portable tooling knowledge item that affects all Windows developers.
-
-**Root cause**: Missing convention вЂ” agent applied a fix but didn't create the corresponding doc note because the retrospective hadn't been run yet. The retro skill didn't require retro entries for every gap found.
-
-**Fix**: Added the Windows SQLite URI path format section above. Updated the retrospective-analysis skill В§7 to require that every classified gap gets a retrospective entry, even if the fix was applied directly.
-
 ## PowerShell encoding
 
 See `.skills/encoding-audit/README.md` for detection scripts, git recovery workflow, fix patterns, and encoding declaration templates.
@@ -290,26 +271,26 @@ See `.skills/encoding-audit/README.md` for detection scripts, git recovery workf
 PowerShell's `Set-Content` and `Out-File` cmdlets default to the system's active ANSI code page (Windows-1252 on en-US Windows), NOT UTF-8. This corrupts any file containing non-ASCII characters when the file is expected to be UTF-8.
 
 ```powershell
-# вќЊ WRONG вЂ” writes Windows-1252
+# WRONG — writes Windows-1252
 Set-Content -Path file.md -Value $content
 
-# вќЊ WRONG вЂ” also Windows-1252
+# WRONG — also Windows-1252
 $content > file.md
 
-# вќЊ WRONG вЂ” also Windows-1252
+# WRONG — also Windows-1252
 Out-File -FilePath file.md -InputObject $content
 
-# вњ… CORRECT вЂ” writes UTF-8 without BOM
+# CORRECT — writes UTF-8 without BOM
 [System.IO.File]::WriteAllText($path, $content, [System.Text.UTF8Encoding]::new($false))
 
-# вњ… CORRECT вЂ” reads UTF-8
+# CORRECT — reads UTF-8
 [System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
 
-# вњ… CORRECT вЂ” writes bytes as UTF-8
+# CORRECT — writes bytes as UTF-8
 [System.IO.File]::WriteAllBytes($path, [System.Text.Encoding]::UTF8.GetBytes($content))
 ```
 
-**Applies to**: Any `.py`, `.md`, `.yaml`, `.json`, `.toml`, `.cfg` file вЂ” anything that should be UTF-8.
+**Applies to**: Any `.py`, `.md`, `.yaml`, `.json`, `.toml`, `.cfg` file — anything that should be UTF-8.
 
 ### `Get-Content` with `-Raw` still defaults to Windows-1252
 
@@ -328,10 +309,4 @@ Get-ChildItem -Recurse -Include "*.md" | ForEach-Object {
 
 ### Encoding declaration policy
 
-Every file that supports encoding declarations must declare UTF-8 at the very beginning:
-
-- **Python (`.py`)**: `# -*- coding: utf-8 -*-` on line 1, before SPDX header
-- **Markdown (`.md`)**: `<!-- encoding: utf-8 -->` on line 2 (after H1 title), before any content
-- **Other formats** (TOML, YAML, JSON): format doesn't support inline declaration вЂ” documented exception in `docs/DEVELOPMENT_PROCESS.md`
-
-This rule prevents silent re-encoding when files are opened or saved by tools that default to system locale encoding. All 92 Python files and all markdown files must comply.
+See `docs/DOCS.md §6` for the project's encoding declaration policy.

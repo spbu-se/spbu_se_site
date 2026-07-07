@@ -4,7 +4,7 @@ Detect and fix non-UTF-8 encoding in source files on Windows. PowerShell encodin
 
 Reusable across any Windows dev environment with Python or markdown files that contain non-ASCII text (Cyrillic, Chinese, accented Latin, em-dashes, etc.).
 
-Does NOT cover project-specific encoding declaration policy (see that project's `docs/DEVELOPMENT_PROCESS.md`). Does NOT cover configuration formats (TOML, YAML, JSON) that don't support inline encoding declarations.
+Does NOT cover project-specific encoding declaration policy (see `docs/DOCS.md §6` for this project's encoding policy and declarations). Does NOT cover configuration formats (TOML, YAML, JSON) that don't support inline encoding declarations.
 
 ## When to load
 

@@ -2,88 +2,59 @@
 
 <!-- encoding: utf-8 -->
 
-РЎР°Р№С‚ РєР°С„РµРґСЂС‹ СЃРёСЃС‚РµРјРЅРѕРіРѕ РїСЂРѕРіСЂР°РјРјРёСЂРѕРІР°РЅРёСЏ РЎРџР±Р“РЈ.
-`docs/DEVELOPMENT_PROCESS.md` for full workflow.
+Сайт кафедры системного программирования СПбГУ.
+`docs/DEVELOPMENT_PROCESS.md` for full workflow. `docs/GIT_FLOW.md` for branching.
+`docs/TESTING.md` for testing strategy.
+
+Available skills: `docs/OPENSE_CONFIG.md` §3 lists all `.skills/<name>/` workflows.
+Load the matching skill before starting a task (`skill` tool).
+
+Every line must answer: "Would an agent likely miss this without help?" If not, cut it.
+CLAUDE.md defers to this file. This file defers to `docs/`.
 
 ## Pre-flight checklist (auto/batch mode)
 
-Before writing ANY code in auto/batch mode:
+- `git fetch --prune origin`
+- Check `origin/staging` CI — if red, stop and fix first
+- Branch: `git checkout -b staging-auto-<UTC-ts> origin/staging`
+- Never commit to `staging`
+- If `git config commit.gpgsign` is true, use `--no-gpg-sign` on every commit
 
-- [ ] `git fetch --prune origin` — sync remote
-- [ ] Check `origin/staging` CI status — if red, stop and fix first
-- [ ] Record start UTC timestamp
-- [ ] Create branch: `git checkout -b staging-auto-<UTC-ts> origin/staging`
-- [ ] Load relevant skills: `uv run pre-commit run --all-files` to verify hooks work, then load `.skills/<name>/` for the task
-- [ ] Never commit to `staging` — all work goes to the auto-branch
-- [ ] Verify local git config: `git config commit.gpgsign` — if `true`, use `--no-gpg-sign` on every auto-branch commit to avoid keylocker unlock delay
-- [ ] Before creating any new file or directory, verify nothing similar already exists — `ls docs/`, `grep` for matching names, read existing content to assess scope overlap
-- [ ] Never trust memory — encode every finding in docs
+## Before committing
 
-Before committing:
-
-- [ ] Run `uv run pytest -n 2` — full suite must pass
-- [ ] Run `uv run ruff check src/ && uv run ruff format --check src/`
-- [ ] Run `uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/`
-- [ ] Run `uv run pre-commit run --all-files` — parity with CI
-- [ ] Check for secrets in staged files — if any real secret found, DO NOT PUSH
-- [ ] Verify `requirements.txt` is fresh
-
-After push to auto-branch:
-
-- [ ] Wait for CI (staging) to complete
-- [ ] If CI red → fix before any further work
-- [ ] Compile retrospective report (start time, branch, outcomes, bugs found)
-
-## Commands
-
-```bash
-uv sync                                       # install dependencies (dev + main)
-uv run python src/flask_se.py                 # run dev server (http://127.0.0.1:5000)
-uv run python src/flask_se.py init            # initialize database
-uv run python src/wsgi.py                     # run via WSGI
-uv run pytest                                 # run tests (parallel -n 2)
-uv run ruff check src/                        # lint
-uv run ruff format src/                       # format
-uv export --no-dev --no-hashes > requirements.txt  # update prod requirements (PowerShell: use `[System.IO.File]::WriteAllText("requirements.txt", $(uv export --no-dev --no-hashes), [System.Text.UTF8Encoding]::new($false))` to avoid BOM)
+```powershell
+uv run mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
+uv run ruff format src/
+uv run ruff check src/
+uv run pytest -n 2
 ```
 
-```
-Run these BEFORE any commit вЂ” CI runs them and will fail:
-  uv run mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/   # all markdown files (CI runs --check on Linux)
-  uv run ruff format src/    # Python files
-  uv run ruff check src/     # Python lint (pre-commit also runs this)
+Also verify `requirements.txt` is fresh (CI uses pip, not uv):
 
-Before pushing to remote, simulate CI locally:
-  uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/ && uv run ruff format --check src/ && uv run ruff check src/
-
-Also verify requirements.txt is fresh (serviceability.yml uses pip, not uv):
-  uv run python -c "import subprocess; r=subprocess.run(['uv','export','--no-dev','--no-hashes'],capture_output=True,text=True); r.check_returncode(); open('requirements.txt','w',encoding='utf-8',newline='\n').write(r.stdout)"
-  (PowerShell: use the above — `uv export > file` and `[IO.File]::WriteAllText` both corrupt output with stderr or flatten newlines)
-
-Then:
-  git add && git commit --no-gpg-sign -m "<type>: <description>"  # auto-branch: always --no-gpg-sign to avoid keylocker
-  git push
-
-After staging merge: verify CI is green before further work.
+```powershell
+[System.IO.File]::WriteAllText("requirements.txt", $(uv export --no-dev --no-hashes), [System.Text.UTF8Encoding]::new($false))
 ```
 
-## Quirks & Gotchas
+## Testing quirks
 
-- **Python**: 3.9 (production), 3.13 (dev tooling, pinned in `.python-version`)
-- **Dependency mgmt**: `uv` for dev, `pip` for prod вЂ” see `docs/ARCHITECTURE.md` Design Decisions
+- **Whoosh not thread-safe** — pytest-xdist limited to `-n 2`, each worker needs its own index dir
+- **No Flask factory** — `app` is a module-level global. Patch configs BEFORE `from flask_se import app`
+- **scrypt unsupported on Python 3.13** — conftest.py mocks `check_password_hash` at module level
+- **APScheduler fires in tests** — `scheduler.shutdown(wait=False)` called at conftest module level
+- **Session-scoped DB template** — `_seeded_db_path` fixture creates + seeds once; per-test fixtures copy it (~ms)
+- **Login bypass fixture** — `logged_client` injects `session["_user_id"]` instead of POST login (avoids scrypt)
+
+## Environment quirks
+
+- **Python**: 3.13 dev (`.python-version`), 3.9 prod (Dockerfile)
+- **Dep management**: `uv` for dev, `pip install -r requirements.txt` for prod/CI
 - **Main branch**: `current` (not `main`)
-- **Database**: SQLite (`se.db`), initialized via `flask_se.py init`
-- **Config files**: `flask_se_secret.conf`, `flask_se_mail.conf`, `flask_se_practice_yandex_secret.conf` вЂ” never committed
-- **Docker**: `docker-compose.yml` for Flask + nginx; `Dockerfile` uses uWSGI
-- **Session start**: see `docs/GIT_FLOW.md` В§3 вЂ” before any work, sync staging, check for orphaned WIP. Quick reference: `git fetch --prune origin в†’ git status в†’ git checkout staging && git pull --ff-only origin staging в†’ git log --oneline origin/staging ^origin/current в†’ git checkout -b <prefix>/<name>`
-- **Planning phase first** вЂ” no code without prior user discussion and approval
-- **Staging is mandatory** вЂ” all branches merge to `staging` first, never directly to `main`
-- **Plan mode: NO git writes** вЂ” in plan mode, only `git log`, `git status`, `git diff`, `git branch` are allowed. No `reset`, `checkout -b`, `add`, `commit`, `merge`, `push`, `tag`.
-- **Auto-mode branching**: in unattended/batch mode, branch `staging-auto-<UTC-timestamp>` from staging вЂ” never commit to staging directly, never merge the branch, retrospective + report commit before handoff. Later squash-merged to staging. Non-auto staging merges require GPG signoff.
-- **Tool source of truth**: Python tools via `uv` (pyproject.toml `[dependency-groups]`), non-Python tools via pre-commit repo hooks вЂ” see `docs/DEVELOPMENT_PROCESS.md` В§0.7
-- **CI pitfall вЂ” requirements.txt staleness**: `serviceability.yml` runs `pip install -r requirements.txt` on EVERY push to ANY branch. If `requirements.txt` doesn't match current `uv.lock`, it fails. Always run `uv export --no-dev --no-hashes > requirements.txt` before pushing.
-- **mdformat CI vs local**: CI uses Linux which formats markdown differently (LF vs CRLF). Always run `uv run mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/` (not just `--check`) before committing to ensure files are in CI-compatible format.
-- **Encoding audit**: See `.skills/encoding-audit/README.md` — detect and fix non-UTF-8 encoding on Windows.
-- **Flask test patterns**: See `.skills/flask-test-patterns/README.md` — reusable fixtures for Flask + SQLAlchemy + xdist tests.
-
-See `docs/GIT_FLOW.md` section 3 for the session start ritual.
+- **Database**: SQLite (`se.db`), init via `uv run python src/flask_se.py init`
+- **Config files** (never committed): `flask_se_secret.conf`, `flask_se_mail.conf`, `flask_se_practice_yandex_secret.conf`
+- **Docker**: uWSGI-based Flask container + nginx (docker-compose.yml)
+- **requirements.txt staleness** — CI runs `pip install -r` on every push. Must match `uv.lock`. Always regenerate before pushing
+- **mdformat CI vs local** — CI uses Linux (LF). Always run `uv run mdformat ...` (not `--check`) before committing on Windows
+- **PowerShell encoding** — `Set-Content` defaults to Windows-1252. Use `[System.IO.File]::WriteAllText` for UTF-8
+- **Encoding declarations**: every `.py` needs `# -*- coding: utf-8 -*-` on line 1, every `.md` needs `<!-- encoding: utf-8 -->` on line 2
+- **GPG keylocker** — if signingkey is set, `git commit` hangs waiting for unlock. Always use `--no-gpg-sign` on feature/auto branches
+- **`git config commit.gpgsign`** — check this first; if true, never commit without `--no-gpg-sign`
