@@ -45,6 +45,8 @@ git commit -m "feat: <summary>"
 
 **Exception for `experiment/`**: never merged. Delete with `git branch -D experiment/<name>`.
 
+**Never continue on a squash-merged branch without explicit user instruction**. After `git merge --squash` to staging, the branch is consumed. Any further work must either start a new branch or be explicitly approved — squash-merge creates a different commit tree, and git cannot cleanly merge subsequent changes.
+
 ### 2.2 Staging → current
 
 **Why**: Fast-forward merge guarantees `current` is always an ancestor of `staging` — history stays linear, no merge bubbles. If they diverge, something went wrong and must be investigated before proceeding. This aligns with [Strategic Priority: Robust].
