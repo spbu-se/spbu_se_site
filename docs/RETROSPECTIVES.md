@@ -277,7 +277,7 @@ Session covering 1 commit on `staging-auto-20260707-191401` (squash-merged to st
 | AGENTS.md `[System.IO.File]::WriteAllText("requirements.txt", $(uv export ...))` command collapses multi-line output into one line | Process doc bug | Needs command fix: `$(uv export ...)` in PowerShell joins array elements with spaces — use temp file approach instead |
 | `uv export` emits `Resolved N packages` to stderr, which `2>&1` mixes into output | Missing stderr separation | Fixed: used `2>($null)` to suppress stderr |
 | Started session on `staging` (not auto-branch) — had to switch mid-stream | Human error | Corrected: deleted local staging changes, branched from `origin/staging` |
-| retrospective-analysis skill referenced in OPENSE_CONFIG.md but does not exist in `.skills/` | Missing config | Deferred — skill was never created |
+| retrospective-analysis skill reported as missing | Tool quirk — glob tool doesn't descend into `.skills/` when `path` is a parent directory | Documented in `docs/OPENSE_CONFIG.md` §Tool Quirks. The skill exists at `.skills/retrospective-analysis/README.md`. |
 
 **Pattern recurrence**: PARTIAL — "direct staging work" pattern from 2026-07-06 retros. This time caught and corrected before any commits were made to staging. **Over-engineering pattern recurred (4th consecutive retro)** — when asked to suggest solutions, proposed 5 complex options (Python script, pre-commit, CI auto-fix, cmd/c) before checking if pip itself validates its own format (`pip install --dry-run`). Escalated with pre-commit hook (Layer 1) and widened "check existing first" guard (see §0.6a).
 

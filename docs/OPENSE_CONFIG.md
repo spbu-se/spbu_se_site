@@ -63,3 +63,19 @@ Skills are auto-registered in `.skills/<name>/README.md`. Available skills:
 1. Verify on `staging` branch
 1. Merge `staging` -> `current`
 1. Fail -> `git branch -D`, Succeed -> squash-merge + delete branch
+
+## Tool Quirks
+
+### Glob tool doesn't descend into dot-prefixed directories
+
+When the glob tool's `path` parameter points to a parent directory, patterns like `.skills/**/*.md` return **no results**. The tool must point directly into the dot directory:
+
+```jsonc
+// WRONG — returns nothing:
+// glob(path=".", pattern=".skills/**/*.md")
+
+// CORRECT — finds all 11 skill files:
+// glob(path=".skills", pattern="**/*.md")
+```
+
+This applies to the opencode glob tool on all platforms. Other AI tools (Claude Code, Cursor) may have different behavior — their glob implementations are independent.
