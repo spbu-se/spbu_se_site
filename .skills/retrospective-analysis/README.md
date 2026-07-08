@@ -1,4 +1,4 @@
-﻿# retrospective-analysis
+# retrospective-analysis
 
 <!-- encoding: utf-8 -->
 
@@ -25,13 +25,13 @@ List all files touched and categorize: source code, tests, docs, config, tooling
 
 For each change, ask:
 
-| Question | If yes в†’ |
+| Question | If yes → |
 | ---------------------------------------------- | -------------------------------------------------------- |
-| Was this planned (pro-active)? | No fix needed вЂ” record as completed work |
+| Was this planned (pro-active)? | No fix needed — record as completed work |
 | Was this re-active (fixing something missing)? | **Classify the gap** (next step) |
 | Was this a user request? | Record as completed work |
-| Could this rule have been automated? | It was left at doc-only вЂ” **classify as missing config** |
-| Was knowledge imported from another project? | **Check for cross-project leaks** вЂ” verify no private references, proprietary names, or source-repo mentions leaked into docs. Document adaptation decisions. |
+| Could this rule have been automated? | It was left at doc-only — **classify as missing config** |
+| Was knowledge imported from another project? | **Check for cross-project leaks** — verify no private references, proprietary names, or source-repo mentions leaked into docs. Document adaptation decisions. |
 
 ### 3. Classify the gap
 
@@ -87,13 +87,13 @@ Scan the session's changed docs for signal patterns:
 | **Instruction truth** | AGENTS.md or CLAUDE.md contains an instruction that references a non-working mechanism (e.g., "load skill via `skill` tool" but the tool can't load project skills) | Fix the instruction to reflect reality, or fix the underlying mechanism. An instruction that can't be followed is worse than no instruction. |
 | **Scope gap** | A documented procedure (pre-flight, guard, rule) is scoped too narrowly (e.g., "auto/batch mode only") but the gap it prevents applies to all modes | Remove the scope qualifier or add a parallel procedure for the missing mode. Make the guard universal unless there's a documented reason for the exception. |
 
-Signal strength: high-confidence finds are config-duplicates (the config IS the truth). Low-confidence are self-evident rules (may be project-specific вЂ” ask if unsure).
+Signal strength: high-confidence finds are config-duplicates (the config IS the truth). Low-confidence are self-evident rules (may be project-specific — ask if unsure).
 
-**Pre-commit vs CI parity** вЂ” verify every check that runs in CI also runs locally via pre-commit hooks. If CI catches something that pre-commit doesn't flag, either add a pre-commit hook or document the gap (and accept that CI will catch it).
+**Pre-commit vs CI parity** — verify every check that runs in CI also runs locally via pre-commit hooks. If CI catches something that pre-commit doesn't flag, either add a pre-commit hook or document the gap (and accept that CI will catch it).
 
-**SPDX/licensing audit** вЂ” verify every new or modified source file has an SPDX header matching the repo's LICENSE file. If LICENSE is missing, flag it. If multiple licenses exist, document coverage per directory.
+**SPDX/licensing audit** — verify every new or modified source file has an SPDX header matching the repo's LICENSE file. If LICENSE is missing, flag it. If multiple licenses exist, document coverage per directory.
 
-**Secrets in logs** вЂ” scan CI output and application logs for values that look like secrets (API keys, tokens, passwords, `urandom` output). If found, flag whether the value is ephemeral or persistent. Persistent secrets in logs are a P0 security issue. Ephemeral values are at least a P2 code quality issue — the pattern trains developers to ignore ERROR output.
+**Secrets in logs** — scan CI output and application logs for values that look like secrets (API keys, tokens, passwords, `urandom` output). If found, flag whether the value is ephemeral or persistent. Persistent secrets in logs are a P0 security issue. Ephemeral values are at least a P2 code quality issue — the pattern trains developers to ignore ERROR output.
 
 ### 5c. Improve skills used during the session
 
@@ -129,7 +129,7 @@ Present findings in a structured table:
 
 | Change | Trigger | Root gap | Fix |
 | ------------------------- | ------------- | ------------------- | -------------------- |
-| `docs/XXX.md` | User request | Missing template | Added В§0.7 checklist |
+| `docs/XXX.md` | User request | Missing template | Added §0.7 checklist |
 | `.pre-commit-config.yaml` | Retro finding | No formatting guard | Added mdformat hook |
 
 Include concrete file paths and exact changes needed.
@@ -142,7 +142,7 @@ Append a structured retrospective entry to `docs/RETROSPECTIVES.md`.
 If no existing heading matches, create a new one: `### Retrospective — <title>` in `docs/RETROSPECTIVES.md`. Also update the mistake journal table in `.tooling.md` if the gap is tooling-related:
 
 ```markdown
-### Retrospective вЂ” <title>
+### Retrospective — <title>
 
 <Brief description of what happened>
 
@@ -172,6 +172,8 @@ Ask these questions to surface waste and optimization opportunities:
 | Question | What it catches |
 |----------|----------------|
 | Did any single mistake propagate across multiple files? | Missing validation step before commit — should have run the breaking command earlier |
+| **What ELSE could be affected by the same root cause?** | Fix narrowed to one symptom; systemic scope not checked. The user asked "what else was broken?" — 42 files, not 1. |
+| **How do you verify nothing was silently lost?** | Fix applied but no completeness check. The user asked "is any mojibake left?" — uncovered remaining corruption in mixed-content files. |
 | Did I edit the same logical change in more than 3 files by hand? | Should have been a single grep/replace or a script |
 | Did I discover a structural issue mid-edit that should have been caught pre-edit? | Missing pre-flight scan (duplicate sections, stale refs, renumbering gaps) |
 | Was there a long feedback loop between writing and validating? | Could have validated incrementally instead of batch-writing everything first |
@@ -205,7 +207,7 @@ The retrospective skill must model the behavior it enforces. If it asks "did you
 
 ## Self-improvement log
 
-### [2026-07-04] Add step 8 вЂ” self-improve retrospective
+### [2026-07-04] Add step 8 — self-improve retrospective
 
 The retrospective analyzed every process and skill but had no mechanism to improve itself. Added step 8 and this log.
 
@@ -314,6 +316,15 @@ The 2026-07-07 retrospective ran the full workflow but still missed 5 gaps that 
 - Split step 8 self-check into "couldn't load" (structural) vs "didn't load" (behavioral)
 - Added step 9 "Self-improve the skill" — explicit post-retro audit of the skill itself
 
+### [2026-07-08] Add systemic-scope questions to step 8a
+
+Encoding corruption fix session: the user asked "what else was affected?" and "what is still broken?" — two questions that uncovered systemic scope (42 files, not 1) and silent-incompleteness (remaining mojibake in mixed-content lines). The retrospective skill had no prompt to ask these.
+
+**Fix**: Added two new questions to step 8a:
+
+- "What ELSE could be affected by the same root cause?" — prevents single-symptom fixes
+- "How do you verify nothing was silently lost?" — adds completeness verification to every fix
+
 ## Output template
 
 At the end, produce:
@@ -323,11 +334,11 @@ At the end, produce:
 
 Changes analyzed: <N>
 Gaps found: <M>
-- <gap 1> в†’ <fix>
-- <gap 2> в†’ <fix>
+- <gap 1> → <fix>
+- <gap 2> → <fix>
 No action needed: <planned changes, user requests>
 
-Pattern recurrence: <yes/no вЂ” if yes, escalate>
+Pattern recurrence: <yes/no — if yes, escalate>
 ```
 
 ## Dependencies
