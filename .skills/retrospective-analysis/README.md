@@ -172,6 +172,8 @@ Ask these questions to surface waste and optimization opportunities:
 | Question | What it catches |
 |----------|----------------|
 | Did any single mistake propagate across multiple files? | Missing validation step before commit — should have run the breaking command earlier |
+| **What ELSE could be affected by the same root cause?** | Fix narrowed to one symptom; systemic scope not checked. The user asked "what else was broken?" — 42 files, not 1. |
+| **How do you verify nothing was silently lost?** | Fix applied but no completeness check. The user asked "is any mojibake left?" — uncovered remaining corruption in mixed-content files. |
 | Did I edit the same logical change in more than 3 files by hand? | Should have been a single grep/replace or a script |
 | Did I discover a structural issue mid-edit that should have been caught pre-edit? | Missing pre-flight scan (duplicate sections, stale refs, renumbering gaps) |
 | Was there a long feedback loop between writing and validating? | Could have validated incrementally instead of batch-writing everything first |
@@ -313,6 +315,15 @@ The 2026-07-07 retrospective ran the full workflow but still missed 5 gaps that 
 - Added "Scope gap" signal pattern to step 5b
 - Split step 8 self-check into "couldn't load" (structural) vs "didn't load" (behavioral)
 - Added step 9 "Self-improve the skill" — explicit post-retro audit of the skill itself
+
+### [2026-07-08] Add systemic-scope questions to step 8a
+
+Encoding corruption fix session: the user asked "what else was affected?" and "what is still broken?" — two questions that uncovered systemic scope (42 files, not 1) and silent-incompleteness (remaining mojibake in mixed-content lines). The retrospective skill had no prompt to ask these.
+
+**Fix**: Added two new questions to step 8a:
+
+- "What ELSE could be affected by the same root cause?" — prevents single-symptom fixes
+- "How do you verify nothing was silently lost?" — adds completeness verification to every fix
 
 ## Output template
 
