@@ -292,10 +292,8 @@ class CurrentThesis(db.Model):
     # 1 - active practice
     # 2 - past practice
 
-    def __init__(self, author_id, worktype_id, area_id):
-        self.author_id = author_id
-        self.worktype_id = worktype_id
-        self.area_id = area_id
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return self.title
@@ -353,9 +351,8 @@ class ThesisTask(db.Model):
     deleted = db.Column(db.Boolean, default=False)
     current_thesis_id = db.Column(db.Integer, db.ForeignKey("current_thesis.id"))
 
-    def __init__(self, task_text, current_thesis_id):
-        self.task_text = task_text
-        self.current_thesis_id = current_thesis_id
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return self.task_text
@@ -380,11 +377,8 @@ class ThesisReport(db.Model):
     comment = db.Column(db.String(2048), nullable=True)
     comment_time = db.Column(db.DateTime, nullable=True)
 
-    def __init__(self, was_done, planned_to_do, current_thesis_id, author_id):
-        self.was_done = was_done
-        self.planned_to_do = planned_to_do
-        self.current_thesis_id = current_thesis_id
-        self.author_id = author_id
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f"{self.was_done or ''}"

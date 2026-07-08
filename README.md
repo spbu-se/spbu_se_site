@@ -71,18 +71,20 @@ Production uses `current` branch with uWSGI behind nginx.
 
 ```
 se-site/
-├── src/                    # Application code (60 files)
+├── src/                    # Application code (27 .py files)
 │   ├── flask_se.py         # Main app, routes
+│   ├── flask_se_admin.py   # Admin panel views
 │   ├── flask_se_auth.py    # Authentication (email, VK, Google)
-│   ├── flask_se_news.py    # News posts
-│   ├── flask_se_theses.py  # Thesis search and management
+│   ├── flask_se_config.py  # App configuration
 │   ├── flask_se_diplomas.py# Diploma themes
+│   ├── flask_se_news.py    # News posts
 │   ├── flask_se_practice.py# Student practice workflows
 │   ├── flask_se_review.py  # Thesis review system
+│   ├── flask_se_theses.py  # Thesis search and management
 │   ├── se_models.py        # SQLAlchemy models
 │   └── templates/          # Jinja2 templates (107 files)
-├── tests/                  # Test suite (258+ tests, 47% coverage)
-├── doc/                    # Process and architecture documentation
+├── tests/                  # Test suite (1105 tests, 92% coverage)
+├── docs/                    # Process and architecture documentation
 ├── .github/workflows/      # CI/CD pipelines
 └── docker-compose.yml      # Production deployment
 ```
@@ -91,15 +93,21 @@ se-site/
 
 | File | Purpose |
 |------|---------|
-| [docs/DEVELOPMENT_PROCESS.md](docs/DEVELOPMENT_PROCESS.md) | Development workflow, conventions, testing |
-| [docs/GIT_FLOW.md](docs/GIT_FLOW.md) | Branching, merge strategy, commit discipline |
+| [docs/AI_AGENTS.md](docs/AI_AGENTS.md) | AI tooling config, output format conventions |
+| [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | API endpoint reference |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Module design and data flow |
+| [docs/CODE_ISSUES.md](docs/CODE_ISSUES.md) | Known production bug inventory |
+| [docs/DOCS.md](docs/DOCS.md) | Documentation management conventions |
+| [docs/GIT_FLOW.md](docs/GIT_FLOW.md) | Branching, merge strategy, commit discipline |
+| [docs/DEVELOPMENT_PROCESS.md](docs/DEVELOPMENT_PROCESS.md) | Development workflow, conventions, testing |
+| [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | Feature specifications and user roles |
+| [docs/REPO_REVIEW.md](docs/REPO_REVIEW.md) | Repository audit checklist |
+| [docs/RETROSPECTIVES.md](docs/RETROSPECTIVES.md) | Process gap history |
 | [docs/REVERSE_ENGINEERING.md](docs/REVERSE_ENGINEERING.md) | Extracting knowledge from legacy code |
+| [docs/SCHEMA.md](docs/SCHEMA.md) | Database schema |
+| [docs/TESTING.md](docs/TESTING.md) | Testing strategy and targets |
 | [docs/TOOLING.md](docs/TOOLING.md) | Cross-platform tooling knowledge |
 | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common errors and fixes |
-| [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | API endpoint reference |
-| [docs/SCHEMA.md](docs/SCHEMA.md) | Database schema |
-| [docs/REPO_REVIEW.md](docs/REPO_REVIEW.md) | Repository audit checklist |
 
 ## Contributing
 

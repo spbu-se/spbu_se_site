@@ -26,6 +26,7 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 | `README.md` | Project | Setup, badges, overview | Implementation details | Project entry point |
 | `AGENTS.md` | AI instructions | Commands, pre-flight checks, quirks | Full process docs | Quick reference for agent |
 | `CLAUDE.md` | AI instructions | Skills table | Commands, process | Skill registry |
+| `.tooling.md` | Local quirks | GPG keylocker, host-specific workarounds | Cross-platform knowledge | Local-only workarounds |
 | `TODO.md` | Tasks | Backlog, known bugs, coverage | Process improvement ideas | Task tracking |
 
 ### docs/ directory
@@ -46,34 +47,11 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 | `CODE_ISSUES.md` | Bugs | Known production bugs | Process gaps | Bug inventory |
 | `REPO_REVIEW.md` | Audit | Health checklist | — | Repo health audit |
 | `REVERSE_ENGINEERING.md` | RE | Re-engineering cycle | Dev workflow, testing | RE methodology |
-| `AI_AGENTS.md` | AI config | AI tooling config, permissions | Process, git | AI tool setup |
+| `AI_AGENTS.md` | AI config | AI tooling config, permissions, output format conventions, skills architecture and catalog | Process, git | AI tool setup |
 
 ### Skills directory (.skills/)
 
-| File | Scope | Covers | Canonical For |
-|------|-------|--------|---------------|
-| `.skills/retrospective-analysis/README.md` | Analysis | Process gap identification and classification | Retrospective workflow |
-| `.skills/test-writer/README.md` | Testing | Hermetic pytest test patterns | Test writing methodology |
-| `.skills/encoding-audit/README.md` | Encoding | UTF-8 detection and repair on Windows | Encoding fix recipes |
-| `.skills/unattended-mode/README.md` | Automation | Autonomous batch run rules | Auto-mode workflow |
-| `.skills/flask-test-patterns/README.md` | Fixtures | Reusable Flask/SQLAlchemy/pytest fixtures | Test infrastructure patterns |
-| `.skills/repo-review/README.md` | Audit | Repository health evaluation | Repo audit workflow |
-| `.skills/api-client/README.md` | API | HTTP client with retry | API client patterns |
-| `.skills/model-definer/README.md` | Models | SQLAlchemy model and WTForms definitions | Model patterns |
-| `.skills/gh-todo-sync/README.md` | Sync | TODO.md sync from GitHub/CI | Todo sync workflow |
-| `.skills/js-bundle-analysis/README.md` | JS | Reverse-engineering JS bundles | Bundle analysis |
-| `.skills/readme-generator/README.md` | README | Generating polished project READMEs | README generation |
-
-### Vendor skill stubs (.opencode/skills/, .claude/skills/, .agents/skills/)
-
-Each stub (`SKILL.md`) points to the canonical source in `.skills/<name>/README.md`. These are thin wrappers for tool-specific loading — never author skill content here.
-
-### Commands (.opencode/commands/)
-
-| File | Purpose |
-|------|---------|
-| `pause.md` | Graceful exit — save session state |
-| `finalize.md` | Run staging→current gate and merge |
+For skills catalog, vendor stubs, and commands, see `docs/AI_AGENTS.md` §Skills.
 
 ## 2a. Document Disciplines
 
@@ -100,12 +78,16 @@ Each doc has a knowledge discipline — what goes in, what stays out, how inform
 | `SCHEMA.md` | Database — tables, fields, relationships | Grouped by model area | Table: column, type, constraints, FK target, notes | Rebuild from `se_models.py` SQLAlchemy definitions |
 | `REQUIREMENTS.md` | Feature specs — user roles, navigation, feature descriptions | Per-feature sections | User story → acceptance criteria → notes | Rebuild from templates + user interviews |
 | `TESTING.md` | Testing strategy — discipline, targets, xfail policy, gaps | §1-6 numbered (Discipline, Coverage Targets, Execution, xfail, Gaps, Exclusions) | Tables for targets/xfails/gaps. § follows Why→What→How | Rebuild from `conftest.py`, test files, `pyproject.toml` coverage config |
-| `TOOLING.md` | Portable tooling knowledge — cross-platform quirks per tool | Tool-name H2 sections (uv, pytest, ruff, etc.) with ### subsections | Tool section: heading → "correct/wrong" code blocks with explanation. No process rules, only mechanics | Rebuild from `.pre-commit-config.yaml`, `pyproject.toml`, CI workflow files |
+| `TOOLING.md` | Portable tooling knowledge — cross-platform quirks per tool | Tool-name H2 sections (uv, pytest, SQLAlchemy, pre-commit, GitHub CLI, PowerShell, Python, Ruff, etc.) | Tool section: heading → "correct/wrong" code blocks with explanation. No process rules, only mechanics | Rebuild from `.pre-commit-config.yaml`, `pyproject.toml`, CI workflow files |
 | `TROUBLESHOOTING.md` | Error recipes — symptom → root cause → fix | Per-error H3 sections | Symptom paragraph → **Cause:** → **Fix:** command blocks | Rebuild from retro entries, CI logs, session notes |
 | `CODE_ISSUES.md` | Bug inventory — known production bugs | Per-module H2 sections | Table: bug, module, impact, status | Rebuild from `TODO.md` Known bugs + retro entries |
 | `REPO_REVIEW.md` | Audit checklist — repo health evaluation | Numbered phases (Legal, Architecture, Code Quality, etc.) | Phase: checklist items with status column | Rebuild from GitHub repo settings + `.github/` + CI workflows |
 | `REVERSE_ENGINEERING.md` | RE methodology — cycle description, source types | Cycle steps, Source types | Methodology description: steps numbered, types in tables | Rebuild from `.skills/js-bundle-analysis/README.md` patterns |
-| `AI_AGENTS.md` | AI-agent-specific — permissions, tool quirks, cross-references | Permission Recommendation, Tool Quirks | Permission: JSON block. Tool Quirks: per-quirk ### subsections with wrong/correct examples | Rebuild from `.opencode/opencode.json` + tool behavior observation |
+| `AI_AGENTS.md` | AI-agent-specific — permissions, tool quirks, cross-references, output format conventions, skills architecture, skills catalog, commands | Permission Recommendation, Tool Quirks, Output Format, Communication, Skills (definition, boundaries, delegation, source of truth, extraction triggers, creation, lifecycle, maintenance, directory, vendor stubs, commands) | Permissions: JSON block. Tool Quirks: per-quirk ### subsections with wrong/correct examples. Output Format: compliance rules, timing, prescribed formats. Communication: ask-when-ambiguous rule. Skills: definition, boundaries, delegation chain, source of truth, extraction triggers, creation checklist, lifecycle, maintenance, directory table, vendor stubs, commands | Rebuild from `.opencode/opencode.json` + tool behavior observation |
+
+## 2b. Skills Architecture (moved to `docs/AI_AGENTS.md` §Skills)
+
+For skills architecture — definition, delegation chain, extraction triggers, creation checklist, and lifecycle — see `docs/AI_AGENTS.md` §Skills.
 
 ## 3. Doc Creation Rules
 
@@ -184,7 +166,7 @@ Skills live in `.skills/<name>/README.md` (vendor-agnostic canonical source). Pe
 
 - **Doc changes belong on `docs/` branches or during staging→current gate**, not on feature branches. See `docs/DEVELOPMENT_PROCESS.md §0.6`.
 - **Exception**: architecture-first or doc-first cycle was violated (code before doc) → add a `TODO.md` debt entry mid-sprint. This is a violation record, not a doc change.
-- **Exception**: new findings during implementation (bugs, quirks, workarounds) go to `TOOLING.md` or `TROUBLESHOOTING.md` immediately, not at session end. See "Document as you go" in `.skills/unattended-mode/README.md §9`.
+- **Exception**: new findings during implementation (bugs, quirks, workarounds) go to `TOOLING.md` or `TROUBLESHOOTING.md` immediately, not at session end. See "Document as you go" in `docs/AI_AGENTS.md` §Skills (`.skills/unattended-mode/`).
 
 ### 4.2 What Not to Update During Feature Work
 
@@ -249,18 +231,9 @@ For `.md` files without an H1 title (e.g., vendor stubs starting with `___` sepa
 
 On Windows, PowerShell `Set-Content` and `Out-File` default to the system's active ANSI code page (Windows-1252 on en-US Windows), not UTF-8. This corrupts any file containing non-ASCII bytes when the file is expected to be UTF-8.
 
-```powershell
-# Correct — writes UTF-8 without BOM
-[System.IO.File]::WriteAllText($path, $content, [System.Text.UTF8Encoding]::new($false))
+See `docs/TOOLING.md` §PowerShell encoding for the correct `[System.IO.File]::WriteAllText` pattern and the `$(...)` subexpression trap.
 
-# Correct — reads UTF-8
-[System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
-
-# Correct — writes bytes as UTF-8
-[System.IO.File]::WriteAllBytes($path, [System.Text.Encoding]::UTF8.GetBytes($content))
-```
-
-This applies to any operation that writes `.py`, `.md`, `.yaml`, `.json`, `.toml`, or `.cfg` files. See `.skills/encoding-audit/README.md` for detection scripts, git recovery workflow, and fix patterns.
+This applies to any operation that writes `.py`, `.md`, `.yaml`, `.json`, `.toml`, or `.cfg` files. For detection scripts, git recovery workflow, and fix patterns, see `docs/AI_AGENTS.md` §Skills (`.skills/encoding-audit/`).
 
 ### 6.4 Verification
 
@@ -274,7 +247,7 @@ Get-ChildItem -Recurse -Include "*.md" | Select-String -Pattern "encoding: utf-8
 
 ### 6.5 Recovery
 
-If the working tree is corrupted by encoding bugs, use `git checkout <clean-sha> -- <file>` to restore from the last clean commit. See `.skills/encoding-audit/README.md §git recovery safety net` for details.
+If the working tree is corrupted by encoding bugs, use `git checkout <clean-sha> -- <file>` to restore from the last clean commit. For recovery workflows, see `docs/AI_AGENTS.md` §Skills (`.skills/encoding-audit/`).
 
 ## 7. Formatting Rules
 
@@ -327,6 +300,12 @@ Run during staging→current gate and during retrospectives.
 | 10 | No self-evident rules | Rule describes standard developer practice (e.g., "never commit to main") — delete, or keep as a retrospective entry if someone actually violated it | Every retro |
 | 11 | No structural anomalies in heavily-edited files | Before editing a section-heavy file, `grep -c '^## '` to detect duplicate headings or stale sections | Every bulk edit |
 | 12 | Renumbering map validated | Before section renumbering, write the mapping and validate against `grep '^## '` output | Before renumbering |
+| 13 | Stale metrics | Hardcoded test count, coverage %, file counts — verify against `pytest`, `coverage`, or `ls` | Every gate |
+| 14 | Expired guardrails | Conditional constraints ("do X until Y") — verify condition Y is not yet met. If met, remove the guardrail. | Every retro |
+| 15 | Bug status freshness | Verify OPEN/FIXED/PENDING markers in `CODE_ISSUES.md` and `TODO.md` against actual codebase state | Every retro |
+| 16 | Doc table freshness | Any table enumerating project files, docs, or modules — item count matches reality on disk | Every gate |
+| 17 | Content-scope alignment | For each changed `.md` file, verify no section violates the doc's stated "Covers"/"Does not cover" boundary | Every gate |
+| 18 | No UTF-8 BOM | No `EF BB BF` byte order mark in any source file — CI catches this, verify locally before push | Every gate |
 
 ### 8.2 Check Automation Status
 
@@ -339,6 +318,8 @@ These checks are currently manual (layer 3 — documented, manually enforced). F
 | #4 Stale TODO | Custom pre-commit hook (grep past-tense verbs) | Manual |
 | #5 Cross-refs resolve | Custom pre-commit hook (verify `see docs/X.md` links) | Manual |
 | #6 Encoding declarations | CI step counting declarations vs file count | Manual |
+| #13 Stale metrics | CI step verifying test count/coverage against committed values | Manual |
+| #18 UTF-8 BOM check | Pre-commit hook (`file --mime-encoding` check) | Manual |
 
 ## 9. Anti-Patterns
 
@@ -354,3 +335,19 @@ Recurring failures identified through retrospective analysis. Each anti-pattern 
 | **Path reference rot** | Retrospective-analysis skill pointed to `.skills/retrospective-analysis/README.md` which did not exist | Pre-commit or gate check for path existence (§8.1 #3) |
 | **Over-engineering** | Creating skills/docs for problems that don't exist yet — appeared in 3 consecutive retros | "Check existing first" guard in planning phase (docs/DEVELOPMENT_PROCESS.md §0.5) |
 | **Code-only fixes** | Windows SQLite URI fix applied to conftest.py but never documented as a quirk — rediscovered in next session | Retro §5d: extract reusable techniques (`.skills/retrospective-analysis/README.md §5d`) |
+
+## 10. SPDX / Licensing Policy
+
+Every source file must have an SPDX header matching the project's `LICENSE` file.
+
+**Format**:
+
+- Python (`.py`): `# SPDX-License-Identifier: Apache-2.0`
+- Markdown (`.md`): `<!-- SPDX-License-Identifier: Apache-2.0 -->`
+- Config files: inline comment format appropriate to the file type
+
+**Audit checks** (run during code-audit):
+
+- Every new or modified source file has an SPDX header
+- If `LICENSE` is missing from the repo, flag it
+- If multiple licenses exist, document coverage per directory

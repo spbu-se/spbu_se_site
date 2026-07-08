@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
-from conftest import assert_ok
+from conftest import LIST_VIEWS, assert_ok
 
 
 @pytest.fixture
@@ -30,19 +30,6 @@ def diploma_themes_for_review(admin_client):
     db.session.add(dt)
     db.session.commit()
     return admin_client
-
-
-LIST_VIEWS = [
-    ("admin_index", "/admin/"),
-    ("users", "/admin/users/"),
-    ("staff", "/admin/staff/"),
-    ("thesis", "/admin/thesis/"),
-    ("summerschool", "/admin/summerschool/"),
-    ("news", "/admin/posts/"),
-    ("diplomathemes", "/admin/diplomathemes/"),
-    ("reviewdiplomathemes", "/admin/reviewdiplomathemes/"),
-    ("currentthesis", "/admin/currentthesis/"),
-]
 
 
 class TestAdminDeep:

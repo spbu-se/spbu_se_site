@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import shutil
 import sys
 import tempfile
@@ -42,6 +43,40 @@ import flask_se as _fs
 _fs.scheduler.shutdown(wait=False)
 
 from se_models import init_db
+
+UPLOAD_DIRS = ["static/practice/texts/", "static/practice/reviews/", "static/practice/slides/"]
+
+
+@pytest.fixture(autouse=True)
+def _ensure_upload_dirs():
+    for d in UPLOAD_DIRS:
+        os.makedirs(d, exist_ok=True)
+    yield
+
+
+@pytest.fixture
+def staff_client(logged_client):
+    from se_models import Staff, db
+
+    if not Staff.query.filter_by(user_id=1).first():
+        db.session.add(
+            Staff(user_id=1, official_email="test@spbu.ru", position="Test", still_working=True)
+        )
+        db.session.commit()
+    return logged_client
+
+
+LIST_VIEWS = [
+    ("admin_index", "/admin/"),
+    ("users", "/admin/users/"),
+    ("staff", "/admin/staff/"),
+    ("thesis", "/admin/thesis/"),
+    ("summerschool", "/admin/summerschool/"),
+    ("news", "/admin/posts/"),
+    ("diplomathemes", "/admin/diplomathemes/"),
+    ("reviewdiplomathemes", "/admin/reviewdiplomathemes/"),
+    ("currentthesis", "/admin/currentthesis/"),
+]
 
 
 def _set_db_uri(uri):
@@ -135,10 +170,10 @@ def practice_thesis(logged_client):
     db.session.add(ct)
     db.session.flush()
 
-    task = ThesisTask("Test task", ct.id)
+    task = ThesisTask(task_text="Test task", current_thesis_id=ct.id)
     db.session.add(task)
 
-    report = ThesisReport("Completed task 1", "Task 2", ct.id, 1)
+    report = ThesisReport(was_done="Completed task 1", planned_to_do="Task 2", current_thesis_id=ct.id, author_id=1)
     db.session.add(report)
     db.session.commit()
     return logged_client

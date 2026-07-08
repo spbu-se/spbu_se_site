@@ -4,7 +4,7 @@
 
 Testing strategy, coverage targets, xfail policy, and known gaps for the SE Site project.
 
-Covers: testing discipline, execution strategy, xfail policy, long-term gaps, deliberate exclusions. Does not cover: fixture implementation patterns — see `docs/TOOLING.md`, test-writing methodology — see `.skills/test-writer/`, reusable fixture templates — see `.skills/flask-test-patterns/`, individual bug details — see `docs/CODE_ISSUES.md`.
+Covers: testing discipline, execution strategy, xfail policy, long-term gaps, deliberate exclusions. Does not cover: fixture implementation patterns — see `docs/TOOLING.md`, test-writing methodology and reusable fixture templates — see `docs/AI_AGENTS.md` §Skills, individual bug details — see `docs/CODE_ISSUES.md`.
 
 ## 1. Testing Discipline
 
@@ -55,7 +55,11 @@ Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_
 | Google OAuth full flow (2) | Requires `client_google.json` config file not in CI | TODO.md Blocked |
 | thesesImport module state tests (23) | Module-level `db.init_app(app)` + mutable flags break isolation | Unfixable without production refactor |
 
-## 5. Long-Term Testing Gaps
+## 5. Xpassed Tests
+
+26 tests currently xpass (expected to fail but passing). Likely from bugs fixed or behavior changed since xfail was applied. Investigate and either remove the `xfail` marker or migrate to proper assertions.
+
+## 6. Long-Term Testing Gaps
 
 Architectural issues that limit test coverage and require production code changes to resolve:
 
@@ -64,7 +68,7 @@ Architectural issues that limit test coverage and require production code change
 - **OAuth external dependencies**: Full-flow VK and Google OAuth tests require external config files and network access. CI tests use mock stubs — real OAuth flow is only tested manually.
 - **Practice file upload branches**: Cyclomatic complexity in practice route handlers leaves ~30 untested code branches in file upload logic. Adding tests requires multipart fixture infrastructure.
 
-## 6. Deliberate Exclusions
+## 7. Deliberate Exclusions
 
 What we explicitly do not test and why:
 

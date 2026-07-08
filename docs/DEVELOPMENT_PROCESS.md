@@ -8,6 +8,20 @@ All doc management rules (creation, formatting, encoding, integrity checks) are 
 
 ## Process Identity
 
+Foundational principles that shape every decision. See `docs/DEVELOPMENT_PROCESS.md` for the full doctrine.
+
+### Pattern recurrence escalation
+
+When a gap appears in consecutive retrospectives, the fix must escalate:
+
+| Recurrence | Minimum escalation | Example |
+|---|---|---|
+| 1st | Layer 3 — documentation | Add rule to canonical doc |
+| 2nd | Layer 2 — CI check | Add CI step that catches the gap |
+| 3rd+ | Layer 1 — tool config | Pre-commit hook, linter rule, structural guard |
+
+A fix at the same layer as the previous recurrence is not escalation — the layer must increase.
+
 This project blends agile practices suited for single-agent development:
 
 | From | We use | We deliberately reject |
@@ -82,7 +96,7 @@ Before any implementation: enter **planning phase** (read-only analysis). Always
 1. Apply the priority ladder: CI failures -> PRs -> backlog -> icebox
 1. Present findings and top candidate tasks to the user, each with effort estimate (S/M/L) and brief rationale
 1. User reviews, adjusts, approves
-1. Load relevant `.skills/<name>/` skill if available (e.g., `test-writer` for test tasks)
+1. Load relevant skill from `docs/AI_AGENTS.md` §Skills if available (e.g., `test-writer` for test tasks)
 1. Discuss approach, confirm scope, get approval
 1. Only then branch and implement
 
@@ -118,7 +132,7 @@ This applies to all problem-solving modes (planning, troubleshooting, ad-hoc sug
 
 - **CI fails on requirements.txt format** → check if pip itself validates (`pip install --dry-run`) before proposing a new script or workflow
 - **Need to format code** → check what formatters are already configured (ruff, mdformat, dprint) before adding a new one
-- **Need a test pattern** → check `.skills/` and existing test files before creating a new fixture template
+- **Need a test pattern** → check `docs/AI_AGENTS.md` §Skills and existing test files before creating a new fixture template
 
 If the existing tool covers the need, use it. If not, prefer the simplest addition that closes the gap.
 
@@ -153,9 +167,10 @@ Before staging after bulk doc edits, run the `mdformat` command that CI will use
 Before compacting context or ending session:
 
 - Update `docs/ARCHITECTURE.md` Design Decisions with new choices
-- Update `TODO.md` (remove completed, reorder backlog)
+- Update `TODO.md` (remove completed — implemented work belongs in commit messages, not TODO; reorder backlog)
 - Run AI instructions drift check (see `docs/DOCS.md §5.3`)
 - Audit cross-references: scan every `.md` file under `docs/` and `.skills/` for hardcoded step numbers. Replace with section-title references.
+- If session involved doc restructuring, propose retrospective as the finalization step (do not run mid-session)
 
 ### Task management
 
@@ -229,9 +244,8 @@ The full pre-flight checklists are in `AGENTS.md` (Pre-flight checklist). The pu
 
 ## 0.8 Skill Conventions
 
-## 0.8 Skill Conventions
-
 Skills live in `.skills/<name>/README.md` (canonical). Per-vendor stubs in `.opencode/skills/`, `.claude/skills/`, `.agents/skills/`.
+Skills architecture (definition, delegation chain, extraction triggers, creation checklist, lifecycle, maintenance) is in `docs/AI_AGENTS.md` §Skills.
 
 ## 0.9 New Artifact Checklist
 
@@ -296,7 +310,16 @@ If CI fails on a check that pre-commit should have caught:
 1. Does it work on one platform but not another?
 1. Fix the entry point so the local check matches the CI check exactly.
 
-## 0.13 Encoding Policy
+## 0.13 Error triage
+
+After every command that produces error output or a non-zero exit, ask:
+
+"Was this expected? Would I have been surprised if it succeeded?"
+
+- If yes (expected) → proceed, the error is a known path
+- If no (unexpected) → stop and investigate. Root cause first, fix second, skip third.
+
+## 0.14 Encoding Policy
 
 All source files must be UTF-8. Declare encoding at the top of every file.
 
@@ -334,7 +357,7 @@ Every item must pass before staging -> current merge:
 |---|---|---|
 | 1 | **Tests pass** | `docs/TESTING.md` — full suite green, coverage within target |
 | 2 | **Lint** | `ruff` clean |
-| 2a | **Types** (future) | `mypy strict` passes, no new `# type: ignore[code]` — required once mypy is configured |
+| 2a | **Types** (active) | `mypy src/` passes, no new `# type: ignore[code]` — per-module overrides in pyproject.toml |
 | 3 | **Format** | `ruff format` + `mdformat` applied |
 | 4 | **Edge cases** | `docs/TESTING.md §1` — empty inputs, boundary values, failure modes tested |
 | 5 | **Error messages** | Actionable, follow existing pattern (field → reason) |
@@ -345,6 +368,11 @@ Every item must pass before staging -> current merge:
 | 10 | **No secrets** | No hardcoded keys, tokens, or production URLs |
 | 11 | **Conventions** | Code style matches existing patterns |
 | 12 | **Process compliance** | Architecture-first cycle followed? Zero bug policy respected? Any violations documented in `TODO.md`? |
+| 13 | **Crash safety scan** | No bare `except:`, no `sys.exit()` in non-CLI modules, routes handle DB errors, `request.form.get(...)` has default values |
+| 14 | **File safety scan** | Upload path traversal blocked, file extension validated, `send_file` paths sanitized, temp files cleaned up |
+| 15 | **Secrets in logs** | Scan CI output and application logs for leaked keys, tokens, passwords — distinguish ephemeral vs persistent |
+| 16 | **Redirect validation** | Scan for unvalidated `next`-parameter redirects — verify relative URL check or whitelist |
+| 17 | **Deprecation scan** | Check each P4 entry in `docs/CODE_ISSUES.md` against current dependency versions — escalate if now breaking |
 
 ## 5. Dependencies
 

@@ -212,7 +212,7 @@ def edit_thesis_on_review():
         return redirect(url_for("thesis_review_index"))
 
     if request.method == "POST":
-        title = request.form.get("name_ru", type=str)
+        title = request.form.get("name_ru", "", type=str)
         worktype = request.form.get("type", type=int)
         area = request.form.get("area", type=int)
 

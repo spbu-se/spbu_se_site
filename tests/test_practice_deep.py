@@ -1,19 +1,9 @@
 # -*- coding: utf-8 -*-
 import io
-import os
 from datetime import datetime, timedelta
 
 import pytest
 from conftest import assert_ok
-
-UPLOAD_DIRS = ["static/practice/texts/", "static/practice/reviews/", "static/practice/slides/"]
-
-
-@pytest.fixture(autouse=True)
-def _ensure_upload_dirs():
-    for d in UPLOAD_DIRS:
-        os.makedirs(d, exist_ok=True)
-    yield
 
 
 class TestCurrentThesisDecorator:
@@ -444,12 +434,17 @@ class TestPracticePreparation:
         )
         assert resp.status_code in (200, 302)
 
-    def test_post_submit_text_invalid_extension(self, practice_thesis):
+    @pytest.mark.parametrize("button,field,filename", [
+        ("submit_text_button", "text", "thesis.txt"),
+        ("submit_review_button", "supervisor_review", "review.txt"),
+        ("submit_presentation_button", "presentation", "slides.txt"),
+    ])
+    def test_post_submit_invalid_extension(self, practice_thesis, button, field, filename):
         resp = practice_thesis.post(
             "/practice/preparation_for_defense/?id=1",
             data={
-                "submit_text_button": "1",
-                "text": (io.BytesIO(b"bad"), "thesis.txt", "text/plain"),
+                button: "1",
+                field: (io.BytesIO(b"bad"), filename, "text/plain"),
             },
         )
         assert resp.status_code in (200, 302)
@@ -503,20 +498,6 @@ class TestPracticePreparation:
         )
         assert resp.status_code in (200, 302)
 
-    def test_post_submit_review_bad_extension(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={
-                "submit_review_button": "1",
-                "supervisor_review": (
-                    io.BytesIO(b"bad"),
-                    "review.txt",
-                    "text/plain",
-                ),
-            },
-        )
-        assert resp.status_code in (200, 302)
-
     def test_post_submit_presentation_link(self, practice_thesis):
         resp = practice_thesis.post(
             "/practice/preparation_for_defense/?id=1",
@@ -566,16 +547,6 @@ class TestPracticePreparation:
             data={
                 "submit_presentation_button": "1",
                 "presentation": (io.BytesIO(b""), "", ""),
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_submit_presentation_invalid_extension(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={
-                "submit_presentation_button": "1",
-                "presentation": (io.BytesIO(b"bad"), "slides.txt", "text/plain"),
             },
         )
         assert resp.status_code in (200, 302)

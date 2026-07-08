@@ -26,4 +26,4 @@ This cycle is mandatory before every reverse-engineering-derived feature.
 
 ## Future skill
 
-This document provides the basis for a future `.skills/reverse-engineering/README.md` skill.
+This document provides the basis for a future skill — see `docs/AI_AGENTS.md` §Skills.

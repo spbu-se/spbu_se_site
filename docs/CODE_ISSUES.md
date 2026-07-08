@@ -1,44 +1,28 @@
 # Code Issues Discovered During Test Coverage
 
-Found during the coverage-first phase (2026-07-04/05 auto run). **Do not fix until coverage reaches 90%.**
+Found during the coverage-first phase (2026-07-04/05 auto run). Coverage at 92% — bugs below are unblocked.
 
 ## P0 — Production Bugs (crash on missing form fields)
 
-### `flask_se_auth.py:197` — `register_basic` crashes on missing `first_name`
+### `flask_se_auth.py:197` — `register_basic` crashes on missing `first_name` [OPEN]
 
 ```
 first_name = request.form.get("first_name").strip()
-AttributeError: 'NoneType' object has no attribute 'strip'
 ```
 
-When `register_basic` receives a POST without `first_name` in the form data, `.get()` returns `None`, and `.strip()` throws `AttributeError`. The route then returns 500 (handled by Flask error handler).
-
-**Fix**: Replace `.get("first_name").strip()` with `.get("first_name", "").strip()` (same pattern for `last_name`, `middle_name`, `how_to_contact`).
+When `register_basic` receives a POST without `first_name` in the form data, `.get()` returns `None`, and `.strip()` throws `AttributeError`.
 
 **Affected**: `test_auth_views.py::TestAuth::test_register_missing_fields` — currently marked `xfail`.
 
-### `flask_se_auth.py:239-242` — `user_profile` crashes on missing form fields
+### `flask_se_auth.py:239-242` — `user_profile` crashes on missing form fields [OPEN]
 
-```
-last_name = request.form.get("last_name").strip()
-first_name = request.form.get("first_name").strip()
-middle_name = request.form.get("middle_name").strip()
-how_to_contact = request.form.get("how_to_contact").strip()
-```
+Same `None.strip()` bug. Any form submission missing `last_name`, `first_name`, `middle_name`, or `how_to_contact` causes a 500 error.
 
-Same `None.strip()` bug as `register_basic`. Any form submission missing one of these fields causes a 500 error.
+### `flask_se_review.py` — `submit_thesis_on_review` crashes on missing `title` [FIXED]
 
-**Fix**: Same pattern — use `.get(field, "")` for all four fields.
+Fixed in this session — added `""` default to `request.form.get("name_ru", "", type=str)`.
 
-### `flask_se_review.py` — `submit_thesis_on_review` crashes on missing `title`
-
-```
-title = request.form.get("title").strip()
-```
-
-Same `None.strip()` bug when POSTing to `/review/submit` without `title` field.
-
-**Affected**: `test_review.py::TestReviewSubmitFlow::test_review_submit_post` — currently marked `xfail`.
+**Affected**: `test_review.py::TestReviewSubmitFlow::test_review_submit_post` — xfail may need removal.
 
 ## P1 — Edge Cases (may crash under specific conditions)
 
@@ -52,32 +36,15 @@ Already fixed in Week 1 of this auto run.
 
 ## P2 — Code Quality Issues
 
-### `se_models.py:278-281` — `CurrentThesis.__init__` doesn't accept all columns
+### `se_models.py:278-281` — `CurrentThesis.__init__` doesn't accept all columns [FIXED]
 
-```python
-def __init__(self, author_id, worktype_id, area_id):
-    self.author_id = author_id
-    self.worktype_id = worktype_id
-    self.area_id = area_id
-```
+Fixed in this session — replaced with `**kwargs` + `super().__init__(**kwargs)`.
 
-The custom `__init__` overrides SQLAlchemy's default constructor, which normally accepts all columns as keyword arguments. This forced tests to use attribute assignment after construction.
+### `se_models.py:321-323` — `ThesisTask.__init__` uses positional args [FIXED]
 
-**Fix**: Either remove the custom `__init__` (let SQLAlchemy generate it) or add `**kwargs` passthrough.
+Fixed in this session — same fix as CurrentThesis.
 
-### `se_models.py:321-323` — `ThesisTask.__init__` uses positional args
-
-```python
-def __init__(self, task_text, current_thesis_id):
-    self.task_text = task_text
-    self.current_thesis_id = current_thesis_id
-```
-
-Same issue — custom `__init__` prevents keyword argument usage. Tests had to use positional style.
-
-### `se_models.py:343-347` — `ThesisReport.__init__` uses positional args
-
-Same issue as `ThesisTask`.
+### `se_models.py:343-347` — `ThesisReport.__init__` uses positional args [FIXED]
 
 ### `flask_se_practice.py` — File upload routes have high cyclomatic complexity
 
@@ -91,50 +58,20 @@ def redirect_next_url(fallback=url_for("index")):
 
 The `next` URL pattern is handled in a fragile way — no validation of the redirect target. Potential open redirect vulnerability if `next` parameter contains an external URL.
 
+### `flask_se.py:360` — SECRET_KEY_THESIS logged at ERROR level on every startup [OPEN]
+
 ## P3 — Test Infrastructure Issues
-
-### `conftest.py` — Mocks scrypt for all tests
-
-```python
-_ws.check_password_hash = lambda pwhash, password: True
-```
-
-This is safe for testing but means password security logic is never exercised. Consider a dedicated `secure_password_test` marker or fixture for password-specific tests.
-
-### `conftest.py` — `practice_thesis` fixture has hardcoded user ID
-
-```python
-ct = CurrentThesis(author_id=1, worktype_id=1, area_id=1)
-```
-
-Uses `author_id=1` directly, which couples to seed data ordering. Should use a query to find the test user's ID instead.
-
-## P2 — Code Quality / Security
-
-### `flask_se.py:360` — SECRET_KEY_THESIS logged at ERROR level on every startup
-
-```python
-app.logger.error("SECRET_KEY_THESIS: %s", str(app.config["SECRET_KEY_THESIS"]))
-```
-
-The key itself is ephemeral (`os.urandom(16).hex()` in `flask_se_config.py:11` — regenerated on every process restart), so the exposed value is harmless. But the PATTERN is dangerous: logging config values at ERROR level trains developers to ignore ERROR output and would expose a real secret if one were logged the same way.
-
-**Fix**: Either remove the line entirely, reduce to DEBUG level, or use a structured logger that redacts sensitive fields.
 
 ## P4 — Deprecations
 
-### `flask_se.py:413-427` — `AdminModelView` passes `db.session` instead of `db`
+### `flask_se.py:413-427` — `AdminModelView` passes `db.session` instead of `db` [PENDING]
 
-Flask-Admin 3.0 will require `db` instead of `db.session`. All 8 `admin.add_view(..., db.session)` calls need updating.
+Flask-Admin 3.0 may require `db` (SQLAlchemy instance) instead of `db.session` (scoped session). Current version 2.2.0 accepts both. Verify on upgrade.
 
-### `flask_se_auth.py:49` — `Users.query.get()` is legacy SQLAlchemy 1.x
+### `flask_se_auth.py:49` — `Users.query.get()` is legacy SQLAlchemy 1.x [FIXED]
 
-```python
-return Users.query.get(int(user_id))
-```
+Replaced with `db.session.get(Users, int(user_id))` in `src/`. Only test files remain — not production code.
 
-`Query.get()` is deprecated in SQLAlchemy 2.0. Replace with `db.session.get(Users, int(user_id))`.
-
-### `flask_se_practice_admin.py:152,258` — `send_file(download_name=...)` vs `attachment_filename=...`
+### `flask_se_practice_admin.py:152,258` — `send_file(download_name=...)` vs `attachment_filename=...` [OPEN]
 
 The `download_name` parameter is for newer Flask. With older stubs, `attachment_filename` may be needed.

@@ -6,18 +6,6 @@ from conftest import assert_ok
 
 
 @pytest.fixture
-def staff_client(logged_client):
-    from se_models import Staff, db
-
-    if not Staff.query.filter_by(user_id=1).first():
-        db.session.add(
-            Staff(user_id=1, official_email="test@spbu.ru", position="Test", still_working=True)
-        )
-        db.session.commit()
-    return logged_client
-
-
-@pytest.fixture
 def thesis_with_report(staff_client):
     from se_models import CurrentThesis, ThesisReport, ThesisTask, db
 
@@ -27,10 +15,10 @@ def thesis_with_report(staff_client):
     db.session.add(ct)
     db.session.flush()
 
-    task = ThesisTask("Test task", ct.id)
+    task = ThesisTask(task_text="Test task", current_thesis_id=ct.id)
     db.session.add(task)
 
-    report = ThesisReport("Completed task 1", "Task 2", ct.id, 1)
+    report = ThesisReport(was_done="Completed task 1", planned_to_do="Task 2", current_thesis_id=ct.id, author_id=1)
     db.session.add(report)
     db.session.commit()
 
@@ -194,7 +182,7 @@ class TestReportsStaff:
         ct2.supervisor_id = 2
         db.session.add(ct2)
         db.session.flush()
-        report2 = ThesisReport("Other work", "Other plan", ct2.id, 2)
+        report2 = ThesisReport(was_done="Other work", planned_to_do="Other plan", current_thesis_id=ct2.id, author_id=2)
         db.session.add(report2)
         db.session.commit()
         resp = client.get(f"/practice_staff/reports/?id={ct_id}&report_id={report2.id}")

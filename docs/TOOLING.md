@@ -171,6 +171,92 @@ When CI mdformat fails and the filename is truncated in logs, use:
 gh run view <run-id> --log | Select-String -Pattern "not formatted" -Context 0,1
 ```
 
+### `gh run watch` times out
+
+`gh run watch` exits after ~5 minutes even if CI is still running. Use non-blocking polling:
+
+```powershell
+gh run list --branch staging --workflow "CI (staging)" --limit 1 --json conclusion
+```
+
+### Rate limits
+
+Rapid `gh run list` calls may hit GitHub API rate limits. Space polling calls 10-15 seconds apart.
+
+## PowerShell
+
+### `&&` / `||` not available
+
+```powershell
+# Wrong:
+cmd1 && cmd2
+
+# Correct:
+cmd1; if ($?) { cmd2 }
+```
+
+### No `grep`
+
+Use `Select-String` instead.
+
+### `curl` is an alias
+
+`curl` maps to `Invoke-WebRequest`, not the real `curl`. Use `curl.exe` for actual HTTP requests.
+
+### `||` not available
+
+```powershell
+# Wrong:
+cmd1 || cmd2
+
+# Correct:
+cmd1; if (-not $?) { cmd2 }
+```
+
+### Inline Python quoting
+
+`-c "..."` uses PowerShell string rules (double quotes interpolate `$`). Escape `$` with backtick or use single quotes on the outside:
+
+```powershell
+uv run python -c 'import os; print(os.name)'
+```
+
+### `2>&1` wraps stderr in noisy ErrorRecord objects
+
+`2>&1` redirects stderr to stdout, but PowerShell wraps each stderr line in an `ErrorRecord` object. Console output looks like an error even when the command succeeds:
+
+```
+git : To https://github.com/...
+At line:1 char:...
++ ... git push ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://github.com/...:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+   abc123..def456  staging -> staging
+```
+
+The push **succeeded** — the `git :` block is just PowerShell rendering an ErrorRecord. To flatten:
+
+```powershell
+# Noisy — ErrorRecord wrappers:
+cmd 2>&1
+
+# Clean — ErrorRecords flattened to plain strings:
+cmd 2>&1 | ForEach-Object { "$_" }
+```
+
+Applies to any native command (git, gh, uv) whose stderr output is informative but not an actual error.
+
+## Python
+
+### Flask-Admin ModelView session parameter
+
+`ModelView.__init__` takes `session` as a **positional** parameter.
+`SeAdminModelViewUsers(Users, db.session=db.session)` is **invalid Python** —
+keyword argument names cannot contain dots. The correct form is positional:
+`SeAdminModelViewUsers(Users, db.session)`.
+
 ## Ruff
 
 ### N801 (class name convention) suppressed for tests
@@ -264,7 +350,7 @@ _fs.scheduler.shutdown(wait=False)
 
 ## PowerShell encoding
 
-See `.skills/encoding-audit/README.md` for detection scripts, git recovery workflow, fix patterns, and encoding declaration templates.
+See `docs/AI_AGENTS.md` §Skills (`.skills/encoding-audit/`) for detection scripts, git recovery workflow, fix patterns, and encoding declaration templates.
 
 ### `Set-Content` / `Out-File` default to Windows-1252 on en-US systems
 
@@ -312,8 +398,6 @@ $lines = uv export --no-dev --no-hashes 2>($null)
 ```
 
 This quirk does NOT apply when the output is a single line (no `\n` in the captured text). Always verify multi-line output with `($content).GetType()` before passing to a string parameter.
-
-**See also**: `.tooling.md` §UTF-8 BOM in requirements.txt for the complete pattern.
 
 ### mdformat doesn't show file path on UnicodeDecodeError
 

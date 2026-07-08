@@ -6,12 +6,40 @@ Analyze a session or merge to identify process gaps, classify root causes, and s
 
 ## When to load
 
-- After every merge to current (see `docs/GIT_FLOW.md` §2 — Merge staging → current)
-- At session end, during context compaction (see `docs/DEVELOPMENT_PROCESS.md §0.6` — Context compaction)
-- When the user says "retrospective" or "lessons learned"
-- When a bug or mistake reveals a process gap
+> See `docs/AI_AGENTS.md` §Skills → Efficiency modes for the general principle.
 
-## Workflow
+### Light retro
+
+| Trigger | Why light |
+|---------|-----------|
+| After merge-gate (routine) | Catch drift, low ceremony |
+| User says "quick retro" | Explicit request for light |
+| `skill-for-skills` finds minor violations | Self-heal violations, report summary |
+
+### Full retro
+
+| Trigger | Why full |
+|---------|----------|
+| After user says "retrospective" / "lessons learned" | Full analysis expected |
+| After doc restructuring | High risk of scope violations |
+| Pattern recurrence detected | Needs escalation ladder |
+| `skill-for-skills` finds structural violations | Requires full gap classification |
+
+> **Note**: The light/full split is provisional — it will be reviewed and adjusted after the first full retro that runs with this split (see Step 10).
+
+## Light workflow
+
+For quick retro after routine merge-gate. Covers only efficiency audit and self-improvement — no gap classification.
+
+1. **Collect changes** — `git log`, categorize files (source/tests/docs/config/tooling)
+1. **Check for gaps** — run step 8a efficiency audit (all questions in §8a). Any "yes" → classify as gap
+1. **Store lessons** — append to `docs/RETROSPECTIVES.md` if gaps found
+1. **Self-improve** — run step 9 checklist (mixed-concern? pattern extraction? skill self-check?)
+1. **Generate prevention rules** — for any "yes" in efficiency audit, write rule in canonical doc (step 8b)
+
+If gaps suggest pattern recurrence or value contradiction, escalate to full retro.
+
+## Full workflow
 
 ### 1. Collect changes
 
@@ -73,27 +101,12 @@ If gaps span multiple categories, split across entries within `docs/RETROSPECTIV
 
 ### 5b. Audit doc health
 
-Scan the session's changed docs for signal patterns:
+Scan the session's changed docs for signal patterns. Doc-health-only signals (freshness, cross-refs, scope discipline, encoding, SPDX) now live in `.skills/docs-audit/` — load it separately for a full doc audit. For code-related concerns (secrets, deprecations, crash safety, redirects), load `.skills/code-audit/`.
 
 | Pattern | How to detect | Action |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| **Config duplication** | Rule is described in doc AND enforced by `.pre-commit-config.yaml`, `.github/workflows/ci.yml`, `.gitignore`, `pyproject.toml`, or `dprint.json` | Remove from doc. Cross-reference the config file. |
-| **Cross-doc duplication** | Same rule appears in 2+ non-trivial docs (e.g., `GIT_FLOW.md` + `DEVELOPMENT_PROCESS.md`). **Exempt from cross-doc duplication only**: `README.md` (user-facing, different audience). `AGENTS.md` and `CLAUDE.md` are NOT exempt — see the AI-instruction-file bloat pattern below. | Keep in one canonical doc. Replace others with cross-reference (`See X.md §Y`). |
 | **Self-evident rule** | Rule describes standard git/developer practice (e.g., "never commit to main", "stash before branching") | Delete. If the rule was added because someone violated it, keep as a retrospective entry instead. |
 | **Directory collision** | New directory was created during the session — check if a similarly-named directory already exists (e.g., `ls docs/` before creating `doc/`) | Merge unique content, delete duplicate directory. Add pre-creation audit check to the relevant skill. |
-| **AI instruction file bloat** | AGENTS.md or CLAUDE.md content duplicates a canonical doc or, for CLAUDE.md, duplicates/expands content that AGENTS.md already covers. Hierarchy: CLAUDE.md → AGENTS.md → docs/. Each layer delegates down, never down-copies. | Delete from the instruction file. Replace with a one-line cross-reference to the lower layer. |
-| **Instruction truth** | AGENTS.md or CLAUDE.md contains an instruction that references a non-working mechanism (e.g., "load skill via `skill` tool" but the tool does not surface project skills) | Fix the instruction to reflect reality, or fix the underlying mechanism |
-| **Scope gap** | A documented procedure (pre-flight, guard, rule) is scoped too narrowly (e.g., "auto/batch mode only") but the gap applies universally | Remove the scope qualifier, or add the missing mode |
-| **Instruction truth** | AGENTS.md or CLAUDE.md contains an instruction that references a non-working mechanism (e.g., "load skill via `skill` tool" but the tool can't load project skills) | Fix the instruction to reflect reality, or fix the underlying mechanism. An instruction that can't be followed is worse than no instruction. |
-| **Scope gap** | A documented procedure (pre-flight, guard, rule) is scoped too narrowly (e.g., "auto/batch mode only") but the gap it prevents applies to all modes | Remove the scope qualifier or add a parallel procedure for the missing mode. Make the guard universal unless there's a documented reason for the exception. |
-
-Signal strength: high-confidence finds are config-duplicates (the config IS the truth). Low-confidence are self-evident rules (may be project-specific — ask if unsure).
-
-**Pre-commit vs CI parity** — verify every check that runs in CI also runs locally via pre-commit hooks. If CI catches something that pre-commit doesn't flag, either add a pre-commit hook or document the gap (and accept that CI will catch it).
-
-**SPDX/licensing audit** — verify every new or modified source file has an SPDX header matching the repo's LICENSE file. If LICENSE is missing, flag it. If multiple licenses exist, document coverage per directory.
-
-**Secrets in logs** — scan CI output and application logs for values that look like secrets (API keys, tokens, passwords, `urandom` output). If found, flag whether the value is ephemeral or persistent. Persistent secrets in logs are a P0 security issue. Ephemeral values are at least a P2 code quality issue — the pattern trains developers to ignore ERROR output.
 
 ### 5c. Improve skills used during the session
 
@@ -178,10 +191,15 @@ Ask these questions to surface waste and optimization opportunities:
 | Did I discover a structural issue mid-edit that should have been caught pre-edit? | Missing pre-flight scan (duplicate sections, stale refs, renumbering gaps) |
 | Was there a long feedback loop between writing and validating? | Could have validated incrementally instead of batch-writing everything first |
 | Did `git diff --stat` show unexpected files changed? | Formatting noise or unintended edits hiding real changes |
+| **Did you skip any pre-flight step?** (fetch, CI check, branch naming, `--no-gpg-sign`) | Branch created without checking CI status first — wasted work if CI is red |
+| **Did any new rule land outside its canonical doc?** | Scope boundary violation — e.g., universal knowledge in `.tooling.md`, process rules in config files |
+| **Could any change harm users or the product?** (Supreme Directive I/II) | Edge cases that aren't bugs but degrade UX, lose data, or incur technical debt |
 | **Did practice conflict with a Strategic Priority in the Project Doctrine?** | E.g., a rule we said was "low-effort" turned out high-effort in this context. Classify as **value contradiction** in step 3 — flag to user, do not fix autonomously. |
 | Did AGENTS.md grow 4+ lines vs branch point? | `git diff --stat origin/staging...HEAD AGENTS.md` — if +4+, run step 5b AI-instruction-file bloat audit |
 | Did CLAUDE.md grow vs branch point? | Any new line in CLAUDE.md is suspicious — must delegate to AGENTS.md, never expand |
 | Is this a docs/ branch finalization? | Mandatory — run step 5b bloat audit on both AGENTS.md and CLAUDE.md regardless of delta |
+| What was going another way that we definitely expected? | Identify decisions or commands whose outcome differed from expectation. Each divergence is either a bug, a process gap, or new knowledge. |
+| **Did any doc contain stale numbers or expired constraints?** | README test count, CODE_ISSUES.md 90% guard, doc table gaps — metrics drift silently between sessions |
 
 #### 8b. Generate prevention rules
 
@@ -201,9 +219,28 @@ After completing the retrospective, check if the process revealed gaps in THIS s
 1. Review step 8 answers — any "no" or "manual" answer may indicate a skill gap
 1. Review user corrections during the session — did the user redirect the retrospective process itself?
 1. Review the gap table from step 3 — were any gaps **missed** by the retrospective and only found when you presented to the user?
+1. **Mixed-concern litmus**: For any multi-rule section proposed during the session, check each rule against its section heading. If a rule's concern differs ("when to ask" vs "how to format"), it belongs in a separate section.
+1. **Pattern extraction**: Did this session reveal a structural pattern (not just a bug) that should be encoded as a prevention rule rather than applied once? If yes, add to the appropriate skill or doc.
 1. If gaps found, add a self-improvement log entry AND update the relevant step(s) in this skill immediately
 
 The retrospective skill must model the behavior it enforces. If it asks "did you load skills?" it must be loadable. If it asks "did you check existing tools?" it must first check if the `skill` tool itself works.
+
+### 10. Review retro skill against docs
+
+Since the retro skill is derived from docs, every full retro audits the retro skill itself:
+
+1. **Does the retro skill still match its canonical docs?**
+   - `docs/DEVELOPMENT_PROCESS.md` §2 — is procedure defined there?
+   - `docs/AI_AGENTS.md` §Skills — are boundaries and principles followed?
+   - `docs/DOCS.md` §Skills directory — is catalog entry accurate?
+1. **Were docs updated when the skill changed this session?**
+   - If a step was added/modified in the skill → was the corresponding canonical doc updated?
+   - If not, add the missing info to the doc (skill is derivable, not source)
+1. **Were skills updated when docs changed?**
+   - If a doc section that the retro skill references was modified → does the skill need updating?
+1. **Is the light/full split still appropriate?**
+   - Did the light workflow miss anything this session? Did the full workflow include unnecessary steps?
+   - Propose adjustments if needed — the split is subject to change after each full retro.
 
 ## Self-improvement log
 
@@ -316,6 +353,13 @@ The 2026-07-07 retrospective ran the full workflow but still missed 5 gaps that 
 - Split step 8 self-check into "couldn't load" (structural) vs "didn't load" (behavioral)
 - Added step 9 "Self-improve the skill" — explicit post-retro audit of the skill itself
 
+### [2026-07-07] Add "unexpected outcome" retro question
+
+Agent ignored repeated error output because there was no reactive
+triage rule. Added procedural guard to AGENTS.md and `.tooling.md`.
+Retro step 8a now asks "What was going another way that we definitely
+expected?" — covers errors, surprises, and divergences in both directions.
+
 ### [2026-07-08] Add systemic-scope questions to step 8a
 
 Encoding corruption fix session: the user asked "what else was affected?" and "what is still broken?" — two questions that uncovered systemic scope (42 files, not 1) and silent-incompleteness (remaining mojibake in mixed-content lines). The retrospective skill had no prompt to ask these.
@@ -324,6 +368,34 @@ Encoding corruption fix session: the user asked "what else was affected?" and "w
 
 - "What ELSE could be affected by the same root cause?" — prevents single-symptom fixes
 - "How do you verify nothing was silently lost?" — adds completeness verification to every fix
+
+### [2026-07-08] Mixed-concern rules in section proposals
+
+When proposing a section with multiple rules, the agent grouped a communication-protocol rule ("ask if ambiguous") under a format-conventions heading because they appeared in the same proposal. User had to correct.
+
+**Signal**: A rule's concern (when to communicate) differs from its section's scope (how to format) — litmus test: "If this rule were in its own section, what would that section be called?" If different, split.
+
+**Fix**: Added to step 9 self-improvement checklist: after proposing any multi-rule section, run the litmus test on each rule. If any rule belongs to a different concern, split into separate sections before presenting.
+
+### [2026-07-08] Add stale metrics and expired guardrail signals to step 5b
+
+Doc freshness audit revealed: README test count was 47% vs actual 92%, CODE_ISSUES.md "do not fix until 90%" constraint expired 2 sessions ago, and the doc table was missing 6 entries. Step 5b had 8 structural signals but zero freshness signals.
+
+**Fix**: Added "Stale metrics" and "Expired guardrail" patterns to step 5b table. Added "Did any doc contain stale numbers or expired constraints?" to step 8a efficiency audit.
+
+### [2026-07-08] Skill extraction lifecycle — sections accumulate concerns, split proactively
+
+Doc health and code audit signals accumulated in retro step 5b until the section became a catch-all. Rather than noticing the growth and proposing a split, I waited for the user to prompt. The same pattern recurred across two extractions: `docs-audit` first, then `code-audit` separately — a full inventory before refactoring would have revealed both gaps at once.
+
+**Signal**: When a section has 8+ rows or grew 50%+ since creation, run a concern audit — does every item still share the section's original purpose?
+
+**Fix**: Added "Pattern extraction" to step 9 checklist. Added "Always learn, never forget — encode patterns before session ends" to AGENTS.md pre-flight.
+
+### [2026-07-08] Add light/full retro split + Step 10
+
+Retro was always run as full workflow (~15 min) even for routine merge-gate checks. Split into light (efficiency audit + self-improve only, ~5 min) and full (all 10 steps, including new Step 10 — review retro skill against docs). Step 10 also reviews whether the split is still appropriate, making it self-correcting.
+
+**Fix**: Added "## When to load" with trigger table. Renamed original workflow to "## Full workflow". Added "## Light workflow" with 5 condensed steps. Added "### 10. Review retro skill against docs" to full workflow. Added provisional caveat that split is subject to change after each full retro.
 
 ## Output template
 

@@ -7,17 +7,6 @@ from conftest import assert_ok
 
 
 @pytest.fixture
-def staff_client(logged_client):
-    from se_models import Staff, db
-
-    if not Staff.query.filter_by(user_id=1).first():
-        staff = Staff(user_id=1, official_email="test@spbu.ru", position="Test", still_working=True)
-        db.session.add(staff)
-        db.session.commit()
-    return logged_client
-
-
-@pytest.fixture
 def current_thesis(staff_client):
     from se_models import CurrentThesis, db
 

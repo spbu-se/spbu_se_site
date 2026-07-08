@@ -16,11 +16,14 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 
 - `git fetch --prune origin`
 - Check `origin/staging` CI — if red, stop and fix first
-- Branch: `git checkout -b staging-auto-<UTC-ts> origin/staging`
-- Never commit to `staging`
-- If `git config commit.gpgsign` is true, use `--no-gpg-sign` on every commit
-- Before using `2>&1`, flatten ErrorRecords with `| ForEach-Object { "$_" }` or suppress stderr with `2>($null)` — see `.tooling.md` §"2>&1 wraps stderr in noisy ErrorRecord objects"
-- Before writing piped/chained commands, read `.tooling.md` §PowerShell 5.1
+- Follow `docs/GIT_FLOW.md` and `docs/DEVELOPMENT_PROCESS.md` for branch naming, staging rules, and GPG signoff
+- Before using `2>&1`, flatten ErrorRecords with `| ForEach-Object { "$_" }` or suppress stderr with `2>($null)` — see `docs/TOOLING.md` §PowerShell
+- Before writing piped/chained commands, read `docs/TOOLING.md` §PowerShell
+- Before editing any doc, re-read its first 5 lines (scope/aim header). Verify your changes match that scope. If existing content doesn't match, flag it.
+- After any command that produces error output or non-zero exit, ask: "Was this expected?" If unexpected, stop and investigate.
+- Before merge: verify TODO.md has no completed items that belong in commit messages instead
+- Before merge: if session involved doc restructuring, propose retrospective as the final step (do not run mid-session)
+- Always learn, never forget — encode patterns before session ends
 
 ## Before committing
 
@@ -28,12 +31,13 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 uv run mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
 uv run ruff format src/
 uv run ruff check src/
+uv run mypy src/
 uv run pytest -n 2
 ```
 
 Also verify `requirements.txt` is fresh (CI uses pip, not uv):
 
-See `.tooling.md` §"UTF-8 BOM in requirements.txt" for the correct PowerShell command — the `$(...)` subexpression flattens multi-line output to a single line.
+See `docs/TOOLING.md` §PowerShell encoding for the correct command — the `$(...)` subexpression flattens multi-line output to a single line.
 
 ## Testing quirks
 
@@ -46,14 +50,8 @@ See `.tooling.md` §"UTF-8 BOM in requirements.txt" for the correct PowerShell c
 
 ## Environment quirks
 
-- **Python**: 3.13 dev (`.python-version`), 3.9 prod (Dockerfile)
-- **Dep management**: `uv` for dev, `pip install -r requirements.txt` for prod/CI
 - **Main branch**: `current` (not `main`)
-- **Database**: SQLite (`se.db`), init via `uv run python src/flask_se.py init`
 - **Config files** (never committed): `flask_se_secret.conf`, `flask_se_mail.conf`, `flask_se_practice_yandex_secret.conf`
-- **Docker**: uWSGI-based Flask container + nginx (docker-compose.yml)
 - **requirements.txt staleness** — CI runs `pip install -r` on every push. Must match `uv.lock`. Always regenerate before pushing
 - **mdformat CI vs local** — CI uses Linux (LF). Always run `uv run mdformat ...` (not `--check`) before committing on Windows
-- **PowerShell encoding** — `Set-Content` defaults to Windows-1252. Use `[System.IO.File]::WriteAllText` for UTF-8
-- **GPG keylocker** — if signingkey is set, `git commit` hangs waiting for unlock. Always use `--no-gpg-sign` on feature/auto branches
-- **`git config commit.gpgsign`** — check this first; if true, never commit without `--no-gpg-sign`
+- **GPG keylocker** — if `commit.gpgsign` is true, always use `--no-gpg-sign` on feature/auto branches (see `.tooling.md`)

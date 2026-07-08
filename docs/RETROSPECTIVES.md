@@ -318,3 +318,46 @@ Session covering 1 commit on `staging-auto-20260707-191401` (squash-merged to st
 - Tests: 962 passed, 1 skipped, 22 xfailed, 25 xpassed, 142 errors (all Whoosh pre-existing)
 - CI: `staging` — `python flask_se.py init` passes on all 3 versions; test suite has pre-existing Whoosh errors
 - Remaining: investigate 25 xpassed tests; address 142 Whoosh errors
+
+### Retrospective — 2026-07-08: P0–P3 sweep, doc scope violations, output format conventions
+
+Session 4 touched 22 files across src, tests, docs, config, and skills. Main work: P0–P3 bug fixes, test optimization, mypy strict enablement, and document scope cleanup.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `.tooling.md` ~90% out-of-scope (universal PowerShell/gh/Python knowledge in "local quirks only" doc) | Scope boundary violation — no signal pattern existed to catch content/doc-scope mismatch | Stripped `.tooling.md` to host-local only (GPG keylocker). Moved entries to `docs/TOOLING.md`. Added "Scope boundary violation" signal to retro step 5b. |
+| Missing batch run timing format in agent reports | No prescribed format for auto-mode wrap-ups — agent free-formed output without timing | Added `## Output Format` section to `docs/AI_AGENTS.md` with compliance rules, timing template, batch run and interactive mode formats. |
+| Self-retro didn't verify pre-flight or canonical source discipline | Step 8a only covered session efficiency and doc bloat — skipped process compliance checks | Added 3 new questions to step 8a: pre-flight compliance, canonical source discipline, Supreme Directive I/II. |
+| Search for similar P3 fix was insufficient — attempted `db.session=db.session` which is invalid Python | Unknownledge: keyword argument names cannot contain dots | Added Python quirks section to `docs/TOOLING.md` with Flask-Admin example. |
+| Mixed-concern rule in section proposal (communication rule under format heading) | Agent didn't verify each rule's scope matches its section heading | Added mixed-concern litmus to step 9. |
+| Cross-reference stale after doc moves (AGENTS.md still pointed to `.tooling.md` §PowerShell 5.1 and §UTF-8 BOM) | No cross-reference integrity check during doc restructuring | Fixed stale refs. Step 8a now asks "Did any new rule land outside its canonical doc?" |
+
+**Root causes**:
+
+1. No signal pattern for scope boundary violations — entries accumulated in `.tooling.md` because that's where they were originally placed, not because they belonged there
+1. No prescribed output format for agent reports — format drifted each session
+1. Self-retro didn't check compliance with documented process rules (pre-flight, commit checklist, canonical source)
+
+**Fix**:
+
+- Stripped `.tooling.md` to host-local only; moved universal knowledge to `docs/TOOLING.md`
+- Added `## Output Format` to `docs/AI_AGENTS.md` with compliance rules, timing, and prescribed formats
+- Added 3 new checks to retro step 8a (pre-flight, canonical source, Supreme Directives)
+- Added "Scope boundary violation" signal to retro step 5b
+- Added Python quirks section to `docs/TOOLING.md`
+- Added mixed-concern litmus to retro step 9
+- Added pre-flight doc scope check to AGENTS.md
+- Added Error triage rule to `docs/DEVELOPMENT_PROCESS.md` §0.13
+- **Extracted `.skills/docs-audit/`** from retro step 5b — doc health signals (freshness, cross-refs, encoding, SPDX) now in a dedicated skill
+- **Extracted `.skills/code-audit/`** — code quality and security audit (secrets in logs, redirect validation, deprecations, crash safety, file safety, test health, bug inventory, repo review)
+- Stripped retro step 5b to only process-gap signals (self-evident rule, directory collision); added cross-refs to both new skills
+- Created skill stubs in `.claude/` and `.agents/`
+- Registered both skills in `CLAUDE.md` and `docs/DOCS.md` catalog
+
+**State at handoff**:
+
+- Tests: 1105 passed, 1 skipped, 21 xfailed, 26 xpassed, 0 errors
+- Mypy: clean on 56 source files (was 3 weakly-checked files)
+- Coverage: 92%
+- CI: pre-commit checklist now includes `uv run mypy src/`
+- Skills total: 11 → 13 (added `docs-audit`, `code-audit`)

@@ -102,23 +102,27 @@ ignore_missing_imports = true
 no_site_packages = true
 disable_error_code = ["no-untyped-def", "no-untyped-call"]
 files = [
-    "tests/",
-    "src/flask_se_config.py",
-    "src/flask_se_news.py",
-    "src/flask_se_bachelor.py",
+    "src/",
 ]
 
 exclude = [
     "numpy",
+    "src/templates/",
 ]
 
 [[tool.mypy.overrides]]
 module = [
     "tests.*",
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
     "se_models",
     "flask_se",
     "flask_se_auth",
     "flask_se_admin",
+    "flask_se_diplomas",
     "flask_se_internships",
     "flask_se_practice",
     "flask_se_practice_admin",
@@ -127,12 +131,41 @@ module = [
     "flask_se_practice_table",
     "flask_se_practice_yandex_disk",
     "flask_se_review",
+    "flask_se_scholarships",
+    "flask_se_summer_schools",
     "flask_se_theses",
+    "extract_text",
     "se_forms",
-    "se_review_forms",
     "se_internship_forms",
+    "se_review_forms",
+    "se_sendmail",
+    "thesesImport",
+    "wsgi",
 ]
-ignore_errors = true
+ignore_errors = false
+disable_error_code = [
+    "no-untyped-def",
+    "no-untyped-call",
+    "var-annotated",
+    "arg-type",
+    "return-value",
+    "operator",
+    "assignment",
+    "attr-defined",
+    "union-attr",
+    "misc",
+    "type-arg",
+    "valid-type",
+    "call-overload",
+    "override",
+    "has-type",
+    "list-item",
+    "dict-item",
+    "index",
+    "comparison-overlap",
+    "no-any-return",
+    "name-defined",
+]
 
 [tool.pyright]
 venvPath = "."
