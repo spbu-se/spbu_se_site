@@ -46,7 +46,7 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 | `CODE_ISSUES.md` | Bugs | Known production bugs | Process gaps | Bug inventory |
 | `REPO_REVIEW.md` | Audit | Health checklist | — | Repo health audit |
 | `REVERSE_ENGINEERING.md` | RE | Re-engineering cycle | Dev workflow, testing | RE methodology |
-| `OPENSE_CONFIG.md` | AI config | AI tooling config, permissions | Process, git | AI tool setup |
+| `AI_AGENTS.md` | AI config | AI tooling config, permissions | Process, git | AI tool setup |
 
 ### Skills directory (.skills/)
 
@@ -74,6 +74,38 @@ Each stub (`SKILL.md`) points to the canonical source in `.skills/<name>/README.
 |------|---------|
 | `pause.md` | Graceful exit — save session state |
 | `finalize.md` | Run staging→current gate and merge |
+
+## 2a. Document Disciplines
+
+Each doc has a knowledge discipline — what goes in, what stays out, how information is structured. This section serves as the template for recreating any doc from scratch when only `DEVELOPMENT_PROCESS.md` is available.
+
+### Root docs
+
+| Doc | Discipline | Typical sections | Section anatomy | Recovery if missing |
+|-----|-----------|-----------------|-----------------|---------------------|
+| `AGENTS.md` | Commands + pre-flight + quirks — actionable agent instructions only | Pre-flight checklist, Before committing, Testing quirks, Environment quirks | Bullet lists of if-then rules; code blocks for commands | Extract from relevant `docs/` — each line must cross-reference a canonical source |
+| `CLAUDE.md` | Skill registry — which skills exist, when to load them | Skills table | Table: name, "load when" description | Rebuild from `.skills/*/README.md` headings |
+| `TODO.md` | Task tracking — backlog, bugs, coverage | Batch notes, Planned (table), Blocked (table), Module Coverage (table), Known bugs | Tables with priority/effort/depends-on columns | Restore from `docs/RETROSPECTIVES.md` state-at-handoff sections |
+
+### docs/ directory
+
+| Doc | Discipline | Typical sections | Section anatomy | Recovery if missing |
+|-----|-----------|-----------------|-----------------|---------------------|
+| `DOCS.md` | Meta — doc conventions, checks, catalog | §1-9 numbered (Why We Document, Catalog, §2a Disciplines, Creation, Update, Canonical Sources, Encoding, Formatting, Integrity, Anti-Patterns) | Self-describing — defines its own patterns | Rebuild from `docs/DEVELOPMENT_PROCESS.md` §Context Compaction and §Doc-first cycle |
+| `DEVELOPMENT_PROCESS.md` | Process workflow — planning, session lifecycle, code review, disciplines | §0.x workflow steps, §1-6 major areas | §0.x: numbered planning steps. Other §: Why→What→How per section with command blocks | **Cannot be rebuilt** — user-designated exception, all other docs cross-reference here |
+| `GIT_FLOW.md` | Git — branching, merge, commit, signoff, versioning | §1-8 numbered (Branching, Merge Strategy, Commit, Signoff, Rebase, Stale Branches, Versioning, GitHub) | Heading → **Why** (italicized) → **What** (table/rules) → **How** (command blocks) | Rebuild from `docs/DEVELOPMENT_PROCESS.md` §Version Control cross-reference + `.gitignore` + `.pre-commit-config.yaml` |
+| `RETROSPECTIVES.md` | Process gap history — chronological entries | Dated H3 entries per session | Consistent template: Changes analyzed, Gaps found (table), Pattern recurrence, What went well, What went wrong, Root causes, Fix, State at handoff | Rebuild from `git log` and session notes — but Gap table detail is unrecoverable |
+| `ARCHITECTURE.md` | Code design — module map, data flow, design decisions | Module map, Data flow, Design Decisions | Module map: table of module→responsibility. Design Decisions: dated table of decision→rationale→alternatives | Rebuild from source code via reverse-engineering |
+| `API_REFERENCE.md` | Routes — all endpoints, methods, view functions | Grouped by feature area (News, Theses, Practice, etc.) | Table: route, methods, params, returns, auth requirement | Rebuild from source code (`flask_se_*.py` route decorators) |
+| `SCHEMA.md` | Database — tables, fields, relationships | Grouped by model area | Table: column, type, constraints, FK target, notes | Rebuild from `se_models.py` SQLAlchemy definitions |
+| `REQUIREMENTS.md` | Feature specs — user roles, navigation, feature descriptions | Per-feature sections | User story → acceptance criteria → notes | Rebuild from templates + user interviews |
+| `TESTING.md` | Testing strategy — discipline, targets, xfail policy, gaps | §1-6 numbered (Discipline, Coverage Targets, Execution, xfail, Gaps, Exclusions) | Tables for targets/xfails/gaps. § follows Why→What→How | Rebuild from `conftest.py`, test files, `pyproject.toml` coverage config |
+| `TOOLING.md` | Portable tooling knowledge — cross-platform quirks per tool | Tool-name H2 sections (uv, pytest, ruff, etc.) with ### subsections | Tool section: heading → "correct/wrong" code blocks with explanation. No process rules, only mechanics | Rebuild from `.pre-commit-config.yaml`, `pyproject.toml`, CI workflow files |
+| `TROUBLESHOOTING.md` | Error recipes — symptom → root cause → fix | Per-error H3 sections | Symptom paragraph → **Cause:** → **Fix:** command blocks | Rebuild from retro entries, CI logs, session notes |
+| `CODE_ISSUES.md` | Bug inventory — known production bugs | Per-module H2 sections | Table: bug, module, impact, status | Rebuild from `TODO.md` Known bugs + retro entries |
+| `REPO_REVIEW.md` | Audit checklist — repo health evaluation | Numbered phases (Legal, Architecture, Code Quality, etc.) | Phase: checklist items with status column | Rebuild from GitHub repo settings + `.github/` + CI workflows |
+| `REVERSE_ENGINEERING.md` | RE methodology — cycle description, source types | Cycle steps, Source types | Methodology description: steps numbered, types in tables | Rebuild from `.skills/js-bundle-analysis/README.md` patterns |
+| `AI_AGENTS.md` | AI-agent-specific — permissions, tool quirks, cross-references | Permission Recommendation, Tool Quirks | Permission: JSON block. Tool Quirks: per-quirk ### subsections with wrong/correct examples | Rebuild from `.opencode/opencode.json` + tool behavior observation |
 
 ## 3. Doc Creation Rules
 
@@ -317,7 +349,7 @@ Recurring failures identified through retrospective analysis. Each anti-pattern 
 | **Scope collision** | Created `doc/` when `docs/` already existed — 8 duplicate files, 60+ stale cross-references | Pre-creation directory audit (§3.3) |
 | **Stale references** | README and cross-references still pointed to `doc/` after rename to `docs/` | Cross-reference scan at every gate (§8.1 #5) |
 | **Facts in AI instructions** | GPG signoff rule duplicated across 4 files (GIT_FLOW.md, TOOLING.md, .tooling.md, CLAUDE.md) instead of one canonical source | Canonical source discipline (§5) |
-| **Step-number drift** | OPENSE_CONFIG.md used hardcoded 1-9 which broke when sections were reordered | Flag hardcoded step numbers (§8.1 #2) |
+| **Step-number drift** | AI_AGENTS.md used hardcoded 1-9 which broke when sections were reordered | Flag hardcoded step numbers (§8.1 #2) |
 | **Completed items as open** | "Fixed P0 bug" still listed in TODO.md as open task | Past-tense detection in TODO.md (§8.1 #4) |
 | **Path reference rot** | Retrospective-analysis skill pointed to `.skills/retrospective-analysis/README.md` which did not exist | Pre-commit or gate check for path existence (§8.1 #3) |
 | **Over-engineering** | Creating skills/docs for problems that don't exist yet — appeared in 3 consecutive retros | "Check existing first" guard in planning phase (docs/DEVELOPMENT_PROCESS.md §0.5) |

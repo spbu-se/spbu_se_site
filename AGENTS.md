@@ -6,7 +6,7 @@
 `docs/DEVELOPMENT_PROCESS.md` for full workflow. `docs/GIT_FLOW.md` for branching.
 `docs/TESTING.md` for testing strategy.
 
-Available skills: `docs/OPENSE_CONFIG.md` §3 lists all `.skills/<name>/` workflows.
+Available skills: `docs/AI_AGENTS.md` lists all `.skills/<name>/` workflows.
 Load the matching skill before starting a task (`skill` tool).
 
 Every line must answer: "Would an agent likely miss this without help?" If not, cut it.

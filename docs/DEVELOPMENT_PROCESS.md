@@ -2,7 +2,7 @@
 
 <!-- encoding: utf-8 -->
 
-Flask-based website for the SPbSU System Programming Department. See `AGENTS.md` for pre-flight and setup quirks, `docs/GIT_FLOW.md` for version control, and `docs/OPENSE_CONFIG.md` for AI tooling.
+Flask-based website for the SPbSU System Programming Department. See `AGENTS.md` for pre-flight and setup quirks, `docs/GIT_FLOW.md` for version control, and `docs/AI_AGENTS.md` for AI tooling.
 
 All doc management rules (creation, formatting, encoding, integrity checks) are in `docs/DOCS.md`.
 

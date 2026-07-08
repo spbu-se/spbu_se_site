@@ -37,7 +37,7 @@ During a documentation extraction session, the agent committed a docs commit dir
 1. No tool-level deny for git write operations during plan mode — the guard was human-enforced only
 1. Orphaned WIP was visible at session start (`git status`) but was not branched or committed before new work began
 
-**Fix**: Added bash permission rules to the AI tooling config (`.opencode/opencode.json` or equivalent) that explicitly deny `git reset`, `git checkout`, `git commit`, `git add`, `git merge`, `git push`, `git tag` during plan mode. Only read-only git commands (`log`, `status`, `diff`, `branch`) are allowed. See `docs/OPENSE_CONFIG.md` for the permission configuration.
+**Fix**: Added bash permission rules to the AI tooling config (`.opencode/opencode.json` or equivalent) that explicitly deny `git reset`, `git checkout`, `git commit`, `git add`, `git merge`, `git push`, `git tag` during plan mode. Only read-only git commands (`log`, `status`, `diff`, `branch`) are allowed. See `docs/AI_AGENTS.md` for the permission configuration.
 
 ### Retrospective — 2026-07-04: squash-merge from auto branch, CI green, test gaps found
 
@@ -277,7 +277,7 @@ Session covering 1 commit on `staging-auto-20260707-191401` (squash-merged to st
 | AGENTS.md `[System.IO.File]::WriteAllText("requirements.txt", $(uv export ...))` command collapses multi-line output into one line | Process doc bug | Needs command fix: `$(uv export ...)` in PowerShell joins array elements with spaces — use temp file approach instead |
 | `uv export` emits `Resolved N packages` to stderr, which `2>&1` mixes into output | Missing stderr separation | Fixed: used `2>($null)` to suppress stderr |
 | Started session on `staging` (not auto-branch) — had to switch mid-stream | Human error | Corrected: deleted local staging changes, branched from `origin/staging` |
-| retrospective-analysis skill reported as missing | Tool quirk — glob tool doesn't descend into `.skills/` when `path` is a parent directory | Documented in `docs/OPENSE_CONFIG.md` §Tool Quirks. The skill exists at `.skills/retrospective-analysis/README.md`. |
+| retrospective-analysis skill reported as missing | Tool quirk — glob tool doesn't descend into `.skills/` when `path` is a parent directory | Documented in `docs/AI_AGENTS.md` §Tool Quirks. The skill exists at `.skills/retrospective-analysis/README.md`. |
 
 **Pattern recurrence**: PARTIAL — "direct staging work" pattern from 2026-07-06 retros. This time caught and corrected before any commits were made to staging. **Over-engineering pattern recurred (4th consecutive retro)** — when asked to suggest solutions, proposed 5 complex options (Python script, pre-commit, CI auto-fix, cmd/c) before checking if pip itself validates its own format (`pip install --dry-run`). Escalated with pre-commit hook (Layer 1) and widened "check existing first" guard (see §0.6a).
 
