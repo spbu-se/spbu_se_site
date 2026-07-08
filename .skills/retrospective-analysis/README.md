@@ -46,7 +46,17 @@ For each change, ask:
 
 ### 4. Check for pattern recurrence
 
-Scan previous retrospective entries in the relevant target document (see В§5a). If this gap or a similar one was already fixed, the fix was incomplete вЂ” propose a stronger solution.
+Scan previous retrospective entries in the relevant target document (see §5a). If this gap or a similar one was already fixed, the fix was incomplete — propose a stronger solution.
+
+**Escalation ladder**: each recurrence requires a minimum layer fix:
+
+| Recurrence count | Minimum escalation | Example |
+|---|---|---|
+| 1st | Layer 3 — documentation | Add rule to canonical doc |
+| 2nd | Layer 2 — CI check | Add CI step that catches the gap |
+| 3rd+ | Layer 1 — tool config | Pre-commit hook, linter rule, structural guard |
+
+A fix that stays at the same layer across recurrences is not escalated — it's repeated. The layer must increase with each recurrence.
 
 ### 5. Classify target document
 
@@ -72,6 +82,10 @@ Scan the session's changed docs for signal patterns:
 | **Self-evident rule** | Rule describes standard git/developer practice (e.g., "never commit to main", "stash before branching") | Delete. If the rule was added because someone violated it, keep as a retrospective entry instead. |
 | **Directory collision** | New directory was created during the session — check if a similarly-named directory already exists (e.g., `ls docs/` before creating `doc/`) | Merge unique content, delete duplicate directory. Add pre-creation audit check to the relevant skill. |
 | **AI instruction file bloat** | AGENTS.md or CLAUDE.md content duplicates a canonical doc or, for CLAUDE.md, duplicates/expands content that AGENTS.md already covers. Hierarchy: CLAUDE.md → AGENTS.md → docs/. Each layer delegates down, never down-copies. | Delete from the instruction file. Replace with a one-line cross-reference to the lower layer. |
+| **Instruction truth** | AGENTS.md or CLAUDE.md contains an instruction that references a non-working mechanism (e.g., "load skill via `skill` tool" but the tool does not surface project skills) | Fix the instruction to reflect reality, or fix the underlying mechanism |
+| **Scope gap** | A documented procedure (pre-flight, guard, rule) is scoped too narrowly (e.g., "auto/batch mode only") but the gap applies universally | Remove the scope qualifier, or add the missing mode |
+| **Instruction truth** | AGENTS.md or CLAUDE.md contains an instruction that references a non-working mechanism (e.g., "load skill via `skill` tool" but the tool can't load project skills) | Fix the instruction to reflect reality, or fix the underlying mechanism. An instruction that can't be followed is worse than no instruction. |
+| **Scope gap** | A documented procedure (pre-flight, guard, rule) is scoped too narrowly (e.g., "auto/batch mode only") but the gap it prevents applies to all modes | Remove the scope qualifier or add a parallel procedure for the missing mode. Make the guard universal unless there's a documented reason for the exception. |
 
 Signal strength: high-confidence finds are config-duplicates (the config IS the truth). Low-confidence are self-evident rules (may be project-specific вЂ” ask if unsure).
 
@@ -145,7 +159,10 @@ The retrospective itself is a tool. Every time it runs, check if it revealed a g
 - Was the target document unclear? (Step 5a)
 - Did the session include user corrections that the retrospective should track? (e.g., "do X instead of Y" — classify as **task ambiguity** or **over-engineering**)
 - Was a skill used during the session that should be updated? (Step 5c) — did that actually happen?
-- **Did I load any skills during this session?** If not, list which relevant skills were available (`test-writer`, `retrospective-analysis`, `unattended-mode`, etc.) and why they weren't loaded. This surfaces "custom is faster" bias.
+- **Did I load any skills during this session?** If not, distinguish:
+  - *Couldn't load* — the skill exists on disk but the `skill` tool doesn't surface it (structural gap). Document in `docs/AI_AGENTS.md` §Tool Quirks and add a retro entry.
+  - *Didn't load* — the skill was loadable but skipped because "custom is faster" (behavioral gap). Escalate this recurring pattern.
+- **Was this skill loadable via the `skill` tool?** If not, update `docs/AI_AGENTS.md` §Tool Quirks with the loading gap, and update AGENTS.md skill-loading instruction to say "read manually" instead of "load with `skill` tool".
 - **Did the retrospective itself violate any process rules?** (creating standalone files instead of appending, skipping skill loading, committing without testing, etc.) The retrospective must model the behavior it enforces.
 
 #### 8a. Session efficiency audit
@@ -174,6 +191,17 @@ For every "yes" in §8a, write a concrete prevention rule in the appropriate can
 - "Before merge or batch finalization: diff AGENTS.md (+4 guard) and CLAUDE.md (any growth) line count against branch point. Run AI-instruction-file bloat audit. CLAUDE.md must delegate, not duplicate." → `docs/DOCS.md §7.1`
 
 Append an entry to the `## Self-improvement log` for each new prevention rule generated.
+
+### 9. Self-improve the skill
+
+After completing the retrospective, check if the process revealed gaps in THIS skill document:
+
+1. Review step 8 answers — any "no" or "manual" answer may indicate a skill gap
+1. Review user corrections during the session — did the user redirect the retrospective process itself?
+1. Review the gap table from step 3 — were any gaps **missed** by the retrospective and only found when you presented to the user?
+1. If gaps found, add a self-improvement log entry AND update the relevant step(s) in this skill immediately
+
+The retrospective skill must model the behavior it enforces. If it asks "did you load skills?" it must be loadable. If it asks "did you check existing tools?" it must first check if the `skill` tool itself works.
 
 ## Self-improvement log
 
@@ -267,6 +295,24 @@ read `.tooling.md` §PowerShell 5.1 before writing piped commands.
 
 **Escalation**: If this pattern recurs, replace procedural guard with
 structural fix (command wrapper that validates syntax).
+
+### [2026-07-07] Add escalation ladder, instruction truth signal, scope gap signal, loadability distinction, and step 9 — gaps found during retro that the skill missed
+
+The 2026-07-07 retrospective ran the full workflow but still missed 5 gaps that were only found when the user challenged "are you sure we've done enough?":
+
+1. **No escalation ladder** — step 4 said "revisit and escalate" but had no definition of what escalation means (layer increase per recurrence count). The over-engineering pattern recurred 4 times with layer-3-only fixes.
+1. **No instruction truth check** — AGENTS.md said "load skill via `skill` tool" but the tool doesn't surface project skills. Step 5b checked for bloat but not for executability.
+1. **No scope gap check** — pre-flight was scoped "(auto/batch mode)" but the gap it prevents applies universally. Step 5b had no signal for this.
+1. **"Couldn't load" vs "didn't load"** — step 8 asked "did you load skills?" but treating both reasons the same. Structural blocker → doc fix; behavioral skip → escalate.
+1. **No step 9** — the skill had no mechanism to improve itself based on gaps found during its OWN execution.
+
+**Fix**:
+
+- Added escalation ladder table to step 4 (1st→L3, 2nd→L2, 3rd+→L1)
+- Added "Instruction truth" signal pattern to step 5b
+- Added "Scope gap" signal pattern to step 5b
+- Split step 8 self-check into "couldn't load" (structural) vs "didn't load" (behavioral)
+- Added step 9 "Self-improve the skill" — explicit post-retro audit of the skill itself
 
 ## Output template
 
