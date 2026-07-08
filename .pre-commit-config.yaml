@@ -27,6 +27,13 @@ repos:
         pass_filenames: false
         always_run: true
 
+      - id: validate-requirements
+        name: Validate requirements.txt format
+        entry: uv run pip install --dry-run -r requirements.txt
+        language: system
+        pass_filenames: false
+        files: ^requirements\.txt$
+
   - repo: https://github.com/trim21/dprint-pre-commit
     rev: v0.55.1.4
     hooks:

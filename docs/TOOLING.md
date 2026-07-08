@@ -296,6 +296,25 @@ Out-File -FilePath file.md -InputObject $content
 
 Even `Get-Content -Path file.md -Raw` uses Windows-1252. Always use the .NET overload.
 
+### `$(...)` subexpression flattens multi-line output to space-joined string
+
+`$(command)` in PowerShell captures stdout as an **array of strings** (one per line). When passed to a function expecting a `string` (like `WriteAllText`), PowerShell joins the array with **spaces** — collapsing all lines into one.
+
+This corrupts files like `requirements.txt` that must retain line breaks:
+
+```powershell
+# WRONG — collapses to single line
+[System.IO.File]::WriteAllText("requirements.txt", $(uv export --no-dev --no-hashes), [System.Text.UTF8Encoding]::new($false))
+
+# CORRECT — capture as array, join explicitly
+$lines = uv export --no-dev --no-hashes 2>($null)
+[System.IO.File]::WriteAllText("requirements.txt", ($lines -join "`r`n"), [System.Text.UTF8Encoding]::new($false))
+```
+
+This quirk does NOT apply when the output is a single line (no `\n` in the captured text). Always verify multi-line output with `($content).GetType()` before passing to a string parameter.
+
+**See also**: `.tooling.md` §UTF-8 BOM in requirements.txt for the complete pattern.
+
 ### mdformat doesn't show file path on UnicodeDecodeError
 
 When `uv run mdformat .` encounters a non-UTF-8 file, the error message omits the file path. To find the offending file:

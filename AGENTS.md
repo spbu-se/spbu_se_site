@@ -32,9 +32,7 @@ uv run pytest -n 2
 
 Also verify `requirements.txt` is fresh (CI uses pip, not uv):
 
-```powershell
-[System.IO.File]::WriteAllText("requirements.txt", $(uv export --no-dev --no-hashes), [System.Text.UTF8Encoding]::new($false))
-```
+See `.tooling.md` §"UTF-8 BOM in requirements.txt" for the correct PowerShell command — the `$(...)` subexpression flattens multi-line output to a single line.
 
 ## Testing quirks
 

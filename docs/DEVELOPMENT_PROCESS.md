@@ -82,7 +82,6 @@ Before any implementation: enter **planning phase** (read-only analysis). Always
 1. Apply the priority ladder: CI failures -> PRs -> backlog -> icebox
 1. Present findings and top candidate tasks to the user, each with effort estimate (S/M/L) and brief rationale
 1. User reviews, adjusts, approves
-1. **Check existing first** — before creating a new skill, doc, or tool, verify existing ones don't already cover the need. Over-engineering (solving completeness over practicality) is the #1 repeated gap.
 1. Load relevant `.skills/<name>/` skill if available (e.g., `test-writer` for test tasks)
 1. Discuss approach, confirm scope, get approval
 1. Only then branch and implement
@@ -104,6 +103,18 @@ Write design decisions in `docs/ARCHITECTURE.md -> Design Decisions` before impl
 ### Doc first
 
 Update docs that describe code that does not exist yet, commit, then implement.
+
+### Check existing first
+
+Before proposing any new tool, script, workflow, or process change — ask: **"does an existing tool already handle this?"** Over-engineering (solving completeness over practicality) is the #1 repeated gap — flagged in 4 consecutive retros.
+
+This applies to all problem-solving modes (planning, troubleshooting, ad-hoc suggestions), not just formal planning. Examples:
+
+- **CI fails on requirements.txt format** → check if pip itself validates (`pip install --dry-run`) before proposing a new script or workflow
+- **Need to format code** → check what formatters are already configured (ruff, mdformat, dprint) before adding a new one
+- **Need a test pattern** → check `.skills/` and existing test files before creating a new fixture template
+
+If the existing tool covers the need, use it. If not, prefer the simplest addition that closes the gap.
 
 ### Mid-sprint violation
 
