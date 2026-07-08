@@ -1,4 +1,4 @@
-﻿# unattended-mode
+# unattended-mode
 
 <!-- encoding: utf-8 -->
 

@@ -1,4 +1,4 @@
-﻿# SE Site
+# SE Site
 
 <!-- encoding: utf-8 -->
 
@@ -55,6 +55,5 @@ See `.tooling.md` §"UTF-8 BOM in requirements.txt" for the correct PowerShell c
 - **requirements.txt staleness** — CI runs `pip install -r` on every push. Must match `uv.lock`. Always regenerate before pushing
 - **mdformat CI vs local** — CI uses Linux (LF). Always run `uv run mdformat ...` (not `--check`) before committing on Windows
 - **PowerShell encoding** — `Set-Content` defaults to Windows-1252. Use `[System.IO.File]::WriteAllText` for UTF-8
-- **Encoding declarations**: every `.py` needs `# -*- coding: utf-8 -*-` on line 1, every `.md` needs `<!-- encoding: utf-8 -->` on line 2
 - **GPG keylocker** — if signingkey is set, `git commit` hangs waiting for unlock. Always use `--no-gpg-sign` on feature/auto branches
 - **`git config commit.gpgsign`** — check this first; if true, never commit without `--no-gpg-sign`

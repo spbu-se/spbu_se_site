@@ -1,4 +1,4 @@
-﻿# api-client
+# api-client
 
 <!-- encoding: utf-8 -->
 

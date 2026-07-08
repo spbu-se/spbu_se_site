@@ -1,4 +1,4 @@
-﻿# gh-todo-sync
+# gh-todo-sync
 
 <!-- encoding: utf-8 -->
 
@@ -23,16 +23,16 @@ gh pr list --state open --json number,title,headRefName,baseRefName --limit 50
 
 | Issue label | TODO.md section |
 | ------------- | ----------------------- |
-| `backlog` | Backlog вЂ” numbered item |
-| `enhancement` | Backlog вЂ” numbered item |
-| `icebox` | Icebox вЂ” bullet point |
-| `bug` | Backlog вЂ” "BUG:" prefix |
-| `ci` | Backlog вЂ” first item |
+| `backlog` | Backlog — numbered item |
+| `enhancement` | Backlog — numbered item |
+| `icebox` | Icebox — bullet point |
+| `bug` | Backlog — "BUG:" prefix |
+| `ci` | Backlog — first item |
 
 ### 4. Report Result
 
 ```
-CI: вњ“ no failures | вњ— <N> failure(s)
+CI: ✓ no failures | ✗ <N> failure(s)
 Issues: <N> open
 PRs: <N> open
 TODO.md: <N> backlog, <M> icebox

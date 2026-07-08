@@ -1,4 +1,4 @@
-﻿# test-writer
+# test-writer
 
 <!-- encoding: utf-8 -->
 
@@ -8,7 +8,7 @@ Write hermetic pytest tests with coverage, mocking, and tempfile fixtures.
 
 ## General Patterns
 
-- All tests are hermetic вЂ” no network calls, no real API
+- All tests are hermetic — no network calls, no real API
 - Mock `requests.Response` with `Mock(spec=requests.Response)`
 - CLI tests use `capsys` fixture
 - Temp files: `NamedTemporaryFile(mode="w", ...)` + `path.unlink(missing_ok=True)` in `finally`
@@ -74,7 +74,7 @@ def test_some_query(self, app_ctx):
     from se_models import Users
     u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
     assert u is not None
-    assert u.first_name == "РђРЅРґСЂРµР№"
+    assert u.first_name == "Андрей"
 ```
 
 **Session injection** (bypass login for authenticated routes):
