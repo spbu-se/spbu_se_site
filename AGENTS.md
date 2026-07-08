@@ -7,18 +7,19 @@
 `docs/TESTING.md` for testing strategy.
 
 Available skills: `docs/AI_AGENTS.md` lists all `.skills/<name>/` workflows.
-Load the matching skill before starting a task (`skill` tool).
+Read the matching `.skills/<name>/README.md` manually before starting a task — the `skill` tool does not surface project skills.
 
 Every line must answer: "Would an agent likely miss this without help?" If not, cut it.
 CLAUDE.md defers to this file. This file defers to `docs/`.
 
-## Pre-flight checklist (auto/batch mode)
+## Pre-flight checklist
 
 - `git fetch --prune origin`
 - Check `origin/staging` CI — if red, stop and fix first
 - Branch: `git checkout -b staging-auto-<UTC-ts> origin/staging`
 - Never commit to `staging`
 - If `git config commit.gpgsign` is true, use `--no-gpg-sign` on every commit
+- Before using `2>&1`, flatten ErrorRecords with `| ForEach-Object { "$_" }` or suppress stderr with `2>($null)` — see `.tooling.md` §"2>&1 wraps stderr in noisy ErrorRecord objects"
 - Before writing piped/chained commands, read `.tooling.md` §PowerShell 5.1
 
 ## Before committing

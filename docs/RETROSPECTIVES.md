@@ -308,10 +308,13 @@ Session covering 1 commit on `staging-auto-20260707-191401` (squash-merged to st
 - Added `$()` subexpression trap to `docs/TOOLING.md` §PowerShell encoding
 - Updated `AGENTS.md` to cross-reference `.tooling.md` instead of inlining the command
 - **Layer 1 fix**: Added `validate-requirements` pre-commit hook (`pip install --dry-run -r requirements.txt`) — catches both BOM and single-line corruption before commit
-- **Layer 3 fix**: Widened "check existing first" guard from planning-phase-only to a standalone workflow discipline step (`docs/DEVELOPMENT_PROCESS.md §0.6`)
+- **Layer 3 fix**: Restructured "check existing first" from a suggestion to a required 3-step response template (state problem → list existing tools → propose) in `docs/DEVELOPMENT_PROCESS.md §0.6a`
+- Made pre-flight checklist universal (removed `(auto/batch mode)` qualifier) — applies to all sessions
+- Added `2>&1` ErrorRecord trap to pre-flight checklist
+- Fixed skill loading instruction in `AGENTS.md` — now says "read manually" since the `skill` tool does not surface project skills
 
 **State at handoff**:
 
 - Tests: 962 passed, 1 skipped, 22 xfailed, 25 xpassed, 142 errors (all Whoosh pre-existing)
 - CI: `staging` — `python flask_se.py init` passes on all 3 versions; test suite has pre-existing Whoosh errors
-- Remaining: Fix AGENTS.md requirements.txt command; investigate 25 xpassed tests; address 142 Whoosh errors
+- Remaining: investigate 25 xpassed tests; address 142 Whoosh errors

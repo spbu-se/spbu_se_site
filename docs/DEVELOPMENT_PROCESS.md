@@ -106,7 +106,13 @@ Update docs that describe code that does not exist yet, commit, then implement.
 
 ### Check existing first
 
-Before proposing any new tool, script, workflow, or process change — ask: **"does an existing tool already handle this?"** Over-engineering (solving completeness over practicality) is the #1 repeated gap — flagged in 4 consecutive retros.
+Before proposing any new tool, script, workflow, or process change — follow this required sequence:
+
+1. **State the problem** in one sentence
+1. **List existing tools** that might already solve it (and why they don't fit)
+1. **Only then propose** new solutions
+
+Over-engineering (solving completeness over practicality) is the #1 repeated gap — flagged in 4 consecutive retros.
 
 This applies to all problem-solving modes (planning, troubleshooting, ad-hoc suggestions), not just formal planning. Examples:
 
