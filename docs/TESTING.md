@@ -43,6 +43,17 @@ Run the full suite before every push. Stable parallel count is 2 workers — abo
 
 Pre-push mandatory: tests pass, lint clean, format clean.
 
+### 3a. Diagnostic discipline — save time, not screen space
+
+| Rule | Why |
+|------|-----|
+| **Always `--tb=long`** during development. Only `-q` for final green check. | Full traceback on first run eliminates re-run to get failure details. |
+| **Batch before re-run**: Found one failure? Grep for siblings and fix all before re-running. | Each re-run costs the full suite time. One pass fixes everything. |
+| **Baseline first**: Unexpected errors? Stash changes, run same command. If errors persist → pre-existing. | Saves 10-30 min of false-diagnosis per session. |
+| **`-n 1` for debug, `-n 2` for green**: Start with 1 worker to avoid xdist race noise. Only switch to 2 for the final green check. | Fewer intermittent failures during development. |
+
+Reference: `docs/DEVELOPMENT_PROCESS.md` §Project Doctrine Layer 3 — "Save attempts, not screen space."
+
 ## 4. xfail Policy
 
 Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_ISSUES.md` blocker entry. xfails are re-reviewed every 3 months or after refactoring the affected module — whichever comes first.

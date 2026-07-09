@@ -58,6 +58,7 @@ Like special ops: each has its mission, they coordinate, no single one dominates
 - **Automate toil** — logistics. Anything done twice gets scripted. Manual steps are a risk vector.
 - **Fail fast** — reconnaissance. Validate the riskiest assumption first. Break it on purpose in isolation before integrating.
 - **Prefer simple** — KISS. The simplest correct solution wins. Over-engineering is the #1 repeated gap.
+- **Save attempts, not screen space** — Re-running is the most expensive operation in the feedback loop. Optimize every command to produce complete diagnostics on the first attempt. Prefer full logs over clean output, batch-fix siblings before re-running, baseline before investigating new errors.
 
 ### Layer 4 — Practices (concrete, changeable)
 
