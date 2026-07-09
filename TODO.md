@@ -59,7 +59,36 @@
 
 | Priority | Task | Effort | Depends on |
 |----------|------|--------|------------|
-| **P1** | Fix Whoosh index race on CI Linux | M | Intermittent EmptyIndexError/FileNotFoundError in whooshee/ — varies per run. Requires per-model index init or CI worker-scoped temp dirs. |
+| **L** | Replace mypy with basedpyright — apply `typeCheckingMode = "all"`, fix 770+ errors in `src/` | L | Separate session. Config below: |
+
+```toml
+[tool.basedpyright]
+typeCheckingMode = "all"
+strictParameterNoneValue = true
+enableTypeIgnoreComments = false
+strictListInference = true
+strictDictionaryInference = true
+strictSetInference = true
+deprecateTypingAliases = true
+reportMissingModuleSource = "error"
+reportMissingImports = "error"
+reportUnusedImport = "error"
+reportUnusedClass = "error"
+reportUnusedFunction = "error"
+reportUnusedVariable = "error"
+reportDuplicateImport = "error"
+reportUntypedFunctionDecorator = "error"
+reportUntypedClassDecorator = "error"
+reportUntypedBaseClass = "error"
+reportIncompatibleMethodOverride = "error"
+reportIncompatibleVariableOverride = "error"
+reportConstantRedefinition = "error"
+
+[tool.pyright]
+include = ["src"]
+exclude = ["**/node_modules", "**/__pycache__"]
+```
+
 | **P5** | Python 3.12+, Docker, static site, open source docs | M-S | Icebox |
 
 ## Resolved (this session)

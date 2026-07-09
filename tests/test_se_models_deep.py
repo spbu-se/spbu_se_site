@@ -418,10 +418,6 @@ def test_courses_str(app_ctx):
     assert str(c) == "Data Structures"
 
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="Whoosh index EmptyIndexError on CI (Linux) — platform-specific lazy index creation",
-)
 def test_thesis_repr_str(app_ctx):
     from se_models import Courses, Thesis, Worktype, db
 

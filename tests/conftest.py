@@ -26,6 +26,7 @@ def _init_db_path():
 
     flask_se_config.SQLITE_DATABASE_NAME = _db_name
     flask_se_config.SQLITE_DATABASE_PATH = _db_dir
+    flask_se_config.WHOOSHEE_DIR = tempfile.mkdtemp()
 
 
 _init_db_path()
@@ -40,7 +41,14 @@ _fs.scheduler.shutdown(wait=False)
 
 from se_models import init_db
 
-UPLOAD_DIRS = ["static/practice/texts/", "static/practice/reviews/", "static/practice/slides/"]
+UPLOAD_DIRS = [
+    "static/practice/texts/",
+    "static/practice/reviews/",
+    "static/practice/slides/",
+    "static/tmp/texts/",
+    "static/tmp/slides/",
+    "static/tmp/reviews/",
+]
 
 
 @pytest.fixture(autouse=True)
@@ -100,30 +108,40 @@ def _seeded_db_path():
 def app_ctx():
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
+    _whoosh_dir = tempfile.mkdtemp()
     uri = "sqlite:///" + _p
     with app.app_context():
         _set_db_uri(uri)
+        app.config["WHOOSHEE_DIR"] = _whoosh_dir
+        app.extensions['whooshee']['index_path_root'] = _whoosh_dir
+        app.extensions['whooshee']['whoosheers_indexes'] = {}
         db.create_all()
         yield
         db.session.remove()
         db.drop_all()
     shutil.rmtree(_dir, ignore_errors=True)
+    shutil.rmtree(_whoosh_dir, ignore_errors=True)
 
 
 @pytest.fixture
 def client():
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
+    _whoosh_dir = tempfile.mkdtemp()
     uri = "sqlite:///" + _p
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
         _set_db_uri(uri)
+        app.config["WHOOSHEE_DIR"] = _whoosh_dir
+        app.extensions['whooshee']['index_path_root'] = _whoosh_dir
+        app.extensions['whooshee']['whoosheers_indexes'] = {}
         db.create_all()
         yield app.test_client()
         db.session.remove()
         db.drop_all()
     shutil.rmtree(_dir, ignore_errors=True)
+    shutil.rmtree(_whoosh_dir, ignore_errors=True)
 
 
 @pytest.fixture
@@ -131,17 +149,22 @@ def seeded_client(_seeded_db_path):
     """Copy the pre-seeded template DB once per test — fast (~ms)."""
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
+    _whoosh_dir = tempfile.mkdtemp()
     shutil.copy2(str(_seeded_db_path), _p)
     uri = "sqlite:///" + _p
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
         _set_db_uri(uri)
+        app.config["WHOOSHEE_DIR"] = _whoosh_dir
+        app.extensions['whooshee']['index_path_root'] = _whoosh_dir
+        app.extensions['whooshee']['whoosheers_indexes'] = {}
         db.create_all()
         yield app.test_client()
         db.session.remove()
         db.drop_all()
     shutil.rmtree(_dir, ignore_errors=True)
+    shutil.rmtree(_whoosh_dir, ignore_errors=True)
 
 
 @pytest.fixture

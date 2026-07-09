@@ -29,7 +29,6 @@ class TestFetchThesesFilters:
     def test_fetch_enddate_before_startdate(self, seeded_client):
         assert_ok(seeded_client, "/fetch_theses?startdate=2024&enddate=2010")
 
-    @pytest.mark.xfail(strict=False, reason="Whoosh index not available in parallel test workers")
     def test_fetch_search_no_results(self, seeded_client):
         resp = seeded_client.get("/fetch_theses?search=zzz_no_match_zzz")
         assert resp.status_code == 200
@@ -132,7 +131,7 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Invalid secret key" in data["string"]
 
-    @pytest.mark.xfail(strict=False, reason="parallel xdist: Whoosh race")
+    @pytest.mark.xfail(strict=False, reason="intermittent xdist race — user/session not visible to parallel worker")
     def test_post_bad_type_id(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -156,7 +155,7 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Wrong type_id" in data["string"]
 
-    @pytest.mark.xfail(strict=False, reason="parallel xdist: Whoosh race")
+    @pytest.mark.xfail(strict=False, reason="intermittent xdist race — user/session not visible to parallel worker")
     def test_post_bad_course_id(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -180,7 +179,7 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Wrong course_id" in data["string"]
 
-    @pytest.mark.xfail(strict=False, reason="parallel xdist: Whoosh race")
+    @pytest.mark.xfail(strict=False, reason="intermittent xdist race — user/session not visible to parallel worker")
     def test_post_no_supervisor_match(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -235,7 +234,7 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Can't find supervisor in staff" in data["string"]
 
-    @pytest.mark.xfail(strict=False, reason="parallel xdist: Whoosh race")
+    @pytest.mark.xfail(strict=False, reason="PyMuPDF rejects dummy PDF in thesis_text upload")
     def test_post_with_source_uri(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -259,7 +258,7 @@ class TestPostThesesApi:
         data = json.loads(resp.data)
         assert data["status"] == 0
 
-    @pytest.mark.xfail(strict=False, reason="parallel xdist: Whoosh race")
+    @pytest.mark.xfail(strict=False, reason="PyMuPDF rejects dummy PDF in thesis_text upload")
     def test_post_with_presentation(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -283,7 +282,7 @@ class TestPostThesesApi:
         data = json.loads(resp.data)
         assert data["status"] == 0
 
-    @pytest.mark.xfail(strict=False, reason="parallel xdist: Whoosh race")
+    @pytest.mark.xfail(strict=False, reason="PyMuPDF rejects dummy PDF in thesis_text upload")
     def test_post_with_supervisor_review(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -307,7 +306,7 @@ class TestPostThesesApi:
         data = json.loads(resp.data)
         assert data["status"] == 0
 
-    @pytest.mark.xfail(strict=False, reason="parallel xdist: Whoosh race")
+    @pytest.mark.xfail(strict=False, reason="PyMuPDF rejects dummy PDF in thesis_text upload")
     def test_post_with_reviewer_review(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -331,7 +330,7 @@ class TestPostThesesApi:
         data = json.loads(resp.data)
         assert data["status"] == 0
 
-    @pytest.mark.xfail(strict=False, reason="parallel xdist: Whoosh race")
+    @pytest.mark.xfail(strict=False, reason="PyMuPDF rejects dummy PDF in thesis_text upload")
     def test_post_all_files(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -363,7 +362,6 @@ class TestThesesTmpList:
     def test_tmp_list_empty(self, seeded_client):
         assert_ok(seeded_client, "/theses_tmp.html")
 
-    @pytest.mark.xfail(strict=False, reason="Whoosh index not available in parallel test workers")
     def test_tmp_list_with_temp_thesis(self, seeded_client):
         from se_models import Staff, Thesis, db
 
@@ -384,7 +382,6 @@ class TestThesesTmpList:
 
 
 class TestThesesDeleteTmpDeep:
-    @pytest.mark.xfail(strict=False, reason="Whoosh index not available in parallel test workers")
     def test_delete_tmp_with_id(self, seeded_client):
         from se_models import Thesis, db
 
@@ -403,7 +400,6 @@ class TestThesesDeleteTmpDeep:
         assert resp.status_code in (200, 302)
         assert Thesis.query.get(tid) is None
 
-    @pytest.mark.xfail(strict=False, reason="Whoosh index not available in parallel test workers")
     def test_delete_tmp_non_temporary_ignored(self, seeded_client):
         from se_models import Thesis, db
 
@@ -418,7 +414,7 @@ class TestThesesDeleteTmpDeep:
 
 
 class TestThesesAddTmpDeep:
-    @pytest.mark.xfail(strict=False, reason="Whoosh index not available in parallel test workers")
+    @pytest.mark.xfail(strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename")
     def test_add_tmp_with_text_uri(self, seeded_client):
         with patch("os.rename"):
             from se_models import Thesis, db
@@ -439,7 +435,7 @@ class TestThesesAddTmpDeep:
             updated = Thesis.query.get(t.id)
             assert updated.temporary is False
 
-    @pytest.mark.xfail(strict=False, reason="Whoosh index not available in parallel test workers")
+    @pytest.mark.xfail(strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename")
     def test_add_tmp_with_presentation_and_reviews(self, seeded_client):
         with patch("os.rename"):
             from se_models import Thesis, db
@@ -463,7 +459,6 @@ class TestThesesAddTmpDeep:
             updated = Thesis.query.get(t.id)
             assert updated.temporary is False
 
-    @pytest.mark.xfail(strict=False, reason="Whoosh index not available in parallel test workers")
     def test_add_tmp_non_temporary_ignored(self, seeded_client):
         from se_models import Thesis, db
 
@@ -497,7 +492,6 @@ class TestThesesPagination:
     def test_fetch_page_large_number(self, seeded_client):
         assert_ok(seeded_client, "/fetch_theses?page=9999")
 
-    @pytest.mark.xfail(strict=False, reason="Whoosh index not available in parallel test workers")
     def test_fetch_with_search_paginated(self, seeded_client):
         assert_ok(seeded_client, "/fetch_theses?search=python&page=1")
 

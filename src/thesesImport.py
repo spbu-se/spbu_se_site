@@ -16,8 +16,11 @@ from flask_se import app
 from se_models import Staff, Thesis, Users, db
 
 # Init Database
-db.app = app
-db.init_app(app)
+try:
+    db.app = app
+    db.init_app(app)
+except RuntimeError:
+    pass
 
 # Download files?
 download = False
@@ -412,7 +415,7 @@ def get_2019_09_03_04():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri=base_url + old_text_uri,
+                    old_text_uri=base_url + (old_text_uri or ""),
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -428,7 +431,7 @@ def get_2019_09_03_04():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri=base_url + old_text_uri,
+                    old_text_uri=base_url + (old_text_uri or ""),
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -554,7 +557,7 @@ def get_2019_02_03_03():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri=base_url + old_text_uri,
+                    old_text_uri=base_url + (old_text_uri or ""),
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -570,7 +573,7 @@ def get_2019_02_03_03():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri=base_url + old_text_uri,
+                    old_text_uri=base_url + (old_text_uri or ""),
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -692,7 +695,7 @@ def get_2019_02_04_03():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri=base_url + old_text_uri,
+                    old_text_uri=base_url + (old_text_uri or ""),
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -708,7 +711,7 @@ def get_2019_02_04_03():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri=base_url + old_text_uri,
+                    old_text_uri=base_url + (old_text_uri or ""),
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -806,7 +809,7 @@ def get_2020_371():
 
             source_uri = data[3].get("href") if len(data) > 3 else None
 
-            last_name = supervisor.split()[-3]
+            last_name = supervisor.split()[-1]
 
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
@@ -820,7 +823,7 @@ def get_2020_371():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri=base_url + old_text_uri,
+                    old_text_uri=base_url + (old_text_uri or ""),
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -836,7 +839,7 @@ def get_2020_371():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri=base_url + old_text_uri,
+                    old_text_uri=base_url + (old_text_uri or ""),
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -955,7 +958,7 @@ def get_report_2020_02_03_03():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri=base_url + old_text_uri,
+                    old_text_uri=base_url + (old_text_uri or ""),
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -971,7 +974,7 @@ def get_report_2020_02_03_03():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri=base_url + old_text_uri,
+                    old_text_uri=base_url + (old_text_uri or ""),
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -1073,7 +1076,7 @@ def get_2019_371():
             t = Thesis(
                 name_ru=name_ru,
                 text_uri=text_uri,
-                old_text_uri=base_url + old_text_uri,
+                old_text_uri=base_url + (old_text_uri or ""),
                 presentation_uri=presentation_uri,
                 supervisor_review_uri=supervisor_review_uri,
                 reviewer_review_uri=reviewer_review_uri,
@@ -1175,7 +1178,7 @@ def get_2019_343():
             t = Thesis(
                 name_ru=name_ru,
                 text_uri=text_uri,
-                old_text_uri=base_url + old_text_uri,
+                old_text_uri=base_url + (old_text_uri or ""),
                 presentation_uri=presentation_uri,
                 supervisor_review_uri=supervisor_review_uri,
                 reviewer_review_uri=reviewer_review_uri,
@@ -1277,7 +1280,7 @@ def get_2019_344():
             t = Thesis(
                 name_ru=name_ru,
                 text_uri=text_uri,
-                old_text_uri=base_url + old_text_uri,
+                old_text_uri=base_url + (old_text_uri or ""),
                 presentation_uri=presentation_uri,
                 supervisor_review_uri=supervisor_review_uri,
                 reviewer_review_uri=reviewer_review_uri,
@@ -1531,7 +1534,7 @@ def get_2022_271():
                 supervisor_review_uri = filename
                 download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
 
-            last_name = supervisor.split()[-3]
+            last_name = supervisor.split()[-1]
 
             # q = Users.query.filter_by(last_name=last_name).first()
             print(last_name)
@@ -1545,7 +1548,7 @@ def get_2022_271():
             t = Thesis(
                 name_ru=name_ru,
                 text_uri=text_uri,
-                old_text_uri=base_url + old_text_uri,
+                old_text_uri=base_url + (old_text_uri or ""),
                 presentation_uri=presentation_uri,
                 supervisor_review_uri=supervisor_review_uri,
                 reviewer_review_uri=reviewer_review_uri,
@@ -1640,7 +1643,7 @@ def get_2022_371():
                 supervisor_review_uri = filename
                 download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
 
-            last_name = supervisor.split()[-3]
+            last_name = supervisor.split()[-1]
 
             # q = Users.query.filter_by(last_name=last_name).first()
             print(last_name)
@@ -1654,7 +1657,7 @@ def get_2022_371():
             t = Thesis(
                 name_ru=name_ru,
                 text_uri=text_uri,
-                old_text_uri=base_url + old_text_uri,
+                old_text_uri=base_url + (old_text_uri or ""),
                 presentation_uri=presentation_uri,
                 supervisor_review_uri=supervisor_review_uri,
                 reviewer_review_uri=reviewer_review_uri,
@@ -1721,10 +1724,10 @@ def get_2022_09_03_04():
             print("Add " + name_ru)
 
             if cols[4].find("a"):
-                old_text_uri = cols[5].find("a").get("href")
+                old_text_uri = cols[4].find("a").get("href")
                 path = urlparse(old_text_uri).path
                 extension = splitext(path)[1]
-                filename = author_en + "_Bachelor_Thesis_2019_text" + extension
+                filename = author_en + "_Bachelor_Thesis_" + str(pablish_year) + "_text" + extension
                 text_uri = filename
                 download_file(base_url + old_text_uri, filename, "static/tmp/texts/")
             else:
@@ -1734,7 +1737,9 @@ def get_2022_09_03_04():
                 presentation_uri_d = cols[5].find("a").get("href")
                 path = urlparse(presentation_uri_d).path
                 extension = splitext(path)[1]
-                filename = author_en + "_Bachelor_Thesis_2019_slides" + extension
+                filename = (
+                    author_en + "_Bachelor_Thesis_" + str(pablish_year) + "_slides" + extension
+                )
                 presentation_uri = filename
                 download_file(base_url + presentation_uri_d, filename, "static/tmp/slides/")
             else:
@@ -1744,7 +1749,13 @@ def get_2022_09_03_04():
                 supervisor_review_uri_d = cols[6].find("a").get("href")
                 path = urlparse(supervisor_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = author_en + "_Bachelor_Thesis_2019_supervisor_review" + extension
+                filename = (
+                    author_en
+                    + "_Bachelor_Thesis_"
+                    + str(pablish_year)
+                    + "_supervisor_review"
+                    + extension
+                )
                 supervisor_review_uri = filename
                 download_file(base_url + supervisor_review_uri_d, filename, "static/tmp/reviews/")
             else:
@@ -1754,7 +1765,13 @@ def get_2022_09_03_04():
                 reviewer_review_uri_d = cols[7].find("a").get("href")
                 path = urlparse(reviewer_review_uri_d).path
                 extension = splitext(path)[1]
-                filename = author_en + "_Bachelor_Thesis_2019_reviewer_review" + extension
+                filename = (
+                    author_en
+                    + "_Bachelor_Thesis_"
+                    + str(pablish_year)
+                    + "_reviewer_review"
+                    + extension
+                )
                 reviewer_review_uri = filename
                 download_file(base_url + reviewer_review_uri_d, filename, "static/tmp/reviews/")
             else:
@@ -1781,7 +1798,7 @@ def get_2022_09_03_04():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri=base_url + old_text_uri,
+                    old_text_uri=base_url + (old_text_uri or ""),
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,
@@ -1797,7 +1814,7 @@ def get_2022_09_03_04():
                 t = Thesis(
                     name_ru=name_ru,
                     text_uri=text_uri,
-                    old_text_uri=base_url + old_text_uri,
+                    old_text_uri=base_url + (old_text_uri or ""),
                     presentation_uri=presentation_uri,
                     supervisor_review_uri=supervisor_review_uri,
                     reviewer_review_uri=reviewer_review_uri,

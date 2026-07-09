@@ -51,7 +51,6 @@ def test_init_db_creates_diploma_themes(seeded):
     assert DiplomaThemes.query.count() > 0
 
 
-@pytest.mark.xfail(strict=False, reason="Whoosh index LockError in xdist parallel workers")
 def test_init_db_creates_all_expected_tables(seeded):
     assert AreasOfStudy.query.count() > 0
     assert Users.query.count() > 0

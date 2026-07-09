@@ -163,6 +163,18 @@ with patch.object(flask_sqlalchemy.SQLAlchemy, "init_app", _patched_init_app):
     import thesesImport  # now safe to import
 ```
 
+**Fix for source code:** Wrap in `try/except RuntimeError` instead of patching:
+
+```python
+try:
+    db.app = app
+    db.init_app(app)
+except RuntimeError:
+    pass
+```
+
+This is simpler and doesn't require import-time patching. Applied to `thesesImport.py` in session 6.
+
 ## thesesImport: module-level state breaks test isolation
 
 **When:** Writing tests for functions in `thesesImport.py` that share module-level state.

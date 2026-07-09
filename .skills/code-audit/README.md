@@ -95,6 +95,11 @@ Scan for patterns that cause 500 errors at runtime:
   ```bash
   rg 'request\.form\.get\("[^"]*"\)\.strip\(\)' src/ --include "*.py"
   ```
+- **`str + None` in URL/string concatenation** — `base_url + old_text_uri` crashes when `old_text_uri` is `None`
+  ```bash
+  rg '\+\s*\w+\s*\+\s*\w+' src/ --include "*.py"
+  ```
+  Fix: use `(var or "")` to guard against None.
 
 Report findings to `TODO.md` backlog. Reference fixed patterns from session 4 (`flask_se_review.py:215` fix).
 

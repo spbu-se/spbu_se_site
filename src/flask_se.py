@@ -52,6 +52,7 @@ from flask_se_config import (
     SECRET_KEY_THESIS,
     SQLITE_DATABASE_NAME,
     SQLITE_DATABASE_PATH,
+    WHOOSHEE_DIR,
     get_hours_since,
     plural_hours,
 )
@@ -351,7 +352,7 @@ app.add_url_rule("/summer_school_list.html", view_func=summer_school_list)
 # Init Database
 db.app = app
 db.init_app(app)
-app.config["WHOOSHEE_DIR"] = "whooshee"
+app.config["WHOOSHEE_DIR"] = WHOOSHEE_DIR
 whooshee.init_app(app)
 
 # Init Migrate

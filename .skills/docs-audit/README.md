@@ -30,6 +30,8 @@ Is every tool rule described in both doc AND enforced in config? → remove from
 ### 3. Scope discipline
 
 - Every `.md` file has a **scope header** (first 5 lines matching `docs/DOCS.md` §3.1 template: title, encoding, scope, covers, does-not-cover)
+  - Check each doc specifically for `Covers:` and `Does not cover:` lines — 4 docs are missing these as of session 6
+  - If missing, add them matching the doc's actual scope
 - No content violates its doc's stated scope (e.g., encoding commands in a doc about encoding policy, not in a tooling doc)
 - New rules placed in the **correct canonical doc**, not the closest one at hand
 

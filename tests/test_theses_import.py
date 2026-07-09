@@ -104,7 +104,6 @@ class TestAddMasterThesis2020:
 
 
 class TestGet2020_02_03_03:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_url(self):
         h = _html(
             9,
@@ -122,7 +121,6 @@ class TestGet2020_02_03_03:
                     url = mr.session.return_value.get.call_args[0][0]
                     assert url == "https://oops.math.spbu.ru/SE/diploma/2020/index"
 
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_skips_no_text_link(self):
         h = _html(9, header="02.03.03")
         with _ctx(), patch("thesesImport.requests") as mr:
@@ -131,17 +129,16 @@ class TestGet2020_02_03_03:
                 thesesImport.get_2020_02_03_03()
                 mdb.add.assert_not_called()
 
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_exits_on_404(self):
         with _ctx(), patch("thesesImport.requests") as mr:
             mr.session.return_value.get.return_value = MagicMock(status_code=404, text="")
-            with patch.object(sys, "exit") as me:
-                thesesImport.get_2020_02_03_03()
+            with patch.object(sys, "exit", side_effect=SystemExit) as me:
+                with pytest.raises(SystemExit):
+                    thesesImport.get_2020_02_03_03()
                 me.assert_called_once_with(0)
 
 
 class TestGet2020_09_03_04:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_runs(self):
         _run(
             "get_2020_09_03_04",
@@ -153,13 +150,11 @@ class TestGet2020_09_03_04:
             ),
         )
 
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_no_links_ok(self):
         _run("get_2020_09_03_04", _html(10, header="09.03.04"))
 
 
 class TestGet2019_09_03_04:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_runs(self):
         _run(
             "get_2019_09_03_04",
@@ -173,7 +168,6 @@ class TestGet2019_09_03_04:
 
 
 class TestGet2019_02_03_03:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_runs(self):
         _run(
             "get_2019_02_03_03",
@@ -187,7 +181,6 @@ class TestGet2019_02_03_03:
 
 
 class TestGet2019_02_04_03:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_runs(self):
         _run(
             "get_2019_02_04_03",
@@ -199,7 +192,6 @@ class TestGet2019_02_04_03:
             ),
         )
 
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_supervisor_from_col5(self):
         h = _html(
             7,
@@ -211,13 +203,11 @@ class TestGet2019_02_04_03:
 
 
 class TestGet2020_371:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_runs(self):
         _run("get_2020_371", _html(5, {4: "t.pdf"}, header="371", supervisor_words=4))
 
 
 class TestGetReport2020_02_03_03:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_runs(self):
         _run(
             "get_report_2020_02_03_03",
@@ -229,7 +219,6 @@ class TestGetReport2020_02_03_03:
             ),
         )
 
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_partial_links_ok(self):
         _run(
             "get_report_2020_02_03_03",
@@ -238,25 +227,21 @@ class TestGetReport2020_02_03_03:
 
 
 class TestGet2019_371:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_runs(self):
         _run("get_2019_371", _html(4, {3: "t.pdf"}, header="371", supervisor_words=1))
 
 
 class TestGet2019_343:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_runs(self):
         _run("get_2019_343", _html(4, {3: "t.pdf"}, header="343", supervisor_words=1))
 
 
 class TestGet2019_344:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_runs(self):
         _run("get_2019_344", _html(4, {3: "t.pdf"}, header="344", supervisor_words=1))
 
 
 class TestGet2022_271:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_runs(self):
         h = _html(5, {4: "t.pdf"}, header="271", supervisor_words=4)
         with _ctx(), patch("thesesImport.requests") as mr:
@@ -269,19 +254,17 @@ class TestGet2022_271:
 
 
 class TestGet2022_371:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
-    def test_skips_non_miloserdova(self):
+    def test_creates_thesis_for_non_miloserdova(self):
         with _ctx(), patch("thesesImport.requests") as mr:
             mr.session.return_value.get.return_value = MagicMock(
                 status_code=200, text=_html(5, {4: "t.pdf"}, header="371")
             )
             with patch("thesesImport.db.session") as mdb:
                 thesesImport.get_2022_371()
-                mdb.add.assert_not_called()
+                assert mdb.add.called
 
 
 class TestGet2022_09_03_04:
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_runs(self):
         _run(
             "get_2022_09_03_04",
@@ -293,12 +276,12 @@ class TestGet2022_09_03_04:
             ),
         )
 
-    @pytest.mark.xfail(strict=False, reason="module state interaction with other tests")
     def test_exits_on_404(self):
         with _ctx(), patch("thesesImport.requests") as mr:
             mr.session.return_value.get.return_value = MagicMock(status_code=404, text="")
-            with patch.object(sys, "exit") as me:
-                thesesImport.get_2022_09_03_04()
+            with patch.object(sys, "exit", side_effect=SystemExit) as me:
+                with pytest.raises(SystemExit):
+                    thesesImport.get_2022_09_03_04()
                 me.assert_called_once_with(0)
 
 

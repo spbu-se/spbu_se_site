@@ -9,8 +9,9 @@ from datetime import datetime
 SECRET_KEY = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_secret.conf")
 MAIL_PASSWORD_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_mail.conf")
 SECRET_KEY_THESIS = os.urandom(16).hex()
-SQLITE_DATABASE_NAME = "se.db"
-SQLITE_DATABASE_PATH = pathlib.Path("databases/").absolute().as_posix()
+SQLITE_DATABASE_NAME: str = "se.db"
+SQLITE_DATABASE_PATH: str = pathlib.Path("databases/").absolute().as_posix()
+WHOOSHEE_DIR: str = "whooshee"
 
 if os.path.exists(MAIL_PASSWORD_FILE):
     with open(MAIL_PASSWORD_FILE) as file:

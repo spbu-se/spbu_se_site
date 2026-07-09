@@ -535,7 +535,7 @@ class TestThesisAdminApproval:
         updated = Thesis.query.get(t.id)
         assert not updated.temporary
 
-    @pytest.mark.xfail(strict=False, reason="Whoosh index not available in parallel test workers")
+    @pytest.mark.xfail(strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename")
     @patch("os.rename")
     def test_approve_temp_thesis_with_text_uri(self, mock_rename, seeded_client):
         from se_models import Thesis, db
@@ -554,7 +554,6 @@ class TestThesisAdminApproval:
         resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
         assert resp.status_code in (200, 302)
 
-    @pytest.mark.xfail(strict=False, reason="Whoosh index not available in parallel test workers")
     def test_delete_temp_thesis(self, seeded_client):
         from se_models import Thesis, db
 
