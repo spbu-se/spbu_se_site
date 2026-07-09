@@ -2,9 +2,9 @@
 
 <!-- encoding: utf-8 -->
 
-Testing strategy, coverage targets, xfail policy, and known gaps for the SE Site project.
+Testing strategy, coverage targets, xfail policy, and known gaps for the SE Site project. Part of quality management — see `docs/QUALITY_MANAGEMENT.md` for philosophy and policy.
 
-Covers: testing discipline, execution strategy, xfail policy, long-term gaps, deliberate exclusions. Does not cover: fixture implementation patterns — see `docs/TOOLING.md`, test-writing methodology and reusable fixture templates — see `docs/AI_AGENTS.md` §Skills, individual bug details — see `docs/CODE_ISSUES.md`.
+Covers: testing discipline, execution strategy, xfail policy, long-term gaps, deliberate exclusions. Does not cover: fixture implementation patterns — see `docs/TOOLING.md`, test-writing methodology and reusable fixture templates — see `docs/AI_AGENTS.md` §Skills, individual bug details — see `docs/CODE_ISSUES.md`, quality philosophy — see `docs/QUALITY_MANAGEMENT.md`.
 
 ## 1. Testing Discipline
 

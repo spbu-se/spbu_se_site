@@ -418,6 +418,41 @@ Get-ChildItem -Recurse -Include "*.md" | ForEach-Object {
 }
 ```
 
+## Quality Tool Catalog
+
+All quality tools used in this project, their exact configuration, and adoption status.
+See `docs/QUALITY_MANAGEMENT.md` for quality philosophy and policy.
+
+### Active tools
+
+| Tool | Purpose | Where it runs | Flags / config | Adopted |
+|------|---------|---------------|----------------|---------|
+| `ruff format` | Python formatter | Pre-commit (auto-fix) + CI (`--check`) | Default config | ✅ |
+| `ruff check` | Python linter | Pre-commit (auto-fix) + CI (`--check`) | `--fix` for pre-commit | ✅ |
+| `mdformat` | Markdown formatter | Pre-commit (changed files, auto-fix) + Pre-push/CI (`--check` all) | `types: [markdown]` in pre-commit | ✅ |
+| `mypy` | Static type checker | Pre-push + CI (before pytest) | `pyproject.toml` per-module overrides | ✅ |
+| `dprint` | JS/JSON/TOML formatter | Pre-commit | Config in `dprint.json` | ✅ |
+| `pre-commit-hooks` | Trailing whitespace, EOF, JSON, large files | Pre-commit | Config in `.pre-commit-config.yaml` | ✅ |
+| `djlint` | HTML/Jinja formatter | Pre-commit | `--reformat` | ✅ |
+| `commitlint` | Commit message format | Pre-commit (commit-msg stage) | Conventional commits | ✅ |
+| `actionlint` | GHA workflow validator | Pre-push | Default config | ✅ |
+| `packaging.Requirement` | requirements.txt syntax validation | Pre-push | `encoding='utf-8-sig'`, skip `-e` lines | ✅ |
+| `uv lock --check` | Lockfile consistency | Pre-push | Default | ✅ |
+| `pytest` | Test suite | CI | `-n 2` (xdist, 2 workers) | ✅ |
+| `coverage` | Code coverage | CI (via pytest) | `--cov=src --cov-fail-under=80` | ✅ |
+
+### Proposed tools (agent suggested, user may adopt)
+
+| Tool | Purpose | Where it would run | Proposed reason |
+|------|---------|-------------------|-----------------|
+| `bandit` | Python security scanner | CI (non-blocking) | Catches debug configs, hardcoded secrets, `eval()` — was in pre-commit, removed for speed |
+| `codespell` | Spelling in source | Manual / CI (non-blocking) | Captures typos that survive code review — was in pre-commit, removed as not cleanup |
+| `radon` | Cyclomatic complexity | Offline review | Used once to measure `practice_preparation` (F/74) — run before refactoring |
+| `pip-audit` | Dependency vulnerabilities | CI (weekly, non-blocking) | Supply chain risk — automated CVE detection |
+| `vulture` | Dead code detection | Offline review | Find unused imports, functions, and dead branches before major refactors |
+| `pyupgrade` | Modernize Python syntax | Offline review | Keeps codebase current with Python syntax evolution |
+| `safety` | Vulnerability database | CI (weekly, non-blocking) | Alternative to pip-audit — checks against Safety DB
+
 ### Encoding declaration policy
 
 See `docs/DOCS.md §6` for the project's encoding declaration policy.

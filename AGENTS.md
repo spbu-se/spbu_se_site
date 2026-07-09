@@ -44,17 +44,7 @@ An unbiased instruction states the goal without suggesting the method. "Push now
 
 ### CI discipline
 
-CI runs `pytest` asynchronously. Pre-push does not run tests — that's CI's job.
-
-| Trigger | Action |
-|---------|--------|
-| After **S** task | Push, ignore CI. No check needed. |
-| After **M** task | Push → start CI → move to next task. Check CI when you return. |
-| M CI fails | Merge fix into current open task. Don't stop current work. |
-| **S → ... → M** row | CI must be green after the M that closes the row. |
-| Before **L** task | CI must be green. Fix any prior M's CI before starting L. |
-| Before **handoff / session end** | CI must be green. |
-| Whoosh `EmptyIndexError` / `FileNotFoundError` | Rerun once via `gh run rerun`. If passes → green. If fails twice → treat as real failure, update TODO.md. |
+See `docs/AI_AGENTS.md` §CI discipline for the trigger table. See `docs/QUALITY_MANAGEMENT.md` §4 for motivation.
 
 ### Staging merge
 

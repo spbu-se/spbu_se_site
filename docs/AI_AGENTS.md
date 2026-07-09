@@ -219,3 +219,31 @@ Each stub (`SKILL.md`) points to the canonical source in `.skills/<name>/README.
 |------|---------|
 | `pause.md` | Graceful exit — save session state |
 | `finalize.md` | Run staging→current gate and merge |
+
+## CI discipline
+
+Quality management policy (`docs/QUALITY_MANAGEMENT.md` §4) defines why:
+CI runs `pytest` asynchronously. Pre-push does not run tests — that's CI's job.
+
+| Trigger | Action |
+|---------|--------|
+| After **S** task | Push, ignore CI. No check needed. |
+| After **M** task | Push → start CI → move to next task. Check CI when you return. |
+| M CI fails | Merge fix into current open task. Don't stop current work. |
+| **S → ... → M** row | CI must be green after the M that closes the row. |
+| Before **L** task | CI must be green. Fix any prior M's CI before starting L. |
+| Before **handoff / session end** | CI must be green. |
+| Whoosh `EmptyIndexError` / `FileNotFoundError` | Rerun once via `gh run rerun`. If passes → green. If fails twice → treat as real failure, update TODO.md. |
+
+## Tool recommendation proposals
+
+When the agent identifies a quality gap, propose a tool (see `docs/QUALITY_MANAGEMENT.md` §3 for the philosophy).
+
+Proposal format:
+
+1. **What problem** — the specific bug class, missing validation, type hole, or quality gap
+1. **Where** — CI (blocking or advisory), pre-commit, pre-push, or offline review
+1. **Cost** — execution time, dependencies, maintenance burden
+1. **Alternative** — a simpler approach without a new tool
+
+The user decides whether to adopt. No tool is added without approval.

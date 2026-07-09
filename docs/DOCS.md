@@ -48,6 +48,7 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 | `REPO_REVIEW.md` | Audit | Health checklist | — | Repo health audit |
 | `REVERSE_ENGINEERING.md` | RE | Re-engineering cycle | Dev workflow, testing | RE methodology |
 | `AI_AGENTS.md` | AI config | AI tooling config, permissions, output format conventions, skills architecture and catalog | Process, git | AI tool setup |
+| `QUALITY_MANAGEMENT.md` | Quality | Quality philosophy, tiers motivation, agent protocol reasoning, CI discipline motivation, artifact catalog | Tool configs, agent instructions, testing discipline | Quality policy |
 
 ### Skills directory (.skills/)
 

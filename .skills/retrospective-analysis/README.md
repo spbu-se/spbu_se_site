@@ -107,6 +107,7 @@ Scan the session's changed docs for signal patterns. Doc-health-only signals (fr
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
 | **Self-evident rule** | Rule describes standard git/developer practice (e.g., "never commit to main", "stash before branching") | Delete. If the rule was added because someone violated it, keep as a retrospective entry instead. |
 | **Directory collision** | New directory was created during the session — check if a similarly-named directory already exists (e.g., `ls docs/` before creating `doc/`) | Merge unique content, delete duplicate directory. Add pre-creation audit check to the relevant skill. |
+| **Missing catalog entry** | A new `.md` file was created in `docs/` — grep `docs/DOCS.md` for its filename | Add row to DOCS.md catalog table. The file exists on disk but isn't listed — cross-references can't find it. |
 
 ### 5c. Improve skills used during the session
 
