@@ -131,7 +131,6 @@ class TestAuth:
         resp = seeded_client.get("/vk_callback?code=badcode")
         assert resp.status_code in (200, 302)
 
-    @pytest.mark.xfail(strict=False, reason="requires google client_secrets.json file")
     def test_google_login_redirect(self, seeded_client):
         assert_ok(seeded_client, "/google_login", code={200, 302})
 
@@ -536,7 +535,7 @@ class TestThesisAdminApproval:
         assert not updated.temporary
 
     @pytest.mark.xfail(strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename")
-    @patch("os.rename")
+    @patch("flask_se_theses.os.rename")
     def test_approve_temp_thesis_with_text_uri(self, mock_rename, seeded_client):
         from se_models import Thesis, db
 

@@ -428,7 +428,6 @@ class TestPracticeAdminArchiveThesis:
         )
         assert resp.status_code in (200, 302)
 
-    @pytest.mark.xfail(strict=False, reason="parallel xdist: file I/O race")
     def test_archive_post_success_with_all_files(self, current_thesis):
         from se_models import CurrentThesis, Thesis
 
@@ -454,7 +453,6 @@ class TestPracticeAdminArchiveThesis:
         assert archived is not None
         assert archived.name_ru == "Test Practice Thesis Admin"
 
-    @pytest.mark.xfail(strict=False, reason="parallel xdist: file I/O race")
     def test_archive_post_with_uploaded_files(self, current_thesis):
         from se_models import CurrentThesis, db
 
@@ -493,7 +491,6 @@ class TestPracticeAdminArchiveThesis:
             )
         assert resp.status_code in (200, 302)
 
-    @pytest.mark.xfail(strict=False, reason="parallel xdist: file I/O race")
     def test_archive_post_code_link_no_http(self, current_thesis):
         from se_models import CurrentThesis
 

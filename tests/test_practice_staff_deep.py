@@ -46,7 +46,6 @@ class TestDatetimeConvert:
 
 
 class TestUserIsStaff:
-    @pytest.mark.xfail(strict=False, reason="xdist race: non-deterministic auth session leak")
     def test_non_staff_redirects_to_practice_index(self, seeded_client):
         from se_models import Users, db
 

@@ -70,13 +70,17 @@ Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_
 
 | Test | Reason | Tracking |
 |------|--------|----------|
-| Google OAuth full flow (2) | Requires `client_google.json` config file not in CI | TODO.md Blocked |
-| PyMuPDF dummy PDF (5) | Tests send `b"dummy"` as PDF — PyMuPDF rejects invalid content | TODO.md tech debt |
-| os.rename patch + Whoosh (3) | `patch("os.rename")` blocks Whoosh filesystem `create_index()` — needs per-module patch instead | TODO.md tech debt |
+| Google OAuth callback (1) | Requires OAuth session state not present in test | TODO.md Blocked |
+| os.rename + Whoosh (3) | `patch("os.rename")` blocks Whoosh filesystem `create_index()` | TODO.md tech debt |
+| thesesImport runpy (1) | `runpy.run_module` re-imports without patch | TODO.md tech debt |
+| theses xdist race (1) | Intermittent — user creation not visible to parallel worker | TODO.md tech debt |
+| practice delete nonexistent (1) | Real bug: `AttributeError` on nonexistent report_id | TODO.md bug |
+
+**Previously fixed this session**: PyMuPDF dummy PDF (5), Google OAuth login redirect (1), practice_admin file I/O races (3), practice_staff auth race (1), theses xdist race (1 — `test_post_bad_type_id`), thesesImport module state (22). Total: 33 xfails removed.
 
 ## 5. Xpassed Tests
 
-26 tests currently xpass (expected to fail but passing). Likely from bugs fixed or behavior changed since xfail was applied. Investigate and either remove the `xfail` marker or migrate to proper assertions.
+0 xpassed tests remaining. All previously xpassed tests were investigated and fixed in session 6.
 
 ## 6. Long-Term Testing Gaps
 

@@ -1,0 +1,9 @@
+{
+    "web": {
+        "client_id": "test-client-id.apps.googleusercontent.com",
+        "client_secret": "test-client-secret",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "redirect_uris": ["http://localhost:5000/google_callback"]
+    }
+}

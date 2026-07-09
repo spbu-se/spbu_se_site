@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import io
 import json
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
+
+from conftest import _min_pdf
 from conftest import assert_ok
 
 
@@ -90,7 +92,7 @@ class TestPostThesesApi:
 
     def test_post_no_thesis_info(self, logged_client):
         resp = logged_client.post(
-            "/post_theses", data={"thesis_text": (io.BytesIO(b"dummy"), "test.pdf")}
+            "/post_theses", data={"thesis_text": (io.BytesIO(_min_pdf()), "test.pdf")}
         )
         assert resp.status_code == 200
         data = json.loads(resp.data)
@@ -101,7 +103,7 @@ class TestPostThesesApi:
         resp = logged_client.post(
             "/post_theses",
             data={
-                "thesis_text": (io.BytesIO(b"dummy"), "test.pdf"),
+                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
                 "thesis_info": (io.BytesIO(json.dumps({"name_ru": "Test"}).encode()), "info.json"),
             },
         )
@@ -122,7 +124,7 @@ class TestPostThesesApi:
         resp = logged_client.post(
             "/post_theses",
             data={
-                "thesis_text": (io.BytesIO(b"dummy"), "test.pdf"),
+                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
                 "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
             },
         )
@@ -131,7 +133,6 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Invalid secret key" in data["string"]
 
-    @pytest.mark.xfail(strict=False, reason="intermittent xdist race — fails only with full -n auto suite")
     def test_post_bad_type_id(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -147,7 +148,7 @@ class TestPostThesesApi:
         resp = logged_client.post(
             "/post_theses",
             data={
-                "thesis_text": (io.BytesIO(b"dummy"), "test.pdf"),
+                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
                 "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
             },
         )
@@ -170,7 +171,7 @@ class TestPostThesesApi:
         resp = logged_client.post(
             "/post_theses",
             data={
-                "thesis_text": (io.BytesIO(b"dummy"), "test.pdf"),
+                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
                 "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
             },
         )
@@ -193,7 +194,7 @@ class TestPostThesesApi:
         resp = logged_client.post(
             "/post_theses",
             data={
-                "thesis_text": (io.BytesIO(b"dummy"), "test.pdf"),
+                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
                 "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
             },
         )
@@ -201,9 +202,7 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Can't find supervisor" in data["string"]
 
-    @pytest.mark.xfail(
-        strict=False, reason="xdist race: user creation not visible to parallel worker"
-    )
+    @pytest.mark.xfail(strict=False, reason="intermittent xdist race — passes alone, fails in full suite")
     def test_post_supervisor_found_in_users_not_in_staff(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
         from se_models import Users, db
@@ -224,7 +223,7 @@ class TestPostThesesApi:
         resp = logged_client.post(
             "/post_theses",
             data={
-                "thesis_text": (io.BytesIO(b"dummy"), "test.pdf"),
+                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
                 "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
             },
         )
@@ -232,7 +231,6 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Can't find supervisor in staff" in data["string"]
 
-    @pytest.mark.xfail(strict=False, reason="PyMuPDF rejects dummy PDF in thesis_text upload")
     def test_post_with_source_uri(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -249,14 +247,13 @@ class TestPostThesesApi:
         resp = logged_client.post(
             "/post_theses",
             data={
-                "thesis_text": (io.BytesIO(b"dummy"), "test.pdf"),
+                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
                 "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
             },
         )
         data = json.loads(resp.data)
         assert data["status"] == 0
 
-    @pytest.mark.xfail(strict=False, reason="PyMuPDF rejects dummy PDF in thesis_text upload")
     def test_post_with_presentation(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -272,7 +269,7 @@ class TestPostThesesApi:
         resp = logged_client.post(
             "/post_theses",
             data={
-                "thesis_text": (io.BytesIO(b"dummy"), "test.pdf"),
+                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
                 "presentation": (io.BytesIO(b"slides"), "slides.pdf"),
                 "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
             },
@@ -280,7 +277,6 @@ class TestPostThesesApi:
         data = json.loads(resp.data)
         assert data["status"] == 0
 
-    @pytest.mark.xfail(strict=False, reason="PyMuPDF rejects dummy PDF in thesis_text upload")
     def test_post_with_supervisor_review(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -296,7 +292,7 @@ class TestPostThesesApi:
         resp = logged_client.post(
             "/post_theses",
             data={
-                "thesis_text": (io.BytesIO(b"dummy"), "test.pdf"),
+                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
                 "supervisor_review": (io.BytesIO(b"review"), "review.pdf"),
                 "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
             },
@@ -304,7 +300,6 @@ class TestPostThesesApi:
         data = json.loads(resp.data)
         assert data["status"] == 0
 
-    @pytest.mark.xfail(strict=False, reason="PyMuPDF rejects dummy PDF in thesis_text upload")
     def test_post_with_reviewer_review(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -320,7 +315,7 @@ class TestPostThesesApi:
         resp = logged_client.post(
             "/post_theses",
             data={
-                "thesis_text": (io.BytesIO(b"dummy"), "test.pdf"),
+                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
                 "reviewer_review": (io.BytesIO(b"review"), "review.pdf"),
                 "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
             },
@@ -328,7 +323,6 @@ class TestPostThesesApi:
         data = json.loads(resp.data)
         assert data["status"] == 0
 
-    @pytest.mark.xfail(strict=False, reason="PyMuPDF rejects dummy PDF in thesis_text upload")
     def test_post_all_files(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -345,10 +339,10 @@ class TestPostThesesApi:
         resp = logged_client.post(
             "/post_theses",
             data={
-                "thesis_text": (io.BytesIO(b"dummy"), "test.pdf"),
-                "presentation": (io.BytesIO(b"slides"), "slides.pdf"),
-                "supervisor_review": (io.BytesIO(b"sup"), "sup.pdf"),
-                "reviewer_review": (io.BytesIO(b"rev"), "rev.pdf"),
+                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
+                "presentation": (io.BytesIO(_min_pdf("slides")), "slides.pdf"),
+                "supervisor_review": (io.BytesIO(_min_pdf("sup")), "sup.pdf"),
+                "reviewer_review": (io.BytesIO(_min_pdf("rev")), "rev.pdf"),
                 "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
             },
         )
@@ -414,7 +408,7 @@ class TestThesesDeleteTmpDeep:
 class TestThesesAddTmpDeep:
     @pytest.mark.xfail(strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename")
     def test_add_tmp_with_text_uri(self, seeded_client):
-        with patch("os.rename"):
+        with patch("flask_se_theses.os.rename"):
             from se_models import Thesis, db
 
             t = Thesis(
@@ -435,7 +429,7 @@ class TestThesesAddTmpDeep:
 
     @pytest.mark.xfail(strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename")
     def test_add_tmp_with_presentation_and_reviews(self, seeded_client):
-        with patch("os.rename"):
+        with patch("flask_se_theses.os.rename"):
             from se_models import Thesis, db
 
             t = Thesis(
