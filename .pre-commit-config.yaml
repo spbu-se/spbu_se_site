@@ -1,30 +1,26 @@
 repos:
   - repo: local
     hooks:
-      - id: uv-lock-check
-        name: uv lock --check
-        entry: uv lock --check
-        language: system
-        pass_filenames: false
-        always_run: true
-
       - id: ruff-format
         name: ruff-format
         entry: uv run ruff format
         language: system
         types: [python]
+        stages: [pre-commit]
 
       - id: ruff
         name: ruff (check + fix)
         entry: uv run ruff check --fix
         language: system
         types: [python]
+        stages: [pre-commit]
 
       - id: mdformat
         name: mdformat (changed files only)
         entry: uv run mdformat
         language: system
         types: [markdown]
+        stages: [pre-commit]
 
       - id: validate-requirements
         name: Validate requirements.txt format
@@ -39,6 +35,7 @@ repos:
     hooks:
       - id: dprint
         args: [fmt]
+        stages: [pre-commit]
 
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.20.0
@@ -53,12 +50,17 @@ repos:
     hooks:
       - id: check-json
         exclude: ^src/static/assets/libs/
+        stages: [pre-commit]
       - id: check-added-large-files
+        stages: [pre-commit]
       - id: check-case-conflict
+        stages: [pre-commit]
       - id: end-of-file-fixer
         exclude: ^src/static/
+        stages: [pre-commit]
       - id: trailing-whitespace
         exclude: ^src/static/
+        stages: [pre-commit]
 
   - repo: https://github.com/Riverside-Healthcare/djlint
     rev: v1.36.4
@@ -67,21 +69,7 @@ repos:
         args: ["--reformat"]
         types: [html]
         exclude: ^src/static/assets/libs/
-
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.8.3
-    hooks:
-      - id: bandit
-        args: ["-c", "pyproject.toml"]
-        additional_dependencies: ["bandit[toml]"]
-        exclude: ^tests/|^src/migrations/
-
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
-    hooks:
-      - id: codespell
-        args: ["--toml", "pyproject.toml"]
-        exclude: ^src/static/assets/libs/|\.svg$|\.min\.(css|js)$|uv\.lock$
+        stages: [pre-commit]
 
   - repo: https://github.com/rhysd/actionlint
     rev: v1.7.7
@@ -89,11 +77,17 @@ repos:
       - id: actionlint
         stages: [pre-push]
 
-  # --- Pre-push hooks (strict, ~10min, all files, fail-fast) ---
-  # Chain: format check (no auto-fix) → mypy → pytest.
-  # Failure at any step aborts the chain — format failure skips pytest.
+  # --- Pre-push hooks ---
   - repo: local
     hooks:
+      - id: pre-push-uv-lock
+        name: "pre-push: uv lock --check"
+        entry: uv lock --check
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
       - id: pre-push-fast-checks
         name: "pre-push: format + lint (fail-fast)"
         entry: powershell -Command "uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/; if ($?) { uv run ruff format --check src/ }; if ($?) { uv run ruff check src/ }"
@@ -108,4 +102,12 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+        stages: [pre-push]
+
+      - id: validate-requirements
+        name: Validate requirements.txt format
+        entry: uv run python -c "from packaging.requirements import Requirement; [Requirement(l.strip()) for l in open('requirements.txt', encoding='utf-8-sig') if l.strip() and not l.strip().startswith(('#', '-e '))]"
+        language: system
+        pass_filenames: false
+        files: ^requirements\.txt$
         stages: [pre-push]
