@@ -139,6 +139,14 @@ Output a table:
 
 Append new entries to `docs/CODE_ISSUES.md` for findings not yet tracked. Cross-reference `TODO.md` backlog entries to the relevant `CODE_ISSUES.md` item.
 
+### 10. Universal-safe transformations — use replaceAll
+
+When a fix is universally safe (applies the same transformation everywhere without risk), use `replaceAll` instead of context-matching individual sites.
+
+**Example**: `base_url + old_text_uri` → `base_url + (old_text_uri or "")`. The `or ""` is a no-op when `old_text_uri` is already a string, making it safe across all 17 occurrences. Context-matching each site wasted 5 minutes.
+
+**Signal**: If the transformation is equivalent to adding a default (`or 0`, `or ""`, `or []`) or wrapping in a no-op call, it's safe to `replaceAll`. If it changes behavior (adds/removes logic, changes types, renames), match individually.
+
 ## Dependencies
 
 - `rg` (ripgrep) — for fast source scanning

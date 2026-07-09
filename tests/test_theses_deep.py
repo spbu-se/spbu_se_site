@@ -131,7 +131,7 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Invalid secret key" in data["string"]
 
-    @pytest.mark.xfail(strict=False, reason="intermittent xdist race — user/session not visible to parallel worker")
+    @pytest.mark.xfail(strict=False, reason="intermittent xdist race — fails only with full -n auto suite")
     def test_post_bad_type_id(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -155,7 +155,6 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Wrong type_id" in data["string"]
 
-    @pytest.mark.xfail(strict=False, reason="intermittent xdist race — user/session not visible to parallel worker")
     def test_post_bad_course_id(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -179,7 +178,6 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Wrong course_id" in data["string"]
 
-    @pytest.mark.xfail(strict=False, reason="intermittent xdist race — user/session not visible to parallel worker")
     def test_post_no_supervisor_match(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
