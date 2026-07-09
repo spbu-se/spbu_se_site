@@ -15,6 +15,14 @@ Not local host quirks (see `.tooling.md`) and not project-specific errors (see `
 
 `uv export` output differs between platforms вЂ” wheel comment hashes for platform-specific packages (e.g., `msgpack`, `cachecontrol`) vary. CI checks that `diff` the exported output against a committed file are inherently fragile.
 
+### Windows PowerShell encoding trap
+
+`uv export > requirements.txt` in PowerShell defaults to UTF-16 LE encoding, corrupting the file for pip. Always use:
+
+```powershell
+uv export --no-dev --no-hashes --format requirements-txt 2>$null | Set-Content requirements.txt -Encoding utf8
+```
+
 ### Build artifacts
 
 If `[build-system]` is present, `uv sync` builds the project and creates `*.egg-info/` directories. Add to `.gitignore`.

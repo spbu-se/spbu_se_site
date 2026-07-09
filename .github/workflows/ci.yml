@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches: [current]
+    tags:
+      - "v*"
   pull_request:
     branches: [current]
-  tags:
-    - "v*"
 
 jobs:
   test:

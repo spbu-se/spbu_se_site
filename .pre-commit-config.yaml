@@ -21,18 +21,18 @@ repos:
         types: [python]
 
       - id: mdformat
-        name: mdformat
-        entry: uv run mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
+        name: mdformat (changed files only)
+        entry: uv run mdformat
         language: system
-        pass_filenames: false
-        always_run: true
+        types: [markdown]
 
       - id: validate-requirements
         name: Validate requirements.txt format
-        entry: uv run pip install --dry-run -r requirements.txt
+        entry: uv run python -c "from packaging.requirements import Requirement; [Requirement(l.strip()) for l in open('requirements.txt', encoding='utf-8-sig') if l.strip() and not l.strip().startswith(('#', '-e '))]"
         language: system
         pass_filenames: false
         files: ^requirements\.txt$
+        stages: [pre-push]
 
   - repo: https://github.com/trim21/dprint-pre-commit
     rev: v0.55.1.4
@@ -83,12 +83,29 @@ repos:
         args: ["--toml", "pyproject.toml"]
         exclude: ^src/static/assets/libs/|\.svg$|\.min\.(css|js)$|uv\.lock$
 
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
+    hooks:
+      - id: actionlint
+        stages: [pre-push]
+
+  # --- Pre-push hooks (strict, ~10min, all files, fail-fast) ---
+  # Chain: format check (no auto-fix) → mypy → pytest.
+  # Failure at any step aborts the chain — format failure skips pytest.
   - repo: local
     hooks:
-      - id: mypy
-        name: mypy
-        entry: uv run mypy
+      - id: pre-push-fast-checks
+        name: "pre-push: format + lint (fail-fast)"
+        entry: powershell -Command "uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/; if ($?) { uv run ruff format --check src/ }; if ($?) { uv run ruff check src/ }"
         language: system
-        types: [python]
         pass_filenames: false
         always_run: true
+        stages: [pre-push]
+
+      - id: pre-push-mypy
+        name: "pre-push: mypy"
+        entry: uv run mypy
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]

@@ -45,6 +45,10 @@ git commit -m "feat: <summary>"
 
 **Exception for `experiment/`**: never merged. Delete with `git branch -D experiment/<name>`.
 
+**Quality gate**: Before proposing squash-merge, ensure the branch's pre-push hooks passed cleanly. The pre-push gate is the minimum bar for staging — if a branch cannot pass pre-push, it should not be merged.
+
+**CI**: After push, CI runs pytest asynchronously. Before proposing merge, verify CI is green (see AGENTS.md §CI discipline for when to check).
+
 **Never continue on a squash-merged branch without explicit user instruction**. After `git merge --squash` to staging, the branch is consumed. Any further work must either start a new branch or be explicitly approved — squash-merge creates a different commit tree, and git cannot cleanly merge subsequent changes.
 
 ### 2.2 Staging → current

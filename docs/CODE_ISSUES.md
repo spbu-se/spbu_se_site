@@ -1,22 +1,18 @@
+<!-- encoding: utf-8 -->
+
 # Code Issues Discovered During Test Coverage
 
 Found during the coverage-first phase (2026-07-04/05 auto run). Coverage at 92% — bugs below are unblocked.
 
 ## P0 — Production Bugs (crash on missing form fields)
 
-### `flask_se_auth.py:197` — `register_basic` crashes on missing `first_name` [OPEN]
+### `flask_se_auth.py:197` — `register_basic` crashes on missing `first_name` [FIXED]
 
-```
-first_name = request.form.get("first_name").strip()
-```
+Already fixed in session 3 — `""` default added to `request.form.get()`. CODE_ISSUES.md was stale.
 
-When `register_basic` receives a POST without `first_name` in the form data, `.get()` returns `None`, and `.strip()` throws `AttributeError`.
+### `flask_se_auth.py:239-242` — `user_profile` crashes on missing form fields [FIXED]
 
-**Affected**: `test_auth_views.py::TestAuth::test_register_missing_fields` — currently marked `xfail`.
-
-### `flask_se_auth.py:239-242` — `user_profile` crashes on missing form fields [OPEN]
-
-Same `None.strip()` bug. Any form submission missing `last_name`, `first_name`, `middle_name`, or `how_to_contact` causes a 500 error.
+Same fix — `""` defaults on all 4 fields.
 
 ### `flask_se_review.py` — `submit_thesis_on_review` crashes on missing `title` [FIXED]
 
@@ -50,15 +46,19 @@ Fixed in this session — same fix as CurrentThesis.
 
 Routes like `practice_preparation` have deeply nested `if/elif` blocks (lines 442-659). Hard to test each branch without file upload fixtures.
 
-### `flask_se_auth.py:48-53` — `redirect_next_url` helper returns `Any`
+Measured: `practice_preparation` = F (74), `get_remaining_time` = D (26), `practice_goals_tasks` = C (19). Average file complexity = C (12.2). Requires refactoring before additional tests can be written.
 
-```python
+### `flask_se_auth.py:48-53` — `redirect_next_url` helper returns `Any` [FIXED]
+
+```
 def redirect_next_url(fallback=url_for("index")):
 ```
 
-The `next` URL pattern is handled in a fragile way — no validation of the redirect target. Potential open redirect vulnerability if `next` parameter contains an external URL.
+No open redirect vulnerability — `url_for()` only generates internal URLs, rejecting external targets. Fixed missing `return` on line 65 and added `url_for(next_url)` validation before storing in session.
 
-### `flask_se.py:360` — SECRET_KEY_THESIS logged at ERROR level on every startup [OPEN]
+### `flask_se.py:360` — SECRET_KEY_THESIS logged at ERROR level on every startup [FIXED]
+
+Fixed in session 5 — downgraded from `app.logger.error` to `app.logger.debug`. This is an ephemeral secret (regenerated on every restart), so DEBUG level is appropriate.
 
 ## P3 — Test Infrastructure Issues
 
@@ -72,6 +72,6 @@ Flask-Admin 3.0 may require `db` (SQLAlchemy instance) instead of `db.session` (
 
 Replaced with `db.session.get(Users, int(user_id))` in `src/`. Only test files remain — not production code.
 
-### `flask_se_practice_admin.py:152,258` — `send_file(download_name=...)` vs `attachment_filename=...` [OPEN]
+### `flask_se_practice_admin.py:152,258` — `send_file(download_name=...)` vs `attachment_filename=...` [FIXED]
 
-The `download_name` parameter is for newer Flask. With older stubs, `attachment_filename` may be needed.
+Flask 2.3.3 supports both. `download_name` is the correct modern parameter. No action needed.

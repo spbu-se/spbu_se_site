@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
-from conftest import LIST_VIEWS, assert_ok
+from conftest import LIST_VIEWS
 
 
 class TestAdminAccess:

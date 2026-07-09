@@ -18,7 +18,9 @@ def thesis_with_report(staff_client):
     task = ThesisTask(task_text="Test task", current_thesis_id=ct.id)
     db.session.add(task)
 
-    report = ThesisReport(was_done="Completed task 1", planned_to_do="Task 2", current_thesis_id=ct.id, author_id=1)
+    report = ThesisReport(
+        was_done="Completed task 1", planned_to_do="Task 2", current_thesis_id=ct.id, author_id=1
+    )
     db.session.add(report)
     db.session.commit()
 
@@ -182,7 +184,9 @@ class TestReportsStaff:
         ct2.supervisor_id = 2
         db.session.add(ct2)
         db.session.flush()
-        report2 = ThesisReport(was_done="Other work", planned_to_do="Other plan", current_thesis_id=ct2.id, author_id=2)
+        report2 = ThesisReport(
+            was_done="Other work", planned_to_do="Other plan", current_thesis_id=ct2.id, author_id=2
+        )
         db.session.add(report2)
         db.session.commit()
         resp = client.get(f"/practice_staff/reports/?id={ct_id}&report_id={report2.id}")

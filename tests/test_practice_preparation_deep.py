@@ -61,11 +61,14 @@ class TestPracticePreparation:
         ct = CurrentThesis.query.filter_by(author_id=1).first()
         assert ct.text_link == "https://example.com/thesis.pdf"
 
-    @pytest.mark.parametrize("button,field,filename", [
-        ("submit_text_button", "text", "thesis.txt"),
-        ("submit_review_button", "supervisor_review", "review.txt"),
-        ("submit_presentation_button", "presentation", "slides.txt"),
-    ])
+    @pytest.mark.parametrize(
+        "button,field,filename",
+        [
+            ("submit_text_button", "text", "thesis.txt"),
+            ("submit_review_button", "supervisor_review", "review.txt"),
+            ("submit_presentation_button", "presentation", "slides.txt"),
+        ],
+    )
     def test_post_invalid_file_type(self, practice_thesis, button, field, filename):
         resp = practice_thesis.post(
             "/practice/preparation_for_defense/?id=1",

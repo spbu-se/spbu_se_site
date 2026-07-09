@@ -357,7 +357,7 @@ whooshee.init_app(app)
 # Init Migrate
 migrate = Migrate(app, db, render_as_batch=True)
 
-app.logger.error("SECRET_KEY_THESIS: %s", str(app.config["SECRET_KEY_THESIS"]))
+app.logger.debug("SECRET_KEY_THESIS: %s", str(app.config["SECRET_KEY_THESIS"]))
 
 # Init Freezer
 freezer = Freezer(app)

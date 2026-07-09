@@ -83,7 +83,7 @@ se-site/
 │   ├── flask_se_theses.py  # Thesis search and management
 │   ├── se_models.py        # SQLAlchemy models
 │   └── templates/          # Jinja2 templates (107 files)
-├── tests/                  # Test suite (1105 tests, 92% coverage)
+├── tests/                  # Test suite (1104+ tests, 92% coverage)
 ├── docs/                    # Process and architecture documentation
 ├── .github/workflows/      # CI/CD pipelines
 └── docker-compose.yml      # Production deployment

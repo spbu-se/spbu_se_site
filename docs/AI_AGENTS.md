@@ -176,8 +176,8 @@ Checklist:
 ### Skill lifecycle
 
 ```
-Accumulate concerns in a section → reach size/complexity threshold → 
-run concern audit (does every item still share the original purpose?) → 
+Accumulate concerns in a section → reach size/complexity threshold →
+run concern audit (does every item still share the original purpose?) →
 split by boundary → create dedicated skill → keep both lean
 ```
 

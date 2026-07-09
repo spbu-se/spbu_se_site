@@ -33,12 +33,8 @@ _init_db_path()
 import pytest
 from sqlalchemy import create_engine
 
-from flask_se import app, db
-
-_whoosh_dir = tempfile.mkdtemp()
-app.config["WHOOSHEE_DIR"] = _whoosh_dir
-
 import flask_se as _fs
+from flask_se import app, db
 
 _fs.scheduler.shutdown(wait=False)
 
@@ -173,7 +169,9 @@ def practice_thesis(logged_client):
     task = ThesisTask(task_text="Test task", current_thesis_id=ct.id)
     db.session.add(task)
 
-    report = ThesisReport(was_done="Completed task 1", planned_to_do="Task 2", current_thesis_id=ct.id, author_id=1)
+    report = ThesisReport(
+        was_done="Completed task 1", planned_to_do="Task 2", current_thesis_id=ct.id, author_id=1
+    )
     db.session.add(report)
     db.session.commit()
     return logged_client

@@ -434,11 +434,14 @@ class TestPracticePreparation:
         )
         assert resp.status_code in (200, 302)
 
-    @pytest.mark.parametrize("button,field,filename", [
-        ("submit_text_button", "text", "thesis.txt"),
-        ("submit_review_button", "supervisor_review", "review.txt"),
-        ("submit_presentation_button", "presentation", "slides.txt"),
-    ])
+    @pytest.mark.parametrize(
+        "button,field,filename",
+        [
+            ("submit_text_button", "text", "thesis.txt"),
+            ("submit_review_button", "supervisor_review", "review.txt"),
+            ("submit_presentation_button", "presentation", "slides.txt"),
+        ],
+    )
     def test_post_submit_invalid_extension(self, practice_thesis, button, field, filename):
         resp = practice_thesis.post(
             "/practice/preparation_for_defense/?id=1",

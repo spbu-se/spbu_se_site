@@ -156,11 +156,44 @@ Before staging→current gate, audit each decision from this session:
 
 ### Pre-merge refresh
 
-Before proposing merge to current, ensure `requirements.txt` matches lockfile. See `docs/GIT_FLOW.md §8` for the command.
+Before proposing merge to current:
+
+1. Ensure `requirements.txt` matches lockfile. See `docs/GIT_FLOW.md §8` for the command.
+1. Scan `docs/CODE_ISSUES.md` for stale [OPEN] entries — any bug whose fix was already committed but status not updated to [FIXED]. Update before merging.
 
 ### Pre-staging validation
 
 Before staging after bulk doc edits, run the `mdformat` command that CI will use — not just `--check`. This catches missing files and path errors early. See `docs/DOCS.md §7.1` for the command.
+
+### Pre-push discipline
+
+Three tiers of quality, from local convenience to production gate:
+
+#### Pre-commit (fast, ~1s, changed files only)
+
+Auto-fix formatting on touched files. Runs on every `git commit`.
+Not a quality gate — local commits can be imperfect. Using `git commit --no-verify` is acceptable.
+
+#### Pre-push (strict, ~33s, all files, fail-fast)
+
+Checks: format (all files, no auto-fix) -> mypy. Runs on every `git push`.
+Failure at any step aborts. Format failure skips mypy.
+This is the local quality gate that prevents unformatted or type-unsafe code from reaching staging.
+
+The pre-push gate exists because the agent has a documented pattern of skipping fast local checks to save seconds, costing minutes in CI round-trips. The fail-fast chain ensures that a format failure wastes at most ~3s instead of triggering a full check cycle.
+
+An agent may propose `git push --no-verify` only when:
+
+1. The user gives a direct, unbiased instruction (states a goal, not a method)
+1. The agent clearly documents the risk before proceeding
+
+#### CI (async, ~10min)
+
+pytest runs on CI, not in pre-push. See AGENTS.md xC7 for when to check CI status.
+
+#### Staging merge
+
+Every push to staging should be publishable. The pre-push gate is the minimum bar for staging. CI must be green before merging to staging.
 
 ### Context compaction
 

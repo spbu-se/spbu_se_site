@@ -25,19 +25,46 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Before merge: if session involved doc restructuring, propose retrospective as the final step (do not run mid-session)
 - Always learn, never forget — encode patterns before session ends
 
-## Before committing
+## Quality gates
+
+Three tiers of quality, from local convenience to production gate:
+
+### Pre-commit (fast, ~1s, changed files only)
+
+Run automatically on `git commit`. Auto-fix formatting on touched files.
+Not a quality gate — local commits can be imperfect. Using `git commit --no-verify` is acceptable if a hook genuinely blocks you for a non-formatting reason.
+
+### Pre-push (strict, ~33s, all files, fail-fast)
+
+Run automatically on `git push`. Checks: format (all files, no auto-fix) → mypy.
+Failure at any step aborts — format failure skips mypy. This is the real local quality gate.
+
+**Never use `git push --no-verify`** unless the user gives a direct, unbiased instruction.
+An unbiased instruction states the goal without suggesting the method. "Push now, CI will catch it" is biased. "I need this on staging urgently" is unbiased — the agent may then propose `--no-verify` with a clear risk statement.
+
+### CI discipline
+
+CI runs `pytest` asynchronously. Pre-push does not run tests — that's CI's job.
+
+| Trigger | Action |
+|---------|--------|
+| After **S** task | Push, ignore CI. No check needed. |
+| After **M** task | Push → start CI → move to next task. Check CI when you return. |
+| M CI fails | Merge fix into current open task. Don't stop current work. |
+| **S → ... → M** row | CI must be green after the M that closes the row. |
+| Before **L** task | CI must be green. Fix any prior M's CI before starting L. |
+| Before **handoff / session end** | CI must be green. |
+| Whoosh `EmptyIndexError` / `FileNotFoundError` | Rerun once via `gh run rerun`. If passes → green. If fails twice → treat as real failure, update TODO.md. |
+
+### Staging merge
+
+Every push to staging should be publishable. The pre-push gate is the minimum bar for staging. CI must be green before merging to staging.
+
+### First-time setup
 
 ```powershell
-uv run mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
-uv run ruff format src/
-uv run ruff check src/
-uv run mypy src/
-uv run pytest -n 2
+uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre-push
 ```
-
-Also verify `requirements.txt` is fresh (CI uses pip, not uv):
-
-See `docs/TOOLING.md` §PowerShell encoding for the correct command — the `$(...)` subexpression flattens multi-line output to a single line.
 
 ## Testing quirks
 

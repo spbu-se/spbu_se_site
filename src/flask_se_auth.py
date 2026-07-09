@@ -62,7 +62,7 @@ def handle_needs_login():
 
 def redirect_next_url(fallback):
     if "next_url" not in session:
-        redirect(fallback)
+        return redirect(fallback)
 
     try:
         dest_url = url_for(session["next_url"])
@@ -82,7 +82,11 @@ def login_index():
     next_url = request.args.get("next")
 
     if next_url:
-        session["next_url"] = next_url
+        try:
+            url_for(next_url)
+            session["next_url"] = next_url
+        except Exception:
+            session.pop("next_url", None)
     else:
         session.pop("next_url", None)
 

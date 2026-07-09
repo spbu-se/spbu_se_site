@@ -51,7 +51,7 @@ Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_
 
 | Test | Reason | Tracking |
 |------|--------|----------|
-| Whoosh-related tests (3) | `EmptyIndexError` in xdist — Whoosh index not thread-safe | TODO.md Blocked |
+| Whoosh-related tests (4) | `EmptyIndexError` in xdist / CI Linux — Whoosh lazy index creation platform issue | TODO.md Blocked |
 | Google OAuth full flow (2) | Requires `client_google.json` config file not in CI | TODO.md Blocked |
 | thesesImport module state tests (23) | Module-level `db.init_app(app)` + mutable flags break isolation | Unfixable without production refactor |
 
