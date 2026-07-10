@@ -1,6 +1,3 @@
 graft src/templates
 graft src/static
-include src/static/robots.txt
-include src/static/favicon.ico
-prune src/templates/**/__pycache__
-prune src/static/**/__pycache__
+prune src/**/__pycache__
