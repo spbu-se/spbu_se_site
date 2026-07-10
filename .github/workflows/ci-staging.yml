@@ -26,3 +26,5 @@ jobs:
       - run: uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
       - run: uv run basedpyright src/ || true
       - run: uv run pytest
+        env:
+          PYTHONPATH: src
