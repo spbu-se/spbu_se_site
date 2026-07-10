@@ -178,6 +178,8 @@ The retrospective itself is a tool. Every time it runs, check if it revealed a g
   - *Didn't load* — the skill was loadable but skipped because "custom is faster" (behavioral gap). Escalate this recurring pattern.
 - **Was this skill loadable via the `skill` tool?** If not, update `docs/AI_AGENTS.md` §Tool Quirks with the loading gap, and update AGENTS.md skill-loading instruction to say "read manually" instead of "load with `skill` tool".
 - **Did the retrospective itself violate any process rules?** (creating standalone files instead of appending, skipping skill loading, committing without testing, etc.) The retrospective must model the behavior it enforces.
+- **Did the session include user imperatives that should be encoded as permanent rules?** (e.g., "do X instead of Y", "always Z when W") — each imperative is a training signal. Encode in the relevant canonical doc or skill before session closes. Do not treat as one-time instruction.
+- **Did any rule I wrote during this session govern my own behavior?** If yes, add a retrieval cue at the decision boundary (pre-flight step, AGENTS.md checklist, trigger in relevant skill) — doc-only rules are invisible when the decision point arrives.
 
 #### 8a. Session efficiency audit
 
