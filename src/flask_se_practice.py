@@ -17,7 +17,7 @@ limitations under the License.
 """
 # -*- coding: utf-8 -*-
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from functools import wraps
 
 from flask import (
@@ -798,23 +798,25 @@ def get_remaining_time(deadline, type_deadline):
     if type_deadline == "choose_topic":
         if not deadline.choose_topic:
             return None
-        remaining_time_timedelta = deadline.choose_topic - datetime.utcnow()
+        remaining_time_timedelta = deadline.choose_topic - datetime.now(UTC).replace(tzinfo=None)
     elif type_deadline == "submit_work_for_review":
         if not deadline.submit_work_for_review:
             return None
-        remaining_time_timedelta = deadline.submit_work_for_review - datetime.utcnow()
+        remaining_time_timedelta = deadline.submit_work_for_review - datetime.now(UTC).replace(
+            tzinfo=None
+        )
     elif type_deadline == "upload_reviews":
         if not deadline.upload_reviews:
             return None
-        remaining_time_timedelta = deadline.upload_reviews - datetime.utcnow()
+        remaining_time_timedelta = deadline.upload_reviews - datetime.now(UTC).replace(tzinfo=None)
     elif type_deadline == "pre_defense":
         if not deadline.pre_defense:
             return None
-        remaining_time_timedelta = deadline.pre_defense - datetime.utcnow()
+        remaining_time_timedelta = deadline.pre_defense - datetime.now(UTC).replace(tzinfo=None)
     elif type_deadline == "defense":
         if not deadline.defense:
             return None
-        remaining_time_timedelta = deadline.defense - datetime.utcnow()
+        remaining_time_timedelta = deadline.defense - datetime.now(UTC).replace(tzinfo=None)
 
     if remaining_time_timedelta < timedelta(0):
         remaining_time = (-1, "", "")

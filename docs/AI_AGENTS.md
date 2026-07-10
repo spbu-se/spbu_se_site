@@ -79,6 +79,23 @@ Use for auto-mode session wrap-ups:
 - <item 1>
 - <item 2>
 ...
+
+### Process violations
+
+Every `--no-verify`, `git commit --no-verify`, `git push --no-verify`, or manual
+override of any hook MUST be listed here with the rationale. If none, state
+"None".
+
+### CI overhead
+
+If the session pushed to staging, count pushes and CI round-trips. Flag any that
+could have been avoided by a local pre-push check:
+
+| Push | Trigger | Avoidable? | Reason |
+|------|---------|-----------|--------|
+| 1 | Initial basedpyright migration | No | First push |
+| 2 | Fix CI exit code | Yes | Could have tested basedpyright locally |
+| ... | ... | ... | ... |
 ```
 
 ### Status updates (interactive mode)

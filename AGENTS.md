@@ -41,8 +41,10 @@ Not a quality gate — local commits can be imperfect. Using `git commit --no-ve
 Run automatically on `git push`. Checks: format (all files, no auto-fix) → basedpyright.
 Failure at any step aborts — format failure skips basedpyright. This is the real local quality gate.
 
+Before every `git push`, verify locally: `uv run pre-commit run --all-files --hook-stage pre-push` and fix any failures. A clean local run means the push will not waste CI time on pre-push failures.
+
 **Never use `git push --no-verify`** unless the user gives a direct, unbiased instruction.
-An unbiased instruction states the goal without suggesting the method. "Push now, CI will catch it" is biased. "I need this on staging urgently" is unbiased — the agent may then propose `--no-verify` with a clear risk statement.
+An unbiased instruction states the goal without suggesting the method. "Push now, CI will catch it" is biased. "I need this on staging urgently" is unbiased — the agent may then propose `--no-verify` with a clear risk statement. Every `--no-verify` must be logged in the retrospective as a process violation.
 
 ### CI discipline
 

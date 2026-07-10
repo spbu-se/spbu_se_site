@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import shutil
-from datetime import datetime
+from datetime import UTC, datetime
 from os import urandom
 from pathlib import Path
 
@@ -320,7 +320,7 @@ class NotificationPractice(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     recipient_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     content = db.Column(db.String(512), nullable=False)
-    time = db.Column(db.DateTime, default=datetime.utcnow)
+    time = db.Column(db.DateTime, default=lambda: datetime.now(UTC).replace(tzinfo=None))
     viewed = db.Column(db.Boolean, default=False, nullable=False)
 
     def __init__(self, **kwargs):
@@ -381,7 +381,7 @@ class ThesisReport(db.Model):
 
     was_done = db.Column(db.String(2048), nullable=True)
     planned_to_do = db.Column(db.String(2048), nullable=True)
-    time = db.Column(db.DateTime, default=datetime.utcnow)
+    time = db.Column(db.DateTime, default=lambda: datetime.now(UTC).replace(tzinfo=None))
 
     deleted = db.Column(db.Boolean, default=False)
 
@@ -425,7 +425,7 @@ class Internships(db.Model):
     company = db.relationship("InternshipCompany", back_populates="internship")
     company_id = db.Column(db.Integer, db.ForeignKey("internship_company.id"))
     requirements = db.Column(db.Text, nullable=False)
-    date = db.Column(db.DateTime, default=datetime.utcnow)
+    date = db.Column(db.DateTime, default=lambda: datetime.now(UTC).replace(tzinfo=None))
 
     more_inf = db.Column(db.String, nullable=True)  # ссылка на сайт
     description = db.Column(

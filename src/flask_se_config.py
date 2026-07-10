@@ -4,7 +4,7 @@
 import os
 import pathlib
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 
 SECRET_KEY = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_secret.conf")
 MAIL_PASSWORD_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_mail.conf")
@@ -86,7 +86,7 @@ def post_ranking_score(upvotes=1, age=0, views=1):
 
 
 def get_hours_since(date):
-    time_diff = datetime.utcnow() - date
+    time_diff = datetime.now(UTC).replace(tzinfo=None) - date
     return int(time_diff.total_seconds() / 3600)
 
 
