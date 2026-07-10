@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 import io
 import json
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
-
-from conftest import _min_pdf
-from conftest import assert_ok
+from conftest import _min_pdf, assert_ok
 
 
 class TestFetchThesesFilters:
@@ -134,11 +132,13 @@ class TestPostThesesApi:
         assert "Invalid secret key" in data["string"]
 
     def test_post_bad_type_id(self, logged_client):
-        from flask_se_config import SECRET_KEY_THESIS
+        from flask_se import app
+
+        secret_key = app.config["SECRET_KEY_THESIS"]
 
         info = {
             "name_ru": "Test",
-            "secret_key": SECRET_KEY_THESIS,
+            "secret_key": secret_key,
             "type_id": 99,
             "course_id": 1,
             "author": "Author",
@@ -157,11 +157,13 @@ class TestPostThesesApi:
         assert "Wrong type_id" in data["string"]
 
     def test_post_bad_course_id(self, logged_client):
-        from flask_se_config import SECRET_KEY_THESIS
+        from flask_se import app
+
+        secret_key = app.config["SECRET_KEY_THESIS"]
 
         info = {
             "name_ru": "Test",
-            "secret_key": SECRET_KEY_THESIS,
+            "secret_key": secret_key,
             "type_id": 2,
             "course_id": 99,
             "author": "Author",
@@ -180,11 +182,13 @@ class TestPostThesesApi:
         assert "Wrong course_id" in data["string"]
 
     def test_post_no_supervisor_match(self, logged_client):
-        from flask_se_config import SECRET_KEY_THESIS
+        from flask_se import app
+
+        secret_key = app.config["SECRET_KEY_THESIS"]
 
         info = {
             "name_ru": "Test",
-            "secret_key": SECRET_KEY_THESIS,
+            "secret_key": secret_key,
             "type_id": 2,
             "course_id": 1,
             "author": "Author",
@@ -202,7 +206,9 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Can't find supervisor" in data["string"]
 
-    @pytest.mark.xfail(strict=False, reason="intermittent xdist race — passes alone, fails in full suite")
+    @pytest.mark.xfail(
+        strict=False, reason="intermittent xdist race — passes alone, fails in full suite"
+    )
     def test_post_supervisor_found_in_users_not_in_staff(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
         from se_models import Users, db
@@ -406,7 +412,9 @@ class TestThesesDeleteTmpDeep:
 
 
 class TestThesesAddTmpDeep:
-    @pytest.mark.xfail(strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename")
+    @pytest.mark.xfail(
+        strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename"
+    )
     def test_add_tmp_with_text_uri(self, seeded_client):
         with patch("flask_se_theses.os.rename"):
             from se_models import Thesis, db
@@ -427,7 +435,9 @@ class TestThesesAddTmpDeep:
             updated = Thesis.query.get(t.id)
             assert updated.temporary is False
 
-    @pytest.mark.xfail(strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename")
+    @pytest.mark.xfail(
+        strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename"
+    )
     def test_add_tmp_with_presentation_and_reviews(self, seeded_client):
         with patch("flask_se_theses.os.rename"):
             from se_models import Thesis, db
