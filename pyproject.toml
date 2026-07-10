@@ -107,6 +107,10 @@ reportIncompatibleMethodOverride = "error"
 reportIncompatibleVariableOverride = "error"
 reportConstantRedefinition = "error"
 
-[tool.basedpyright.overrides]
+[[tool.basedpyright.overrides]]
 module = ["flask_admin.*", "flask_login.*"]
 reportInvalidTypeForm = false
+
+[[tool.basedpyright.overrides]]
+module = "se_review_forms"
+reportCallIssue = false
