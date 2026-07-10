@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
-from flask import Markup
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
+from markupsafe import Markup
 from wtforms import RadioField, StringField
 from wtforms.widgets import TextArea
 
