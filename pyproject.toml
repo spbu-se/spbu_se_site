@@ -106,3 +106,7 @@ reportUntypedBaseClass = "error"
 reportIncompatibleMethodOverride = "error"
 reportIncompatibleVariableOverride = "error"
 reportConstantRedefinition = "error"
+
+[tool.basedpyright.overrides]
+module = ["flask_admin.*", "flask_login.*"]
+reportInvalidTypeForm = false

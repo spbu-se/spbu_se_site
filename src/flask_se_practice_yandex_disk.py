@@ -105,7 +105,7 @@ def yandex_code():
         )
 
         try:
-            disk.upload(full_filename, table_path, overwrite=True)
+            disk.upload(full_filename, table_path or "", overwrite=True)
         except yadisk.exceptions.ParentNotFoundError:
             flash(
                 "РЈРєР°Р·Р°РЅРЅС‹Р№ РїСѓС‚СЊ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РЅР° РґРёСЃРєРµ",
@@ -115,7 +115,7 @@ def yandex_code():
     flashed_messages = get_flashed_messages(category_filter=["error"])
     if len(flashed_messages) > 0:
         for message in flashed_messages:
-            flash(message, category="error")
+            flash(str(message), category="error")
     else:
         flash(
             "РўР°Р±Р»РёС†Р° СѓСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅР° РЅР° РЇРЅРґРµРєСЃ Р”РёСЃРє",

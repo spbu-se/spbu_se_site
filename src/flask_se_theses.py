@@ -274,7 +274,7 @@ def post_theses():
         reviewer_review = request.files["reviewer_review"]
 
     if "thesis_info" in request.files:
-        thesis_info = json.load(request.files["thesis_info"])
+        thesis_info = json.loads(request.files["thesis_info"].read())
 
     if not thesis_text:
         return jsonify(status=error_status, string="No thesis text found.")
