@@ -88,17 +88,17 @@ def yandex_code():
         return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
 
     table_path = session.get("table_path")
-    table_name = table_path.split("/")[-1]
+    table_name = (table_path or "").split("/")[-1]
     with tempfile.TemporaryDirectory() as tmp_dir:
         full_filename = tmp_dir + "/" + table_name
         try:
-            disk.download(table_path, full_filename)
+            disk.download(table_path, full_filename)  # pyright: ignore[reportArgumentType]
         except yadisk.exceptions.PathNotFoundError:
             os.remove(full_filename)
 
         edit_table(
             path_to_table=full_filename,
-            sheet_name=session.get("sheet_name"),
+            sheet_name=session.get("sheet_name"),  # pyright: ignore[reportArgumentType]
             area_id=area_id,
             worktype_id=worktype_id,
             column_names_list=session.get("column_names_list"),

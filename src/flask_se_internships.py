@@ -197,8 +197,8 @@ def update_internship(id):
         (g.id, g.format) for g in InternshipFormat.query.order_by("id").all()
     ]
     upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by("id").all()]  # pyright: ignore[reportAttributeAccessIssue]
-    upd_internship.tag.data = "".join([t.tag + ", " for t in internship.tag]).strip(", ")
-    upd_internship.format.data = [c.id for c in internship.format]
+    upd_internship.tag.data = "".join([t.tag + ", " for t in internship.tag]).strip(", ")  # pyright: ignore[reportGeneralTypeIssues]
+    upd_internship.format.data = [c.id for c in internship.format]  # pyright: ignore[reportGeneralTypeIssues]
     upd_internship.company.choices = [g.name for g in InternshipCompany.query.order_by("id")]
 
     if request.method == "POST":

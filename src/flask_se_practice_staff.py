@@ -83,7 +83,7 @@ def index_staff(user_staff):
         CurrentThesis.query.filter_by(supervisor_id=user_staff.id)
         .filter_by(status=1)
         .filter_by(deleted=False)
-        .outerjoin(ThesisReport, CurrentThesis.reports)
+        .outerjoin(ThesisReport, CurrentThesis.reports)  # pyright: ignore[reportArgumentType]
         .order_by(desc(ThesisReport.time))
         .all()
     )

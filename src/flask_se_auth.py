@@ -99,7 +99,7 @@ def login_index():
             if (
                 (password_hash is not None)
                 and password_hash.startswith("pbkdf2")
-                and check_password_hash(password_hash, password)
+                and check_password_hash(password_hash, password)  # pyright: ignore[reportArgumentType]
             ):
                 login_user(user, remember=True)
                 return redirect_next_url(fallback=url_for("user_profile"))
@@ -294,11 +294,11 @@ def upload_avatar():
         # Sanity check: limit uploadable filename
         # to avoid excessive burden to NFKD normalization
         # in secure_filename() method
-        if len(file.filename) > 1000:
+        if len(file.filename or "") > 1000:
             flash("Filename too long")
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+            filename = secure_filename(file.filename)  # pyright: ignore[reportArgumentType]
             new_filename = os.urandom(16).hex()
             f, ext = os.path.splitext(filename)
 

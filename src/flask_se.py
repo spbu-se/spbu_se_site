@@ -579,7 +579,7 @@ def sitemap():
         if "admin/" in rule.rule:
             continue
 
-        if "GET" in rule.methods and len(rule.arguments) == 0:
+        if "GET" in (rule.methods or set()) and len(rule.arguments) == 0:
             pages.append(["https://se.math.spbu.ru" + str(rule.rule), zero_days_ago])
 
     sitemap_xml = render_template("sitemap_template.xml", pages=pages)
