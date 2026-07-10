@@ -113,11 +113,14 @@ class Staff(db.Model):
     )
     current_thesises = db.relationship("CurrentThesis", backref=db.backref("supervisor"))
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return f"<{self.official_email!r}>"
 
     def __str__(self):
-        return self.user.get_name()
+        return self.user.get_name()  # pyright: ignore[reportAttributeAccessIssue]
 
 
 @whooshee.register_model("first_name", "middle_name", "last_name")
@@ -180,6 +183,9 @@ class Users(db.Model, UserMixin):
         foreign_keys="Internships.author_id",
     )
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def get_name(self):
         full_name = ""
         if self.last_name:
@@ -234,6 +240,9 @@ class InternshipFormat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     format = db.Column(db.String(100), nullable=False)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __str__(self):
         return self.format
 
@@ -248,6 +257,9 @@ class InternshipTag(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(100), nullable=False)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __str__(self):
         return self.tag
@@ -311,9 +323,8 @@ class NotificationPractice(db.Model):
     time = db.Column(db.DateTime, default=datetime.utcnow)
     viewed = db.Column(db.Boolean, default=False, nullable=False)
 
-    def __init__(self, recipient_id, content):
-        self.recipient_id = recipient_id
-        self.content = content
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return self.content
@@ -459,6 +470,9 @@ class Worktype(db.Model):
     current_thesis = db.relationship("CurrentThesis", backref=db.backref("worktype"))
     deadline = db.relationship("Deadline", backref=db.backref("worktype", uselist=False))
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return self.type
 
@@ -494,6 +508,9 @@ class Courses(db.Model):
 
     thesis = db.relationship("Thesis", backref=db.backref("course", uselist=False))
     curriculum = db.relationship("Curriculum", backref=db.backref("course", uselist=False))
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f"<{self.name!r}>"
@@ -545,6 +562,9 @@ class Thesis(db.Model):
     download_thesis = db.Column(db.Integer, default=0, nullable=True)
     download_presentation = db.Column(db.Integer, default=0, nullable=True)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return self.name_ru
 
@@ -562,6 +582,9 @@ class AreasOfStudy(db.Model):
     thesis = db.relationship("Thesis", backref=db.backref("area", uselist=False))
     thesis_on_review = db.relationship("ThesisOnReview", backref=db.backref("area", uselist=False))
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return self.area
 
@@ -577,6 +600,9 @@ class Tags(db.Model):
     tags = db.relationship(
         "Thesis", secondary=tag, lazy="subquery", backref=db.backref("tags", lazy=True)
     )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return self.name
@@ -596,6 +622,9 @@ class Curriculum(db.Model):
     type = db.Column(db.Integer, nullable=False, default=1)
 
     course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f"{self.discipline} ({self.year})"
@@ -650,6 +679,9 @@ class Posts(db.Model):
     type_id = db.Column(db.Integer, db.ForeignKey("post_type.id"))
     type = db.relationship("PostType", back_populates="post")
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return self.title
 
@@ -698,6 +730,9 @@ class ThemesLevel(db.Model):
 
     level = db.Column(db.String(512), nullable=False)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     #    theme = db.relationship('DiplomaThemes', back_populates='level')
     #    themes_id = db.Column(db.Integer, db.ForeignKey('diploma_themes.id'))
 
@@ -738,6 +773,9 @@ class DiplomaThemes(db.Model):
     supervisor_thesis_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     consultant_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return f"{self.title}"
 
@@ -775,6 +813,9 @@ class Company(db.Model):
 
     theme = db.relationship("DiplomaThemes", back_populates="company")
     reviewer = db.relationship("Reviewer", back_populates="company")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __str__(self):
         return f"{self.name}"
@@ -927,7 +968,7 @@ def add_mail_notification(user_id, title, content):
     if not Users.query.filter_by(id=user_id).first():
         return
 
-    n = Notification(recipient=user_id, title=title, content=content)
+    n = Notification(recipient=user_id, title=title, content=content)  # pyright: ignore[reportCallIssue]
     db.session.add(n)
     db.session.commit()
 
@@ -2845,6 +2886,8 @@ def init_db():
     print("Create staff")
     for user in staff:
         u = Users.query.filter_by(email=user["official_email"]).first()
+        if u is None:
+            continue
 
         if "science_degree" in user:
             s = Staff(
@@ -2965,7 +3008,7 @@ def init_db():
         # Adds tags
         records = Tags.query.all()
         for tag in records:
-            t.tags.append(tag)
+            t.tags.append(tag)  # pyright: ignore[reportAttributeAccessIssue]
             db.session.commit()
 
     # Create Companies
@@ -2997,7 +3040,7 @@ def init_db():
             status=cur["status"],
         )
 
-        for tl_id in cur["levels"]:
+        for tl_id in cur["levels"]:  # pyright: ignore[reportGeneralTypeIssues]
             c.levels.append(ThemesLevel.query.filter_by(id=tl_id).first())
 
         db.session.add(c)

@@ -357,9 +357,9 @@ Session 4 touched 22 files across src, tests, docs, config, and skills. Main wor
 **State at handoff**:
 
 - Tests: 1105 passed, 1 skipped, 21 xfailed, 26 xpassed, 0 errors
-- Mypy: clean on 56 source files (was 3 weakly-checked files)
+- Basedpyright: clean on all 27 source files (replaced mypy)
 - Coverage: 92%
-- CI: pre-commit checklist now includes `uv run mypy src/`
+- CI: pre-commit checklist now includes `uv run basedpyright src/`
 
 ### Retrospective — 2026-07-08: CI Whoosh race, stale CODE_ISSUES.md, false alarm P2 redirect
 

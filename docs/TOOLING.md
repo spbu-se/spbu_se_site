@@ -326,7 +326,7 @@ git commit --no-gpg-sign -m "..."
 
 ## pytest-xdist + Whoosh
 
-Whoosh indexes are not thread-safe. Using `pytest-xdist -n auto` causes sporadic `LockError` or `EmptyIndexError` because multiple workers share the same index directory. Fix: use `-n 2` (proven stable) and set a per-worker temp dir in conftest.py:
+Whoosh indexes are not thread-safe. Using `pytest-xdist -n auto` can cause sporadic `LockError` or `EmptyIndexError`. These are test-fixture bugs (shared index paths), not a fundamental xdist issue — fix isolation rather than throttling workers.
 
 ```python
 _whoosh_dir = tempfile.mkdtemp()
@@ -430,7 +430,7 @@ See `docs/QUALITY_MANAGEMENT.md` for quality philosophy and policy.
 | `ruff format` | Python formatter | Pre-commit (auto-fix) + CI (`--check`) | Default config | ✅ |
 | `ruff check` | Python linter | Pre-commit (auto-fix) + CI (`--check`) | `--fix` for pre-commit | ✅ |
 | `mdformat` | Markdown formatter | Pre-commit (changed files, auto-fix) + Pre-push/CI (`--check` all) | `types: [markdown]` in pre-commit | ✅ |
-| `mypy` | Static type checker | Pre-push + CI (before pytest) | `pyproject.toml` per-module overrides | ✅ |
+| `basedpyright` | Static type checker | Pre-push (gate) | `pyproject.toml` config, `# pyright: ignore[code]` per-line | ✅ |
 | `dprint` | JS/JSON/TOML formatter | Pre-commit | Config in `dprint.json` | ✅ |
 | `pre-commit-hooks` | Trailing whitespace, EOF, JSON, large files | Pre-commit | Config in `.pre-commit-config.yaml` | ✅ |
 | `djlint` | HTML/Jinja formatter | Pre-commit | `--reformat` | ✅ |
@@ -438,7 +438,7 @@ See `docs/QUALITY_MANAGEMENT.md` for quality philosophy and policy.
 | `actionlint` | GHA workflow validator | Pre-push | Default config | ✅ |
 | `packaging.Requirement` | requirements.txt syntax validation | Pre-push | `encoding='utf-8-sig'`, skip `-e` lines | ✅ |
 | `uv lock --check` | Lockfile consistency | Pre-push | Default | ✅ |
-| `pytest` | Test suite | CI | `-n 2` (xdist, 2 workers) | ✅ |
+| `pytest` | Test suite | CI | `-n auto` (xdist) | ✅ |
 | `coverage` | Code coverage | CI (via pytest) | `--cov=src --cov-fail-under=80` | ✅ |
 
 ### Proposed tools (agent suggested, user may adopt)

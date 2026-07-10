@@ -108,6 +108,9 @@ src/static/thesis/*/*.pdf
 # Test artifacts (practice file upload tests)
 static/practice/
 
+# Test artifacts (theses import tests)
+static/tmp/
+
 # Do not track fulltext search files
 src/whooshee/*
 whooshee/
@@ -132,4 +135,8 @@ docs/REPO_REVIEW.md
 # Flask-Freezer static build output
 _flask_freezed/
 
-# Temporary files for opencode batch work.tmp/
+# Temporary files for opencode batch work
+.tmp/
+
+# Local SQLite development database
+.local_development.db

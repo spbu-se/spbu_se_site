@@ -4,7 +4,7 @@ from flask_se import app
 from flask_se_theses import get_text
 from se_models import Thesis, db
 
-db.app = app
+db.app = app  # pyright: ignore[reportAttributeAccessIssue]
 db.init_app(app)
 
 thesises = Thesis.query.all()

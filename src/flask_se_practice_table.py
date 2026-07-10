@@ -37,20 +37,21 @@ def edit_table(path_to_table, area_id, worktype_id, column_names_list=None, shee
             return
     else:
         columns = [pair[1] for pair in column_names_list]
-        table_df = pd.DataFrame(columns=columns)
+        table_df = pd.DataFrame(columns=columns)  # pyright: ignore[reportArgumentType]
 
         table = openpyxl.Workbook()
         if sheet_name == "":
-            sheet_name = table.active.title
+            sheet_name = table.active.title  # pyright: ignore[reportOptionalMemberAccess]
         else:
-            table.active.title = sheet_name
+            table.active.title = sheet_name  # pyright: ignore[reportOptionalMemberAccess]
         table.save(path_to_table)
 
     column_names = dict(column_names_list)
     checked_thesis_ids = set()
     for index, row in table_df.iterrows():
         try:
-            user = find_user(full_name=row[column_names["name"]])
+            cell_value = row[column_names["name"]]
+            user = find_user(full_name=str(cell_value))
         except KeyError:
             flash(
                 f'Р’ С‚Р°Р±Р»РёС†Рµ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ СЃС‚РѕР»Р±С†Р° СЃ РЅР°Р·РІР°РЅРёРµРј "{column_names["name"]}"',
@@ -81,7 +82,7 @@ def edit_table(path_to_table, area_id, worktype_id, column_names_list=None, shee
             add_new_data_to_table(
                 table_df.loc[len(table_df) - 1],
                 current_thesis=thesis,
-                user=thesis.user,
+                user=thesis.user,  # pyright: ignore[reportAttributeAccessIssue]
                 column_names=column_names,
             )
         except KeyError:
@@ -156,7 +157,7 @@ def get_all_thesises(area_id, worktype_id) -> list[CurrentThesis]:
 def add_new_data_to_table(row: pd.Series, current_thesis: CurrentThesis, user: Users, column_names):
     update_if_cell_is_empty(row, column_names["name"], user.get_name())
     update_if_cell_is_empty(row, column_names["theme"], current_thesis.title)
-    update_if_cell_is_empty(row, column_names["supervisor"], current_thesis.supervisor)
+    update_if_cell_is_empty(row, column_names["supervisor"], current_thesis.supervisor)  # pyright: ignore[reportAttributeAccessIssue]
     update_if_cell_is_empty(row, column_names["consultant"], current_thesis.consultant)
     update_if_cell_is_empty(row, column_names["how_to_contact"], user.how_to_contact)
     update_if_cell_is_empty(row, column_names["text"], "РґР°" if current_thesis.text_uri else "")
@@ -181,7 +182,8 @@ def add_new_data_to_table(row: pd.Series, current_thesis: CurrentThesis, user: U
 
 def update_if_cell_is_empty(row: pd.Series, column_name, new_value):
     try:
-        if pd.isna(row[column_name]) or row[column_name] in {None, ""}:
+        cell_is_na = bool(pd.isna(row[column_name]))
+        if cell_is_na or row[column_name] in {None, ""}:
             row[column_name] = new_value
     except KeyError:
         flash(

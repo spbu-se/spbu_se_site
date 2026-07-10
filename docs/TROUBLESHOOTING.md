@@ -90,10 +90,11 @@ Common errors, root causes, and fixes encountered during development.
 
 ## Whoosh EmptyIndexError in parallel test workers
 
-**When:** Running `pytest -n auto` or `pytest -n N` with `N > 2`.
-**Error:** `whoosh.index.EmptyIndexError: Index 'MAIN' does not exist in FileStorage('whooshee\thesis')`.
-**Cause:** Whoosh index is created in a shared temp directory. Multiple xdist workers try to access the same index simultaneously. The index may not exist yet when a worker queries it.
-**Fix:** Use `-n 2` (stable), ensure `whooshee.reindex()` is called during DB seeding. See `docs/TOOLING.md В§ pytest-xdist + Whoosh`.
+**When:** Running `pytest -n auto` — Whoosh `EmptyIndexError` in parallel workers.
+
+**Cause:** Test fixtures that share a Whoosh index directory across workers. Each worker needs its own isolated index.
+
+**Fix:** Set a per-fixture WHOOSHEE_DIR tempdir. See docs/TOOLING.md.
 
 ## datetime.timezone.UTC vs datetime.timezone.utc
 
@@ -101,11 +102,16 @@ Common errors, root causes, and fixes encountered during development.
 **Cause:** Python 3.13 removed the deprecated `timezone.UTC` alias. Only `timezone.utc` (lowercase) is available.
 **Fix:** Replace `timezone.UTC` with `timezone.utc`.
 
-## Mypy skips analyzing src/ when tests/ is configured
+## `# pyright: ignore` not suppressing errors
 
-**When:** `pyproject.toml [tool.mypy] files = ["tests/"]` вЂ” mypy only checks listed files. Source files are not checked even if they're imported by tests.
-**Cause:** Mypy's `files` option is a whitelist, not a "check these additionally" list.
-**Fix:** To check both src and tests, list both: `files = ["src/", "tests/"]`. Use `[[tool.mypy.overrides]] module = "tests.*"` to apply relaxed rules for tests.
+**When:** A `# pyright: ignore[code]` comment on a line produces a "suppression comment is unused" warning.
+**Cause:** `enableTypeIgnoreComments = true` is not set; or the error code in the comment doesn't match the actual error.
+**Fix:** Run `uv run basedpyright src/` and verify the error code matches exactly. If the issue is a framework pattern (SQLAlchemy `__init__`, WTForms `choices`, Flask-Admin hooks), the standard set is:
+
+- `reportCallIssue` — for dynamic constructor kwargs
+- `reportAttributeAccessIssue` — for SQLAlchemy dynamic attributes/backrefs
+- `reportOptionalMemberAccess` — for access after `.first()` without None check
+- `reportAssignmentType` — for framework-level type mismatches
 
 ## CI mdformat failure: truncated filename in logs
 

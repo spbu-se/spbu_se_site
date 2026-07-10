@@ -63,7 +63,7 @@ class TestGetToken:
             mock_post.return_value = mock_response
 
             token = get_token("bad_code")
-            assert token == 0
+            assert token is None
 
     def test_sends_correct_auth_header(self, app_ctx):
         import base64

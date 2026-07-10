@@ -34,7 +34,7 @@ UPLOAD_TMP_FOLDER = "static/tmp/avatars/"
 ALLOWED_EXTENSIONS = {"bmp", "png", "jpg", "jpeg"}
 
 login_manager = LoginManager()
-login_manager.login_view = "login_index"
+login_manager.login_view = "login_index"  # pyright: ignore[reportAttributeAccessIssue]
 
 # create an alias of login_required decorator
 login_required = login_required
@@ -108,7 +108,7 @@ def login_index():
                 if (
                     len(hs) == 3
                     and hmac.HMAC(
-                        hs[1].encode("utf-8"), password.encode("utf-8"), hs[0]
+                        hs[1].encode("utf-8"), (password or "").encode("utf-8"), hs[0]
                     ).hexdigest()
                     == hs[2]
                 ):
@@ -268,7 +268,7 @@ def user_profile():
         middle_name = request.form.get("middle_name", "").strip()
         how_to_contact = request.form.get("how_to_contact", "").strip()
 
-        if first_name:
+        if user and first_name:
             user.first_name = first_name
             user.middle_name = middle_name
             user.last_name = last_name
@@ -318,12 +318,15 @@ def upload_avatar():
 
             # If user have avatar -> remove it from disk
             new_full_filename = new_filename + ".jpg"
-            if user.avatar_uri != "empty.jpg" and os.path.isfile(
-                UPLOAD_FOLDER + "/" + user.avatar_uri
+            if (
+                user
+                and user.avatar_uri != "empty.jpg"
+                and os.path.isfile(UPLOAD_FOLDER + "/" + user.avatar_uri)
             ):
                 os.unlink(UPLOAD_FOLDER + "/" + user.avatar_uri)
 
-            user.avatar_uri = new_full_filename
+            if user:
+                user.avatar_uri = new_full_filename
             db.session.commit()
 
     return "", 204
@@ -372,7 +375,7 @@ def google_callback():
     token_request = google.auth.transport.requests.Request(session=cached_session)
 
     id_info = id_token.verify_oauth2_token(
-        id_token=credentials._id_token,
+        id_token=credentials._id_token,  # pyright: ignore[reportAttributeAccessIssue]
         request=token_request,
         audience=GOOGLE_CLIENT_ID,
         clock_skew_in_seconds=60,
@@ -388,7 +391,7 @@ def google_callback():
             avatar_uri = avatar_uri + ".jpg"
 
             if "picture" in id_info:
-                r = requests.get(id_info.get("picture"), allow_redirects=True, timeout=30)
+                r = requests.get(id_info.get("picture") or "", allow_redirects=True, timeout=30)
                 with open("static/images/avatars/" + avatar_uri, "wb") as f:
                     f.write(r.content)
 

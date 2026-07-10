@@ -96,9 +96,9 @@ repos:
         always_run: true
         stages: [pre-push]
 
-      - id: pre-push-mypy
-        name: "pre-push: mypy"
-        entry: uv run mypy
+      - id: pre-push-basedpyright
+        name: "pre-push: basedpyright"
+        entry: uv run basedpyright src/
         language: system
         pass_filenames: false
         always_run: true

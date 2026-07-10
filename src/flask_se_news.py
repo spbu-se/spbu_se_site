@@ -57,13 +57,13 @@ def post_vote():
 
     if post.author.id == current_user.id:
         flash("РќРµР»СЊР·СЏ РіРѕР»РѕСЃРѕРІР°С‚СЊ Р·Р° СЃРІРѕР№ РїРѕСЃС‚!", category="error")
-        return redirect(request.referrer)
+        return redirect(request.referrer or "")
 
     vote = PostVote.query.filter_by(user=current_user, post=post).first()
 
     if vote:
-        if vote.upvote != bool(int(action_vote)):
-            vote.upvote = bool(int(action_vote))
+        if vote.upvote != bool(int(action_vote or 0)):
+            vote.upvote = bool(int(action_vote or 0))
 
             if action_vote:
                 post.votes = post.votes + 1
@@ -75,14 +75,14 @@ def post_vote():
             post.rank = post_ranking_score(post.votes, age, post.views)
             db.session.commit()
 
-            return redirect(request.referrer)
+            return redirect(request.referrer or "")
         else:
             flash(
                 "Р’С‹ СѓР¶Рµ РїСЂРѕРіРѕР»РѕСЃРѕРІР°Р»Рё Р·Р° СЌС‚РѕС‚ РїРѕСЃС‚!", category="error"
             )
-            return redirect(request.referrer)
+            return redirect(request.referrer or "")
 
-    vote = PostVote(user=current_user, post=post, upvote=bool(int(action_vote)))
+    vote = PostVote(user=current_user, post=post, upvote=bool(int(action_vote or 0)))  # pyright: ignore[reportCallIssue]
 
     if action_vote:
         post.votes = post.votes + 1
@@ -95,7 +95,7 @@ def post_vote():
 
     db.session.add(vote)
     db.session.commit()
-    return redirect(request.referrer)
+    return redirect(request.referrer or "")
 
 
 @login_required

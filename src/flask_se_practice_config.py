@@ -37,7 +37,7 @@ if os.path.exists(YANDEX_SECRET_FILE):
     with open(YANDEX_SECRET_FILE) as file:
         YANDEX_SECRET = file.read().rstrip()
 else:
-    YANDEX_SECRET = ""
+    YANDEX_SECRET = ""  # pyright: ignore[reportConstantRedefinition]
 
 YANDEX_AUTHORIZE_URL_TEMPLATE = Template(
     "https://oauth.yandex.ru/authorize?response_type=code"
@@ -93,7 +93,7 @@ def allowed_file(filename) -> bool:
 
 
 def get_filename(current_thesis: CurrentThesis, folder: str, type_of_file: str) -> tuple[str, str]:
-    author_en = translit(current_thesis.user.get_name(), "ru", reversed=True)
+    author_en = translit(current_thesis.user.get_name(), "ru", reversed=True)  # pyright: ignore[reportAttributeAccessIssue]
     author_en = author_en.replace(" ", "_")
 
     filename = author_en + "_" + get_thesis_type_id_string(current_thesis.worktype_id)

@@ -42,6 +42,19 @@
 - 1105 tests, 0 failures
 - Coverage 92%
 
+## Batch run 2026-07-10 — session 6 (auto mode: basedpyright migration + 770 errors fixed)
+
+- Replaced mypy with basedpyright (`typeCheckingMode = "all"`): 770 type errors → 0
+- Removed mypy dependency, [tool.mypy] config, 8 type-stub packages, all per-module overrides
+- Fixed 12 real safety bugs in `thesesImport.py` (missing `if r is None: continue` guards)
+- Refactored 21 WTForms choices-mutation sites to list-building pattern (bare ignores → explicit codes)
+- Removed 25 redundant `reportCallIssue` ignores (models already have `__init__(self, **kwargs)`)
+- Updated pre-push hook: `uv run mypy` → `uv run basedpyright src/`
+- Set pytest `-n auto` (was `-n 2`)
+- Updated all docs: AGENTS.md, ARCHITECTURE.md, DEVELOPMENT_PROCESS.md, TOOLING.md, TROUBLESHOOTING.md, RETROSPECTIVES.md
+- 125 `# pyright: ignore` remain as documented technical debt (framework-level patterns)
+- Tests: 1144 passed, 1 skipped, 5 xfailed, 2 xpassed, coverage 93%
+
 ## Batch run 2026-07-06 — session 3 (auto mode: test + docs overhaul)
 
 - Fixed 2 P0 bugs: InternshipFormat.__str__ literal bug, Internships.__self__ typo
@@ -59,36 +72,9 @@
 
 | Priority | Task | Effort | Depends on |
 |----------|------|--------|------------|
-| **L** | Replace mypy with basedpyright — apply `typeCheckingMode = "all"`, fix 770+ errors in `src/` | L | Separate session. Config below: |
-
-```toml
-[tool.basedpyright]
-typeCheckingMode = "all"
-strictParameterNoneValue = true
-enableTypeIgnoreComments = false
-strictListInference = true
-strictDictionaryInference = true
-strictSetInference = true
-deprecateTypingAliases = true
-reportMissingModuleSource = "error"
-reportMissingImports = "error"
-reportUnusedImport = "error"
-reportUnusedClass = "error"
-reportUnusedFunction = "error"
-reportUnusedVariable = "error"
-reportDuplicateImport = "error"
-reportUntypedFunctionDecorator = "error"
-reportUntypedClassDecorator = "error"
-reportUntypedBaseClass = "error"
-reportIncompatibleMethodOverride = "error"
-reportIncompatibleVariableOverride = "error"
-reportConstantRedefinition = "error"
-
-[tool.pyright]
-include = ["src"]
-exclude = ["**/node_modules", "**/__pycache__"]
-```
-
+| **M** | Full mojibake analysis — scan all source files for encoding corruption (e.g. `В§`→`§`, `СЃРµ`→unicode), evaluate `ftfy` for batch autocorrect | M | — |
+| **M** | Code duplicates prevention — evaluate `pylint --enable=duplicate-code`, `pycode_similar`, `PyChase`; choose, configure, integrate into quality gates | M | — |
+| **L** | Eliminate remaining 127 pyright ignores — categories B/D/G (framework-level attrs, Flask-Admin generics, bridge points) | L | — |
 | **P5** | Python 3.12+, Docker, static site, open source docs | M-S | Icebox |
 
 ## Resolved (this session)
@@ -125,6 +111,21 @@ exclude = ["**/node_modules", "**/__pycache__"]
 | `flask_se_review.py`, `theses.py`, `practice_table.py`, `practice.py`, `practice_staff.py`, `practice_admin.py`, `flask_se.py` | 35-50% | Partial |
 | `thesesImport.py` | ~2% (28 tests, 23 xfail—module interaction) | Modeled, needs isolation |
 | **TOTAL** | **92%** | |
+
+## Technical Debt — remaining `# pyright: ignore` (125 total)
+
+| Category | Count | Description | Fixable? |
+|----------|-------|-------------|----------|
+| `reportAttributeAccessIssue` | 57 | SQLAlchemy dynamic attrs/backrefs, Flask-Admin framework attrs | Framework-level, low value |
+| `reportCallIssue` | 52 | SQLAlchemy model constructors — `**kwargs` insufficient for basedpyright | Add explicit typed `__init__` params |
+| `reportAssignmentType` | 8 | Flask-Admin `column_labels`, `column_choices`, `form_args` dict generics | Framework-level |
+| `reportArgumentType` | 2 | pandas/YaDisk parameter types | Framework bridge |
+| `reportIncompatibleMethodOverride` | 2 | Flask-Admin method signature mismatch | Framework-level |
+| `reportConstantRedefinition` | 2 | Config uppercase var reassignment | Trivial fix (lowercase) |
+| `reportGeneralTypeIssues` | 1 | Dict value union not narrowable | Trivial fix |
+| `reportReturnType` | 1 | `get_token` signature/return mismatch | Trivial fix |
+
+**By file:** flask_se_review.py (30), flask_se_admin.py (24), flask_se_internships.py (17), thesesImport.py (16), flask_se_theses.py (9), others (29)
 
 ## Known bugs found in batch run
 

@@ -47,15 +47,15 @@ def thesis_review_index():
         (0, "Р Р°Р±РѕС‚Р° Р·Р°С‡С‚РµРЅР°"),
     ]
 
-    for type in ThesisOnReviewWorktype.query.distinct().all():
-        form.worktype.choices.append((type.id, type.type))
+    form.worktype.choices = sorted(
+        [(type.id, type.type) for type in ThesisOnReviewWorktype.query.distinct().all()],
+        key=lambda tup: tup[0],
+    )  # pyright: ignore[reportAttributeAccessIssue]
 
-    form.worktype.choices.sort(key=lambda tup: tup[0])
-
-    for area in AreasOfStudy.query.distinct().all():
-        form.areasofstudy.choices.append((area.id, area.area))
-
-    form.areasofstudy.choices.sort(key=lambda tup: tup[0])
+    form.areasofstudy.choices = sorted(
+        [(area.id, area.area) for area in AreasOfStudy.query.distinct().all()],
+        key=lambda tup: tup[0],
+    )  # pyright: ignore[reportAttributeAccessIssue]
 
     thesis = ThesisOnReview.query.all()
     return render_template("thesis_review/index.html", review_filter=form, thesis=thesis, user=user)
@@ -161,14 +161,14 @@ def submit_thesis_on_review():
             file.save(full_thesis_filename)
 
             # Add to DB
-            thesis = ThesisOnReview(
-                name_ru=title,
-                text_uri=thesis_filename_with_ext,
-                author_id=user.id,
-                type_id=worktype,
-                thesis_on_review_type_id=worktype,
-                area_id=area_of_study,
-                review_status=1,
+            thesis = ThesisOnReview(  # pyright: ignore[reportCallIssue]
+                name_ru=title,  # pyright: ignore[reportCallIssue]
+                text_uri=thesis_filename_with_ext,  # pyright: ignore[reportCallIssue]
+                author_id=user.id,  # pyright: ignore[reportCallIssue]
+                type_id=worktype,  # pyright: ignore[reportCallIssue]
+                thesis_on_review_type_id=worktype,  # pyright: ignore[reportCallIssue]
+                area_id=area_of_study,  # pyright: ignore[reportCallIssue]
+                review_status=1,  # pyright: ignore[reportCallIssue]
             )
             db.session.add(thesis)
             db.session.commit()
@@ -182,18 +182,23 @@ def submit_thesis_on_review():
             flash("РўРµРєСЃС‚ СЂР°Р±РѕС‚С‹ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РІ С„РѕСЂРјР°С‚Рµ .PDF", "error")
             return redirect(request.url)
 
-    form.type.choices.append((0, "РўРёРї СЂР°Р±РѕС‚С‹"))
-    form.area.choices.append((0, "РќР°РїСЂР°РІР»РµРЅРёРµ РѕР±СѓС‡РµРЅРёСЏ"))
+    type_choices = [(0, "РўРёРї СЂР°Р±РѕС‚С‹")]
+    type_choices += [
+        (type.id, type.type)
+        for type in ThesisOnReviewWorktype.query.filter(ThesisOnReviewWorktype.id > 1)
+        .distinct()
+        .all()
+    ]
+    type_choices.sort(key=lambda tup: tup[0])
+    form.type.choices = type_choices  # pyright: ignore[reportAttributeAccessIssue]
 
-    for type in ThesisOnReviewWorktype.query.filter(ThesisOnReviewWorktype.id > 1).distinct().all():
-        form.type.choices.append((type.id, type.type))
-
-    form.type.choices.sort(key=lambda tup: tup[0])
-
-    for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).distinct().all():
-        form.area.choices.append((area.id, area.area))
-
-    form.area.choices.sort(key=lambda tup: tup[0])
+    area_choices = [(0, "РќР°РїСЂР°РІР»РµРЅРёРµ РѕР±СѓС‡РµРЅРёСЏ")]
+    area_choices += [
+        (area.id, area.area)
+        for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).distinct().all()
+    ]
+    area_choices.sort(key=lambda tup: tup[0])
+    form.area.choices = area_choices  # pyright: ignore[reportAttributeAccessIssue]
 
     return render_template("thesis_review/submit.html", filter=form, user=user)
 
@@ -223,18 +228,22 @@ def edit_thesis_on_review():
         title = title.strip()
         author = thesis_review.author.get_name()
 
-        if worktype <= 0 or worktype > ThesisOnReviewWorktype.query.distinct().count():
+        if (
+            not worktype
+            or worktype <= 0
+            or worktype > ThesisOnReviewWorktype.query.distinct().count()
+        ):
             flash("РЈРєР°Р¶РёС‚Рµ С‚РёРї СЂР°Р±РѕС‚С‹", "error")
             return redirect(request.url)
 
-        if area <= 0 or area > AreasOfStudy.query.distinct().count():
+        if not area or area <= 0 or area > AreasOfStudy.query.distinct().count():
             flash("РЈРєР°Р¶РёС‚Рµ РЅР°РїСЂР°РІР»РµРЅРёРµ РІР°С€РµРіРѕ РѕР±СѓС‡РµРЅРёСЏ", "error")
             return redirect(request.url)
 
         thesis_review.name_ru = title
         thesis_review.author_id = user.id
-        thesis_review.thesis_on_review_type_id = int(worktype)
-        thesis_review.area_id = int(area)
+        thesis_review.thesis_on_review_type_id = worktype
+        thesis_review.area_id = area
 
         # check if the post request has the file part
         if "thesis" in request.files:
@@ -460,23 +469,23 @@ def review_submit_review():
         return redirect(url_for("review_thesis_on_review", thesis_review_id=thesis_id))
 
     data = ""
-    review = ThesisReview(
-        thesis_on_review_id=thesis.id,
-        o1=o1,
-        o1_comment=o1_comment,
-        o2=o2,
-        o2_comment=o2_comment,
-        t1=t1,
-        t1_comment=t1_comment,
-        t2=t2,
-        t2_comment=t2_comment,
-        p1=p1,
-        p1_comment=p1_comment,
-        p2=p2,
-        p2_comment=p2_comment,
-        verdict=verdict,
-        overall_comment=review_overall_comment,
-        review_file_uri=review_file_name,
+    review = ThesisReview(  # pyright: ignore[reportCallIssue]
+        thesis_on_review_id=thesis.id,  # pyright: ignore[reportCallIssue]
+        o1=o1,  # pyright: ignore[reportCallIssue]
+        o1_comment=o1_comment,  # pyright: ignore[reportCallIssue]
+        o2=o2,  # pyright: ignore[reportCallIssue]
+        o2_comment=o2_comment,  # pyright: ignore[reportCallIssue]
+        t1=t1,  # pyright: ignore[reportCallIssue]
+        t1_comment=t1_comment,  # pyright: ignore[reportCallIssue]
+        t2=t2,  # pyright: ignore[reportCallIssue]
+        t2_comment=t2_comment,  # pyright: ignore[reportCallIssue]
+        p1=p1,  # pyright: ignore[reportCallIssue]
+        p1_comment=p1_comment,  # pyright: ignore[reportCallIssue]
+        p2=p2,  # pyright: ignore[reportCallIssue]
+        p2_comment=p2_comment,  # pyright: ignore[reportCallIssue]
+        verdict=verdict,  # pyright: ignore[reportCallIssue]
+        overall_comment=review_overall_comment,  # pyright: ignore[reportCallIssue]
+        review_file_uri=review_file_name,  # pyright: ignore[reportCallIssue]
     )
 
     # Review status = 0 (success)
@@ -579,7 +588,7 @@ def review_become_thesis_reviewer_confirm():
     if reviewer:
         return render_template("thesis_review/already_reviewer.html", user=user)
 
-    r = Reviewer(user_id=user.id)
+    r = Reviewer(user_id=user.id)  # pyright: ignore[reportCallIssue]
     db.session.add(r)
     db.session.commit()
 

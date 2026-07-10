@@ -30,17 +30,21 @@ def theses_search():
 
     hint = random.choice(hints)
 
-    for sid in Thesis.query.with_entities(Thesis.type_id).distinct().all():
-        type = Worktype.query.filter_by(id=sid[0]).first()
+    worktype_choices = [
+        (sid[0], wrktype.type)
+        for sid in Thesis.query.with_entities(Thesis.type_id).distinct().all()
+        if (wrktype := Worktype.query.filter_by(id=sid[0]).first()) is not None
+    ]
+    worktype_choices.sort(key=lambda tup: tup[1])
+    filter.worktype.choices = worktype_choices  # pyright: ignore[reportAttributeAccessIssue]
 
-        filter.worktype.choices.append((sid[0], type.type))
-        filter.worktype.choices.sort(key=lambda tup: tup[1])
-
-    for sid in Thesis.query.with_entities(Thesis.course_id).distinct().all():
-        course = Courses.query.filter_by(id=sid[0]).first()
-
-        filter.course.choices.append((sid[0], course.name))
-        filter.course.choices.sort(key=lambda tup: tup[1])
+    course_choices = [
+        (sid[0], course.name)
+        for sid in Thesis.query.with_entities(Thesis.course_id).distinct().all()
+        if (course := Courses.query.filter_by(id=sid[0]).first()) is not None
+    ]
+    course_choices.sort(key=lambda tup: tup[1])
+    filter.course.choices = course_choices  # pyright: ignore[reportAttributeAccessIssue]
 
     dates = [
         theses.publish_year
@@ -52,6 +56,7 @@ def theses_search():
     filter.startdate.choices = dates
     filter.enddate.choices = dates
 
+    supervisor_choices = []
     for sid in Thesis.query.with_entities(Thesis.supervisor_id).distinct().all():
         staff = Staff.query.filter_by(id=sid[0]).first()
         last_name = ""
@@ -59,6 +64,9 @@ def theses_search():
 
         if not staff:
             staff = Staff.query.filter_by(id=1).first()
+
+        if staff is None:
+            continue
 
         if staff.user.last_name:
             last_name = staff.user.last_name
@@ -69,12 +77,12 @@ def theses_search():
         if staff.user.middle_name:
             initials = initials + staff.user.middle_name[0] + "."
 
-        filter.supervisor.choices.append((sid[0], last_name + " " + initials))
-        filter.supervisor.choices.sort(key=lambda tup: tup[1])
+        supervisor_choices.append((sid[0], last_name + " " + initials))
 
-    filter.supervisor.choices.insert(0, (0, "Р’СЃРµ"))
-    filter.course.choices.insert(0, (0, "Р’СЃРµ"))
-    filter.worktype.choices.insert(0, (0, "Р’СЃРµ"))
+    supervisor_choices.sort(key=lambda tup: tup[1])
+    filter.supervisor.choices = [(0, "Р’СЃРµ")] + supervisor_choices  # pyright: ignore[reportAttributeAccessIssue]
+    filter.course.choices = [(0, "Р’СЃРµ")] + course_choices  # pyright: ignore[reportAttributeAccessIssue]
+    filter.worktype.choices = [(0, "Р’СЃРµ")] + worktype_choices  # pyright: ignore[reportAttributeAccessIssue]
 
     return render_template("theses.html", filter=filter, hint=hint)
 
@@ -108,7 +116,7 @@ def fetch_theses():
 
     if search:
         records = (
-            Thesis.query.whooshee_search(search)
+            Thesis.query.whooshee_search(search)  # pyright: ignore[reportAttributeAccessIssue]
             .filter(~Thesis.temporary)
             .filter(Thesis.publish_year >= startdate)
             .filter(Thesis.publish_year <= enddate)
@@ -171,7 +179,7 @@ def fetch_theses():
             else:
                 third_priority.append(item)
 
-            if text_index != -1:
+            if text_index != -1 and item.text is not None:
                 left_space_index = item.text.find(" ", text_index - 60)
                 right_space_index = item.text.find(" ", text_index + 60)
                 context[item] = item.text[left_space_index:right_space_index].split()
@@ -199,7 +207,7 @@ def get_text(filename):
 
     for current_page in range(3, len(doc)):
         page = doc.load_page(current_page)
-        text += page.get_text("text").lower() + "\n"
+        text += page.get_text("text").lower() + "\n"  # pyright: ignore[reportAttributeAccessIssue]
         text = text.replace("-\n", "")
         text = re.sub(r"[^a-z Р°-СЏ \n : / . () # - ]", "", text)
 

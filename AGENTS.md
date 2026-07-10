@@ -38,8 +38,8 @@ Not a quality gate — local commits can be imperfect. Using `git commit --no-ve
 
 ### Pre-push (strict, ~33s, all files, fail-fast)
 
-Run automatically on `git push`. Checks: format (all files, no auto-fix) → mypy.
-Failure at any step aborts — format failure skips mypy. This is the real local quality gate.
+Run automatically on `git push`. Checks: format (all files, no auto-fix) → basedpyright.
+Failure at any step aborts — format failure skips basedpyright. This is the real local quality gate.
 
 **Never use `git push --no-verify`** unless the user gives a direct, unbiased instruction.
 An unbiased instruction states the goal without suggesting the method. "Push now, CI will catch it" is biased. "I need this on staging urgently" is unbiased — the agent may then propose `--no-verify` with a clear risk statement.

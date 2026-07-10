@@ -190,7 +190,7 @@ All SQLAlchemy models live in `se_models.py` (not split by domain). The `init_db
 
 ### [2026-07-05] Mypy Per-Module Opt-Out Strategy
 
-Mypy strict mode is enabled globally, but view-heavy modules get `[[tool.mypy.overrides]]` entries that disable specific error codes:
+Basedpyright with `typeCheckingMode = "all"` is used for type checking. View-heavy modules that rely on untyped third-party libraries (SQLAlchemy, BeautifulSoup, Flask-Admin) use `# pyright: ignore[code]` comments for framework-level patterns:
 
 - `no-untyped-def`, `no-untyped-call` — disabled for all Flask view modules (functions return `Response`, type inference is noisy)
 - `attr-defined`, `assignment` — disabled for SQLAlchemy model-heavy files (relationship properties trigger false positives)
@@ -198,11 +198,11 @@ Mypy strict mode is enabled globally, but view-heavy modules get `[[tool.mypy.ov
 
 **Why not fix all violations**: The codebase has ~193 untyped functions out of ~202. Strict typing across all modules would require ~500+ annotations. The per-module opt-out allows progressive typing: files that are simple (config, forms) get full strict checking; complex files (views, models) get gradual coverage.
 
-**Process**: When a module reaches 90%+ test coverage, add it to mypy's `files` list with appropriate overrides. Overrides are tightened as annotations are added.
+**Process**: All modules are checked by basedpyright. Framework-level patterns (SQLAlchemy constructors, WTForms choices, Flask-Admin hooks) use `# pyright: ignore[code]` comments at the point of use rather than global overrides.
 
 ### [2026-07-05] Test-First, No Production Code Before 90% Coverage
 
-Production code is frozen until test coverage reaches 90%. Rationale: safe refactoring requires tested behavior as ground truth. All bug fixes, code quality improvements, and mypy expansion wait for the coverage threshold.
+Production code is frozen until test coverage reaches 90%. Rationale: safe refactoring requires tested behavior as ground truth. All bug fixes and code quality improvements wait for the coverage threshold.
 
 **Exceptions**: Trivial one-line fixes (e.g., adding `.get("field", "")` default) that unblock tests can be applied during the coverage phase if they directly enable testing.
 

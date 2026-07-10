@@ -48,9 +48,9 @@ def handle_yandex_table(table_name, sheet_name, area_id, worktype_id, column_nam
 
 def get_code():
     redirect_uri = (
-        request.environ.get("wsgi.url_scheme")
+        str(request.environ.get("wsgi.url_scheme"))
         + "://"
-        + request.environ.get("HTTP_HOST")
+        + str(request.environ.get("HTTP_HOST"))
         + url_for(yandex_code.__name__)
     )
     url = YANDEX_AUTHORIZE_URL_TEMPLATE.substitute(
@@ -59,7 +59,7 @@ def get_code():
     return redirect(url)
 
 
-def get_token(code):
+def get_token(code):  # pyright: ignore[reportReturnType]
     credentials_string = base64.b64encode(
         (YANDEX_CLIENT_ID + ":" + YANDEX_SECRET).encode("ascii")
     ).decode("ascii")
@@ -67,7 +67,7 @@ def get_token(code):
     content = "grant_type=authorization_code&code=" + code
     response = requests.post(YANDEX_GET_TOKEN_URL, headers=headers, data=content, timeout=10)
     if not response.ok:
-        return 0
+        return None
 
     data = json.loads(response.content)
     return data["access_token"]
@@ -82,7 +82,7 @@ def yandex_code():
         return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
 
     token = get_token(code)
-    disk = yadisk.YaDisk(token=token)
+    disk = yadisk.YaDisk(token=token)  # pyright: ignore[reportArgumentType]
     if not disk.check_token():
         flash("РќРµРІРµСЂРЅС‹Р№ С‚РѕРєРµРЅ РґР»СЏ РЇРЅРґРµРєСЃ Р”РёСЃРєР°", category="error")
         return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))

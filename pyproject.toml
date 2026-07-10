@@ -44,22 +44,12 @@ dev = [
     "bandit",
     "codespell",
     "pytest-xdist>=3.8.0",
-    "mypy>=2.1.0",
-    "types-flask>=1.1.6",
-    "types-werkzeug>=1.0.9",
-    "types-jinja2>=2.11.9",
-    "types-markupsafe>=1.1.10",
-    "types-click>=7.1.8",
-    "types-itsdangerous>=1.1.6",
-    "types-sqlalchemy>=1.4.53.38",
-    "types-python-dateutil>=2.9.0.20260518",
-    "types-pillow>=10.2.0.20240822",
-    "lxml>=6.1.1",
+    "basedpyright>=1.39.9",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=src --cov-report=term-missing --cov-fail-under=80 -n 2 --durations=10"
+addopts = "--cov=src --cov-report=term-missing --cov-fail-under=80 -n auto --durations=10"
 
 [tool.coverage.run]
 omit = ["src/thesesImport.py", "src/wsgi.py", "src/extract_text.py", "src/static/files/*"]
@@ -95,80 +85,24 @@ skips = ["B101", "B311"]
 skip = ".git,.venv,node_modules,src/static/assets/libs"
 ignore-words-list = "crate,principale,organise,organised,re-use,re-uses,re-using,theses,recomended"
 
-[tool.mypy]
-strict = true
-python_version = "3.11"
-ignore_missing_imports = true
-no_site_packages = true
-disable_error_code = ["no-untyped-def", "no-untyped-call"]
-files = [
-    "src/",
-]
-
-exclude = [
-    "numpy",
-    "src/templates/",
-]
-
-[[tool.mypy.overrides]]
-module = [
-    "tests.*",
-]
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = [
-    "se_models",
-    "flask_se",
-    "flask_se_auth",
-    "flask_se_admin",
-    "flask_se_diplomas",
-    "flask_se_internships",
-    "flask_se_practice",
-    "flask_se_practice_admin",
-    "flask_se_practice_config",
-    "flask_se_practice_staff",
-    "flask_se_practice_table",
-    "flask_se_practice_yandex_disk",
-    "flask_se_review",
-    "flask_se_scholarships",
-    "flask_se_summer_schools",
-    "flask_se_theses",
-    "extract_text",
-    "se_forms",
-    "se_internship_forms",
-    "se_review_forms",
-    "se_sendmail",
-    "thesesImport",
-    "wsgi",
-]
-ignore_errors = false
-disable_error_code = [
-    "no-untyped-def",
-    "no-untyped-call",
-    "var-annotated",
-    "arg-type",
-    "return-value",
-    "operator",
-    "assignment",
-    "attr-defined",
-    "union-attr",
-    "misc",
-    "type-arg",
-    "valid-type",
-    "call-overload",
-    "override",
-    "has-type",
-    "list-item",
-    "dict-item",
-    "index",
-    "comparison-overlap",
-    "no-any-return",
-    "name-defined",
-]
-
-[tool.pyright]
-venvPath = "."
-venv = ".venv"
-pythonVersion = "3.13"
-include = ["src", "tests"]
+[tool.basedpyright]
+typeCheckingMode = "all"
+strictParameterNoneValue = true
+enableTypeIgnoreComments = false
+strictListInference = true
+strictDictionaryInference = true
+strictSetInference = true
+deprecateTypingAliases = true
+reportMissingModuleSource = "error"
+reportMissingImports = "error"
+reportUnusedImport = "error"
+reportUnusedClass = "error"
+reportUnusedFunction = "error"
+reportUnusedVariable = "error"
+reportDuplicateImport = "error"
+reportUntypedFunctionDecorator = "error"
+reportUntypedClassDecorator = "error"
+reportUntypedBaseClass = "error"
+reportIncompatibleMethodOverride = "error"
+reportIncompatibleVariableOverride = "error"
+reportConstantRedefinition = "error"

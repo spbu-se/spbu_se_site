@@ -22,16 +22,20 @@ def diplomas_index():
     # themes = DiplomaThemes.query.filter_by(status=2).all()
     user_themes_count = 0
 
-    for sid in (
-        DiplomaThemes.query.with_entities(DiplomaThemes.company_id)
-        .filter_by(status=2)
-        .distinct()
-        .all()
-    ):
-        company = Company.query.filter_by(id=sid[0]).first()
-        diploma_filter.company.choices.append((sid[0], company.name))
-        diploma_filter.company.choices.sort(key=lambda tup: tup[1])
+    company_choices = [
+        (sid[0], company.name)
+        for sid in (
+            DiplomaThemes.query.with_entities(DiplomaThemes.company_id)
+            .filter_by(status=2)
+            .distinct()
+            .all()
+        )
+        if (company := Company.query.filter_by(id=sid[0]).first()) is not None
+    ]
+    company_choices.sort(key=lambda tup: tup[1])
+    diploma_filter.company.choices = [(0, "Р’СЃРµ")] + company_choices  # pyright: ignore[reportAttributeAccessIssue]
 
+    supervisor_choices = []
     for sid in (
         DiplomaThemes.query.with_entities(DiplomaThemes.supervisor_id)
         .filter_by(status=2)
@@ -49,25 +53,24 @@ def diplomas_index():
         if not user:
             user = Users.query.filter_by(id=1).first()
 
-        if user.last_name:
-            last_name = user.last_name
+        if user is not None:
+            if user.last_name:
+                last_name = user.last_name
 
-        if user.first_name:
-            initials = initials + user.first_name[0] + "."
+            if user.first_name:
+                initials = initials + user.first_name[0] + "."
 
-        if user.middle_name:
-            initials = initials + user.middle_name[0] + "."
+            if user.middle_name:
+                initials = initials + user.middle_name[0] + "."
 
-        diploma_filter.supervisor.choices.append((sid[0], last_name + " " + initials))
-        diploma_filter.supervisor.choices.sort(key=lambda tup: tup[1])
+        supervisor_choices.append((sid[0], last_name + " " + initials))
 
-    for sid in ThemesLevel.query.all():
-        diploma_filter.level.choices.append((sid.id, sid.level))
-        diploma_filter.level.choices.sort(key=lambda tup: tup[1])
+    supervisor_choices.sort(key=lambda tup: tup[1])
+    diploma_filter.supervisor.choices = [(0, "Р’СЃРµ")] + supervisor_choices  # pyright: ignore[reportAttributeAccessIssue]
 
-    diploma_filter.supervisor.choices.insert(0, (0, "Р’СЃРµ"))
-    diploma_filter.level.choices.insert(0, (0, "Р’СЃРµ"))
-    diploma_filter.company.choices.insert(0, (0, "Р’СЃРµ"))
+    level_choices = [(sid.id, sid.level) for sid in ThemesLevel.query.all()]
+    level_choices.sort(key=lambda tup: tup[1])
+    diploma_filter.level.choices = [(0, "Р’СЃРµ")] + level_choices  # pyright: ignore[reportAttributeAccessIssue]
 
     if current_user.is_authenticated:
         user = current_user
@@ -138,8 +141,7 @@ def fetch_themes():
 @login_required
 def user_diplomas_index():
     filter = UserDiplomaThemesFilter()
-    filter.archived.choices.insert(0, (0, "РќРµС‚"))
-    filter.archived.choices.insert(1, (1, "Р”Р°"))
+    filter.archived.choices = [(0, "РќРµС‚"), (1, "Р”Р°")]  # pyright: ignore[reportAttributeAccessIssue]
 
     user = current_user
     themes = (
@@ -228,7 +230,7 @@ def add_user_theme():
             author_id=user.id,
         )
 
-        c.levels = level_accepted
+        c.levels = level_accepted  # pyright: ignore[reportAttributeAccessIssue]
         db.session.add(c)
         db.session.commit()
 

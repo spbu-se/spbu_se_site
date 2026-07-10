@@ -17,7 +17,7 @@ from se_models import Staff, Thesis, Users, db
 
 # Init Database
 try:
-    db.app = app
+    db.app = app  # pyright: ignore[reportAttributeAccessIssue]
     db.init_app(app)
 except RuntimeError:
     pass
@@ -62,8 +62,9 @@ def get_2020_02_03_03():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -131,6 +132,8 @@ def get_2020_02_03_03():
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
                 r = Staff.query.filter_by(user_id=q.id).first()
+                if r is None:
+                    continue
                 supervisor_id = r.id
             else:
                 print("Error, no " + supervisor)
@@ -197,8 +200,9 @@ def get_2020_09_03_04():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -267,6 +271,8 @@ def get_2020_09_03_04():
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
                 r = Staff.query.filter_by(user_id=q.id).first()
+                if r is None:
+                    continue
                 supervisor_id = r.id
             else:
                 print("Error, no " + supervisor)
@@ -333,8 +339,9 @@ def get_2019_09_03_04():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -406,6 +413,8 @@ def get_2019_09_03_04():
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
                 r = Staff.query.filter_by(user_id=q.id).first()
+                if r is None:
+                    continue
                 supervisor_id = r.id
             else:
                 print("Error, no " + supervisor)
@@ -472,8 +481,9 @@ def get_2019_02_03_03():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -548,6 +558,8 @@ def get_2019_02_03_03():
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
                 r = Staff.query.filter_by(user_id=q.id).first()
+                if r is None:
+                    continue
                 supervisor_id = r.id
             else:
                 print("Error, no " + supervisor)
@@ -614,8 +626,9 @@ def get_2019_02_04_03():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -686,6 +699,8 @@ def get_2019_02_04_03():
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
                 r = Staff.query.filter_by(user_id=q.id).first()
+                if r is None:
+                    continue
                 supervisor_id = r.id
             else:
                 print("Error, no " + supervisor)
@@ -752,8 +767,9 @@ def get_2020_371():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -814,6 +830,8 @@ def get_2020_371():
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
                 r = Staff.query.filter_by(user_id=q.id).first()
+                if r is None:
+                    continue
                 supervisor_id = r.id
             else:
                 print("Error, no " + supervisor)
@@ -880,8 +898,9 @@ def get_report_2020_02_03_03():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -949,6 +968,8 @@ def get_report_2020_02_03_03():
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
                 r = Staff.query.filter_by(user_id=q.id).first()
+                if r is None:
+                    continue
                 supervisor_id = r.id
             else:
                 print("Error, no " + supervisor)
@@ -1015,8 +1036,9 @@ def get_2019_371():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -1068,6 +1090,8 @@ def get_2019_371():
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
                 r = Staff.query.filter_by(user_id=q.id).first()
+                if r is None:
+                    continue
                 supervisor_id = r.id
             else:
                 print("Error, no " + supervisor)
@@ -1117,8 +1141,9 @@ def get_2019_343():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -1170,6 +1195,8 @@ def get_2019_343():
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
                 r = Staff.query.filter_by(user_id=q.id).first()
+                if r is None:
+                    continue
                 supervisor_id = r.id
             else:
                 print("Error, no " + supervisor)
@@ -1219,8 +1246,9 @@ def get_2019_344():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -1272,6 +1300,8 @@ def get_2019_344():
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
                 r = Staff.query.filter_by(user_id=q.id).first()
+                if r is None:
+                    continue
                 supervisor_id = r.id
             else:
                 print("Error, no " + supervisor)
@@ -1438,9 +1468,11 @@ def add_master_thesis_2020():
         q = Users.query.filter_by(last_name=last_name).first()
         if q:
             r = Staff.query.filter_by(user_id=q.id).first()
+            if r is None:
+                continue
             supervisor_id = r.id
         else:
-            print("Error, no " + t["supervisor"])
+            print("Error, no " + str(t["supervisor"]))
             sys.exit(1)
 
         tt = Thesis(
@@ -1486,8 +1518,9 @@ def get_2022_271():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -1538,7 +1571,7 @@ def get_2022_271():
 
             # q = Users.query.filter_by(last_name=last_name).first()
             print(last_name)
-            r = Staff.query.join(Staff.user).filter(Users.last_name == last_name).first()
+            r = Staff.query.join(Staff.user).filter(Users.last_name == last_name).first()  # pyright: ignore[reportAttributeAccessIssue]
             if r:
                 supervisor_id = r.id
             else:
@@ -1590,8 +1623,9 @@ def get_2022_371():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -1647,7 +1681,7 @@ def get_2022_371():
 
             # q = Users.query.filter_by(last_name=last_name).first()
             print(last_name)
-            r = Staff.query.join(Staff.user).filter(Users.last_name == last_name).first()
+            r = Staff.query.join(Staff.user).filter(Users.last_name == last_name).first()  # pyright: ignore[reportAttributeAccessIssue]
             if r:
                 supervisor_id = r.id
             else:
@@ -1699,8 +1733,9 @@ def get_2022_09_03_04():
 
     # Find table
     table = header[0].find_next("table")
-
-    for row in table.findAll("tr"):
+    if table is None:
+        return
+    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -1789,6 +1824,8 @@ def get_2022_09_03_04():
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
                 r = Staff.query.filter_by(user_id=q.id).first()
+                if r is None:
+                    continue
                 supervisor_id = r.id
             else:
                 print("Error, no " + supervisor)

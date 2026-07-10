@@ -75,7 +75,7 @@ uv sync                                       # install dependencies (dev + main
 uv run python src/flask_se.py                 # run dev server (http://127.0.0.1:5000)
 uv run python src/flask_se.py init            # initialize database
 uv run python src/wsgi.py                     # run via WSGI
-uv run pytest                                 # run tests
+uv run pytest                                 # run tests (full suite ~600s with -n auto)
 uv run ruff check src/                        # lint
 uv run ruff format src/                       # format
 uv run python flask_se.py build               # build static site (Frozen-Flask)
@@ -177,8 +177,9 @@ Not a quality gate — local commits can be imperfect. Using `git commit --no-ve
 
 #### Pre-push (strict, ~33s, all files, fail-fast)
 
-Checks: format (all files, no auto-fix) -> mypy. Runs on every `git push`.
-Failure at any step aborts. Format failure skips mypy.
+Checks: format (all files, no auto-fix) -> basedpyright. Runs on every `git push`.
+
+Failure at any step aborts. Format failure skips basedpyright.
 This is the local quality gate that prevents unformatted or type-unsafe code from reaching staging.
 
 The pre-push gate exists because the agent has a documented pattern of skipping fast local checks to save seconds, costing minutes in CI round-trips. The fail-fast chain ensures that a format failure wastes at most ~3s instead of triggering a full check cycle.
@@ -391,7 +392,7 @@ Every item must pass before staging -> current merge:
 |---|---|---|
 | 1 | **Tests pass** | `docs/TESTING.md` — full suite green, coverage within target |
 | 2 | **Lint** | `ruff` clean |
-| 2a | **Types** (active) | `mypy src/` passes, no new `# type: ignore[code]` — per-module overrides in pyproject.toml |
+| 2a | **Types** (active) | `basedpyright src/` passes, no new `# pyright: ignore[code]` — per-module overrides in pyproject.toml |
 | 3 | **Format** | `ruff format` + `mdformat` applied |
 | 4 | **Edge cases** | `docs/TESTING.md §1` — empty inputs, boundary values, failure modes tested |
 | 5 | **Error messages** | Actionable, follow existing pattern (field → reason) |

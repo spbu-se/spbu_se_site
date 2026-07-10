@@ -139,12 +139,15 @@ def practice_new_thesis():
             return redirect(url_for("practice_choosing_topic", id=new_thesis.id))
 
     form = CurrentWorktypeArea()
-    form.area.choices.append((0, "Р’С‹Р±РµСЂРёС‚Рµ РЅР°РїСЂР°РІР»РµРЅРёРµ"))
+    area_choices: list[tuple[int, str]] = [(0, "Р'С‹Р±РµСЂРёС‚Рµ РЅР°РїСЂР°РІР»РµРЅРёРµ")]
     for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by("id").all():
-        form.area.choices.append((area.id, area.area))
-    form.worktype.choices.append((0, "Р’С‹Р±РµСЂРёС‚Рµ С‚РёРї СЂР°Р±РѕС‚С‹"))
+        area_choices.append((area.id, area.area))
+    form.area.choices = area_choices
+
+    worktype_choices: list[tuple[int, str]] = [(0, "Р'С‹Р±РµСЂРёС‚Рµ С‚РёРї СЂР°Р±РѕС‚С‹")]
     for worktype in Worktype.query.filter(Worktype.id > 2).all():
-        form.worktype.choices.append((worktype.id, worktype.type))
+        worktype_choices.append((worktype.id, worktype.type))
+    form.worktype.choices = worktype_choices
 
     return render_template(
         PracticeStudentTemplates.NEW_PRACTICE.value,
@@ -177,16 +180,18 @@ def practice_choosing_topic(current_thesis):
                 current_thesis.supervisor_id = supervisor_id
                 db.session.commit()
 
-                supervisor_user_id = Staff.query.filter_by(id=supervisor_id).first().user_id
-                add_mail_notification(
-                    supervisor_user_id,
-                    "Р”РѕР±Р°РІР»РµРЅР° РЅРѕРІР°СЏ СѓС‡РµР±РЅР°СЏ РїСЂР°РєС‚РёРєР°/Р’РљР ",
-                    render_template(
-                        NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
-                        user=current_user,
-                        practice=current_thesis,
-                    ),
-                )
+                supervisor_staff = Staff.query.filter_by(id=supervisor_id).first()
+                if supervisor_staff is not None:
+                    supervisor_user_id = supervisor_staff.user_id
+                    add_mail_notification(
+                        supervisor_user_id,
+                        "Р”РѕР±Р°РІР»РµРЅР° РЅРѕРІР°СЏ СѓС‡РµР±РЅР°СЏ РїСЂР°РєС‚РёРєР°/Р’РљР ",
+                        render_template(
+                            NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
+                            user=current_user,
+                            practice=current_thesis,
+                        ),
+                    )
 
         elif "add_consultant_button" in request.form:
             current_thesis.consultant = request.form["add_consultant_input"]
@@ -205,14 +210,17 @@ def practice_choosing_topic(current_thesis):
     )
 
     form = ChooseTopic()
-    form.staff.choices.append((0, "Р’С‹Р±РµСЂРёС‚Рµ РЅР°СѓС‡РЅРѕРіРѕ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ"))
+    staff_choices: list[tuple[int, str]] = [
+        (0, "Р'С‹Р±РµСЂРёС‚Рµ РЅР°СѓС‡РЅРѕРіРѕ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ")
+    ]
     for supervisor in (
         Staff.query.join(Users, Staff.user_id == Users.id)
         .filter(Staff.still_working)
         .order_by(asc(Users.last_name))
         .all()
     ):
-        form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
+        staff_choices.append((supervisor.id, supervisor.user.get_name()))
+    form.staff.choices = staff_choices
 
     return render_template(
         PracticeStudentTemplates.CHOOSING_TOPIC.value,
@@ -242,23 +250,28 @@ def practice_edit_theme(current_thesis):
             current_thesis.title = topic
             current_thesis.consultant = consultant
             if current_thesis.supervisor_id != supervisor_id:
-                supervisor_user_id = Staff.query.filter_by(id=supervisor_id).first().user_id
-                add_mail_notification(
-                    supervisor_user_id,
-                    "Р”РѕР±Р°РІР»РµРЅР° РЅРѕРІР°СЏ СѓС‡РµР±РЅР°СЏ РїСЂР°РєС‚РёРєР°/Р’РљР ",
-                    render_template(
-                        NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
-                        user=current_user,
-                        practice=current_thesis,
-                    ),
-                )
+                supervisor_staff = Staff.query.filter_by(id=supervisor_id).first()
+                if supervisor_staff is not None:
+                    supervisor_user_id = supervisor_staff.user_id
+                    add_mail_notification(
+                        supervisor_user_id,
+                        "Р”РѕР±Р°РІР»РµРЅР° РЅРѕРІР°СЏ СѓС‡РµР±РЅР°СЏ РїСЂР°РєС‚РёРєР°/Р’РљР ",
+                        render_template(
+                            NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
+                            user=current_user,
+                            practice=current_thesis,
+                        ),
+                    )
                 current_thesis.supervisor_id = supervisor_id
             db.session.commit()
             return redirect(url_for("practice_choosing_topic", id=current_thesis.id))
 
     form = ChooseTopic()
     form.topic.data = current_thesis.title
-    form.staff.choices.append((current_thesis.supervisor_id, current_thesis.supervisor))
+    staff_choices: list[tuple[int, str]] = [
+        (current_thesis.supervisor_id, current_thesis.supervisor)
+    ]
+    form.staff.choices = staff_choices
     form.consultant.data = current_thesis.consultant
     for supervisor in (
         Staff.query.join(Users, Staff.user_id == Users.id)
@@ -267,7 +280,8 @@ def practice_edit_theme(current_thesis):
         .order_by(asc(Users.last_name))
         .all()
     ):
-        form.staff.choices.append((supervisor.id, supervisor.user.get_name()))
+        staff_choices.append((supervisor.id, supervisor.user.get_name()))
+    form.staff.choices = staff_choices
 
     return render_template(
         PracticeStudentTemplates.EDIT_TOPIC.value,
@@ -305,8 +319,7 @@ def practice_goals_tasks(current_thesis):
 
         elif "submit_task_button" in request.form:
             task = request.form.get("task", type=str)
-
-            if len(task) <= MIN_LENGTH_OF_TASK:
+            if task is None or len(task) <= MIN_LENGTH_OF_TASK:
                 flash("РћРїРёС€РёС‚Рµ Р·Р°РґР°С‡Сѓ РїРѕРґСЂРѕР±РЅРµРµ!", category="error")
                 return redirect(url_for("practice_goals_tasks", id=current_thesis.id))
 
@@ -338,7 +351,7 @@ def practice_goals_tasks(current_thesis):
                 return redirect(url_for("practice_goals_tasks", id=current_thesis.id))
 
             new_task = request.form.get("task", type=str)
-            if len(new_task) <= MIN_LENGTH_OF_TASK:
+            if new_task is None or len(new_task) <= MIN_LENGTH_OF_TASK:
                 flash("РћРїРёС€РёС‚Рµ Р·Р°РґР°С‡Сѓ РїРѕРґСЂРѕР±РЅРµРµ!", category="error")
                 return redirect(url_for("practice_goals_tasks", id=current_thesis.id))
 
@@ -360,8 +373,9 @@ def practice_workflow(current_thesis):
     if request.method == "POST" and "delete_button" in request.form:
         report_id = request.form["delete_button"]
         report = ThesisReport.query.filter_by(id=report_id).first()
-        report.deleted = True
-        db.session.commit()
+        if report is not None:
+            report.deleted = True
+            db.session.commit()
         flash("РћС‚С‡С‘С‚ СѓРґР°Р»РµРЅ!", category="success")
 
     reports = (
@@ -420,19 +434,19 @@ def practice_add_new_report(current_thesis):
             db.session.add(new_report)
             db.session.commit()
 
-            supervisor_user_id = (
-                Staff.query.filter_by(id=current_thesis.supervisor_id).first().user_id
-            )
-            add_mail_notification(
-                supervisor_user_id,
-                "РќРѕРІС‹Р№ РѕС‚С‡С‘С‚ РїРѕ СѓС‡РµР±РЅРѕР№ РїСЂР°РєС‚РёРєРµ",
-                render_template(
-                    NotificationTemplates.NEW_REPORT_TO_SUPERVISOR.value,
-                    user=current_user,
-                    practice=current_thesis,
-                    report=new_report,
-                ),
-            )
+            supervisor_staff = Staff.query.filter_by(id=current_thesis.supervisor_id).first()
+            if supervisor_staff is not None:
+                supervisor_user_id = supervisor_staff.user_id
+                add_mail_notification(
+                    supervisor_user_id,
+                    "РќРѕРІС‹Р№ РѕС‚С‡С‘С‚ РїРѕ СѓС‡РµР±РЅРѕР№ РїСЂР°РєС‚РёРєРµ",
+                    render_template(
+                        NotificationTemplates.NEW_REPORT_TO_SUPERVISOR.value,
+                        user=current_user,
+                        practice=current_thesis,
+                        report=new_report,
+                    ),
+                )
             flash("РћС‚С‡С‘С‚ СѓСЃРїРµС€РЅРѕ РѕС‚РїСЂР°РІР»РµРЅ!", category="success")
             return redirect(url_for("practice_workflow", id=current_thesis.id))
 
@@ -740,19 +754,21 @@ def practice_data_for_practice(current_thesis):
             return redirect(url_for("practice_index"))
 
     form = CurrentWorktypeArea()
-    form.area.choices.append((current_thesis.area_id, current_thesis.area.area))
+    area_choices = [(current_thesis.area_id, current_thesis.area.area)]
     for area in (
         AreasOfStudy.query.filter(AreasOfStudy.id > 1)
         .filter(AreasOfStudy.id != current_thesis.area.id)
         .order_by("id")
         .all()
     ):
-        form.area.choices.append((area.id, area.area))
+        area_choices.append((area.id, area.area))
+    form.area.choices = area_choices  # pyright: ignore[reportAttributeAccessIssue]
 
-    form.worktype.choices.append((current_thesis.worktype_id, current_thesis.worktype.type))
+    worktype_choices = [(current_thesis.worktype_id, current_thesis.worktype.type)]
     for worktype in Worktype.query.filter(Worktype.id > 2).all():
         if worktype.id != current_thesis.worktype_id:
-            form.worktype.choices.append((worktype.id, worktype))
+            worktype_choices.append((worktype.id, worktype))
+    form.worktype.choices = worktype_choices  # pyright: ignore[reportAttributeAccessIssue]
 
     return render_template(
         PracticeStudentTemplates.SETTINGS.value,

@@ -125,6 +125,9 @@ def index_admin():
     area = AreasOfStudy.query.filter_by(id=area_id).first()
     worktype = Worktype.query.filter_by(id=worktype_id).first()
 
+    if area is None or worktype is None:
+        return redirect(url_for("practice_index"))
+
     if request.method == "POST":
         if "download_materials_button" in request.form:
             return download_materials(area, worktype)
@@ -150,7 +153,7 @@ def index_admin():
                     area_id=area.id,
                     worktype_id=worktype.id,
                 )
-                return send_file(full_filename, download_name=filename, as_attachment=True)
+                return send_file(full_filename, download_name=filename, as_attachment=True)  # pyright: ignore[reportCallIssue]
 
         if "yandex_button" in request.form:
             try:
@@ -259,7 +262,7 @@ def download_materials(area, worktype):
                         arcname=thesis.presentation_uri,
                     )
 
-        return send_file(tmp.name, download_name=filename, as_attachment=True)
+        return send_file(tmp.name, download_name=filename, as_attachment=True)  # pyright: ignore[reportCallIssue]
 
 
 @login_required
@@ -351,7 +354,7 @@ def archive_thesis():
     if not current_thesis_id:
         return redirect(url_for("index_admin"))
 
-    current_thesis: CurrentThesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
+    current_thesis = CurrentThesis.query.filter_by(id=current_thesis_id).first()
     if not current_thesis:
         return redirect(url_for("index_admin"))
 
@@ -393,7 +396,7 @@ def archive_thesis():
         thesis.course_id = course_id
         thesis.area_id = current_thesis.area_id
         thesis.name_ru = current_thesis.title
-        thesis.author = current_thesis.user.get_name()
+        thesis.author = current_thesis.user.get_name()  # pyright: ignore[reportAttributeAccessIssue]
         thesis.author_id = current_thesis.author_id
         thesis.supervisor_id = current_thesis.supervisor_id
         thesis.publish_year = request.form.get("publish_year", type=int)
@@ -404,7 +407,8 @@ def archive_thesis():
         if current_thesis.text_uri:
             shutil.copyfile(TEXT_UPLOAD_FOLDER + current_thesis.text_uri, path_to_archive_text)
         else:
-            text_file.save(path_to_archive_text)
+            if text_file is not None:
+                text_file.save(path_to_archive_text)
         thesis.text_uri = archive_text_filename
 
         path_to_archive_presentation, archive_slides_filename = get_filename(
@@ -418,7 +422,8 @@ def archive_thesis():
                 path_to_archive_presentation,
             )
         else:
-            presentation_file.save(path_to_archive_presentation)
+            if presentation_file is not None:
+                presentation_file.save(path_to_archive_presentation)
         thesis.presentation_uri = archive_slides_filename
 
         path_to_archive_super_review, archive_super_review_filename = get_filename(
@@ -432,7 +437,8 @@ def archive_thesis():
                 path_to_archive_super_review,
             )
         else:
-            supervisor_review_file.save(path_to_archive_super_review)
+            if supervisor_review_file is not None:
+                supervisor_review_file.save(path_to_archive_super_review)
         thesis.supervisor_review_uri = archive_super_review_filename
 
         path_to_archive_rev_review, archive_rev_review_filename = get_filename(
@@ -445,7 +451,7 @@ def archive_thesis():
             )
         else:
             reviewer_review_file = request.files.get("consultant_review", None)
-            if reviewer_review_file not in {None, ""}:
+            if reviewer_review_file is not None and reviewer_review_file.filename != "":
                 reviewer_review_file.save(path_to_archive_rev_review)
                 thesis.reviewer_review_uri = archive_rev_review_filename
 
@@ -453,7 +459,7 @@ def archive_thesis():
             thesis.source_uri = current_thesis.code_link
         else:
             code_link = request.form.get("code_link", type=str)
-            if code_link not in {None, ""} and code_link.find("http") != -1:
+            if code_link is not None and code_link != "" and "http" in code_link:
                 thesis.source_uri = code_link
 
         db.session.add(thesis)
@@ -485,15 +491,16 @@ def archive_thesis():
     list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     course_and_year_form = ChooseCourseAndYear()
-    course_and_year_form.course.choices.append((0, "Р’С‹Р±РµСЂРёС‚Рµ РЅР°РїСЂР°РІР»РµРЅРёРµ"))
+    course_choices: list[tuple[int, str]] = [(0, "Р'С‹Р±РµСЂРёС‚Рµ РЅР°РїСЂР°РІР»РµРЅРёРµ")]
     for course in Courses.query.all():
-        course_and_year_form.course.choices.append((course.id, course.name))
+        course_choices.append((course.id, course.name))
+    course_and_year_form.course.choices = course_choices
 
     return render_template(
         PracticeAdminTemplates.ARCHIVE_THESIS.value,
         thesis=current_thesis,
-        area=current_thesis.area,
-        worktype=current_thesis.worktype,
+        area=current_thesis.area,  # pyright: ignore[reportAttributeAccessIssue]
+        worktype=current_thesis.worktype,  # pyright: ignore[reportAttributeAccessIssue]
         list_of_areas=list_of_areas,
         list_of_worktypes=list_of_work_types,
         form=course_and_year_form,

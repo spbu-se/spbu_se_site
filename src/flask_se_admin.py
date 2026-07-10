@@ -31,11 +31,7 @@ class SeAdminModelView(ModelView):
     can_set_page_size = True
 
     def is_accessible(self):
-        if current_user.is_authenticated:
-            if current_user.role >= ADMIN_ROLE_LEVEL:
-                return True
-        else:
-            return False
+        return current_user.is_authenticated and current_user.role >= ADMIN_ROLE_LEVEL
 
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for("login_index"))
@@ -86,11 +82,7 @@ class SeAdminModelViewThesis(SeAdminModelView):
 
 class SeAdminModelViewReviewer(ModelView):
     def is_accessible(self):
-        if current_user.is_authenticated:
-            if current_user.role >= REVIEW_ROLE_LEVEL:
-                return True
-        else:
-            return False
+        return current_user.is_authenticated and current_user.role >= REVIEW_ROLE_LEVEL
 
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for("login_index"))
@@ -105,11 +97,7 @@ class SeAdminIndexView(AdminIndexView):
         return self.render("admin/index.html", thesis_key=thesis_key)
 
     def is_accessible(self):
-        if current_user.is_authenticated:
-            if current_user.role >= THESIS_ROLE_LEVEL:
-                return True
-        else:
-            return False
+        return current_user.is_authenticated and current_user.role >= THESIS_ROLE_LEVEL
 
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for("login_index"))
@@ -209,7 +197,7 @@ class SeAdminModelViewNews(SeAdminModelView):
 
 
 class SeAdminModelViewDiplomaThemes(SeAdminModelView):
-    column_labels = dict(
+    column_labels = dict(  # pyright: ignore[reportAssignmentType]
         supervisor_thesis="РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ Р’РљР ",
         supervisor="РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ СѓС‡РµР±РЅС‹С… РїСЂР°РєС‚РёРє",
         comment="РљРѕРјРјРµРЅС‚Р°СЂРёР№ (С‡С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ РёСЃРїСЂР°РІРёС‚СЊ)",
@@ -222,7 +210,7 @@ class SeAdminModelViewDiplomaThemes(SeAdminModelView):
         consultant="РљРѕРЅСЃСѓР»СЊС‚Р°РЅС‚",
         author="РђРІС‚РѕСЂ С‚РµРјС‹ (РєС‚Рѕ РїСЂРµРґР»РѕР¶РёР»)",
     )
-    column_choices = {
+    column_choices = {  # pyright: ignore[reportAssignmentType]
         "status": [
             (0, "РќР° РїСЂРѕРІРµСЂРєРµ"),
             (1, "РўСЂРµР±СѓРµС‚СЃСЏ РґРѕСЂР°Р±РѕС‚РєР°"),
@@ -237,7 +225,7 @@ class SeAdminModelViewDiplomaThemes(SeAdminModelView):
         "comment": TextAreaField,
         "status": SelectField,
     }
-    form_args = dict(
+    form_args = dict(  # pyright: ignore[reportAssignmentType]
         status=dict(
             choices=[
                 (0, "РќР° РїСЂРѕРІРµСЂРєРµ"),
@@ -268,7 +256,7 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
         "levels",
         "company",
     )
-    column_labels = dict(
+    column_labels = dict(  # pyright: ignore[reportAssignmentType]
         supervisor_thesis="РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ Р’РљР ",
         supervisor="РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ СѓС‡РµР±РЅС‹С… РїСЂР°РєС‚РёРє",
         comment="РљРѕРјРјРµРЅС‚Р°СЂРёР№ (С‡С‚Рѕ РЅСѓР¶РЅРѕ РёСЃРїСЂР°РІРёС‚СЊ, РµСЃР»Рё С‚СЂРµР±СѓРµС‚СЃСЏ РґРѕСЂР°Р±РѕС‚РєР°, РёР»Рё РїРѕС‡РµРјСѓ С‚РµРјР° РѕС‚РєР»РѕРЅРµРЅР°)",
@@ -289,7 +277,7 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
         "status": SelectField,
     }
 
-    form_args = dict(
+    form_args = dict(  # pyright: ignore[reportAssignmentType]
         status=dict(
             choices=[
                 (0, "РќР° РїСЂРѕРІРµСЂРєРµ"),
@@ -300,8 +288,7 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
             coerce=int,
         )
     )
-
-    column_choices = {
+    column_choices = {  # pyright: ignore[reportAssignmentType]
         "status": [
             (0, "РќР° РїСЂРѕРІРµСЂРєРµ"),
             (1, "РўСЂРµР±СѓРµС‚СЃСЏ РґРѕСЂР°Р±РѕС‚РєР°"),
@@ -326,36 +313,42 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
     }
 
     def on_form_prefill(self, form, id):
-        session["previous_status"] = DiplomaThemes.query.filter_by(id=id).first().status
+        model = DiplomaThemes.query.filter_by(id=id).first()
+        if model is not None:
+            session["previous_status"] = model.status
 
     def on_model_change(self, form, model, is_created):
         previous_status = session.get("previous_status")
-        if previous_status != model.status and model.status == 4:
+        if previous_status != model.status and model.status == 4:  # pyright: ignore[reportAttributeAccessIssue]
             add_mail_notification(
-                model.author_id,
+                model.author_id,  # pyright: ignore[reportAttributeAccessIssue]
                 "[SE site] Р’Р°С€Р° С‚РµРјР° РѕС‚РєР»РѕРЅРµРЅР°",
                 render_template(
                     NotificationTemplates.DIPLOMA_THEMES_REJECTED.value,
-                    title=model.title,
-                    comment=model.comment,
+                    title=model.title,  # pyright: ignore[reportAttributeAccessIssue]
+                    comment=model.comment,  # pyright: ignore[reportAttributeAccessIssue]
                 ),
             )
-        if previous_status != model.status and model.status == 1:
+        if previous_status != model.status and model.status == 1:  # pyright: ignore[reportAttributeAccessIssue]
             add_mail_notification(
-                model.author_id,
+                model.author_id,  # pyright: ignore[reportAttributeAccessIssue]
                 "[SE site] РўСЂРµР±СѓРµС‚СЃСЏ РґРѕСЂР°Р±РѕС‚РєР° РґР»СЏ Р’Р°С€РµР№ С‚РµРјС‹",
                 render_template(
                     NotificationTemplates.DIPLOMA_THEMES_NEED_UPDATE.value,
-                    title=model.title,
-                    comment=model.comment,
+                    title=model.title,  # pyright: ignore[reportAttributeAccessIssue]
+                    comment=model.comment,  # pyright: ignore[reportAttributeAccessIssue]
                 ),
             )
 
-    def get_query(self):
-        return self.session.query(self.model).filter(self.model.status < 2)
+    def get_query(self):  # pyright: ignore[reportIncompatibleMethodOverride]
+        if self.model is None:  # pyright: ignore[reportAttributeAccessIssue]
+            return self.session.query(DiplomaThemes).filter(DiplomaThemes.status < 2)  # pyright: ignore[reportAttributeAccessIssue]
+        return self.session.query(self.model).filter(self.model.status < 2)  # pyright: ignore[reportAttributeAccessIssue]
 
-    def get_count_query(self):
-        return self.session.query(db.func.count("*")).filter(self.model.status < 2)
+    def get_count_query(self):  # pyright: ignore[reportIncompatibleMethodOverride]
+        if self.model is None:  # pyright: ignore[reportAttributeAccessIssue]
+            return self.session.query(db.func.count("*")).filter(DiplomaThemes.status < 2)  # pyright: ignore[reportAttributeAccessIssue]
+        return self.session.query(db.func.count("*")).filter(self.model.status < 2)  # pyright: ignore[reportAttributeAccessIssue]
 
     pass
 
@@ -370,7 +363,7 @@ class SeAdminModelViewCurrentThesis(SeAdminModelView):
         "deleted",
         "status",
     )
-    column_labels = dict(
+    column_labels = dict(  # pyright: ignore[reportAssignmentType]
         title="РќР°Р·РІР°РЅРёРµ С‚РµРјС‹",
         user="РЎС‚СѓРґРµРЅС‚",
         area="РќР°РїСЂР°РІР»РµРЅРёРµ РѕР±СѓС‡РµРЅРёСЏ",
@@ -379,6 +372,6 @@ class SeAdminModelViewCurrentThesis(SeAdminModelView):
         deleted="РЈРґР°Р»РµРЅР°",
         status="РЎС‚Р°С‚СѓСЃ",
     )
-    column_choices = {
+    column_choices = {  # pyright: ignore[reportAssignmentType]
         "status": [(1, "РўРµРєСѓС‰Р°СЏ СЂР°Р±РѕС‚Р°"), (2, "Р—Р°РІРµСЂС€РµРЅРЅР°СЏ СЂР°Р±РѕС‚Р°")]
     }

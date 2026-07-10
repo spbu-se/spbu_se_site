@@ -350,7 +350,7 @@ app.add_url_rule("/summer_school_2026.html", view_func=create_summer_school_view
 app.add_url_rule("/summer_school_list.html", view_func=summer_school_list)
 
 # Init Database
-db.app = app
+db.app = app  # pyright: ignore[reportAttributeAccessIssue]
 db.init_app(app)
 app.config["WHOOSHEE_DIR"] = WHOOSHEE_DIR
 whooshee.init_app(app)

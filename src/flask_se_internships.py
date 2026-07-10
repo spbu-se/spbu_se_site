@@ -20,21 +20,32 @@ def internships_index():
     internship_filter = InternshipsFilter()
 
     user = current_user
+
+    company_choices: list[tuple[int, str]] = []
     for x in Internships.query.with_entities(Internships.company_id).distinct().all():
         company = InternshipCompany.query.filter_by(id=x[0]).first()
-        internship_filter.company.choices.append((x[0], company.name))
-        internship_filter.company.choices.sort(key=lambda tup: tup[1])
+        if company:
+            company_choices.append((x[0], company.name))
+    company_choices.sort(key=lambda tup: tup[1])
+    internship_filter.company.choices = company_choices
 
+    format_choices: list[tuple[int, str]] = []
     for sid in InternshipFormat.query.all():
-        internship_filter.format.choices.append((sid.id, sid.format))
+        format_choices.append((sid.id, sid.format))
+    internship_filter.format.choices = format_choices
 
-    internship_filter.tag.choices = sorted(
+    tag_choices = sorted(
         list({(y.id, y.tag) for x in Internships.query.all() for y in x.tag}),
         key=lambda x: x[1],
     )
-    internship_filter.tag.choices.insert(0, (0, "Р’СЃРµ"))
-    internship_filter.format.choices.insert(0, (0, "Р’СЃРµ"))
-    internship_filter.company.choices.insert(0, (0, "Р’СЃРµ"))
+    tag_choices.insert(0, (0, "Р’СЃРµ"))
+    internship_filter.tag.choices = tag_choices
+
+    format_choices.insert(0, (0, "Р’СЃРµ"))
+    internship_filter.format.choices = format_choices
+
+    company_choices.insert(0, (0, "Р’СЃРµ"))
+    internship_filter.company.choices = company_choices
 
     internships = Internships.query.all()
     return render_template(
@@ -56,7 +67,7 @@ def add_internship():
     add_intern.format.choices = [
         (g.id, g.format) for g in InternshipFormat.query.order_by("id").all()
     ]
-    add_intern.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by("tag").all()]
+    add_intern.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by("tag").all()]  # pyright: ignore[reportAttributeAccessIssue]
     add_intern.company.choices = [g.name for g in InternshipCompany.query.order_by("id")]
 
     if request.method == "POST":
@@ -114,7 +125,7 @@ def add_internship():
                 format_list.append(f)
 
         if not db.session.query(InternshipCompany.id).filter_by(name=company).scalar():
-            company_entity = InternshipCompany(name=company)
+            company_entity = InternshipCompany(name=company)  # pyright: ignore[reportCallIssue]
             db.session.add(company_entity)
             db.session.commit()
 
@@ -125,19 +136,19 @@ def add_internship():
             .first()
         )
 
-        internship = Internships(
-            name_vacancy=name_vacancy,
-            salary=salary,
-            description=description,
-            location=location,
-            company_id=company_id[0],
-            requirements=requirements,
-            more_inf=more_inf,
-            author_id=user.id,
+        internship = Internships(  # pyright: ignore[reportCallIssue]
+            name_vacancy=name_vacancy,  # pyright: ignore[reportCallIssue]
+            salary=salary,  # pyright: ignore[reportCallIssue]
+            description=description,  # pyright: ignore[reportCallIssue]
+            location=location,  # pyright: ignore[reportCallIssue]
+            company_id=company_id[0] if company_id else None,  # pyright: ignore[reportCallIssue]
+            requirements=requirements,  # pyright: ignore[reportCallIssue]
+            more_inf=more_inf,  # pyright: ignore[reportCallIssue]
+            author_id=user.id,  # pyright: ignore[reportCallIssue]
         )
 
-        internship.format = format_list
-        internship.tag = tag_list
+        internship.format = format_list  # pyright: ignore[reportAttributeAccessIssue]
+        internship.tag = tag_list  # pyright: ignore[reportAttributeAccessIssue]
 
         try:
             db.session.add(internship)
@@ -185,7 +196,7 @@ def update_internship(id):
     upd_internship.format.choices = [
         (g.id, g.format) for g in InternshipFormat.query.order_by("id").all()
     ]
-    upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by("id").all()]
+    upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by("id").all()]  # pyright: ignore[reportAttributeAccessIssue]
     upd_internship.tag.data = "".join([t.tag + ", " for t in internship.tag]).strip(", ")
     upd_internship.format.data = [c.id for c in internship.format]
     upd_internship.company.choices = [g.name for g in InternshipCompany.query.order_by("id")]
@@ -268,7 +279,7 @@ def update_internship(id):
                 format_list.append(f)
 
         if not db.session.query(InternshipCompany.id).filter_by(name=company).scalar():
-            company_entity = InternshipCompany(name=company)
+            company_entity = InternshipCompany(name=company)  # pyright: ignore[reportCallIssue]
             db.session.add(company_entity)
             db.session.commit()
 
@@ -278,11 +289,11 @@ def update_internship(id):
             .distinct()
             .first()
         )
-        internship.format = format_list
-        internship.tag = tag_list
+        internship.format = format_list  # pyright: ignore[reportAttributeAccessIssue]
+        internship.tag = tag_list  # pyright: ignore[reportAttributeAccessIssue]
         internship.name_vacancy = name_vacancy
 
-        internship.company_id = company_id[0]
+        internship.company_id = company_id[0] if company_id else None
         try:
             db.session.commit()
             return redirect(url_for("page_internship", id=internship.id))
