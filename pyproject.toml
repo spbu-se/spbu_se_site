@@ -59,8 +59,11 @@ omit = ["src/thesesImport.py", "src/wsgi.py", "src/extract_text.py", "src/static
 requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-include-package-data = true
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["templates/**/*.html", "static/**/*"]
 
 [tool.ruff]
 target-version = "py311"
