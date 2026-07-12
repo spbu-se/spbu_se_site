@@ -187,6 +187,11 @@ def logged_client(seeded_client):
 @pytest.fixture
 def practice_thesis(logged_client):
     """Seeded client + a CurrentThesis belonging to the logged-in user."""
+    _setup_current_thesis_with_report()
+    return logged_client
+
+
+def _setup_current_thesis_with_report():
     from se_models import CurrentThesis, ThesisReport, ThesisTask, db
 
     ct = CurrentThesis(author_id=1, worktype_id=1, area_id=1)
@@ -203,7 +208,7 @@ def practice_thesis(logged_client):
     )
     db.session.add(report)
     db.session.commit()
-    return logged_client
+    return ct.id, report.id
 
 
 def assert_ok(client, path, methods=None, data=None, code=None):
@@ -250,3 +255,44 @@ def seeded_app_ctx(app_ctx):
     db.session.add(u)
     db.session.commit()
     return app_ctx
+
+
+def _assert_seeded_tables():
+    from se_models import (
+        AreasOfStudy, Courses, Curriculum, DiplomaThemes, InternshipFormat,
+        InternshipTag, Posts, Staff, ThemesLevel, Users, Worktype,
+    )
+
+    assert AreasOfStudy.query.count() > 0
+    assert Users.query.count() > 0
+    assert Staff.query.count() > 0
+    assert Worktype.query.count() > 0
+    assert Courses.query.count() > 0
+    assert Posts.query.count() > 0
+    assert ThemesLevel.query.count() > 0
+    assert DiplomaThemes.query.count() > 0
+    assert InternshipFormat.query.count() > 0
+    assert InternshipTag.query.count() > 0
+    return Curriculum
+
+
+def _approve_temp_thesis(client, thesis_id):
+    return client.get(f"/theses_add_tmp?thesis_id={thesis_id}")
+
+
+def _make_temp_thesis(author: str = "T", text_uri: str | None = None, name_ru: str | None = None):
+    from se_models import Thesis, db
+
+    t = Thesis(
+        name_ru=name_ru or ("ApproveMe" if author == "T" else "Temp Thesis"),
+        author=author,
+        type_id=2,
+        course_id=1,
+        publish_year=2024,
+        temporary=True,
+    )
+    if text_uri:
+        t.text_uri = text_uri
+    db.session.add(t)
+    db.session.commit()
+    return t

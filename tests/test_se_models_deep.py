@@ -775,15 +775,8 @@ def test_init_db_creates_all_26_tables_in_one_call(app_ctx):
         init_db,
     )
 
+    from conftest import _assert_seeded_tables
+
     init_db()
-    assert AreasOfStudy.query.count() > 0
-    assert Users.query.count() > 0
-    assert Staff.query.count() > 0
-    assert Worktype.query.count() > 0
-    assert Courses.query.count() > 0
-    assert Posts.query.count() > 0
-    assert ThemesLevel.query.count() > 0
-    assert DiplomaThemes.query.count() > 0
-    assert InternshipFormat.query.count() > 0
-    assert InternshipTag.query.count() > 0
+    Curriculum = _assert_seeded_tables()
     assert Curriculum.query.count() > 0

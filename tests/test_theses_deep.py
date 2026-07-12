@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from conftest import _min_pdf, assert_ok
+from conftest import _approve_temp_thesis, _make_temp_thesis, _min_pdf, assert_ok
 
 
 class TestFetchThesesFilters:
@@ -389,16 +389,7 @@ class TestThesesDeleteTmpDeep:
     def test_delete_tmp_with_id(self, seeded_client):
         from se_models import Thesis, db
 
-        t = Thesis(
-            name_ru="ToDelete",
-            author="T",
-            type_id=2,
-            course_id=1,
-            publish_year=2024,
-            temporary=True,
-        )
-        db.session.add(t)
-        db.session.commit()
+        t = _make_temp_thesis("T")
         tid = t.id
         resp = seeded_client.get(f"/theses_delete_tmp?thesis_id={tid}")
         assert resp.status_code in (200, 302)
@@ -426,18 +417,8 @@ class TestThesesAddTmpDeep:
         Path("static/tmp/texts/test.pdf").write_text("")
         Path("static/thesis/texts/test.pdf").unlink(missing_ok=True)
 
-        t = Thesis(
-            name_ru="ApproveMe",
-            author="T",
-            type_id=2,
-            course_id=1,
-            publish_year=2024,
-            temporary=True,
-            text_uri="test.pdf",
-        )
-        db.session.add(t)
-        db.session.commit()
-        resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
+        t = _make_temp_thesis("T", "test.pdf")
+        resp = _approve_temp_thesis(seeded_client, t.id)
         assert resp.status_code in (200, 302)
         updated = db.session.get(Thesis, t.id)
         assert updated.temporary is False
@@ -475,7 +456,7 @@ class TestThesesAddTmpDeep:
         )
         db.session.add(t)
         db.session.commit()
-        resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
+        resp = _approve_temp_thesis(seeded_client, t.id)
         assert resp.status_code in (200, 302)
         updated = db.session.get(Thesis, t.id)
         assert updated.temporary is False
@@ -493,7 +474,7 @@ class TestThesesAddTmpDeep:
         )
         db.session.add(t)
         db.session.commit()
-        resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
+        resp = _approve_temp_thesis(seeded_client, t.id)
         assert resp.status_code in (200, 302)
         assert db.session.get(Thesis, t.id).temporary is False
 

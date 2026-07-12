@@ -45,9 +45,16 @@ git commit -m "feat: <summary>"
 
 **Exception for `experiment/`**: never merged. Delete with `git branch -D experiment/<name>`.
 
-**Quality gate**: Before proposing squash-merge, ensure the branch's pre-push hooks passed cleanly. The pre-push gate is the minimum bar for staging — if a branch cannot pass pre-push, it should not be merged.
+**Quality gate — pre-push**: Before proposing squash-merge, ensure the branch's pre-push hooks passed cleanly. The pre-push gate is the minimum bar for staging — if a branch cannot pass pre-push, it should not be merged.
 
-**CI**: After push, CI runs pytest asynchronously. Before proposing merge, verify CI is green (see AGENTS.md §CI discipline for when to check).
+**Quality gate — CI (PR gate)**: Feature branches (`feat/`, `fix/`, `refactor/`, `docs/`, `test/`, `ci/`, `chore/`) do not trigger the `CI (staging)` workflow. Before merging any pushed feature branch to staging:
+
+1. Create a PR: `gh pr create --base staging --head <branch> --title "<summary>"`
+1. Wait for CI: `gh pr checks <number> --watch`
+1. If CI fails, fix on branch, push, retry
+1. Only when green, merge: `gh pr merge <number> --squash --delete-branch`
+
+**Exception**: `staging-auto-*` branches skip the PR gate — their name pattern already matches the CI workflow trigger.
 
 **Never continue on a squash-merged branch without explicit user instruction**. After `git merge --squash` to staging, the branch is consumed. Any further work must either start a new branch or be explicitly approved — squash-merge creates a different commit tree, and git cannot cleanly merge subsequent changes.
 
@@ -228,5 +235,9 @@ gh run watch <run-id>
 ```bash
 uv export --no-dev --no-hashes > requirements.txt
 ```
+
+### 8.4 PR gate for feature branches
+
+See §2.1 — the PR gate is the standard path for all feature branches pushed to remote. Always create a PR before merging to staging.
 
 Commit if changed. CI on `staging` validates freshness automatically.

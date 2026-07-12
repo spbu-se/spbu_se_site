@@ -6,6 +6,7 @@ from flask_login import current_user
 from sqlalchemy import or_
 
 from flask_se_auth import login_required
+from flask_se_practice_config import _paginate
 from se_forms import (
     DiplomaThemesFilter,
     UserAddTheme,
@@ -119,13 +120,9 @@ def fetch_themes():
             supervisor = 0
 
     if level:
-        records = records.filter(DiplomaThemes.levels.any(id=level)).paginate(
-            per_page=10,
-            page=page,
-            error_out=False,
-        )
+        records = _paginate(records.filter(DiplomaThemes.levels.any(id=level)), page)
     else:
-        records = records.paginate(per_page=10, page=page, error_out=False)
+        records = _paginate(records, page)
 
     if len(records.items):
         return render_template(

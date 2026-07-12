@@ -7,24 +7,10 @@ from conftest import assert_ok
 
 @pytest.fixture
 def thesis_with_report(staff_client):
-    from se_models import CurrentThesis, ThesisReport, ThesisTask, db
+    from conftest import _setup_current_thesis_with_report
 
-    ct = CurrentThesis(author_id=1, worktype_id=1, area_id=1)
-    ct.title = "Test Practice Thesis"
-    ct.supervisor_id = 1
-    db.session.add(ct)
-    db.session.flush()
-
-    task = ThesisTask(task_text="Test task", current_thesis_id=ct.id)
-    db.session.add(task)
-
-    report = ThesisReport(
-        was_done="Completed task 1", planned_to_do="Task 2", current_thesis_id=ct.id, author_id=1
-    )
-    db.session.add(report)
-    db.session.commit()
-
-    return staff_client, ct.id, report.id
+    ct_id, report_id = _setup_current_thesis_with_report()
+    return staff_client, ct_id, report_id
 
 
 class TestDatetimeConvert:

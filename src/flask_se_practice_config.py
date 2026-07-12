@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 # -*- coding: utf-8 -*-
+# pyright: reportUnusedFunction=false
 
 import os
 import pathlib
@@ -108,3 +109,41 @@ def get_filename(current_thesis: CurrentThesis, folder: str, type_of_file: str) 
         full_filename = os.path.join(folder + filename_with_ext)
 
     return full_filename, filename_with_ext
+
+
+def _find_reports(current_thesis_id: int):
+    from se_models import ThesisReport
+
+    return (
+        ThesisReport.query.filter_by(current_thesis_id=current_thesis_id)
+        .filter_by(deleted=False)
+        .order_by(ThesisReport.time.desc())
+        .all()
+    )
+
+
+def _check_notification_or_redirect(current_thesis):
+    from flask import flash, redirect, request, url_for
+
+    if request.form.get("content", "") in {None, ""}:
+        flash("Нельзя отправить пустое уведомление!", category="error")
+        return redirect(url_for("thesis_staff", id=current_thesis.id))
+    return None
+
+
+def _add_notification(author_id: int, content: str):
+    from flask import flash
+
+    from se_models import NotificationPractice, db
+
+    notification = NotificationPractice(
+        recipient_id=author_id,
+        content=content,
+    )
+    db.session.add(notification)
+    db.session.commit()
+    flash("Уведомление отправлено!", category="success")
+
+
+def _paginate(records, page: int, per_page: int = 10):
+    return records.paginate(per_page=per_page, page=page, error_out=False)

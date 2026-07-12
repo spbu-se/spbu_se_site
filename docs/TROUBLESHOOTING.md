@@ -213,3 +213,51 @@ This is simpler and doesn't require import-time patching. Applied to `thesesImpo
 - Move `db.app = app; db.init_app(app)` into a function called on demand
 - Remove the `download` flag in favor of config injection
 - Replace `sys.exit()` with raising a custom exception
+
+## Pylint similarities: false positives at low thresholds
+
+**When:** Running `uv run pylint --disable=all --enable=similarities src/ tests/` with `min-similarity-lines=4`.
+
+**Symptoms:**
+
+- All R0801 hits point to `tests/test_yandex_disk.py` even though that file has no real duplicates.
+- Hits appear for migrations, templates, and form files that are auto-generated or boilerplate.
+
+**Root cause:**
+
+1. **Alphabetical first-file bug** — pylint reports the alphabetically first file in `tests/` (`test_yandex_disk.py`) as the reference for every duplicate pair. Check the *second* `==` file in each pair for the real duplicate.
+1. **Threshold 4 is too low** — catches 4-line patterns like `if resp: return resp` or common SQLAlchemy query chains that are structurally similar but semantically different.
+
+**Fix:**
+
+```powershell
+# Use threshold 6 for production (clean on this project with zero suppressions):
+uv run pylint --disable=all --enable=similarities src/ tests/ --min-similarity-lines=6
+
+# To see only real duplicates at threshold 4, exclude the biased reference file:
+uv run pylint --disable=all --enable=similarities --ignore=tests/test_yandex_disk.py src/ tests/ --min-similarity-lines=4
+```
+
+The production CI uses `min-similarity-lines=6` defined in `pyproject.toml` `[tool.pylint.similarities]`.
+
+## Coverage duplicate detection
+
+**When:** Multiple tests exercise the same source lines (coverage overlap).
+
+**Command:**
+
+```powershell
+coverage run --context=test -m pytest tests/ 2>$null
+coverage json
+uv run python scripts/find_dup_coverage.py coverage_data.json
+```
+
+**Interpreting output:**
+
+- **Jaccard > 0.9**: Tests are near-identical in coverage — one is likely redundant.
+- **Jaccard 0.8–0.9**: Tests cover mostly overlapping code with minor differences — consider merging.
+- **Jaccard < 0.8**: Different coverage, likely distinct test value.
+
+**If a test pair is reported:** check manually whether both tests cover the same production code paths. If yes, consolidate by parametrizing or removing the simpler one (keeping the one with more assertions).
+
+**The `context` key** in `coverage_data.json` embeds the test name, allowing per-test line-set extraction.

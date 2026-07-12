@@ -440,6 +440,8 @@ See `docs/QUALITY_MANAGEMENT.md` for quality philosophy and policy.
 | `uv lock --check` | Lockfile consistency | Pre-push | Default | ✅ |
 | `pytest` | Test suite | CI | `-n auto` (xdist) | ✅ |
 | `coverage` | Code coverage | CI (via pytest) | `--cov=src --cov-fail-under=80` | ✅ |
+| `pylint` (similarities) | Code duplicate detection | CI (lint job) | `--disable=all --enable=similarities src/ tests/` | ✅ |
+| `scripts/find_dup_coverage.py` | Coverage-based duplicate test detection | Manual (advisory) | Requires `coverage run --context=test` first | ✅ |
 
 ### Proposed tools (agent suggested, user may adopt)
 
@@ -447,11 +449,6 @@ See `docs/QUALITY_MANAGEMENT.md` for quality philosophy and policy.
 |------|---------|-------------------|-----------------|
 | ~~`bandit`~~ | ~~Python security scanner~~ | Replaced by ruff S rules (2026-07) | ruff `"S"` in `[tool.ruff.lint] select` covers the same surface (hardcoded secrets, debug configs, `eval()`) + more. See `pyproject.toml`. |
 | `codespell` | Spelling in source | Manual / CI (non-blocking) | Captures typos that survive code review — was in pre-commit, removed as not cleanup |
-| `radon` | Cyclomatic complexity | Offline review | Used once to measure `practice_preparation` (F/74) — run before refactoring |
-| `pip-audit` | Dependency vulnerabilities | CI (weekly, non-blocking) | Supply chain risk — automated CVE detection |
-| `vulture` | Dead code detection | Offline review | Find unused imports, functions, and dead branches before major refactors |
-| `pyupgrade` | Modernize Python syntax | Offline review | Keeps codebase current with Python syntax evolution |
-| `safety` | Vulnerability database | CI (weekly, non-blocking) | Alternative to pip-audit — checks against Safety DB
 
 ### Encoding declaration policy
 

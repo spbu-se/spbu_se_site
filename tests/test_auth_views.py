@@ -4,7 +4,7 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
-from conftest import assert_ok, assert_ok_or_redirect
+from conftest import _approve_temp_thesis, _make_temp_thesis, assert_ok, assert_ok_or_redirect
 
 
 class TestAuth:
@@ -519,16 +519,7 @@ class TestThesisAdminApproval:
     def test_approve_temp_thesis(self, seeded_client):
         from se_models import Thesis, db
 
-        t = Thesis(
-            name_ru="Temp Thesis",
-            author="Test",
-            type_id=2,
-            course_id=1,
-            publish_year=2024,
-            temporary=True,
-        )
-        db.session.add(t)
-        db.session.commit()
+        t = _make_temp_thesis("Test")
         resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
         assert resp.status_code in (200, 302)
         updated = db.session.get(Thesis, t.id)
@@ -536,39 +527,18 @@ class TestThesisAdminApproval:
 
     def test_approve_temp_thesis_with_text_uri(self, seeded_client):
         from pathlib import Path
-        from se_models import Thesis, db
 
         Path("static/tmp/texts").mkdir(parents=True, exist_ok=True)
         Path("static/thesis/texts").mkdir(parents=True, exist_ok=True)
         Path("static/tmp/texts/test.pdf").write_text("")
+        Path("static/thesis/texts/test.pdf").unlink(missing_ok=True)
 
-        t = Thesis(
-            name_ru="Temp Thesis",
-            author="Test",
-            type_id=2,
-            course_id=1,
-            publish_year=2024,
-            temporary=True,
-            text_uri="test.pdf",
-        )
-        db.session.add(t)
-        db.session.commit()
-        resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
+        t = _make_temp_thesis("Test", "test.pdf")
+        resp = _approve_temp_thesis(seeded_client, t.id)
         assert resp.status_code in (200, 302)
 
     def test_delete_temp_thesis(self, seeded_client):
-        from se_models import Thesis, db
-
-        t = Thesis(
-            name_ru="Delete me",
-            author="Test",
-            type_id=2,
-            course_id=1,
-            publish_year=2024,
-            temporary=True,
-        )
-        db.session.add(t)
-        db.session.commit()
+        t = _make_temp_thesis("Test")
         resp = seeded_client.get(f"/theses_delete_tmp?id={t.id}")
         assert resp.status_code in (200, 302)
 

@@ -40,6 +40,7 @@ from flask_se_practice_config import (
     REVIEW_UPLOAD_FOLDER,
     TEXT_UPLOAD_FOLDER,
     TypeOfFile,
+    _find_reports,
     allowed_file,
     get_filename,
 )
@@ -371,12 +372,7 @@ def practice_workflow(current_thesis):
             db.session.commit()
         flash("Отчёт удален!", category="success")
 
-    reports = (
-        ThesisReport.query.filter_by(current_thesis_id=current_thesis.id)
-        .filter_by(deleted=False)
-        .order_by(desc(ThesisReport.time))
-        .all()
-    )
+    reports = _find_reports(current_thesis.id)
     return render_template(
         PracticeStudentTemplates.WORKFLOW.value,
         thesises=get_list_of_theses(),

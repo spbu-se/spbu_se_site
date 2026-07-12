@@ -162,15 +162,3 @@ class TestPracticeFileUploads:
             },
         )
         assert resp.status_code in (200, 302)
-
-    def test_upload_code_link(self, practice_thesis):
-        """Submit code repository link."""
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/",
-            data={
-                "submit_code_button": "1",
-                "code_link": "https://github.com/user/repo",
-                "account_name": "testuser",
-            },
-        )
-        assert resp.status_code in (200, 302)

@@ -24,6 +24,11 @@ from flask_login import current_user
 from sqlalchemy import desc
 
 from flask_se_auth import login_required
+from flask_se_practice_config import (
+    _add_notification,
+    _check_notification_or_redirect,
+    _find_reports,
+)
 from se_forms import StaffAddCommentToReport
 from se_models import (
     CurrentThesis,
@@ -109,12 +114,9 @@ def finished_thesises_staff(user_staff):
 def thesis_staff(user_staff, current_thesis):
     if request.method == "POST":
         if "submit_notification_button" in request.form:
-            if request.form["content"] in {None, ""}:
-                flash(
-                    "Нельзя отправить пустое уведомление!",
-                    category="error",
-                )
-                return redirect(url_for("thesis_staff", id=current_thesis.id))
+            resp = _check_notification_or_redirect(current_thesis)
+            if resp:
+                return resp
 
             mail_notification = render_template(
                 NotificationTemplates.NOTIFICATION_FROM_SUPERVISOR.value,
@@ -132,13 +134,7 @@ def thesis_staff(user_staff, current_thesis):
                 f'отправил Вам уведомление по работе "{current_thesis.title}": '
                 f"{request.form['content']}"
             )
-            notification = NotificationPractice(
-                recipient_id=current_thesis.author_id,
-                content=notification_content,
-            )
-            db.session.add(notification)
-            db.session.commit()
-            flash("Уведомление отправлено!", category="success")
+            _add_notification(current_thesis.author_id, notification_content)
         elif "submit_finish_work_button" in request.form:
             current_thesis.status = 2
             db.session.commit()
@@ -159,12 +155,7 @@ def thesis_staff(user_staff, current_thesis):
 @current_thesis_exists_or_redirect
 def reports_staff(user_staff, current_thesis):
     current_report_id = request.args.get("report_id", type=int)
-    reports = (
-        ThesisReport.query.filter_by(current_thesis_id=current_thesis.id)
-        .filter_by(deleted=False)
-        .order_by(desc(ThesisReport.time))
-        .all()
-    )
+    reports = _find_reports(current_thesis.id)
     add_report_comment = StaffAddCommentToReport()
 
     if current_report_id:

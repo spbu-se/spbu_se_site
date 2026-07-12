@@ -55,7 +55,18 @@ addopts = "--cov=src --cov-report=term-missing --cov-fail-under=80 -n auto --dur
 filterwarnings = ["ignore::ResourceWarning"]
 
 [tool.coverage.run]
+context = "test"
 omit = ["src/thesesImport.py", "src/wsgi.py", "src/extract_text.py", "src/static/files/*"]
+
+[tool.pylint.main]
+ignore-paths = [".*migrations.*", ".*\\.venv.*", ".*templates.*", ".*static.*"]
+
+[tool.pylint.similarities]
+ignore-comments = true
+ignore-docstrings = true
+ignore-imports = true
+ignore-signatures = true
+min-similarity-lines = 6
 
 [build-system]
 requires = ["setuptools>=64"]
@@ -112,6 +123,7 @@ max-complexity = 15
 "src/flask_se_admin.py" = ["RUF012"]
 "src/flask_se_practice.py" = ["C901"]
 "src/flask_se_practice_admin.py" = ["C901"]
+"src/flask_se_practice_config.py" = ["PLC0415"]
 "src/flask_se_theses.py" = ["C901"]
 "src/static/files/*" = ["SIM115"]
 "src/thesesImport.py" = ["SIM115", "C901"]

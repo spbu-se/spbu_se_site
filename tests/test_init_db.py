@@ -52,16 +52,9 @@ def test_init_db_creates_diploma_themes(seeded):
 
 
 def test_init_db_creates_all_expected_tables(seeded):
-    assert AreasOfStudy.query.count() > 0
-    assert Users.query.count() > 0
-    assert Staff.query.count() > 0
-    assert Worktype.query.count() > 0
-    assert Courses.query.count() > 0
-    assert Posts.query.count() > 0
-    assert ThemesLevel.query.count() > 0
-    assert DiplomaThemes.query.count() > 0
-    assert InternshipFormat.query.count() > 0
-    assert InternshipTag.query.count() > 0
+    from conftest import _assert_seeded_tables
+
+    _assert_seeded_tables()
 
 
 def test_user_model_repr(seeded):
