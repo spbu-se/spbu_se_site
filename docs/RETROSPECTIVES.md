@@ -501,3 +501,57 @@ Branch `fix/test-duplicate-code` → PR #3 → squash-merge to staging (`aac3faf
 - Pylint similarities: 10.00/10, zero suppressions
 - basedpyright: 0 errors
 - CI (staging): green — lint (49s), test (1m46s)
+
+### Retrospective — 2026-07-12 (Tier 3+2+1 Audit + Whoosh Cache + Doc Reorg)
+
+Three branches merged: `docs/knowledge-reorg`, `fix/whoosh-cache`, `docs/audit-fixes`.
+
+**Changes analyzed**: ~38 files across 3 PRs.
+
+**Gaps found**:
+
+| Gap | Type | Fix |
+|-----|------|-----|
+| TROUBLESHOOTING.md had content scattered across ARCHITECTURE, TESTING, TOOLING — needed retirement | Missing convention | Created DESIGN_DECISIONS.md + AI_AGENT_EXPERIENCE.md, retired TROUBLESHOOTING.md, new wrap-up protocol |
+| Whoosh index rebuilt per-test (~0.2s each, ~42s on CI) | Missing config | Session-scoped Whoosh fixtures + shutil.copytree() per-test |
+| No Live metrics Duration column — couldn't calibrate timeouts | Missing template | Added Duration column + timeout recovery rule to AGENTS.md |
+| 6 .skills/ references in process docs (boundaries violation) | Missing convention | Replaced with cross-refs to docs/AI_AGENTS.md §Skills |
+| 4 .opencode/skills/ stubs missing | Missing template | Created from .claude stub pattern |
+| 3 docs missing scope headers, 3 .skills/ missing encoding | Missing convention | Added Covers/Does not cover + encoding declarations |
+| ARCHITECTURE.md: "app factory" claim wrong (module-level singleton) | Missing convention | Fixed description |
+| SCHEMA.md: ~30 column types wrong, 14 missing columns, still_working default inverted | **Missing convention (3rd recurrence)** | Full field-level verification against se_models.py |
+| DESIGN_DECISIONS.md: Python 3.9 → 3.13 (CI changed in session 9, never updated) | **Missing convention (2nd recurrence)** | Fixed version number |
+| TESTING.md: 9 xfails documented, actual code has 13 | **Missing convention (2nd recurrence)** | Rewrote xfail tables with all 13 markers |
+| API_REFERENCE.md: 8 missing routes, 1 duplicate | Missing convention (2nd recurrence) | Added routes, fixed duplicate |
+| Hardcoded metrics in 5 canonical docs (README, DESIGN_DECISIONS, CODE_ISSUES, TESTING, QUALITY_MANAGEMENT) | **Missing convention (3rd recurrence)** | Removed stale numbers, replaced with live-query instructions |
+| Static/ test PDFs committed 3× across 2 PRs | Missing config | Added static/thesis/ to .gitignore |
+
+**What went well**:
+
+- Full Tier 3 doc-code verification caught systematic SCHEMA drift (~30 mismatches)
+- `docs-audit` + `skill-for-skills` skills effectively guided both audits
+- Test suite remained green throughout all changes
+- Retro escalation ladder correctly caught 3rd recurrence and flagged for L1 escalation
+
+**What went wrong**:
+
+- Waste: 7 pytest re-runs instead of reading partial output (37s → 0.2s Whoosh discovery came from a bench script, not from more re-runs)
+- Static/ test PDFs leaked into commits 3× before .gitignore fix — tool gap, not process gap
+- Wrong bottleneck diagnosis: assumed Whoosh reindex was 37s, actual was 0.2s. Real 37s was import + init_db overhead
+
+**Root causes**:
+
+1. **Duration blindness** — no expected-duration metadata for prescribed commands → couldn't calibrate timeouts
+1. **Timeout panic** — command times out → change flags instead of read output → repeat
+1. **Doc-code drift is systemic** — 3rd recurrence proves L1 prevention (pre-commit/CI check) is warranted per escalation ladder. User deferred the CI check but eliminating hardcoded numbers from canonical docs is the structural fix
+1. **No .gitignore for static/thesis/** — test artifact PDFs in `static/thesis/*/*.pdf` were covered by an `src/static/thesis/` pattern but not by `static/thesis/`
+
+**State at handoff**:
+
+- Tests: 1109 passed, 1 skipped, 5 xfailed, 8 xpassed (last local run)
+- Coverage: 93.22%
+- basedpyright: 0 errors
+- CI (staging): green
+- .opencode/skills/: 15/15 stubs (was 11/15)
+- Hardcoded metrics removed from: README, DESIGN_DECISIONS, CODE_ISSUES, TESTING
+- Docs verified against code: ARCHITECTURE (module map), SCHEMA (all fields), API_REFERENCE (all routes), DESIGN_DECISIONS (Python version), TESTING (xfail table)
