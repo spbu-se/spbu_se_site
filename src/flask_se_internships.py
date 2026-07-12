@@ -199,8 +199,8 @@ def update_internship(id):
     ]
     upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by("id").all()]  # pyright: ignore[reportAttributeAccessIssue]
 
-    tags = cast("list[InternshipTag]", internship.tag)
-    fmts = cast("list[InternshipFormat]", internship.format)
+    tags = cast("list[InternshipTag]", internship.tag)  # pyright: ignore[reportInvalidCast]
+    fmts = cast("list[InternshipFormat]", internship.format)  # pyright: ignore[reportInvalidCast]
     upd_internship.tag.data = "".join([t.tag + ", " for t in tags]).strip(", ")
     upd_internship.format.data = [c.id for c in fmts]
     upd_internship.company.choices = [g.name for g in InternshipCompany.query.order_by("id")]
