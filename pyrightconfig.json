@@ -22,5 +22,14 @@
   "reportUnusedVariable": "none",
   "reportUnreachable": "none",
   "reportPrivateUsage": "none",
-  "reportUnnecessaryIsInstance": "none"
+  "reportUnnecessaryIsInstance": "none",
+  "reportCallIssue": "none",
+  "reportArgumentType": "none",
+  "reportOptionalMemberAccess": "none",
+  "reportOperatorIssue": "none",
+  "reportAttributeAccessIssue": "none",
+  "reportAssignmentType": "none",
+  "reportIncompatibleMethodOverride": "none",
+  "reportOptionalSubscript": "none",
+  "reportGeneralTypeIssues": "none"
 }

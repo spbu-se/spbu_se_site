@@ -16,7 +16,7 @@ def thesis_on_review(seeded_client):
     from se_models import AreasOfStudy, ThesisOnReview, ThesisOnReviewWorktype, db
 
     area = AreasOfStudy.query.first()
-    tor_wt = ThesisOnReviewWorktype(type="РљСѓСЂСЃРѕРІР°СЏ СЂР°Р±РѕС‚Р°")
+    tor_wt = ThesisOnReviewWorktype(type="Курсовая работа")
     db.session.add(tor_wt)
     db.session.flush()
     tor = ThesisOnReview(
@@ -37,7 +37,7 @@ def other_thesis_on_review(seeded_client):
     from se_models import AreasOfStudy, ThesisOnReview, ThesisOnReviewWorktype, db
 
     area = AreasOfStudy.query.first()
-    tor_wt = ThesisOnReviewWorktype(type="Р”РёРїР»РѕРјРЅР°СЏ СЂР°Р±РѕС‚Р°")
+    tor_wt = ThesisOnReviewWorktype(type="Дипломная работа")
     db.session.add(tor_wt)
     db.session.flush()
     tor = ThesisOnReview(
@@ -112,7 +112,7 @@ class TestThesisReviewIndex:
     def test_index_contains_review_filter_form(self, seeded_client):
         resp = seeded_client.get("/review/")
         html = resp.data.decode("utf-8")
-        assert "Р’СЃРµ СЃС‚Р°С‚СѓСЃС‹" in html
+        assert "Все статусы" in html
 
 
 class TestFetchThesisOnReview:
@@ -207,7 +207,7 @@ class TestSubmitThesisOnReview:
         from se_models import AreasOfStudy, ThesisOnReviewWorktype, db
 
         area = AreasOfStudy.query.first()
-        tor_wt = ThesisOnReviewWorktype(type="РљСѓСЂСЃРѕРІР°СЏ СЂР°Р±РѕС‚Р°")
+        tor_wt = ThesisOnReviewWorktype(type="Курсовая работа")
         db.session.add(tor_wt)
         db.session.flush()
 
@@ -215,7 +215,7 @@ class TestSubmitThesisOnReview:
         mock_get_type_str.return_value = "coursework"
 
         data = {
-            "title": "РњРѕСЏ СЂР°Р±РѕС‚Р°",
+            "title": "Моя работа",
             "type": tor_wt.id,
             "area": area.id,
             "thesis": (io.BytesIO(b"%PDF-1.4 test"), "thesis.pdf"),
@@ -225,7 +225,7 @@ class TestSubmitThesisOnReview:
 
         from se_models import ThesisOnReview
 
-        tor = ThesisOnReview.query.filter_by(name_ru="РњРѕСЏ СЂР°Р±РѕС‚Р°").first()
+        tor = ThesisOnReview.query.filter_by(name_ru="Моя работа").first()
         assert tor is not None
         assert tor.author_id == 1
         assert tor.review_status == 1
@@ -234,7 +234,7 @@ class TestSubmitThesisOnReview:
         from se_models import AreasOfStudy, ThesisOnReviewWorktype, db
 
         area = AreasOfStudy.query.first()
-        tor_wt = ThesisOnReviewWorktype(type="РљСѓСЂСЃРѕРІР°СЏ СЂР°Р±РѕС‚Р°")
+        tor_wt = ThesisOnReviewWorktype(type="Курсовая работа")
         db.session.add(tor_wt)
         db.session.flush()
         data = {
@@ -687,7 +687,7 @@ class TestBecomeReviewer:
 
 
 class TestFullReviewFlow:
-    """End-to-end flow: become reviewer в†’ submit в†’ review."""
+    """End-to-end flow: become reviewer в†' submit в†' review."""
 
     @patch("flask_se_review.os.path.isfile", return_value=False)
     @patch.object(FileStorage, "save")
@@ -702,7 +702,7 @@ class TestFullReviewFlow:
         mock_get_type_str.return_value = "coursework"
 
         area = AreasOfStudy.query.first()
-        tor_wt = ThesisOnReviewWorktype(type="РљСѓСЂСЃРѕРІР°СЏ СЂР°Р±РѕС‚Р°")
+        tor_wt = ThesisOnReviewWorktype(type="Курсовая работа")
         db.session.add(tor_wt)
         db.session.flush()
         pc = PromoCode(code="promo-for-flow")

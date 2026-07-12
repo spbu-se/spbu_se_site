@@ -56,7 +56,7 @@ def post_vote():
     post = Posts.query.filter_by(id=post_id).first_or_404()
 
     if post.author.id == current_user.id:
-        flash("РќРµР»СЊР·СЏ РіРѕР»РѕСЃРѕРІР°С‚СЊ Р·Р° СЃРІРѕР№ РїРѕСЃС‚!", category="error")
+        flash("Нельзя голосовать за свой пост!", category="error")
         return redirect(request.referrer or "")
 
     vote = PostVote.query.filter_by(user=current_user, post=post).first()
@@ -77,9 +77,7 @@ def post_vote():
 
             return redirect(request.referrer or "")
         else:
-            flash(
-                "Р’С‹ СѓР¶Рµ РїСЂРѕРіРѕР»РѕСЃРѕРІР°Р»Рё Р·Р° СЌС‚РѕС‚ РїРѕСЃС‚!", category="error"
-            )
+            flash("Вы уже проголосовали за этот пост!", category="error")
             return redirect(request.referrer or "")
 
     vote = PostVote(user=current_user, post=post, upvote=bool(int(action_vote or 0)))  # pyright: ignore[reportCallIssue]
@@ -106,11 +104,11 @@ def submit_post():
         post_text = request.form.get("post_text")
 
         if not title:
-            flash("Р—Р°РіРѕР»РѕРІРѕРє Сѓ РЅРѕРІРѕСЃС‚Рё РѕР±СЏР·Р°С‚РµР»СЊРЅРѕРµ РїРѕР»Рµ.")
+            flash("Заголовок у новости обязательное поле.")
             return render_template("news/submit.html")
 
         if not post_uri and not post_text:
-            flash("РЈ РЅРѕРІРѕСЃС‚Рё РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЃСЃС‹Р»РєР° РёР»Рё С‚РµРєСЃС‚")
+            flash("У новости должна быть ссылка или текст")
             return render_template("news/submit.html")
 
         if post_uri:

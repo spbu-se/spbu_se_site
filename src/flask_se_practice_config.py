@@ -35,9 +35,10 @@ YANDEX_SECRET_FILE = os.path.join(
 )
 if os.path.exists(YANDEX_SECRET_FILE):
     with open(YANDEX_SECRET_FILE) as file:
-        YANDEX_SECRET = file.read().rstrip()
+        yandex_secret = file.read().rstrip()
 else:
-    YANDEX_SECRET = ""  # pyright: ignore[reportConstantRedefinition]
+    yandex_secret = ""
+YANDEX_SECRET = yandex_secret
 
 YANDEX_AUTHORIZE_URL_TEMPLATE = Template(
     "https://oauth.yandex.ru/authorize?response_type=code"

@@ -125,9 +125,9 @@ def practice_new_thesis():
         current_area_id = request.form.get("area", type=int)
         current_worktype_id = request.form.get("worktype", type=int)
         if current_worktype_id == 0:
-            flash("Р’С‹Р±РµСЂРёС‚Рµ С‚РёРї СЂР°Р±РѕС‚С‹.", category="error")
+            flash("Выберите тип работы.", category="error")
         elif current_area_id == 0:
-            flash("Р’С‹Р±РµСЂРёС‚Рµ РЅР°РїСЂР°РІР»РµРЅРёРµ.", category="error")
+            flash("Выберите направление.", category="error")
         else:
             new_thesis = CurrentThesis(
                 author_id=current_user.id,
@@ -139,12 +139,12 @@ def practice_new_thesis():
             return redirect(url_for("practice_choosing_topic", id=new_thesis.id))
 
     form = CurrentWorktypeArea()
-    area_choices: list[tuple[int, str]] = [(0, "Р'С‹Р±РµСЂРёС‚Рµ РЅР°РїСЂР°РІР»РµРЅРёРµ")]
+    area_choices: list[tuple[int, str]] = [(0, "Р'ыберите направление")]
     for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by("id").all():
         area_choices.append((area.id, area.area))
     form.area.choices = area_choices
 
-    worktype_choices: list[tuple[int, str]] = [(0, "Р'С‹Р±РµСЂРёС‚Рµ С‚РёРї СЂР°Р±РѕС‚С‹")]
+    worktype_choices: list[tuple[int, str]] = [(0, "Р'ыберите тип работы")]
     for worktype in Worktype.query.filter(Worktype.id > 2).all():
         worktype_choices.append((worktype.id, worktype.type))
     form.worktype.choices = worktype_choices
@@ -166,15 +166,11 @@ def practice_choosing_topic(current_thesis):
             topic = request.form.get("topic", type=str)
             supervisor_id = request.form.get("staff", type=int)
             if not topic:
-                flash("Р’РІРµРґРёС‚Рµ РЅР°Р·РІР°РЅРёРµ С‚РµРјС‹.", category="error")
+                flash("Введите название темы.", category="error")
             elif len(topic) <= MIN_LENGTH_OF_TOPIC:
-                flash(
-                    "РЎР»РёС€РєРѕРј РєРѕСЂРѕС‚РєРѕРµ РЅР°Р·РІР°РЅРёРµ С‚РµРјС‹.", category="error"
-                )
+                flash("Слишком короткое название темы.", category="error")
             elif not supervisor_id:
-                flash(
-                    "Р’С‹Р±РµСЂРёС‚Рµ РЅР°СѓС‡РЅРѕРіРѕ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ.", category="error"
-                )
+                flash("Выберите научного руководителя.", category="error")
             else:
                 current_thesis.title = topic
                 current_thesis.supervisor_id = supervisor_id
@@ -185,7 +181,7 @@ def practice_choosing_topic(current_thesis):
                     supervisor_user_id = supervisor_staff.user_id
                     add_mail_notification(
                         supervisor_user_id,
-                        "Р”РѕР±Р°РІР»РµРЅР° РЅРѕРІР°СЏ СѓС‡РµР±РЅР°СЏ РїСЂР°РєС‚РёРєР°/Р’РљР ",
+                        "Добавлена новая учебная практика/ВКР",
                         render_template(
                             NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
                             user=current_user,
@@ -196,7 +192,7 @@ def practice_choosing_topic(current_thesis):
         elif "add_consultant_button" in request.form:
             current_thesis.consultant = request.form["add_consultant_input"]
             db.session.commit()
-            flash("РљРѕРЅСЃСѓР»СЊС‚Р°РЅС‚ РґРѕР±Р°РІР»РµРЅ!", category="success")
+            flash("Консультант добавлен!", category="success")
 
         elif "delete_topic_button" in request.form:
             current_thesis.title = None
@@ -210,9 +206,7 @@ def practice_choosing_topic(current_thesis):
     )
 
     form = ChooseTopic()
-    staff_choices: list[tuple[int, str]] = [
-        (0, "Р'С‹Р±РµСЂРёС‚Рµ РЅР°СѓС‡РЅРѕРіРѕ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ")
-    ]
+    staff_choices: list[tuple[int, str]] = [(0, "Р'ыберите научного руководителя")]
     for supervisor in (
         Staff.query.join(Users, Staff.user_id == Users.id)
         .filter(Staff.still_working)
@@ -241,11 +235,11 @@ def practice_edit_theme(current_thesis):
         consultant = request.form.get("consultant", type=str)
 
         if not topic:
-            flash("Р’РІРµРґРёС‚Рµ РЅР°Р·РІР°РЅРёРµ С‚РµРјС‹.", category="error")
+            flash("Введите название темы.", category="error")
         elif len(topic) <= MIN_LENGTH_OF_TOPIC:
-            flash("РЎР»РёС€РєРѕРј РєРѕСЂРѕС‚РєРѕРµ РЅР°Р·РІР°РЅРёРµ С‚РµРјС‹.", category="error")
+            flash("Слишком короткое название темы.", category="error")
         elif not supervisor_id:
-            flash("Р’С‹Р±РµСЂРёС‚Рµ РЅР°СѓС‡РЅРѕРіРѕ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ.", category="error")
+            flash("Выберите научного руководителя.", category="error")
         else:
             current_thesis.title = topic
             current_thesis.consultant = consultant
@@ -255,7 +249,7 @@ def practice_edit_theme(current_thesis):
                     supervisor_user_id = supervisor_staff.user_id
                     add_mail_notification(
                         supervisor_user_id,
-                        "Р”РѕР±Р°РІР»РµРЅР° РЅРѕРІР°СЏ СѓС‡РµР±РЅР°СЏ РїСЂР°РєС‚РёРєР°/Р’РљР ",
+                        "Добавлена новая учебная практика/ВКР",
                         render_template(
                             NotificationTemplates.NEW_PRACTICE_TO_SUPERVISOR.value,
                             user=current_user,
@@ -302,7 +296,7 @@ def practice_goals_tasks(current_thesis):
 
             if len(goal) <= MIN_LENGTH_OF_GOAL:
                 flash(
-                    "РЎР»РёС€РєРѕРј РєРѕСЂРѕС‚РєРѕРµ РѕРїРёСЃР°РЅРёРµ С†РµР»Рё, РЅР°РїРёС€РёС‚Рµ РїРѕРґСЂРѕР±РЅРµРµ!",
+                    "Слишком короткое описание цели, напишите подробнее!",
                     category="error",
                 )
                 return redirect(url_for("practice_goals_tasks", id=current_thesis.id))
@@ -311,22 +305,20 @@ def practice_goals_tasks(current_thesis):
                 current_thesis.goal = goal
                 db.session.commit()
                 flash(
-                    "Р¦РµР»СЊ РґРѕР±Р°РІР»РµРЅР°!"
-                    if "submit_goal_button" in request.form
-                    else "Р¦РµР»СЊ РёР·РјРµРЅРµРЅР°!",
+                    "Цель добавлена!" if "submit_goal_button" in request.form else "Цель изменена!",
                     category="success",
                 )
 
         elif "submit_task_button" in request.form:
             task = request.form.get("task", type=str)
             if task is None or len(task) <= MIN_LENGTH_OF_TASK:
-                flash("РћРїРёС€РёС‚Рµ Р·Р°РґР°С‡Сѓ РїРѕРґСЂРѕР±РЅРµРµ!", category="error")
+                flash("Опишите задачу подробнее!", category="error")
                 return redirect(url_for("practice_goals_tasks", id=current_thesis.id))
 
             new_task = ThesisTask(task_text=task, current_thesis_id=current_thesis.id)
             db.session.add(new_task)
             db.session.commit()
-            flash("Р—Р°РґР°С‡Р° РґРѕР±Р°РІР»РµРЅР°!", category="success")
+            flash("Задача добавлена!", category="success")
 
         elif "delete_goal_button" in request.form:
             current_thesis.goal = None
@@ -342,7 +334,7 @@ def practice_goals_tasks(current_thesis):
 
             task.deleted = True
             db.session.commit()
-            flash("Р—Р°РґР°С‡Р° СѓРґР°Р»РµРЅР°!", category="success")
+            flash("Задача удалена!", category="success")
 
         elif "edit_task_id_button" in request.form and request.form["edit_task_id_button"] != "0":
             task_id = request.form["edit_task_id_button"]
@@ -352,13 +344,13 @@ def practice_goals_tasks(current_thesis):
 
             new_task = request.form.get("task", type=str)
             if new_task is None or len(new_task) <= MIN_LENGTH_OF_TASK:
-                flash("РћРїРёС€РёС‚Рµ Р·Р°РґР°С‡Сѓ РїРѕРґСЂРѕР±РЅРµРµ!", category="error")
+                flash("Опишите задачу подробнее!", category="error")
                 return redirect(url_for("practice_goals_tasks", id=current_thesis.id))
 
             if task.task_text != new_task:
                 task.task_text = new_task
                 db.session.commit()
-                flash("Р—Р°РґР°С‡Р° РёР·РјРµРЅРµРЅР°!", category="success")
+                flash("Задача изменена!", category="success")
 
     return render_template(
         PracticeStudentTemplates.GOALS_TASKS.value,
@@ -376,7 +368,7 @@ def practice_workflow(current_thesis):
         if report is not None:
             report.deleted = True
             db.session.commit()
-        flash("РћС‚С‡С‘С‚ СѓРґР°Р»РµРЅ!", category="success")
+        flash("Отчёт удален!", category="success")
 
     reports = (
         ThesisReport.query.filter_by(current_thesis_id=current_thesis.id)
@@ -401,27 +393,27 @@ def practice_add_new_report(current_thesis):
 
         if not was_done:
             flash(
-                'РџРѕР»Рµ "Р§С‚Рѕ Р±С‹Р»Рѕ СЃРґРµР»Р°РЅРѕ?" СЏРІР»СЏРµС‚СЃСЏ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рј!',
+                'Поле "Что было сделано?" является обязательным!',
                 category="error",
             )
         elif not planned_to_do:
             flash(
-                'РџРѕР»Рµ "Р§С‚Рѕ РїР»Р°РЅРёСЂСѓРµС‚СЃСЏ СЃРґРµР»Р°С‚СЊ?" СЏРІР»СЏРµС‚СЃСЏ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рј!',
+                'Поле "Что планируется сделать?" является обязательным!',
                 category="error",
             )
         elif len(was_done) <= MIN_LENGTH_OF_FIELD_WAS_DONE:
             flash(
-                "РЎР»РёС€РєРѕРј РєРѕСЂРѕС‚РєРѕРµ РѕРїРёСЃР°РЅРёРµ РїСЂРѕРґРµР»Р°РЅРЅРѕР№ СЂР°Р±РѕС‚С‹, РЅР°РїРёС€РёС‚Рµ РїРѕРґСЂРѕР±РЅРµРµ!",
+                "Слишком короткое описание проделанной работы, напишите подробнее!",
                 category="error",
             )
         elif len(planned_to_do) <= MIN_LENGTH_OF_FIELD_PLANNED_TO_DO:
             flash(
-                "РЎР»РёС€РєРѕРј РєРѕСЂРѕС‚РєРѕРµ РѕРїРёСЃР°РЅРёРµ РґР°Р»СЊРЅРµР№С€РёС… РїР»Р°РЅРѕРІ, РЅР°РїРёС€РёС‚Рµ РїРѕРґСЂРѕР±РЅРµРµ!",
+                "Слишком короткое описание дальнейших планов, напишите подробнее!",
                 category="error",
             )
         elif current_thesis.supervisor_id is None:
             flash(
-                'РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ РЅРµ РЅР°Р№РґРµРЅ, РІС‹Р±РµСЂРёС‚Рµ РЅР°СѓС‡РЅРѕРіРѕ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ РІ СЂР°Р·РґРµР»Рµ "Р’С‹Р±РѕСЂ С‚РµРјС‹"!',
+                'Научный руководитель не найден, выберите научного руководителя в разделе "Выбор темы"!',
                 category="error",
             )
         else:
@@ -439,7 +431,7 @@ def practice_add_new_report(current_thesis):
                 supervisor_user_id = supervisor_staff.user_id
                 add_mail_notification(
                     supervisor_user_id,
-                    "РќРѕРІС‹Р№ РѕС‚С‡С‘С‚ РїРѕ СѓС‡РµР±РЅРѕР№ РїСЂР°РєС‚РёРєРµ",
+                    "Новый отчёт по учебной практике",
                     render_template(
                         NotificationTemplates.NEW_REPORT_TO_SUPERVISOR.value,
                         user=current_user,
@@ -447,7 +439,7 @@ def practice_add_new_report(current_thesis):
                         report=new_report,
                     ),
                 )
-            flash("РћС‚С‡С‘С‚ СѓСЃРїРµС€РЅРѕ РѕС‚РїСЂР°РІР»РµРЅ!", category="success")
+            flash("Отчёт успешно отправлен!", category="success")
             return redirect(url_for("practice_workflow", id=current_thesis.id))
 
     add_thesis_report_form = UserAddReport()
@@ -474,7 +466,7 @@ def practice_preparation(current_thesis):
                 and request.form["text_link"] == ""
             ):
                 flash(
-                    "Р’С‹ РЅРµ Р·Р°РіСЂСѓР·РёР»Рё С‚РµРєСЃС‚ СЂР°Р±РѕС‚С‹ Рё РЅРµ СѓРєР°Р·Р°Р»Рё СЃСЃС‹Р»РєСѓ РЅР° С‚РµРєСЃС‚.",
+                    "Вы не загрузили текст работы и не указали ссылку на текст.",
                     category="error",
                 )
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
@@ -484,7 +476,7 @@ def practice_preparation(current_thesis):
                 and "text_link" in request.form
                 and request.form["text_link"] == ""
             ):
-                flash("Р’С‹ РЅРµ СѓРєР°Р·Р°Р»Рё СЃСЃС‹Р»РєСѓ РЅР° С‚РµРєСЃС‚.", category="error")
+                flash("Вы не указали ссылку на текст.", category="error")
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if (
@@ -492,14 +484,14 @@ def practice_preparation(current_thesis):
                 and text_file is not None
                 and text_file.filename == ""
             ):
-                flash("Р’С‹ РЅРµ Р·Р°РіСЂСѓР·РёР»Рё С‚РµРєСЃС‚ СЂР°Р±РѕС‚С‹.", category="error")
+                flash("Вы не загрузили текст работы.", category="error")
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if "text_link" in request.form and request.form["text_link"] != "":
                 current_thesis.text_link = request.form["text_link"]
                 db.session.commit()
                 flash(
-                    "РЎСЃС‹Р»РєР° РЅР° С‚РµРєСЃС‚ СЂР°Р±РѕС‚С‹ СЃРѕС…СЂР°РЅРµРЅР°!",
+                    "Ссылка на текст работы сохранена!",
                     category="success",
                 )
 
@@ -507,7 +499,7 @@ def practice_preparation(current_thesis):
                 text_file.filename != "" and not allowed_file(text_file.filename)
             ):
                 flash(
-                    "РўРµРєСЃС‚ СЂР°Р±РѕС‚С‹ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РІ С„РѕСЂРјР°С‚Рµ .PDF",
+                    "Текст работы должен быть в формате .PDF",
                     category="error",
                 )
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
@@ -519,7 +511,7 @@ def practice_preparation(current_thesis):
                 text_file.save(full_filename)
                 current_thesis.text_uri = filename
                 db.session.commit()
-                flash("РўРµРєСЃС‚ СѓСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅ!", category="success")
+                flash("Текст успешно загружен!", category="success")
 
         elif "submit_review_button" in request.form:
             supervisor_review = request.files.get("supervisor_review", None)
@@ -541,7 +533,7 @@ def practice_preparation(current_thesis):
                 and supervisor_review is not None
                 and supervisor_review.filename == ""
             ):
-                flash("Р’С‹ РЅРµ Р·Р°РіСЂСѓР·РёР»Рё РѕС‚Р·С‹РІ.", category="error")
+                flash("Вы не загрузили отзыв.", category="error")
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if (
@@ -554,7 +546,7 @@ def practice_preparation(current_thesis):
                 and (reviewer_review.filename != "" and not allowed_file(reviewer_review.filename))
             ):
                 flash(
-                    "РўРµРєСЃС‚ РѕС‚Р·С‹РІРѕРІ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РІ С„РѕСЂРјР°С‚Рµ .PDF",
+                    "Текст отзывов должен быть в формате .PDF",
                     category="error",
                 )
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
@@ -569,7 +561,7 @@ def practice_preparation(current_thesis):
                 current_thesis.supervisor_review_uri = filename
                 db.session.commit()
                 flash(
-                    "РћС‚Р·С‹РІ РЅР°СѓС‡РЅРѕРіРѕ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ СѓСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅ!",
+                    "Отзыв научного руководителя успешно загружен!",
                     category="success",
                 )
 
@@ -583,7 +575,7 @@ def practice_preparation(current_thesis):
                 current_thesis.reviewer_review_uri = filename
                 db.session.commit()
                 flash(
-                    "РћС‚Р·С‹РІ РєРѕРЅСЃСѓР»СЊС‚Р°РЅС‚Р° СѓСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅ!",
+                    "Отзыв консультанта успешно загружен!",
                     category="success",
                 )
 
@@ -597,7 +589,7 @@ def practice_preparation(current_thesis):
                 and request.form["presentation_link"] == ""
             ):
                 flash(
-                    "Р’С‹ РЅРµ Р·Р°РіСЂСѓР·РёР»Рё РїСЂРµР·РµРЅС‚Р°С†РёСЋ Рё РЅРµ СѓРєР°Р·Р°Р»Рё СЃСЃС‹Р»РєСѓ РЅР° РЅРµС‘.",
+                    "Вы не загрузили презентацию и не указали ссылку на неё.",
                     category="error",
                 )
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
@@ -606,7 +598,7 @@ def practice_preparation(current_thesis):
                 "presentation_link" in request.form and request.form["presentation_link"] == ""
             ):
                 flash(
-                    "Р’С‹ РЅРµ СѓРєР°Р·Р°Р»Рё СЃСЃС‹Р»РєСѓ РЅР° РїСЂРµР·РµРЅС‚Р°С†РёСЋ.",
+                    "Вы не указали ссылку на презентацию.",
                     category="error",
                 )
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
@@ -614,14 +606,14 @@ def practice_preparation(current_thesis):
             if "presentation_link" not in request.form and (
                 presentation_file is not None and presentation_file.filename == ""
             ):
-                flash("Р’С‹ РЅРµ Р·Р°РіСЂСѓР·РёР»Рё РїСЂРµР·РµРЅС‚Р°С†РёСЋ.", category="error")
+                flash("Вы не загрузили презентацию.", category="error")
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
 
             if "presentation_link" in request.form and request.form["presentation_link"] != "":
                 current_thesis.presentation_link = request.form["presentation_link"]
                 db.session.commit()
                 flash(
-                    "РЎСЃС‹Р»РєР° РЅР° РїСЂРµР·РµРЅС‚Р°С†РёСЋ СЃРѕС…СЂР°РЅРµРЅР°!",
+                    "Ссылка на презентацию сохранена!",
                     category="success",
                 )
 
@@ -629,7 +621,7 @@ def practice_preparation(current_thesis):
                 presentation_file.filename != "" and not allowed_file(presentation_file.filename)
             ):
                 flash(
-                    "РџСЂРµР·РµРЅС‚Р°С†РёСЏ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РІ С„РѕСЂРјР°С‚Рµ .PDF",
+                    "Презентация должна быть в формате .PDF",
                     category="error",
                 )
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
@@ -643,9 +635,7 @@ def practice_preparation(current_thesis):
                 presentation_file.save(full_filename)
                 current_thesis.presentation_uri = filename
                 db.session.commit()
-                flash(
-                    "РџСЂРµР·РµРЅС‚Р°С†РёСЏ СѓСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅР°!", category="success"
-                )
+                flash("Презентация успешно загружена!", category="success")
 
         elif "submit_code_button" in request.form:
             code_link = request.form.get("code_link", None)
@@ -653,7 +643,7 @@ def practice_preparation(current_thesis):
 
             if code_link in {None, ""} and account_name in {None, ""}:
                 flash(
-                    "Р’С‹ РЅРµ СѓРєР°Р·Р°Р»Рё РёРјСЏ Р°РєРєР°СѓРЅС‚Р° Рё СЃСЃС‹Р»РєСѓ РЅР° СЂРµРїРѕР·РёС‚РѕСЂРёР№.",
+                    "Вы не указали имя аккаунта и ссылку на репозиторий.",
                     category="error",
                 )
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
@@ -662,19 +652,19 @@ def practice_preparation(current_thesis):
                 current_thesis.code_link = code_link
                 db.session.commit()
                 flash(
-                    "РЎСЃС‹Р»РєР° РЅР° СЂРµРїРѕР·РёС‚РѕСЂРёР№ СЃРѕС…СЂР°РЅРµРЅР°!",
+                    "Ссылка на репозиторий сохранена!",
                     category="success",
                 )
 
             if account_name not in {None, ""}:
                 current_thesis.account_name = account_name
                 db.session.commit()
-                flash("РРјСЏ Р°РєРєР°СѓРЅС‚Р° СЃРѕС…СЂР°РЅРµРЅРѕ!", category="success")
+                flash("Имя аккаунта сохранено!", category="success")
 
             if code_link not in {None, ""} and account_name not in {None, ""}:
                 get_flashed_messages()
                 flash(
-                    "РЎСЃС‹Р»РєР° РЅР° СЂРµРїРѕР·РёС‚РѕСЂРёР№ Рё РёРјСЏ Р°РєРєР°СѓРЅС‚Р° СЃРѕС…СЂР°РЅРµРЅС‹!",
+                    "Ссылка на репозиторий и имя аккаунта сохранены!",
                     category="success",
                 )
 
@@ -741,12 +731,12 @@ def practice_data_for_practice(current_thesis):
                 current_area_id == current_thesis.area_id
                 and current_worktype_id == current_thesis.worktype_id
             ):
-                flash("РќРёРєР°РєРёС… РёР·РјРµРЅРµРЅРёР№ РЅРµС‚.", category="error")
+                flash("Никаких изменений нет.", category="error")
             else:
                 current_thesis.area_id = current_area_id
                 current_thesis.worktype_id = current_worktype_id
                 db.session.commit()
-                flash("РР·РјРµРЅРµРЅРёСЏ СЃРѕС…СЂР°РЅРµРЅС‹", category="success")
+                flash("Изменения сохранены", category="success")
 
         elif "delete_thesis_button" in request.form:
             current_thesis.deleted = True
@@ -823,29 +813,29 @@ def get_remaining_time(deadline, type_deadline):
     elif remaining_time_timedelta.seconds // 60 < 60 and remaining_time_timedelta.days < 1:
         minutes = remaining_time_timedelta.seconds // 60
         if minutes in {1, 21, 31, 41, 51}:
-            remaining_time = (minutes, "РјРёРЅСѓС‚Р°", "danger")
+            remaining_time = (minutes, "минута", "danger")
         elif minutes % 10 in {2, 3, 4} and minutes % 100 // 10 != 1:
-            remaining_time = (minutes, "РјРёРЅСѓС‚С‹", "danger")
+            remaining_time = (minutes, "минуты", "danger")
         else:
-            remaining_time = (minutes, "РјРёРЅСѓС‚", "danger")
+            remaining_time = (minutes, "РјРёРЅСѓС'", "danger")
     elif remaining_time_timedelta.days < 1:
         hours = remaining_time_timedelta.seconds // 3600
         if hours in {1, 21}:
-            remaining_time = (hours, "С‡Р°СЃ", "danger")
+            remaining_time = (hours, "час", "danger")
         elif hours in {2, 3, 4, 22, 23, 24}:
-            remaining_time = (hours, "С‡Р°СЃР°", "danger")
+            remaining_time = (hours, "часа", "danger")
         else:
-            remaining_time = (hours, "С‡Р°СЃРѕРІ", "danger")
+            remaining_time = (hours, "часов", "danger")
     else:
         days = remaining_time_timedelta.days
         if days % 100 // 10 == 1:
-            word_for_time = "РґРЅРµР№"
+            word_for_time = "дней"
         elif days % 10 == 1:
-            word_for_time = "РґРµРЅСЊ"
+            word_for_time = "день"
         elif days % 10 in {2, 3, 4}:
             word_for_time = "РґРЅСЏ"
         else:
-            word_for_time = "РґРЅРµР№"
+            word_for_time = "дней"
 
         if days < 3:
             remaining_time = (days, word_for_time, "danger")

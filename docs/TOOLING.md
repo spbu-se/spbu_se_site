@@ -1,4 +1,4 @@
-﻿# TOOLING
+# TOOLING
 
 <!-- encoding: utf-8 -->
 
@@ -13,7 +13,7 @@ Not local host quirks (see `.tooling.md`) and not project-specific errors (see `
 
 ### Cross-platform export differences
 
-`uv export` output differs between platforms вЂ” wheel comment hashes for platform-specific packages (e.g., `msgpack`, `cachecontrol`) vary. CI checks that `diff` the exported output against a committed file are inherently fragile.
+`uv export` output differs between platforms — wheel comment hashes for platform-specific packages (e.g., `msgpack`, `cachecontrol`) vary. CI checks that `diff` the exported output against a committed file are inherently fragile.
 
 ### Windows PowerShell encoding trap
 
@@ -51,7 +51,7 @@ This works because `flask_se` reads the config values at import time. Any import
 
 ### Per-test temp directories
 
-Each test fixture that needs a database must create its own `tempfile.mkdtemp()`. Shared global paths cause cross-test pollution вЂ” one test's teardown breaks the next test's setup.
+Each test fixture that needs a database must create its own `tempfile.mkdtemp()`. Shared global paths cause cross-test pollution — one test's teardown breaks the next test's setup.
 
 ### NamedTemporaryFile on Linux
 
@@ -59,7 +59,7 @@ Each test fixture that needs a database must create its own `tempfile.mkdtemp()`
 
 ### Windows SQLite URI path format
 
-On Windows, SQLite URIs with forward slashes (`sqlite:///C:/Users/.../test.db`) silently fail вЂ” `db.create_all()` does NOT create the file and raises no error. Use backslash paths from `str(Path() / ...)` instead:
+On Windows, SQLite URIs with forward slashes (`sqlite:///C:/Users/.../test.db`) silently fail — `db.create_all()` does NOT create the file and raises no error. Use backslash paths from `str(Path() / ...)` instead:
 
 ```python
 # Works on all platforms:
@@ -73,7 +73,7 @@ uri = f"sqlite:///{_p}"
 
 ### Engine caching
 
-Changing `app.config["SQLALCHEMY_DATABASE_URI"]` after the app is initialized requires replacing the cached engine directly. `db.engine.dispose()` alone does NOT reset the cached engine вЂ” it only disposes the connection pool.
+Changing `app.config["SQLALCHEMY_DATABASE_URI"]` after the app is initialized requires replacing the cached engine directly. `db.engine.dispose()` alone does NOT reset the cached engine — it only disposes the connection pool.
 
 **Correct pattern:**
 
@@ -293,7 +293,7 @@ Set `target-version` in `[tool.ruff]` to match minimum supported Python. Affects
 
 ### Never use pip.\_vendor
 
-Importing from `pip._vendor` is fragile вЂ” it depends on pip being installed and its internal structure being stable. Always install vendored packages as explicit dependencies.
+Importing from `pip._vendor` is fragile — it depends on pip being installed and its internal structure being stable. Always install vendored packages as explicit dependencies.
 
 ### Generated artifact diff fragility
 
@@ -333,7 +333,7 @@ _whoosh_dir = tempfile.mkdtemp()
 app.config["WHOOSHEE_DIR"] = _whoosh_dir
 ```
 
-This ensures each worker process gets its own Whoosh index. Still insufficient for tests that create new DB state and then trigger Whoosh queries вЂ” the index must be rebuilt via `whooshee.reindex()` after each DB change.
+This ensures each worker process gets its own Whoosh index. Still insufficient for tests that create new DB state and then trigger Whoosh queries — the index must be rebuilt via `whooshee.reindex()` after each DB change.
 
 ## Scrypt mock for tests on Python 3.13+
 

@@ -56,8 +56,8 @@ class TestAuth:
             data={
                 "email": "a.terekhov@spbu.ru",
                 "password": "test123",
-                "first_name": "РђРЅРґСЂРµР№",
-                "last_name": "РўРµСЂРµС…РѕРІ",
+                "first_name": "Андрей",
+                "last_name": "Терехов",
             },
         )
         assert resp.status_code in (200, 302)
@@ -449,7 +449,7 @@ class TestThesisDownload:
 
 
 class TestThesisSearch:
-    @pytest.mark.parametrize("query", ["", "python", "test", "РєСѓСЂСЃРѕРІР°СЏ", "x" * 100])
+    @pytest.mark.parametrize("query", ["", "python", "test", "курсовая", "x" * 100])
     def test_thesis_search_various(self, seeded_client, query):
         assert_ok(seeded_client, f"/theses.html?search={query}")
 
@@ -534,7 +534,9 @@ class TestThesisAdminApproval:
         updated = Thesis.query.get(t.id)
         assert not updated.temporary
 
-    @pytest.mark.xfail(strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename")
+    @pytest.mark.xfail(
+        strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename"
+    )
     @patch("flask_se_theses.os.rename")
     def test_approve_temp_thesis_with_text_uri(self, mock_rename, seeded_client):
         from se_models import Thesis, db

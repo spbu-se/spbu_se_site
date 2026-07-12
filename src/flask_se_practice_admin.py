@@ -161,7 +161,7 @@ def index_admin():
                 sheet_name = request.form["sheet_name"]
                 if table_name is None or table_name == "":
                     flash(
-                        "Р’РІРµРґРёС‚Рµ РЅР°Р·РІР°РЅРёРµ С„Р°Р№Р»Р° РґР»СЏ РІС‹РіСЂСѓР·РєРё РЅР° РЇРЅРґРµРєСЃ Р”РёСЃРє",
+                        "Введите название файла для выгрузки на Яндекс Диск",
                         category="error",
                     )
                     return redirect(
@@ -170,7 +170,7 @@ def index_admin():
 
                 if table_name.split(".")[-1] != "xlsx":
                     flash(
-                        "Р¤Р°Р№Р» С‚Р°Р±Р»РёС†С‹ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј .xlsx",
+                        "Файл таблицы должен быть с расширением .xlsx",
                         category="error",
                     )
                     return redirect(
@@ -182,7 +182,7 @@ def index_admin():
                     column_value = request.form.get(request_column_names[column], "")
                     if not column_value or column_value == "":
                         flash(
-                            "РќР°Р·РІР°РЅРёРµ СЃС‚РѕР»Р±С†Р° С‚Р°Р±Р»РёС†С‹ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј",
+                            "Название столбца таблицы не может быть пустым",
                             category="error",
                         )
                         return redirect(
@@ -199,7 +199,7 @@ def index_admin():
                 )
             except Exception:
                 flash(
-                    "Р§С‚Рѕ-С‚Рѕ РїРѕС€Р»Рѕ РЅРµ С‚Р°Рє, РёР·РјРµРЅРёС‚Рµ РїР°СЂР°РјРµС‚СЂС‹ Рё РїРѕРїСЂРѕР±СѓР№С‚Рµ Р·Р°РЅРѕРІРѕ",
+                    "Что-то пошло не так, измените параметры и попробуйте заново",
                     category="error",
                 )
                 return redirect(url_for("index_admin", area_id=area.id, worktype_id=worktype.id))
@@ -280,7 +280,7 @@ def thesis_admin():
         if "submit_notification_button" in request.form:
             if request.form["content"] in {None, ""}:
                 flash(
-                    "РќРµР»СЊР·СЏ РѕС‚РїСЂР°РІРёС‚СЊ РїСѓСЃС‚РѕРµ СѓРІРµРґРѕРјР»РµРЅРёРµ!",
+                    "Нельзя отправить пустое уведомление!",
                     category="error",
                 )
                 return redirect(url_for("thesis_staff", id=current_thesis.id))
@@ -293,13 +293,13 @@ def thesis_admin():
             )
             add_mail_notification(
                 current_thesis.author_id,
-                "[SE site] РЈРІРµРґРѕРјР»РµРЅРёРµ РѕС‚ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ РїСЂР°РєС‚РёРєРё",
+                "[SE site] Уведомление от руководителя практики",
                 mail_notification,
             )
 
             notification_content = (
-                f"Р СѓРєРѕРІРѕРґРёС‚РµР»СЊ РїСЂР°РєС‚РёРєРё {current_user.get_name()} "
-                f'РѕС‚РїСЂР°РІРёР» Р’Р°Рј СѓРІРµРґРѕРјР»РµРЅРёРµ РїРѕ СЂР°Р±РѕС‚Рµ "{current_thesis.title}": '
+                f"Руководитель практики {current_user.get_name()} "
+                f'отправил Вам уведомление по работе "{current_thesis.title}": '
                 f"{request.form['content']}"
             )
             notification = NotificationPractice(
@@ -307,17 +307,17 @@ def thesis_admin():
             )
             db.session.add(notification)
             db.session.commit()
-            flash("РЈРІРµРґРѕРјР»РµРЅРёРµ РѕС‚РїСЂР°РІР»РµРЅРѕ!", category="success")
+            flash("Уведомление отправлено!", category="success")
         elif "submit_edit_title_button" in request.form:
             new_title = request.form["title_input"]
             notification_content = (
-                "Р СѓРєРѕРІРѕРґРёС‚РµР»СЊ РїСЂР°РєС‚РёРєРё РёР·РјРµРЅРёР» РЅР°Р·РІР°РЅРёРµ Р’Р°С€РµР№ СЂР°Р±РѕС‚С‹ "
+                "Руководитель практики изменил название Вашей работы "
                 + f'"{current_thesis.title}" РЅР° "{new_title}"'
             )
             current_thesis.title = new_title
             add_mail_notification(
                 current_thesis.author_id,
-                "[SE site] РЈРІРµРґРѕРјР»РµРЅРёРµ РѕС‚ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ РїСЂР°РєС‚РёРєРё",
+                "[SE site] Уведомление от руководителя практики",
                 notification_content,
             )
             notification = NotificationPractice(
@@ -362,7 +362,7 @@ def archive_thesis():
         course_id = request.form.get("course", type=int)
         if course_id == 0:
             flash(
-                "Р’С‹Р±РµСЂРёС‚Рµ РЅР°РїСЂР°РІР»РµРЅРёРµ РѕР±СѓС‡РµРЅРёСЏ (Р±Р°РєР°Р»Р°РІСЂРёР°С‚/РјР°РіРёСЃС‚СЂР°С‚СѓСЂР°)",
+                "Выберите направление обучения (бакалавриат/магистратура)",
                 category="error",
             )
             return redirect(url_for("archive_thesis", id=current_thesis.id))
@@ -370,7 +370,7 @@ def archive_thesis():
         text_file = request.files.get("text", None)
         if not current_thesis.text_uri and not text_file:
             flash(
-                "Р—Р°РіСЂСѓР·РёС‚Рµ С‚РµРєСЃС‚ СЂР°Р±РѕС‚С‹, С‡С‚РѕР±С‹ РїРµСЂРµРЅРµСЃС‚Рё РµС‘ РІ Р°СЂС…РёРІ",
+                "Загрузите текст работы, чтобы перенести её в архив",
                 category="error",
             )
             return redirect(url_for("archive_thesis", id=current_thesis.id))
@@ -378,7 +378,7 @@ def archive_thesis():
         presentation_file = request.files.get("presentation", None)
         if not current_thesis.presentation_uri and not presentation_file:
             flash(
-                "Р—Р°РіСЂСѓР·РёС‚Рµ РїСЂРµР·РµРЅС‚Р°С†РёСЋ СЂР°Р±РѕС‚С‹, С‡С‚РѕР±С‹ РїРµСЂРµРЅРµСЃС‚Рё РµС‘ РІ Р°СЂС…РёРІ",
+                "Загрузите презентацию работы, чтобы перенести её в архив",
                 category="error",
             )
             return redirect(url_for("archive_thesis", id=current_thesis.id))
@@ -386,7 +386,7 @@ def archive_thesis():
         supervisor_review_file = request.files.get("supervisor_review", None)
         if not current_thesis.supervisor_review_uri and not supervisor_review_file:
             flash(
-                "Р—Р°РіСЂСѓР·РёС‚Рµ РѕС‚Р·С‹РІ РЅР°СѓС‡РЅРѕРіРѕ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ, С‡С‚РѕР±С‹ РїРµСЂРµРЅРµСЃС‚Рё СЂР°Р±РѕС‚Сѓ РІ Р°СЂС…РёРІ",
+                "Загрузите отзыв научного руководителя, чтобы перенести работу в архив",
                 category="error",
             )
             return redirect(url_for("archive_thesis", id=current_thesis.id))
@@ -468,7 +468,7 @@ def archive_thesis():
 
         add_mail_notification(
             current_thesis.author_id,
-            "[SE site] Р’Р°С€Р° СЂР°Р±РѕС‚Р° РїРµСЂРµРЅРµСЃРµРЅР° РІ Р°СЂС…РёРІ РїСЂР°РєС‚РёРє Рё Р’РљР ",
+            "[SE site] Ваша работа перенесена в архив практик и ВКР",
             render_template(
                 NotificationTemplates.THESIS_WAS_ARCHIVED_BY_ADMIN.value,
                 curator=current_user,
@@ -476,22 +476,22 @@ def archive_thesis():
             ),
         )
         notification_content = (
-            f"Р СѓРєРѕРІРѕРґРёС‚РµР»СЊ РїСЂР°РєС‚РёРєРё {current_user.get_name()}"
-            f' РїРµСЂРµРЅС‘СЃ Р’Р°С€Сѓ СЂР°Р±РѕС‚Сѓ "{current_thesis.title}"'
-            f" РІ Р°СЂС…РёРІ РїСЂР°РєС‚РёРє Рё Р’РљР ."
+            f"Руководитель практики {current_user.get_name()}"
+            f' перенёс Вашу работу "{current_thesis.title}"'
+            f" в архив практик и ВКР."
         )
         notification = NotificationPractice(
             recipient_id=current_thesis.author_id, content=notification_content
         )
         db.session.add(notification)
         db.session.commit()
-        flash("Р Р°Р±РѕС‚Р° РїРµСЂРµРЅРµСЃРµРЅР° РІ Р°СЂС…РёРІ!", category="success")
+        flash("Работа перенесена в архив!", category="success")
         return redirect(url_for("thesis_admin", id=current_thesis.id))
 
     list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     course_and_year_form = ChooseCourseAndYear()
-    course_choices: list[tuple[int, str]] = [(0, "Р'С‹Р±РµСЂРёС‚Рµ РЅР°РїСЂР°РІР»РµРЅРёРµ")]
+    course_choices: list[tuple[int, str]] = [(0, "Р'ыберите направление")]
     for course in Courses.query.all():
         course_choices.append((course.id, course.name))
     course_and_year_form.course.choices = course_choices

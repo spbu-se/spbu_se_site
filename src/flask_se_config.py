@@ -15,10 +15,11 @@ WHOOSHEE_DIR: str = "whooshee"
 
 if os.path.exists(MAIL_PASSWORD_FILE):
     with open(MAIL_PASSWORD_FILE) as file:
-        MAIL_PASSWORD = file.read().rstrip()
+        mail_password = file.read().rstrip()
 else:
     print("There is no MAIL_PASSWORD_FILE, generate random MAIL_PASSWORD")
-    MAIL_PASSWORD = os.urandom(16).hex()  # pyright: ignore[reportConstantRedefinition]
+    mail_password = os.urandom(16).hex()
+MAIL_PASSWORD = mail_password
 
 
 current_data = datetime.today().strftime("%Y-%m-%d")

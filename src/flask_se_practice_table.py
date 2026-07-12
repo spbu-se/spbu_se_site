@@ -54,7 +54,7 @@ def edit_table(path_to_table, area_id, worktype_id, column_names_list=None, shee
             user = find_user(full_name=str(cell_value))
         except KeyError:
             flash(
-                f'Р’ С‚Р°Р±Р»РёС†Рµ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ СЃС‚РѕР»Р±С†Р° СЃ РЅР°Р·РІР°РЅРёРµРј "{column_names["name"]}"',
+                f'В таблице не существует столбца с названием "{column_names["name"]}"',
                 category="error",
             )
             return
@@ -107,13 +107,13 @@ def read_table(path_to_table, sheet_name) -> pd.DataFrame | None:
         )
     except ValueError:
         flash(
-            f"Р’ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµР№ С‚Р°Р±Р»РёС†Рµ РЅРµС‚ Р»РёСЃС‚Р° СЃ РЅР°Р·РІР°РЅРёРµРј {sheet_name}",
+            f"В существующей таблице нет листа с названием {sheet_name}",
             category="error",
         )
         return None
     except FileNotFoundError:
         flash(
-            f"РўР°Р±Р»РёС†Р° {path_to_table} РЅРµ РЅР°Р№РґРµРЅР°",
+            f"Таблица {path_to_table} не найдена",
             category="error",
         )
         return None
@@ -187,7 +187,7 @@ def update_if_cell_is_empty(row: pd.Series, column_name, new_value):
             row[column_name] = new_value
     except KeyError:
         flash(
-            f'Р’ С‚Р°Р±Р»РёС†Рµ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ СЃС‚РѕР»Р±С†Р° СЃ РЅР°Р·РІР°РЅРёРµРј "{column_name}"',
+            f'В таблице не существует столбца с названием "{column_name}"',
             category="error",
         )
         raise KeyError

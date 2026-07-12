@@ -112,7 +112,7 @@ def thesis_staff(user_staff, current_thesis):
         if "submit_notification_button" in request.form:
             if request.form["content"] in {None, ""}:
                 flash(
-                    "РќРµР»СЊР·СЏ РѕС‚РїСЂР°РІРёС‚СЊ РїСѓСЃС‚РѕРµ СѓРІРµРґРѕРјР»РµРЅРёРµ!",
+                    "Нельзя отправить пустое уведомление!",
                     category="error",
                 )
                 return redirect(url_for("thesis_staff", id=current_thesis.id))
@@ -125,12 +125,12 @@ def thesis_staff(user_staff, current_thesis):
             )
             add_mail_notification(
                 current_thesis.author_id,
-                "[SE site] РЈРІРµРґРѕРјР»РµРЅРёРµ РѕС‚ РЅР°СѓС‡РЅРѕРіРѕ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЏ",
+                "[SE site] Уведомление от научного руководителя",
                 mail_notification,
             )
             notification_content = (
-                f"РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ {user_staff.user.get_name()} "
-                f'РѕС‚РїСЂР°РІРёР» Р’Р°Рј СѓРІРµРґРѕРјР»РµРЅРёРµ РїРѕ СЂР°Р±РѕС‚Рµ "{current_thesis.title}": '
+                f"Научный руководитель {user_staff.user.get_name()} "
+                f'отправил Вам уведомление по работе "{current_thesis.title}": '
                 f"{request.form['content']}"
             )
             notification = NotificationPractice(
@@ -138,7 +138,7 @@ def thesis_staff(user_staff, current_thesis):
             )
             db.session.add(notification)
             db.session.commit()
-            flash("РЈРІРµРґРѕРјР»РµРЅРёРµ РѕС‚РїСЂР°РІР»РµРЅРѕ!", category="success")
+            flash("Уведомление отправлено!", category="success")
         elif "submit_finish_work_button" in request.form:
             current_thesis.status = 2
             db.session.commit()
@@ -181,7 +181,7 @@ def reports_staff(user_staff, current_thesis):
 
             if not new_comment:
                 flash(
-                    "РќРµР»СЊР·СЏ РѕС‚РїСЂР°РІРёС‚СЊ РїСѓСЃС‚РѕР№ РєРѕРјРјРµРЅС‚Р°СЂРёР№!",
+                    "Нельзя отправить пустой комментарий!",
                     category="error",
                 )
                 return redirect(
@@ -193,9 +193,9 @@ def reports_staff(user_staff, current_thesis):
             db.session.commit()
 
             content = (
-                f"РќР°СѓС‡РЅС‹Р№ СЂСѓРєРѕРІРѕРґРёС‚РµР»СЊ {user_staff.user.get_name()} РїСЂРѕРєРѕРјРјРµРЅС‚РёСЂРѕРІР°Р» "
-                + f"Р’Р°С€ РѕС‚С‡РµС‚ РѕС‚ {datetime_convert(current_report.time)} "
-                + f'РїРѕ СЂР°Р±РѕС‚Рµ "{current_thesis.title}"'
+                f"Научный руководитель {user_staff.user.get_name()} прокомментировал "
+                + f"Ваш отчет от {datetime_convert(current_report.time)} "
+                + f'по работе "{current_thesis.title}"'
             )
 
             notification = NotificationPractice(
@@ -204,7 +204,7 @@ def reports_staff(user_staff, current_thesis):
 
             add_mail_notification(
                 current_thesis.author_id,
-                "[SE site] РћС‚С‡С‘С‚ РїСЂРѕРєРѕРјРјРµРЅС‚РёСЂРѕРІР°РЅ",
+                "[SE site] Отчёт прокомментирован",
                 render_template(
                     NotificationTemplates.SUPERVISOR_COMMENT_TO_REPORT.value,
                     user_staff=user_staff,
@@ -215,7 +215,7 @@ def reports_staff(user_staff, current_thesis):
 
             db.session.add(notification)
             db.session.commit()
-            flash("РљРѕРјРјРµРЅС‚Р°СЂРёР№ СѓСЃРїРµС€РЅРѕ РѕС‚РїСЂР°РІР»РµРЅ!", category="success")
+            flash("Комментарий успешно отправлен!", category="success")
 
         return render_template(
             PracticeStaffTemplates.REPORTS.value,

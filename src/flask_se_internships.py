@@ -38,13 +38,13 @@ def internships_index():
         list({(y.id, y.tag) for x in Internships.query.all() for y in x.tag}),
         key=lambda x: x[1],
     )
-    tag_choices.insert(0, (0, "Р’СЃРµ"))
+    tag_choices.insert(0, (0, "Р'СЃРµ"))
     internship_filter.tag.choices = tag_choices
 
-    format_choices.insert(0, (0, "Р’СЃРµ"))
+    format_choices.insert(0, (0, "Р'СЃРµ"))
     internship_filter.format.choices = format_choices
 
-    company_choices.insert(0, (0, "Р’СЃРµ"))
+    company_choices.insert(0, (0, "Р'СЃРµ"))
     internship_filter.company.choices = company_choices
 
     internships = Internships.query.all()
@@ -82,19 +82,19 @@ def add_internship():
         tags = request.form.get("tag", type=str)
 
         if not tags:
-            flash("РџРѕР¶Р°Р»СѓР№СЃС‚Р°, СѓРєР°Р¶РёС‚Рµ С‚РµС…РЅРѕР»РѕРіРёРё.")
+            flash("Пожалуйста, укажите технологии.")
             return render_template("internships/add_internship.html", form=add_intern, user=user)
 
         if not name_vacancy:
-            flash("РџРѕР¶Р°Р»СѓР№СЃС‚Р°, СѓРєР°Р¶РёС‚Рµ РЅР°Р·РІР°РЅРёРµ РІР°РєР°РЅСЃРёРё.")
+            flash("Пожалуйста, укажите название вакансии.")
             return render_template("internships/add_internship.html", form=add_intern, user=user)
 
         if not format:
-            flash("РџРѕР¶Р°Р»СѓР№СЃС‚Р°, РІС‹Р±РµСЂРёС‚Рµ С„РѕСЂРјР°С‚ СЃС‚Р°Р¶РёСЂРѕРІРєРё.")
+            flash("Пожалуйста, выберите формат стажировки.")
             return render_template("internships/add_internship.html", form=add_intern, user=user)
 
         if not company:
-            flash("РџРѕР¶Р°Р»СѓР№СЃС‚Р°, СѓРєР°Р¶РёС‚Рµ РЅР°Р·РІР°РЅРёРµ РєРѕРјРїР°РЅРёРё")
+            flash("Пожалуйста, укажите название компании")
             return render_template("internships/add_internship.html", form=add_intern, user=user)
 
         tag_list = []
@@ -108,9 +108,9 @@ def add_internship():
                     break
             if not is_finded:
                 flash(
-                    "РўРµРі "
+                    "Тег "
                     + t
-                    + " РЅРµ СЂР°РїРѕР·РЅР°РЅ. РџРѕР¶Р°Р»СѓР№СЃС‚Р°, СЃРІСЏР¶РёС‚РµСЃСЊ СЃ Р°РґРјРёРЅРёСЃС‚СЂР°С†РёРµР№ СЃР°Р№С‚Р°, С‡С‚РѕР±С‹ РµРіРѕ РґРѕР±Р°РІРёС‚СЊ."
+                    + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить."
                 )
                 return render_template(
                     "internships/add_internship.html", form=add_intern, user=user
@@ -155,7 +155,7 @@ def add_internship():
             db.session.commit()
             return redirect(url_for("internships_index"))
         except Exception:
-            return "Р§С‚Рѕ-С‚Рѕ РїРѕС€Р»Рѕ РЅРµ С‚Р°Рє"
+            return "Что-то пошло не так"
 
     return render_template("internships/add_internship.html", form=add_intern, user=user)
 
@@ -181,7 +181,7 @@ def delete_internship(id):
         db.session.commit()
         return redirect(url_for("internships_index"))
     except Exception:
-        flash("РџСЂРё СѓРґР°Р»РµРЅРёРё СЃС‚Р°Р¶РёСЂРѕРІРєРё РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°.")
+        flash("При удалении стажировки произошла ошибка.")
         return render_template("internships/page_internship.html", internship=internship, user=user)
 
 
@@ -197,8 +197,14 @@ def update_internship(id):
         (g.id, g.format) for g in InternshipFormat.query.order_by("id").all()
     ]
     upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by("id").all()]  # pyright: ignore[reportAttributeAccessIssue]
-    upd_internship.tag.data = "".join([t.tag + ", " for t in internship.tag]).strip(", ")  # pyright: ignore[reportGeneralTypeIssues]
-    upd_internship.format.data = [c.id for c in internship.format]  # pyright: ignore[reportGeneralTypeIssues]
+    from typing import cast
+
+    from se_models import InternshipTag as InternshipTagModel
+
+    tags = cast("list[InternshipTagModel]", internship.tag)
+    fmts = cast("list[InternshipFormat]", internship.format)
+    upd_internship.tag.data = "".join([t.tag + ", " for t in tags]).strip(", ")
+    upd_internship.format.data = [c.id for c in fmts]
     upd_internship.company.choices = [g.name for g in InternshipCompany.query.order_by("id")]
 
     if request.method == "POST":
@@ -213,7 +219,7 @@ def update_internship(id):
         tags = request.form.get("tag", type=str)
 
         if not tags:
-            flash("РџРѕР¶Р°Р»СѓР№СЃС‚Р°, СѓРєР°Р¶РёС‚Рµ С‚РµС…РЅРѕР»РѕРіРёРё.")
+            flash("Пожалуйста, укажите технологии.")
             return render_template(
                 "internships/update_internship.html",
                 internship=internship,
@@ -222,7 +228,7 @@ def update_internship(id):
             )
 
         if not name_vacancy:
-            flash("РџРѕР¶Р°Р»СѓР№СЃС‚Р°, СѓРєР°Р¶РёС‚Рµ РЅР°Р·РІР°РЅРёРµ РІР°РєР°РЅСЃРёРё.")
+            flash("Пожалуйста, укажите название вакансии.")
             return render_template(
                 "internships/update_internship.html",
                 internship=internship,
@@ -231,7 +237,7 @@ def update_internship(id):
             )
 
         if not format:
-            flash("РџРѕР¶Р°Р»СѓР№СЃС‚Р°, РІС‹Р±РµСЂРёС‚Рµ С„РѕСЂРјР°С‚ СЃС‚Р°Р¶РёСЂРѕРІРєРё.")
+            flash("Пожалуйста, выберите формат стажировки.")
             return render_template(
                 "internships/update_internship.html",
                 internship=internship,
@@ -240,7 +246,7 @@ def update_internship(id):
             )
 
         if not company:
-            flash("РџРѕР¶Р°Р»СѓР№СЃС‚Р°, СѓРєР°Р¶РёС‚Рµ РЅР°Р·РІР°РЅРёРµ РєРѕРјРїР°РЅРёРё")
+            flash("Пожалуйста, укажите название компании")
             return render_template(
                 "internships/update_internship.html",
                 internship=internship,
@@ -259,9 +265,9 @@ def update_internship(id):
                     break
             if not is_finded:
                 flash(
-                    "РўРµРі "
+                    "Тег "
                     + t
-                    + " РЅРµ СЂР°РїРѕР·РЅР°РЅ. РџРѕР¶Р°Р»СѓР№СЃС‚Р°, СЃРІСЏР¶РёС‚РµСЃСЊ СЃ Р°РґРјРёРЅРёСЃС‚СЂР°С†РёРµР№ СЃР°Р№С‚Р°, С‡С‚РѕР±С‹ РµРіРѕ РґРѕР±Р°РІРёС‚СЊ."
+                    + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить."
                 )
                 return render_template(
                     "internships/update_internship.html",
@@ -298,7 +304,7 @@ def update_internship(id):
             db.session.commit()
             return redirect(url_for("page_internship", id=internship.id))
         except Exception:
-            return "Р§С‚Рѕ-С‚Рѕ РїРѕС€Р»Рѕ РЅРµ С‚Р°Рє"
+            return "Что-то пошло не так"
     else:
         return render_template(
             "internships/update_internship.html",

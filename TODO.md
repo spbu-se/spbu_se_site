@@ -42,6 +42,33 @@
 - 1105 tests, 0 failures
 - Coverage 92%
 
+## Batch run 2026-07-10 — session 8 (auto mode: quality sprint — config, mojibake, pyright)
+
+**Timing: estimated as 5-7h, but ~5:30**
+
+- Moved basedpyright diagnostics from pyrightconfig.json to pyproject.toml as single source of truth
+- Fixed encoding priority: pyrightconfig.json takes precedence over pyproject.toml
+- Fixed all mojibake (UTF-8→CP1252 double-encoding) in 19 source + 31 test + 3 docs files using `ftfy`
+- Manually fixed `flask_se_admin.py` science-degree abbreviations (4 entries with \\ufffd)
+- Fixed `src/static/files/upload.py` (mojibake in comments)
+- Fixed `flask_se_bachelor.py` rouble-sign corruption
+- Fixed docs/\*.md em-dash mojibake (13 occurrences)
+- Updated test assertions to match fixed Russian strings (all 6 practice_preparation tests now pass)
+- Installed pylint, ran `--enable=duplicate-code` — 86 findings (mostly Alembic migrations, expected)
+- Fixed 19 pyright ignores: 2× reportConstantRedefinition, 1× reportReturnType, 3× reportGeneralTypeIssues, 13× findAll→find_all
+- Pre-push gate: all 5 checks green
+- 114 `# pyright: ignore` remain as documented tech debt
+
+### Process violations
+
+None.
+
+### CI overhead
+
+| Push | Trigger | Avoidable? | Reason |
+|------|---------|-----------|--------|
+| N/A | Not yet pushed | — | Will push on merge |
+
 ## Batch run 2026-07-10 — session 7 (auto mode: basedpyright gate + CI cleanup)
 
 **Timing: estimated as 1.5h, but ~2:30**

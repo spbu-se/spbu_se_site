@@ -1,4 +1,4 @@
-﻿# Reverse Engineering
+# Reverse Engineering
 
 <!-- encoding: utf-8 -->
 
@@ -8,12 +8,12 @@ Covers: re-engineering cycle, common sources, design documentation. Does not cov
 
 ## Re-engineering cycle
 
-1. **Extract** вЂ” read JS bundle / API trace / server response / legacy code
-1. **Decide** вЂ” write architecture decision in `docs/ARCHITECTURE.md` в†’ Design Decisions
-1. **Design** вЂ” plan the implementation
+1. **Extract** — read JS bundle / API trace / server response / legacy code
+1. **Decide** — write architecture decision in `docs/ARCHITECTURE.md` → Design Decisions
+1. **Design** — plan the implementation
 1. **Write tests** from design specs
 1. **Implement** until tests pass
-1. **Violation** вЂ” if any step was skipped в†’ `TODO.md` Backlog entry в†’ must-fix before next feature
+1. **Violation** — if any step was skipped → `TODO.md` Backlog entry → must-fix before next feature
 
 This cycle is mandatory before every reverse-engineering-derived feature.
 

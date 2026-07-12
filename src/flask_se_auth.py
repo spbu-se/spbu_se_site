@@ -54,9 +54,7 @@ def load_user(user_id):
 
 @login_manager.unauthorized_handler
 def handle_needs_login():
-    flash(
-        "Р”Р»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ СЌС‚РѕРіРѕ РґРµР№СЃС‚РІРёСЏ РЅРµРѕР±С…РѕРґРёРјРѕ РІРѕР№С‚Рё."
-    )
+    flash("Для выполнения этого действия необходимо войти.")
     return redirect(url_for("login_index", next=request.endpoint))
 
 
@@ -116,19 +114,19 @@ def login_index():
                     return redirect_next_url(fallback=url_for("user_profile"))
                 else:
                     flash(
-                        "РџР°СЂР° Р»РѕРіРёРЅ Рё РїР°СЂРѕР»СЊ СѓРєР°Р·Р°РЅС‹ РЅРµРІРµСЂРЅРѕ",
+                        "Пара логин и пароль указаны неверно",
                         category="error",
                     )
                     return render_template("auth/login.html", user=current_user)
             else:
                 flash(
-                    "РџР°СЂР° Р»РѕРіРёРЅ Рё РїР°СЂРѕР»СЊ СѓРєР°Р·Р°РЅС‹ РЅРµРІРµСЂРЅРѕ",
+                    "Пара логин и пароль указаны неверно",
                     category="error",
                 )
                 return render_template("auth/login.html", user=current_user)
         else:
             flash(
-                "РџРѕР»СЊР·РѕРІР°С‚РµР»СЏ СЃ С‚Р°РєРёРј РїРѕС‡С‚РѕРІС‹Рј Р°РґСЂРµСЃРѕРј РЅРµС‚",
+                "Пользователя с таким почтовым адресом нет",
                 category="error",
             )
             return render_template("auth/login.html", user=current_user)
@@ -219,21 +217,21 @@ def register_basic():
         user = Users.query.filter_by(email=email).first()
         if user:
             flash(
-                "РўР°РєРѕР№ РїРѕС‡С‚РѕРІС‹Р№ Р°РґСЂРµСЃ СѓР¶Рµ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ.",
+                "Такой почтовый адрес уже зарегистрирован.",
                 category="error",
             )
         elif len(email) < 5:
             flash(
-                "РџРѕС‡С‚РѕРІС‹Р№ Р°РґСЂРµСЃ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ С‡РµРј 5 СЃРёРјРІРѕР»РѕРІ",
+                "Почтовый адрес должен быть больше чем 5 символов",
                 category="error",
             )
         elif len(password) < 5:
             flash(
-                "РџР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ С‡РµРј 5 СЃРёРјРІРѕР»РѕРІ",
+                "Пароль должен быть больше чем 5 символов",
                 category="error",
             )
         elif len(first_name) < 1:
-            flash("РРјСЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј")
+            flash("Имя не может быть пустым")
         else:
             new_user = Users(
                 email=email,

@@ -59,7 +59,7 @@ def get_code():
     return redirect(url)
 
 
-def get_token(code):  # pyright: ignore[reportReturnType]
+def get_token(code: str) -> str | None:
     credentials_string = base64.b64encode(
         (YANDEX_CLIENT_ID + ":" + YANDEX_SECRET).encode("ascii")
     ).decode("ascii")

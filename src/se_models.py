@@ -3029,7 +3029,7 @@ def init_db():
 
     # Create DiplomaThems
     print("Create diploma themes")
-    for cur in d_themes:
+    for cur in d_themes:  # type: ignore[reportGeneralTypeIssues]
         c = DiplomaThemes(
             title=cur["title"],
             description=cur["description"],

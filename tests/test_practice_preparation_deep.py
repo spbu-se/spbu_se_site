@@ -17,7 +17,7 @@ class TestPracticePreparation:
         assert resp.status_code in (200, 302)
         with practice_thesis.session_transaction() as sess:
             flashes = sess["_flashes"]
-            assert any("Р’С‹ РЅРµ СѓРєР°Р·Р°Р»Рё СЃСЃС‹Р»РєСѓ" in str(msg) for _, msg in flashes)
+            assert any("Вы не указали ссылку" in str(msg) for _, msg in flashes)
 
     def test_post_text_empty_file_and_empty_link(self, practice_thesis):
         resp = practice_thesis.post(
@@ -31,7 +31,7 @@ class TestPracticePreparation:
         assert resp.status_code in (200, 302)
         with practice_thesis.session_transaction() as sess:
             flashes = sess["_flashes"]
-            assert any("РЅРµ Р·Р°РіСЂСѓР·РёР»Рё С‚РµРєСЃС‚" in str(msg) for _, msg in flashes)
+            assert any("не загрузили текст" in str(msg) for _, msg in flashes)
 
     def test_post_text_empty_file_no_link_field(self, practice_thesis):
         resp = practice_thesis.post(
@@ -44,7 +44,7 @@ class TestPracticePreparation:
         assert resp.status_code in (200, 302)
         with practice_thesis.session_transaction() as sess:
             flashes = sess["_flashes"]
-            assert any("РЅРµ Р·Р°РіСЂСѓР·РёР»Рё С‚РµРєСЃС‚" in str(msg) for _, msg in flashes)
+            assert any("не загрузили текст" in str(msg) for _, msg in flashes)
 
     def test_post_text_valid_link(self, practice_thesis):
         from se_models import CurrentThesis, db
@@ -118,7 +118,7 @@ class TestPracticePreparation:
         assert resp.status_code in (200, 302)
         with practice_thesis.session_transaction() as sess:
             flashes = sess["_flashes"]
-            assert any("РЅРµ Р·Р°РіСЂСѓР·РёР»Рё" in str(msg) for _, msg in flashes)
+            assert any("не загрузили" in str(msg) for _, msg in flashes)
 
     def test_post_review_supervisor_valid(self, practice_thesis):
         from se_models import CurrentThesis, db
@@ -170,7 +170,7 @@ class TestPracticePreparation:
         assert resp.status_code in (200, 302)
         with practice_thesis.session_transaction() as sess:
             flashes = sess["_flashes"]
-            assert any("РЅРµ СѓРєР°Р·Р°Р»Рё СЃСЃС‹Р»РєСѓ" in str(msg) for _, msg in flashes)
+            assert any("не указали ссылку" in str(msg) for _, msg in flashes)
 
     def test_post_presentation_valid_link(self, practice_thesis):
         from se_models import CurrentThesis, db
@@ -216,7 +216,7 @@ class TestPracticePreparation:
         assert resp.status_code in (200, 302)
         with practice_thesis.session_transaction() as sess:
             flashes = sess["_flashes"]
-            assert any("РЅРµ СѓРєР°Р·Р°Р»Рё" in str(msg) for _, msg in flashes)
+            assert any("не указали" in str(msg) for _, msg in flashes)
 
     def test_post_code_link_only(self, practice_thesis):
         from se_models import CurrentThesis, db

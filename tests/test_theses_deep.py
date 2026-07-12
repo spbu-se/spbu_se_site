@@ -116,7 +116,7 @@ class TestPostThesesApi:
             "type_id": 2,
             "course_id": 1,
             "author": "Author",
-            "supervisor": "РўРµСЂРµС…РѕРІ",
+            "supervisor": "Терехов",
             "publish_year": 2024,
         }
         resp = logged_client.post(
@@ -142,7 +142,7 @@ class TestPostThesesApi:
             "type_id": 99,
             "course_id": 1,
             "author": "Author",
-            "supervisor": "РўРµСЂРµС…РѕРІ",
+            "supervisor": "Терехов",
             "publish_year": 2024,
         }
         resp = logged_client.post(
@@ -167,7 +167,7 @@ class TestPostThesesApi:
             "type_id": 2,
             "course_id": 99,
             "author": "Author",
-            "supervisor": "РўРµСЂРµС…РѕРІ",
+            "supervisor": "Терехов",
             "publish_year": 2024,
         }
         resp = logged_client.post(

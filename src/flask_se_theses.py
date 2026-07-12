@@ -23,9 +23,9 @@ log = logging.getLogger("flask_se.sub")
 def theses_search():
     filter = ThesisFilter()
     hints = [
-        '"РњР°РєСЃРёРј" РјРѕР¶РЅРѕ РёСЃРєР°С‚СЊ РєР°Рє РњР°РєСЃРёРј, РјР°РєСЃРёРј, РњР°РєСЃ* РёР»Рё *Р°РєСЃ*.',
-        "РџРѕР»РЅРѕС‚РµРєСЃС‚РѕРІС‹Р№ РїРѕРёСЃРє РїРѕ РЅР°Р·РІР°РЅРёСЏРј СЂР°Р±РѕС‚ Рё Р°РІС‚РѕСЂР°Рј",
-        '"Р”РѕРј" РјРѕР¶РЅРѕ РёСЃРєР°С‚СЊ РєР°Рє РґРѕРј, Рґ?Рј РёР»Рё Рґ*Рј',
+        '"Максим" можно искать как Максим, максим, Макс* или *акс*.',
+        "Полнотекстовый поиск по названиям работ и авторам",
+        '"Дом" можно искать как дом, д?м или д*м',
     ]
 
     hint = random.choice(hints)
@@ -80,9 +80,9 @@ def theses_search():
         supervisor_choices.append((sid[0], last_name + " " + initials))
 
     supervisor_choices.sort(key=lambda tup: tup[1])
-    filter.supervisor.choices = [(0, "Р’СЃРµ")] + supervisor_choices  # pyright: ignore[reportAttributeAccessIssue]
-    filter.course.choices = [(0, "Р’СЃРµ")] + course_choices  # pyright: ignore[reportAttributeAccessIssue]
-    filter.worktype.choices = [(0, "Р’СЃРµ")] + worktype_choices  # pyright: ignore[reportAttributeAccessIssue]
+    filter.supervisor.choices = [(0, "Р'СЃРµ")] + supervisor_choices  # pyright: ignore[reportAttributeAccessIssue]
+    filter.course.choices = [(0, "Р'СЃРµ")] + course_choices  # pyright: ignore[reportAttributeAccessIssue]
+    filter.worktype.choices = [(0, "Р'СЃРµ")] + worktype_choices  # pyright: ignore[reportAttributeAccessIssue]
 
     return render_template("theses.html", filter=filter, hint=hint)
 

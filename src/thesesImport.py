@@ -39,7 +39,7 @@ def download_file(uri, safe_filename, save_path):
 
 # Get
 # https://oops.math.spbu.ru/SE/diploma/2020/index
-# РњР°С‚РµРјР°С‚РёС‡РµСЃРєРѕРµ РѕР±РµСЃРїРµС‡РµРЅРёРµ Рё Р°РґРјРёРЅРёСЃС‚СЂРёСЂРѕРІР°РЅРёРµ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅС‹С… СЃРёСЃС‚РµРј
+# Математическое обеспечение и администрирование информационных систем
 
 
 def get_2020_02_03_03():
@@ -64,7 +64,7 @@ def get_2020_02_03_03():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -177,7 +177,7 @@ def get_2020_02_03_03():
 
 # Get
 # https://oops.math.spbu.ru/SE/diploma/2020/index
-# РџСЂРѕРіСЂР°РјРјРЅР°СЏ РёРЅР¶РµРЅРµСЂРёСЏ
+# Программная инженерия
 
 
 def get_2020_09_03_04():
@@ -202,7 +202,7 @@ def get_2020_09_03_04():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -316,7 +316,7 @@ def get_2020_09_03_04():
 
 # Get
 # https://oops.math.spbu.ru/SE/diploma/2019/vypusknye-kvalifikacionnye-raboty
-# РџСЂРѕРіСЂР°РјРјРЅР°СЏ РёРЅР¶РµРЅРµСЂРёСЏ
+# Программная инженерия
 
 
 def get_2019_09_03_04():
@@ -341,7 +341,7 @@ def get_2019_09_03_04():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -458,7 +458,7 @@ def get_2019_09_03_04():
 
 # Get
 # https://oops.math.spbu.ru/SE/diploma/2019/vypusknye-kvalifikacionnye-raboty
-# РџСЂРѕРіСЂР°РјРјРЅР°СЏ РёРЅР¶РµРЅРµСЂРёСЏ
+# Программная инженерия
 
 
 def get_2019_02_03_03():
@@ -483,7 +483,7 @@ def get_2019_02_03_03():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -549,11 +549,11 @@ def get_2019_02_03_03():
             source_uri = cols[8].find("a").get("href") if cols[8].find("a") else ""
 
             # Try to get supervisor_id
-            if supervisor.find("РҐР°РЅРѕРІ") != -1:
-                last_name = "РҐР°РЅРѕРІ"
+            if supervisor.find("Ханов") != -1:
+                last_name = "Ханов"
             else:
                 m = re.search(r"([\w]{7,16})", supervisor)
-                last_name = m.group(1) if m else "РўРµСЂРµС…РѕРІ"
+                last_name = m.group(1) if m else "Терехов"
 
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
@@ -603,7 +603,7 @@ def get_2019_02_03_03():
 
 # Get
 # https://oops.math.spbu.ru/SE/diploma/2019/vypusknye-kvalifikacionnye-raboty
-# РњР°С‚РµРјР°С‚РёС‡РµСЃРєРѕРµ РѕР±РµСЃРїРµС‡РµРЅРёРµ Рё Р°РґРјРёРЅРёСЃС‚СЂРёСЂРѕРІР°РЅРёРµ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅС‹С… СЃРёСЃС‚РµРј (02.04.03)
+# Математическое обеспечение и администрирование информационных систем (02.04.03)
 
 
 def get_2019_02_04_03():
@@ -628,7 +628,7 @@ def get_2019_02_04_03():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -694,7 +694,7 @@ def get_2019_02_04_03():
 
             # Try to get supervisor_id
             m = re.search(r"([\w]{5,16})", supervisor)
-            last_name = m.group(1) if m else "РўРµСЂРµС…РѕРІ"
+            last_name = m.group(1) if m else "Терехов"
 
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
@@ -744,7 +744,7 @@ def get_2019_02_04_03():
 
 # Get
 # https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020
-# Р‘Р°РєР°Р»Р°РІСЂС‹, 371 РіСЂСѓРїРїР° (02.04.03)
+# Бакалавры, 371 группа (02.04.03)
 
 
 def get_2020_371():
@@ -769,7 +769,7 @@ def get_2020_371():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -875,7 +875,7 @@ def get_2020_371():
 
 # Get
 # https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020
-# РњР°С‚РµРјР°С‚РёС‡РµСЃРєРѕРµ РѕР±РµСЃРїРµС‡РµРЅРёРµ Рё Р°РґРјРёРЅРёСЃС‚СЂРёСЂРѕРІР°РЅРёРµ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅС‹С… СЃРёСЃС‚РµРј
+# Математическое обеспечение и администрирование информационных систем
 
 
 def get_report_2020_02_03_03():
@@ -900,7 +900,7 @@ def get_report_2020_02_03_03():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -959,11 +959,7 @@ def get_report_2020_02_03_03():
 
             # Try to get supervisor_id
 
-            last_name = (
-                "РЎР°РіСѓРЅРѕРІ"
-                if supervisor.find("РЎР°РіСѓРЅРѕРІ") != -1
-                else supervisor.split()[-1]
-            )
+            last_name = "Сагунов" if supervisor.find("Сагунов") != -1 else supervisor.split()[-1]
 
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
@@ -1013,7 +1009,7 @@ def get_report_2020_02_03_03():
 
 # Get
 # https://oops.math.spbu.ru/SE/YearlyProjects/spring-2019
-# Р‘Р°РєР°Р»Р°РІСЂС‹, 371 РіСЂСѓРїРїР°
+# Бакалавры, 371 группа
 
 
 def get_2019_371():
@@ -1038,7 +1034,7 @@ def get_2019_371():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -1118,7 +1114,7 @@ def get_2019_371():
 
 # Get
 # https://oops.math.spbu.ru/SE/YearlyProjects/spring-2019
-# Р‘Р°РєР°Р»Р°РІСЂС‹, 343 РіСЂСѓРїРїР°
+# Бакалавры, 343 группа
 
 
 def get_2019_343():
@@ -1143,7 +1139,7 @@ def get_2019_343():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -1223,7 +1219,7 @@ def get_2019_343():
 
 # Get
 # https://oops.math.spbu.ru/SE/YearlyProjects/spring-2019
-# Р‘Р°РєР°Р»Р°РІСЂС‹, 344 РіСЂСѓРїРїР°
+# Бакалавры, 344 группа
 
 
 def get_2019_344():
@@ -1248,7 +1244,7 @@ def get_2019_344():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -1327,127 +1323,127 @@ def get_2019_344():
 
 
 # Add master thesis 2020
-# РџР Рё РњРћ
+# ПИ и МО
 
 
 def add_master_thesis_2020():
     thesis = [
         {
-            "name_ru": "РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ Р°РІС‚РѕРјР°С‚РѕРІ РІ РёРЅС‚РµСЂРїСЂРµС‚Р°С‚РѕСЂРµ MACASM",
+            "name_ru": "Использование автоматов в интерпретаторе MACASM",
             "text_uri": "_Master_Thesis_2020_text.pdf",
             "presentation_uri": "_Master_Thesis_2020_slides.pdf",
             "supervisor_review_uri": "_Master_Thesis_2020_supervisor_review.pdf",
             "reviewer_review_uri": "_Master_Thesis_2020_reviewer_review.pdf",
-            "author": "РЎРѕРєРѕР»РѕРІР° РџРѕР»РёРЅР° РђР»РµРєСЃР°РЅРґСЂРѕРІРЅР°",
-            "supervisor": "Р›СѓС†РёРІ",
+            "author": "Соколова Полина Александровна",
+            "supervisor": "Луцив",
             "publish_year": 2020,
             "type_id": 4,
             "course_id": 7,
         },
         {
-            "name_ru": "РђРІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ РєР°Р»РёР±СЂРѕРІРєР° РІРЅРµС€РЅРёС… РїР°СЂР°РјРµС‚СЂРѕРІ С€РёСЂРѕРєРѕСѓРіРѕР»СЊРЅС‹С… РєР°РјРµСЂ РІ Р°РІС‚РѕРјРѕР±РёР»СЊРЅС‹С… СЃРёСЃС‚РµРјР°С… РєСЂСѓРіРѕРІРѕРіРѕ РѕР±Р·РѕСЂР°",
+            "name_ru": "Автоматическая калибровка внешних параметров широкоугольных камер в автомобильных системах кругового обзора",
             "text_uri": "_Master_Thesis_2020_text.pdf",
             "presentation_uri": "_Master_Thesis_2020_slides.pdf",
             "supervisor_review_uri": "_Master_Thesis_2020_supervisor_review.pdf",
             "reviewer_review_uri": "_Master_Thesis_2020_reviewer_review.pdf",
-            "author": "РџРµС‚СЂРѕРІ РђР»РµРєСЃРµР№ РђРЅРґСЂРµРµРІРёС‡",
-            "supervisor": "Р›СѓС†РёРІ",
+            "author": "Петров Алексей Андреевич",
+            "supervisor": "Луцив",
             "publish_year": 2020,
             "type_id": 4,
             "course_id": 7,
         },
         {
-            "name_ru": "Р­С„С„РµРєС‚РёРІРЅР°СЏ СЂР°Р·СЂРµС€Р°СЋС‰Р°СЏ РїСЂРѕС†РµРґСѓСЂР° РґР»СЏ Р·Р°РґР°С‡Рё РІС‹РїРѕР»РЅРёРјРѕСЃС‚Рё РІ С‚РµРѕСЂРёРё РЅРѕРјРёРЅР°Р»СЊРЅС‹С… СЃРёСЃС‚РµРј С‚РёРїРѕРІ СЃ РІР°СЂРёР°РЅС‚РЅРѕСЃС‚СЊСЋ",
+            "name_ru": "Эффективная разрешающая процедура для задачи выполнимости в теории номинальных систем типов с вариантностью",
             "text_uri": "_Master_Thesis_2020_text.pdf",
             "presentation_uri": "_Master_Thesis_2020_slides.pdf",
             "supervisor_review_uri": "_Master_Thesis_2020_supervisor_review.pdf",
             "reviewer_review_uri": "_Master_Thesis_2020_reviewer_review.pdf",
-            "author": "РњРёР»РѕРІР° РќР°С‚Р°Р»СЊСЏ РђРЅРґСЂРµРµРІРЅР°",
+            "author": "Милова Наталья Андреевна",
             "supervisor": "РљРѕР·РЅРѕРІ",
             "publish_year": 2020,
             "type_id": 4,
             "course_id": 7,
         },
         {
-            "name_ru": "Р’РµР±-РїР»Р°С‚С„РѕСЂРјР° РїСЂРµРґРјРµС‚РЅРѕ-РѕСЂРёРµРЅС‚РёСЂРѕРІР°РЅРЅРѕРіРѕ РјРѕРґРµР»РёСЂРѕРІР°РЅРёСЏ РЅР° Р±Р°Р·Рµ REAL.NET",
+            "name_ru": "Веб-платформа предметно-ориентированного моделирования на базе REAL.NET",
             "text_uri": "_Master_Thesis_2020_text.pdf",
             "presentation_uri": "_Master_Thesis_2020_slides.pdf",
             "supervisor_review_uri": "_Master_Thesis_2020_supervisor_review.pdf",
             "reviewer_review_uri": "_Master_Thesis_2020_reviewer_review.pdf",
-            "author": "РљСѓР·СЊРјРёРЅР° Р•Р»РёР·Р°РІРµС‚Р° Р’Р»Р°РґРёРјРёСЂРѕРІРЅР°",
-            "supervisor": "Р›РёС‚РІРёРЅРѕРІ",
+            "author": "Кузьмина Елизавета Владимировна",
+            "supervisor": "Литвинов",
             "publish_year": 2020,
             "type_id": 4,
             "course_id": 7,
         },
         {
-            "name_ru": "РћС†РµРЅРєР° РїР°СЂР°РјРµС‚СЂРѕРІ СЃРёСЃС‚РµРј РєР°РјРµСЂ Р±РµР· РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РєР°Р»РёР±СЂРѕРІРѕС‡РЅС‹С… РїР°С‚С‚РµСЂРЅРѕРІ",
+            "name_ru": "Оценка параметров систем камер без использования калибровочных паттернов",
             "text_uri": "_Master_Thesis_2020_text.pdf",
             "presentation_uri": "_Master_Thesis_2020_slides.pdf",
             "supervisor_review_uri": "_Master_Thesis_2020_supervisor_review.pdf",
             "reviewer_review_uri": "_Master_Thesis_2020_reviewer_review.pdf",
-            "author": "РЎРёРЅРёС†С‹РЅ Р”Р°РЅРёРёР» Р”РјРёС‚СЂРёРµРІРёС‡",
-            "supervisor": "РўРµСЂРµС…РѕРІ",
+            "author": "Синицын Даниил Дмитриевич",
+            "supervisor": "Терехов",
             "publish_year": 2020,
             "type_id": 4,
             "course_id": 3,
         },
         {
-            "name_ru": "РЎРёРЅС‚РµР· РїСЂРѕРіСЂР°РјРј РїРѕ СЃРїРµС†РёС„РёРєР°С†РёСЏРј СЃ РјРЅРѕР¶РµСЃС‚РІРµРЅРЅС‹РјРё РІС‹Р·РѕРІР°РјРё",
+            "name_ru": "Синтез программ по спецификациям с множественными вызовами",
             "text_uri": "_Master_Thesis_2020_text.pdf",
             "presentation_uri": "_Master_Thesis_2020_slides.pdf",
             "supervisor_review_uri": "_Master_Thesis_2020_supervisor_review.pdf",
             "reviewer_review_uri": "_Master_Thesis_2020_reviewer_review.pdf",
-            "author": "РњРёС€РµРЅРµРІ Р’Р°РґРёРј РЎРµСЂРіРµРµРІРёС‡",
+            "author": "Мишенев Вадим Сергеевич",
             "supervisor": "РљРѕР·РЅРѕРІ",
             "publish_year": 2020,
             "type_id": 4,
             "course_id": 3,
         },
         {
-            "name_ru": "РЎРёСЃС‚РµРјР° РґР»СЏ СЂР°СЃС‡РµС‚Р° СЃРєРѕСЂРѕСЃС‚РµР№ Р·РІСѓРєР° РІ РѕСЃРѕР±С‹С… РѕР±Р»Р°СЃС‚СЏС… РїРѕ РґР°РЅРЅС‹Рј РЈР—РвЂ“С‚РѕРјРѕРіСЂР°С„РёРё",
+            "name_ru": "Система для расчета скоростей звука в особых областях по данным УЗИ–томографии",
             "text_uri": "_Master_Thesis_2020_text.pdf",
             "presentation_uri": "_Master_Thesis_2020_slides.pdf",
             "supervisor_review_uri": "_Master_Thesis_2020_supervisor_review.pdf",
             "reviewer_review_uri": "_Master_Thesis_2020_reviewer_review.pdf",
-            "author": "Р›РµРѕРЅРѕРІР° РђРЅРЅР° Р’Р°СЃРёР»СЊРµРІРЅР°",
-            "supervisor": "Р“СЂР°РЅРёС‡РёРЅ",
+            "author": "Леонова Анна Васильевна",
+            "supervisor": "Граничин",
             "publish_year": 2020,
             "type_id": 4,
             "course_id": 3,
         },
         {
-            "name_ru": "РџРѕРёСЃРє Рё РєР»Р°СЃС‚РµСЂРёР·Р°С†РёСЏ РЅРµС‡РµС‚РєРёС… РїРѕРІС‚РѕСЂРѕРІ РІ РґРѕРєСѓРјРµРЅС‚Р°С†РёРё РїСЂРѕРіСЂР°РјРјРЅРѕРіРѕ РѕР±РµСЃРїРµС‡РµРЅРёСЏ",
+            "name_ru": "Поиск и кластеризация нечетких повторов в документации программного обеспечения",
             "text_uri": "_Master_Thesis_2020_text.pdf",
             "presentation_uri": "_Master_Thesis_2020_slides.pdf",
             "supervisor_review_uri": "_Master_Thesis_2020_supervisor_review.pdf",
             "reviewer_review_uri": "_Master_Thesis_2020_reviewer_review.pdf",
-            "author": "РљРѕРЅРѕРІР°Р»РѕРІР° РСЂРёРЅР° РњРёС…Р°Р№Р»РѕРІРЅР°",
-            "supervisor": "Р›СѓС†РёРІ",
+            "author": "Коновалова Ирина Михайловна",
+            "supervisor": "Луцив",
             "publish_year": 2020,
             "type_id": 4,
             "course_id": 3,
         },
         {
-            "name_ru": "РђРЅР°Р»РёР· РєР°С‡РµСЃС‚РІР° Р°РІС‚РѕРґРѕРїРѕР»РЅРµРЅРёСЏ РєРѕРґР° РІ РёРЅС‚РµРіСЂРёСЂРѕРІР°РЅРЅС‹С… СЃСЂРµРґР°С… СЂР°Р·СЂР°Р±РѕС‚РєРё",
+            "name_ru": "Анализ качества автодополнения кода в интегрированных средах разработки",
             "text_uri": "_Master_Thesis_2020_text.pdf",
             "presentation_uri": "_Master_Thesis_2020_slides.pdf",
             "supervisor_review_uri": "_Master_Thesis_2020_supervisor_review.pdf",
             "reviewer_review_uri": "_Master_Thesis_2020_reviewer_review.pdf",
-            "author": "РљР°Р»РёРЅР° РђР»РµРєСЃРµР№ РРіРѕСЂРµРІРёС‡",
-            "supervisor": "Р›СѓС†РёРІ",
+            "author": "Калина Алексей Игоревич",
+            "supervisor": "Луцив",
             "publish_year": 2020,
             "type_id": 4,
             "course_id": 3,
         },
         {
-            "name_ru": "РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ РІ РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅС‹С… РњРђРљ-РѕР±С„СѓСЃС†РёСЂРѕРІР°РЅРЅС‹С… РїСЂРѕРіСЂР°РјРјР°С…",
+            "name_ru": "Синхронизация в многопоточных МАК-обфусцированных программах",
             "text_uri": "_Master_Thesis_2020_text.pdf",
             "presentation_uri": "_Master_Thesis_2020_slides.pdf",
             "supervisor_review_uri": "_Master_Thesis_2020_supervisor_review.pdf",
             "reviewer_review_uri": "_Master_Thesis_2020_reviewer_review.pdf",
-            "author": "Р‘Р°Р±Р°РЅРѕРІ РџС‘С‚СЂ РђРЅРґСЂРµРµРІРёС‡",
-            "supervisor": "Р‘СЂС‹РєСЃРёРЅ",
+            "author": "Бабанов Пётр Андреевич",
+            "supervisor": "Брыксин",
             "publish_year": 2020,
             "type_id": 4,
             "course_id": 3,
@@ -1495,7 +1491,7 @@ def add_master_thesis_2020():
 
 # Get
 # https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2022/uchebnaya-praktika
-# Р‘Р°РєР°Р»Р°РІСЂС‹, 271 РіСЂСѓРїРїР°
+# Бакалавры, 271 группа
 
 
 def get_2022_271():
@@ -1520,7 +1516,7 @@ def get_2022_271():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -1600,7 +1596,7 @@ def get_2022_271():
 
 # Get
 # https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2022/proizvodstvennaya-praktika
-# Р‘Р°РєР°Р»Р°РІСЂС‹, 371 РіСЂСѓРїРїР°
+# Бакалавры, 371 группа
 
 
 def get_2022_371():
@@ -1625,7 +1621,7 @@ def get_2022_371():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -1648,8 +1644,8 @@ def get_2022_371():
 
             data = cols[4].find_all("a")
 
-            # Skip РњРёР»РѕСЃРµСЂРґРѕРІР°
-            if not author.find("РњРёР»РѕСЃРµСЂРґРѕРІР°"):
+            # Skip Милосердова
+            if not author.find("Милосердова"):
                 print(author)
                 continue
 
@@ -1710,7 +1706,7 @@ def get_2022_371():
 
 # Get
 # https://oops.math.spbu.ru/SE/diploma/2022/index
-# РџСЂРѕРіСЂР°РјРјРЅР°СЏ РёРЅР¶РµРЅРµСЂРёСЏ
+# Программная инженерия
 
 
 def get_2022_09_03_04():
@@ -1735,7 +1731,7 @@ def get_2022_09_03_04():
     table = header[0].find_next("table")
     if table is None:
         return
-    for row in table.findAll("tr"):  # pyright: ignore[reportCallIssue]
+    for row in table.find_all("tr"):
         cols = row.find_all("td")
 
         # Check if we have data row
@@ -1815,11 +1811,11 @@ def get_2022_09_03_04():
             source_uri = cols[8].find("a").get("href") if cols[8].find("a") else ""
 
             # Try to get supervisor_id
-            if supervisor.find("РҐР°РЅРѕРІ") != -1:
-                last_name = "РҐР°РЅРѕРІ"
+            if supervisor.find("Ханов") != -1:
+                last_name = "Ханов"
             else:
                 m = re.search(r"([\w]{7,16})", supervisor)
-                last_name = m.group(1) if m else "РўРµСЂРµС…РѕРІ"
+                last_name = m.group(1) if m else "Терехов"
 
             q = Users.query.filter_by(last_name=last_name).first()
             if q:
