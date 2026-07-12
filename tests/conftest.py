@@ -92,85 +92,107 @@ def _set_db_uri(uri):
     db.engines[None] = create_engine(uri)
 
 
-# Create a single seeded database template once per session
+# Build a seeded DB + Whoosh index template once per session
 @pytest.fixture(scope="session")
 def _seeded_db_path():
     _dir = tempfile.mkdtemp()
-    _p = str(Path(_dir) / _db_name)
-    uri = "sqlite:///" + _p
+    _db_p = str(Path(_dir) / _db_name)
+    _whoosh_p = str(Path(_dir) / "whoosh_index")
+    uri = "sqlite:///" + _db_p
     with app.app_context():
         _set_db_uri(uri)
+        app.config["WHOOSHEE_DIR"] = _whoosh_p
+        app.extensions["whooshee"]["index_path_root"] = _whoosh_p
+        app.extensions["whooshee"]["whoosheers_indexes"] = {}
         db.create_all()
         init_db()
+        _fs.whooshee.reindex()
         db.session.remove()
-    yield _p
+    yield _db_p, _whoosh_p
     shutil.rmtree(_dir, ignore_errors=True)
 
 
+# Build an empty Whoosh index template once per session (no seed data)
+@pytest.fixture(scope="session")
+def _empty_whoosh_dir():
+    _db_dir = tempfile.mkdtemp()
+    _db_p = str(Path(_db_dir) / _db_name)
+    _whoosh_p = str(Path(_db_dir) / "whoosh_index")
+    uri = "sqlite:///" + _db_p
+    with app.app_context():
+        _set_db_uri(uri)
+        app.config["WHOOSHEE_DIR"] = _whoosh_p
+        app.extensions["whooshee"]["index_path_root"] = _whoosh_p
+        app.extensions["whooshee"]["whoosheers_indexes"] = {}
+        db.create_all()
+        _fs.whooshee.reindex()
+        db.session.remove()
+    yield _whoosh_p
+    shutil.rmtree(_db_dir, ignore_errors=True)
+
+
 @pytest.fixture
-def app_ctx():
+def app_ctx(_empty_whoosh_dir):
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
-    _whoosh_dir = tempfile.mkdtemp()
+    _whoosh_p = str(Path(_dir) / "whoosh_index")
+    shutil.copytree(_empty_whoosh_dir, _whoosh_p)
     uri = "sqlite:///" + _p
     with app.app_context():
         _set_db_uri(uri)
-        app.config["WHOOSHEE_DIR"] = _whoosh_dir
-        app.extensions['whooshee']['index_path_root'] = _whoosh_dir
-        app.extensions['whooshee']['whoosheers_indexes'] = {}
+        app.config["WHOOSHEE_DIR"] = _whoosh_p
+        app.extensions["whooshee"]["index_path_root"] = _whoosh_p
+        app.extensions["whooshee"]["whoosheers_indexes"] = {}
         db.create_all()
-        _fs.whooshee.reindex()
-        yield
+        yield app.test_client()
         db.session.remove()
         db.drop_all()
     shutil.rmtree(_dir, ignore_errors=True)
-    shutil.rmtree(_whoosh_dir, ignore_errors=True)
 
 
 @pytest.fixture
-def client():
+def client(_empty_whoosh_dir):
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
-    _whoosh_dir = tempfile.mkdtemp()
+    _whoosh_p = str(Path(_dir) / "whoosh_index")
+    shutil.copytree(_empty_whoosh_dir, _whoosh_p)
     uri = "sqlite:///" + _p
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
         _set_db_uri(uri)
-        app.config["WHOOSHEE_DIR"] = _whoosh_dir
-        app.extensions['whooshee']['index_path_root'] = _whoosh_dir
-        app.extensions['whooshee']['whoosheers_indexes'] = {}
+        app.config["WHOOSHEE_DIR"] = _whoosh_p
+        app.extensions["whooshee"]["index_path_root"] = _whoosh_p
+        app.extensions["whooshee"]["whoosheers_indexes"] = {}
         db.create_all()
-        _fs.whooshee.reindex()
         yield app.test_client()
         db.session.remove()
         db.drop_all()
     shutil.rmtree(_dir, ignore_errors=True)
-    shutil.rmtree(_whoosh_dir, ignore_errors=True)
 
 
 @pytest.fixture
 def seeded_client(_seeded_db_path):
-    """Copy the pre-seeded template DB once per test — fast (~ms)."""
+    """Copy the pre-seeded template DB + Whoosh index once per test — fast (~ms)."""
+    _seeded_db, _seeded_whoosh = _seeded_db_path
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
-    _whoosh_dir = tempfile.mkdtemp()
-    shutil.copy2(str(_seeded_db_path), _p)
+    _whoosh_p = str(Path(_dir) / "whoosh_index")
+    shutil.copy2(_seeded_db, _p)
+    shutil.copytree(_seeded_whoosh, _whoosh_p)
     uri = "sqlite:///" + _p
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
         _set_db_uri(uri)
-        app.config["WHOOSHEE_DIR"] = _whoosh_dir
-        app.extensions['whooshee']['index_path_root'] = _whoosh_dir
-        app.extensions['whooshee']['whoosheers_indexes'] = {}
+        app.config["WHOOSHEE_DIR"] = _whoosh_p
+        app.extensions["whooshee"]["index_path_root"] = _whoosh_p
+        app.extensions["whooshee"]["whoosheers_indexes"] = {}
         db.create_all()
-        _fs.whooshee.reindex()
         yield app.test_client()
         db.session.remove()
         db.drop_all()
     shutil.rmtree(_dir, ignore_errors=True)
-    shutil.rmtree(_whoosh_dir, ignore_errors=True)
 
 
 @pytest.fixture
@@ -235,13 +257,18 @@ def assert_ok_or_redirect(client, path):
 def _min_pdf(text="dummy"):
     """Return a minimal valid PDF as bytes. Self-contained, no external deps."""
     import zlib
+
     contents = b"BT /F1 12 Tf 100 700 Td (" + text.encode() + b") Tj ET"
     compressed = zlib.compress(contents)
     objs = [
         b"1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj",
         b"2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj",
         b"3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> >>\nendobj",
-        b"4 0 obj\n<< /Length " + str(len(compressed)).encode() + b" /Filter /FlateDecode >>\nstream\n" + compressed + b"\nendstream\nendobj",
+        b"4 0 obj\n<< /Length "
+        + str(len(compressed)).encode()
+        + b" /Filter /FlateDecode >>\nstream\n"
+        + compressed
+        + b"\nendstream\nendobj",
     ]
     body = b"\n".join(objs)
     return b"%PDF-1.4\n" + body + b"\ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n9\n%%EOF"
@@ -259,8 +286,17 @@ def seeded_app_ctx(app_ctx):
 
 def _assert_seeded_tables():
     from se_models import (
-        AreasOfStudy, Courses, Curriculum, DiplomaThemes, InternshipFormat,
-        InternshipTag, Posts, Staff, ThemesLevel, Users, Worktype,
+        AreasOfStudy,
+        Courses,
+        Curriculum,
+        DiplomaThemes,
+        InternshipFormat,
+        InternshipTag,
+        Posts,
+        Staff,
+        ThemesLevel,
+        Users,
+        Worktype,
     )
 
     assert AreasOfStudy.query.count() > 0

@@ -242,3 +242,38 @@ db.engines[None] = create_engine(new_uri)
 **Root cause:** `Path.write_bytes()` raises `FileExistsError` if the file already exists. Temp file cleanup doesn't always run (e.g., on test interruption or when using session-scoped temp dirs).
 
 **Fix:** Remove existing file before writing: `os.remove(str(path)); path.write_bytes(data)`.
+
+## 2026-07-12 — Command timeout waste: 7 re-runs instead of reading partial output
+
+**Symptom:** pytest timed out at 120s with ~30% complete. Instead of reading the
+progress dots and calculating ETA (30%/120s → ~400s total), I cycled through 6
+more permutations: `--timeout` (invalid flag), `-n 0` (slower than auto), `-n auto`
+with 300s (timed out at 89%), `--collect-only` (fast but wasteful), piped to
+`Select-String` (user aborted). Total waste: 4 extra timeouts + user frustration.
+
+**Root cause chain:**
+
+1. AGENTS.md "Live metrics" table had no Duration column → no expected budget to
+   calibrate timeout against
+1. Partial output from timeout #3 showed `[  6%]` dots — never read them
+1. Assumed "timed out" meant "hanging" not "needs more time"
+1. Escalated to flag permutations instead of increasing timeout
+
+**Lesson:** ETA = elapsed_seconds / fraction_complete. 120s / 0.30 = 400s.
+Set 600s once and be done. If a command produces ANY output before timeout,
+the problem is almost certainly timeout length, not wrong flags.
+
+**Prevention:** Always capture log output to a file (`>` or via tool's auto-save)
+so partial results survive timeout. Read them before retrying.
+
+## 2026-07-12 — Command failure pre-mortem
+
+**Lesson:** Before running ANY command, predict what you'll do if it fails or
+times out. Have a log-capture strategy ready. Never assume success.
+
+**Implementation checklist for every command:**
+
+1. "What could go wrong?" (timeout, wrong tool, missing flag, no PATH)
+1. "How will I diagnose it?" (capture stderr, save partial output to file)
+1. "What's my fallback?" (increase timeout, use different flag directly)
+1. Check the tool is in PATH / available via `uv run` before running

@@ -26,6 +26,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Before writing piped/chained commands, read `docs/TOOLING.md` §PowerShell
 - Before editing any doc, re-read its first 5 lines (scope/aim header). Verify your changes match that scope. If existing content doesn't match, flag it.
 - After any command that produces error output or non-zero exit, ask: "Was this expected?" If unexpected, stop and investigate.
+- **Timeout recovery**: if a command times out, READ the partial output — calc ETA from progress rate → retry ONCE with right timeout. See `docs/AI_AGENT_EXPERIENCE.md` for the failure pattern.
 - Before merge: verify CI shows test results, not just lint results — inspect the CI run log to confirm pytest actually ran, not just basedpyright
 - Before merging a pushed feature branch: CI won't trigger on the branch. Create a PR first, wait for CI green, then squash-merge via `gh pr merge --squash --delete-branch`
 - Before merge: verify TODO.md has no completed items that belong in commit messages instead
@@ -39,12 +40,12 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 
 Always query live, never hardcode:
 
-| Metric | Command |
-|--------|---------|
-| Test count + xfails | `pytest --tb=no -q` |
-| Coverage | `pytest --cov=src --cov-report=term-missing` |
-| CI status | `gh run list --branch staging --limit 1 --json conclusion` |
-| pyright ignores | `basedpyright src/` |
+| Metric | Command | Duration |
+|--------|---------|----------|
+| Test count + xfails | `pytest --tb=no -q` | ~7 min |
+| Coverage | `pytest --cov=src --cov-report=term-missing` | ~8 min |
+| CI status | `gh run list --branch staging --limit 1 --json conclusion` | ~2s |
+| pyright ignores | `basedpyright src/` | ~30s |
 
 See `docs/QUALITY_MANAGEMENT.md §6` for interpretation thresholds.
 
@@ -85,7 +86,7 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 
 ## Testing quirks
 
-- **Whoosh isolated** — per-fixture WHOOSHEE_DIR tempdirs eliminate the filesystem race. `-n auto` is safe.
+- **Whoosh index cached per-session** — `_seeded_db_path` (seeded) + `_empty_whoosh_dir` (unseeded) session fixtures build Whoosh index once; per-test fixtures copy it (~ms). Avoids ~37s per-test `whooshee.reindex()`.
 - **No Flask factory** — `app` is a module-level global. Patch configs BEFORE `from flask_se import app`
 - **scrypt unsupported on Python 3.13** — conftest.py mocks `check_password_hash` at module level
 - **APScheduler fires in tests** — `scheduler.shutdown(wait=False)` called at conftest module level
