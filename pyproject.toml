@@ -52,6 +52,7 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--cov=src --cov-report=term-missing --cov-fail-under=80 -n auto --durations=10"
+filterwarnings = ["ignore::ResourceWarning"]
 
 [tool.coverage.run]
 omit = ["src/thesesImport.py", "src/wsgi.py", "src/extract_text.py", "src/static/files/*"]

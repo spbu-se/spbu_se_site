@@ -86,6 +86,9 @@ LIST_VIEWS = [
 def _set_db_uri(uri):
     """Set SQLAlchemy URI and reset engine cache."""
     app.config["SQLALCHEMY_DATABASE_URI"] = uri
+    old = db.engines.get(None)
+    if old is not None:
+        old.dispose()
     db.engines[None] = create_engine(uri)
 
 
