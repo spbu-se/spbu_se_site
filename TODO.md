@@ -123,9 +123,9 @@ None.
 
 | Priority | Task | Effort | Depends on |
 |----------|------|--------|------------|
-| **M** | Full mojibake analysis — scan all source files for encoding corruption (e.g. `В§`→`§`, `СЃРµ`→unicode), evaluate `ftfy` for batch autocorrect | M | — |
+| **M** | Dead code elimination tool — evaluate `vulture` or `coverage` dead-code detection for CI/gates (motivated by pylint duplicate-code: 86 findings, mostly Alembic) | M | — |
 | **M** | Code duplicates prevention — evaluate `pylint --enable=duplicate-code`, `pycode_similar`, `PyChase`; choose, configure, integrate into quality gates | M | — |
-| **L** | Eliminate remaining 127 pyright ignores — categories B/D/G (framework-level attrs, Flask-Admin generics, bridge points) | L | — |
+| **L** | Eliminate remaining 114 pyright ignores — categories B/D/G (framework-level attrs, Flask-Admin generics, bridge points) | L | — |
 | **P5** | Python 3.12+, Docker, static site, open source docs | M-S | Icebox |
 
 ## Resolved (this session)
@@ -150,6 +150,7 @@ None.
 | Practice admin file upload (xdist race) | 6 tests xfailed | File I/O race in xdist parallel workers — concurrent file creation corrupts test state | Isolate practice admin tests from xdist or use lock-based file fixtures |
 | Thesis admin approval (Whoosh+xdist) | 3 tests, 2 xfailed | Whoosh `EmptyIndexError` | Whoosh index sync with per-test DB |
 | Google OAuth full flow | 2 tests pass with patch | Needs `client_google.json` file | Config stub or file-level mock |
+| `test_review_deep` 2 pre-existing failures | Both fail on unmodified HEAD | Not regressions — state mismatch in review lifecycle | Investigate mock state / test ordering |
 
 ## Module Coverage
 
@@ -163,18 +164,17 @@ None.
 | `thesesImport.py` | ~2% (28 tests, 23 xfail—module interaction) | Modeled, needs isolation |
 | **TOTAL** | **92%** | |
 
-## Technical Debt — remaining `# pyright: ignore` (125 total)
+## Technical Debt — remaining `# pyright: ignore` (114 total)
 
 | Category | Count | Description | Fixable? |
 |----------|-------|-------------|----------|
-| `reportAttributeAccessIssue` | 57 | SQLAlchemy dynamic attrs/backrefs, Flask-Admin framework attrs | Framework-level, low value |
-| `reportCallIssue` | 52 | SQLAlchemy model constructors — `**kwargs` insufficient for basedpyright | Add explicit typed `__init__` params |
+| `reportAttributeAccessIssue` | 53 | SQLAlchemy dynamic attrs/backrefs, Flask-Admin framework attrs | Framework-level, low value |
+| `reportCallIssue` | 41 | SQLAlchemy model constructors — `**kwargs` insufficient for basedpyright | Add explicit typed `__init__` params |
 | `reportAssignmentType` | 8 | Flask-Admin `column_labels`, `column_choices`, `form_args` dict generics | Framework-level |
-| `reportArgumentType` | 2 | pandas/YaDisk parameter types | Framework bridge |
+| `reportArgumentType` | 7 | pandas/YaDisk parameter types | Framework bridge |
+| `reportOptionalMemberAccess` | 2 | BeautifulSoup Tag.get() optionality | Framework bridge |
 | `reportIncompatibleMethodOverride` | 2 | Flask-Admin method signature mismatch | Framework-level |
-| `reportConstantRedefinition` | 2 | Config uppercase var reassignment | Trivial fix (lowercase) |
 | `reportGeneralTypeIssues` | 1 | Dict value union not narrowable | Trivial fix |
-| `reportReturnType` | 1 | `get_token` signature/return mismatch | Trivial fix |
 
 **By file:** flask_se_review.py (30), flask_se_admin.py (24), flask_se_internships.py (17), thesesImport.py (16), flask_se_theses.py (9), others (29)
 
