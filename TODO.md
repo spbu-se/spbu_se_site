@@ -102,7 +102,7 @@ None.
 - Removed 25 redundant `reportCallIssue` ignores (models already have `__init__(self, **kwargs)`)
 - Updated pre-push hook: `uv run mypy` → `uv run basedpyright src/`
 - Set pytest `-n auto` (was `-n 2`)
-- Updated all docs: AGENTS.md, ARCHITECTURE.md, DEVELOPMENT_PROCESS.md, TOOLING.md, TROUBLESHOOTING.md, RETROSPECTIVES.md
+- Updated all docs: AGENTS.md, ARCHITECTURE.md, DEVELOPMENT_PROCESS.md, TOOLING.md, TESTING.md, RETROSPECTIVES.md
 - 125 `# pyright: ignore` remain as documented technical debt (framework-level patterns)
 - Tests: 1144 passed, 1 skipped, 5 xfailed, 2 xpassed, coverage 93%
 

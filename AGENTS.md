@@ -35,6 +35,19 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Proactively use `git-history_git_wrapup_instructions` at session start (orientation snapshot), mid-session (checkpoint against acceptance criteria), and pre-merge (readiness gate) — not just at the end. See `docs/GIT_FLOW.md` §Wrap-up protocol.
 - Always learn, never forget — encode patterns before session ends
 
+## Live metrics
+
+Always query live, never hardcode:
+
+| Metric | Command |
+|--------|---------|
+| Test count + xfails | `pytest --tb=no -q` |
+| Coverage | `pytest --cov=src --cov-report=term-missing` |
+| CI status | `gh run list --branch staging --limit 1 --json conclusion` |
+| pyright ignores | `basedpyright src/` |
+
+See `docs/QUALITY_MANAGEMENT.md §6` for interpretation thresholds.
+
 ## Quality gates
 
 Three tiers of quality, from local convenience to production gate:

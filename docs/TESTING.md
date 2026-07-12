@@ -123,3 +123,47 @@ What we explicitly do not test and why:
 | Email delivery | SMTP is production-only, mocked in all tests | Production monitoring |
 | Password security (scrypt) | Python 3.13 OpenSSL build lacks scrypt — mocked in all tests | Prod environment has different OpenSSL |
 | UI/visual rendering | No browser testing framework configured | Manual review per release |
+
+## 8. Troubleshooting — Common Test Errors
+
+### APScheduler: background jobs fire during tests
+
+**When:** Running pytest — `SendMailNotification` fires every 10s against the test DB.
+**Cause:** `Flask-APScheduler` auto-starts at import time. Background jobs see the test DB with no tables.
+**Fix:** Set `app.config["TESTING"] = True` before yielding the test client, or disable the scheduler in test fixtures.
+
+### init_db: crashes on second call
+
+**When:** Calling `init_db()` twice in the same test.
+**Cause:** `init_db()` runs `db.session.commit()` before `db.drop_all()`. If the session has expired objects from the first call, the flush crashes.
+**Fix:** Call `db.session.remove()` before the second `init_db()` call.
+
+### Whooshee: creates index directory in CWD
+
+**When:** Running any Whooshee-enabled query (thesis search).
+**Cause:** Whooshee creates its index at the configured path relative to CWD at query time.
+**Effect:** `whooshee/` directory appears at project root. Already in `.gitignore`.
+
+### VK/Google OAuth: import crashes with missing deps
+
+**When:** Importing `flask_se_auth` without all OAuth dependencies installed.
+**Cause:** OAuth libraries are imported at module level. `vk_api` or `google_auth_oauthlib` failures propagate up.
+**Fix:** Ensure all OAuth deps are in `pyproject.toml`. During testing, the monkeypatch in `conftest.py` must happen before any `from flask_se import` line.
+
+### SQLite: "attempt to write a readonly database"
+
+**When:** CI (Linux) test fixtures try to `CREATE TABLE`.
+**Cause:** `tempfile.NamedTemporaryFile` keeps the fd open — SQLAlchemy engine can't write.
+**Fix:** Use `tempfile.mkdtemp()` instead; let SQLAlchemy create the `.db` file.
+
+### SQLite: "no such table: notification"
+
+**When:** APScheduler fires `SendMailNotification` during tests.
+**Cause:** Scheduler started during app init; runs on the test's temp DB which has no tables yet.
+**Fix:** Ensure scheduler is stopped in test teardown or use `TESTING` config.
+
+### Password hashing: "unsupported hash type scrypt"
+
+**When:** `check_password_hash` on Python 3.13.
+**Cause:** OpenSSL build of Python 3.13 doesn't include scrypt support.
+**Fix:** Skip password-verification tests, or use a different hash algorithm in dev config.

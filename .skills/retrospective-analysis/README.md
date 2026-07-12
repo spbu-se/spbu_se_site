@@ -123,7 +123,7 @@ If yes, update the skill README immediately as part of the retrospective commit.
 
 Scan the session for patterns, code snippets, and workarounds that are:
 
-- Not already documented in `docs/TROUBLESHOOTING.md` or `docs/TOOLING.md`
+- Not already documented in `docs/TROUBLESHOOTING.md` (retired, now in `docs/TOOLING.md`, `docs/TESTING.md`, or `docs/AI_AGENT_EXPERIENCE.md`) or `docs/TOOLING.md`
 - Likely to be needed again (e.g., patching patterns, fixture setups, encoding workarounds)
 - Discovered as a fix for a bug or a workaround for a module-level side effect
 
@@ -131,11 +131,11 @@ For each, add an entry to the appropriate doc with the exact code or command. Do
 
 Examples of what to extract:
 
-- `contextlib.suppress(RuntimeError)` for catching double `db.init_app()` — in `TROUBLESHOOTING.md`
-- `try/finally` for restoring module-level flags like `thesesImport.download` — in `TROUBLESHOOTING.md`
+- `contextlib.suppress(RuntimeError)` for catching double `db.init_app()` — in `docs/AI_AGENT_EXPERIENCE.md`
+- `try/finally` for restoring module-level flags like `thesesImport.download` — in `docs/AI_AGENT_EXPERIENCE.md`
 - `[System.IO.File]::WriteAllText()` for PowerShell UTF-8 encoding — in `TOOLING.md`
 
-**Check after extraction**: If a future session encounters the same problem, would a `grep` or `TROUBLESHOOTING.md` search find the fix? If not, improve the entry's discoverability (better section title, more keywords, cross-reference from related docs).
+**Check after extraction**: If a future session encounters the same problem, would a `grep` or `AI_AGENT_EXPERIENCE.md` search find the fix? If not, improve the entry's discoverability (better section title, more keywords, cross-reference from related docs).
 
 ### 6. Suggest improvements
 
@@ -296,7 +296,7 @@ retrospective — they were only mentioned in the retro entry. The user pointed 
 after the retro was finalized.
 
 **Fix**: Added step 5d "Extract reusable techniques" — scans the session for code patterns,
-workarounds, and fixes, and ensures they land in `TROUBLESHOOTING.md` or `TOOLING.md`
+workarounds, and fixes, and ensures they land in `TOOLING.md` or `AI_AGENT_EXPERIENCE.md`
 with discoverable section titles and keywords.
 
 ### [2026-07-07] Add directory-collision pattern to step 5b

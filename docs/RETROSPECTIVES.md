@@ -191,7 +191,7 @@ Tests: 1065 passed, 0 failed, 1 skipped, 22 xfailed, 25 xpassed. CI green.
 | Gap | Type | Fix |
 |-----|------|-----|
 | mdformat pre-commit hook paths out of sync with CI (missing `.skills/ .claude/ .agents/`) | Config drift | Fixed `.pre-commit-config.yaml`, `AGENTS.md`, `DEVELOPMENT_PROCESS.md`, `GIT_FLOW.md` — all now use the same explicit paths as CI |
-| 5 undocumented knowledge items from prior session | Missing docs | Added to TROUBLESHOOTING.md (mdformat diagnosis), TOOLING.md (N801, lxml rationale), TODO.md (practice_admin xfail), unattended-mode skill (stale branch sweep) |
+| 5 undocumented knowledge items from prior session | Missing docs | Added to AI_AGENT_EXPERIENCE.md (mdformat diagnosis), TOOLING.md (N801, lxml rationale), TODO.md (practice_admin xfail), unattended-mode skill (stale branch sweep) |
 | `test_init_db_creates_all_expected_tables` fails with Whoosh LockError in xdist | Pre-existing xdist fragility | Added xfail |
 | `test_non_staff_redirects_to_practice_index` fails in xdist | Pre-existing xdist race | Added xfail |
 | `test_post_supervisor_found_in_users_not_in_staff` fails in xdist (user creation not visible to parallel worker) | Pre-existing xdist race | Added xfail (could be fixed with proper session isolation) |
@@ -232,7 +232,7 @@ loaded before work. No recurrence of "custom is faster" bias.
 
 **Knowledge extracted** (already committed as part of docs fixes):
 
-- mdformat CI truncated-filename diagnosis → `docs/TROUBLESHOOTING.md`
+- mdformat CI truncated-filename diagnosis в†’ `docs/TOOLING.md`
 - N801 suppression rationale → `docs/TOOLING.md`
 - lxml dependency rationale → `docs/TOOLING.md`
 - Stale auto-branch sweep rule → `.skills/unattended-mode/README.md`

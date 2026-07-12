@@ -92,8 +92,35 @@ Standard techniques for systematic quality management, each with a dedicated art
 | `docs/RETROSPECTIVES.md` | Process gaps, pattern recurrences, escalation history | Learning from mistakes is the only way to improve process. Pattern recurrence detection with escalation ladder prevents stagnation. |
 | `docs/TESTING.md` | Testing discipline, coverage targets, xfail policy | Tests are the primary quality signal. Explicit policy for what to test, what to skip, and what to expect to fail. |
 | `docs/TOOLING.md` §Quality Tool Catalog | All quality tools, exact configs, adoption status | Registry of available tools. Prevents "which tool for this job?" debates. User reviews and approves additions. |
+| `docs/AGENTS.md` §Live metrics | Prescribed commands for live metric queries | Session-start orientation anchor. No hardcoded numbers — always query live. |
 
-## 6. See also
+## 6. Metrics
+
+### What we track
+
+| Metric | Prescribed command | Why |
+|--------|-------------------|-----|
+| Test count | `pytest --tb=no -q` | Suite size trend — drift signals missing or broken tests |
+| Coverage % | `pytest --cov=src --cov-report=term-missing` | Coverage target compliance for production modules |
+| xfail count | `pytest --tb=no -q` | Known-failure debt — rising count means new blockers |
+| pyright ignores | `basedpyright src/` | Type debt — 114 remaining, tracked per module |
+| CI status | `gh run list --branch staging --limit 1 --json conclusion` | Gate health — red blocks all work |
+
+### When to refresh
+
+- **Session start**: run prescribed commands, record in session scratch
+- **Session end**: verify no metrics regressed (same or better vs start)
+- **Never hardcode** in AGENTS.md or session summaries — metrics drift between runs
+
+### How to read
+
+| Metric | Green | Yellow | Red |
+|--------|-------|--------|-----|
+| Test count | Stable or growing | Dropped 1-2 | Dropped 3+ |
+| Coverage | ≥90% | 85-89% | \<85% |
+| CI status | `success` | `neutral` | `failure` |
+
+## 7. See also
 
 - `docs/AI_AGENTS.md` — Agent instructions for CI discipline and tool proposals
 - `docs/TOOLING.md` §Quality Tool Catalog — exact tool configurations

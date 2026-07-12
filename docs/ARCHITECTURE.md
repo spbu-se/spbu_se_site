@@ -2,25 +2,9 @@
 
 <!-- encoding: utf-8 -->
 
-Module map, data flow, design decisions, and conventions for the SE Site.
+Module map, data flow, and conventions for the SE Site.
 
-Covers: module responsibilities, execution flow, template structure, design rationale. Does not cover: endpoint schemas — see `docs/API_REFERENCE.md`, data models — see `docs/SCHEMA.md`.
-
-## Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Framework | Flask 3.x |
-| ORM | SQLAlchemy 2.x |
-| Database | SQLite |
-| Full-text search | Whooshee (Whoosh) |
-| Templates | Jinja2 |
-| Admin panel | Flask-Admin |
-| Auth | Flask-Login + custom (email, VK, Google) |
-| Scheduler | APScheduler |
-| Forms | WTForms |
-| Migrations | Flask-Migrate (Alembic) |
-| Static assets | Quick Website theme (Bootstrap 4) |
+Covers: module responsibilities, execution flow, template structure. Does not cover: technology choices — see `docs/DESIGN_DECISIONS.md`, endpoint schemas — see `docs/API_REFERENCE.md`, data models — see `docs/SCHEMA.md`.
 
 ## Module Map
 
@@ -96,8 +80,7 @@ Three background jobs run within the Flask context:
 
 ### Static Site Generation
 
-Frozen-Flask can build the entire site to a static directory:
-`python flask_se.py build` outputs to `../docs/` for static hosting.
+Frozen-Flask can build the entire site to a static directory. See `docs/DESIGN_DECISIONS.md` for technology choices.
 
 ## Template Structure
 
@@ -114,107 +97,11 @@ View-specific templates live in subdirectories: `auth/`, `news/`, `practice/stud
 
 Practice templates use `templates.py` enum files for path references rather than hardcoded strings.
 
-## Design Decisions
-
-### [2026-07-03] Dual Dep Management: uv (dev) + pip (prod)
-
-Development uses `uv` for speed and lockfile consistency (`uv.lock`). Production
-(Docker, CI on `current`) uses `pip install -r requirements.txt` — no `uv`
-dependency.
-
-`requirements.txt` is generated from `uv.lock` via:
-
-```bash
-uv export --no-dev --no-hashes > requirements.txt
-```
-
-**Why keep pip in prod**:
-
-- Docker image stays smaller (no uv binary, no Rust toolchain)
-- CI on `current` matches prod exactly (pip, Python 3.9)
-- No runtime coupling to uv — prod can be deployed anywhere pip works
-- uv is a dev tool only, like ruff or pre-commit
-
-**Process implications**:
-
-- Before every `staging → current` merge, `requirements.txt` must be regenerated
-- Staging CI validates `requirements.txt` is fresh (fails if stale)
-- New dep workflow: `uv add <pkg>` → commit → staging CI auto-verifies refresh
-
-### [2026-06-27] No Flask Blueprints
-
-Routes are registered via `app.add_url_rule()` in `flask_se.py` rather than Flask Blueprints. This keeps all routes visible in one file at the cost of module isolation. Each view function is imported from a separate module.
-
-**Why not Blueprints**: The project predates widespread Blueprint adoption. Migration would add complexity without immediate benefit. If the project grows significantly, Blueprints would be the recommended refactor.
-
-### [2026-06-27] Flat File Upload Structure
-
-Uploaded files (PDFs, presentations, reviews) are stored in `static/` subdirectories organized by lifecycle stage:
-
-- `static/thesis/texts/` — Published thesis PDFs
-- `static/thesis/slides/` — Published presentations
-- `static/thesis/reviews/` — Published reviews
-- `static/practice/texts/` — Active practice works
-- `static/tmp/texts/` — Temp uploads awaiting approval
-- `static/onreview/reviews/` — Thesis-on-review files
-
-**Why not object storage**: SQLite + local filesystem is simpler for a department-scale site. No cloud dependencies needed.
-
-### [2026-06-29] Three-Tier Practice System
-
-The practice module has three access tiers:
-
-- **Student** (`/practice`): submit topics, weekly reports, upload materials, set goals/tasks
-- **Staff/Supervisor** (`/practice_staff`): monitor advisees, comment on reports, notifications
-- **Admin/Curator** (`/practice_admin`): full control, bulk operations, archive to main repository
-
-**Why three tiers**: Mirrors the actual academic workflow. Students own their work, supervisors guide, curators administer.
-
-### [2026-07-07] Factory Pattern for Parametrized Views
-
-Summer school pages use a factory function `create_summer_school_view(year)` that generates distinct view functions at registration time. Each function is renamed via `__name__` assignment so Flask's URL routing distinguishes them.
-
-**Why factory pattern**: Avoids duplicating 4 nearly identical view functions. The `schools` dict provides metadata per year; the view factory queries `SummerSchool.query.filter_by(year=year)`.
-
-### [2026-07-07] Notification Enum for Template Paths
-
-Templates in `templates/notification/`, `practice/student/`, `practice/staff/`, `practice/admin/` use `templates.py` enum classes (`NotificationTemplates`, `PracticeStudentTemplates`, etc.) to reference template paths instead of hardcoded strings.
-
-**Why enum pattern**: Prevents typos in template names, enables IDE autocompletion, centralizes path changes.
-
-### [2026-06-29] Single-File Models
-
-All SQLAlchemy models live in `se_models.py` (not split by domain). The `init_db()` function creates seed data inline.
-
-**Why single file**: Keeps the schema visible in one place. Database migrations (Alembic/Flask-Migrate) handle schema evolution; models are read-only references to the current schema.
-
-### [2026-07-05] Mypy Per-Module Opt-Out Strategy
-
-Basedpyright with `typeCheckingMode = "all"` is used for type checking. View-heavy modules that rely on untyped third-party libraries (SQLAlchemy, BeautifulSoup, Flask-Admin) use `# pyright: ignore[code]` comments for framework-level patterns:
-
-- `no-untyped-def`, `no-untyped-call` — disabled for all Flask view modules (functions return `Response`, type inference is noisy)
-- `attr-defined`, `assignment` — disabled for SQLAlchemy model-heavy files (relationship properties trigger false positives)
-- `union-attr`, `arg-type` — disabled for files with heavy `request.form.get()` usage
-
-**Why not fix all violations**: The codebase has ~193 untyped functions out of ~202. Strict typing across all modules would require ~500+ annotations. The per-module opt-out allows progressive typing: files that are simple (config, forms) get full strict checking; complex files (views, models) get gradual coverage.
-
-**Process**: All modules are checked by basedpyright. Framework-level patterns (SQLAlchemy constructors, WTForms choices, Flask-Admin hooks) use `# pyright: ignore[code]` comments at the point of use rather than global overrides.
-
-### [2026-07-05] Test-First, No Production Code Before 90% Coverage
-
-Production code is frozen until test coverage reaches 90%. Rationale: safe refactoring requires tested behavior as ground truth. All bug fixes and code quality improvements wait for the coverage threshold.
-
-**Exceptions**: Trivial one-line fixes (e.g., adding `.get("field", "")` default) that unblock tests can be applied during the coverage phase if they directly enable testing.
-
 ## Conventions
 
 ### Coding
 
-- Flask app pattern: factory function `create_app()` in `flask_se.py`
-- Route registration: `app.add_url_rule()` with explicit endpoint names
-- Template rendering: `render_template()` with context dicts
-- Form handling: WTForms with `validate_on_submit()` pattern
-- **SPDX headers**: every `.py` file starts with `# SPDX-License-Identifier: MIT`
+- **SPDX headers**: every `.py` file starts with `# SPDX-License-Identifier: Apache-2.0`
 
 ### Database
 

@@ -64,7 +64,7 @@ Like special ops: each has its mission, they coordinate, no single one dominates
 
 Everything in `docs/GIT_FLOW.md`, `docs/TESTING.md`, `docs/TOOLING.md`, `.pre-commit-config.yaml`, CI workflows. Each practice traces upward to one or more Heuristics or Priorities.
 
-Design decisions about deliberate deviations are recorded in `docs/ARCHITECTURE.md -> Design Decisions`.
+Design decisions about deliberate deviations are recorded in `docs/DESIGN_DECISIONS.md`.
 
 Covers: planning, testing, linting, code review, release, dependencies, session lifecycle, workflow discipline. Does not cover: CLI commands, architecture design, AI tooling, version control — see `docs/GIT_FLOW.md`.
 
@@ -113,7 +113,7 @@ Planning phase is non-negotiable. Never jump to implementation without prior dis
 
 ### Architecture first
 
-Write design decisions in `docs/ARCHITECTURE.md -> Design Decisions` before implementation.
+Write design decisions in `docs/DESIGN_DECISIONS.md` before implementation.
 
 ### Doc first
 
@@ -201,7 +201,7 @@ Every push to staging should be publishable. The pre-push gate is the minimum ba
 
 Before compacting context or ending session:
 
-- Update `docs/ARCHITECTURE.md` Design Decisions with new choices
+- Update `docs/DESIGN_DECISIONS.md` with new choices
 - Update `TODO.md` (remove completed — implemented work belongs in commit messages, not TODO; reorder backlog)
 - Run AI instructions drift check (see `docs/DOCS.md §5.3`)
 - Audit cross-references: scan every `.md` file under `docs/` and `.skills/` for hardcoded step numbers. Replace with section-title references.
@@ -248,21 +248,26 @@ Every new file type should have an `.editorconfig` entry. Keep `.editorconfig` i
 
 The exact commands for each step are in `docs/GIT_FLOW.md §3` (Guardrails — Session start).
 
-### Session end
+### Session end — wrap-up protocol
 
-**Why**: Unfinished work must be preservable across sessions without polluting history.
+**Why**: Knowledge must persist across sessions. Every session produces new decisions, dead ends, and metric changes — these must be captured before they are lost.
 
 **What**:
 
-1. Check working tree for dirty or untracked files
-1. Write `.unfinished.plan.md` with date/time, focus task, branch, last commit hash, dirty files, completed and remaining steps, undocumented decisions
-1. If on a feature branch with unfinished code: commit WIP, create `_UNFINISHED.md` as the final commit
-1. `_UNFINISHED.md` is always the last commit — stripped automatically by squash-merge
-1. `.unfinished.plan.md` is never committed (see `.gitignore`)
-1. Refresh `requirements.txt` if dependencies changed
-1. Verify working tree is clean
-
-The exact commands for each step are in `docs/GIT_FLOW.md §7`.
+1. **Update `docs/DESIGN_DECISIONS.md`** — any new tech/framework decision made during the session? Append dated entry.
+1. **Update `docs/AI_AGENT_EXPERIENCE.md`** — any dead ends, debugging trails, or workarounds discovered? Append entry (also write immediately when hitting the dead end, not only at end).
+1. **Refresh `requirements.txt`** if dependencies changed.
+1. **Run docs-review for drift**:
+   - Load `.skills/docs-audit/README.md`
+   - Run doc health checks (freshness, cross-references, scope, encoding)
+   - EXCLUDE frequently changed knowledge docs: `AI_AGENT_EXPERIENCE.md`, `TODO.md`, `CODE_ISSUES.md`, `AGENTS.md` (these are expected to drift)
+1. **Self-improvement check** — any new guardrails needed?
+   - Process rules → `docs/DEVELOPMENT_PROCESS.md`
+   - Pre-flight items → `AGENTS.md`
+1. **Retro is NOT part of wrap-up**. Propose retrospective only if session involved doc restructuring (per existing rule). See `docs/RETROSPECTIVES.md`.
+1. Write `.unfinished.plan.md` with date/time, focus task, branch, last commit hash, dirty files, completed and remaining steps, undocumented decisions.
+1. If on a feature branch with unfinished code: commit WIP, create `_UNFINISHED.md` as the final commit. `_UNFINISHED.md` is always the last commit — stripped automatically by squash-merge. `.unfinished.plan.md` is never committed (see `.gitignore`).
+1. Verify working tree is clean.
 
 ### Staging green rule
 

@@ -4,7 +4,7 @@
 
 Meta-documentation for the SE Site project: how, why, and where we document things. The canonical source for all doc-related conventions, policies, and checks.
 
-Covers: doc creation rules, update rules, canonical source discipline, encoding policy, formatting conventions, integrity checks, document catalog, and recurring anti-patterns. Does not cover: general development process — see `docs/DEVELOPMENT_PROCESS.md`, git workflow — see `docs/GIT_FLOW.md`, tool-specific knowledge — see `docs/TOOLING.md`, error troubleshooting — see `docs/TROUBLESHOOTING.md`.
+Covers: doc creation rules, update rules, canonical source discipline, encoding policy, formatting conventions, integrity checks, document catalog, and recurring anti-patterns. Does not cover: general development process — see `docs/DEVELOPMENT_PROCESS.md`, git workflow — see `docs/GIT_FLOW.md`, tool-specific knowledge — see `docs/TOOLING.md`, technology decisions — see `docs/DESIGN_DECISIONS.md`.
 
 ## 1. Why We Document
 
@@ -37,18 +37,19 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 | `DEVELOPMENT_PROCESS.md` | Process | Planning, testing, linting, code review, release, deps, session lifecycle | CLI, architecture, AI tooling, git | Process workflow, session lifecycle |
 | `GIT_FLOW.md` | Git | Branching, merge strategy, commit discipline, signoff, versioning | Planning, testing, process | Git workflow |
 | `RETROSPECTIVES.md` | History | Retrospective entries from prior sessions | Git workflow, development process | Process gap history |
-| `ARCHITECTURE.md` | Code design | Module map, data flow, Design Decisions | Endpoints, schema | Module responsibilities, design rationale |
+| `ARCHITECTURE.md` | Code design | Module map, data flow, conventions | Technology choices, schema | Module responsibilities, design rationale |
 | `API_REFERENCE.md` | Routes | All endpoints, methods, view functions | Models, architecture | Route registry |
 | `SCHEMA.md` | Database | Tables, fields, relationships | Endpoints, architecture | DB schema |
 | `REQUIREMENTS.md` | Features | Feature specs, user roles, navigation | Implementation, schema | Feature definition |
 | `TESTING.md` | Testing | Discipline, targets, xfail policy, long-term gaps | Fixture patterns, methodology | Testing strategy |
 | `TOOLING.md` | Tools | Portable tooling knowledge | Local quirks, project errors | Cross-platform tool patterns |
-| `TROUBLESHOOTING.md` | Errors | Common errors, root causes, fixes | Portable tooling | Fix recipes |
 | `CODE_ISSUES.md` | Bugs | Known production bugs | Process gaps | Bug inventory |
 | `REPO_REVIEW.md` | Audit | Health checklist | — | Repo health audit |
 | `REVERSE_ENGINEERING.md` | RE | Re-engineering cycle | Dev workflow, testing | RE methodology |
 | `AI_AGENTS.md` | AI config | AI tooling config, permissions, output format conventions, skills architecture and catalog | Process, git | AI tool setup |
 | `QUALITY_MANAGEMENT.md` | Quality | Quality philosophy, tiers motivation, agent protocol reasoning, CI discipline motivation, artifact catalog | Tool configs, agent instructions, testing discipline | Quality policy |
+| `DESIGN_DECISIONS.md` | Decisions | Technology choices, framework-specific decisions, implementation patterns | Architecture, testing | Framework/tech decisions |
+| `AI_AGENT_EXPERIENCE.md` | Experience | Dead ends, debugging trails, agent-specific tool limitations | Process, config, tooling | Agent-collected experience |
 
 ### Skills directory (.skills/)
 
@@ -74,13 +75,14 @@ Each doc has a knowledge discipline — what goes in, what stays out, how inform
 | `DEVELOPMENT_PROCESS.md` | Process workflow — planning, session lifecycle, code review, disciplines | §0.x workflow steps, §1-6 major areas | §0.x: numbered planning steps. Other §: Why→What→How per section with command blocks | **Cannot be rebuilt** — user-designated exception, all other docs cross-reference here |
 | `GIT_FLOW.md` | Git — branching, merge, commit, signoff, versioning | §1-8 numbered (Branching, Merge Strategy, Commit, Signoff, Rebase, Stale Branches, Versioning, GitHub) | Heading → **Why** (italicized) → **What** (table/rules) → **How** (command blocks) | Rebuild from `docs/DEVELOPMENT_PROCESS.md` §Version Control cross-reference + `.gitignore` + `.pre-commit-config.yaml` |
 | `RETROSPECTIVES.md` | Process gap history — chronological entries | Dated H3 entries per session | Consistent template: Changes analyzed, Gaps found (table), Pattern recurrence, What went well, What went wrong, Root causes, Fix, State at handoff | Rebuild from `git log` and session notes — but Gap table detail is unrecoverable |
-| `ARCHITECTURE.md` | Code design — module map, data flow, design decisions | Module map, Data flow, Design Decisions | Module map: table of module→responsibility. Design Decisions: dated table of decision→rationale→alternatives | Rebuild from source code via reverse-engineering |
+| `ARCHITECTURE.md` | Code design — module map, data flow, conventions | Module map, Data flow, Conventions | Module map: table of module→responsibility. | Rebuild from source code via reverse-engineering |
+| `DESIGN_DECISIONS.md` | Tech decisions — framework/technology choices | Per-decision dated entries | Decision: date→context→decision→rationale→consequences→alternatives | Rebuild from `docs/ARCHITECTURE.md` Design Decisions (moved session 9) |
+| `AI_AGENT_EXPERIENCE.md` | Agent experience — debugging trails, dead ends, workarounds | Per-symptom H2 sections | Symptom→Attempts→Root cause→Fix table with commands | Recovery from `docs/AI_AGENTS.md` + retro entries |
 | `API_REFERENCE.md` | Routes — all endpoints, methods, view functions | Grouped by feature area (News, Theses, Practice, etc.) | Table: route, methods, params, returns, auth requirement | Rebuild from source code (`flask_se_*.py` route decorators) |
 | `SCHEMA.md` | Database — tables, fields, relationships | Grouped by model area | Table: column, type, constraints, FK target, notes | Rebuild from `se_models.py` SQLAlchemy definitions |
 | `REQUIREMENTS.md` | Feature specs — user roles, navigation, feature descriptions | Per-feature sections | User story → acceptance criteria → notes | Rebuild from templates + user interviews |
 | `TESTING.md` | Testing strategy — discipline, targets, xfail policy, gaps | §1-6 numbered (Discipline, Coverage Targets, Execution, xfail, Gaps, Exclusions) | Tables for targets/xfails/gaps. § follows Why→What→How | Rebuild from `conftest.py`, test files, `pyproject.toml` coverage config |
 | `TOOLING.md` | Portable tooling knowledge — cross-platform quirks per tool | Tool-name H2 sections (uv, pytest, SQLAlchemy, pre-commit, GitHub CLI, PowerShell, Python, Ruff, etc.) | Tool section: heading → "correct/wrong" code blocks with explanation. No process rules, only mechanics | Rebuild from `.pre-commit-config.yaml`, `pyproject.toml`, CI workflow files |
-| `TROUBLESHOOTING.md` | Error recipes — symptom → root cause → fix | Per-error H3 sections | Symptom paragraph → **Cause:** → **Fix:** command blocks | Rebuild from retro entries, CI logs, session notes |
 | `CODE_ISSUES.md` | Bug inventory — known production bugs | Per-module H2 sections | Table: bug, module, impact, status | Rebuild from `TODO.md` Known bugs + retro entries |
 | `REPO_REVIEW.md` | Audit checklist — repo health evaluation | Numbered phases (Legal, Architecture, Code Quality, etc.) | Phase: checklist items with status column | Rebuild from GitHub repo settings + `.github/` + CI workflows |
 | `REVERSE_ENGINEERING.md` | RE methodology — cycle description, source types | Cycle steps, Source types | Methodology description: steps numbered, types in tables | Rebuild from `.skills/js-bundle-analysis/README.md` patterns |
@@ -167,7 +169,7 @@ Skills live in `.skills/<name>/README.md` (vendor-agnostic canonical source). Pe
 
 - **Doc changes belong on `docs/` branches or during staging→current gate**, not on feature branches. See `docs/DEVELOPMENT_PROCESS.md §0.6`.
 - **Exception**: architecture-first or doc-first cycle was violated (code before doc) → add a `TODO.md` debt entry mid-sprint. This is a violation record, not a doc change.
-- **Exception**: new findings during implementation (bugs, quirks, workarounds) go to `TOOLING.md` or `TROUBLESHOOTING.md` immediately, not at session end. See "Document as you go" in `docs/AI_AGENTS.md` §Skills (`.skills/unattended-mode/`).
+- **Exception**: new findings during implementation (bugs, quirks, workarounds) go to `TOOLING.md` or `AI_AGENT_EXPERIENCE.md` immediately, not at session end. See "Document as you go" in `docs/AI_AGENTS.md` §Skills (`.skills/unattended-mode/`).
 
 ### 4.2 What Not to Update During Feature Work
 

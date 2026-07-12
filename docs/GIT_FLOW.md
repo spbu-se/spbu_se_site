@@ -95,7 +95,7 @@ Bypasses staging for production-blocking bugs only. After merge, log debt in `TO
 
 Staging is never deleted. It is the integration branch where all features converge before the quality gate to `current`.
 
-**Quality gate**: Feature → staging (tests pass). Staging → current (full verification via `docs/DEVELOPMENT_PROCESS.md §3.5`).
+**Quality gate**: Feature → staging (tests pass). Staging → current (full verification via `docs/DEVELOPMENT_PROCESS.md §4.5`).
 
 ## 3. Commit Discipline
 
@@ -240,4 +240,4 @@ uv export --no-dev --no-hashes > requirements.txt
 
 See §2.1 — the PR gate is the standard path for all feature branches pushed to remote. Always create a PR before merging to staging.
 
-Commit if changed. CI on `staging` validates freshness automatically.
+Wrap-up protocol is in `docs/DEVELOPMENT_PROCESS.md §0.7` — includes DESIGN_DECISIONS.md and AI_AGENT_EXPERIENCE.md updates, docs-review for drift, and self-improvement check.

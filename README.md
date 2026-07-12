@@ -94,20 +94,22 @@ se-site/
 | File | Purpose |
 |------|---------|
 | [docs/AI_AGENTS.md](docs/AI_AGENTS.md) | AI tooling config, output format conventions |
+| [docs/AI_AGENT_EXPERIENCE.md](docs/AI_AGENT_EXPERIENCE.md) | Agent-collected debugging trails and dead ends |
 | [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | API endpoint reference |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Module design and data flow |
 | [docs/CODE_ISSUES.md](docs/CODE_ISSUES.md) | Known production bug inventory |
+| [docs/DESIGN_DECISIONS.md](docs/DESIGN_DECISIONS.md) | Technology and framework decisions |
+| [docs/DEVELOPMENT_PROCESS.md](docs/DEVELOPMENT_PROCESS.md) | Development workflow, conventions, testing |
 | [docs/DOCS.md](docs/DOCS.md) | Documentation management conventions |
 | [docs/GIT_FLOW.md](docs/GIT_FLOW.md) | Branching, merge strategy, commit discipline |
-| [docs/DEVELOPMENT_PROCESS.md](docs/DEVELOPMENT_PROCESS.md) | Development workflow, conventions, testing |
-| [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | Feature specifications and user roles |
+| [docs/QUALITY_MANAGEMENT.md](docs/QUALITY_MANAGEMENT.md) | Quality philosophy and policy |
 | [docs/REPO_REVIEW.md](docs/REPO_REVIEW.md) | Repository audit checklist |
+| [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | Feature specifications and user roles |
 | [docs/RETROSPECTIVES.md](docs/RETROSPECTIVES.md) | Process gap history |
 | [docs/REVERSE_ENGINEERING.md](docs/REVERSE_ENGINEERING.md) | Extracting knowledge from legacy code |
 | [docs/SCHEMA.md](docs/SCHEMA.md) | Database schema |
 | [docs/TESTING.md](docs/TESTING.md) | Testing strategy and targets |
 | [docs/TOOLING.md](docs/TOOLING.md) | Cross-platform tooling knowledge |
-| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common errors and fixes |
 
 ## Contributing
 

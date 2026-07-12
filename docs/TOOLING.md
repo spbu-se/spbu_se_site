@@ -3,7 +3,7 @@
 <!-- encoding: utf-8 -->
 
 Portable tooling knowledge reusable across projects.
-Not local host quirks (see `.tooling.md`) and not project-specific errors (see `docs/TROUBLESHOOTING.md`).
+Not local host quirks (see `.tooling.md`).
 
 ## uv
 
@@ -34,6 +34,18 @@ If `[build-system]` is present, `uv sync` builds the project and creates `*.egg-
 ```bash
 uv run pre-commit install --install-hooks
 ```
+
+### uv lock fails with "No solution found"
+
+**When:** Adding a new dependency with `requires-python` constraints.
+**Cause:** `pyproject.toml` `requires-python` includes versions the dep doesn't support.
+**Fix:** Run `uv lock --python <version>` or narrow `requires-python`.
+
+### uv sync: "Failed to build uwsgi"
+
+**When:** `uwsgi` is in `pyproject.toml` dependencies on Windows.
+**Cause:** uWSGI is source-only, uses Unix-only `os.uname()`.
+**Fix:** Remove from pyproject; install via `RUN pip install uwsgi` in Dockerfile only.
 
 ## pytest + SQLAlchemy
 
@@ -155,6 +167,10 @@ First invocation downloads and caches hook environments. Install hooks early to 
 
 When a CLI option or path is implied by another option or glob, omit the redundant part. A directory path covers all files within it; listing a child file explicitly is noise. Keep commands short and clear — every redundant token distracts from the real structure.
 
+### Restoring vendor files that bypass hooks
+
+Formatters (trailing-whitespace, dprint) can modify vendor/static files. `git checkout HEAD -- path/to/dir` restores files and bypasses pre-commit hooks entirely — no need to disable hooks.
+
 ## GitHub CLI
 
 ```bash
@@ -265,6 +281,23 @@ Applies to any native command (git, gh, uv) whose stderr output is informative b
 keyword argument names cannot contain dots. The correct form is positional:
 `SeAdminModelViewUsers(Users, db.session)`.
 
+### datetime.timezone.UTC vs datetime.timezone.utc
+
+**When:** Using `datetime.timezone.UTC` on Python 3.13.
+**Cause:** Python 3.13 removed the deprecated `timezone.UTC` alias. Only `timezone.utc` (lowercase) is available.
+**Fix:** Replace `timezone.UTC` with `timezone.utc`.
+
+### `# pyright: ignore` not suppressing errors
+
+**When:** A `# pyright: ignore[code]` comment on a line produces a "suppression comment is unused" warning.
+**Cause:** `enableTypeIgnoreComments = true` is not set; or the error code in the comment doesn't match the actual error.
+**Fix:** Run `uv run basedpyright src/` and verify the error code matches exactly. If the issue is a framework pattern (SQLAlchemy `__init__`, WTForms `choices`, Flask-Admin hooks), the standard set is:
+
+- `reportCallIssue` — for dynamic constructor kwargs
+- `reportAttributeAccessIssue` — for SQLAlchemy dynamic attributes/backrefs
+- `reportOptionalMemberAccess` — for access after `.first()` without None check
+- `reportAssignmentType` — for framework-level type mismatches
+
 ## Ruff
 
 ### N801 (class name convention) suppressed for tests
@@ -307,6 +340,12 @@ Exclude scripts that run once (importers, migrations) from coverage for realisti
 [tool.coverage.run]
 omit = ["src/thesesImport.py", "src/migrations/*"]
 ```
+
+### Coverage metrics accumulate across runs
+
+**When:** Running `pytest --cov` multiple times.
+**Cause:** `.coverage` file appends data, not replaces. Subsequent runs include old data.
+**Fix:** Delete `.coverage` before each session, or use `coverage erase`.
 
 ## Commit signing
 
@@ -406,6 +445,12 @@ $lines = uv export --no-dev --no-hashes 2>($null)
 ```
 
 This quirk does NOT apply when the output is a single line (no `\n` in the captured text). Always verify multi-line output with `($content).GetType()` before passing to a string parameter.
+
+### pip install: "UnicodeDecodeError: 'utf-16-le'"
+
+**When:** `pip install -r requirements.txt` on Linux CI.
+**Cause:** `requirements.txt` written with UTF-8 BOM on Windows.
+**Fix:** Use `[System.IO.File]::WriteAllText()` with `UTF8Encoding($false)` to omit BOM.
 
 ### mdformat doesn't show file path on UnicodeDecodeError
 
