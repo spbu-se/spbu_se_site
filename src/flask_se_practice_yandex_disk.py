@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-"""
-Copyright 2023 Alexander Slugin
+"""Copyright 2023 Alexander Slugin.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -54,14 +52,15 @@ def get_code():
         + url_for(yandex_code.__name__)
     )
     url = YANDEX_AUTHORIZE_URL_TEMPLATE.substitute(
-        yandex_client_id=YANDEX_CLIENT_ID, redirect_uri=redirect_uri
+        yandex_client_id=YANDEX_CLIENT_ID,
+        redirect_uri=redirect_uri,
     )
     return redirect(url)
 
 
 def get_token(code: str) -> str | None:
     credentials_string = base64.b64encode(
-        (YANDEX_CLIENT_ID + ":" + YANDEX_SECRET).encode("ascii")
+        (YANDEX_CLIENT_ID + ":" + YANDEX_SECRET).encode("ascii"),
     ).decode("ascii")
     headers = {"Authorization": "Basic " + credentials_string}
     content = "grant_type=authorization_code&code=" + code

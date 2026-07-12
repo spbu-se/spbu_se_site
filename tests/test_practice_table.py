@@ -39,8 +39,8 @@ class TestPracticeTable:
 
         from flask_se_practice_table import edit_table
 
-        tmp = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
-        tmp.close()
+        with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+            tmp_name = tmp.name
         try:
             mock_pd.read_table = MagicMock(return_value=None)
             mock_pd.DataFrame.return_value = MagicMock()
@@ -48,9 +48,9 @@ class TestPracticeTable:
             mock_pd.DataFrame.return_value = mock_df
             mock_df.iterrows.return_value = []
             mock_openpyxl.Workbook.return_value = MagicMock()
-            edit_table(tmp.name, area_id=1, worktype_id=1)
+            edit_table(tmp_name, area_id=1, worktype_id=1)
         finally:
-            os.unlink(tmp.name)
+            os.unlink(tmp_name)
 
     def test_read_table_nonexistent(self, app_ctx):
         from flask_se import app

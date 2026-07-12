@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import shutil
@@ -106,20 +105,24 @@ class Staff(db.Model):
     still_working = db.Column(db.Boolean, default=False, nullable=False)
 
     supervisor = db.relationship(
-        "Thesis", backref=db.backref("supervisor"), foreign_keys="Thesis.supervisor_id"
+        "Thesis",
+        backref=db.backref("supervisor"),
+        foreign_keys="Thesis.supervisor_id",
     )
     adviser = db.relationship(
-        "Thesis", backref=db.backref("reviewer"), foreign_keys="Thesis.reviewer_id"
+        "Thesis",
+        backref=db.backref("reviewer"),
+        foreign_keys="Thesis.reviewer_id",
     )
     current_thesises = db.relationship("CurrentThesis", backref=db.backref("supervisor"))
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.official_email!r}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.user.get_name()  # pyright: ignore[reportAttributeAccessIssue]
 
 
@@ -171,7 +174,8 @@ class Users(db.Model, UserMixin):
     current_thesises = db.relationship("CurrentThesis", backref=db.backref("user", uselist=False))
     thesises = db.relationship("Thesis", backref=db.backref("owner", uselist=False))
     thesis_on_review_author = db.relationship(
-        "ThesisOnReview", backref=db.backref("author", uselist=False)
+        "ThesisOnReview",
+        backref=db.backref("author", uselist=False),
     )
 
     reviewer = db.relationship("Reviewer", back_populates="user")
@@ -183,7 +187,7 @@ class Users(db.Model, UserMixin):
         foreign_keys="Internships.author_id",
     )
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
     def get_name(self):
@@ -202,7 +206,7 @@ class Users(db.Model, UserMixin):
     def is_staff(self):
         return Staff.query.filter_by(user_id=self.id).first() is not None
 
-    def __str__(self):
+    def __str__(self) -> str:
         full_name = ""
         if self.last_name:
             full_name = str(self.last_name)
@@ -215,10 +219,9 @@ class Users(db.Model, UserMixin):
 
         if self.email:
             return full_name + " (" + self.email + ")"
-        else:
-            return full_name
+        return full_name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         full_name = ""
         if self.last_name:
             full_name = full_name + self.last_name
@@ -240,13 +243,13 @@ class InternshipFormat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     format = db.Column(db.String(100), nullable=False)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.format
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.format
 
 
@@ -258,13 +261,13 @@ class InternshipTag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag = db.Column(db.String(100), nullable=False)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.tag
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.tag
 
 
@@ -304,13 +307,13 @@ class CurrentThesis(db.Model):
     # 1 - active practice
     # 2 - past practice
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.title
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
 
@@ -323,13 +326,13 @@ class NotificationPractice(db.Model):
     time = db.Column(db.DateTime, default=lambda: datetime.now(UTC).replace(tzinfo=None))
     viewed = db.Column(db.Boolean, default=False, nullable=False)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.content
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.content
 
 
@@ -347,10 +350,10 @@ class Deadline(db.Model):
     pre_defense = db.Column(db.DateTime, nullable=True)
     defense = db.Column(db.DateTime, nullable=True)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Deadline<wt={self.worktype_id}, area={self.area_id}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Deadline wt:{self.worktype_id} area:{self.area_id}"
 
 
@@ -362,13 +365,13 @@ class ThesisTask(db.Model):
     deleted = db.Column(db.Boolean, default=False)
     current_thesis_id = db.Column(db.Integer, db.ForeignKey("current_thesis.id"))
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.task_text
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.task_text
 
 
@@ -388,13 +391,13 @@ class ThesisReport(db.Model):
     comment = db.Column(db.String(2048), nullable=True)
     comment_time = db.Column(db.DateTime, nullable=True)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.was_done or ''}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.was_done or ''}"
 
 
@@ -406,10 +409,10 @@ class InternshipCompany(db.Model):
     logo_uri = db.Column(db.String(512), nullable=True)
     internship = db.relationship("Internships", back_populates="company")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
 
@@ -429,7 +432,8 @@ class Internships(db.Model):
 
     more_inf = db.Column(db.String, nullable=True)  # ссылка на сайт
     description = db.Column(
-        db.String, nullable=True
+        db.String,
+        nullable=True,
     )  # короткое описание того, чем нужно будет заниматься
     location = db.Column(db.String(50), nullable=True)
     format = db.relationship(
@@ -449,10 +453,10 @@ class Internships(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name_vacancy
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name_vacancy
 
 
@@ -465,18 +469,19 @@ class Worktype(db.Model):
 
     thesis = db.relationship("Thesis", backref=db.backref("type", uselist=False))
     thesis_on_review = db.relationship(
-        "ThesisOnReview", backref=db.backref("worktype", uselist=False)
+        "ThesisOnReview",
+        backref=db.backref("worktype", uselist=False),
     )
     current_thesis = db.relationship("CurrentThesis", backref=db.backref("worktype"))
     deadline = db.relationship("Deadline", backref=db.backref("worktype", uselist=False))
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.type
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.type
 
 
@@ -488,13 +493,14 @@ class ThesisOnReviewWorktype(db.Model):
     type = db.Column(db.String(255), nullable=False)
 
     thesis_on_review = db.relationship(
-        "ThesisOnReview", backref=db.backref("thesis_on_review_worktype", uselist=False)
+        "ThesisOnReview",
+        backref=db.backref("thesis_on_review_worktype", uselist=False),
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.type
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.type
 
 
@@ -509,13 +515,13 @@ class Courses(db.Model):
     thesis = db.relationship("Thesis", backref=db.backref("course", uselist=False))
     curriculum = db.relationship("Curriculum", backref=db.backref("course", uselist=False))
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.name!r}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -562,13 +568,13 @@ class Thesis(db.Model):
     download_thesis = db.Column(db.Integer, default=0, nullable=True)
     download_presentation = db.Column(db.Integer, default=0, nullable=True)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name_ru
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name_ru
 
 
@@ -582,13 +588,13 @@ class AreasOfStudy(db.Model):
     thesis = db.relationship("Thesis", backref=db.backref("area", uselist=False))
     thesis_on_review = db.relationship("ThesisOnReview", backref=db.backref("area", uselist=False))
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.area
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.area
 
 
@@ -598,16 +604,19 @@ class Tags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
     tags = db.relationship(
-        "Thesis", secondary=tag, lazy="subquery", backref=db.backref("tags", lazy=True)
+        "Thesis",
+        secondary=tag,
+        lazy="subquery",
+        backref=db.backref("tags", lazy=True),
     )
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -623,13 +632,13 @@ class Curriculum(db.Model):
 
     course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.discipline} ({self.year})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.discipline} ({self.year})"
 
 
@@ -646,10 +655,10 @@ class SummerSchool(db.Model):
     advisors = db.Column(db.String(1024), nullable=False)
     requirements = db.Column(db.String(1024), nullable=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.project_name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.project_name
 
 
@@ -679,13 +688,13 @@ class Posts(db.Model):
     type_id = db.Column(db.Integer, db.ForeignKey("post_type.id"))
     type = db.relationship("PostType", back_populates="post")
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.title
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
 
@@ -701,7 +710,7 @@ class PostVote(db.Model):
     upvote = db.Column(db.Boolean, nullable=False)
     timestamp = db.Column(db.DateTime, server_default=db.func.now())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         vote = "Up" if self.upvote else "Down"
         return f"<Vote - {vote}, from {self.user.get_name()} for {self.post.title}>"
 
@@ -716,10 +725,10 @@ class PostType(db.Model):
 
     post = db.relationship("Posts", back_populates="type")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
 
@@ -730,16 +739,16 @@ class ThemesLevel(db.Model):
 
     level = db.Column(db.String(512), nullable=False)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
     #    theme = db.relationship('DiplomaThemes', back_populates='level')
     #    themes_id = db.Column(db.Integer, db.ForeignKey('diploma_themes.id'))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.level}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.level
 
 
@@ -752,7 +761,9 @@ class DiplomaThemes(db.Model):
     description = db.Column(db.String(2048), nullable=True)
     requirements = db.Column(db.String(2048), nullable=True)
     status = db.Column(
-        db.Integer, default=0, nullable=False
+        db.Integer,
+        default=0,
+        nullable=False,
     )  # 0 - new, 1 - need update, 2 - approved, 3 - archive, 4 - rejected
 
     comment = db.Column(db.String(2048), nullable=True)
@@ -773,13 +784,13 @@ class DiplomaThemes(db.Model):
     supervisor_thesis_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     consultant_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.title}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.title}"
 
 
@@ -795,10 +806,10 @@ class DiplomaThemesTags(db.Model):
         backref=db.backref("diploma_themes_tags", lazy=True),
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -814,13 +825,13 @@ class Company(db.Model):
     theme = db.relationship("DiplomaThemes", back_populates="company")
     reviewer = db.relationship("Reviewer", back_populates="company")
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
 
@@ -853,10 +864,10 @@ class ThesisReview(db.Model):
 
     review_file_uri = db.Column(db.String(512), nullable=True)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Review #{self.id}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Review #{self.id}"
 
 
@@ -873,10 +884,10 @@ class Reviewer(db.Model):
 
     reviewer = db.relationship("ThesisOnReview", back_populates="reviewer")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.user.get_name()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.user.get_name()
 
 
@@ -889,7 +900,9 @@ class ThesisOnReview(db.Model):
     area_id = db.Column(db.Integer, db.ForeignKey("areas_of_study.id"), nullable=True)
 
     thesis_on_review_type_id = db.Column(
-        db.Integer, db.ForeignKey("thesis_on_review_worktype.id"), nullable=True
+        db.Integer,
+        db.ForeignKey("thesis_on_review_worktype.id"),
+        nullable=True,
     )
 
     name_ru = db.Column(db.String(512), nullable=False)
@@ -915,10 +928,10 @@ class ThesisOnReview(db.Model):
     # 1 - not active
     deleted = db.Column(db.Integer, nullable=True, default=0)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name_ru
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name_ru
 
 
@@ -928,10 +941,10 @@ class PromoCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(512), nullable=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.code
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.code
 
 
@@ -947,14 +960,14 @@ class Notification(db.Model):
     title = db.Column(db.String(512), nullable=True)
     content = db.Column(db.String(8192), nullable=True)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.title or ""
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title or ""
 
 
-def recalculate_post_rank():
+def recalculate_post_rank() -> None:
     posts = Posts.query.order_by(Posts.id.desc()).limit(100).all()
 
     for post in posts:
@@ -964,7 +977,7 @@ def recalculate_post_rank():
     db.session.commit()
 
 
-def add_mail_notification(user_id, title, content):
+def add_mail_notification(user_id, title, content) -> None:
     if not Users.query.filter_by(id=user_id).first():
         return
 
@@ -973,7 +986,7 @@ def add_mail_notification(user_id, title, content):
     db.session.commit()
 
 
-def init_db():
+def init_db() -> None:
     # Data
     users = [
         {
@@ -2860,7 +2873,6 @@ def init_db():
     db.create_all()
 
     # Create areas
-    print("Create areas")
     for area in areas:
         a = AreasOfStudy(area=area["area"])
 
@@ -2868,7 +2880,6 @@ def init_db():
         db.session.commit()
 
     # Create users
-    print("Create users")
     for user in users:
         u = Users(
             email=user["email"],
@@ -2883,7 +2894,6 @@ def init_db():
         db.session.commit()
 
     # Create staff
-    print("Create staff")
     for user in staff:
         u = Users.query.filter_by(email=user["official_email"]).first()
         if u is None:
@@ -2909,21 +2919,18 @@ def init_db():
         db.session.commit()
 
     # Create WorkTypes
-    print("Create worktypes")
     for w in wtypes:
         wt = Worktype(type=w["type"])
         db.session.add(wt)
         db.session.commit()
 
     # Create Courses
-    print("Create courses")
     for course in courses:
         c = Courses(name=course["name"], code=course["code"])
         db.session.add(c)
         db.session.commit()
 
     # Create Curriculum
-    print("Create curriculum")
     for cur in curriculum:
         if "type" in cur:
             c = Curriculum(
@@ -2945,7 +2952,6 @@ def init_db():
         db.session.commit()
 
     # Create News
-    print("Create news")
     for cur in posts:
         if "uri" in cur:
             c = Posts(
@@ -2966,7 +2972,6 @@ def init_db():
         db.session.commit()
 
     # Create Thesis
-    print("Create thesis")
     for work in thesis:
         if "source_uri" in work:
             t = Thesis(
@@ -3012,7 +3017,6 @@ def init_db():
             db.session.commit()
 
     # Create Companies
-    print("Create companies")
     for cur in company:
         c = Company(name=cur["name"], logo_uri=cur["logo_uri"])
 
@@ -3020,7 +3024,6 @@ def init_db():
         db.session.commit()
 
     # Create ThemesLevels
-    print("Create diploma theme levels")
     for cur in themes_level:
         c = ThemesLevel(level=cur["level"])
 
@@ -3028,7 +3031,6 @@ def init_db():
         db.session.commit()
 
     # Create DiplomaThems
-    print("Create diploma themes")
     for cur in d_themes:  # type: ignore[reportGeneralTypeIssues]
         c = DiplomaThemes(
             title=cur["title"],
@@ -3047,15 +3049,12 @@ def init_db():
         db.session.commit()
 
     # Create InternshipsFormat
-    print("Create internship formats")
-    print("Create addinternship formats")
     for cur in internship_formats:
         c = InternshipFormat(format=cur["format"])
 
         db.session.add(c)
         db.session.commit()
 
-    print("Create internship tags")
     for cur in internship_tags:
         t = InternshipTag(tag=cur["tag"])
 

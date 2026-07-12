@@ -19,7 +19,6 @@ _db_path = None
 
 
 def _init_db_path():
-    global _db_dir, _db_path
     _db_dir = tempfile.mkdtemp()
     _db_path = str(Path(_db_dir) / _db_name)
     import flask_se_config
@@ -27,9 +26,10 @@ def _init_db_path():
     flask_se_config.SQLITE_DATABASE_NAME = _db_name
     flask_se_config.SQLITE_DATABASE_PATH = _db_dir
     flask_se_config.WHOOSHEE_DIR = tempfile.mkdtemp()
+    return _db_dir, _db_path
 
 
-_init_db_path()
+_db_dir, _db_path = _init_db_path()
 
 import pytest
 from sqlalchemy import create_engine
@@ -226,7 +226,7 @@ def assert_ok_or_redirect(client, path):
 
 def _min_pdf(text="dummy"):
     """Return a minimal valid PDF as bytes. Self-contained, no external deps."""
-    import struct, zlib
+    import zlib
     contents = b"BT /F1 12 Tf 100 700 Td (" + text.encode() + b") Tj ET"
     compressed = zlib.compress(contents)
     objs = [
@@ -236,8 +236,7 @@ def _min_pdf(text="dummy"):
         b"4 0 obj\n<< /Length " + str(len(compressed)).encode() + b" /Filter /FlateDecode >>\nstream\n" + compressed + b"\nendstream\nendobj",
     ]
     body = b"\n".join(objs)
-    pdf = b"%PDF-1.4\n" + body + b"\ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n9\n%%EOF"
-    return pdf
+    return b"%PDF-1.4\n" + body + b"\ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n9\n%%EOF"
 
 
 @pytest.fixture

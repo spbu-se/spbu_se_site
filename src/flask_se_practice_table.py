@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-"""
-Copyright 2023 Alexander Slugin
+"""Copyright 2023 Alexander Slugin.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,7 +25,7 @@ from flask_se_practice_config import TABLE_COLUMNS
 from se_models import CurrentThesis, Users
 
 
-def edit_table(path_to_table, area_id, worktype_id, column_names_list=None, sheet_name=""):
+def edit_table(path_to_table, area_id, worktype_id, column_names_list=None, sheet_name="") -> None:
     if column_names_list is None:
         column_names_list = list(TABLE_COLUMNS.items())
 
@@ -48,7 +46,7 @@ def edit_table(path_to_table, area_id, worktype_id, column_names_list=None, shee
 
     column_names = dict(column_names_list)
     checked_thesis_ids = set()
-    for index, row in table_df.iterrows():
+    for _index, row in table_df.iterrows():
         try:
             cell_value = row[column_names["name"]]
             user = find_user(full_name=str(cell_value))
@@ -125,12 +123,11 @@ def find_user(full_name: str) -> Users | None:
     if len(name) < 2:
         return None
 
-    user = Users.query.filter_by(last_name=name[0]).filter_by(first_name=name[1]).first()
-    return user
+    return Users.query.filter_by(last_name=name[0]).filter_by(first_name=name[1]).first()
 
 
 def find_current_thesis(user: Users, area_id, worktype_id) -> CurrentThesis | None:
-    thesis = (
+    return (
         CurrentThesis.query.filter_by(author_id=user.id)
         .filter_by(area_id=area_id)
         .filter_by(worktype_id=worktype_id)
@@ -139,11 +136,10 @@ def find_current_thesis(user: Users, area_id, worktype_id) -> CurrentThesis | No
         .filter(CurrentThesis.title.isnot(None))
         .first()
     )
-    return thesis
 
 
 def get_all_thesises(area_id, worktype_id) -> list[CurrentThesis]:
-    thesises = (
+    return (
         CurrentThesis.query.filter_by(area_id=area_id)
         .filter_by(worktype_id=worktype_id)
         .filter_by(deleted=False)
@@ -151,10 +147,11 @@ def get_all_thesises(area_id, worktype_id) -> list[CurrentThesis]:
         .filter(CurrentThesis.title.isnot(None))
         .all()
     )
-    return thesises
 
 
-def add_new_data_to_table(row: pd.Series, current_thesis: CurrentThesis, user: Users, column_names):
+def add_new_data_to_table(
+    row: pd.Series, current_thesis: CurrentThesis, user: Users, column_names
+) -> None:
     update_if_cell_is_empty(row, column_names["name"], user.get_name())
     update_if_cell_is_empty(row, column_names["theme"], current_thesis.title)
     update_if_cell_is_empty(row, column_names["supervisor"], current_thesis.supervisor)  # pyright: ignore[reportAttributeAccessIssue]
@@ -180,7 +177,7 @@ def add_new_data_to_table(row: pd.Series, current_thesis: CurrentThesis, user: U
     )
 
 
-def update_if_cell_is_empty(row: pd.Series, column_name, new_value):
+def update_if_cell_is_empty(row: pd.Series, column_name, new_value) -> None:
     try:
         cell_is_na = bool(pd.isna(row[column_name]))
         if cell_is_na or row[column_name] in {None, ""}:
@@ -190,4 +187,4 @@ def update_if_cell_is_empty(row: pd.Series, column_name, new_value):
             f'В таблице не существует столбца с названием "{column_name}"',
             category="error",
         )
-        raise KeyError
+        raise KeyError from None

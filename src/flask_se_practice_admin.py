@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-"""
-Copyright 2023 Alexander Slugin
+"""Copyright 2023 Alexander Slugin.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -85,7 +83,7 @@ def __get_filename_without_extension(worktype: Worktype, area: AreasOfStudy) -> 
     return str(
         get_thesis_type_id_string(worktype.id)
         + "_"
-        + translit(area.area, "ru", reversed=True).replace(" ", "_")
+        + translit(area.area, "ru", reversed=True).replace(" ", "_"),
     )
 
 
@@ -109,9 +107,9 @@ def choose_area_and_worktype_admin():
     previous_page = session.get("previous_page")
     if previous_page == PracticeAdminPage.CURRENT_THESISES.value:
         return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
-    elif previous_page == PracticeAdminPage.FINISHED_THESISES.value:
+    if previous_page == PracticeAdminPage.FINISHED_THESISES.value:
         return redirect(
-            url_for("finished_thesises_admin", area_id=area_id, worktype_id=worktype_id)
+            url_for("finished_thesises_admin", area_id=area_id, worktype_id=worktype_id),
         )
 
     return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
@@ -165,7 +163,7 @@ def index_admin():
                         category="error",
                     )
                     return redirect(
-                        url_for("index_admin", area_id=area.id, worktype_id=worktype.id)
+                        url_for("index_admin", area_id=area.id, worktype_id=worktype.id),
                     )
 
                 if table_name.split(".")[-1] != "xlsx":
@@ -174,7 +172,7 @@ def index_admin():
                         category="error",
                     )
                     return redirect(
-                        url_for("index_admin", area_id=area.id, worktype_id=worktype.id)
+                        url_for("index_admin", area_id=area.id, worktype_id=worktype.id),
                     )
 
                 column_names = []
@@ -186,7 +184,7 @@ def index_admin():
                             category="error",
                         )
                         return redirect(
-                            url_for("index_admin", area_id=area.id, worktype_id=worktype.id)
+                            url_for("index_admin", area_id=area.id, worktype_id=worktype.id),
                         )
                     column_names.append((column, column_value))
 
@@ -303,7 +301,8 @@ def thesis_admin():
                 f"{request.form['content']}"
             )
             notification = NotificationPractice(
-                recipient_id=current_thesis.author_id, content=notification_content
+                recipient_id=current_thesis.author_id,
+                content=notification_content,
             )
             db.session.add(notification)
             db.session.commit()
@@ -312,7 +311,7 @@ def thesis_admin():
             new_title = request.form["title_input"]
             notification_content = (
                 "Руководитель практики изменил название Вашей работы "
-                + f'"{current_thesis.title}" РЅР° "{new_title}"'
+                f'"{current_thesis.title}" РЅР° "{new_title}"'
             )
             current_thesis.title = new_title
             add_mail_notification(
@@ -321,7 +320,8 @@ def thesis_admin():
                 notification_content,
             )
             notification = NotificationPractice(
-                recipient_id=current_thesis.author_id, content=notification_content
+                recipient_id=current_thesis.author_id,
+                content=notification_content,
             )
             db.session.add(notification)
             db.session.commit()
@@ -402,13 +402,14 @@ def archive_thesis():
         thesis.publish_year = request.form.get("publish_year", type=int)
 
         path_to_archive_text, archive_text_filename = get_filename(
-            current_thesis, ARCHIVE_TEXT_FOLDER, TypeOfFile.TEXT.value
+            current_thesis,
+            ARCHIVE_TEXT_FOLDER,
+            TypeOfFile.TEXT.value,
         )
         if current_thesis.text_uri:
             shutil.copyfile(TEXT_UPLOAD_FOLDER + current_thesis.text_uri, path_to_archive_text)
-        else:
-            if text_file is not None:
-                text_file.save(path_to_archive_text)
+        elif text_file is not None:
+            text_file.save(path_to_archive_text)
         thesis.text_uri = archive_text_filename
 
         path_to_archive_presentation, archive_slides_filename = get_filename(
@@ -421,9 +422,8 @@ def archive_thesis():
                 PRESENTATION_UPLOAD_FOLDER + current_thesis.presentation_uri,
                 path_to_archive_presentation,
             )
-        else:
-            if presentation_file is not None:
-                presentation_file.save(path_to_archive_presentation)
+        elif presentation_file is not None:
+            presentation_file.save(path_to_archive_presentation)
         thesis.presentation_uri = archive_slides_filename
 
         path_to_archive_super_review, archive_super_review_filename = get_filename(
@@ -436,13 +436,14 @@ def archive_thesis():
                 REVIEW_UPLOAD_FOLDER + current_thesis.supervisor_review_uri,
                 path_to_archive_super_review,
             )
-        else:
-            if supervisor_review_file is not None:
-                supervisor_review_file.save(path_to_archive_super_review)
+        elif supervisor_review_file is not None:
+            supervisor_review_file.save(path_to_archive_super_review)
         thesis.supervisor_review_uri = archive_super_review_filename
 
         path_to_archive_rev_review, archive_rev_review_filename = get_filename(
-            current_thesis, ARCHIVE_REVIEW_FOLDER, TypeOfFile.REVIEWER_REVIEW.value
+            current_thesis,
+            ARCHIVE_REVIEW_FOLDER,
+            TypeOfFile.REVIEWER_REVIEW.value,
         )
         if current_thesis.reviewer_review_uri:
             shutil.copyfile(
@@ -481,7 +482,8 @@ def archive_thesis():
             f" в архив практик и ВКР."
         )
         notification = NotificationPractice(
-            recipient_id=current_thesis.author_id, content=notification_content
+            recipient_id=current_thesis.author_id,
+            content=notification_content,
         )
         db.session.add(notification)
         db.session.commit()
@@ -492,8 +494,7 @@ def archive_thesis():
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     course_and_year_form = ChooseCourseAndYear()
     course_choices: list[tuple[int, str]] = [(0, "Р'ыберите направление")]
-    for course in Courses.query.all():
-        course_choices.append((course.id, course.name))
+    course_choices.extend((course.id, course.name) for course in Courses.query.all())
     course_and_year_form.course.choices = course_choices
 
     return render_template(

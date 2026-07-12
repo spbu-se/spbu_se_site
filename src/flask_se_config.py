@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import os
 import pathlib
 import re
 from datetime import UTC, datetime
+from unicodedata import normalize
 
 SECRET_KEY = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_secret.conf")
 MAIL_PASSWORD_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_mail.conf")
@@ -17,7 +17,6 @@ if os.path.exists(MAIL_PASSWORD_FILE):
     with open(MAIL_PASSWORD_FILE) as file:
         mail_password = file.read().rstrip()
 else:
-    print("There is no MAIL_PASSWORD_FILE, generate random MAIL_PASSWORD")
     mail_password = os.urandom(16).hex()
 MAIL_PASSWORD = mail_password
 
@@ -57,8 +56,6 @@ _filename_strip_re = re.compile(r"[^A-Za-zа-яА-ЯёЁ0-9_.-]")
 
 def secure_filename(filename: str) -> str:
     if isinstance(filename, str):
-        from unicodedata import normalize
-
         filename = normalize("NFKD", filename)
 
     for sep in os.path.sep, os.path.altsep:
@@ -75,12 +72,9 @@ def secure_filename(filename: str) -> str:
 
 # https://felx.me/2021/08/29/improving-the-hacker-news-ranking-algorithm.html
 def post_ranking_score(upvotes=1, age=0, views=1):
-    if upvotes < 0:
-        upvotes = 0
-    if age < 0:
-        age = 0
-    if views < 0:
-        views = 0
+    upvotes = max(upvotes, 0)
+    age = max(age, 0)
+    views = max(views, 0)
     u = upvotes**0.8
     a = (age + 2) ** 1.8
     return (u / a) / (views + 1)

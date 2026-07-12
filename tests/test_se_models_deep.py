@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-import pytest
-
 
 def test_staff_repr(app_ctx):
     from se_models import Staff, Users, db

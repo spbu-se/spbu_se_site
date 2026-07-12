@@ -111,7 +111,7 @@ class TestPracticeAdminIndexPostDownloadTable:
 
 class TestPracticeAdminIndexPostYandex:
     def test_yandex_empty_table_name(self, current_thesis):
-        client, ct_id = current_thesis
+        client, _ct_id = current_thesis
         resp = client.post(
             "/practice_admin?area_id=2&worktype_id=5",
             data={
@@ -123,7 +123,7 @@ class TestPracticeAdminIndexPostYandex:
         assert resp.status_code in (200, 302)
 
     def test_yandex_non_xlsx_extension(self, current_thesis):
-        client, ct_id = current_thesis
+        client, _ct_id = current_thesis
         resp = client.post(
             "/practice_admin?area_id=2&worktype_id=5",
             data={
@@ -135,7 +135,7 @@ class TestPracticeAdminIndexPostYandex:
         assert resp.status_code in (200, 302)
 
     def test_yandex_empty_column_name(self, current_thesis):
-        client, ct_id = current_thesis
+        client, _ct_id = current_thesis
         resp = client.post(
             "/practice_admin?area_id=2&worktype_id=5",
             data={
@@ -148,7 +148,7 @@ class TestPracticeAdminIndexPostYandex:
         assert resp.status_code in (200, 302)
 
     def test_yandex_successful_upload(self, current_thesis):
-        client, ct_id = current_thesis
+        client, _ct_id = current_thesis
         with patch("flask_se_practice_admin.handle_yandex_table") as mock_handle:
             mock_handle.return_value = "success"
             resp = client.post(
@@ -174,7 +174,7 @@ class TestPracticeAdminIndexPostYandex:
             mock_handle.assert_called_once()
 
     def test_yandex_exception_caught(self, current_thesis):
-        client, ct_id = current_thesis
+        client, _ct_id = current_thesis
         with patch("flask_se_practice_admin.handle_yandex_table", side_effect=Exception):
             resp = client.post(
                 "/practice_admin?area_id=2&worktype_id=5",
@@ -241,7 +241,7 @@ class TestPracticeAdminFinishedThesises:
             assert sess.get("previous_page") == "finished_thesises"
 
     def test_finished_shows_completed_thesis(self, finished_thesis):
-        client, ct_id = finished_thesis
+        client, _ct_id = finished_thesis
         resp = client.get("/practice_admin/finished_thesises?area_id=2&worktype_id=5")
         assert resp.status_code in (200, 302)
 
@@ -610,7 +610,7 @@ class TestPracticeAdminYandexCode:
 
 class TestPracticeAdminDownloadMaterials:
     def test_download_materials_post(self, current_thesis):
-        client, ct_id = current_thesis
+        client, _ct_id = current_thesis
         with patch("flask_se_practice_admin.send_file") as mock_send:
             mock_send.return_value = "file"
             with patch("flask_se_practice_admin.ZipFile"):

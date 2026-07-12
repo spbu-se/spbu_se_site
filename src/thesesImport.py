@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 
@@ -26,13 +25,12 @@ except RuntimeError:
 download = False
 
 
-def download_file(uri, safe_filename, save_path):
+def download_file(uri, safe_filename, save_path) -> None:
     # Skip if download == false
     if not download:
         return
 
     r = requests.get(uri, allow_redirects=True, timeout=30)
-    print("Download: " + str(uri))
     open(safe_filename, "wb").write(r.content)
     os.rename(safe_filename, save_path + safe_filename)
 
@@ -42,17 +40,15 @@ def download_file(uri, safe_filename, save_path):
 # Математическое обеспечение и администрирование информационных систем
 
 
-def get_2020_02_03_03():
+def get_2020_02_03_03() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/diploma/2020/index"
     base_url = "https://oops.math.spbu.ru/SE/diploma/2020/"
     code = "02.03.03"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -75,15 +71,12 @@ def get_2020_02_03_03():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            cols[3].text
             old_text_uri = ""
             text_uri = ""
             presentation_uri = ""
             supervisor_review_uri = ""
             reviewer_review_uri = ""
             source_uri = ""
-
-            print("Add " + name_ru)
 
             if cols[4].find("a"):
                 old_text_uri = cols[4].find("a").get("href")
@@ -136,7 +129,6 @@ def get_2020_02_03_03():
                     continue
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             if source_uri:
@@ -180,17 +172,15 @@ def get_2020_02_03_03():
 # Программная инженерия
 
 
-def get_2020_09_03_04():
+def get_2020_09_03_04() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/diploma/2020/index"
     base_url = "https://oops.math.spbu.ru/SE/diploma/2020/"
     code = "09.03.04"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -214,15 +204,12 @@ def get_2020_09_03_04():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            cols[3].text
             old_text_uri = ""
             text_uri = ""
             presentation_uri = ""
             supervisor_review_uri = ""
             reviewer_review_uri = ""
             source_uri = ""
-
-            print("Add " + name_ru)
 
             if cols[5].find("a"):
                 old_text_uri = cols[5].find("a").get("href")
@@ -275,7 +262,6 @@ def get_2020_09_03_04():
                     continue
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             if source_uri:
@@ -319,17 +305,15 @@ def get_2020_09_03_04():
 # Программная инженерия
 
 
-def get_2019_09_03_04():
+def get_2019_09_03_04() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/diploma/2019/vypusknye-kvalifikacionnye-raboty"
     base_url = "https://oops.math.spbu.ru/SE/diploma/2019/"
     code = "09.03.04"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -353,7 +337,6 @@ def get_2019_09_03_04():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            cols[3].text
             old_text_uri = ""
             text_uri = ""
             presentation_uri = ""
@@ -361,8 +344,6 @@ def get_2019_09_03_04():
             reviewer_review_uri = ""
             source_uri = ""
             year = 2019
-
-            print("Add " + name_ru)
 
             if cols[4].find("a"):
                 old_text_uri = cols[4].find("a").get("href")
@@ -417,7 +398,6 @@ def get_2019_09_03_04():
                     continue
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             if source_uri:
@@ -461,17 +441,15 @@ def get_2019_09_03_04():
 # Программная инженерия
 
 
-def get_2019_02_03_03():
+def get_2019_02_03_03() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/diploma/2019/vypusknye-kvalifikacionnye-raboty"
     base_url = "https://oops.math.spbu.ru/SE/diploma/2019/"
     code = "02.03.03"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -495,7 +473,6 @@ def get_2019_02_03_03():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            cols[3].text
             old_text_uri = ""
             text_uri = ""
             presentation_uri = ""
@@ -503,8 +480,6 @@ def get_2019_02_03_03():
             reviewer_review_uri = ""
             source_uri = ""
             pablish_year = 2019
-
-            print("Add " + name_ru)
 
             if cols[4].find("a"):
                 old_text_uri = cols[4].find("a").get("href")
@@ -562,7 +537,6 @@ def get_2019_02_03_03():
                     continue
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             if source_uri:
@@ -606,17 +580,15 @@ def get_2019_02_03_03():
 # Математическое обеспечение и администрирование информационных систем (02.04.03)
 
 
-def get_2019_02_04_03():
+def get_2019_02_04_03() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/diploma/2019/vypusknye-kvalifikacionnye-raboty"
     base_url = "https://oops.math.spbu.ru/SE/diploma/2019/"
     code = "02.04.03"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -647,8 +619,6 @@ def get_2019_02_04_03():
             reviewer_review_uri = ""
             source_uri = ""
             pablish_year = 2019
-
-            print("Add " + name_ru)
 
             if cols[2].find("a"):
                 old_text_uri = cols[2].find("a").get("href")
@@ -703,7 +673,6 @@ def get_2019_02_04_03():
                     continue
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             if source_uri:
@@ -747,17 +716,15 @@ def get_2019_02_04_03():
 # Бакалавры, 371 группа (02.04.03)
 
 
-def get_2020_371():
+def get_2020_371() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020"
     base_url = "https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020/"
     code = "371"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -788,8 +755,6 @@ def get_2020_371():
             reviewer_review_uri = None
             source_uri = None
             pablish_year = 2020
-
-            print("Add " + name_ru)
 
             data = cols[4].find_all("a")
 
@@ -834,7 +799,6 @@ def get_2020_371():
                     continue
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             if source_uri:
@@ -878,17 +842,15 @@ def get_2020_371():
 # Математическое обеспечение и администрирование информационных систем
 
 
-def get_report_2020_02_03_03():
+def get_report_2020_02_03_03() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020"
     base_url = "https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2020/"
     code = "02.03.03"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -911,7 +873,6 @@ def get_report_2020_02_03_03():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            cols[3].text
             old_text_uri = None
             text_uri = None
             presentation_uri = None
@@ -919,8 +880,6 @@ def get_report_2020_02_03_03():
             reviewer_review_uri = None
             source_uri = None
             publish_year = 2020
-
-            print("Add " + name_ru)
 
             if cols[4].find("a"):
                 old_text_uri = cols[4].find("a").get("href")
@@ -968,7 +927,6 @@ def get_report_2020_02_03_03():
                     continue
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             if source_uri:
@@ -1012,17 +970,15 @@ def get_report_2020_02_03_03():
 # Бакалавры, 371 группа
 
 
-def get_2019_371():
+def get_2019_371() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/YearlyProjects/spring-2019"
     base_url = "https://oops.math.spbu.ru/SE/YearlyProjects/spring-2019/"
     code = "371"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -1052,8 +1008,6 @@ def get_2019_371():
             supervisor_review_uri = None
             reviewer_review_uri = None
             pablish_year = 2019
-
-            print("Add " + name_ru)
 
             data = cols[3].find_all("a")
 
@@ -1090,7 +1044,6 @@ def get_2019_371():
                     continue
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             t = Thesis(
@@ -1117,17 +1070,15 @@ def get_2019_371():
 # Бакалавры, 343 группа
 
 
-def get_2019_343():
+def get_2019_343() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/YearlyProjects/spring-2019"
     base_url = "https://oops.math.spbu.ru/SE/YearlyProjects/spring-2019/"
     code = "343"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -1157,8 +1108,6 @@ def get_2019_343():
             supervisor_review_uri = None
             reviewer_review_uri = None
             pablish_year = 2019
-
-            print("Add " + name_ru)
 
             data = cols[3].find_all("a")
 
@@ -1195,7 +1144,6 @@ def get_2019_343():
                     continue
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             t = Thesis(
@@ -1222,17 +1170,15 @@ def get_2019_343():
 # Бакалавры, 344 группа
 
 
-def get_2019_344():
+def get_2019_344() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/YearlyProjects/spring-2019"
     base_url = "https://oops.math.spbu.ru/SE/YearlyProjects/spring-2019/"
     code = "344"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -1262,8 +1208,6 @@ def get_2019_344():
             supervisor_review_uri = None
             reviewer_review_uri = None
             pablish_year = 2019
-
-            print("Add " + name_ru)
 
             data = cols[3].find_all("a")
 
@@ -1300,7 +1244,6 @@ def get_2019_344():
                     continue
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             t = Thesis(
@@ -1326,7 +1269,7 @@ def get_2019_344():
 # ПИ и МО
 
 
-def add_master_thesis_2020():
+def add_master_thesis_2020() -> None:
     thesis = [
         {
             "name_ru": "Использование автоматов в интерпретаторе MACASM",
@@ -1453,10 +1396,6 @@ def add_master_thesis_2020():
     for t in thesis:
         author_en = translit(t["author"], "ru", reversed=True)
         author_en = author_en.replace(" ", "_")
-        print(author_en + t["text_uri"])
-        print(author_en + t["presentation_uri"])
-        print(author_en + t["supervisor_review_uri"])
-        print(author_en + t["reviewer_review_uri"])
 
         last_name = t["supervisor"]
         supervisor_id = 1
@@ -1468,7 +1407,6 @@ def add_master_thesis_2020():
                 continue
             supervisor_id = r.id
         else:
-            print("Error, no " + str(t["supervisor"]))
             sys.exit(1)
 
         tt = Thesis(
@@ -1494,17 +1432,15 @@ def add_master_thesis_2020():
 # Бакалавры, 271 группа
 
 
-def get_2022_271():
+def get_2022_271() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2022/uchebnaya-praktika"
     base_url = "https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2022/"
     code = "271"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -1535,8 +1471,6 @@ def get_2022_271():
             reviewer_review_uri = None
             pablish_year = 2022
 
-            print("Add " + name_ru)
-
             data = cols[4].find_all("a")
 
             if len(data) > 0:
@@ -1566,12 +1500,10 @@ def get_2022_271():
             last_name = supervisor.split()[-1]
 
             # q = Users.query.filter_by(last_name=last_name).first()
-            print(last_name)
             r = Staff.query.join(Staff.user).filter(Users.last_name == last_name).first()  # pyright: ignore[reportAttributeAccessIssue]
             if r:
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             t = Thesis(
@@ -1599,17 +1531,15 @@ def get_2022_271():
 # Бакалавры, 371 группа
 
 
-def get_2022_371():
+def get_2022_371() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2022/proizvodstvennaya-praktika"
     base_url = "https://oops.math.spbu.ru/SE/YearlyProjects/vesna-2022/"
     code = "371"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -1640,13 +1570,10 @@ def get_2022_371():
             reviewer_review_uri = None
             pablish_year = 2022
 
-            print("Add " + name_ru)
-
             data = cols[4].find_all("a")
 
             # Skip Милосердова
             if not author.find("Милосердова"):
-                print(author)
                 continue
 
             if len(data) > 0:
@@ -1676,12 +1603,10 @@ def get_2022_371():
             last_name = supervisor.split()[-1]
 
             # q = Users.query.filter_by(last_name=last_name).first()
-            print(last_name)
             r = Staff.query.join(Staff.user).filter(Users.last_name == last_name).first()  # pyright: ignore[reportAttributeAccessIssue]
             if r:
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             t = Thesis(
@@ -1709,17 +1634,15 @@ def get_2022_371():
 # Программная инженерия
 
 
-def get_2022_09_03_04():
+def get_2022_09_03_04() -> None:
     session = requests.session()
     url = "https://oops.math.spbu.ru/SE/diploma/2022/index"
     base_url = "https://oops.math.spbu.ru/SE/diploma/2022/"
     code = "09.03.04"
 
-    print(url)
     response = session.get(url)
 
     if response.status_code != 200:
-        print("Response statun != 200, error.")
         sys.exit(0)
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -1743,7 +1666,6 @@ def get_2022_09_03_04():
             name_ru = cols[1].text
             supervisor = cols[2].text
             supervisor_id = 1
-            cols[3].text
             old_text_uri = ""
             text_uri = ""
             presentation_uri = ""
@@ -1751,8 +1673,6 @@ def get_2022_09_03_04():
             reviewer_review_uri = ""
             source_uri = ""
             pablish_year = 2022
-
-            print("Add " + name_ru)
 
             if cols[4].find("a"):
                 old_text_uri = cols[4].find("a").get("href")
@@ -1824,7 +1744,6 @@ def get_2022_09_03_04():
                     continue
                 supervisor_id = r.id
             else:
-                print("Error, no " + supervisor)
                 sys.exit(1)
 
             if source_uri:

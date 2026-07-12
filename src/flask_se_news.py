@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 from urllib.parse import urlparse
@@ -14,12 +13,9 @@ from se_models import Posts, PostVote, db
 
 def list_news():
     page = request.args.get("page", default=1, type=int)
-    ages = []
-
     news = Posts.query.order_by(Posts.rank.desc()).paginate(per_page=20, page=page, error_out=False)
 
-    for post in news.items:
-        ages.append(plural_hours(int(get_hours_since(post.created_on))))
+    ages = [plural_hours(int(get_hours_since(post.created_on))) for post in news.items]
 
     return render_template("news/news.html", news=news, ages=ages)
 
@@ -76,9 +72,8 @@ def post_vote():
             db.session.commit()
 
             return redirect(request.referrer or "")
-        else:
-            flash("Вы уже проголосовали за этот пост!", category="error")
-            return redirect(request.referrer or "")
+        flash("Вы уже проголосовали за этот пост!", category="error")
+        return redirect(request.referrer or "")
 
     vote = PostVote(user=current_user, post=post, upvote=bool(int(action_vote or 0)))  # pyright: ignore[reportCallIssue]
 

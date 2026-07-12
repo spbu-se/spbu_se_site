@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 from flask import redirect, render_template, session, url_for
@@ -33,7 +32,7 @@ class SeAdminModelView(ModelView):
     def is_accessible(self):
         return current_user.is_authenticated and current_user.role >= ADMIN_ROLE_LEVEL
 
-    def inaccessible_callback(self, name, **kwargs):
+    def inaccessible_callback(self, name, **kwargs):  # noqa: ARG002
         return redirect(url_for("login_index"))
 
 
@@ -53,28 +52,28 @@ class SeAdminModelViewThesis(SeAdminModelView):
     form_extra_fields = {
         "supervisor": QuerySelectField(
             "Научный руководитель",
-            query_factory=lambda: Staff.query.all(),
+            query_factory=Staff.query.all,
             get_pk=lambda staff: staff.id,
         ),
         "owner": QuerySelectField(
             "Author user",
-            query_factory=lambda: Users.query.all(),
+            query_factory=Users.query.all,
             get_pk=lambda user: user.id,
         ),
         "type": QuerySelectField(
             "Тип работы",
-            query_factory=lambda: Worktype.query.all(),
+            query_factory=Worktype.query.all,
             get_pk=lambda t: t.id,
         ),
         "course": QuerySelectField(
             "РљСѓСЂСЃ",
-            query_factory=lambda: Courses.query.all(),
+            query_factory=Courses.query.all,
             get_label=lambda c: c.name,
             get_pk=lambda c: c.id,
         ),
         "area": QuerySelectField(
             "Направление обучения",
-            query_factory=lambda: AreasOfStudy.query.all(),
+            query_factory=AreasOfStudy.query.all,
             get_pk=lambda c: c.id,
         ),
     }
@@ -84,10 +83,8 @@ class SeAdminModelViewReviewer(ModelView):
     def is_accessible(self):
         return current_user.is_authenticated and current_user.role >= REVIEW_ROLE_LEVEL
 
-    def inaccessible_callback(self, name, **kwargs):
+    def inaccessible_callback(self, name, **kwargs):  # noqa: ARG002
         return redirect(url_for("login_index"))
-
-    pass
 
 
 class SeAdminIndexView(AdminIndexView):
@@ -99,7 +96,7 @@ class SeAdminIndexView(AdminIndexView):
     def is_accessible(self):
         return current_user.is_authenticated and current_user.role >= THESIS_ROLE_LEVEL
 
-    def inaccessible_callback(self, name, **kwargs):
+    def inaccessible_callback(self, name, **kwargs):  # noqa: ARG002
         return redirect(url_for("login_index"))
 
 
@@ -136,8 +133,6 @@ class SeAdminModelViewUsers(SeAdminModelView):
     ]
     column_display_pk = True
 
-    pass
-
 
 class SeAdminModelViewSummerSchool(SeAdminModelView):
     form_overrides = {
@@ -155,8 +150,6 @@ class SeAdminModelViewSummerSchool(SeAdminModelView):
         "advisors": {"rows": 2, "style": "font-family: monospace; width: 680px;"},
         "requirements": {"rows": 3, "style": "font-family: monospace; width: 680px;"},
     }
-
-    pass
 
 
 class SeAdminModelViewStaff(SeAdminModelView):
@@ -181,14 +174,14 @@ class SeAdminModelViewStaff(SeAdminModelView):
             ("д.т.н.", "д.т.н."),
             ("к.ф.-м.н.", "к.ф.-м.н."),
             ("к.т.н.", "к.т.н."),
-        ]
+        ],
     }
     form_extra_fields = {
         "user": QuerySelectField(
             "User",
-            query_factory=lambda: Users.query.all(),
+            query_factory=Users.query.all,
             get_pk=lambda user: user.id,
-        )
+        ),
     }
 
 
@@ -197,26 +190,26 @@ class SeAdminModelViewNews(SeAdminModelView):
 
 
 class SeAdminModelViewDiplomaThemes(SeAdminModelView):
-    column_labels = dict(  # pyright: ignore[reportAssignmentType]
-        supervisor_thesis="Научный руководитель ВКР",
-        supervisor="Научный руководитель учебных практик",
-        comment="Комментарий (что необходимо исправить)",
-        status="Статус темы",
-        requirements="Требования к студенту",
-        title="Название темы",
-        description="Описание темы",
-        company="Кто представляет тему",
-        levels="Уровень темы",
-        consultant="Консультант",
-        author="Автор темы (кто предложил)",
-    )
+    column_labels = {  # pyright: ignore[reportAssignmentType]
+        "supervisor_thesis": "Научный руководитель ВКР",
+        "supervisor": "Научный руководитель учебных практик",
+        "comment": "Комментарий (что необходимо исправить)",
+        "status": "Статус темы",
+        "requirements": "Требования к студенту",
+        "title": "Название темы",
+        "description": "Описание темы",
+        "company": "Кто представляет тему",
+        "levels": "Уровень темы",
+        "consultant": "Консультант",
+        "author": "Автор темы (кто предложил)",
+    }
     column_choices = {  # pyright: ignore[reportAssignmentType]
         "status": [
             (0, "На проверке"),
             (1, "Требуется доработка"),
             (2, "Одобрена"),
             (4, "Отклонена"),
-        ]
+        ],
     }
 
     form_overrides = {
@@ -225,24 +218,22 @@ class SeAdminModelViewDiplomaThemes(SeAdminModelView):
         "comment": TextAreaField,
         "status": SelectField,
     }
-    form_args = dict(  # pyright: ignore[reportAssignmentType]
-        status=dict(
-            choices=[
+    form_args = {  # pyright: ignore[reportAssignmentType]
+        "status": {
+            "choices": [
                 (0, "На проверке"),
                 (1, "Требуется доработка"),
                 (2, "Одобрена"),
                 (4, "Отклонена"),
             ],
-            coerce=int,
-        )
-    )
+            "coerce": int,
+        },
+    }
     form_widget_args = {
         "description": {"rows": 10, "style": "width: 100%;"},
         "comment": {"rows": 4, "style": "width: 100%;"},
         "requirements": {"rows": 4, "style": "width: 100%;"},
     }
-
-    pass
 
 
 class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
@@ -256,19 +247,19 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
         "levels",
         "company",
     )
-    column_labels = dict(  # pyright: ignore[reportAssignmentType]
-        supervisor_thesis="Научный руководитель ВКР",
-        supervisor="Научный руководитель учебных практик",
-        comment="Комментарий (что нужно исправить, если требуется доработка, или почему тема отклонена)",
-        status="Статус темы",
-        requirements="Требования к студенту",
-        title="Название темы",
-        description="Описание темы",
-        company="Кто представляет тему",
-        levels="Уровень темы",
-        consultant="Консультант",
-        author="Автор темы (кто предложил)",
-    )
+    column_labels = {  # pyright: ignore[reportAssignmentType]
+        "supervisor_thesis": "Научный руководитель ВКР",
+        "supervisor": "Научный руководитель учебных практик",
+        "comment": "Комментарий (что нужно исправить, если требуется доработка, или почему тема отклонена)",
+        "status": "Статус темы",
+        "requirements": "Требования к студенту",
+        "title": "Название темы",
+        "description": "Описание темы",
+        "company": "Кто представляет тему",
+        "levels": "Уровень темы",
+        "consultant": "Консультант",
+        "author": "Автор темы (кто предложил)",
+    }
 
     form_overrides = {
         "description": TextAreaField,
@@ -277,23 +268,23 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
         "status": SelectField,
     }
 
-    form_args = dict(  # pyright: ignore[reportAssignmentType]
-        status=dict(
-            choices=[
+    form_args = {  # pyright: ignore[reportAssignmentType]
+        "status": {
+            "choices": [
                 (0, "На проверке"),
                 (1, "Требуется доработка"),
                 (2, "Одобрена"),
                 (4, "Отклонена"),
             ],
-            coerce=int,
-        )
-    )
+            "coerce": int,
+        },
+    }
     column_choices = {  # pyright: ignore[reportAssignmentType]
         "status": [
             (0, "На проверке"),
             (1, "Требуется доработка"),
             (2, "Одобрена"),
-        ]
+        ],
     }
 
     form_widget_args = {
@@ -312,12 +303,12 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
         },
     }
 
-    def on_form_prefill(self, form, id):
+    def on_form_prefill(self, form, id) -> None:  # noqa: ARG002
         model = DiplomaThemes.query.filter_by(id=id).first()
         if model is not None:
             session["previous_status"] = model.status
 
-    def on_model_change(self, form, model, is_created):
+    def on_model_change(self, form, model, is_created) -> None:  # noqa: ARG002
         previous_status = session.get("previous_status")
         if previous_status != model.status and model.status == 4:  # pyright: ignore[reportAttributeAccessIssue]
             add_mail_notification(
@@ -350,8 +341,6 @@ class SeAdminModelViewReviewDiplomaThemes(SeAdminModelViewReviewer):
             return self.session.query(db.func.count("*")).filter(DiplomaThemes.status < 2)  # pyright: ignore[reportAttributeAccessIssue]
         return self.session.query(db.func.count("*")).filter(self.model.status < 2)  # pyright: ignore[reportAttributeAccessIssue]
 
-    pass
-
 
 class SeAdminModelViewCurrentThesis(SeAdminModelView):
     column_list = (
@@ -363,15 +352,15 @@ class SeAdminModelViewCurrentThesis(SeAdminModelView):
         "deleted",
         "status",
     )
-    column_labels = dict(  # pyright: ignore[reportAssignmentType]
-        title="Название темы",
-        user="Студент",
-        area="Направление обучения",
-        worktype="Тип работы",
-        supervisor="Научный руководитель",
-        deleted="Удалена",
-        status="Статус",
-    )
+    column_labels = {  # pyright: ignore[reportAssignmentType]
+        "title": "Название темы",
+        "user": "Студент",
+        "area": "Направление обучения",
+        "worktype": "Тип работы",
+        "supervisor": "Научный руководитель",
+        "deleted": "Удалена",
+        "status": "Статус",
+    }
     column_choices = {  # pyright: ignore[reportAssignmentType]
-        "status": [(1, "Текущая работа"), (2, "Завершенная работа")]
+        "status": [(1, "Текущая работа"), (2, "Завершенная работа")],
     }

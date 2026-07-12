@@ -41,7 +41,6 @@ dev = [
     "pytest",
     "pytest-cov",
     "djlint",
-    "bandit",
     "codespell",
     "pytest-xdist>=3.8.0",
     "basedpyright>=1.39.9",
@@ -72,23 +71,55 @@ target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP", "SIM", "RUF100"]
+select = ["E", "F", "I", "N", "W", "UP", "SIM", "RUF100",
+          "B", "C4", "C90", "RET", "PERF", "TRY", "ARG", "SLF",
+          "S", "PLC", "PLW", "RUF"]
 ignore = ["E501", "UP009"]
+allowed-confusables = [
+    "а", "А",  # Cyrillic small/capital a → Latin a/A
+    "е", "Е",  # Cyrillic small/capital e → Latin e/E
+    "о", "О",  # Cyrillic small/capital o → Latin o/O
+    "с", "С",  # Cyrillic small/capital s → Latin c/C
+    "р", "Р",  # Cyrillic small/capital er → Latin p/P
+    "х", "Х",  # Cyrillic small/capital kha → Latin x/X
+    "в", "В",  # Cyrillic small/capital ve → Latin b/B
+    "н", "Н",  # Cyrillic small/capital en → Latin h/H
+    "к", "К",  # Cyrillic small/capital ka → Latin k/K
+    "м", "М",  # Cyrillic small/capital em → Latin m/M
+    "т", "Т",  # Cyrillic small/capital te → Latin t/T
+    "у", "У",  # Cyrillic small/capital u → Latin y/Y
+    "г",       # Cyrillic small ghe → Latin r
+    "ѕ", "Ѕ",  # Cyrillic small/capital dze → Latin s/S
+    "і", "І",  # Cyrillic small/capital Byelorussian-Ukrainian i → Latin i/I
+    "ј", "Ј",  # Cyrillic small/capital je → Latin j/J
+    "б",       # Cyrillic small be → digit 6
+    " ",       # NO-BREAK SPACE → SPACE
+    "–",       # EN DASH → HYPHEN-MINUS
+    "‹",       # SINGLE LEFT-POINTING ANGLE QUOTATION MARK → LESS-THAN
+    "›",       # SINGLE RIGHT-POINTING ANGLE QUOTATION MARK → GREATER-THAN
+    "‘",       # LEFT SINGLE QUOTATION MARK → GRAVE ACCENT
+    "’",       # RIGHT SINGLE QUOTATION MARK → GRAVE ACCENT
+    "‚",       # SINGLE LOW-9 QUOTATION MARK → COMMA
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
 
 [tool.ruff.lint.per-file-ignores]
-"tests/conftest.py" = ["E402"]
-"tests/*.py" = ["N801"]
+"tests/conftest.py" = ["E402", "S101", "ARG"]
+"tests/*.py" = ["N801", "PT006", "PT007", "S101", "S108", "S105", "S102", "PLC0415", "ARG"]
+"src/flask_se_admin.py" = ["RUF012"]
+"src/flask_se_practice.py" = ["C901"]
+"src/flask_se_practice_admin.py" = ["C901"]
+"src/flask_se_theses.py" = ["C901"]
 "src/static/files/*" = ["SIM115"]
-"src/thesesImport.py" = ["SIM115"]
+"src/thesesImport.py" = ["SIM115", "C901"]
+"src/se_models.py" = ["C901"]
 
 [tool.djlint]
 indent = 2
 profile = "jinja"
 ignore = "H006,H008,H020,H021,H023,H031"
-
-[tool.bandit]
-exclude_dirs = ["tests", "migrations"]
-skips = ["B101", "B311"]
 
 [tool.codespell]
 skip = ".git,.venv,node_modules,src/static/assets/libs"

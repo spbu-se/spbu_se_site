@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -33,7 +32,7 @@ def diplomas_index():
         if (company := Company.query.filter_by(id=sid[0]).first()) is not None
     ]
     company_choices.sort(key=lambda tup: tup[1])
-    diploma_filter.company.choices = [(0, "Р'СЃРµ")] + company_choices  # pyright: ignore[reportAttributeAccessIssue]
+    diploma_filter.company.choices = [(0, "Р'СЃРµ"), *company_choices]  # pyright: ignore[reportAttributeAccessIssue]
 
     supervisor_choices = []
     for sid in (
@@ -66,11 +65,11 @@ def diplomas_index():
         supervisor_choices.append((sid[0], last_name + " " + initials))
 
     supervisor_choices.sort(key=lambda tup: tup[1])
-    diploma_filter.supervisor.choices = [(0, "Р'СЃРµ")] + supervisor_choices  # pyright: ignore[reportAttributeAccessIssue]
+    diploma_filter.supervisor.choices = [(0, "Р'СЃРµ"), *supervisor_choices]  # pyright: ignore[reportAttributeAccessIssue]
 
     level_choices = [(sid.id, sid.level) for sid in ThemesLevel.query.all()]
     level_choices.sort(key=lambda tup: tup[1])
-    diploma_filter.level.choices = [(0, "Р'СЃРµ")] + level_choices  # pyright: ignore[reportAttributeAccessIssue]
+    diploma_filter.level.choices = [(0, "Р'СЃРµ"), *level_choices]  # pyright: ignore[reportAttributeAccessIssue]
 
     if current_user.is_authenticated:
         user = current_user
@@ -98,7 +97,7 @@ def fetch_themes():
         )
     else:
         records = DiplomaThemes.query.filter(DiplomaThemes.status == 2).order_by(
-            DiplomaThemes.id.desc()
+            DiplomaThemes.id.desc(),
         )
 
     if supervisor:
@@ -114,14 +113,16 @@ def fetch_themes():
                 or_(
                     DiplomaThemes.supervisor_id == supervisor,
                     DiplomaThemes.supervisor_thesis_id == supervisor,
-                )
+                ),
             )
         else:
             supervisor = 0
 
     if level:
         records = records.filter(DiplomaThemes.levels.any(id=level)).paginate(
-            per_page=10, page=page, error_out=False
+            per_page=10,
+            page=page,
+            error_out=False,
         )
     else:
         records = records.paginate(per_page=10, page=page, error_out=False)
@@ -134,8 +135,7 @@ def fetch_themes():
             company=company,
             supervisor=supervisor,
         )
-    else:
-        return render_template("diplomas/fetch_themes_blank.html")
+    return render_template("diplomas/fetch_themes_blank.html")
 
 
 @login_required
@@ -182,8 +182,6 @@ def add_user_theme():
         levels = request.form.getlist("levels", type=int)
         company = request.form.get("company", type=int)
 
-        level_accepted = []
-
         if not title:
             flash("Заголовок у темы является обязательным полем.")
             return render_template("diplomas/add_theme.html", form=add_theme, user=user)
@@ -203,9 +201,7 @@ def add_user_theme():
         themes_level = ThemesLevel.query.all()
         company_count = Company.query.count()
 
-        for tl in themes_level:
-            if tl.id in levels:
-                level_accepted.append(tl)
+        level_accepted = [tl for tl in themes_level if tl.id in levels]
 
         if not level_accepted:
             flash("Уровень темы указан неверно")
@@ -284,8 +280,6 @@ def edit_user_theme():
         requirements = request.form.get("requirements", type=str)
         levels = request.form.getlist("levels", type=int)
         company = request.form.get("company", type=int)
-        level_accepted = []
-
         if not title:
             flash("Заголовок у темы является обязательным полем.")
             return render_template("diplomas/edit_theme.html", form=edit_theme, user=user)
@@ -305,9 +299,7 @@ def edit_user_theme():
         themes_level = ThemesLevel.query.all()
         company_count = Company.query.count()
 
-        for tl in themes_level:
-            if tl.id in levels:
-                level_accepted.append(tl)
+        level_accepted = [tl for tl in themes_level if tl.id in levels]
 
         if not level_accepted:
             flash("Уровень темы указан неверно")

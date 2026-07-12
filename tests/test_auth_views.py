@@ -212,7 +212,7 @@ class TestGoogleOAuth:
         with seeded_client.session_transaction() as sess:
             sess["state"] = "test_state"
         mock_flow.return_value.fetch_token.return_value = None
-        mock_flow.return_value.credentials._id_token = "test"
+        mock_flow.return_value.credentials._id_token = "test"  # noqa: SLF001
         mock_get.return_value.json.return_value = {"email": "test@gmail.com", "sub": "12345"}
         mock_verify.return_value = {"email": "test@gmail.com", "sub": "12345"}
         resp = seeded_client.get("/google_callback?state=test_state&code=test_code")

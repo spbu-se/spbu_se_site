@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-"""
-Copyright 2023 Alexander Slugin
+"""Copyright 2023 Alexander Slugin.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -100,7 +98,8 @@ def finished_thesises_staff(user_staff):
         .all()
     )
     return render_template(
-        PracticeStaffTemplates.FINISHED_THESISES.value, thesises=current_thesises
+        PracticeStaffTemplates.FINISHED_THESISES.value,
+        thesises=current_thesises,
     )
 
 
@@ -134,7 +133,8 @@ def thesis_staff(user_staff, current_thesis):
                 f"{request.form['content']}"
             )
             notification = NotificationPractice(
-                recipient_id=current_thesis.author_id, content=notification_content
+                recipient_id=current_thesis.author_id,
+                content=notification_content,
             )
             db.session.add(notification)
             db.session.commit()
@@ -185,7 +185,7 @@ def reports_staff(user_staff, current_thesis):
                     category="error",
                 )
                 return redirect(
-                    url_for("reports_staff", id=current_thesis.id, report_id=current_report_id)
+                    url_for("reports_staff", id=current_thesis.id, report_id=current_report_id),
                 )
 
             current_report.comment = new_comment
@@ -194,12 +194,13 @@ def reports_staff(user_staff, current_thesis):
 
             content = (
                 f"Научный руководитель {user_staff.user.get_name()} прокомментировал "
-                + f"Ваш отчет от {datetime_convert(current_report.time)} "
-                + f'по работе "{current_thesis.title}"'
+                f"Ваш отчет от {datetime_convert(current_report.time)} "
+                f'по работе "{current_thesis.title}"'
             )
 
             notification = NotificationPractice(
-                recipient_id=current_thesis.author_id, content=content
+                recipient_id=current_thesis.author_id,
+                content=content,
             )
 
             add_mail_notification(

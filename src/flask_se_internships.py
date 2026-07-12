@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
+
+from typing import cast
 
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user
@@ -29,13 +30,13 @@ def internships_index():
     company_choices.sort(key=lambda tup: tup[1])
     internship_filter.company.choices = company_choices
 
-    format_choices: list[tuple[int, str]] = []
-    for sid in InternshipFormat.query.all():
-        format_choices.append((sid.id, sid.format))
+    format_choices: list[tuple[int, str]] = [
+        (sid.id, sid.format) for sid in InternshipFormat.query.all()
+    ]
     internship_filter.format.choices = format_choices
 
     tag_choices = sorted(
-        list({(y.id, y.tag) for x in Internships.query.all() for y in x.tag}),
+        {(y.id, y.tag) for x in Internships.query.all() for y in x.tag},
         key=lambda x: x[1],
     )
     tag_choices.insert(0, (0, "Р'СЃРµ"))
@@ -98,7 +99,7 @@ def add_internship():
             return render_template("internships/add_internship.html", form=add_intern, user=user)
 
         tag_list = []
-        list_of_tags = list(map(lambda x: x.strip(), tags.rstrip(",").split(",")))
+        list_of_tags = [x.strip() for x in tags.rstrip(",").split(",")]
         for t in list_of_tags:
             is_finded = False
             for posb_tag in InternshipTag.query.all():
@@ -110,19 +111,17 @@ def add_internship():
                 flash(
                     "Тег "
                     + t
-                    + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить."
+                    + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить.",
                 )
                 return render_template(
-                    "internships/add_internship.html", form=add_intern, user=user
+                    "internships/add_internship.html",
+                    form=add_intern,
+                    user=user,
                 )
-
-        format_list = []
 
         int_format = InternshipFormat.query.all()
 
-        for f in int_format:
-            if f.id in format:
-                format_list.append(f)
+        format_list = [f for f in int_format if f.id in format]
 
         if not db.session.query(InternshipCompany.id).filter_by(name=company).scalar():
             company_entity = InternshipCompany(name=company)  # pyright: ignore[reportCallIssue]
@@ -168,7 +167,9 @@ def page_internship(id):
         return render_template("404.html")
 
     return render_template(
-        "internships/page_internship.html", internship=internships.first(), user=user
+        "internships/page_internship.html",
+        internship=internships.first(),
+        user=user,
     )
 
 
@@ -197,11 +198,8 @@ def update_internship(id):
         (g.id, g.format) for g in InternshipFormat.query.order_by("id").all()
     ]
     upd_internship.tag.choices = [(t.id, t.tag) for t in InternshipTag.query.order_by("id").all()]  # pyright: ignore[reportAttributeAccessIssue]
-    from typing import cast
 
-    from se_models import InternshipTag as InternshipTagModel
-
-    tags = cast("list[InternshipTagModel]", internship.tag)
+    tags = cast("list[InternshipTag]", internship.tag)
     fmts = cast("list[InternshipFormat]", internship.format)
     upd_internship.tag.data = "".join([t.tag + ", " for t in tags]).strip(", ")
     upd_internship.format.data = [c.id for c in fmts]
@@ -255,7 +253,7 @@ def update_internship(id):
             )
 
         tag_list = []
-        list_of_tags = list(map(lambda x: x.strip(), tags.rstrip(",").split(",")))
+        list_of_tags = [x.strip() for x in tags.rstrip(",").split(",")]
         for t in list_of_tags:
             is_finded = False
             for posb_tag in InternshipTag.query.all():
@@ -267,7 +265,7 @@ def update_internship(id):
                 flash(
                     "Тег "
                     + t
-                    + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить."
+                    + " не рапознан. Пожалуйста, свяжитесь с администрацией сайта, чтобы его добавить.",
                 )
                 return render_template(
                     "internships/update_internship.html",
@@ -276,13 +274,9 @@ def update_internship(id):
                     user=user,
                 )
 
-        format_list = []
-
         int_format = InternshipFormat.query.all()
 
-        for f in int_format:
-            if f.id in format:
-                format_list.append(f)
+        format_list = [f for f in int_format if f.id in format]
 
         if not db.session.query(InternshipCompany.id).filter_by(name=company).scalar():
             company_entity = InternshipCompany(name=company)  # pyright: ignore[reportCallIssue]
@@ -323,7 +317,7 @@ def fetch_internships():
 
     if company:
         records = Internships.query.filter(Internships.company_id == company).order_by(
-            Internships.id.desc()
+            Internships.id.desc(),
         )
     else:
         records = Internships.query.order_by(Internships.id.desc())
@@ -345,5 +339,4 @@ def fetch_internships():
             tag=tag,
             user=user,
         )
-    else:
-        return render_template("internships/fetch_internships_blank.html")
+    return render_template("internships/fetch_internships_blank.html")

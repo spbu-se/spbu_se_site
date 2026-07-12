@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import json
@@ -28,7 +27,7 @@ def theses_search():
         '"Дом" можно искать как дом, д?м или д*м',
     ]
 
-    hint = random.choice(hints)
+    hint = random.choice(hints)  # noqa: S311
 
     worktype_choices = [
         (sid[0], wrktype.type)
@@ -80,9 +79,9 @@ def theses_search():
         supervisor_choices.append((sid[0], last_name + " " + initials))
 
     supervisor_choices.sort(key=lambda tup: tup[1])
-    filter.supervisor.choices = [(0, "Р'СЃРµ")] + supervisor_choices  # pyright: ignore[reportAttributeAccessIssue]
-    filter.course.choices = [(0, "Р'СЃРµ")] + course_choices  # pyright: ignore[reportAttributeAccessIssue]
-    filter.worktype.choices = [(0, "Р'СЃРµ")] + worktype_choices  # pyright: ignore[reportAttributeAccessIssue]
+    filter.supervisor.choices = [(0, "Р'СЃРµ"), *supervisor_choices]  # pyright: ignore[reportAttributeAccessIssue]
+    filter.course.choices = [(0, "Р'СЃРµ"), *course_choices]  # pyright: ignore[reportAttributeAccessIssue]
+    filter.worktype.choices = [(0, "Р'СЃРµ"), *worktype_choices]  # pyright: ignore[reportAttributeAccessIssue]
 
     return render_template("theses.html", filter=filter, hint=hint)
 
@@ -111,8 +110,7 @@ def fetch_theses():
         enddate = 2022
 
     # Check if end date less than start date
-    if enddate < startdate:
-        enddate = startdate
+    enddate = max(enddate, startdate)
 
     if search:
         records = (
@@ -144,7 +142,9 @@ def fetch_theses():
 
     if worktype > 1:
         records = records.filter_by(type_id=worktype).paginate(
-            per_page=10, page=page, error_out=False
+            per_page=10,
+            page=page,
+            error_out=False,
         )
     else:
         records = records.paginate(per_page=10, page=page, error_out=False)
@@ -197,8 +197,7 @@ def fetch_theses():
             search=search,
             context=context,
         )
-    else:
-        return render_template("fetch_theses_blank.html")
+    return render_template("fetch_theses_blank.html")
 
 
 def get_text(filename):
@@ -423,12 +422,12 @@ def post_theses():
 
     try:
         db.session.commit()
-    except AssertionError as err:
+    except AssertionError:
         db.session.rollback()
-        log.error(err)
-    except Exception as err:
+        log.exception("Error")
+    except Exception:
         db.session.rollback()
-        log.error(err)
+        log.exception("Error")
 
     return jsonify(status=success_status, string="Success")
 

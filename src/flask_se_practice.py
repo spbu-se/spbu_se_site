@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-"""
-Copyright 2023 Alexander Slugin
+"""Copyright 2023 Alexander Slugin.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -140,13 +138,16 @@ def practice_new_thesis():
 
     form = CurrentWorktypeArea()
     area_choices: list[tuple[int, str]] = [(0, "Р'ыберите направление")]
-    for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by("id").all():
-        area_choices.append((area.id, area.area))
+    area_choices.extend(
+        (area.id, area.area)
+        for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by("id").all()
+    )
     form.area.choices = area_choices
 
     worktype_choices: list[tuple[int, str]] = [(0, "Р'ыберите тип работы")]
-    for worktype in Worktype.query.filter(Worktype.id > 2).all():
-        worktype_choices.append((worktype.id, worktype.type))
+    worktype_choices.extend(
+        (worktype.id, worktype.type) for worktype in Worktype.query.filter(Worktype.id > 2).all()
+    )
     form.worktype.choices = worktype_choices
 
     return render_template(
@@ -207,13 +208,13 @@ def practice_choosing_topic(current_thesis):
 
     form = ChooseTopic()
     staff_choices: list[tuple[int, str]] = [(0, "Р'ыберите научного руководителя")]
-    for supervisor in (
-        Staff.query.join(Users, Staff.user_id == Users.id)
+    staff_choices.extend(
+        (supervisor.id, supervisor.user.get_name())
+        for supervisor in Staff.query.join(Users, Staff.user_id == Users.id)
         .filter(Staff.still_working)
         .order_by(asc(Users.last_name))
         .all()
-    ):
-        staff_choices.append((supervisor.id, supervisor.user.get_name()))
+    )
     form.staff.choices = staff_choices
 
     return render_template(
@@ -263,18 +264,18 @@ def practice_edit_theme(current_thesis):
     form = ChooseTopic()
     form.topic.data = current_thesis.title
     staff_choices: list[tuple[int, str]] = [
-        (current_thesis.supervisor_id, current_thesis.supervisor)
+        (current_thesis.supervisor_id, current_thesis.supervisor),
     ]
     form.staff.choices = staff_choices
     form.consultant.data = current_thesis.consultant
-    for supervisor in (
-        Staff.query.join(Users, Staff.user_id == Users.id)
+    staff_choices.extend(
+        (supervisor.id, supervisor.user.get_name())
+        for supervisor in Staff.query.join(Users, Staff.user_id == Users.id)
         .filter(Staff.id != current_thesis.supervisor_id)
         .filter(Staff.still_working)
         .order_by(asc(Users.last_name))
         .all()
-    ):
-        staff_choices.append((supervisor.id, supervisor.user.get_name()))
+    )
     form.staff.choices = staff_choices
 
     return render_template(
@@ -506,7 +507,9 @@ def practice_preparation(current_thesis):
 
             if text_file is not None and text_file.filename != "":
                 full_filename, filename = get_filename(
-                    current_thesis, TEXT_UPLOAD_FOLDER, TypeOfFile.TEXT.value
+                    current_thesis,
+                    TEXT_UPLOAD_FOLDER,
+                    TypeOfFile.TEXT.value,
                 )
                 text_file.save(full_filename)
                 current_thesis.text_uri = filename
@@ -522,16 +525,22 @@ def practice_preparation(current_thesis):
 
             # Check at least one review has been uploaded
             if (
-                supervisor_review is not None
-                and supervisor_review.filename == ""
-                and reviewer_review is not None
-                and reviewer_review.filename == ""
-                or supervisor_review is None
-                and reviewer_review is not None
-                and reviewer_review.filename == ""
-                or reviewer_review is None
-                and supervisor_review is not None
-                and supervisor_review.filename == ""
+                (
+                    supervisor_review is not None
+                    and supervisor_review.filename == ""
+                    and reviewer_review is not None
+                    and reviewer_review.filename == ""
+                )
+                or (
+                    supervisor_review is None
+                    and reviewer_review is not None
+                    and reviewer_review.filename == ""
+                )
+                or (
+                    reviewer_review is None
+                    and supervisor_review is not None
+                    and supervisor_review.filename == ""
+                )
             ):
                 flash("Вы не загрузили отзыв.", category="error")
                 return redirect(url_for("practice_preparation", id=current_thesis.id))
@@ -542,7 +551,8 @@ def practice_preparation(current_thesis):
                     supervisor_review.filename != ""
                     and not allowed_file(supervisor_review.filename)
                 )
-                or reviewer_review is not None
+            ) or (
+                reviewer_review is not None
                 and (reviewer_review.filename != "" and not allowed_file(reviewer_review.filename))
             ):
                 flash(
@@ -745,19 +755,21 @@ def practice_data_for_practice(current_thesis):
 
     form = CurrentWorktypeArea()
     area_choices = [(current_thesis.area_id, current_thesis.area.area)]
-    for area in (
-        AreasOfStudy.query.filter(AreasOfStudy.id > 1)
+    area_choices.extend(
+        (area.id, area.area)
+        for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1)
         .filter(AreasOfStudy.id != current_thesis.area.id)
         .order_by("id")
         .all()
-    ):
-        area_choices.append((area.id, area.area))
+    )
     form.area.choices = area_choices  # pyright: ignore[reportAttributeAccessIssue]
 
     worktype_choices = [(current_thesis.worktype_id, current_thesis.worktype.type)]
-    for worktype in Worktype.query.filter(Worktype.id > 2).all():
-        if worktype.id != current_thesis.worktype_id:
-            worktype_choices.append((worktype.id, worktype))
+    worktype_choices.extend(
+        (worktype.id, worktype)
+        for worktype in Worktype.query.filter(Worktype.id > 2).all()
+        if worktype.id != current_thesis.worktype_id
+    )
     form.worktype.choices = worktype_choices  # pyright: ignore[reportAttributeAccessIssue]
 
     return render_template(
@@ -774,8 +786,7 @@ def get_list_of_theses() -> list[CurrentThesis]:
 
 
 def get_remaining_time(deadline, type_deadline):
-    """
-    Counts the remaining time until the deadline
+    """Counts the remaining time until the deadline.
 
     :param deadline: Deadline for specified work type and area of study
     :param type_deadline: String that indicates for what deadline to count remaining time
@@ -793,7 +804,7 @@ def get_remaining_time(deadline, type_deadline):
         if not deadline.submit_work_for_review:
             return None
         remaining_time_timedelta = deadline.submit_work_for_review - datetime.now(UTC).replace(
-            tzinfo=None
+            tzinfo=None,
         )
     elif type_deadline == "upload_reviews":
         if not deadline.upload_reviews:

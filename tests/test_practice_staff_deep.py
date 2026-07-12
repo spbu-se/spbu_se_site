@@ -153,7 +153,7 @@ class TestThesisStaffPost:
         assert_ok(staff_client, "/practice_staff/finished_thesises/", code={200, 302})
 
     def test_index_staff(self, thesis_with_report):
-        client, ct_id, _ = thesis_with_report
+        client, _ct_id, _ = thesis_with_report
         resp = client.get("/practice_staff/")
         assert resp.status_code == 200
 

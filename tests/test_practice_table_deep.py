@@ -33,17 +33,17 @@ class TestReadTable:
         from flask_se_practice_table import read_table
 
         df = pd.DataFrame({"A": [1]})
-        tmp = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
-        tmp.close()
+        with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+            tmp_name = tmp.name
         try:
-            with pd.ExcelWriter(tmp.name) as w:
+            with pd.ExcelWriter(tmp_name) as w:
                 df.to_excel(w, sheet_name="S1", index=False)
             with app.test_request_context():
-                result = read_table(tmp.name, "S1")
+                result = read_table(tmp_name, "S1")
             assert result is not None
             assert "A" in result.columns
         finally:
-            os.unlink(tmp.name)
+            os.unlink(tmp_name)
 
     def test_read_table_default_sheet(self, app_ctx):
         import os
@@ -53,16 +53,16 @@ class TestReadTable:
         from flask_se_practice_table import read_table
 
         df = pd.DataFrame({"X": [10]})
-        tmp = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
-        tmp.close()
+        with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+            tmp_name = tmp.name
         try:
-            with pd.ExcelWriter(tmp.name) as w:
+            with pd.ExcelWriter(tmp_name) as w:
                 df.to_excel(w, index=False)
             with app.test_request_context():
-                result = read_table(tmp.name, "")
+                result = read_table(tmp_name, "")
             assert result is not None
         finally:
-            os.unlink(tmp.name)
+            os.unlink(tmp_name)
 
 
 class TestFindUser:
@@ -202,10 +202,10 @@ class TestAddNewDataToTable:
         ct_mock.account_name = "testuser"
         ct_mock.presentation_uri = "slides.pdf"
 
-        columns = {k: v for k, v in TABLE_COLUMNS.items()}
+        columns = dict(TABLE_COLUMNS.items())
         col_values = list(columns.values())
 
-        row = pd.Series({c: "" for c in col_values})
+        row = pd.Series(dict.fromkeys(col_values, ""))
         add_new_data_to_table(row, ct_mock, u, columns)
 
         assert row[columns["name"]] == u.get_name()
@@ -240,10 +240,10 @@ class TestAddNewDataToTable:
         ct_mock.account_name = ""
         ct_mock.presentation_uri = None
 
-        columns = {k: v for k, v in TABLE_COLUMNS.items()}
+        columns = dict(TABLE_COLUMNS.items())
         col_values = list(columns.values())
 
-        row = pd.Series({c: "" for c in col_values})
+        row = pd.Series(dict.fromkeys(col_values, ""))
         add_new_data_to_table(row, ct_mock, u, columns)
 
         assert row[columns["text"]] == ""
@@ -322,25 +322,27 @@ class TestEditTable:
         col_values = [v for _, v in TC.items()]
 
         mock_df = MagicMock()
-        mock_df.iterrows.return_value = [(0, pd.Series({v: "" for v in col_values}))]
+        mock_df.iterrows.return_value = [(0, pd.Series(dict.fromkeys(col_values, "")))]
         mock_df.columns = col_values
         mock_df.sort_values.return_value = mock_df
 
-        with patch("flask_se_practice_table.read_table", return_value=mock_df):
-            with patch("flask_se_practice_table.find_user") as mock_find:
-                mock_find.return_value = MagicMock()
-                with patch("flask_se_practice_table.find_current_thesis") as mock_ct:
-                    mock_ct.return_value = MagicMock()
-                    with patch("flask_se_practice_table.get_all_thesises", return_value=[]):
-                        with patch("flask_se_practice_table.add_new_data_to_table") as mock_add:
-                            with patch("flask_se_practice_table.pd.ExcelWriter"):
-                                with app.test_request_context():
-                                    edit_table(
-                                        "/tmp/test.xlsx",
-                                        area_id=1,
-                                        worktype_id=1,
-                                    )
-                                mock_add.assert_called_once()
+        with (
+            patch("flask_se_practice_table.read_table", return_value=mock_df),
+            patch("flask_se_practice_table.find_user") as mock_find,
+            patch("flask_se_practice_table.find_current_thesis") as mock_ct,
+            patch("flask_se_practice_table.get_all_thesises", return_value=[]),
+            patch("flask_se_practice_table.add_new_data_to_table") as mock_add,
+            patch("flask_se_practice_table.pd.ExcelWriter"),
+            app.test_request_context(),
+        ):
+            mock_find.return_value = MagicMock()
+            mock_ct.return_value = MagicMock()
+            edit_table(
+                "/tmp/test.xlsx",
+                area_id=1,
+                worktype_id=1,
+            )
+        mock_add.assert_called_once()
 
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_user_not_found_skips_row(self, mock_exists, app_ctx):
@@ -351,17 +353,19 @@ class TestEditTable:
         col_values = [v for _, v in TC.items()]
 
         mock_df = MagicMock()
-        mock_df.iterrows.return_value = [(0, pd.Series({v: "" for v in col_values}))]
+        mock_df.iterrows.return_value = [(0, pd.Series(dict.fromkeys(col_values, "")))]
         mock_df.columns = col_values
         mock_df.sort_values.return_value = mock_df
 
-        with patch("flask_se_practice_table.read_table", return_value=mock_df):
-            with patch("flask_se_practice_table.find_user", return_value=None) as mock_find:
-                with patch("flask_se_practice_table.get_all_thesises", return_value=[]):
-                    with patch("flask_se_practice_table.pd.ExcelWriter"):
-                        with app.test_request_context():
-                            edit_table("/tmp/test.xlsx", area_id=1, worktype_id=1)
-                        mock_find.assert_called_once()
+        with (
+            patch("flask_se_practice_table.read_table", return_value=mock_df),
+            patch("flask_se_practice_table.find_user", return_value=None) as mock_find,
+            patch("flask_se_practice_table.get_all_thesises", return_value=[]),
+            patch("flask_se_practice_table.pd.ExcelWriter"),
+            app.test_request_context(),
+        ):
+            edit_table("/tmp/test.xlsx", area_id=1, worktype_id=1)
+        mock_find.assert_called_once()
 
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_no_thesis_skips_row(self, mock_exists, app_ctx):
@@ -372,27 +376,27 @@ class TestEditTable:
         col_values = [v for _, v in TC.items()]
 
         mock_df = MagicMock()
-        mock_df.iterrows.return_value = [(0, pd.Series({v: "" for v in col_values}))]
+        mock_df.iterrows.return_value = [(0, pd.Series(dict.fromkeys(col_values, "")))]
         mock_df.columns = col_values
         mock_df.sort_values.return_value = mock_df
 
-        with patch("flask_se_practice_table.read_table", return_value=mock_df):
-            with patch("flask_se_practice_table.find_user") as mock_find:
-                mock_find.return_value = MagicMock()
-                with (
-                    patch(
-                        "flask_se_practice_table.find_current_thesis", return_value=None
-                    ) as mock_ct,
-                    patch("flask_se_practice_table.get_all_thesises", return_value=[]),
-                ):
-                    with patch("flask_se_practice_table.pd.ExcelWriter"):
-                        with app.test_request_context():
-                            edit_table(
-                                "/tmp/test.xlsx",
-                                area_id=1,
-                                worktype_id=1,
-                            )
-                        mock_ct.assert_called_once()
+        with (
+            patch("flask_se_practice_table.read_table", return_value=mock_df),
+            patch("flask_se_practice_table.find_user") as mock_find,
+            patch(
+                "flask_se_practice_table.find_current_thesis", return_value=None
+            ) as mock_ct,
+            patch("flask_se_practice_table.get_all_thesises", return_value=[]),
+            patch("flask_se_practice_table.pd.ExcelWriter"),
+            app.test_request_context(),
+        ):
+            mock_find.return_value = MagicMock()
+            edit_table(
+                "/tmp/test.xlsx",
+                area_id=1,
+                worktype_id=1,
+            )
+        mock_ct.assert_called_once()
 
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_key_error_in_row_loop(self, mock_exists, app_ctx):
@@ -403,22 +407,22 @@ class TestEditTable:
         col_values = [v for _, v in TC.items()]
 
         mock_df = MagicMock()
-        mock_df.iterrows.return_value = [(0, pd.Series({v: "" for v in col_values}))]
+        mock_df.iterrows.return_value = [(0, pd.Series(dict.fromkeys(col_values, "")))]
         mock_df.columns = col_values
 
-        with patch("flask_se_practice_table.read_table", return_value=mock_df):
-            with patch("flask_se_practice_table.find_user") as mock_find:
-                mock_find.return_value = MagicMock()
-                with patch("flask_se_practice_table.find_current_thesis") as mock_ct:
-                    mock_ct.return_value = MagicMock()
-                    with (
-                        patch(
-                            "flask_se_practice_table.add_new_data_to_table",
-                            side_effect=KeyError("test"),
-                        ),
-                        app.test_request_context(),
-                    ):
-                        edit_table("/tmp/test.xlsx", area_id=1, worktype_id=1)
+        with (
+            patch("flask_se_practice_table.read_table", return_value=mock_df),
+            patch("flask_se_practice_table.find_user") as mock_find,
+            patch("flask_se_practice_table.find_current_thesis") as mock_ct,
+            patch(
+                "flask_se_practice_table.add_new_data_to_table",
+                side_effect=KeyError("test"),
+            ),
+            app.test_request_context(),
+        ):
+            mock_find.return_value = MagicMock()
+            mock_ct.return_value = MagicMock()
+            edit_table("/tmp/test.xlsx", area_id=1, worktype_id=1)
 
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_key_error_in_missing_thesis_loop(self, mock_exists, app_ctx):
@@ -436,18 +440,20 @@ class TestEditTable:
         mock_thesis.id = 999
         mock_thesis.user = MagicMock()
 
-        with patch("flask_se_practice_table.read_table", return_value=mock_df):
-            with patch("flask_se_practice_table.pd.concat", return_value=mock_df):
-                with patch(
-                    "flask_se_practice_table.get_all_thesises",
-                    return_value=[mock_thesis],
-                ):
-                    with patch(
-                        "flask_se_practice_table.add_new_data_to_table",
-                        side_effect=KeyError("test"),
-                    ):
-                        with app.test_request_context():
-                            edit_table("/tmp/test.xlsx", area_id=1, worktype_id=1)
+        with (
+            patch("flask_se_practice_table.read_table", return_value=mock_df),
+            patch("flask_se_practice_table.pd.concat", return_value=mock_df),
+            patch(
+                "flask_se_practice_table.get_all_thesises",
+                return_value=[mock_thesis],
+            ),
+            patch(
+                "flask_se_practice_table.add_new_data_to_table",
+                side_effect=KeyError("test"),
+            ),
+            app.test_request_context(),
+        ):
+            edit_table("/tmp/test.xlsx", area_id=1, worktype_id=1)
 
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_adds_missing_thesises(self, mock_exists, app_ctx):
@@ -466,17 +472,19 @@ class TestEditTable:
         mock_thesis.id = 777
         mock_thesis.user = MagicMock()
 
-        with patch("flask_se_practice_table.read_table", return_value=mock_df):
-            with patch("flask_se_practice_table.pd.concat", return_value=mock_df):
-                with patch(
-                    "flask_se_practice_table.get_all_thesises",
-                    return_value=[mock_thesis],
-                ):
-                    with patch("flask_se_practice_table.add_new_data_to_table") as mock_add:
-                        with patch("flask_se_practice_table.pd.ExcelWriter"):
-                            with app.test_request_context():
-                                edit_table("/tmp/test.xlsx", area_id=1, worktype_id=1)
-                            assert mock_add.called
+        with (
+            patch("flask_se_practice_table.read_table", return_value=mock_df),
+            patch("flask_se_practice_table.pd.concat", return_value=mock_df),
+            patch(
+                "flask_se_practice_table.get_all_thesises",
+                return_value=[mock_thesis],
+            ),
+            patch("flask_se_practice_table.add_new_data_to_table") as mock_add,
+            patch("flask_se_practice_table.pd.ExcelWriter"),
+            app.test_request_context(),
+        ):
+            edit_table("/tmp/test.xlsx", area_id=1, worktype_id=1)
+        assert mock_add.called
 
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_key_error_from_missing_column(self, mock_exists, app_ctx):
@@ -486,9 +494,11 @@ class TestEditTable:
         mock_df = MagicMock()
         mock_df.iterrows.return_value = [(0, pd.Series({"wrong_col": "val"}))]
 
-        with patch("flask_se_practice_table.read_table", return_value=mock_df):
-            with app.test_request_context():
-                edit_table("/tmp/test.xlsx", area_id=1, worktype_id=1)
+        with (
+            patch("flask_se_practice_table.read_table", return_value=mock_df),
+            app.test_request_context(),
+        ):
+            edit_table("/tmp/test.xlsx", area_id=1, worktype_id=1)
 
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_skips_already_checked_thesis(self, mock_exists, app_ctx):
@@ -499,38 +509,38 @@ class TestEditTable:
         col_values = [v for _, v in TC.items()]
 
         mock_df = MagicMock()
-        mock_df.iterrows.return_value = [(0, pd.Series({v: "" for v in col_values}))]
+        mock_df.iterrows.return_value = [(0, pd.Series(dict.fromkeys(col_values, "")))]
         mock_df.columns = col_values
         mock_df.sort_values.return_value = mock_df
 
         mock_thesis = MagicMock()
         mock_thesis.id = 42
 
-        with patch("flask_se_practice_table.read_table", return_value=mock_df):
-            with patch("flask_se_practice_table.find_user") as mock_find:
-                mock_find.return_value = MagicMock()
-                with (
-                    patch(
-                        "flask_se_practice_table.find_current_thesis",
-                        return_value=mock_thesis,
-                    ),
-                    patch(
-                        "flask_se_practice_table.get_all_thesises",
-                        return_value=[mock_thesis],
-                    ),
-                    patch("flask_se_practice_table.add_new_data_to_table"),
-                ):
-                    with patch("flask_se_practice_table.pd.ExcelWriter"):
-                        with patch(
-                            "flask_se_practice_table.pd.concat",
-                            return_value=mock_df,
-                        ):
-                            with app.test_request_context():
-                                edit_table(
-                                    "/tmp/test.xlsx",
-                                    area_id=1,
-                                    worktype_id=1,
-                                )
+        with (
+            patch("flask_se_practice_table.read_table", return_value=mock_df),
+            patch("flask_se_practice_table.find_user") as mock_find,
+            patch(
+                "flask_se_practice_table.find_current_thesis",
+                return_value=mock_thesis,
+            ),
+            patch(
+                "flask_se_practice_table.get_all_thesises",
+                return_value=[mock_thesis],
+            ),
+            patch("flask_se_practice_table.add_new_data_to_table"),
+            patch("flask_se_practice_table.pd.ExcelWriter"),
+            patch(
+                "flask_se_practice_table.pd.concat",
+                return_value=mock_df,
+            ),
+            app.test_request_context(),
+        ):
+            mock_find.return_value = MagicMock()
+            edit_table(
+                "/tmp/test.xlsx",
+                area_id=1,
+                worktype_id=1,
+            )
 
     def test_get_all_thesises(self, app_ctx):
         from flask_se_practice_table import get_all_thesises

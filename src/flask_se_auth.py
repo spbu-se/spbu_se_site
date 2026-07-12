@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import hmac
@@ -35,9 +34,6 @@ ALLOWED_EXTENSIONS = {"bmp", "png", "jpg", "jpeg"}
 
 login_manager = LoginManager()
 login_manager.login_view = "login_index"  # pyright: ignore[reportAttributeAccessIssue]
-
-# create an alias of login_required decorator
-login_required = login_required
 
 
 # Google auth (https://github.com/code-specialist/flask_google_login/blob/main/app.py)
@@ -101,35 +97,34 @@ def login_index():
             ):
                 login_user(user, remember=True)
                 return redirect_next_url(fallback=url_for("user_profile"))
-            elif (password_hash is not None) and (not password_hash.startswith("pbkdf2")):
+            if (password_hash is not None) and (not password_hash.startswith("pbkdf2")):
                 hs = password_hash.split("$")
                 if (
                     len(hs) == 3
                     and hmac.HMAC(
-                        hs[1].encode("utf-8"), (password or "").encode("utf-8"), hs[0]
+                        hs[1].encode("utf-8"),
+                        (password or "").encode("utf-8"),
+                        hs[0],
                     ).hexdigest()
                     == hs[2]
                 ):
                     login_user(user, remember=True)
                     return redirect_next_url(fallback=url_for("user_profile"))
-                else:
-                    flash(
-                        "Пара логин и пароль указаны неверно",
-                        category="error",
-                    )
-                    return render_template("auth/login.html", user=current_user)
-            else:
                 flash(
                     "Пара логин и пароль указаны неверно",
                     category="error",
                 )
                 return render_template("auth/login.html", user=current_user)
-        else:
             flash(
-                "Пользователя с таким почтовым адресом нет",
+                "Пара логин и пароль указаны неверно",
                 category="error",
             )
             return render_template("auth/login.html", user=current_user)
+        flash(
+            "Пользователя с таким почтовым адресом нет",
+            category="error",
+        )
+        return render_template("auth/login.html", user=current_user)
 
     return render_template("auth/login.html", user=current_user)
 
@@ -151,8 +146,6 @@ def vk_callback():
 
     if "error" in access_token_json:
         return redirect(url_for("index"))
-
-    print(access_token_json)
 
     vk_id = access_token_json["user_id"]
     access_token = access_token_json["access_token"]
@@ -180,7 +173,9 @@ def vk_callback():
 
             if "photo_100" in vk_user["response"][0]:
                 r = requests.get(
-                    vk_user["response"][0]["photo_100"], allow_redirects=True, timeout=30
+                    vk_user["response"][0]["photo_100"],
+                    allow_redirects=True,
+                    timeout=30,
                 )
                 with open("static/images/avatars/" + avatar_uri, "wb") as f:
                     f.write(r.content)
@@ -197,8 +192,6 @@ def vk_callback():
         except SQLAlchemyError as e:
             db.session.rollback()
             error = str(e.__dict__["orig"])
-            print(error)
-            print("Can't add new user to the Database")
             flash(error, category="error")
             return redirect(url_for("login_index"))
 
@@ -298,7 +291,7 @@ def upload_avatar():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)  # pyright: ignore[reportArgumentType]
             new_filename = os.urandom(16).hex()
-            f, ext = os.path.splitext(filename)
+            _f, ext = os.path.splitext(filename)
 
             if ext in [".jpg", ".jpeg"]:
                 file.save(os.path.join(UPLOAD_FOLDER + "/" + new_filename + ".jpg"))
@@ -310,7 +303,7 @@ def upload_avatar():
                         rgb_im.save(UPLOAD_FOLDER + "/" + new_filename + ".jpg")
                         os.unlink(UPLOAD_TMP_FOLDER + "/" + new_filename + ext)
                 except OSError:
-                    print("cannot convert", new_filename + ".jpg")
+                    pass
 
             user = Users.query.filter_by(id=current_user.id).first()
 
@@ -342,7 +335,8 @@ def google_login():
 
     flow.redirect_uri = url_for("google_callback", _external=True)
     authorization_url, state = flow.authorization_url(
-        access_type="offline", include_granted_scopes="true"
+        access_type="offline",
+        include_granted_scopes="true",
     )
     session["state"] = state
     return redirect(authorization_url)
@@ -350,7 +344,6 @@ def google_login():
 
 def google_callback():
     state = session["state"]
-    print(request.args.get("state"), session)
 
     if not state:
         redirect(url_for("login_index"))
@@ -373,7 +366,7 @@ def google_callback():
     token_request = google.auth.transport.requests.Request(session=cached_session)
 
     id_info = id_token.verify_oauth2_token(
-        id_token=credentials._id_token,  # pyright: ignore[reportAttributeAccessIssue]
+        id_token=credentials._id_token,  # noqa: SLF001  # pyright: ignore[reportAttributeAccessIssue]
         request=token_request,
         audience=GOOGLE_CLIENT_ID,
         clock_skew_in_seconds=60,
@@ -405,8 +398,6 @@ def google_callback():
         except SQLAlchemyError as e:
             db.session.rollback()
             error = str(e.__dict__["orig"])
-            print(error)
-            print("Can't add new user to Database")
             flash(error, category="error")
             return redirect(url_for("login_index"))
 

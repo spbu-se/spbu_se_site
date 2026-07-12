@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -87,7 +86,9 @@ def fetch_thesis_on_review():
 
     if area > 1:
         records = records.filter(ThesisOnReview.area_id == area).paginate(
-            per_page=20, page=page, error_out=False
+            per_page=20,
+            page=page,
+            error_out=False,
         )
     else:
         records = records.paginate(per_page=20, page=page, error_out=False)
@@ -178,9 +179,8 @@ def submit_thesis_on_review():
                 "error",
             )
             return redirect(url_for("thesis_review_index"))
-        else:
-            flash("Текст работы должен быть в формате .PDF", "error")
-            return redirect(request.url)
+        flash("Текст работы должен быть в формате .PDF", "error")
+        return redirect(request.url)
 
     type_choices = [(0, "Тип работы")]
     type_choices += [
@@ -265,7 +265,7 @@ def edit_thesis_on_review():
                     thesis_filename_with_ext = thesis_filename + ".pdf"
 
                     full_thesis_filename = os.path.join(
-                        UPLOAD_FOLDER + "/" + thesis_filename_with_ext
+                        UPLOAD_FOLDER + "/" + thesis_filename_with_ext,
                     )
 
                     # Check if file already exist
@@ -273,7 +273,7 @@ def edit_thesis_on_review():
                         thesis_filename = thesis_filename + "_" + str(os.urandom(8).hex())
                         thesis_filename_with_ext = thesis_filename + ".pdf"
                         full_thesis_filename = os.path.join(
-                            UPLOAD_FOLDER + "/" + thesis_filename_with_ext
+                            UPLOAD_FOLDER + "/" + thesis_filename_with_ext,
                         )
 
                     file.save(full_thesis_filename)
@@ -376,7 +376,10 @@ def review_thesis_on_review():
 
     review_form = ReviewForm()
     return render_template(
-        "thesis_review/review.html", thesis=thesis, user=user, review_form=review_form
+        "thesis_review/review.html",
+        thesis=thesis,
+        user=user,
+        review_form=review_form,
     )
 
 
@@ -455,7 +458,7 @@ def review_submit_review():
                     review_filename_with_ext = review_filename + ".pdf"
 
                     full_filename = os.path.join(
-                        REVIEW_UPLOAD_FOLDER + "/" + review_filename_with_ext
+                        REVIEW_UPLOAD_FOLDER + "/" + review_filename_with_ext,
                     )
 
                 review_file_name = review_filename_with_ext
@@ -521,7 +524,7 @@ def review_result_thesis_on_review():
     #    flash("Вы не можете просматривать рецензию на чужую работу", 'error')
     #    return redirect(url_for('thesis_review_index'))
 
-    if (thesis.review_status == 1) or (thesis.review_status == 2):
+    if thesis.review_status in {1, 2}:
         flash("Рецензия по данной работе не завершена", "error")
         return redirect(url_for("thesis_review_index"))
 

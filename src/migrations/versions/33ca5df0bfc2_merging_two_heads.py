@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-"""merging two heads
+"""merging two heads.
 
 Revision ID: 33ca5df0bfc2
 Revises: 975cdf37ae8e, c4e88555c985
@@ -15,9 +14,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     pass
 
 
-def downgrade():
+def downgrade() -> None:
     pass

@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-"""
-Copyright 2023 Alexander Slugin
+"""Copyright 2023 Alexander Slugin.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,7 +29,8 @@ from se_models import CurrentThesis
 # Yandex disk
 YANDEX_CLIENT_ID = "10e079e42b49492295a39e2767e7b049"
 YANDEX_SECRET_FILE = os.path.join(
-    pathlib.Path(__file__).parent, "configs/flask_se_practice_yandex_secret.conf"
+    pathlib.Path(__file__).parent,
+    "configs/flask_se_practice_yandex_secret.conf",
 )
 if os.path.exists(YANDEX_SECRET_FILE):
     with open(YANDEX_SECRET_FILE) as file:
@@ -42,9 +41,9 @@ YANDEX_SECRET = yandex_secret
 
 YANDEX_AUTHORIZE_URL_TEMPLATE = Template(
     "https://oauth.yandex.ru/authorize?response_type=code"
-    "&client_id=$yandex_client_id&redirect_uri=$redirect_uri"
+    "&client_id=$yandex_client_id&redirect_uri=$redirect_uri",
 )
-YANDEX_GET_TOKEN_URL = "https://oauth.yandex.ru/token"
+YANDEX_GET_TOKEN_URL = "https://oauth.yandex.ru/token"  # noqa: S105
 
 TABLE_COLUMNS = {
     "name": "ФИО",

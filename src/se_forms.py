@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 from datetime import datetime
 
@@ -179,7 +178,8 @@ class AddGoal(FlaskForm):
 
 class AddTask(FlaskForm):
     task_text = StringField(
-        "task_text", description="РќР°РїСЂРёРјРµСЂ, РЅР°СѓС‡РёС‚СЊСЃСЏ СЂР°Р±РѕС‚Р°С‚СЊ СЃ ajax."
+        "task_text",
+        description="РќР°РїСЂРёРјРµСЂ, РЅР°СѓС‡РёС‚СЊСЃСЏ СЂР°Р±РѕС‚Р°С‚СЊ СЃ ajax.",
     )
 
 
@@ -213,5 +213,5 @@ class ChooseCourseAndYear(FlaskForm):
     course = SelectField("course", choices=[])
 
     current_year = datetime.now().year
-    years = [(str(year), str(year)) for year in range(current_year - 5, current_year + 3)]
+    years = tuple((str(year), str(year)) for year in range(current_year - 5, current_year + 3))
     publish_year = SelectField("publish_year", choices=years, default=str(current_year))

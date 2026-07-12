@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
@@ -251,7 +250,9 @@ app.add_url_rule("/review/review", methods=["GET"], view_func=review_thesis_on_r
 app.add_url_rule("/review/reviewed", methods=["GET", "POST"], view_func=review_submit_review)
 app.add_url_rule("/review/review_result", methods=["GET"], view_func=review_result_thesis_on_review)
 app.add_url_rule(
-    "/review/fetch_thesis_on_review", methods=["GET"], view_func=fetch_thesis_on_review
+    "/review/fetch_thesis_on_review",
+    methods=["GET"],
+    view_func=fetch_thesis_on_review,
 )
 app.add_url_rule(
     "/review/become_thesis_reviewer",
@@ -268,14 +269,18 @@ app.add_url_rule(
 # Internships
 app.add_url_rule("/internships/index", methods=["GET"], view_func=old_internships_index)
 app.add_url_rule(
-    "/internships/internships_index.html", methods=["GET"], view_func=internships_index
+    "/internships/internships_index.html",
+    methods=["GET"],
+    view_func=internships_index,
 )
 app.add_url_rule("/internships/fetch_internships", methods=["GET"], view_func=fetch_internships)
 app.add_url_rule("/internships/add", methods=["GET", "POST"], view_func=add_internship)
 app.add_url_rule("/internships/<int:id>", methods=["GET", "POST"], view_func=page_internship)
 app.add_url_rule("/internships/<int:id>/delete", view_func=delete_internship)
 app.add_url_rule(
-    "/internships/<int:id>/update", methods=["GET", "POST"], view_func=update_internship
+    "/internships/<int:id>/update",
+    methods=["GET", "POST"],
+    view_func=update_internship,
 )
 
 
@@ -373,17 +378,17 @@ login_manager.init_app(app)
 Markdown(app, extensions=["tables"])
 
 
-def recalculate_post_rank_wrapper():
+def recalculate_post_rank_wrapper() -> None:
     with app.app_context():
         recalculate_post_rank()
 
 
-def notification_send_mail_wrapper():
+def notification_send_mail_wrapper() -> None:
     with app.app_context():
         notification_send_mail()
 
 
-def notification_send_diploma_themes_on_review_wrapper():
+def notification_send_diploma_themes_on_review_wrapper() -> None:
     with app.app_context():
         notification_send_diploma_themes_on_review()
 
@@ -426,7 +431,7 @@ admin.add_view(
         db.session,
         endpoint="reviewdiplomathemes",
         name="Review DiplomaThemes",
-    )
+    ),
 )
 admin.add_view(SeAdminModelViewCurrentThesis(CurrentThesis, db.session))
 
@@ -444,11 +449,9 @@ def datetime_convert(value, format="%d.%m.%Y %H:%M"):
 # Flask routes goes
 @app.route("/")
 def index():
-    ages = []
     news = Posts.query.filter(Posts.type_id > 0).order_by(Posts.rank.desc()).limit(10).all()
 
-    for post in news:
-        ages.append(plural_hours(int(get_hours_since(post.created_on))))
+    ages = [plural_hours(int(get_hours_since(post.created_on))) for post in news]
 
     return render_template("index.html", news=news, ages=ages, score_info=bachelor_score_info)
 
@@ -476,7 +479,7 @@ def research_directions():
 
 
 @app.errorhandler(404)
-def page_not_found(e):
+def page_not_found(e):  # noqa: ARG001
     # note that we set the 404 status explicitly
     return render_template("404.html"), 404
 
@@ -535,7 +538,7 @@ def department_staff():
                 "contacts": s.official_email,
                 "avatar": s.user.avatar_uri,
                 "id": s.id,
-            }
+            },
         )
 
     return render_template("department_staff.html", staff=staff)
@@ -598,4 +601,4 @@ if __name__ == "__main__":
     else:
         with app.app_context():
             whooshee.reindex()
-        app.run(port=5000, debug=True)
+        app.run(port=5000, debug=True)  # noqa: S201

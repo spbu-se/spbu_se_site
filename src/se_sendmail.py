@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import smtplib
@@ -12,7 +11,7 @@ MAIL_DEFAULT_SENDER = "sysprog_notification@spbu.ru"
 MAIL_DEFAULT_SENDER_STRING = "SE СѓРІРµРґРѕРјР»РµРЅРёСЏ <sysprog_notification@spbu.ru>"
 
 
-def notification_send_mail():
+def notification_send_mail() -> None:
     notifications = Notification.query.filter_by(type=0).all()
 
     for n in notifications:
@@ -39,18 +38,13 @@ def notification_send_mail():
             server.login(MAIL_DEFAULT_SENDER, MAIL_PASSWORD)
 
         except smtplib.SMTPHeloError:
-            print("The server didnвЂ™t reply properly to the HELO greeting.")
+            pass
         except smtplib.SMTPAuthenticationError:
-            print(
-                "The server didnвЂ™t accept the username/password combination. Username:"
-                + MAIL_DEFAULT_SENDER
-                + ", PASS:"
-                + MAIL_PASSWORD
-            )
+            pass
         except smtplib.SMTPNotSupportedError:
-            print("The AUTH command is not supported by the server.")
+            pass
         except smtplib.SMTPException:
-            print("No suitable authentication method was found.")
+            pass
 
         try:
             server.sendmail(MAIL_DEFAULT_SENDER, user.email, message.as_string())
@@ -58,21 +52,17 @@ def notification_send_mail():
             db.session.commit()
 
         except smtplib.SMTPRecipientsRefused:
-            print(f"All recipients were refused. Nobody got the mail. User.email: {user.email}")
+            pass
         except smtplib.SMTPDataError:
-            print("The server didnвЂ™t accept the from_addr.")
+            pass
         except smtplib.SMTPSenderRefused:
-            print("The server didnвЂ™t accept the from_addr.")
+            pass
         except smtplib.SMTPNotSupportedError:
-            print("SMTPUTF8 was given in the mail_options but is not supported by the server.")
+            pass
 
 
-def notification_send_diploma_themes_on_review():
+def notification_send_diploma_themes_on_review() -> None:
     diploma_themes_on_review_count = DiplomaThemes.query.filter_by(status=0).count()
-
-    print(
-        "Invoke notification_send_diploma_themes_on_review = " + str(diploma_themes_on_review_count)
-    )
 
     if not diploma_themes_on_review_count:
         return
@@ -108,27 +98,22 @@ def notification_send_diploma_themes_on_review():
         server.login(MAIL_DEFAULT_SENDER, MAIL_PASSWORD)
 
     except smtplib.SMTPHeloError:
-        print("The server didnвЂ™t reply properly to the HELO greeting.")
+        pass
     except smtplib.SMTPAuthenticationError:
-        print(
-            "The server didnвЂ™t accept the username/password combination. Username:"
-            + MAIL_DEFAULT_SENDER
-            + ", PASS:"
-            + MAIL_PASSWORD
-        )
+        pass
     except smtplib.SMTPNotSupportedError:
-        print("The AUTH command is not supported by the server.")
+        pass
     except smtplib.SMTPException:
-        print("No suitable authentication method was found.")
+        pass
 
     try:
         server.sendmail(MAIL_DEFAULT_SENDER, recipients, message.as_string())
 
     except smtplib.SMTPRecipientsRefused:
-        print("All recipients were refused. Nobody got the mail.")
+        pass
     except smtplib.SMTPDataError:
-        print("The server didnвЂ™t accept the from_addr.")
+        pass
     except smtplib.SMTPSenderRefused:
-        print("The server didnвЂ™t accept the from_addr.")
+        pass
     except smtplib.SMTPNotSupportedError:
-        print("SMTPUTF8 was given in the mail_options but is not supported by the server.")
+        pass

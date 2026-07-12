@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
 import json
@@ -74,4 +73,3 @@ files = [
 ]
 
 r = requests.post(url, files=files, allow_redirects=False, timeout=30)
-print(str(r.content, "utf-8"))
