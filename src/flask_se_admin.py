@@ -52,28 +52,28 @@ class SeAdminModelViewThesis(SeAdminModelView):
     form_extra_fields = {
         "supervisor": QuerySelectField(
             "Научный руководитель",
-            query_factory=Staff.query.all,
+            query_factory=lambda: Staff.query.all,
             get_pk=lambda staff: staff.id,
         ),
         "owner": QuerySelectField(
             "Author user",
-            query_factory=Users.query.all,
+            query_factory=lambda: Users.query.all,
             get_pk=lambda user: user.id,
         ),
         "type": QuerySelectField(
             "Тип работы",
-            query_factory=Worktype.query.all,
+            query_factory=lambda: Worktype.query.all,
             get_pk=lambda t: t.id,
         ),
         "course": QuerySelectField(
             "РљСѓСЂСЃ",
-            query_factory=Courses.query.all,
+            query_factory=lambda: Courses.query.all,
             get_label=lambda c: c.name,
             get_pk=lambda c: c.id,
         ),
         "area": QuerySelectField(
             "Направление обучения",
-            query_factory=AreasOfStudy.query.all,
+            query_factory=lambda: AreasOfStudy.query.all,
             get_pk=lambda c: c.id,
         ),
     }
@@ -179,7 +179,7 @@ class SeAdminModelViewStaff(SeAdminModelView):
     form_extra_fields = {
         "user": QuerySelectField(
             "User",
-            query_factory=Users.query.all,
+            query_factory=lambda: Users.query.all,
             get_pk=lambda user: user.id,
         ),
     }
