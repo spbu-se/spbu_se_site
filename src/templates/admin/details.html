@@ -1,0 +1,15 @@
+{% extends 'admin/master.html' %}
+{% block title %}{{ name }} Details - Admin{% endblock %}
+{% block body %}
+  <h3>{{ name }} Details</h3>
+  <table class="table">
+    {% for col in columns %}
+      <tr>
+        <th>{{ labels.get(col, col) }}</th>
+        <td>{{ obj | attr(col) }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+  <a href="{{ url_for(endpoint + '.index_view') }}"
+     class="btn btn-outline-secondary">Back to list</a>
+{% endblock %}

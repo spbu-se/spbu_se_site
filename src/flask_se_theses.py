@@ -15,7 +15,7 @@ from transliterate import translit
 from flask_se_config import SECRET_KEY_THESIS, type_id_string
 from flask_se_practice_config import _paginate
 from se_forms import ThesisFilter
-from se_models import Courses, Staff, Thesis, Users, Worktype, db
+from se_models import Courses, Staff, Thesis, Users, Worktype, db, thesis_fts_search
 
 log = logging.getLogger("flask_se.sub")
 
@@ -114,12 +114,17 @@ def fetch_theses():
     enddate = max(enddate, startdate)
 
     if search:
+        fts_ids = thesis_fts_search(search)
         records = (
-            Thesis.query.whooshee_search(search)  # pyright: ignore[reportAttributeAccessIssue]
-            .filter(~Thesis.temporary)
-            .filter(Thesis.publish_year >= startdate)
-            .filter(Thesis.publish_year <= enddate)
-            .order_by(Thesis.publish_year.desc())
+            (
+                Thesis.query.filter(Thesis.id.in_(fts_ids))
+                .filter(~Thesis.temporary)
+                .filter(Thesis.publish_year >= startdate)
+                .filter(Thesis.publish_year <= enddate)
+                .order_by(Thesis.publish_year.desc())
+            )
+            if fts_ids
+            else Thesis.query.filter(db.text("0=1"))
         )
     else:
         records = (

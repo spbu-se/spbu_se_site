@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+      {% block title %}Admin{% endblock %}
+    </title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='/assets/libs/bootstrap/dist/css/bootstrap.min.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='/assets/css/quick-website.css') }}">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="{{ url_for('admin.index') }}">SE Site Admin</a>
+        <div class="navbar-nav">
+          <a class="nav-link" href="{{ url_for('admin.index') }}">Home</a>
+          <a class="nav-link" href="{{ url_for('users.index_view') }}">Users</a>
+          <a class="nav-link" href="{{ url_for('staff.index_view') }}">Staff</a>
+          <a class="nav-link" href="{{ url_for('thesis.index_view') }}">Thesis</a>
+          <a class="nav-link" href="{{ url_for('summerschool.index_view') }}">Summer School</a>
+          <a class="nav-link" href="{{ url_for('posts.index_view') }}">News</a>
+          <a class="nav-link" href="{{ url_for('diplomathemes.index_view') }}">Diploma Themes</a>
+          <a class="nav-link"
+             href="{{ url_for('reviewdiplomathemes.index_view') }}">Review</a>
+          <a class="nav-link" href="{{ url_for('currentthesis.index_view') }}">Current Thesis</a>
+          <a class="nav-link" href="{{ url_for('login_index') }}">Site</a>
+        </div>
+      </div>
+    </nav>
+    <div class="container mt-4">
+      {% block body %}{% endblock %}
+    </div>
+  </body>
+</html>

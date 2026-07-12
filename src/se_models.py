@@ -7,7 +7,6 @@ from pathlib import Path
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from flask_whooshee import Whooshee
 from sqlalchemy import MetaData
 from werkzeug.security import generate_password_hash
 
@@ -29,7 +28,6 @@ convention = {
 
 metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
-whooshee = Whooshee()
 
 tag = db.Table(
     "tag",
@@ -126,7 +124,6 @@ class Staff(db.Model):
         return self.user.get_name()  # pyright: ignore[reportAttributeAccessIssue]
 
 
-@whooshee.register_model("first_name", "middle_name", "last_name")
 class Users(db.Model, UserMixin):
     """User accounts with auth, profile, and role-based access control."""
 
@@ -525,7 +522,6 @@ class Courses(db.Model):
         return self.name
 
 
-@whooshee.register_model("name_ru", "description", "author", "text")
 class Thesis(db.Model):
     """Archived thesis entries with full-text search support."""
 
@@ -3060,3 +3056,81 @@ def init_db() -> None:
 
         db.session.add(t)
         db.session.commit()
+
+    # Create FTS5 virtual table for Thesis full-text search
+    db.session.execute(db.text("DROP TABLE IF EXISTS thesis_fts"))
+    db.session.execute(
+        db.text(
+            "CREATE VIRTUAL TABLE thesis_fts USING fts5("
+            "name_ru, description, author, text,"
+            "content=thesis, content_rowid=id"
+            ")"
+        )
+    )
+    db.session.execute(db.text("INSERT INTO thesis_fts(thesis_fts) VALUES('rebuild')"))
+    db.session.commit()
+
+    # FTS5 sync triggers for thesis INSERT/UPDATE/DELETE
+    db.session.execute(db.text("DROP TRIGGER IF EXISTS thesis_fts_ai"))
+    db.session.execute(db.text("DROP TRIGGER IF EXISTS thesis_fts_ad"))
+    db.session.execute(db.text("DROP TRIGGER IF EXISTS thesis_fts_au"))
+    db.session.execute(
+        db.text(
+            "CREATE TRIGGER thesis_fts_ai AFTER INSERT ON thesis BEGIN "
+            "INSERT INTO thesis_fts(rowid, name_ru, description, author, text) "
+            "VALUES (new.id, new.name_ru, new.description, new.author, new.text); END"
+        )
+    )
+    db.session.execute(
+        db.text(
+            "CREATE TRIGGER thesis_fts_ad AFTER DELETE ON thesis BEGIN "
+            "INSERT INTO thesis_fts(thesis_fts, rowid, name_ru, description, author, text) "
+            "VALUES ('delete', old.id, old.name_ru, old.description, old.author, old.text); END"
+        )
+    )
+    db.session.execute(
+        db.text(
+            "CREATE TRIGGER thesis_fts_au AFTER UPDATE ON thesis BEGIN "
+            "INSERT INTO thesis_fts(thesis_fts, rowid, name_ru, description, author, text) "
+            "VALUES ('delete', old.id, old.name_ru, old.description, old.author, old.text); "
+            "INSERT INTO thesis_fts(rowid, name_ru, description, author, text) "
+            "VALUES (new.id, new.name_ru, new.description, new.author, new.text); END"
+        )
+    )
+    db.session.commit()
+
+
+def thesis_fts_search(search_str: str) -> list[int]:
+    """Search theses using FTS5 full-text search, return matching thesis IDs."""
+    if not search_str.strip():
+        return []
+
+    clean = search_str.strip().lower()
+    has_leading_wild = clean.startswith("*") or clean.startswith("?")
+    has_infix_wild = "*" in clean[1:-1] if len(clean) > 2 else False
+
+    if not has_leading_wild and not has_infix_wild:
+        fts_query = " OR ".join(f'"{w}"*' if not w.endswith("*") else w for w in clean.split() if w)
+        try:
+            rows = db.session.execute(
+                db.text("SELECT rowid FROM thesis_fts WHERE thesis_fts MATCH :q"),
+                {"q": fts_query},
+            ).fetchall()
+            if rows:
+                return [r[0] for r in rows]
+        except Exception:  # noqa: S110
+            pass
+
+    like = clean.replace("*", "%").replace("?", "_")
+    like = f"%{like}%"
+    rows = db.session.execute(
+        db.text(
+            "SELECT id FROM thesis WHERE "
+            "LOWER(name_ru) LIKE :q OR "
+            "LOWER(description) LIKE :q OR "
+            "LOWER(author) LIKE :q OR "
+            "LOWER(text) LIKE :q"
+        ),
+        {"q": like},
+    ).fetchall()
+    return [r[0] for r in rows]

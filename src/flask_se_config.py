@@ -11,7 +11,6 @@ MAIL_PASSWORD_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_
 SECRET_KEY_THESIS = os.urandom(16).hex()
 SQLITE_DATABASE_NAME: str = "se.db"
 SQLITE_DATABASE_PATH: str = pathlib.Path("databases/").absolute().as_posix()
-WHOOSHEE_DIR: str = "whooshee"
 
 if os.path.exists(MAIL_PASSWORD_FILE):
     with open(MAIL_PASSWORD_FILE) as file:

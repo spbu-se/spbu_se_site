@@ -118,9 +118,7 @@ class TestMainBuildCommand:
 
         monkeypatch.setattr(sys, "argv", ["flask_se.py"])
         monkeypatch.setattr(_fs, "__name__", "__main__")
-        reindex_called = []
         run_called = []
-        monkeypatch.setattr(_fs.whooshee, "reindex", lambda: reindex_called.append(True))
         monkeypatch.setattr(
             "werkzeug.serving.run_simple",
             lambda hostname, port, application, use_debugger=False, use_reloader=False: (
@@ -134,7 +132,6 @@ class TestMainBuildCommand:
         src = "".join(lines[main_start:])
         code = compile(src, _fs.__file__, "exec")
         exec(code, _fs.__dict__)
-        assert reindex_called == [True]
         assert run_called == [True]
 
 

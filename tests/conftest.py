@@ -21,11 +21,10 @@ _db_path = None
 def _init_db_path():
     _db_dir = tempfile.mkdtemp()
     _db_path = str(Path(_db_dir) / _db_name)
-    import flask_se_config
+    import flask_se_config as _fsc
 
-    flask_se_config.SQLITE_DATABASE_NAME = _db_name
-    flask_se_config.SQLITE_DATABASE_PATH = _db_dir
-    flask_se_config.WHOOSHEE_DIR = tempfile.mkdtemp()
+    _fsc.SQLITE_DATABASE_NAME = _db_name
+    _fsc.SQLITE_DATABASE_PATH = _db_dir
     return _db_dir, _db_path
 
 
@@ -92,57 +91,28 @@ def _set_db_uri(uri):
     db.engines[None] = create_engine(uri)
 
 
-# Build a seeded DB + Whoosh index template once per session
+# Build a seeded DB template once per session (FTS5 index is inside the DB)
 @pytest.fixture(scope="session")
 def _seeded_db_path():
     _dir = tempfile.mkdtemp()
     _db_p = str(Path(_dir) / _db_name)
-    _whoosh_p = str(Path(_dir) / "whoosh_index")
     uri = "sqlite:///" + _db_p
     with app.app_context():
         _set_db_uri(uri)
-        app.config["WHOOSHEE_DIR"] = _whoosh_p
-        app.extensions["whooshee"]["index_path_root"] = _whoosh_p
-        app.extensions["whooshee"]["whoosheers_indexes"] = {}
         db.create_all()
         init_db()
-        _fs.whooshee.reindex()
         db.session.remove()
-    yield _db_p, _whoosh_p
+    yield _db_p
     shutil.rmtree(_dir, ignore_errors=True)
 
 
-# Build an empty Whoosh index template once per session (no seed data)
-@pytest.fixture(scope="session")
-def _empty_whoosh_dir():
-    _db_dir = tempfile.mkdtemp()
-    _db_p = str(Path(_db_dir) / _db_name)
-    _whoosh_p = str(Path(_db_dir) / "whoosh_index")
-    uri = "sqlite:///" + _db_p
-    with app.app_context():
-        _set_db_uri(uri)
-        app.config["WHOOSHEE_DIR"] = _whoosh_p
-        app.extensions["whooshee"]["index_path_root"] = _whoosh_p
-        app.extensions["whooshee"]["whoosheers_indexes"] = {}
-        db.create_all()
-        _fs.whooshee.reindex()
-        db.session.remove()
-    yield _whoosh_p
-    shutil.rmtree(_db_dir, ignore_errors=True)
-
-
 @pytest.fixture
-def app_ctx(_empty_whoosh_dir):
+def app_ctx():
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
-    _whoosh_p = str(Path(_dir) / "whoosh_index")
-    shutil.copytree(_empty_whoosh_dir, _whoosh_p)
     uri = "sqlite:///" + _p
     with app.app_context():
         _set_db_uri(uri)
-        app.config["WHOOSHEE_DIR"] = _whoosh_p
-        app.extensions["whooshee"]["index_path_root"] = _whoosh_p
-        app.extensions["whooshee"]["whoosheers_indexes"] = {}
         db.create_all()
         yield app.test_client()
         db.session.remove()
@@ -151,19 +121,14 @@ def app_ctx(_empty_whoosh_dir):
 
 
 @pytest.fixture
-def client(_empty_whoosh_dir):
+def client():
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
-    _whoosh_p = str(Path(_dir) / "whoosh_index")
-    shutil.copytree(_empty_whoosh_dir, _whoosh_p)
     uri = "sqlite:///" + _p
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
         _set_db_uri(uri)
-        app.config["WHOOSHEE_DIR"] = _whoosh_p
-        app.extensions["whooshee"]["index_path_root"] = _whoosh_p
-        app.extensions["whooshee"]["whoosheers_indexes"] = {}
         db.create_all()
         yield app.test_client()
         db.session.remove()
@@ -173,21 +138,15 @@ def client(_empty_whoosh_dir):
 
 @pytest.fixture
 def seeded_client(_seeded_db_path):
-    """Copy the pre-seeded template DB + Whoosh index once per test — fast (~ms)."""
-    _seeded_db, _seeded_whoosh = _seeded_db_path
+    """Copy the pre-seeded DB template once per test — fast (~ms). FTS5 index is inside the DB."""
     _dir = tempfile.mkdtemp()
     _p = str(Path(_dir) / _db_name)
-    _whoosh_p = str(Path(_dir) / "whoosh_index")
-    shutil.copy2(_seeded_db, _p)
-    shutil.copytree(_seeded_whoosh, _whoosh_p)
+    shutil.copy2(_seeded_db_path, _p)
     uri = "sqlite:///" + _p
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False
     with app.app_context():
         _set_db_uri(uri)
-        app.config["WHOOSHEE_DIR"] = _whoosh_p
-        app.extensions["whooshee"]["index_path_root"] = _whoosh_p
-        app.extensions["whooshee"]["whoosheers_indexes"] = {}
         db.create_all()
         yield app.test_client()
         db.session.remove()

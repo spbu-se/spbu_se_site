@@ -1,0 +1,43 @@
+{% extends 'admin/master.html' %}
+{% block title %}
+  {% if is_edit %}
+    Edit
+  {% else %}
+    Create
+  {% endif %}
+  {{ name }} - Admin
+{% endblock %}
+{% block body %}
+  <h3>
+    {% if is_edit %}
+      Edit
+    {% else %}
+      Create
+    {% endif %}
+    {{ name }}
+  </h3>
+  <form method="POST" action="">
+    {% for field in form %}
+      {% if field.type == "HiddenField" %}
+        {{ field() }}
+      {% elif field.type == "SubmitField" %}
+        <div class="mt-3">
+          {{ field(class="btn btn-primary") }}
+          <a href="{{ url_for(endpoint + '.index_view') }}"
+             class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      {% elif field.type == "BooleanField" %}
+        <div class="form-check mt-2">
+          {{ field(class="form-check-input") }}
+          {{ field.label(class="form-check-label") }}
+        </div>
+      {% else %}
+        <div class="form-group mt-2">
+          {{ field.label(class="form-label") }}
+          {{ field(class="form-control" + (" is-invalid" if field.errors else "") , **field.render_kw or {}) }}
+          {% if field.errors %}<div class="invalid-feedback">{{ field.errors[0] }}</div>{% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </form>
+{% endblock %}

@@ -3,20 +3,18 @@
 import sys
 from datetime import UTC, datetime
 
-__all__ = ["app", "db", "whooshee"]
+__all__ = ["app", "db"]
 
 import markdown as _markdown
 from apscheduler.schedulers.background import BackgroundScheduler
 from dateutil import tz
 from flask import Flask, make_response, redirect, render_template, url_for
-from flask_admin import Admin
-from flask_admin.theme import Bootstrap4Theme
 from flask_frozen import Freezer
 from flask_migrate import Migrate
 
 import flask_se_theses
 from flask_se_admin import (
-    SeAdminIndexView,
+    AdminIndexView,
     SeAdminModelViewCurrentThesis,
     SeAdminModelViewDiplomaThemes,
     SeAdminModelViewNews,
@@ -50,7 +48,6 @@ from flask_se_config import (
     SECRET_KEY_THESIS,
     SQLITE_DATABASE_NAME,
     SQLITE_DATABASE_PATH,
-    WHOOSHEE_DIR,
     get_hours_since,
     plural_hours,
 )
@@ -141,7 +138,6 @@ from se_models import (
     db,
     init_db,
     recalculate_post_rank,
-    whooshee,
 )
 from se_sendmail import (
     notification_send_diploma_themes_on_review,
@@ -356,8 +352,6 @@ app.add_url_rule("/summer_school_list.html", view_func=summer_school_list)
 # Init Database
 db.app = app  # pyright: ignore[reportAttributeAccessIssue]
 db.init_app(app)
-app.config["WHOOSHEE_DIR"] = WHOOSHEE_DIR
-whooshee.init_app(app)
 
 # Init Migrate
 migrate = Migrate(app, db, render_as_batch=True)
@@ -417,24 +411,16 @@ scheduler.add_job(
 )
 scheduler.start()
 
-# Init Flask-admin
-admin = Admin(app, index_view=SeAdminIndexView(), theme=Bootstrap4Theme())
-# Add views to the Flask-admin
-admin.add_view(SeAdminModelViewUsers(Users, db.session))
-admin.add_view(SeAdminModelViewStaff(Staff, db.session))
-admin.add_view(SeAdminModelViewThesis(Thesis, db.session))
-admin.add_view(SeAdminModelViewSummerSchool(SummerSchool, db.session))
-admin.add_view(SeAdminModelViewNews(Posts, db.session))
-admin.add_view(SeAdminModelViewDiplomaThemes(DiplomaThemes, db.session, endpoint="diplomathemes"))
-admin.add_view(
-    SeAdminModelViewReviewDiplomaThemes(
-        DiplomaThemes,
-        db.session,
-        endpoint="reviewdiplomathemes",
-        name="Review DiplomaThemes",
-    ),
-)
-admin.add_view(SeAdminModelViewCurrentThesis(CurrentThesis, db.session))
+# Init custom admin views
+AdminIndexView(app)
+SeAdminModelViewUsers(app, Users, endpoint="users")
+SeAdminModelViewStaff(app, Staff, endpoint="staff")
+SeAdminModelViewThesis(app, Thesis, endpoint="thesis")
+SeAdminModelViewSummerSchool(app, SummerSchool, endpoint="summerschool")
+SeAdminModelViewNews(app, Posts, endpoint="posts")
+SeAdminModelViewDiplomaThemes(app, DiplomaThemes, endpoint="diplomathemes")
+SeAdminModelViewReviewDiplomaThemes(app, DiplomaThemes, endpoint="reviewdiplomathemes")
+SeAdminModelViewCurrentThesis(app, CurrentThesis, endpoint="currentthesis")
 
 
 @app.template_filter("datatime_convert")
@@ -595,8 +581,6 @@ if __name__ == "__main__":
             with app.app_context():
                 init_db()
     else:
-        with app.app_context():
-            whooshee.reindex()
         from werkzeug.serving import run_simple
 
         run_simple("127.0.0.1", 5000, app, use_debugger=True, use_reloader=True)

@@ -1,0 +1,87 @@
+{% extends 'admin/master.html' %}
+{% block title %}{{ name }} - Admin{% endblock %}
+{% block body %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>{{ name }}</h3>
+    <div>
+      {% if can_export %}
+        <a href="{{ url_for(endpoint + '.export', export_type='csv') }}"
+           class="btn btn-outline-secondary btn-sm">Export CSV</a>
+      {% endif %}
+      {% if can_create %}
+        <a href="{{ url_for(endpoint + '.create_view') }}"
+           class="btn btn-primary btn-sm">Create</a>
+      {% endif %}
+    </div>
+  </div>
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        {% if column_display_pk %}<th>{{ pk }}</th>{% endif %}
+        {% for col in columns %}
+          <th>
+            {% set label = labels.get(col, col) %}
+            {% if col in choices %}
+              {{ label }}
+            {% else %}
+              <a href="?sort={{ col }}&desc={{ 0 if sort == col and not desc else 1 }}">{{ label }}</a>
+            {% endif %}
+          </th>
+        {% endfor %}
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+        <tr>
+          {% if column_display_pk %}<td>{{ item | attr(pk) }}</td>{% endif %}
+          {% for col in columns %}
+            <td>
+              {% if col in column_formatters %}
+                {{ column_formatters[col](item) }}
+              {% elif col in choices %}
+                {% set val = item | attr(col) %}
+                {% set display = {} %}
+                {% for k, v in choices[col] %}
+                  {% if k == val %}{{ v }}{% endif %}
+                {% endfor %}
+                {% if not display %}{{ val }}{% endif %}
+              {% else %}
+                {{ item | attr(col) }}
+              {% endif %}
+            </td>
+          {% endfor %}
+          <td>
+            <a href="{{ url_for(endpoint + '.details_view', id=item | attr(pk) ) }}"
+               class="btn btn-sm btn-outline-info">Details</a>
+            {% if can_edit %}
+              <a href="{{ url_for(endpoint + '.edit_view', id=item | attr(pk) ) }}"
+                 class="btn btn-sm btn-outline-warning">Edit</a>
+            {% endif %}
+            {% if can_delete %}
+              <form method="POST"
+                    action="{{ url_for(endpoint + '.delete_view') }}"
+                    style="display:inline">
+                <input type="hidden" name="id" value="{{ item | attr(pk) }}">
+                <button type="submit"
+                        class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('Delete?')">Delete</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <nav>
+    <ul class="pagination">
+      {% set total_pages = ((total - 1) // page_size) + 1 %}
+      {% for p in range(1, total_pages + 1) %}
+        <li class="page-item {{ 'active' if p == page }}">
+          <a class="page-link"
+             href="?page={{ p }}&sort={{ sort }}&desc={{ desc }}">{{ p }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+{% endblock %}
