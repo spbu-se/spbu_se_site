@@ -15,8 +15,12 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 ## Pre-flight checklist
 
 - `git fetch --prune origin`
+- Create a branch BEFORE any work: `git checkout -b <prefix>/<short-desc> origin/staging`
+  Prefixes: feat/, fix/, refactor/, docs/, test/, chore/, ci/, staging-auto-<timestamp>
+  (see `docs/GIT_FLOW.md` §1.1). Never commit directly to `staging`.
+- Verify current branch is NOT `staging` or `current`: `git branch --show-current`
+  If you are on `staging`, checkpoint and re-branch.
 - Check `origin/staging` CI — if red, stop and fix first
-- Follow `docs/GIT_FLOW.md` and `docs/DEVELOPMENT_PROCESS.md` for branch naming, staging rules, and GPG signoff
 - Before using `2>&1`, flatten ErrorRecords with `| ForEach-Object { "$_" }` or suppress stderr with `2>($null)` — see `docs/TOOLING.md` §PowerShell
 - Before writing piped/chained commands, read `docs/TOOLING.md` §PowerShell
 - Before editing any doc, re-read its first 5 lines (scope/aim header). Verify your changes match that scope. If existing content doesn't match, flag it.
@@ -52,7 +56,9 @@ See `docs/AI_AGENTS.md` §CI discipline for the trigger table. See `docs/QUALITY
 
 ### Staging merge
 
-Every push to staging should be publishable. The pre-push gate is the minimum bar for staging. CI must be green before merging to staging.
+Never push directly to `staging`. Only squash-merge from a branch:
+`git merge --squash <branch> && git commit -m "<type>: <summary>"`
+CI must be green before merging (see `docs/QUALITY_MANAGEMENT.md` §CI discipline).
 
 ### First-time setup
 
@@ -75,4 +81,4 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 - **Config files** (never committed): `flask_se_secret.conf`, `flask_se_mail.conf`, `flask_se_practice_yandex_secret.conf`
 - **requirements.txt staleness** — CI runs `pip install -r` on every push. Must match `uv.lock`. Always regenerate before pushing
 - **mdformat CI vs local** — CI uses Linux (LF). Always run `uv run mdformat ...` (not `--check`) before committing on Windows
-- **GPG keylocker** — if `commit.gpgsign` is true, always use `--no-gpg-sign` on feature/auto branches (see `.tooling.md`)
+- **GPG keylocker** — if `git config commit.gpgsign` is true, use `git commit --no-gpg-sign` on all branches (only `current` gets signed commits)
