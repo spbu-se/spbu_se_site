@@ -34,7 +34,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Markdowm -->
     <link rel="stylesheet"
           href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}">
-    {{ simplemde.js }}
+    <script src="{{ url_for('static', filename='/assets/libs/simplemde/simplemde.min.js') }}"></script>
     {% block head_links %}{% endblock %}
   </head>
   <body>

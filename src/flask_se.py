@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 
 __all__ = ["app", "db", "whooshee"]
 
+import markdown as _markdown
 from dateutil import tz
 from flask import Flask, make_response, redirect, render_template, url_for
 from flask_admin import Admin
@@ -12,8 +13,6 @@ from flask_admin.theme import Bootstrap4Theme
 from flask_apscheduler import APScheduler
 from flask_frozen import Freezer
 from flask_migrate import Migrate
-from flask_simplemde import SimpleMDE
-from flaskext.markdown import Markdown
 
 import flask_se_theses
 from flask_se_admin import (
@@ -374,8 +373,11 @@ zero_days_ago = (datetime.now()).date().isoformat()
 # Init LoginManager
 login_manager.init_app(app)
 
-# Init markdown
-Markdown(app, extensions=["tables"])
+
+# Init markdown filter
+@app.template_filter("markdown")
+def render_markdown(text: str) -> str:
+    return _markdown.markdown(text, extensions=["tables"])
 
 
 def recalculate_post_rank_wrapper() -> None:
@@ -434,11 +436,6 @@ admin.add_view(
     ),
 )
 admin.add_view(SeAdminModelViewCurrentThesis(CurrentThesis, db.session))
-
-# Init SimpleMDE
-app.config["SIMPLEMDE_JS_IIFE"] = True
-app.config["SIMPLEMDE_USE_CDN"] = False
-SimpleMDE(app)
 
 
 @app.template_filter("datatime_convert")
@@ -601,4 +598,6 @@ if __name__ == "__main__":
     else:
         with app.app_context():
             whooshee.reindex()
-        app.run(port=5000, debug=True)  # noqa: S201
+        from werkzeug.serving import run_simple
+
+        run_simple("127.0.0.1", 5000, app, use_debugger=True, use_reloader=True)

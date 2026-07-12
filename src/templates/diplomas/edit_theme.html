@@ -3,9 +3,8 @@
 {% block description %}Редактирование темы{% endblock %}
 {% block head_links %}
   <link rel="stylesheet"
-        href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}"
-        id="stylesheet">
-  {{ simplemde.js }}
+        href="{{ url_for('static', filename='/assets/css/simplemde.min.css') }}">
+  <script src="{{ url_for('static', filename='/assets/libs/simplemde/simplemde.min.js') }}"></script>
 {% endblock %}
 {% block content %}
   <section class="mt-7 pt-6 bg-section-secondary">

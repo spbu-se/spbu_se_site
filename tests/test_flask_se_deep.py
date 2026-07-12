@@ -91,7 +91,7 @@ class TestMainBuildCommand:
 
         with open(_fs.__file__, encoding="utf-8") as f:
             lines = f.readlines()
-        main_start = next(i for i, l in enumerate(lines) if l.startswith("if __name__"))
+        main_start = next(i for i, _line in enumerate(lines) if _line.startswith("if __name__"))
         src = "".join(lines[main_start:])
         code = compile(src, _fs.__file__, "exec")
         exec(code, _fs.__dict__)
@@ -107,7 +107,7 @@ class TestMainBuildCommand:
 
         with open(_fs.__file__, encoding="utf-8") as f:
             lines = f.readlines()
-        main_start = next(i for i, l in enumerate(lines) if l.startswith("if __name__"))
+        main_start = next(i for i, _line in enumerate(lines) if _line.startswith("if __name__"))
         src = "".join(lines[main_start:])
         code = compile(src, _fs.__file__, "exec")
         exec(code, _fs.__dict__)
@@ -121,11 +121,16 @@ class TestMainBuildCommand:
         reindex_called = []
         run_called = []
         monkeypatch.setattr(_fs.whooshee, "reindex", lambda: reindex_called.append(True))
-        monkeypatch.setattr(_fs.app, "run", lambda port=5000, debug=True: run_called.append(True))
+        monkeypatch.setattr(
+            "werkzeug.serving.run_simple",
+            lambda hostname, port, application, use_debugger=False, use_reloader=False: (
+                run_called.append(True)
+            ),
+        )
 
         with open(_fs.__file__, encoding="utf-8") as f:
             lines = f.readlines()
-        main_start = next(i for i, l in enumerate(lines) if l.startswith("if __name__"))
+        main_start = next(i for i, _line in enumerate(lines) if _line.startswith("if __name__"))
         src = "".join(lines[main_start:])
         code = compile(src, _fs.__file__, "exec")
         exec(code, _fs.__dict__)

@@ -610,18 +610,19 @@ wheels = [
 
 [[package]]
 name = "flask"
-version = "2.3.3"
+version = "3.1.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "blinker" },
     { name = "click" },
     { name = "itsdangerous" },
     { name = "jinja2" },
+    { name = "markupsafe" },
     { name = "werkzeug" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/46/b7/4ace17e37abd9c21715dea5ee11774a25e404c486a7893fa18e764326ead/flask-2.3.3.tar.gz", hash = "sha256:09c347a92aa7ff4a8e7f3206795f30d826654baf38b873d0744cd571ca609efc", size = 672756, upload-time = "2023-08-21T19:52:35.012Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/26/00/35d85dcce6c57fdc871f3867d465d780f302a175ea360f62533f12b27e2b/flask-3.1.3.tar.gz", hash = "sha256:0ef0e52b8a9cd932855379197dd8f94047b359ca0a78695144304cb45f87c9eb", size = 759004, upload-time = "2026-02-19T05:00:57.678Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fd/56/26f0be8adc2b4257df20c1c4260ddd0aa396cf8e75d90ab2f7ff99bc34f9/flask-2.3.3-py3-none-any.whl", hash = "sha256:f69fcd559dc907ed196ab9df0e48471709175e696d6e698dd4dbe940f96ce66b", size = 96112, upload-time = "2023-08-21T19:52:33.115Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/9c/34f6962f9b9e9c71f6e5ed806e0d0ff03c9d1b0b2340088a0cf4bce09b18/flask-3.1.3-py3-none-any.whl", hash = "sha256:f4bcbefc124291925f1a26446da31a5178f9483862233b23c0c96a20701f670c", size = 103424, upload-time = "2026-02-19T05:00:56.027Z" },
 ]
 
 [[package]]
@@ -652,15 +653,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/26/23/956b5ffbd1b473fa96ad4aa7918cfbf4616b58f4c9de8c9fd52c6ccf9141/Flask-APScheduler-1.13.1.tar.gz", hash = "sha256:b929846f026fb339b76360b0e4fc75da78b75c6d08625715bd0d37949bd607da", size = 12601, upload-time = "2023-11-07T12:44:20.008Z" }
 
 [[package]]
-name = "flask-basicauth"
-version = "0.2.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "flask" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/16/18/9726cac3c7cb9e5a1ac4523b3e508128136b37aadb3462c857a19318900e/Flask-BasicAuth-0.2.0.tar.gz", hash = "sha256:df5ebd489dc0914c224419da059d991eb72988a01cdd4b956d52932ce7d501ff", size = 16052, upload-time = "2013-06-15T14:19:12.812Z" }
-
-[[package]]
 name = "flask-login"
 version = "0.6.3"
 source = { registry = "https://pypi.org/simple" }
@@ -672,15 +664,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/c3/6e/2f4e13e373bb49e68
 wheels = [
     { url = "https://files.pythonhosted.org/packages/59/f5/67e9cc5c2036f58115f9fe0f00d203cf6780c3ff8ae0e705e7a9d9e8ff9e/Flask_Login-0.6.3-py3-none-any.whl", hash = "sha256:849b25b82a436bf830a054e74214074af59097171562ab10bfa999e6b78aae5d", size = 17303, upload-time = "2023-10-30T14:53:19.636Z" },
 ]
-
-[[package]]
-name = "flask-markdown"
-version = "0.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "markdown" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/08/b0/8149a3c43418220386c0968713282fc0a3a4ef9fef991f7af2173b52505a/Flask-Markdown-0.3.tar.gz", hash = "sha256:d8c3f02545b395ad525b86760ad721a2c50efa3b8e602a8d486a1f47f68c6250", size = 165733, upload-time = "2010-08-14T21:23:58.224Z" }
 
 [[package]]
 name = "flask-migrate"
@@ -695,15 +678,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/5a/8e/47c7b3c93855ceffc
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d2/c4/3f329b23d769fe7628a5fc57ad36956f1fb7132cf8837be6da762b197327/Flask_Migrate-4.1.0-py3-none-any.whl", hash = "sha256:24d8051af161782e0743af1b04a152d007bad9772b2bca67b7ec1e8ceeb3910d", size = 21237, upload-time = "2025-01-10T18:51:09.527Z" },
 ]
-
-[[package]]
-name = "flask-simplemde"
-version = "0.3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "flask" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/0c/3f/e4f3b75d44714035495466456b5315f7b7bdee3aa2a2981d9ed888e08d4d/Flask-SimpleMDE-0.3.0.tar.gz", hash = "sha256:4b27daf6421b8d1973aea1538e831a92b869d8f9e08ffde039d041dad61aa10b", size = 87867, upload-time = "2016-03-16T17:15:08.046Z" }
 
 [[package]]
 name = "flask-sqlalchemy"
@@ -2027,15 +2001,13 @@ dependencies = [
     { name = "flask" },
     { name = "flask-admin" },
     { name = "flask-apscheduler" },
-    { name = "flask-basicauth" },
     { name = "flask-login" },
-    { name = "flask-markdown" },
     { name = "flask-migrate" },
-    { name = "flask-simplemde" },
     { name = "flask-whooshee" },
     { name = "flask-wtf" },
     { name = "frozen-flask" },
     { name = "google-auth-oauthlib" },
+    { name = "markdown" },
     { name = "openpyxl" },
     { name = "pandas" },
     { name = "pillow" },
@@ -2071,18 +2043,16 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = "==4.14.3" },
     { name = "cachecontrol", specifier = "==0.14.4" },
     { name = "chardet", specifier = "==7.4.3" },
-    { name = "flask", specifier = "==2.3.3" },
+    { name = "flask", specifier = "~=3.1.0" },
     { name = "flask-admin", specifier = "==2.2.0" },
     { name = "flask-apscheduler", specifier = "==1.13.1" },
-    { name = "flask-basicauth", specifier = "==0.2.0" },
     { name = "flask-login", specifier = "==0.6.3" },
-    { name = "flask-markdown", specifier = "==0.3" },
     { name = "flask-migrate", specifier = "==4.1.0" },
-    { name = "flask-simplemde", specifier = "==0.3.0" },
     { name = "flask-whooshee", specifier = "==0.9.1" },
     { name = "flask-wtf", specifier = "==1.3.0" },
     { name = "frozen-flask", specifier = "==1.0.2" },
     { name = "google-auth-oauthlib", specifier = "==1.4.0" },
+    { name = "markdown", specifier = "~=3.10.0" },
     { name = "openpyxl", specifier = "~=3.1.5" },
     { name = "pandas", specifier = "~=2.2.0" },
     { name = "pillow", specifier = "==12.2.0" },
