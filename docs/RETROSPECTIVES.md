@@ -448,3 +448,56 @@ Auto-mode session 5 — CI stability, P0-P4 bug sweep, doc cleanup, full retrosp
 - Coverage: unchanged (~92%)
 - basedpyright: 0 errors, 0 warnings, 0 notes
 - `# pyright: ignore` remaining: 114 (was 125)
+
+### Retrospective — 2026-07-12: pylint similarities, coverage dup detection, PR gate, test deduplication
+
+**Timing: estimated as 2h, but ~3:00**
+
+Branch `fix/test-duplicate-code` → PR #3 → squash-merge to staging (`aac3faf`). Previous staging head: `3a28336`. 21 files, +276/-433 lines.
+
+**Changes**: Pylint `min-similarity-lines=6` (10.00/10, zero suppressions), `scripts/find_dup_coverage.py` (Jaccard-based coverage duplicate detection), coverage `context="test"`, 4 shared helpers extracted to `flask_se_practice_config.py`, entire `TestPracticePreparation` class removed (24 tests), pagination deduplicated in `flask_se_diplomas.py`/`flask_se_theses.py`, PR gate workflow documented in `GIT_FLOW.md` §2.1/§8.4 + `AGENTS.md` pre-flight.
+
+**Gaps found**:
+
+| Gap | Type | Fix |
+|-----|------|-----|
+| `test_approve_temp_thesis_with_text_uri` FileExistsError after conftest refactor | Missing cleanup — \_make_temp_thesis didn't handle existing file | Added os.remove() before Path.write_bytes() |
+| Pre-push caught pyright errors from inline imports in shared helpers | Missing config — helpers imported but not called from config module | Added `# pyright: reportUnusedFunction=false` and `# ruff: noqa: PLC0415` to practice_config.py |
+| Pre-push caught missing return type annotation on conftest helper | Missing template — `_setup_current_thesis_with_report` returned untyped | Added `-> SeCurrentThesis` to function signature |
+| Skills not loaded during session | Human error — AGENTS.md says "read manually" but the step is easily skipped mid-flow | Add skill-reading confirmation to pre-flight checklist |
+
+**Pattern recurrence**: **YES** — skills not loaded (first recurrence since Layer 3 fix in 2026-07-06). The layer-3 fix (AGENTS.md "read manually instead of load") worked for one session (2026-07-06 CI fix) but failed this session. Escalation to Layer 2: make pre-flight checklist require explicit confirmation of which skill READMEs were read.
+
+**New pattern**: **Session context loss** — every new agent conversation starts cold. The anchored summary is the only bridge between sessions. When the summary is missing or stale, the agent has no awareness of prior session state. Document as known risk in `AGENTS.md` — the anchored summary in the updated summary file is the primary session-persistence mechanism.
+
+**What went well**:
+
+- Pre-flight checklist followed end-to-end (fetch, CI check, branch, test, pre-push, push, wait for CI, merge via PR)
+- PR gate tested successfully end-to-end (PR created, CI green, squash-merged, branch deleted)
+- Pylint similarities clean on first config attempt (no tuning needed after `min-similarity-lines=6`)
+- Coverage duplicate detection script works on first run with no adjustments
+- All 433 lines deleted were actual duplicate code (not just formatting noise)
+
+**What went wrong**:
+
+- Started session without loading any skills — bypassed the `retrospective-analysis` and `test-writer` skills that would have prompted structured thinking
+- Session context lost at conversation start — had to ask "what did we do so far?" and reconstruct state
+- The `ruf-strict` branch was already merged to staging — spent a moment wondering why it showed up in git log before realizing it was from a prior session
+
+**Root causes**:
+
+1. Skills-loading instruction in AGENTS.md says "read manually" but is passive — no explicit step saying "stop and read the matching skill README before any edit"
+1. No session-persistence mechanism beyond the anchored summary — every new conversation is a full cold start
+
+**Fix**:
+
+- Escalate skills-loading: add explicit "Read relevant `.skills/<name>/README.md`" with confirmation to pre-flight checklist
+- Add session-context-loss as known risk to AGENTS.md pre-flight — recommend reviewing TODO.md + last 5 commits at session start
+
+**State at handoff**:
+
+- Tests: 1144 passed, 0 failed, 1 skipped, 21 xfailed, 0 xpassed (xpasses resolved by strict=True markers)
+- Coverage: 92%
+- Pylint similarities: 10.00/10, zero suppressions
+- basedpyright: 0 errors
+- CI (staging): green — lint (49s), test (1m46s)

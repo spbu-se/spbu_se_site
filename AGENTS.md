@@ -21,6 +21,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Verify current branch is NOT `staging` or `current`: `git branch --show-current`
   If you are on `staging`, checkpoint and re-branch.
 - Check `origin/staging` CI — if red, stop and fix first
+- **Read the skill README for this task** — identify which task/skill matches (e.g., `retrospective-analysis`, `test-writer`, `merge-gate`) and read `.skills/<name>/README.md` before starting. Confirm by stating which skill READMEs were read.
 - Before using `2>&1`, flatten ErrorRecords with `| ForEach-Object { "$_" }` or suppress stderr with `2>($null)` — see `docs/TOOLING.md` §PowerShell
 - Before writing piped/chained commands, read `docs/TOOLING.md` §PowerShell
 - Before editing any doc, re-read its first 5 lines (scope/aim header). Verify your changes match that scope. If existing content doesn't match, flag it.
