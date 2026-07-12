@@ -6,11 +6,11 @@ from datetime import UTC, datetime
 __all__ = ["app", "db", "whooshee"]
 
 import markdown as _markdown
+from apscheduler.schedulers.background import BackgroundScheduler
 from dateutil import tz
 from flask import Flask, make_response, redirect, render_template, url_for
 from flask_admin import Admin
 from flask_admin.theme import Bootstrap4Theme
-from flask_apscheduler import APScheduler
 from flask_frozen import Freezer
 from flask_migrate import Migrate
 
@@ -396,8 +396,7 @@ def notification_send_diploma_themes_on_review_wrapper() -> None:
 
 
 # Init APScheduler
-app.config["SCHEDULER_TIMEZONE"] = "UTC"
-scheduler = APScheduler()
+scheduler = BackgroundScheduler(timezone="UTC")
 scheduler.add_job(
     id="RecalculatePostRank",
     func=recalculate_post_rank_wrapper,

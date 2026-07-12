@@ -16,7 +16,7 @@ class TestAppFactory:
     def test_app_config(self):
         from flask_se import app
 
-        assert app.config["SCHEDULER_TIMEZONE"] == "UTC"
+        assert app.config["FREEZER_RELATIVE_URLS"] is True
 
     def test_sitemap(self, seeded_client):
         resp = seeded_client.get("/sitemap.xml")
