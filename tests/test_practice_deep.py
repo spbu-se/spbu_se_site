@@ -675,9 +675,6 @@ class TestPracticeWorkflow:
         )
         assert resp.status_code in (200, 302)
 
-    @pytest.mark.xfail(
-        reason="Code does not handle nonexistent report_id - crashes with AttributeError"
-    )
     def test_post_delete_nonexistent_report(self, practice_thesis):
         resp = practice_thesis.post(
             "/practice/workflow/?id=1",

@@ -80,10 +80,10 @@ class TestPracticeAdminIndexGet:
 
 class TestPracticeAdminIndexPostFinishAll:
     def test_finish_all_work(self, current_thesis):
-        from se_models import CurrentThesis, db
+        from se_models import CurrentThesis, db, db
 
         client, ct_id = current_thesis
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         ct.status = 1
         ct.title = "Ready to finish"
         db.session.commit()
@@ -296,7 +296,7 @@ class TestPracticeAdminThesisPost:
         assert notification is not None
 
     def test_submit_edit_title(self, current_thesis):
-        from se_models import CurrentThesis
+        from se_models import CurrentThesis, db
 
         client, ct_id = current_thesis
         resp = client.post(
@@ -307,14 +307,14 @@ class TestPracticeAdminThesisPost:
             },
         )
         assert resp.status_code in (200, 302)
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         assert ct.title == "Updated Title"
 
     def test_submit_finish_work(self, current_thesis):
-        from se_models import CurrentThesis
+        from se_models import CurrentThesis, db
 
         client, ct_id = current_thesis
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         ct.status = 1
         resp = client.post(
             f"/practice_admin/thesis?id={ct_id}",
@@ -323,14 +323,14 @@ class TestPracticeAdminThesisPost:
             },
         )
         assert resp.status_code in (200, 302)
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         assert ct.status == 2
 
     def test_submit_restore_work(self, current_thesis):
-        from se_models import CurrentThesis, db
+        from se_models import CurrentThesis, db, db
 
         client, ct_id = current_thesis
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         ct.status = 2
         db.session.commit()
         resp = client.post(
@@ -340,7 +340,7 @@ class TestPracticeAdminThesisPost:
             },
         )
         assert resp.status_code in (200, 302)
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         assert ct.status == 1
 
     def test_notification_with_content_none(self, current_thesis):
@@ -381,10 +381,10 @@ class TestPracticeAdminArchiveThesis:
         assert resp.status_code in (200, 302)
 
     def test_archive_post_no_text(self, current_thesis):
-        from se_models import CurrentThesis, db
+        from se_models import CurrentThesis, db, db
 
         client, ct_id = current_thesis
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         ct.text_uri = None
         db.session.commit()
         resp = client.post(
@@ -397,10 +397,10 @@ class TestPracticeAdminArchiveThesis:
         assert resp.status_code in (200, 302)
 
     def test_archive_post_no_presentation(self, current_thesis):
-        from se_models import CurrentThesis, db
+        from se_models import CurrentThesis, db, db
 
         client, ct_id = current_thesis
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         ct.presentation_uri = None
         db.session.commit()
         resp = client.post(
@@ -413,10 +413,10 @@ class TestPracticeAdminArchiveThesis:
         assert resp.status_code in (200, 302)
 
     def test_archive_post_no_supervisor_review(self, current_thesis):
-        from se_models import CurrentThesis, db
+        from se_models import CurrentThesis, db, db
 
         client, ct_id = current_thesis
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         ct.supervisor_review_uri = None
         db.session.commit()
         resp = client.post(
@@ -429,10 +429,10 @@ class TestPracticeAdminArchiveThesis:
         assert resp.status_code in (200, 302)
 
     def test_archive_post_success_with_all_files(self, current_thesis):
-        from se_models import CurrentThesis, Thesis
+        from se_models import CurrentThesis, db, Thesis
 
         client, ct_id = current_thesis
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         ct.text_uri = "test_text.pdf"
         ct.presentation_uri = "test_slides.pdf"
         ct.supervisor_review_uri = "test_review.pdf"
@@ -454,10 +454,10 @@ class TestPracticeAdminArchiveThesis:
         assert archived.name_ru == "Test Practice Thesis Admin"
 
     def test_archive_post_with_uploaded_files(self, current_thesis):
-        from se_models import CurrentThesis, db
+        from se_models import CurrentThesis, db, db
 
         client, ct_id = current_thesis
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         ct.text_uri = None
         ct.presentation_uri = None
         ct.supervisor_review_uri = None
@@ -492,10 +492,10 @@ class TestPracticeAdminArchiveThesis:
         assert resp.status_code in (200, 302)
 
     def test_archive_post_code_link_no_http(self, current_thesis):
-        from se_models import CurrentThesis
+        from se_models import CurrentThesis, db
 
         client, ct_id = current_thesis
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         ct.code_link = None
 
         with patch("shutil.copyfile"):

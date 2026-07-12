@@ -15,12 +15,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
-      - run: pip install ruff mdformat
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-suffix: "current"
+      - run: uv sync
 
-      - run: ruff format --check src/
-      - run: ruff check src/
-      - run: mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
+      - run: uv run ruff format --check src/
+      - run: uv run ruff check src/
+      - run: uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
 
   test:
     runs-on: ubuntu-latest
@@ -30,8 +34,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
-      - run: pip install -r requirements.txt
-      - run: pip install pytest
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-suffix: "current"
+      - run: uv sync
 
-      - run: pytest
+      - run: uv run pytest

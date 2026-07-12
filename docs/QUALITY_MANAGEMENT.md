@@ -80,8 +80,6 @@ The fix is separate jobs with `needs: [lint]` + `if: always()`. The lint job fai
 
 This pattern applies to CI only. Local pre-push uses a sequential fail-fast chain (format → types abort on first failure) — that is intentional: a format or type failure found at push time costs ~33s to fix and retry. Local iteration is faster than CI, so fail-fast saves time.
 
-**Known gap**: the legacy `ci.yml` workflow (current branch) still uses a single sequential job. Migration to the split pattern is pending.
-
 The exact trigger table with actions lives in `docs/AI_AGENTS.md` §CI discipline.
 
 ## 5. Quality Management Artifacts

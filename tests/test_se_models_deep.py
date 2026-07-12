@@ -553,7 +553,7 @@ def test_summer_school_delete(app_ctx):
     sid = s.id
     db.session.delete(s)
     db.session.commit()
-    assert SummerSchool.query.get(sid) is None
+    assert db.session.get(SummerSchool, sid) is None
 
 
 def test_summer_school_nullable_fields(app_ctx):
@@ -735,7 +735,7 @@ def test_tags_delete(app_ctx):
     tid = t.id
     db.session.delete(t)
     db.session.commit()
-    assert Tags.query.get(tid) is None
+    assert db.session.get(Tags, tid) is None
 
 
 def test_diploma_themes_tags_create_and_query(app_ctx):
@@ -756,7 +756,7 @@ def test_diploma_themes_tags_delete(app_ctx):
     did = dt.id
     db.session.delete(dt)
     db.session.commit()
-    assert DiplomaThemesTags.query.get(did) is None
+    assert db.session.get(DiplomaThemesTags, did) is None
 
 
 def test_init_db_creates_all_26_tables_in_one_call(app_ctx):

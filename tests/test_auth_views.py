@@ -531,15 +531,16 @@ class TestThesisAdminApproval:
         db.session.commit()
         resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
         assert resp.status_code in (200, 302)
-        updated = Thesis.query.get(t.id)
+        updated = db.session.get(Thesis, t.id)
         assert not updated.temporary
 
-    @pytest.mark.xfail(
-        strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename"
-    )
-    @patch("flask_se_theses.os.rename")
-    def test_approve_temp_thesis_with_text_uri(self, mock_rename, seeded_client):
+    def test_approve_temp_thesis_with_text_uri(self, seeded_client):
+        from pathlib import Path
         from se_models import Thesis, db
+
+        Path("static/tmp/texts").mkdir(parents=True, exist_ok=True)
+        Path("static/thesis/texts").mkdir(parents=True, exist_ok=True)
+        Path("static/tmp/texts/test.pdf").write_text("")
 
         t = Thesis(
             name_ru="Temp Thesis",

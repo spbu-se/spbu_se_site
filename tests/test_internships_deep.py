@@ -9,8 +9,8 @@ def _seed_internship(client):
     db.session.add(company)
     db.session.flush()
 
-    fmt = InternshipFormat.query.get(1)
-    tag = InternshipTag.query.get(1)
+    fmt = db.session.get(InternshipFormat, 1)
+    tag = db.session.get(InternshipTag, 1)
 
     internship = Internships(
         name_vacancy="Existing Vacancy",

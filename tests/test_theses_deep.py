@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import io
 import json
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -295,7 +296,7 @@ class TestPostThesesApi:
             "type_id": 2,
             "course_id": 1,
             "author": "SupRevAuthor",
-            "supervisor": "РўРµСЂРµС…РѕРІ",
+            "supervisor": "Терехов",
             "publish_year": 2024,
         }
         resp = logged_client.post(
@@ -319,7 +320,7 @@ class TestPostThesesApi:
             "type_id": 2,
             "course_id": 1,
             "author": "RevRevAuthor",
-            "supervisor": "РўРµСЂРµС…РѕРІ",
+            "supervisor": "Терехов",
             "publish_year": 2024,
         }
         resp = logged_client.post(
@@ -401,7 +402,7 @@ class TestThesesDeleteTmpDeep:
         tid = t.id
         resp = seeded_client.get(f"/theses_delete_tmp?thesis_id={tid}")
         assert resp.status_code in (200, 302)
-        assert Thesis.query.get(tid) is None
+        assert db.session.get(Thesis, tid) is None
 
     def test_delete_tmp_non_temporary_ignored(self, seeded_client):
         from se_models import Thesis, db
@@ -413,58 +414,71 @@ class TestThesesDeleteTmpDeep:
         db.session.commit()
         resp = seeded_client.get(f"/theses_delete_tmp?thesis_id={t.id}")
         assert resp.status_code in (200, 302)
-        assert Thesis.query.get(t.id) is not None
+        assert db.session.get(Thesis, t.id) is not None
 
 
 class TestThesesAddTmpDeep:
-    @pytest.mark.xfail(
-        strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename"
-    )
     def test_add_tmp_with_text_uri(self, seeded_client):
-        with patch("flask_se_theses.os.rename"):
-            from se_models import Thesis, db
+        from se_models import Thesis, db
 
-            t = Thesis(
-                name_ru="ApproveMe",
-                author="T",
-                type_id=2,
-                course_id=1,
-                publish_year=2024,
-                temporary=True,
-                text_uri="test.pdf",
-            )
-            db.session.add(t)
-            db.session.commit()
-            resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
-            assert resp.status_code in (200, 302)
-            updated = Thesis.query.get(t.id)
-            assert updated.temporary is False
+        Path("static/tmp/texts").mkdir(parents=True, exist_ok=True)
+        Path("static/thesis/texts").mkdir(parents=True, exist_ok=True)
+        Path("static/tmp/texts/test.pdf").write_text("")
+        Path("static/thesis/texts/test.pdf").unlink(missing_ok=True)
 
-    @pytest.mark.xfail(
-        strict=False, reason="os.rename patched — Whoosh filesystem create_index uses rename"
-    )
+        t = Thesis(
+            name_ru="ApproveMe",
+            author="T",
+            type_id=2,
+            course_id=1,
+            publish_year=2024,
+            temporary=True,
+            text_uri="test.pdf",
+        )
+        db.session.add(t)
+        db.session.commit()
+        resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
+        assert resp.status_code in (200, 302)
+        updated = db.session.get(Thesis, t.id)
+        assert updated.temporary is False
+
     def test_add_tmp_with_presentation_and_reviews(self, seeded_client):
-        with patch("flask_se_theses.os.rename"):
-            from se_models import Thesis, db
+        from se_models import Thesis, db
 
-            t = Thesis(
-                name_ru="FullApprove",
-                author="T",
-                type_id=2,
-                course_id=1,
-                publish_year=2024,
-                temporary=True,
-                text_uri="text.pdf",
-                presentation_uri="slides.pdf",
-                supervisor_review_uri="sup.pdf",
-                reviewer_review_uri="rev.pdf",
-            )
-            db.session.add(t)
-            db.session.commit()
-            resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
-            assert resp.status_code in (200, 302)
-            updated = Thesis.query.get(t.id)
-            assert updated.temporary is False
+        Path("static/tmp/texts").mkdir(parents=True, exist_ok=True)
+        Path("static/tmp/slides").mkdir(parents=True, exist_ok=True)
+        Path("static/tmp/reviews").mkdir(parents=True, exist_ok=True)
+        Path("static/thesis/texts").mkdir(parents=True, exist_ok=True)
+        Path("static/thesis/slides").mkdir(parents=True, exist_ok=True)
+        Path("static/thesis/reviews").mkdir(parents=True, exist_ok=True)
+        for _f in ["static/tmp/texts/text.pdf", "static/tmp/slides/slides.pdf",
+                    "static/tmp/reviews/sup.pdf", "static/tmp/reviews/rev.pdf",
+                    "static/thesis/texts/text.pdf", "static/thesis/slides/slides.pdf",
+                    "static/thesis/reviews/sup.pdf", "static/thesis/reviews/rev.pdf"]:
+            Path(_f).unlink(missing_ok=True)
+        Path("static/tmp/texts/text.pdf").write_text("")
+        Path("static/tmp/slides/slides.pdf").write_text("")
+        Path("static/tmp/reviews/sup.pdf").write_text("")
+        Path("static/tmp/reviews/rev.pdf").write_text("")
+
+        t = Thesis(
+            name_ru="FullApprove",
+            author="T",
+            type_id=2,
+            course_id=1,
+            publish_year=2024,
+            temporary=True,
+            text_uri="text.pdf",
+            presentation_uri="slides.pdf",
+            supervisor_review_uri="sup.pdf",
+            reviewer_review_uri="rev.pdf",
+        )
+        db.session.add(t)
+        db.session.commit()
+        resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
+        assert resp.status_code in (200, 302)
+        updated = db.session.get(Thesis, t.id)
+        assert updated.temporary is False
 
     def test_add_tmp_non_temporary_ignored(self, seeded_client):
         from se_models import Thesis, db
@@ -481,7 +495,7 @@ class TestThesesAddTmpDeep:
         db.session.commit()
         resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
         assert resp.status_code in (200, 302)
-        assert Thesis.query.get(t.id).temporary is False
+        assert db.session.get(Thesis, t.id).temporary is False
 
     def test_add_tmp_nonexistent_thesis(self, seeded_client):
         resp = seeded_client.get("/theses_add_tmp?thesis_id=99999")

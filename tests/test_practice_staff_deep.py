@@ -71,7 +71,7 @@ class TestCurrentThesisExistsOrRedirect:
         assert resp.status_code in (200, 302)
 
     def test_thesis_not_owned_by_staff_redirects(self, staff_client):
-        from se_models import CurrentThesis, db
+        from se_models import CurrentThesis, db, db
 
         ct = CurrentThesis(author_id=2, worktype_id=1, area_id=1)
         ct.title = "Not my thesis"
@@ -115,10 +115,10 @@ class TestThesisStaffPost:
         assert notification is not None
 
     def test_submit_finish_work(self, thesis_with_report):
-        from se_models import CurrentThesis
+        from se_models import CurrentThesis, db
 
         client, ct_id, _ = thesis_with_report
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         assert ct.status == 1
 
         resp = client.post(
@@ -128,14 +128,14 @@ class TestThesisStaffPost:
             },
         )
         assert resp.status_code in (200, 302)
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         assert ct.status == 2
 
     def test_submit_restore_work(self, thesis_with_report):
-        from se_models import CurrentThesis, db
+        from se_models import CurrentThesis, db, db
 
         client, ct_id, _ = thesis_with_report
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         ct.status = 2
         db.session.commit()
 
@@ -146,7 +146,7 @@ class TestThesisStaffPost:
             },
         )
         assert resp.status_code in (200, 302)
-        ct = CurrentThesis.query.get(ct_id)
+        ct = db.session.get(CurrentThesis, ct_id)
         assert ct.status == 1
 
     def test_finished_thesises_staff(self, staff_client):
@@ -175,7 +175,7 @@ class TestReportsStaff:
         assert resp.status_code in (200, 302)
 
     def test_reports_with_report_not_owned_redirects(self, thesis_with_report):
-        from se_models import CurrentThesis, ThesisReport, db
+        from se_models import CurrentThesis, db, ThesisReport, db
 
         client, ct_id, _ = thesis_with_report
         ct2 = CurrentThesis(author_id=2, worktype_id=1, area_id=1)
@@ -192,7 +192,7 @@ class TestReportsStaff:
         assert resp.status_code in (200, 302)
 
     def test_reports_post_valid_comment(self, thesis_with_report):
-        from se_models import ThesisReport
+        from se_models import ThesisReport, db
 
         client, ct_id, report_id = thesis_with_report
         resp = client.post(
@@ -200,7 +200,7 @@ class TestReportsStaff:
             data={f"submit_button{report_id}": "1", "comment": "Great work!"},
         )
         assert resp.status_code in (200, 302)
-        updated = ThesisReport.query.get(report_id)
+        updated = db.session.get(ThesisReport, report_id)
         assert updated.comment == "Great work!"
 
     def test_reports_post_empty_comment(self, thesis_with_report):

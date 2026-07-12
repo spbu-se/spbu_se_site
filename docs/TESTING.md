@@ -60,8 +60,8 @@ Reference: `docs/DEVELOPMENT_PROCESS.md` §Project Doctrine Layer 3 — "Save at
 
 | Test | Error | Reason | Fixed? |
 |------|-------|--------|--------|
-| `test_reviewed_with_file` | `TemplateNotFound: notification/thesis_on_review_success.html` | Template file missing from `src/templates/notification/` | No — pre-existing, unrelated to code changes |
-| `test_full_review_lifecycle` | `TemplateNotFound: notification/thesis_on_review_success.html` | Same missing template | No — pre-existing |
+| `test_reviewed_with_file` | `TemplateNotFound: notification/thesis_on_review_success.html` | Template file missing from `src/templates/notification/` | No — xfailed |
+| `test_full_review_lifecycle` | `TemplateNotFound: notification/thesis_on_review_success.html` | Same missing template | No — xfailed |
 
 ## 4. xfail Policy
 
@@ -72,9 +72,7 @@ Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_
 | Test | Reason | Tracking |
 |------|--------|----------|
 | Google OAuth callback (1) | Requires OAuth session state not present in test | TODO.md Blocked |
-| os.rename + Whoosh (3) | `patch("os.rename")` blocks Whoosh filesystem `create_index()` | TODO.md tech debt |
 | thesesImport runpy (1) | `runpy.run_module` re-imports without patch | TODO.md tech debt |
-| practice delete nonexistent (1) | Real bug: `AttributeError` on nonexistent report_id | TODO.md bug |
 
 ### Current xfails — intermittent CI
 
@@ -86,8 +84,9 @@ Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_
 | theses bad authors (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
 | theses bad type (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
 | theses bad annotation (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| review missing template (2) | Missing `notification/thesis_on_review_success.html` | TODO.md tech debt |
 
-**Previously fixed this session**: PyMuPDF dummy PDF (5), Google OAuth login redirect (1), practice_admin file I/O races (3), practice_staff auth race (1), theses xdist race (1 — `test_post_bad_type_id`), thesesImport module state (22). Total: 33 xfails removed.
+**Previously fixed this session**: PyMuPDF dummy PDF (5), Google OAuth login redirect (1), practice_admin file I/O races (3), practice_staff auth race (1), theses xdist race (1 — `test_post_bad_type_id`), thesesImport module state (22), os.rename+Whoosh rewrite (3), nonexistent report_id guard (1), query.get→db.session.get migration (32), mojibake strings (2), admin xfail strict=True (3), ci.yml split+3.13 migration (1). Total: 77 xfails/items resolved.
 
 ### 4a. Intermittent CI failures — xfail strategy
 

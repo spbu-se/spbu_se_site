@@ -41,8 +41,8 @@ class TestAdminDeep:
         "name,path",
         [
             ("users", "/admin/users/"),
-            pytest.param("staff", "/admin/staff/", marks=pytest.mark.xfail(reason="Flask-Admin 2.2.0 create_view() cls arg incompatible with Jinja2/Werkzeug")),
-            pytest.param("thesis", "/admin/thesis/", marks=pytest.mark.xfail(reason="Flask-Admin 2.2.0 create_view() cls arg incompatible with Jinja2/Werkzeug")),
+            pytest.param("staff", "/admin/staff/", marks=pytest.mark.xfail(strict=True, reason="Flask-Admin 2.2.0 create_view() cls arg incompatible with Jinja2/Werkzeug")),
+            pytest.param("thesis", "/admin/thesis/", marks=pytest.mark.xfail(strict=True, reason="Flask-Admin 2.2.0 create_view() cls arg incompatible with Jinja2/Werkzeug")),
             ("summerschool", "/admin/summerschool/"),
             ("news", "/admin/posts/"),
             ("diplomathemes", "/admin/diplomathemes/"),
@@ -56,7 +56,7 @@ class TestAdminDeep:
         "name,path,edit_id",
         [
             ("users", "/admin/users/", 1),
-            pytest.param("staff", "/admin/staff/", 1, marks=pytest.mark.xfail(reason="Flask-Admin 2.2.0 edit_view() cls arg incompatible with Jinja2/Werkzeug")),
+            pytest.param("staff", "/admin/staff/", 1, marks=pytest.mark.xfail(strict=True, reason="Flask-Admin 2.2.0 edit_view() cls arg incompatible with Jinja2/Werkzeug")),
             ("diplomathemes", "/admin/diplomathemes/", 1),
             ("currentthesis", "/admin/currentthesis/", 1),
         ],
