@@ -12,7 +12,7 @@ Covers: module responsibilities, execution flow, template structure. Does not co
 
 | Module | Responsibility |
 |---|---|
-| `flask_se.py` | App factory, route registration, scheduler init, Flask-Admin init |
+| `flask_se.py` | Module-level app (singleton `app = Flask(__name__)`), route registration, scheduler init, Flask-Admin init |
 | `flask_se_config.py` | App configuration, secret management, DB path, ranking algorithm |
 | `wsgi.py` | WSGI entry point (uWSGI) |
 | `app.ini` | uWSGI process/thread configuration |
@@ -40,12 +40,14 @@ Covers: module responsibilities, execution flow, template structure. Does not co
 ### Supporting Modules
 
 | Module | Responsibility |
-|---|---|
+|---|---|---|
 | `se_models.py` | All SQLAlchemy models + `init_db()` seed data |
 | `se_forms.py` | WTForms form definitions |
 | `se_review_forms.py` | Review evaluation form (detailed rubric) |
+| `se_internship_forms.py` | Internship and diploma theme form definitions |
 | `se_sendmail.py` | Email notification service via SPbU SMTP |
 | `extract_text.py` | Re-extract text content from thesis PDFs |
+| `thesesImport.py` | Import theses from external sources (web scraping, batch processing) |
 
 ### Configuration Modules
 

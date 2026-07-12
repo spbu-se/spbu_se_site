@@ -31,7 +31,7 @@ Covers: technology stack choices, framework-specific decisions, implementation p
 **Rationale**:
 
 - Docker image stays smaller (no uv binary, no Rust toolchain)
-- CI on `current` matches prod exactly (pip, Python 3.9)
+- CI on `current` matches prod exactly (pip, Python 3.13)
 - No runtime coupling to uv — prod can be deployed anywhere pip works
 - uv is a dev tool only, like ruff or pre-commit
 
@@ -126,8 +126,6 @@ Covers: technology stack choices, framework-specific decisions, implementation p
 **Decision**: Freeze production code until test coverage reaches 90%.
 
 **Exceptions**: Trivial one-line fixes (e.g., adding `.get("field", "")` default) that unblock tests can be applied during the coverage phase if they directly enable testing.
-
-**Current status**: 92% coverage achieved.
 
 ## [2026-07-12] Defensive Form Field Access
 

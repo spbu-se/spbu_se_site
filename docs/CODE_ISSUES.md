@@ -2,7 +2,7 @@
 
 # Code Issues Discovered During Test Coverage
 
-Found during the coverage-first phase (2026-07-04/05 auto run). Coverage at 92% — bugs below are unblocked.
+Found during the coverage-first phase (2026-07-04/05 auto run). Coverage target met — bugs below are unblocked.
 
 ## P0 — Production Bugs (crash on missing form fields)
 

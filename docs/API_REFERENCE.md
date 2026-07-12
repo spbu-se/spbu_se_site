@@ -19,6 +19,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/nooffer` | GET | `nooffer` | No-offer page |
 | `/404.html` | GET | `status_404` | Custom 404 page |
 | `/sitemap.xml` | GET | `sitemap` | Dynamic sitemap XML |
+| `/Sitemap.xml` | GET | `sitemap` | Case-sensitive alias for sitemap.xml |
 
 ## Student Pages
 
@@ -74,6 +75,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | Route | Method | View Function | Description |
 |---|---|---|---|
 | `/news/` | GET | `list_news` | News listing (paginated by rank) |
+| `/news/index.html` | GET | `list_news` | Alias for `/news/` |
 | `/news/item.html` | GET | `get_post` | Single news post |
 | `/news/submit.html` | GET, POST | `submit_post` | Submit news |
 | `/news/post_vote` | GET, POST | `post_vote` | Upvote/downvote news |
@@ -84,6 +86,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | Route | Method | View Function | Description |
 |---|---|---|---|
 | `/diplomas/` | GET | `diplomas_index` | Browse approved themes |
+| `/diplomas/index.html` | GET | `diplomas_index` | Alias for `/diplomas/` |
 | `/diplomas/theme.html` | GET | `get_theme` | View single theme |
 | `/diplomas/add_theme.html` | GET, POST | `add_user_theme` | Add new theme |
 | `/diplomas/user_themes.html` | GET | `user_diplomas_index` | User own themes |
@@ -98,6 +101,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | Route | Method | View Function | Description |
 |---|---|---|---|
 | `/review/` | GET | `thesis_review_index` | Review dashboard |
+| `/review/index.html` | GET | `thesis_review_index` | Alias for `/review/` |
 | `/review/submit` | GET, POST | `submit_thesis_on_review` | Submit thesis for review |
 | `/review/edit` | GET, POST | `edit_thesis_on_review` | Edit submitted thesis |
 | `/review/delete` | GET | `delete_thesis_on_review` | Delete own submission |
@@ -113,6 +117,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | Route | Method | View Function | Description |
 |---|---|---|---|
 | `/internships/internships_index.html` | GET | `internships_index` | Browse internships |
+| `/internships/index` | GET | `old_internships_index` | Old redirect endpoint |
 | `/internships/fetch_internships` | GET | `fetch_internships` | AJAX filtered list |
 | `/internships/add` | GET, POST | `add_internship` | Add internship |
 | `/internships/<int:id>` | GET, POST | `page_internship` | View single internship |
@@ -124,6 +129,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | Route | Method | View Function | Description |
 |---|---|---|---|
 | `/practice` | GET, POST | `practice_index` | Student dashboard + notifications |
+| `/practice/` | GET, POST | `practice_index` | Alias for `/practice` |
 | `/practice/guide/` | GET | `practice_guide` | Practice guide |
 | `/practice/new/` | GET, POST | `practice_new_thesis` | Create new practice/thesis |
 | `/practice/data_for_practice/` | GET, POST | `practice_data_for_practice` | Edit worktype/area |
@@ -140,6 +146,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | Route | Method | View Function | Description |
 |---|---|---|---|
 | `/practice_staff` | GET | `index_staff` | Staff dashboard (advisees) |
+| `/practice_staff/` | GET | `index_staff` | Alias for `/practice_staff` |
 | `/practice_staff/thesis/` | GET, POST | `thesis_staff` | View/send notifications to student |
 | `/practice_staff/reports/` | GET, POST | `reports_staff` | View/comment reports |
 | `/practice_staff/finished_thesises/` | GET | `finished_thesises_staff` | Completed theses |
@@ -149,6 +156,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | Route | Method | View Function | Description |
 |---|---|---|---|
 | `/practice_admin` | GET, POST | `index_admin` | Admin dashboard |
+| `/practice_admin/` | GET, POST | `index_admin` | Alias for `/practice_admin` |
 | `/practice_admin/choose_area_worktype` | GET | `choose_area_and_worktype_admin` | Area/worktype redirect |
 | `/practice_admin/finished_thesises` | GET | `finished_thesises_admin` | Completed works |
 | `/practice_admin/thesis` | GET, POST | `thesis_admin` | View/edit single thesis |
@@ -187,10 +195,5 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 
 ## Error Handling
 
-| Route | Status | Description |
-|---|---|---|
-| `/404.html` | 404 | Custom 404 page |
-
-### Error response pattern
-
-Errors are rendered as HTML pages to the user. No JSON API endpoints exist — all endpoints return rendered templates.
+All errors render HTML pages. No JSON API endpoints exist.
+`@app.errorhandler(404)` renders the same template as the `/404.html` route listed in Public Pages.

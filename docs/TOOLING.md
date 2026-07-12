@@ -2,8 +2,7 @@
 
 <!-- encoding: utf-8 -->
 
-Portable tooling knowledge reusable across projects.
-Not local host quirks (see `.tooling.md`).
+Covers: portable cross-platform tool patterns (uv, pytest, SQLAlchemy, pre-commit, GitHub CLI, PowerShell, Python, Ruff, etc.). Does not cover: host-local quirks — see `.tooling.md`.
 
 ## uv
 

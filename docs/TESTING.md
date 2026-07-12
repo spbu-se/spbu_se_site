@@ -67,26 +67,33 @@ Reference: `docs/DEVELOPMENT_PROCESS.md` §Project Doctrine Layer 3 — "Save at
 
 Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_ISSUES.md` blocker entry. xfails are re-reviewed every 3 months or after refactoring the affected module — whichever comes first.
 
-### Current xfails — permanent
+### Current xfails — permanent (strict=False)
 
-| Test | Reason | Tracking |
-|------|--------|----------|
-| Google OAuth callback (1) | Requires OAuth session state not present in test | TODO.md Blocked |
-| thesesImport runpy (1) | `runpy.run_module` re-imports without patch | TODO.md tech debt |
+| Test | Count | Reason | Tracking |
+|------|-------|--------|----------|
+| Google OAuth callback | 1 | Requires OAuth session state not present in test | TODO.md Blocked |
+| review missing template | 2 | Missing `notification/thesis_on_review_success.html` | TODO.md tech debt |
 
-### Current xfails — intermittent CI
+### Current xfails — intermittent CI (strict=False)
 
-| Test | Reason | Tracking |
-|------|--------|----------|
-| theses xdist race (1) | Intermittent — user creation not visible to parallel worker | TODO.md tech debt |
-| theses post_with_source_uri (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| theses post_with_presentation (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| theses bad authors (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| theses bad type (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| theses bad annotation (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| review missing template (2) | Missing `notification/thesis_on_review_success.html` | TODO.md tech debt |
+| Test | Count | Reason | Tracking |
+|------|-------|--------|----------|
+| theses xdist race | 1 | Intermittent — user creation not visible to parallel worker | TODO.md tech debt |
+| theses post_with_source_uri | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| theses post_with_presentation | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| theses bad authors | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| theses bad type | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| theses bad annotation | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| theses post_theses dev_key fails | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
 
-**Previously fixed this session**: PyMuPDF dummy PDF (5), Google OAuth login redirect (1), practice_admin file I/O races (3), practice_staff auth race (1), theses xdist race (1 — `test_post_bad_type_id`), thesesImport module state (22), os.rename+Whoosh rewrite (3), nonexistent report_id guard (1), query.get→db.session.get migration (32), mojibake strings (2), admin xfail strict=True (3), ci.yml split+3.13 migration (1). Total: 77 xfails/items resolved.
+### Current xfails — strict=True (Flask-Admin 2.2.0 incompatibility)
+
+| Test | Count | Reason | Tracking |
+|------|-------|--------|----------|
+| admin list view (staff/thesis) | 2 | Flask-Admin 2.2.0 `create_view()` `cls` arg incompatible with Jinja2/Werkzeug | Upgrade to Flask-Admin 3.x |
+| admin edit view (staff) | 1 | Flask-Admin 2.2.0 `edit_view()` `cls` arg incompatible with Jinja2/Werkzeug | Upgrade to Flask-Admin 3.x |
+
+**Total xfail markers in code**: 13 (3 strict=True + 10 strict=False)
 
 ### 4a. Intermittent CI failures — xfail strategy
 
@@ -101,7 +108,7 @@ Do NOT use `strict=False` for failures that reproduce locally — those are real
 
 ## 5. Xpassed Tests
 
-0 xpassed tests remaining. All previously xpassed tests were investigated and fixed in session 6.
+Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass is non-fatal): intermittent CI failures that happen to pass on this machine. Tracked in §4a's intermittent CI table. Check xpass count via `pytest --tb=no -q 2>&1 | Select-String "xpassed"`.
 
 ## 6. Long-Term Testing Gaps
 

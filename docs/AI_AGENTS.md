@@ -2,7 +2,7 @@
 
 <!-- encoding: utf-8 -->
 
-AI-agent-specific knowledge: tool permissions, quirks, workarounds, typical issues, output format conventions for all agent-generated reports, summaries, and responses, skills architecture (creation, usage, maintenance), and skills catalog with vendor stubs and commands.
+Covers: AI-agent-specific knowledge: tool permissions, quirks, workarounds, typical issues, output format conventions for all agent-generated reports, summaries, and responses, skills architecture (creation, usage, maintenance), and skills catalog with vendor stubs and commands.
 Does not cover: process workflow (see `docs/DEVELOPMENT_PROCESS.md`), commands (see `AGENTS.md`).
 
 ## Permission Recommendation

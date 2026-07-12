@@ -2,6 +2,8 @@
 
 <!-- encoding: utf-8 -->
 
+Covers: planning, session lifecycle, code review, release management, dependency management, and discipline policies. Does not cover: version control workflow — see `docs/GIT_FLOW.md`, testing strategy — see `docs/TESTING.md`, architecture — see `docs/ARCHITECTURE.md`.
+
 Flask-based website for the SPbSU System Programming Department. See `AGENTS.md` for pre-flight and setup quirks, `docs/GIT_FLOW.md` for version control, and `docs/AI_AGENTS.md` for AI tooling.
 
 All doc management rules (creation, formatting, encoding, integrity checks) are in `docs/DOCS.md`.
@@ -258,7 +260,7 @@ The exact commands for each step are in `docs/GIT_FLOW.md §3` (Guardrails — S
 1. **Update `docs/AI_AGENT_EXPERIENCE.md`** — any dead ends, debugging trails, or workarounds discovered? Append entry (also write immediately when hitting the dead end, not only at end).
 1. **Refresh `requirements.txt`** if dependencies changed.
 1. **Run docs-review for drift**:
-   - Load `.skills/docs-audit/README.md`
+   - Load the docs-audit skill (see `docs/AI_AGENTS.md` §Skills)
    - Run doc health checks (freshness, cross-references, scope, encoding)
    - EXCLUDE frequently changed knowledge docs: `AI_AGENT_EXPERIENCE.md`, `TODO.md`, `CODE_ISSUES.md`, `AGENTS.md` (these are expected to drift)
 1. **Self-improvement check** — any new guardrails needed?

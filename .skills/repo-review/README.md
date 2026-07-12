@@ -4,6 +4,8 @@ ______________________________________________________________________
 
 # repo-review
 
+<!-- encoding: utf-8 -->
+
 Evaluates the repository against the comprehensive checklist in `docs/REPO_REVIEW.md` and creates backlog items for gaps found.
 
 ## Usage policy

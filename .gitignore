@@ -108,7 +108,8 @@ src/static/thesis/*/*.pdf
 # Test artifacts (practice file upload tests)
 static/practice/
 
-# Test artifacts (theses import tests)
+# Test artifacts (theses tests — PDFs and upload dirs)
+static/thesis/
 static/tmp/
 
 # Do not track fulltext search files

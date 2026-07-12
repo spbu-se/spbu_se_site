@@ -4,6 +4,8 @@ ______________________________________________________________________
 
 # readme-generator
 
+<!-- encoding: utf-8 -->
+
 Generates a project-specific README by probing the repository structure. Works for Web apps, CLI tools, and Python/Node/Rust libraries.
 
 ## Workflow

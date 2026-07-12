@@ -28,6 +28,7 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 | `CLAUDE.md` | AI instructions | Skills table | Commands, process | Skill registry |
 | `.tooling.md` | Local quirks | GPG keylocker, host-specific workarounds | Cross-platform knowledge | Local-only workarounds |
 | `TODO.md` | Tasks | Backlog, known bugs, coverage | Process improvement ideas | Task tracking |
+| `OPEN_QUESTIONS.md` | Questions | Unresolved and resolved session questions | Task tracking, process | Q&A scratchpad |
 
 ### docs/ directory
 
@@ -85,7 +86,7 @@ Each doc has a knowledge discipline — what goes in, what stays out, how inform
 | `TOOLING.md` | Portable tooling knowledge — cross-platform quirks per tool | Tool-name H2 sections (uv, pytest, SQLAlchemy, pre-commit, GitHub CLI, PowerShell, Python, Ruff, etc.) | Tool section: heading → "correct/wrong" code blocks with explanation. No process rules, only mechanics | Rebuild from `.pre-commit-config.yaml`, `pyproject.toml`, CI workflow files |
 | `CODE_ISSUES.md` | Bug inventory — known production bugs | Per-module H2 sections | Table: bug, module, impact, status | Rebuild from `TODO.md` Known bugs + retro entries |
 | `REPO_REVIEW.md` | Audit checklist — repo health evaluation | Numbered phases (Legal, Architecture, Code Quality, etc.) | Phase: checklist items with status column | Rebuild from GitHub repo settings + `.github/` + CI workflows |
-| `REVERSE_ENGINEERING.md` | RE methodology — cycle description, source types | Cycle steps, Source types | Methodology description: steps numbered, types in tables | Rebuild from `.skills/js-bundle-analysis/README.md` patterns |
+| `REVERSE_ENGINEERING.md` | RE methodology — cycle description, source types | Cycle steps, Source types | Methodology description: steps numbered, types in tables | Rebuild from patterns in `docs/AI_AGENTS.md` §Skills |
 | `AI_AGENTS.md` | AI-agent-specific — permissions, tool quirks, cross-references, output format conventions, skills architecture, skills catalog, commands | Permission Recommendation, Tool Quirks, Output Format, Communication, Skills (definition, boundaries, delegation, source of truth, extraction triggers, creation, lifecycle, maintenance, directory, vendor stubs, commands) | Permissions: JSON block. Tool Quirks: per-quirk ### subsections with wrong/correct examples. Output Format: compliance rules, timing, prescribed formats. Communication: ask-when-ambiguous rule. Skills: definition, boundaries, delegation chain, source of truth, extraction triggers, creation checklist, lifecycle, maintenance, directory table, vendor stubs, commands | Rebuild from `.opencode/opencode.json` + tool behavior observation |
 
 ## 2b. Skills Architecture (moved to `docs/AI_AGENTS.md` §Skills)
@@ -169,7 +170,7 @@ Skills live in `.skills/<name>/README.md` (vendor-agnostic canonical source). Pe
 
 - **Doc changes belong on `docs/` branches or during staging→current gate**, not on feature branches. See `docs/DEVELOPMENT_PROCESS.md §0.6`.
 - **Exception**: architecture-first or doc-first cycle was violated (code before doc) → add a `TODO.md` debt entry mid-sprint. This is a violation record, not a doc change.
-- **Exception**: new findings during implementation (bugs, quirks, workarounds) go to `TOOLING.md` or `AI_AGENT_EXPERIENCE.md` immediately, not at session end. See "Document as you go" in `docs/AI_AGENTS.md` §Skills (`.skills/unattended-mode/`).
+- **Exception**: new findings during implementation (bugs, quirks, workarounds) go to `TOOLING.md` or `AI_AGENT_EXPERIENCE.md` immediately, not at session end. See "Document as you go" in `docs/AI_AGENTS.md` §Skills.
 
 ### 4.2 What Not to Update During Feature Work
 
@@ -236,7 +237,7 @@ On Windows, PowerShell `Set-Content` and `Out-File` default to the system's acti
 
 See `docs/TOOLING.md` §PowerShell encoding for the correct `[System.IO.File]::WriteAllText` pattern and the `$(...)` subexpression trap.
 
-This applies to any operation that writes `.py`, `.md`, `.yaml`, `.json`, `.toml`, or `.cfg` files. For detection scripts, git recovery workflow, and fix patterns, see `docs/AI_AGENTS.md` §Skills (`.skills/encoding-audit/`).
+This applies to any operation that writes `.py`, `.md`, `.yaml`, `.json`, `.toml`, or `.cfg` files. For detection scripts, git recovery workflow, and fix patterns, see `docs/AI_AGENTS.md` §Skills.
 
 ### 6.4 Verification
 
@@ -250,7 +251,7 @@ Get-ChildItem -Recurse -Include "*.md" | Select-String -Pattern "encoding: utf-8
 
 ### 6.5 Recovery
 
-If the working tree is corrupted by encoding bugs, use `git checkout <clean-sha> -- <file>` to restore from the last clean commit. For recovery workflows, see `docs/AI_AGENTS.md` §Skills (`.skills/encoding-audit/`).
+If the working tree is corrupted by encoding bugs, use `git checkout <clean-sha> -- <file>` to restore from the last clean commit. For recovery workflows, see `docs/AI_AGENTS.md` §Skills.
 
 ## 7. Formatting Rules
 
@@ -337,7 +338,7 @@ Recurring failures identified through retrospective analysis. Each anti-pattern 
 | **Completed items as open** | "Fixed P0 bug" still listed in TODO.md as open task | Past-tense detection in TODO.md (§8.1 #4) |
 | **Path reference rot** | Retrospective-analysis skill pointed to `.skills/retrospective-analysis/README.md` which did not exist | Pre-commit or gate check for path existence (§8.1 #3) |
 | **Over-engineering** | Creating skills/docs for problems that don't exist yet — appeared in 3 consecutive retros | "Check existing first" guard in planning phase (docs/DEVELOPMENT_PROCESS.md §0.5) |
-| **Code-only fixes** | Windows SQLite URI fix applied to conftest.py but never documented as a quirk — rediscovered in next session | Retro §5d: extract reusable techniques (`.skills/retrospective-analysis/README.md §5d`) |
+| **Code-only fixes** | Windows SQLite URI fix applied to conftest.py but never documented as a quirk — rediscovered in next session | Extract reusable techniques (see `docs/AI_AGENTS.md` §Skills) |
 
 ## 10. SPDX / Licensing Policy
 

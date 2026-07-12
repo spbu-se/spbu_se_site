@@ -1,5 +1,7 @@
 # flask-test-patterns
 
+<!-- encoding: utf-8 -->
+
 Copy-paste fixture templates for Flask + SQLAlchemy + pytest with xdist.
 
 Covers: auth bypass for passwordless testing, Whoosh index isolation for parallel workers, file upload testing patterns, scrypt/BCrypt mocking for Python 3.13, sendmail mocking, session-scoped test database seeding.
