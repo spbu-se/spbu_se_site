@@ -70,6 +70,17 @@ CI runs tests asynchronously. Deliberate delay between push and result is a feat
 | L tasks require green CI | Highest risk — starting a large task on red CI means the first commits will be fixup, not progress. Fix first, then build. |
 | Handoff requires green CI | Session end with red CI leaves the next developer with unknown state. Green means "safe to continue." |
 | Whoosh rerun once | Known intermittent race — `EmptyIndexError` or `FileNotFoundError` on `whooshee/`. Rerun clears false positives. If fails twice, it's a real failure. |
+| Job separation — CI | Lint/type failures must not block test visibility. Use `if: always()` on the test job even with `needs: [lint]`. Test results must remain visible regardless of lint status. |
+
+### CI job separation rationale
+
+A single CI job with sequential steps inherits `bash -e` fail-fast — if `ruff format --check` fails, `pytest` never runs. This masks test failures behind lint or type violations, wasting a full CI round-trip to discover broken tests.
+
+The fix is separate jobs with `needs: [lint]` + `if: always()`. The lint job fails independently; the test job runs regardless. Both results are visible in the CI summary. This ensures a developer fixing a lint violation also sees whether tests are broken.
+
+This pattern applies to CI only. Local pre-push uses a sequential fail-fast chain (format → types abort on first failure) — that is intentional: a format or type failure found at push time costs ~33s to fix and retry. Local iteration is faster than CI, so fail-fast saves time.
+
+**Known gap**: the legacy `ci.yml` workflow (current branch) still uses a single sequential job. Migration to the split pattern is pending.
 
 The exact trigger table with actions lives in `docs/AI_AGENTS.md` §CI discipline.
 

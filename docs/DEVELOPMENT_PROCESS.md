@@ -335,6 +335,12 @@ CI fails, creates false confidence and wastes server time.
 1. Run the hook locally to verify it catches a deliberate violation
 1. Run the CI workflow to verify it produces the same result
 
+### CI job vs step separation
+
+Sequential steps in a single job use fail-fast (`bash -e` by default) — a failed step aborts the job, masking later results. This is acceptable for local pre-push (fast iteration, fix and retry in ~33s).
+
+For CI, use separate jobs with `needs: [...]` + `if: always()` so lint/type failures do not block test execution. Both results are visible in the CI summary. See `docs/QUALITY_MANAGEMENT.md §4` for rationale and pattern.
+
 ### Diagnosis: pre-commit hook not catching what CI catches
 
 If CI fails on a check that pre-commit should have caught:

@@ -52,6 +52,7 @@ Pre-push mandatory: tests pass, lint clean, format clean.
 | **Baseline first**: Unexpected errors? Stash changes, run same command. If errors persist → pre-existing. 5-min timebox. | Saves 10-30 min of false-diagnosis per session. |
 | **`-n 1` for debug, `-n auto` for green**: Start with 1 worker to avoid parallel noise. Switch to `-n auto` for the final green check. | Fewer intermittent failures during development. |
 | **Start simplest, escalate only when proven insufficient**: Choose the simplest isolation approach first. Test it. Only add complexity if the simple approach fails. | Prevents over-engineering (e.g., RamStorage → per-worker tempdir → per-fixture tempdir when per-fixture was correct from the start). |
+| **Sentinel over offset**: Never hardcode line numbers or byte-count offsets to locate code in tests. Formatters shift line counts silently. Use sentinel pattern matching: `next(i for i, l in enumerate(lines) if l.startswith("target"))`. | `lines[589:]` broke when ruff format shifted the file. Sentinels survive formatting changes. |
 
 Reference: `docs/DEVELOPMENT_PROCESS.md` §Project Doctrine Layer 3 — "Save attempts, not screen space."
 
@@ -66,17 +67,38 @@ Reference: `docs/DEVELOPMENT_PROCESS.md` §Project Doctrine Layer 3 — "Save at
 
 Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_ISSUES.md` blocker entry. xfails are re-reviewed every 3 months or after refactoring the affected module — whichever comes first.
 
-### Current xfails
+### Current xfails — permanent
 
 | Test | Reason | Tracking |
 |------|--------|----------|
 | Google OAuth callback (1) | Requires OAuth session state not present in test | TODO.md Blocked |
 | os.rename + Whoosh (3) | `patch("os.rename")` blocks Whoosh filesystem `create_index()` | TODO.md tech debt |
 | thesesImport runpy (1) | `runpy.run_module` re-imports without patch | TODO.md tech debt |
-| theses xdist race (1) | Intermittent — user creation not visible to parallel worker | TODO.md tech debt |
 | practice delete nonexistent (1) | Real bug: `AttributeError` on nonexistent report_id | TODO.md bug |
 
+### Current xfails — intermittent CI
+
+| Test | Reason | Tracking |
+|------|--------|----------|
+| theses xdist race (1) | Intermittent — user creation not visible to parallel worker | TODO.md tech debt |
+| theses post_with_source_uri (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| theses post_with_presentation (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| theses bad authors (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| theses bad type (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| theses bad annotation (1) | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+
 **Previously fixed this session**: PyMuPDF dummy PDF (5), Google OAuth login redirect (1), practice_admin file I/O races (3), practice_staff auth race (1), theses xdist race (1 — `test_post_bad_type_id`), thesesImport module state (22). Total: 33 xfails removed.
+
+### 4a. Intermittent CI failures — xfail strategy
+
+Tests that pass locally but fail intermittently on CI:
+
+- Use `strict=False` — a passing run does not count as failure.
+- Reason format: `"Intermittent CI failure: <brief symptom description>"`
+- Track in `TODO.md` tech debt with note linking to the test.
+- Reviewed every 3 months per the general xfail policy. If a test fails on >50% of CI runs across 2 consecutive review cycles, escalate from xfail to fix.
+
+Do NOT use `strict=False` for failures that reproduce locally — those are real bugs and must follow the zero-bug policy.
 
 ## 5. Xpassed Tests
 

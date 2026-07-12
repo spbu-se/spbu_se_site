@@ -1,4 +1,4 @@
-name: CI
+name: Basic checks
 
 on:
   push:
@@ -9,17 +9,29 @@ on:
     branches: [current]
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.9"
-      - run: pip install -r requirements.txt
-      - run: pip install ruff mdformat pytest
+      - run: pip install ruff mdformat
 
       - run: ruff format --check src/
       - run: ruff check src/
       - run: mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
+
+  test:
+    runs-on: ubuntu-latest
+    needs: [lint]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - run: pip install -r requirements.txt
+      - run: pip install pytest
+
       - run: pytest

@@ -445,7 +445,7 @@ See `docs/QUALITY_MANAGEMENT.md` for quality philosophy and policy.
 
 | Tool | Purpose | Where it would run | Proposed reason |
 |------|---------|-------------------|-----------------|
-| `bandit` | Python security scanner | CI (non-blocking) | Catches debug configs, hardcoded secrets, `eval()` — was in pre-commit, removed for speed |
+| ~~`bandit`~~ | ~~Python security scanner~~ | Replaced by ruff S rules (2026-07) | ruff `"S"` in `[tool.ruff.lint] select` covers the same surface (hardcoded secrets, debug configs, `eval()`) + more. See `pyproject.toml`. |
 | `codespell` | Spelling in source | Manual / CI (non-blocking) | Captures typos that survive code review — was in pre-commit, removed as not cleanup |
 | `radon` | Cyclomatic complexity | Offline review | Used once to measure `practice_preparation` (F/74) — run before refactoring |
 | `pip-audit` | Dependency vulnerabilities | CI (weekly, non-blocking) | Supply chain risk — automated CVE detection |

@@ -84,3 +84,7 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 - **requirements.txt staleness** — CI runs `pip install -r` on every push. Must match `uv.lock`. Always regenerate before pushing
 - **mdformat CI vs local** — CI uses Linux (LF). Always run `uv run mdformat ...` (not `--check`) before committing on Windows
 - **GPG keylocker** — if `git config commit.gpgsign` is true, use `git commit --no-gpg-sign` on all branches (only `current` gets signed commits)
+
+## Gotchas
+
+- **Flask-Admin `query_factory=lambda:`** — `query_factory=Staff.query.all` (without `lambda:`) fails because SQLAlchemy model query attributes are not available at admin-import time. The `lambda:` defers evaluation to render time. Never pass the method directly or call it (`lambda: Staff.query.all()` would also crash). Affects 6 views in `src/flask_se_admin.py:55,60,65,70,76,182`.
