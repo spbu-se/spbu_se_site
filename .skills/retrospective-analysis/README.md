@@ -203,6 +203,11 @@ Ask these questions to surface waste and optimization opportunities:
 | Is this a docs/ branch finalization? | Mandatory — run step 5b bloat audit on both AGENTS.md and CLAUDE.md regardless of delta |
 | What was going another way that we definitely expected? | Identify decisions or commands whose outcome differed from expectation. Each divergence is either a bug, a process gap, or new knowledge. |
 | **Did any doc contain stale numbers or expired constraints?** | README test count, CODE_ISSUES.md 90% guard, doc table gaps — metrics drift silently between sessions |
+| **Did any test use hardcoded line numbers or byte offsets to find code?** | Formatters shift line counts — `lines[589:]` broke when ruff format + coding-line removal shifted the file by 3 lines. Slice by sentinel pattern instead (`next(i for i,l in enumerate(lines) if l.startswith("if __name__"))`). |
+| **Did CI's sequential fail-fast chain mask pre-existing test failures?** | Basedpyright stopped CI before pytest ran — 11 pre-existing failures were invisible for multiple pushes. Split lint+type checks into separate CI jobs from tests, or use `continue-on-error`. |
+| **Did any ruff rule require multiple rounds of configuration tuning?** | RUF001 `allowed-confusables` needed 3 rounds adding characters. Single-pass would have saved time. Complete list for bilingual projects: all Cyrillic-Latin homoglyphs + typographic punctuation. |
+| **Did local vs CI environment diverge for any tool?** | basedpyright `reportInvalidCast` triggered on CI but not locally — version pin mismatch or cache staleness. Verify tool versions match between environments. |
+| **Did any test failure trace to a transitive dependency version rather than direct code changes?** | Flask-Admin 2.2.0 `create_view()` cls arg incompatible with newer Jinja2/Werkzeug. Lockfile age check needed before assuming code changes caused the failure. |
 
 #### 8b. Generate prevention rules
 
@@ -415,6 +420,18 @@ No action needed: <planned changes, user requests>
 
 Pattern recurrence: <yes/no — if yes, escalate>
 ```
+
+### [2026-07-12] Add 6 missing efficiency audit questions from ruff-strict session
+
+Session surfaced several process gaps not covered by existing 8a questions:
+
+1. **Hardcoded test offsets** — `lines[589:]` in `test_flask_se_deep.py` broke when ruff format shifted line numbers. No question asked "did any test use hardcoded file offsets?"
+1. **CI fail-fast masking** — basedpyright failure stopped CI before pytest, hiding 11 pre-existing failures for multiple pushes. No question asked about sequential fail-fast chains drowning deeper results.
+1. **Multi-round config tuning** — RUF001 `allowed-confusables` took 3 rounds of add→check. No question asked "did any rule require multiple tuning rounds?"
+1. **Local-vs-CI tool divergence** — basedpyright `reportInvalidCast` on CI only. No question asked about environment parity.
+1. **Transitive dependency failures** — Flask-Admin `cls` arg traced to Jinja2/Werkzeug version, not code changes. No question asked about dependency version investigation.
+
+**Fix**: Added 6 new rows to §8a covering all gaps. Added "Verify CI shows test results, not just lint results" to AGENTS.md pre-flight checklist.
 
 ## Dependencies
 

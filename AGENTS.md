@@ -25,6 +25,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Before writing piped/chained commands, read `docs/TOOLING.md` §PowerShell
 - Before editing any doc, re-read its first 5 lines (scope/aim header). Verify your changes match that scope. If existing content doesn't match, flag it.
 - After any command that produces error output or non-zero exit, ask: "Was this expected?" If unexpected, stop and investigate.
+- Before merge: verify CI shows test results, not just lint results — inspect the CI run log to confirm pytest actually ran, not just basedpyright
 - Before merge: verify TODO.md has no completed items that belong in commit messages instead
 - Before merge: if session involved doc restructuring, propose retrospective as the final step (do not run mid-session)
 - Before any session summary or handoff: scan `docs/AI_AGENTS.md` §Output Format for the prescribed format — comply with timing, state, and section structure
