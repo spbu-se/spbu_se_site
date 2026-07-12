@@ -91,7 +91,8 @@ class TestMainBuildCommand:
 
         with open(_fs.__file__, encoding="utf-8") as f:
             lines = f.readlines()
-        src = "".join(lines[589:])
+        main_start = next(i for i, l in enumerate(lines) if l.startswith("if __name__"))
+        src = "".join(lines[main_start:])
         code = compile(src, _fs.__file__, "exec")
         exec(code, _fs.__dict__)
         assert freeze_called == [True]
@@ -106,7 +107,8 @@ class TestMainBuildCommand:
 
         with open(_fs.__file__, encoding="utf-8") as f:
             lines = f.readlines()
-        src = "".join(lines[589:])
+        main_start = next(i for i, l in enumerate(lines) if l.startswith("if __name__"))
+        src = "".join(lines[main_start:])
         code = compile(src, _fs.__file__, "exec")
         exec(code, _fs.__dict__)
         assert init_called == [True]
@@ -123,7 +125,8 @@ class TestMainBuildCommand:
 
         with open(_fs.__file__, encoding="utf-8") as f:
             lines = f.readlines()
-        src = "".join(lines[589:])
+        main_start = next(i for i, l in enumerate(lines) if l.startswith("if __name__"))
+        src = "".join(lines[main_start:])
         code = compile(src, _fs.__file__, "exec")
         exec(code, _fs.__dict__)
         assert reindex_called == [True]
