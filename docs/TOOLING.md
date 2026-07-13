@@ -273,13 +273,6 @@ Applies to any native command (git, gh, uv) whose stderr output is informative b
 
 ## Python
 
-### Flask-Admin ModelView session parameter
-
-`ModelView.__init__` takes `session` as a **positional** parameter.
-`SeAdminModelViewUsers(Users, db.session=db.session)` is **invalid Python** —
-keyword argument names cannot contain dots. The correct form is positional:
-`SeAdminModelViewUsers(Users, db.session)`.
-
 ### datetime.timezone.UTC vs datetime.timezone.utc
 
 **When:** Using `datetime.timezone.UTC` on Python 3.13.
@@ -290,7 +283,7 @@ keyword argument names cannot contain dots. The correct form is positional:
 
 **When:** A `# pyright: ignore[code]` comment on a line produces a "suppression comment is unused" warning.
 **Cause:** `enableTypeIgnoreComments = true` is not set; or the error code in the comment doesn't match the actual error.
-**Fix:** Run `uv run basedpyright src/` and verify the error code matches exactly. If the issue is a framework pattern (SQLAlchemy `__init__`, WTForms `choices`, Flask-Admin hooks), the standard set is:
+**Fix:** Run `uv run basedpyright src/` and verify the error code matches exactly. If the issue is a framework pattern (SQLAlchemy `__init__`, WTForms `choices`), the standard set is:
 
 - `reportCallIssue` — for dynamic constructor kwargs
 - `reportAttributeAccessIssue` — for SQLAlchemy dynamic attributes/backrefs
@@ -362,17 +355,6 @@ Auto/batch mode branches (`staging-auto-*`) must use `--no-gpg-sign` — they ar
 git commit --no-gpg-sign -m "..."
 ```
 
-## pytest-xdist + Whoosh
-
-Whoosh indexes are not thread-safe. Using `pytest-xdist -n auto` can cause sporadic `LockError` or `EmptyIndexError`. These are test-fixture bugs (shared index paths), not a fundamental xdist issue — fix isolation rather than throttling workers.
-
-```python
-_whoosh_dir = tempfile.mkdtemp()
-app.config["WHOOSHEE_DIR"] = _whoosh_dir
-```
-
-This ensures each worker process gets its own Whoosh index. Still insufficient for tests that create new DB state and then trigger Whoosh queries — the index must be rebuilt via `whooshee.reindex()` after each DB change.
-
 ## Scrypt mock for tests on Python 3.13+
 
 Python 3.13 OpenSSL builds may lack scrypt support, causing `check_password_hash` to raise `ValueError: unsupported hash type scrypt`. Mock at conftest module level before any auth module is imported:
@@ -387,7 +369,7 @@ This is safe for testing view logic and route behavior, but means password secur
 
 ## APScheduler shutdown in tests
 
-`Flask-APScheduler` starts background jobs at import time (every 10 seconds for `SendMailNotification`). During tests, these jobs fire against the test DB which may not have the `notification` table, causing `sqlite3.OperationalError: no such table: notification`. Shut down at conftest module level:
+`BackgroundScheduler` starts background jobs at import time (every 10 seconds for `SendMailNotification`). During tests, these jobs fire against the test DB which may not have the `notification` table, causing `sqlite3.OperationalError: no such table: notification`. Shut down at conftest module level:
 
 ```python
 import flask_se as _fs

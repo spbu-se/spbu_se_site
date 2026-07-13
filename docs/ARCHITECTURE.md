@@ -12,7 +12,7 @@ Covers: module responsibilities, execution flow, template structure. Does not co
 
 | Module | Responsibility |
 |---|---|
-| `flask_se.py` | Module-level app (singleton `app = Flask(__name__)`), route registration, scheduler init, Flask-Admin init |
+| `flask_se.py` | Module-level app (singleton `app = Flask(__name__)`), route registration, scheduler init, custom admin views init |
 | `flask_se_config.py` | App configuration, secret management, DB path, ranking algorithm |
 | `wsgi.py` | WSGI entry point (uWSGI) |
 | `app.ini` | uWSGI process/thread configuration |
@@ -35,7 +35,7 @@ Covers: module responsibilities, execution flow, template structure. Does not co
 | `flask_se_scholarships.py` | 13 static scholarship info pages |
 | `flask_se_summer_schools.py` | Summer school pages (2021, 2022, 2024, 2026) |
 | `flask_se_theses.py` | Thesis archive: search, upload, manage |
-| `flask_se_admin.py` | Flask-Admin model views (CRUD for DB tables) |
+| `flask_se_admin.py` | Custom admin CRUD views (DB table management via `CrudView` base class) |
 
 ### Supporting Modules
 
@@ -46,6 +46,7 @@ Covers: module responsibilities, execution flow, template structure. Does not co
 | `se_review_forms.py` | Review evaluation form (detailed rubric) |
 | `se_internship_forms.py` | Internship and diploma theme form definitions |
 | `se_sendmail.py` | Email notification service via SPbU SMTP |
+| `flask_se_crud.py` | Generic CRUD base class for admin views |
 | `extract_text.py` | Re-extract text content from thesis PDFs |
 | `thesesImport.py` | Import theses from external sources (web scraping, batch processing) |
 
@@ -66,7 +67,7 @@ Request -> nginx (reverse proxy) -> uWSGI -> Flask app
                                                    -> Return HTML response
 ```
 
-### Scheduled Jobs (APScheduler)
+### Scheduled Jobs (BackgroundScheduler)
 
 Three background jobs run within the Flask context:
 

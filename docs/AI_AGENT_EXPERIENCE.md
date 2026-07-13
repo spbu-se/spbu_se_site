@@ -117,7 +117,7 @@ except RuntimeError:
 - Remove the `download` flag in favor of config injection
 - Replace `sys.exit()` with raising a custom exception
 
-## os.rename patching breaks Whoosh create_index
+## **(RESOLVED — Whoosh replaced with FTS5 in PR #11)** os.rename patching breaks Whoosh create_index
 
 **When:** Three tests patched `os.rename` to test move-file behavior. Whoosh uses `os.rename` internally during `create_index()`.
 
@@ -216,7 +216,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = new_uri
 db.engines[None] = create_engine(new_uri)
 ```
 
-## Pre-existing Whoosh EmptyIndexError on CI is non-deterministic
+## **(RESOLVED — Whoosh replaced with FTS5 in PR #11)** Pre-existing Whoosh EmptyIndexError on CI is non-deterministic
 
 **When:** CI (staging) test suite — `test_thesis_repr_str` fails with Whoosh `EmptyIndexError`.
 

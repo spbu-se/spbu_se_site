@@ -50,41 +50,9 @@ def logged_client(seeded_client):
     return seeded_client
 ```
 
-### 3. Whoosh index isolation for xdist
+### 3. FTS5 index isolation for xdist
 
-Whoosh indexes in a shared temp directory cause `EmptyIndexError` when multiple xdist workers access them simultaneously:
-
-```python
-@pytest.fixture(scope="session")
-def whoosh_dir():
-    import tempfile, shutil
-    _dir = tempfile.mkdtemp()
-    app.config["WHOOSHEE_DIR"] = _dir
-    yield _dir
-    shutil.rmtree(_dir, ignore_errors=True)
-```
-
-For per-test isolation (safer with xdist), use function-scoped fixture that creates a unique index for each test:
-
-```python
-@pytest.fixture
-def isolated_whoosh(seeded_app_ctx):
-    import tempfile, shutil
-    _dir = tempfile.mkdtemp()
-    app.config["WHOOSHEE_DIR"] = _dir
-    from flask_se import whooshee
-    whooshee.reindex()
-    yield
-    shutil.rmtree(_dir, ignore_errors=True)
-```
-
-As a fallback, Whoosh-dependent tests can be marked xfail when running with xdist:
-
-```python
-@pytest.mark.xfail(strict=False, reason="Whoosh index not available in parallel test workers")
-def test_search():
-    ...
-```
+FTS5 index is inside the SQLite database file — no separate index management needed. Standard `shutil.copy2` of the DB file also copies the FTS5 index. See `conftest.py`'s `_seeded_db_path` fixture for the canonical pattern.
 
 ### 4. File upload test patterns
 

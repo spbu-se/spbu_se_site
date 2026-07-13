@@ -69,7 +69,6 @@ CI runs tests asynchronously. Deliberate delay between push and result is a feat
 | **S → ... → M** row must end green | A row of S tasks followed by an M means the M closes the row. The row is not finished until CI is green. |
 | L tasks require green CI | Highest risk — starting a large task on red CI means the first commits will be fixup, not progress. Fix first, then build. |
 | Handoff requires green CI | Session end with red CI leaves the next developer with unknown state. Green means "safe to continue." |
-| Whoosh rerun once | Known intermittent race — `EmptyIndexError` or `FileNotFoundError` on `whooshee/`. Rerun clears false positives. If fails twice, it's a real failure. |
 | Job separation — CI | Lint/type failures must not block test visibility. Use `if: always()` on the test job even with `needs: [lint]`. Test results must remain visible regardless of lint status. |
 
 ### CI job separation rationale

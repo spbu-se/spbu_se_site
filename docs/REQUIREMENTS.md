@@ -13,7 +13,7 @@ Covers: feature modules, page descriptions, user roles, navigation structure. Do
 | **Guest** | Browse public pages, search theses, read news |
 | **Authenticated User** | Submit news, manage own diploma themes, submit theses for review, participate in practice |
 | **Staff** | Supervise practice students, view advisee reports, review theses |
-| **Admin** | Full CRUD via Flask-Admin, manage practice, archive theses, moderate diploma themes |
+| **Admin** | Full CRUD via custom admin panel, manage practice, archive theses, moderate diploma themes |
 
 ## 2. Feature Modules
 
@@ -45,7 +45,7 @@ Community-driven news platform:
 - Posts ranked by a weighted algorithm (votes + views)
 - Upvote/downvote system
 - Users can delete own posts
-- Admin can manage all posts via Flask-Admin
+- Admin can manage all posts via admin panel
 - Homepage shows top 10 active posts
 
 ### 2.4 Thesis Archive
@@ -121,7 +121,7 @@ Archive of summer school projects (2021, 2022, 2024, 2026):
 
 - List of all summer schools
 - Individual project pages with description, technology stack, repo links, demos
-- Admin-managed via Flask-Admin
+- Admin-managed via custom admin interface
 
 ### 2.10 Scholarships
 

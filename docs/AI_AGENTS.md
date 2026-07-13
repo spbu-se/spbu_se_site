@@ -277,7 +277,6 @@ CI runs `pytest` asynchronously. Pre-push does not run tests — that's CI's job
 | **S → ... → M** row | CI must be green after the M that closes the row. |
 | Before **L** task | CI must be green. Fix any prior M's CI before starting L. |
 | Before **handoff / session end** | CI must be green. |
-| Whoosh `EmptyIndexError` / `FileNotFoundError` | Rerun once via `gh run rerun`. If passes → green. If fails twice → treat as real failure, update TODO.md. |
 
 ## Tool recommendation proposals
 

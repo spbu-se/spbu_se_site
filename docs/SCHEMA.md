@@ -69,7 +69,7 @@ Relationships: `supervisor` -> Thesis, `adviser` -> Thesis, `current_thesises`.
 | `download_thesis` | Integer | default=0 | Download counter |
 | `download_presentation` | Integer | default=0 | Download counter |
 
-Full-text search via Whooshee on `name_ru`, `description`, `author`, `text`.
+Full-text search via SQLite FTS5 virtual table `thesis_fts` on `name_ru`, `description`, `author`, `text`. Auto-sync triggers on INSERT/UPDATE/DELETE of `thesis` table. See `se_models.py` `thesis_fts_search()` helper.
 
 ### Posts (`posts`) — News
 

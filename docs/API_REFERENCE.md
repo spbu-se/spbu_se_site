@@ -62,7 +62,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 
 | Route | Method | View Function | Description |
 |---|---|---|---|
-| `/theses.html` | GET | `theses_search` | Thesis search with filters |
+| `/theses.html` | GET | `theses_search` | Thesis search with filters. Full-text search uses SQLite FTS5 virtual table `thesis_fts` (columns: name_ru, description, author, text). |
 | `/fetch_theses` | GET | `fetch_theses` | AJAX paginated thesis list |
 | `/post_theses` | GET, POST | `post_theses` | Upload new thesis |
 | `/theses_tmp.html` | GET | `theses_tmp` | List temp theses for review |
@@ -183,7 +183,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 
 | Route | Description |
 |---|---|
-| `/admin/` | Flask-Admin dashboard (shows thesis secret key). Access: role >= 2 |
+| `/admin/` | custom admin dashboard (shows thesis secret key). Access: role >= 2 |
 | `/admin/user/` | Users CRUD. Access: role >= 5 |
 | `/admin/staff/` | Staff CRUD. Access: role >= 5 |
 | `/admin/thesis/` | Thesis CRUD. Access: role >= 5 |

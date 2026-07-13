@@ -86,26 +86,6 @@ Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_
 | theses bad annotation | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
 | theses post_theses dev_key fails | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
 
-### Current xfails — strict=True (Flask-Admin 2.2.0 incompatibility)
-
-| Test | Count | Reason | Tracking |
-|------|-------|--------|----------|
-| admin list view (staff/thesis) | 2 | Flask-Admin 2.2.0 `create_view()` `cls` arg incompatible with Jinja2/Werkzeug | Upgrade to Flask-Admin 3.x |
-| admin edit view (staff) | 1 | Flask-Admin 2.2.0 `edit_view()` `cls` arg incompatible with Jinja2/Werkzeug | Upgrade to Flask-Admin 3.x |
-
-**Total xfail markers in code**: 13 (3 strict=True + 10 strict=False)
-
-### 4a. Intermittent CI failures — xfail strategy
-
-Tests that pass locally but fail intermittently on CI:
-
-- Use `strict=False` — a passing run does not count as failure.
-- Reason format: `"Intermittent CI failure: <brief symptom description>"`
-- Track in `TODO.md` tech debt with note linking to the test.
-- Reviewed every 3 months per the general xfail policy. If a test fails on >50% of CI runs across 2 consecutive review cycles, escalate from xfail to fix.
-
-Do NOT use `strict=False` for failures that reproduce locally — those are real bugs and must follow the zero-bug policy.
-
 ## 5. Xpassed Tests
 
 Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass is non-fatal): intermittent CI failures that happen to pass on this machine. Tracked in §4a's intermittent CI table. Check xpass count via `pytest --tb=no -q 2>&1 | Select-String "xpassed"`.
@@ -115,7 +95,7 @@ Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass i
 Architectural issues that limit test coverage and require production code changes to resolve:
 
 - **thesesImport module-level side effects**: `db.init_app(app)` at import time forces import-time monkeypatching in conftest, which breaks xdist isolation. Module-level `download` flag and direct `sys.exit()` calls also leak state between tests. Fix: refactor into a callable function with dependency injection. **Status**: mitigated — `try/except RuntimeError` guard in source + per-fixture Whoosh dirs, 22 stale xfails removed.
-- **Whoosh index threading**: Whoosh indexes are not thread-safe, limiting xdist to 2 workers. Tests that create new DB rows and immediately query Whoosh are inherently racy. **Status**: resolved — per-fixture WHOOSHEE_DIR tempdirs eliminate the filesystem race. `-n auto` safe.
+- **FTS5 index inside SQLite — no separate index management needed**
 - **OAuth external dependencies**: Full-flow VK and Google OAuth tests require external config files and network access. CI tests use mock stubs — real OAuth flow is only tested manually.
 - **Practice file upload branches**: Cyclomatic complexity in practice route handlers leaves ~30 untested code branches in file upload logic. Adding tests requires multipart fixture infrastructure.
 - **Notification templates missing** (2): `notification/thesis_on_review_success.html` does not exist. `test_reviewed_with_file` and `test_full_review_lifecycle` fail with `TemplateNotFound`. Pre-existing, unrelated to code changes.
@@ -136,7 +116,7 @@ What we explicitly do not test and why:
 ### APScheduler: background jobs fire during tests
 
 **When:** Running pytest — `SendMailNotification` fires every 10s against the test DB.
-**Cause:** `Flask-APScheduler` auto-starts at import time. Background jobs see the test DB with no tables.
+**Cause:** `BackgroundScheduler` auto-starts at import time. Background jobs see the test DB with no tables.
 **Fix:** Set `app.config["TESTING"] = True` before yielding the test client, or disable the scheduler in test fixtures.
 
 ### init_db: crashes on second call
@@ -144,12 +124,6 @@ What we explicitly do not test and why:
 **When:** Calling `init_db()` twice in the same test.
 **Cause:** `init_db()` runs `db.session.commit()` before `db.drop_all()`. If the session has expired objects from the first call, the flush crashes.
 **Fix:** Call `db.session.remove()` before the second `init_db()` call.
-
-### Whooshee: creates index directory in CWD
-
-**When:** Running any Whooshee-enabled query (thesis search).
-**Cause:** Whooshee creates its index at the configured path relative to CWD at query time.
-**Effect:** `whooshee/` directory appears at project root. Already in `.gitignore`.
 
 ### VK/Google OAuth: import crashes with missing deps
 

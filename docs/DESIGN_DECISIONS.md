@@ -13,11 +13,11 @@ Covers: technology stack choices, framework-specific decisions, implementation p
 | Framework | Flask 3.x | 2026-06-27 | Minimal, well-documented, sufficient for department-scale site |
 | ORM | SQLAlchemy 2.x | 2026-06-27 | Mature, feature-rich, Flask community standard |
 | Database | SQLite | 2026-06-27 | No server process, zero config, sufficient for concurrent usage |
-| Full-text search | Whooshee (Whoosh) | 2026-06-27 | Pure Python, no external service, lightweight |
+| Full-text search | SQLite FTS5 | 2026-07-12 | Zero-dependency, atomic (inside SQLite), trigger-friendly, no filesystem races |
 | Templates | Jinja2 | 2026-06-27 | Flask default, well-known |
-| Admin panel | Flask-Admin | 2026-06-27 | Quick CRUD, customizable, Flask-native |
+| Admin panel | Custom CRUD (flask_se_crud.py) | 2026-07-12 | Flask-Admin 2.2.0 unmaintained since 2022; custom gives full control with \<200 LOC base class |
 | Auth | Flask-Login + custom (email, VK, Google) | 2026-06-27 | Standard Flask auth stack |
-| Scheduler | APScheduler | 2026-06-27 | In-process scheduling, no external service needed |
+| Scheduler | APScheduler (BackgroundScheduler) | 2026-07-12 | Standalone BackgroundScheduler replaces Flask-APScheduler (unmaintained since 2020) |
 | Forms | WTForms | 2026-06-27 | Flask community standard, CSRF protection built-in |
 | Migrations | Flask-Migrate (Alembic) | 2026-06-27 | Schema evolution tracking |
 | Static assets | Quick Website theme (Bootstrap 4) | 2026-06-27 | Pre-existing design, responsive |
@@ -136,3 +136,33 @@ Covers: technology stack choices, framework-specific decisions, implementation p
 **Known occurrences**: `flask_se_auth.py:197` (register_basic), `flask_se_auth.py:239-242` (user_profile), `flask_se_review.py` (submit_thesis_on_review). All fixed.
 
 **Rationale**: `request.form.get()` returns `None` for absent fields. The `""` default converts `None` to a safe empty string before `.strip()` is called. The `type=str` parameter ensures consistent typing.
+
+## [2026-07-12] Flask 2.3 → 3.1 Migration
+
+**Context**: Flask 2.3.x reaches end-of-life. Flask 3.x drops `app.run()`, removes deprecated `Markup` re-export, and requires Werkzeug 3.x.
+
+**Decision**: Upgrade Flask from 2.3.3 to 3.1.3. Remove incompatible extensions: Flask-Markdown (replaced with custom `@app.template_filter("markdown")` using stdlib `markdown`), Flask-SimpleMDE (replaced with vendored JS), Flask-BasicAuth (unused). Replace `app.run()` with `werkzeug.serving.run_simple()`.
+
+**Rationale**: Flask 3.x is the current supported series. The removed extensions were all unmaintained. The custom markdown filter is \<10 LOC and supports the same `tables` extension.
+
+**Alternatives considered**: Pinning Flask 2.3.x — would accumulate security debt. Forking the extensions — unmaintainable.
+
+## [2026-07-12] SQLite FTS5 instead of Whoosh
+
+**Context**: Whoosh was a pure-Python full-text search library wrapped by Flask-Whooshee. Whoosh has filesystem race conditions (`EmptyIndexError`), slow rebuilds (~37s), and no updates since 2016. Flask-Whooshee is similarly unmaintained.
+
+**Decision**: Replace Whoosh/Flask-Whooshee with SQLite FTS5 virtual table (`thesis_fts`) with auto-sync triggers on INSERT/UPDATE/DELETE of the `thesis` table. Add `thesis_fts_search()` helper in `se_models.py`.
+
+**Rationale**: SQLite FTS5 is zero-dependency (built into SQLite), atomic (index is inside the DB), trigger-friendly, and has no filesystem races. Index rebuild is instant via `INSERT INTO thesis_fts(thesis_fts) VALUES('rebuild')`. The three-tier priority sorting (metadata match > text-only match) is preserved in Python.
+
+**Alternatives considered**: Elasticsearch — overkill for department-scale site. PostgreSQL full-text search — would require changing the database.
+
+## [2026-07-12] Custom Admin CRUD instead of Flask-Admin
+
+**Context**: Flask-Admin 2.2.0 (latest) is unmaintained since 2022. Three admin view test failures were xfailed due to Jinja2/Werkzeug incompatibility. No Flask-Admin 3.x release.
+
+**Decision**: Build custom `CrudView` base class in `flask_se_crud.py` (\<200 LOC) with 8 admin view subclasses. All 77 admin routes preserved at same URLs with same behavior.
+
+**Rationale**: Custom CRUD gives full control over template rendering, form handling, and access control. Eliminates an unmaintained security-critical dependency. The `CrudView` base class supports column lists, labels, choices, form overrides, form widgets, export, pagination, and role-based access.
+
+**Alternatives considered**: Flask-Appbuilder — powerful but overkill, adds its own security model and template system.

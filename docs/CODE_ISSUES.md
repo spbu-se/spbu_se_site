@@ -64,7 +64,7 @@ Fixed in session 5 — downgraded from `app.logger.error` to `app.logger.debug`.
 
 ## P4 — Deprecations
 
-### `flask_se.py:413-427` — `AdminModelView` passes `db.session` instead of `db` [PENDING]
+### `flask_se.py:413-427` — `AdminModelView` passes `db.session` instead of `db` [RESOLVED — Flask-Admin removed in PR #11]
 
 Flask-Admin 3.0 may require `db` (SQLAlchemy instance) instead of `db.session` (scoped session). Current version 2.2.0 accepts both. Verify on upgrade.
 
