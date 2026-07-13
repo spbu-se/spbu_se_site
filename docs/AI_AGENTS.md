@@ -102,6 +102,33 @@ could have been avoided by a local pre-push check:
 
 For progress reports during a session, follow the same structure: lead with timing, then bullet items. Less formal — omit the TODO.md heading wrapper.
 
+### PR description (squash-merge)
+
+Use for `gh pr create` descriptions on feature branches merged via `gh pr merge --squash` (see `docs/GIT_FLOW.md §2.1`).
+
+```
+## Summary
+
+<One-paragraph high-level description of what changed and why>
+
+**Timing: estimated as <planning estimate>, but <wall clock> wall clock elapsed**
+<optional one-line context>
+
+### Changes
+
+**<Category header, bolded>**:
+- <item 1>
+- <item 2>
+
+**<Category header, bolded>**:
+- ...
+
+### <Section header if needed (e.g. "Testing")>
+
+- <N> tests pass, <M> failures
+- CI: <list of green checks>
+```
+
 ## Communication with user
 
 If "why" is not obvious or could be ambiguous given the user's known decisions, ask before proceeding.
