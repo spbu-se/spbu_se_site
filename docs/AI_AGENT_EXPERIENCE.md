@@ -277,3 +277,45 @@ times out. Have a log-capture strategy ready. Never assume success.
 1. "How will I diagnose it?" (capture stderr, save partial output to file)
 1. "What's my fallback?" (increase timeout, use different flag directly)
 1. Check the tool is in PATH / available via `uv run` before running
+
+## Cp1251 double-encoding mojibake detection
+
+**When:** After fixing encoding corruption, or when Russian text appears garbled in templates/pages.
+
+**Pattern:** UTF-8 encoded Cyrillic was misinterpreted as Windows-1251 (cp1251), then re-saved as UTF-8. This produces specific garbled characters.
+
+**Detection scan (Python):**
+
+```python
+import os
+
+# Characters that appear in cp1251 double-encoding but NOT in valid Russian
+MOJI_INDICATORS = [
+    '\u00b5',  # µ (cp1251 0xb5)
+    '\u00b0',  # ° (cp1251 0xb0)
+    '\u00b1',  # ± (cp1251 0xb1)
+    '\u00b2',  # ² (cp1251 0xb2)
+    '\u201a',  # ‚ (cp1251 0x82)
+    '\u2021',  # ‡ (cp1251 0x87)
+    '\u2019',  # ' (cp1251 0x92)
+    '\u2018',  # ' (cp1251 0x91)
+    '\u2039',  # ‹ (cp1251 0x8b)
+]
+
+for root, dirs, files in os.walk('src'):
+    for fname in files:
+        if not fname.endswith('.py'):
+            continue
+        with open(os.path.join(root, fname)) as f:
+            for i, line in enumerate(f, 1):
+                for ind in MOJI_INDICATORS:
+                    if ind in line and 'import' not in line:
+                        print(f'{fname}:{i}: {repr(ind)}')
+```
+
+**Fix strategy:**
+1. Most strings: `mojibake_string.encode('cp1251').decode('utf-8')` works
+2. Failed strings: manually reconstruct from context (byte 0x98 unmapped, apostrophe corruption)
+3. Also scan test files — assertions may contain mojibake from copy-paste
+
+**Known limitation:** `ftfy` doesn't catch all cp1251 patterns (unmapped bytes, character substitution). Manual verification needed.

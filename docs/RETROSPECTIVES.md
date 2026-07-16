@@ -555,3 +555,60 @@ Three branches merged: `docs/knowledge-reorg`, `fix/whoosh-cache`, `docs/audit-f
 - .opencode/skills/: 15/15 stubs (was 11/15)
 - Hardcoded metrics removed from: README, DESIGN_DECISIONS, CODE_ISSUES, TESTING
 - Docs verified against code: ARCHITECTURE (module map), SCHEMA (all fields), API_REFERENCE (all routes), DESIGN_DECISIONS (Python version), TESTING (xfail table)
+
+### Retrospective — 2026-07-16: incomplete mojibake fix, pattern recurrence
+
+**What happened**: Continued mojibake fix from 2026-07-10 session. The previous `ftfy`-based fix (commit `b00583e`) touched 25+ files but missed several strings. This session fixed remaining mojibake in 11 source files + 1 test file, using cp1251→UTF-8 decode for most strings and manual reconstruction for corrupted bytes (0x98, apostrophe corruption).
+
+**Files fixed** (this session):
+- `src/flask_se_practice.py` — time words (минут, дня), select labels (Выберите ×3)
+- `src/flask_se_practice_admin.py` — notification text (на), select label (Выберите)
+- `src/flask_se_practice_table.py` — cell values (да ×4)
+- `src/flask_se_practice_yandex_disk.py` — 3 flash messages
+- `src/flask_se_summer_schools.py` — all 4 school dictionaries (2021-2026)
+- `src/se_sendmail.py` — sender string, email subject, body
+- `src/thesesImport.py` — supervisor name (Кознов ×2)
+- `tests/test_practice_table_deep.py` — updated test assertions
+
+**Gaps found**:
+
+| Gap | Type | Fix |
+|-----|------|-----|
+| Previous ftfy fix missed 11 files with mojibake | Pattern recurrence (2nd) — 2026-07-10 fix was incomplete | Fixed remaining files. Added comprehensive mojibake scan to post-fix verification. |
+| No automated mojibake detection in pre-commit or CI | Missing config | Needs `detect-encoding` or custom cp1251-pattern hook — deferred |
+| Test assertions contained mojibake (`assert ... == "РґР°"`) | Human error — test data inherited corrupted strings | Fixed test assertions. Proactive test-file scan added to verification step. |
+| Summer schools file had duplicate `schools = {` after bulk replace | Human error — Python script appended duplicate line | Caught and fixed immediately during verification |
+
+**Pattern recurrence**: **YES** — mojibake fix from 2026-07-10 was incomplete. The ftfy tool apparently missed strings where the corruption involved unmapped bytes (0x98) or character substitution (apostrophe replacing 0x82). Previous fix was L3 (code change) but lacked verification step. This session added L3 fix + comprehensive scan. If this recurs, escalate to L2 (pre-commit hook).
+
+**What went well**:
+- Comprehensive scan at end caught 2 additional files (flask_se_practice_table.py, flask_se_practice_admin.py) not in original task list
+- Python scripts for bulk decoding saved significant time
+- Test failure immediately identified the root cause (test assertions contained mojibake)
+- All 1110 tests pass after fix
+
+**What went wrong**:
+- Previous session's ftfy fix was incomplete — 11 files still had mojibake
+- No automated way to verify mojibake-free state — relied on manual scan
+- The 2026-07-10 retro noted "28/28 practice_preparation pass" but didn't verify ALL mojibake was fixed
+
+**Root causes**:
+
+1. **Incomplete fix verification** — previous session fixed mojibake but didn't run a comprehensive scan to confirm zero remaining corruption
+2. **No encoding validation tooling** — pre-commit and CI have no mojibake detection
+3. **ftfy limitations** — the tool doesn't handle all cp1251 double-encoding patterns (unmapped bytes, character substitution)
+
+**Fix**:
+- Added comprehensive mojibake scan (check for cp1251 indicator characters) to verification workflow
+- If recurrence: add `detect-encoding` pre-commit hook or custom Python script
+
+**Knowledge extracted**:
+- cp1251 double-encoding detection pattern: scan for chars in 0x80-0x9F Unicode range (°, ±, ², ‚, ‡, ', ', ‹) appearing in Python string literals
+- Manual reconstruction needed for: byte 0x98 (unmapped in cp1251), apostrophe (U+0027) replacing 0x82 corruption
+
+**State at handoff**:
+- Tests: 1110 passed, 1 skipped, 7 xfailed, 5 xpassed
+- Coverage: 92%
+- basedpyright: 0 errors
+- CI: pre-push passes (basedpyright clean; format check has pre-existing powershell-not-found issue on Linux)
+- Branch: `fix/mojibake-all-pages` — 1 commit ahead of `origin/staging`, ready for PR
