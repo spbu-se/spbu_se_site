@@ -75,9 +75,7 @@ def notification_send_diploma_themes_on_review() -> None:
     ]
 
     message = MIMEMultipart("alternative")
-    message["Subject"] = (
-        "[SE site] Есть неутвержённые темы учебных практик и ВКР "
-    )
+    message["Subject"] = "[SE site] Есть неутвержённые темы учебных практик и ВКР "
     message["From"] = MAIL_DEFAULT_SENDER
     message["To"] = "ilya@hackerdom.ru"
     message["CC"] = ", ".join(recipients)

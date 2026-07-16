@@ -314,8 +314,9 @@ for root, dirs, files in os.walk('src'):
 ```
 
 **Fix strategy:**
+
 1. Most strings: `mojibake_string.encode('cp1251').decode('utf-8')` works
-2. Failed strings: manually reconstruct from context (byte 0x98 unmapped, apostrophe corruption)
-3. Also scan test files — assertions may contain mojibake from copy-paste
+1. Failed strings: manually reconstruct from context (byte 0x98 unmapped, apostrophe corruption)
+1. Also scan test files — assertions may contain mojibake from copy-paste
 
 **Known limitation:** `ftfy` doesn't catch all cp1251 patterns (unmapped bytes, character substitution). Manual verification needed.
