@@ -138,14 +138,14 @@ def practice_new_thesis():
             return redirect(url_for("practice_choosing_topic", id=new_thesis.id))
 
     form = CurrentWorktypeArea()
-    area_choices: list[tuple[int, str]] = [(0, "Р'ыберите направление")]
+    area_choices: list[tuple[int, str]] = [(0, "Выберите направление")]
     area_choices.extend(
         (area.id, area.area)
         for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by("id").all()
     )
     form.area.choices = area_choices
 
-    worktype_choices: list[tuple[int, str]] = [(0, "Р'ыберите тип работы")]
+    worktype_choices: list[tuple[int, str]] = [(0, "Выберите тип работы")]
     worktype_choices.extend(
         (worktype.id, worktype.type) for worktype in Worktype.query.filter(Worktype.id > 2).all()
     )
@@ -208,7 +208,7 @@ def practice_choosing_topic(current_thesis):
     )
 
     form = ChooseTopic()
-    staff_choices: list[tuple[int, str]] = [(0, "Р'ыберите научного руководителя")]
+    staff_choices: list[tuple[int, str]] = [(0, "Выберите научного руководителя")]
     staff_choices.extend(
         (supervisor.id, supervisor.user.get_name())
         for supervisor in Staff.query.join(Users, Staff.user_id == Users.id)
@@ -824,7 +824,7 @@ def get_remaining_time(deadline, type_deadline):
         elif minutes % 10 in {2, 3, 4} and minutes % 100 // 10 != 1:
             remaining_time = (minutes, "минуты", "danger")
         else:
-            remaining_time = (minutes, "РјРёРЅСѓС'", "danger")
+            remaining_time = (minutes, "минут", "danger")
     elif remaining_time_timedelta.days < 1:
         hours = remaining_time_timedelta.seconds // 3600
         if hours in {1, 21}:
@@ -840,7 +840,7 @@ def get_remaining_time(deadline, type_deadline):
         elif days % 10 == 1:
             word_for_time = "день"
         elif days % 10 in {2, 3, 4}:
-            word_for_time = "РґРЅСЏ"
+            word_for_time = "дня"
         else:
             word_for_time = "дней"
 

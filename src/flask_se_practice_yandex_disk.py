@@ -83,7 +83,7 @@ def yandex_code():
     token = get_token(code)
     disk = yadisk.YaDisk(token=token)  # pyright: ignore[reportArgumentType]
     if not disk.check_token():
-        flash("РќРµРІРµСЂРЅС‹Р№ С‚РѕРєРµРЅ РґР»СЏ РЇРЅРґРµРєСЃ Р”РёСЃРєР°", category="error")
+        flash("Неверный токен для Яндекс Диска", category="error")
         return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))
 
     table_path = session.get("table_path")
@@ -107,7 +107,7 @@ def yandex_code():
             disk.upload(full_filename, table_path or "", overwrite=True)
         except yadisk.exceptions.ParentNotFoundError:
             flash(
-                "РЈРєР°Р·Р°РЅРЅС‹Р№ РїСѓС‚СЊ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РЅР° РґРёСЃРєРµ",
+                "Указанный путь не существует на диске",
                 category="error",
             )
 
@@ -117,7 +117,7 @@ def yandex_code():
             flash(str(message), category="error")
     else:
         flash(
-            "РўР°Р±Р»РёС†Р° СѓСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅР° РЅР° РЇРЅРґРµРєСЃ Р”РёСЃРє",
+            "Таблица успешно загружена на Яндекс Диск",
             category="success",
         )
     return redirect(url_for("index_admin", area_id=area_id, worktype_id=worktype_id))

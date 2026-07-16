@@ -304,7 +304,7 @@ def thesis_admin():
             new_title = request.form["title_input"]
             notification_content = (
                 "Руководитель практики изменил название Вашей работы "
-                f'"{current_thesis.title}" РЅР° "{new_title}"'
+                f'"{current_thesis.title}" на "{new_title}"'
             )
             current_thesis.title = new_title
             add_mail_notification(
@@ -486,7 +486,7 @@ def archive_thesis():
     list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     course_and_year_form = ChooseCourseAndYear()
-    course_choices: list[tuple[int, str]] = [(0, "Р'ыберите направление")]
+    course_choices: list[tuple[int, str]] = [(0, "Выберите направление")]
     course_choices.extend((course.id, course.name) for course in Courses.query.all())
     course_and_year_form.course.choices = course_choices
 

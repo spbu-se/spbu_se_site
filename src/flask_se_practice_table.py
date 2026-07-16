@@ -157,23 +157,23 @@ def add_new_data_to_table(
     update_if_cell_is_empty(row, column_names["supervisor"], current_thesis.supervisor)  # pyright: ignore[reportAttributeAccessIssue]
     update_if_cell_is_empty(row, column_names["consultant"], current_thesis.consultant)
     update_if_cell_is_empty(row, column_names["how_to_contact"], user.how_to_contact)
-    update_if_cell_is_empty(row, column_names["text"], "РґР°" if current_thesis.text_uri else "")
+    update_if_cell_is_empty(row, column_names["text"], "да" if current_thesis.text_uri else "")
     update_if_cell_is_empty(
         row,
         column_names["supervisor_review"],
-        "РґР°" if current_thesis.supervisor_review_uri else "",
+        "да" if current_thesis.supervisor_review_uri else "",
     )
     update_if_cell_is_empty(
         row,
         column_names["reviewer_review"],
-        "РґР°" if current_thesis.reviewer_review_uri else "",
+        "да" if current_thesis.reviewer_review_uri else "",
     )
     update_if_cell_is_empty(row, column_names["code"], current_thesis.code_link)
     update_if_cell_is_empty(row, column_names["committer"], current_thesis.account_name)
     update_if_cell_is_empty(
         row,
         column_names["presentation"],
-        "РґР°" if current_thesis.presentation_uri else "",
+        "да" if current_thesis.presentation_uri else "",
     )
 
 

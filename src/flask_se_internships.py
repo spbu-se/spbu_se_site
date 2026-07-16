@@ -39,13 +39,13 @@ def internships_index():
         {(y.id, y.tag) for x in Internships.query.all() for y in x.tag},
         key=lambda x: x[1],
     )
-    tag_choices.insert(0, (0, "Р'СЃРµ"))
+    tag_choices.insert(0, (0, "Все"))
     internship_filter.tag.choices = tag_choices
 
-    format_choices.insert(0, (0, "Р'СЃРµ"))
+    format_choices.insert(0, (0, "Все"))
     internship_filter.format.choices = format_choices
 
-    company_choices.insert(0, (0, "Р'СЃРµ"))
+    company_choices.insert(0, (0, "Все"))
     internship_filter.company.choices = company_choices
 
     internships = Internships.query.all()

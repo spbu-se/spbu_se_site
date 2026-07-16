@@ -213,12 +213,12 @@ class TestAddNewDataToTable:
         assert row[columns["supervisor"]] == "Dr. Smith"
         assert row[columns["consultant"]] == "Dr. Jones"
         assert row[columns["how_to_contact"]] == u.how_to_contact
-        assert row[columns["text"]] == "РґР°"
-        assert row[columns["supervisor_review"]] == "РґР°"
-        assert row[columns["reviewer_review"]] == "РґР°"
+        assert row[columns["text"]] == "да"
+        assert row[columns["supervisor_review"]] == "да"
+        assert row[columns["reviewer_review"]] == "да"
         assert row[columns["code"]] == "https://github.com/test"
         assert row[columns["committer"]] == "testuser"
-        assert row[columns["presentation"]] == "РґР°"
+        assert row[columns["presentation"]] == "да"
 
     def test_add_data_empty_uris(self, app_ctx):
         from flask_se_practice_config import TABLE_COLUMNS
@@ -383,9 +383,7 @@ class TestEditTable:
         with (
             patch("flask_se_practice_table.read_table", return_value=mock_df),
             patch("flask_se_practice_table.find_user") as mock_find,
-            patch(
-                "flask_se_practice_table.find_current_thesis", return_value=None
-            ) as mock_ct,
+            patch("flask_se_practice_table.find_current_thesis", return_value=None) as mock_ct,
             patch("flask_se_practice_table.get_all_thesises", return_value=[]),
             patch("flask_se_practice_table.pd.ExcelWriter"),
             app.test_request_context(),

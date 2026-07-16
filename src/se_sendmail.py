@@ -8,7 +8,7 @@ from flask_se_config import MAIL_PASSWORD
 from se_models import DiplomaThemes, Notification, Users, db
 
 MAIL_DEFAULT_SENDER = "sysprog_notification@spbu.ru"
-MAIL_DEFAULT_SENDER_STRING = "SE СѓРІРµРґРѕРјР»РµРЅРёСЏ <sysprog_notification@spbu.ru>"
+MAIL_DEFAULT_SENDER_STRING = "SE уведомления <sysprog_notification@spbu.ru>"
 
 
 def notification_send_mail() -> None:
@@ -76,14 +76,14 @@ def notification_send_diploma_themes_on_review() -> None:
 
     message = MIMEMultipart("alternative")
     message["Subject"] = (
-        "[SE site] Р•СЃС‚СЊ РЅРµРѕРґРѕР±СЂРµРЅРЅС‹Рµ С‚РµРјС‹ СѓС‡РµР±РЅС‹С… РїСЂР°РєС‚РёРє Рё Р’РљР "
+        "[SE site] Есть неутвержённые темы учебных практик и ВКР "
     )
     message["From"] = MAIL_DEFAULT_SENDER
     message["To"] = "ilya@hackerdom.ru"
     message["CC"] = ", ".join(recipients)
 
     data = f"""
-    РЎРµР№С‡Р°СЃ РЅР° СЃР°Р№С‚Рµ {diploma_themes_on_review_count} С‚РµРј РЅР°С…РѕРґСЏС‚СЃСЏ РЅР° РїСЂРѕРІРµСЂРєРµ (<a href="https://se.math.spbu.ru/admin/reviewdiplomathemes/" target="_blank">РџСЂРѕРІРµСЂРєР° С‚РµРј</a>).
+    Сейчас на сайте {diploma_themes_on_review_count} тем находятся на проверке (<a href="https://se.math.spbu.ru/admin/reviewdiplomathemes/" target="_blank">Проверка тем</a>).
     """
 
     part1 = MIMEText(data, "plain")

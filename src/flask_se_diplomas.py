@@ -33,7 +33,7 @@ def diplomas_index():
         if (company := Company.query.filter_by(id=sid[0]).first()) is not None
     ]
     company_choices.sort(key=lambda tup: tup[1])
-    diploma_filter.company.choices = [(0, "Р'СЃРµ"), *company_choices]  # pyright: ignore[reportAttributeAccessIssue]
+    diploma_filter.company.choices = [(0, "Все"), *company_choices]  # pyright: ignore[reportAttributeAccessIssue]
 
     supervisor_choices = []
     for sid in (
@@ -66,11 +66,11 @@ def diplomas_index():
         supervisor_choices.append((sid[0], last_name + " " + initials))
 
     supervisor_choices.sort(key=lambda tup: tup[1])
-    diploma_filter.supervisor.choices = [(0, "Р'СЃРµ"), *supervisor_choices]  # pyright: ignore[reportAttributeAccessIssue]
+    diploma_filter.supervisor.choices = [(0, "Все"), *supervisor_choices]  # pyright: ignore[reportAttributeAccessIssue]
 
     level_choices = [(sid.id, sid.level) for sid in ThemesLevel.query.all()]
     level_choices.sort(key=lambda tup: tup[1])
-    diploma_filter.level.choices = [(0, "Р'СЃРµ"), *level_choices]  # pyright: ignore[reportAttributeAccessIssue]
+    diploma_filter.level.choices = [(0, "Все"), *level_choices]  # pyright: ignore[reportAttributeAccessIssue]
 
     if current_user.is_authenticated:
         user = current_user

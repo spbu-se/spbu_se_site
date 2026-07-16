@@ -80,9 +80,9 @@ def theses_search():
         supervisor_choices.append((sid[0], last_name + " " + initials))
 
     supervisor_choices.sort(key=lambda tup: tup[1])
-    filter.supervisor.choices = [(0, "Р'СЃРµ"), *supervisor_choices]  # pyright: ignore[reportAttributeAccessIssue]
-    filter.course.choices = [(0, "Р'СЃРµ"), *course_choices]  # pyright: ignore[reportAttributeAccessIssue]
-    filter.worktype.choices = [(0, "Р'СЃРµ"), *worktype_choices]  # pyright: ignore[reportAttributeAccessIssue]
+    filter.supervisor.choices = [(0, "Все"), *supervisor_choices]  # pyright: ignore[reportAttributeAccessIssue]
+    filter.course.choices = [(0, "Все"), *course_choices]  # pyright: ignore[reportAttributeAccessIssue]
+    filter.worktype.choices = [(0, "Все"), *worktype_choices]  # pyright: ignore[reportAttributeAccessIssue]
 
     return render_template("theses.html", filter=filter, hint=hint)
 
@@ -210,7 +210,7 @@ def get_text(filename):
         page = doc.load_page(current_page)
         text += page.get_text("text").lower() + "\n"  # pyright: ignore[reportAttributeAccessIssue]
         text = text.replace("-\n", "")
-        text = re.sub(r"[^a-z Р°-СЏ \n : / . () # - ]", "", text)
+        text = re.sub(r"[^a-z а-я \n : / . () # - ]", "", text)
 
     return text
 
