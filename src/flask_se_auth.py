@@ -40,7 +40,11 @@ login_manager.login_view = "login_index"  # pyright: ignore[reportAttributeAcces
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 GOOGLE_CLIENT_ID = "593053078492-i6hf335m9hm0vtj23df62q09j07esbhu.apps.googleusercontent.com"
+# Hack: the flask_se app does not follow application factory pattern, so at this point we
+# do not know the environment we are running in. Try prod then test.
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_google.json")
+if not os.path.isfile(client_secrets_file):
+    client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_google_test.json")
 
 
 @login_manager.user_loader
