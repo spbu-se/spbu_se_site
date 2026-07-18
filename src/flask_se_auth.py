@@ -94,14 +94,10 @@ def login_index():
         user = Users.query.filter_by(email=email).first()
         if user:
             password_hash = user.password_hash
-            if (
-                (password_hash is not None)
-                and password_hash.startswith("pbkdf2")
-                and check_password_hash(password_hash, password)  # pyright: ignore[reportArgumentType]
-            ):
-                login_user(user, remember=True)
-                return redirect_next_url(fallback=url_for("user_profile"))
-            if (password_hash is not None) and (not password_hash.startswith("pbkdf2")):
+            if password_hash is not None:
+                if check_password_hash(password_hash, password):  # pyright: ignore[reportArgumentType]
+                    login_user(user, remember=True)
+                    return redirect_next_url(fallback=url_for("user_profile"))
                 hs = password_hash.split("$")
                 if (
                     len(hs) == 3

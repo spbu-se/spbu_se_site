@@ -2879,7 +2879,7 @@ def init_db() -> None:
     for user in users:
         u = Users(
             email=user["email"],
-            password_hash=generate_password_hash(urandom(16).hex()),
+            password_hash=generate_password_hash(urandom(16).hex(), method="pbkdf2:sha256"),
             first_name=user["first_name"],
             last_name=user["last_name"],
             middle_name=user["middle_name"],
