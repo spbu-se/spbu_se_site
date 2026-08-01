@@ -325,9 +325,9 @@ for root, dirs, files in os.walk('src'):
 
 **When:** Merging a PR into `spbu-se/spbu_se_site` `current` branch, which has a merge queue (SQUASH/ALLGREEN) configured via branch protection.
 
-**Pattern:** `gh pr merge <n> --squash` fails with "The merge strategy for current is set by the merge queue". `mergeStateStatus` is `BLOCKED` with `reviewDecision: REVIEW_REQUIRED` even though all required checks pass and the author has branch bypass allowance. The author (iakov) cannot approve their own PR (`Review can not approve your own pull request`), so the queue never unblocks.
+**Pattern:** `gh pr merge <n> --squash` fails with "The merge strategy for current is set by the merge queue". `mergeStateStatus` is `BLOCKED` with `reviewDecision: REVIEW_REQUIRED` even though all required checks pass and the author has branch bypass allowance. The PR author cannot approve their own pull request (`Review can not approve your own pull request`), so the queue never unblocks.
 
-**Workaround:** `gh pr merge <n> --repo <owner>/<repo>` with **no strategy flag** enqueues the PR into the merge queue; the queue then merges with its configured method (SQUASH). For iakov-authored PRs the bypass allowance allows the queue merge without a separate approver. PR #183 was merged this way.
+**Workaround:** `gh pr merge <n> --repo <owner>/<repo>` with **no strategy flag** enqueues the PR into the merge queue; the queue then merges with its configured method (SQUASH). For PRs authored by the account holding bypass allowance, the queue merge proceeds without a separate approver. PR #183 was merged this way.
 
 **After squash-merge:** the head branch's commits are rewritten into one commit on `current`; the fork's `staging`/`current` must be re-synced with `git reset --hard origin/current` + `--force-with-lease` push (content-identical, divergent history).
 

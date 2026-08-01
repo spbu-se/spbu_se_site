@@ -660,13 +660,13 @@ This session covered upstream sync, package refresh, bug fixes, and a comprehens
 
 1. **Windows encoding quirk** — `uv export` on Windows writes UTF-8 BOM; pre-push `validate-requirements` hook reads with `utf-8-sig` which crashes on byte 0xFF (UTF-16 BOM misinterpreted)
 1. **Insufficient testing of legacy redirects** — didn't verify that multiple paths to same endpoint would conflict
-1. **Missing `gh repo set-default`** — PR creation failed because the default repo was spbu-se/spbu_se_site (upstream), not iakov/spbu_se_site (fork)
+1. **Missing `gh repo set-default`** — PR creation failed because the default repo was spbu-se/spbu_se_site (upstream), not the fork's `spbu_se_site`
 
 **Fix**:
 
 - Added BOM stripping (`[System.IO.File]::WriteAllBytes` without BOM) to requirements.txt export workflow
 - Legacy redirects now use unique path-derived endpoint names (`_ep_name = "legacy_" + _legacy_path.strip("/").replace(...)`)
-- `gh repo set-default iakov/spbu_se_site` now set in the local checkout
+- `gh repo set-default` now points at the fork in the local checkout
 
 **Knowledge extracted**:
 
