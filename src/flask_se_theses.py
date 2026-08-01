@@ -12,12 +12,22 @@ import fitz
 from flask import jsonify, redirect, render_template, request, url_for
 from transliterate import translit
 
-from flask_se_config import SECRET_KEY_THESIS, type_id_string
+from flask_se_config import SECRET_KEY_THESIS, secure_filename, type_id_string
 from flask_se_practice_config import _paginate
 from se_forms import ThesisFilter
 from se_models import Courses, Staff, Thesis, Users, Worktype, db, thesis_fts_search
 
 log = logging.getLogger("flask_se.sub")
+
+_safe_ext_re = re.compile(r"^\.[A-Za-z0-9]{1,10}$")
+
+
+def _safe_extension(filename: str | None) -> str:
+    path = urlparse(filename or "").path
+    extension = splitext(path)[1]
+    if _safe_ext_re.fullmatch(extension):
+        return extension
+    return ""
 
 
 def theses_search():
@@ -318,15 +328,12 @@ def post_theses():
             string="Can't find supervisor in users: " + str(supervisor),
         )
 
-    author_en = translit(author, "ru", reversed=True)
-    author_en = author_en.replace(" ", "_")
+    author_en = secure_filename(translit(author, "ru", reversed=True).replace(" ", "_"))
     thesis_filename = author_en
     thesis_filename = thesis_filename + "_" + type_id_string[type_id - 1]
     thesis_filename = thesis_filename + "_" + str(publish_year) + "_text"
 
-    path = urlparse(thesis_text.filename).path
-    extension = splitext(path)[1]
-    thesis_filename = thesis_filename + extension
+    thesis_filename = thesis_filename + _safe_extension(thesis_text.filename)
 
     # Before we going on, check if this thesis already exists?
     records = Thesis.query.filter_by(text_uri=thesis_filename)
@@ -343,9 +350,7 @@ def post_theses():
         presentation_filename = presentation_filename + "_" + type_id_string[type_id - 1]
         presentation_filename = presentation_filename + "_" + str(publish_year) + "_slides"
 
-        path = urlparse(presentation.filename).path
-        extension = splitext(path)[1]
-        presentation_filename = presentation_filename + extension
+        presentation_filename = presentation_filename + _safe_extension(presentation.filename)
 
         presentation.save(os.path.join("./static/tmp/slides/", presentation_filename))
 
@@ -356,9 +361,9 @@ def post_theses():
             supervisor_review_filename + "_" + str(publish_year) + "_supervisor_review"
         )
 
-        path = urlparse(supervisor_review.filename).path
-        extension = splitext(path)[1]
-        supervisor_review_filename = supervisor_review_filename + extension
+        supervisor_review_filename = supervisor_review_filename + _safe_extension(
+            supervisor_review.filename,
+        )
 
         supervisor_review.save(os.path.join("./static/tmp/reviews/", supervisor_review_filename))
 
@@ -369,9 +374,9 @@ def post_theses():
             reviewer_review_filename + "_" + str(publish_year) + "_reviewer_review"
         )
 
-        path = urlparse(reviewer_review.filename).path
-        extension = splitext(path)[1]
-        reviewer_review_filename = reviewer_review_filename + extension
+        reviewer_review_filename = reviewer_review_filename + _safe_extension(
+            reviewer_review.filename,
+        )
 
         reviewer_review.save(os.path.join("./static/tmp/reviews/", reviewer_review_filename))
 

@@ -11,6 +11,17 @@ from flask_se_config import get_hours_since, plural_hours, post_ranking_score
 from se_models import Posts, PostVote, db
 
 
+def _safe_referrer():
+    referrer = request.referrer or ""
+    try:
+        parts = urlparse(referrer)
+    except ValueError:
+        return None
+    if parts.netloc and parts.netloc != request.host:
+        return None
+    return referrer or None
+
+
 def list_news():
     page = request.args.get("page", default=1, type=int)
     news = Posts.query.order_by(Posts.rank.desc()).paginate(per_page=20, page=page, error_out=False)
@@ -53,7 +64,7 @@ def post_vote():
 
     if post.author.id == current_user.id:
         flash("Нельзя голосовать за свой пост!", category="error")
-        return redirect(request.referrer or "")
+        return redirect(_safe_referrer() or url_for("index"))
 
     vote = PostVote.query.filter_by(user=current_user, post=post).first()
 
@@ -71,9 +82,9 @@ def post_vote():
             post.rank = post_ranking_score(post.votes, age, post.views)
             db.session.commit()
 
-            return redirect(request.referrer or "")
+            return redirect(_safe_referrer() or url_for("index"))
         flash("Вы уже проголосовали за этот пост!", category="error")
-        return redirect(request.referrer or "")
+        return redirect(_safe_referrer() or url_for("index"))
 
     vote = PostVote(user=current_user, post=post, upvote=bool(int(action_vote or 0)))  # pyright: ignore[reportCallIssue]
 
@@ -88,7 +99,7 @@ def post_vote():
 
     db.session.add(vote)
     db.session.commit()
-    return redirect(request.referrer or "")
+    return redirect(_safe_referrer() or url_for("index"))
 
 
 @login_required

@@ -116,20 +116,20 @@ def submit_thesis_on_review():
 
         if not title:
             flash("Укажите название вашей работы", "error")
-            return redirect(request.url)
+            return redirect(url_for("submit_thesis_on_review"))
 
         if worktype <= 0 or worktype > ThesisOnReviewWorktype.query.distinct().count():
             flash("Укажите тип работы", "error")
-            return redirect(request.url)
+            return redirect(url_for("submit_thesis_on_review"))
 
         if area_of_study <= 0 or area_of_study > AreasOfStudy.query.distinct().count():
             flash("Укажите направление вашего обучения", "error")
-            return redirect(request.url)
+            return redirect(url_for("submit_thesis_on_review"))
 
         # check if the post request has the file part
         if "thesis" not in request.files:
             flash("Вы не загрузили файл с работой", "error")
-            return redirect(request.url)
+            return redirect(url_for("submit_thesis_on_review"))
 
         file = request.files["thesis"]
         # If the user does not select a file, the browser submits an
@@ -139,7 +139,7 @@ def submit_thesis_on_review():
                 "Укажите файл с вашей работой для загрузки",
                 "error",
             )
-            return redirect(request.url)
+            return redirect(url_for("submit_thesis_on_review"))
 
         if file and allowed_file(file.filename):
             author_en = translit(author, "ru", reversed=True)
@@ -180,7 +180,7 @@ def submit_thesis_on_review():
             )
             return redirect(url_for("thesis_review_index"))
         flash("Текст работы должен быть в формате .PDF", "error")
-        return redirect(request.url)
+        return redirect(url_for("submit_thesis_on_review"))
 
     type_choices = [(0, "Тип работы")]
     type_choices += [
@@ -223,7 +223,9 @@ def edit_thesis_on_review():
 
         if not title:
             flash("Укажите название вашей работы", "error")
-            return redirect(request.url)
+            return redirect(
+                url_for("edit_thesis_on_review", thesis_review_id=thesis_review_id),
+            )
 
         title = title.strip()
         author = thesis_review.author.get_name()
@@ -234,11 +236,15 @@ def edit_thesis_on_review():
             or worktype > ThesisOnReviewWorktype.query.distinct().count()
         ):
             flash("Укажите тип работы", "error")
-            return redirect(request.url)
+            return redirect(
+                url_for("edit_thesis_on_review", thesis_review_id=thesis_review_id),
+            )
 
         if not area or area <= 0 or area > AreasOfStudy.query.distinct().count():
             flash("Укажите направление вашего обучения", "error")
-            return redirect(request.url)
+            return redirect(
+                url_for("edit_thesis_on_review", thesis_review_id=thesis_review_id),
+            )
 
         thesis_review.name_ru = title
         thesis_review.author_id = user.id
@@ -283,7 +289,9 @@ def edit_thesis_on_review():
                         "Текст работы должен быть в формате .PDF",
                         "error",
                     )
-                    return redirect(request.url)
+                    return redirect(
+                        url_for("edit_thesis_on_review", thesis_review_id=thesis_review_id),
+                    )
 
         thesis_review.review_status = 1
         db.session.commit()

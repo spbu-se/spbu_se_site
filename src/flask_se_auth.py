@@ -292,6 +292,11 @@ def upload_avatar():
             filename = secure_filename(file.filename)  # pyright: ignore[reportArgumentType]
             new_filename = os.urandom(16).hex()
             _f, ext = os.path.splitext(filename)
+            ext = ext.lower()
+
+            if ext not in {".jpg", ".jpeg", ".png", ".bmp"}:
+                flash("Unsupported file type")
+                return redirect(request.url)
 
             if ext in [".jpg", ".jpeg"]:
                 file.save(os.path.join(UPLOAD_FOLDER + "/" + new_filename + ".jpg"))
