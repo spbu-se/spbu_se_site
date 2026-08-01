@@ -573,6 +573,42 @@ def sitemap():
     return response
 
 
+# Legacy URL redirects (301) — preserve backwards compatibility
+_LEGACY_REDIRECTS = {
+    "/auth/login": "login_index",
+    "/auth/profile": "user_profile",
+    "/auth/logout": "logout",
+    "/department_staff": "department_staff",
+    "/department_staff.html": "department_staff",
+    "/students.html": "students",
+    "/students_scholarships.html": "scholarships",
+    "/frequently_asked_questions.html": "frequently_asked_questions",
+    "/news.html": "list_news",
+    "/staff.html": "department_staff",
+    "/faq": "frequently_asked_questions",
+    "/scholarships": "scholarships",
+    "/internships": "internships_index",
+    "/practice/student/index.html": "practice_index",
+    "/summer_school.html": "summer_school_list",
+    "/master_software-engineering.html": "master_software_engineering",
+    "/master_information-systems-administration.html": "master_information_systems_administration",
+    "/research.html": "research_directions",
+    "/directions.html": "research_directions",
+    "/thesis_review": "thesis_review_index",
+    "/thesis_review/index.html": "thesis_review_index",
+}
+
+for _legacy_path, _endpoint in _LEGACY_REDIRECTS.items():
+    _ep_name = "legacy_" + _legacy_path.strip("/").replace("/", "_").replace(".", "_").replace(
+        "-", "_"
+    )
+    app.add_url_rule(
+        _legacy_path,
+        endpoint=_ep_name,
+        view_func=lambda endpoint=_endpoint: redirect(url_for(endpoint), 301),
+    )
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "build":

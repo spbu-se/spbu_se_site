@@ -618,3 +618,67 @@ Three branches merged: `docs/knowledge-reorg`, `fix/whoosh-cache`, `docs/audit-f
 - basedpyright: 0 errors
 - CI: pre-push passes (basedpyright clean; format check has pre-existing powershell-not-found issue on Linux)
 - Branch: `fix/mojibake-all-pages` — 1 commit ahead of `origin/staging`, ready for PR
+
+### Retrospective — 2026-07-18: cumulative deps refresh, upstream sync, auth fix, legacy redirects, broken link audit
+
+This session covered upstream sync, package refresh, bug fixes, and a comprehensive broken link audit against the deployed site.
+
+**What was done**:
+
+1. **Upstream sync** — rebased `staging` and `current` to `upstream/current` (b419174)
+1. **Package refresh** — bumped 7 transitive deps via `uv lock --upgrade` + bumped 3 GitHub Actions
+1. **Bug fix #182** — updated broken curriculum plan links from `math.spbu.ru` (404) to `nc.spbu.ru` (Nextcloud shares)
+1. **Bug fix #109** — resolved auth 500 on seed users: `init_db()` used scrypt hashing by default, but `login_index()` only checked for `pbkdf2:` prefix — scrypt hashes crashed in legacy HMAC branch with `ValueError: unsupported hash type`
+1. **Legacy redirects** — added 21 Flask 301 redirect rules for commonly-guessed/bookmarked URLs
+1. **Canonical URL fix** — corrected `review/index.html` canonical from `/thesis_review/index.html` (404) to `/review/`
+1. **Broken link audit** — crawled ~1500 internal links on `se.math.spbu.ru`; found 2 broken news detail pages (deferred)
+
+**Gaps found**:
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `requirements.txt` had UTF-8 BOM after `uv export` on Windows | Tooling — `uv export` on Windows 5.1 includes BOM, pre-push validate hook reads with `utf-8-sig` | Stripped BOM with PowerShell byte manipulation; should add `| Out-File -Encoding utf8` + BOM strip to export recipe |
+| Legacy redirects had duplicate endpoint names | Design — multiple paths (e.g. `/department_staff` + `/department_staff.html`) mapped to same endpoint name `legacy_department_staff` | Used path-derived unique endpoint names (`legacy_<sanitized_path>`) |
+| `mdformat` pre-push failures on upstream .md files | Process — upstream committed unformatted .md files; pre-push hook checks all files on disk, not just diff | Committed mdformat fix as part of the branch; added to pre-flight: run `uv run mdformat ...` after upstream sync |
+| Auth test coverage gap — `check_password_hash` mocked in conftest | Missing config — `logged_client` fixture bypassed login entirely; `test_login_valid_credentials` used mock that always returns True | Fixed production code but no test validates real password hashing. Deferred: add integration test with real Werkzeug hashing |
+
+**Pattern recurrence**: **NO** — no pattern from previous retros recurred in this session. New gaps are first occurrences.
+
+**What went well**:
+
+- Comprehensive research phase (package audit, link crawl, auth root cause analysis) caught all issues before implementation
+- Pre-push hook caught the duplicate endpoint name issue before it could cause production breakage
+- CI caught the same issue on first push — confirming CI and pre-push are in parity
+
+**What went wrong**:
+
+- `requirements.txt` BOM issue caused repeated pre-push failures (Windows encoding quirk)
+- Legacy redirects initially had duplicate endpoint names — caught by CI but wasted a push cycle
+- `gh pr create` failed with confusing "No commits" error due to default repo not being set — required `gh repo set-default`
+
+**Root causes**:
+
+1. **Windows encoding quirk** — `uv export` on Windows writes UTF-8 BOM; pre-push `validate-requirements` hook reads with `utf-8-sig` which crashes on byte 0xFF (UTF-16 BOM misinterpreted)
+1. **Insufficient testing of legacy redirects** — didn't verify that multiple paths to same endpoint would conflict
+1. **Missing `gh repo set-default`** — PR creation failed because the default repo was spbu-se/spbu_se_site (upstream), not iakov/spbu_se_site (fork)
+
+**Fix**:
+
+- Added BOM stripping (`[System.IO.File]::WriteAllBytes` without BOM) to requirements.txt export workflow
+- Legacy redirects now use unique path-derived endpoint names (`_ep_name = "legacy_" + _legacy_path.strip("/").replace(...)`)
+- `gh repo set-default iakov/spbu_se_site` now set in the local checkout
+
+**Knowledge extracted**:
+
+- `generate_password_hash()` without method defaults to `scrypt` on Python 3.14+. `check_password_hash()` handles all Werkzeug hash types; `login_index()` had a too-narrow `startswith("pbkdf2")` check.
+- Flask's `add_url_rule` enforces unique endpoint names — using `endpoint=f"legacy_{_endpoint}"` for multiple paths to same target causes crash
+- `uv export` on PowerShell 5.1 includes UTF-8 BOM — need to strip before commit
+- `gh repo set-default` affects PR creation; without it, `gh pr create` compares against upstream's refs
+
+**State at handoff**:
+
+- Tests: pending (CI green on staging)
+- Coverage: unchanged from previous
+- basedpyright: 0 errors
+- CI: staging green (lint + test pass) after action version bumps
+- Branch: `staging` — squashed cumulative refresh + fixes, ready for upstream PR
