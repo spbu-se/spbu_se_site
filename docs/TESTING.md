@@ -48,6 +48,7 @@ Pre-push mandatory: tests pass, lint clean, format clean.
 | Rule | Why |
 |------|-----|
 | **Always `--tb=long`** during development. Only `-q` for final green check. | Full traceback on first run eliminates re-run to get failure details. |
+| **Never truncate test output on diagnostic runs** | `Select-Object -Last`, `-First`, `head`/`tail`, or `| Select-String "FAIL"` filter out failure context and counts. Let the full log be captured (the tool writes it to a file if it exceeds the output limit), then search that file with `rg`/grep for specific errors. `-q` is only for the final green confirmation when zero failures are expected. |
 | **Batch before re-run**: Found one failure? Grep for siblings and fix all before re-running. | Each re-run costs the full suite time. One pass fixes everything. |
 | **Baseline first**: Unexpected errors? Stash changes, run same command. If errors persist → pre-existing. 5-min timebox. | Saves 10-30 min of false-diagnosis per session. |
 | **`-n 1` for debug, `-n auto` for green**: Start with 1 worker to avoid parallel noise. Switch to `-n auto` for the final green check. | Fewer intermittent failures during development. |

@@ -2,7 +2,7 @@
 
 <!-- encoding: utf-8 -->
 
-[![CI (staging)](https://github.com/iakov/spbu_se_site/actions/workflows/ci-staging.yml/badge.svg)](https://github.com/iakov/spbu_se_site/actions)
+[![CI](https://github.com/spbu-se/spbu_se_site/actions/workflows/ci.yml/badge.svg)](https://github.com/spbu-se/spbu_se_site/actions)
 [![Python](https://img.shields.io/badge/python-3.13-blue)](.python-version)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)

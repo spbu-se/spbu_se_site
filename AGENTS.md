@@ -32,7 +32,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Before merge: verify TODO.md has no completed items that belong in commit messages instead
 - Before merge: if session involved doc restructuring, propose retrospective as the final step (do not run mid-session)
 - Before any session summary or handoff: scan `docs/AI_AGENTS.md` §Output Format for the prescribed format — comply with timing, state, and section structure
-- When running tests: default to `--tb=long` for full diagnostics on first run. Only use `-q` for the final green confirmation when zero failures are expected. See `docs/TESTING.md` §3a.
+- When running tests: default to `--tb=long` for full diagnostics on first run. Only use `-q` for the final green confirmation when zero failures are expected. Never truncate a diagnostic run's output (`Select-Object -Last/-First`, `head`/`tail`) — let the full log be captured and search the captured file instead. See `docs/TESTING.md` §3a.
 - Proactively use `git-history_git_wrapup_instructions` at session start (orientation snapshot), mid-session (checkpoint against acceptance criteria), and pre-merge (readiness gate) — not just at the end. See `docs/GIT_FLOW.md` §Wrap-up protocol.
 - Always learn, never forget — encode patterns before session ends
 

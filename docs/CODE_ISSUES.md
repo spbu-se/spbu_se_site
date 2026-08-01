@@ -75,3 +75,22 @@ Replaced with `db.session.get(Users, int(user_id))` in `src/`. Only test files r
 ### `flask_se_practice_admin.py:152,258` — `send_file(download_name=...)` vs `attachment_filename=...` [FIXED]
 
 Flask 2.3.3 supports both. `download_name` is the correct modern parameter. No action needed.
+
+## Security sweep 2026-08-01 — CodeQL + secret-scanning findings [FIXED]
+
+Fixed on `fix/security-sweep` (PR #187) — path traversal, open redirects, secret logging, workflow permissions.
+
+- `flask_se_theses.py` — author-derived filename now sanitized with `secure_filename()`; upload extensions whitelisted via `_safe_extension()` (CodeQL 152-155)
+- `flask_se_auth.py` — avatar upload extensions whitelisted to `{jpg,jpeg,png,bmp}`; `request.url` self-redirects replaced with `url_for("upload_avatar")` (CodeQL 153, 74)
+- `flask_se_news.py` — Referer host validated before redirect, fallback to `index` (CodeQL 144-147)
+- `flask_se_review.py` — `request.url` self-redirects replaced with named endpoints (CodeQL 148-150)
+- `flask_se.py` — removed `SECRET_KEY_THESIS` DEBUG log (CodeQL 151)
+- Workflows — `permissions: contents: read` on ci.yml, ci-staging.yml, serviceability.yml, deploy_to_staging.yml, deploy_to_production.yml (CodeQL 137-138, 156-166)
+- pyasn1 0.6.3 → 0.6.4 via PR #183 — resolved 2 high-severity dependabot alerts (CVE-2026-59884/59885/59886)
+
+### Dismissed (vendored/client-side, "won't fix")
+
+- 58 × Unsafe jQuery plugin — Bootstrap 4 dist bundle in `src/static/assets/libs/`
+- 4 × Unsafe jQuery plugin — jquery.mask-plugin dist bundle
+- 2 × DOM text reinterpreted as HTML — jQuery template, server-provided content
+- Secret-scanning google_api_key — public Google Maps JS browser key (referrer-restricted, client-side)
