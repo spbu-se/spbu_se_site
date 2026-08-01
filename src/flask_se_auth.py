@@ -275,19 +275,19 @@ def upload_avatar():
         # check if the post request has the file part
         if "file" not in request.files:
             flash("No file part")
-            return redirect(request.url)
+            return redirect(url_for("upload_avatar"))
         file = request.files["file"]
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
         if file.filename == "":
             flash("No selected file")
-            return redirect(request.url)
+            return redirect(url_for("upload_avatar"))
         # Sanity check: limit uploadable filename
         # to avoid excessive burden to NFKD normalization
         # in secure_filename() method
         if len(file.filename or "") > 1000:
             flash("Filename too long")
-            return redirect(request.url)
+            return redirect(url_for("upload_avatar"))
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)  # pyright: ignore[reportArgumentType]
             new_filename = os.urandom(16).hex()
@@ -296,7 +296,7 @@ def upload_avatar():
 
             if ext not in {".jpg", ".jpeg", ".png", ".bmp"}:
                 flash("Unsupported file type")
-                return redirect(request.url)
+                return redirect(url_for("upload_avatar"))
 
             if ext in [".jpg", ".jpeg"]:
                 file.save(os.path.join(UPLOAD_FOLDER + "/" + new_filename + ".jpg"))
