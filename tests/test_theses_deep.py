@@ -2,7 +2,6 @@
 import io
 import json
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 from conftest import _approve_temp_thesis, _make_temp_thesis, _min_pdf, assert_ok
@@ -181,6 +180,31 @@ class TestPostThesesApi:
         data = json.loads(resp.data)
         assert data["status"] == 500
         assert "Wrong course_id" in data["string"]
+
+    def test_post_bad_publish_year_path_traversal(self, logged_client):
+        from flask_se import app
+
+        secret_key = app.config["SECRET_KEY_THESIS"]
+
+        info = {
+            "name_ru": "Test",
+            "secret_key": secret_key,
+            "type_id": 2,
+            "course_id": 1,
+            "author": "Author",
+            "supervisor": "Терехов",
+            "publish_year": "../../evil",
+        }
+        resp = logged_client.post(
+            "/post_theses",
+            data={
+                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
+                "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
+            },
+        )
+        data = json.loads(resp.data)
+        assert data["status"] == 500
+        assert "Wrong publish_year" in data["string"]
 
     def test_post_no_supervisor_match(self, logged_client):
         from flask_se import app
@@ -432,10 +456,16 @@ class TestThesesAddTmpDeep:
         Path("static/thesis/texts").mkdir(parents=True, exist_ok=True)
         Path("static/thesis/slides").mkdir(parents=True, exist_ok=True)
         Path("static/thesis/reviews").mkdir(parents=True, exist_ok=True)
-        for _f in ["static/tmp/texts/text.pdf", "static/tmp/slides/slides.pdf",
-                    "static/tmp/reviews/sup.pdf", "static/tmp/reviews/rev.pdf",
-                    "static/thesis/texts/text.pdf", "static/thesis/slides/slides.pdf",
-                    "static/thesis/reviews/sup.pdf", "static/thesis/reviews/rev.pdf"]:
+        for _f in [
+            "static/tmp/texts/text.pdf",
+            "static/tmp/slides/slides.pdf",
+            "static/tmp/reviews/sup.pdf",
+            "static/tmp/reviews/rev.pdf",
+            "static/thesis/texts/text.pdf",
+            "static/thesis/slides/slides.pdf",
+            "static/thesis/reviews/sup.pdf",
+            "static/thesis/reviews/rev.pdf",
+        ]:
             Path(_f).unlink(missing_ok=True)
         Path("static/tmp/texts/text.pdf").write_text("")
         Path("static/tmp/slides/slides.pdf").write_text("")

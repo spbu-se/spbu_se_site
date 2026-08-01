@@ -17,7 +17,10 @@ def _safe_referrer():
         parts = urlparse(referrer)
     except ValueError:
         return None
-    if parts.netloc and parts.netloc != request.host:
+    if parts.scheme:
+        if parts.scheme.lower() not in ("http", "https") or parts.netloc != request.host:
+            return None
+    elif parts.netloc and parts.netloc != request.host:
         return None
     return referrer or None
 
