@@ -305,6 +305,14 @@ def post_theses():
     if course_id < 1 or course_id > 8:
         return jsonify(status=error_status, string="Wrong course_id: " + str(course_id))
 
+    try:
+        publish_year = int(publish_year)
+    except (TypeError, ValueError):
+        return jsonify(status=error_status, string="Wrong publish_year: " + str(publish_year))
+
+    if publish_year < 2000 or publish_year > 2100:
+        return jsonify(status=error_status, string="Wrong publish_year: " + str(publish_year))
+
     # Try to get SuperVisor Id
     qq = Users.query.filter_by(last_name=supervisor).all()
     supervisor_id = ""

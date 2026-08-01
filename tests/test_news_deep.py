@@ -67,6 +67,22 @@ class TestNewsVote:
         resp = logged_client.get("/news/post_vote?post_id=2&action_vote=1")
         assert resp.status_code in (200, 302)
 
+    def test_news_vote_rejects_non_http_referrer(self, logged_client):
+        resp = logged_client.get(
+            "/news/post_vote?post_id=1&action_vote=1",
+            headers={"Referer": "javascript:alert(1)"},
+        )
+        assert resp.status_code in (200, 302)
+        assert "javascript:" not in resp.headers.get("Location", "")
+
+    def test_news_vote_rejects_cross_host_referrer(self, logged_client):
+        resp = logged_client.get(
+            "/news/post_vote?post_id=1&action_vote=1",
+            headers={"Referer": "https://evil.example.com/path"},
+        )
+        assert resp.status_code in (200, 302)
+        assert "evil.example.com" not in resp.headers.get("Location", "")
+
 
 class TestNewsDelete:
     def test_news_delete_own_post(self, logged_client):
