@@ -320,3 +320,31 @@ for root, dirs, files in os.walk('src'):
 1. Also scan test files — assertions may contain mojibake from copy-paste
 
 **Known limitation:** `ftfy` doesn't catch all cp1251 patterns (unmapped bytes, character substitution). Manual verification needed.
+
+## Merge queue on upstream `current` — REVIEW_REQUIRED blocks, own-PR can't approve
+
+**When:** Merging a PR into `spbu-se/spbu_se_site` `current` branch, which has a merge queue (SQUASH/ALLGREEN) configured via branch protection.
+
+**Pattern:** `gh pr merge <n> --squash` fails with "The merge strategy for current is set by the merge queue". `mergeStateStatus` is `BLOCKED` with `reviewDecision: REVIEW_REQUIRED` even though all required checks pass and the author has branch bypass allowance. The author (iakov) cannot approve their own PR (`Review can not approve your own pull request`), so the queue never unblocks.
+
+**Workaround:** `gh pr merge <n> --repo <owner>/<repo>` with **no strategy flag** enqueues the PR into the merge queue; the queue then merges with its configured method (SQUASH). For iakov-authored PRs the bypass allowance allows the queue merge without a separate approver. PR #183 was merged this way.
+
+**After squash-merge:** the head branch's commits are rewritten into one commit on `current`; the fork's `staging`/`current` must be re-synced with `git reset --hard origin/current` + `--force-with-lease` push (content-identical, divergent history).
+
+## Diagnostic test runs: `-q` + output truncation hides failures
+
+**When:** Running the full pytest suite on a feature branch to validate changes.
+
+**Attempts:**
+
+1. `uv run pytest --tb=short -q` + `Select-Object -Last` — got counts only, no failure context; violated TESTING.md §3a ("save attempts, not screen space"). User flagged the behavior.
+
+**Fix:** Diagnostic runs use `uv run pytest --tb=long -n 1` with full output captured (the tool auto-writes to a file if too large; search that file with `rg`, never `Select-Object -Last/-First`). `-q` only for the final green confirmation after a clean `--tb=long` run. Rule strengthened in AGENTS.md + TESTING.md §3a.
+
+## Git commit via MCP tool times out when pre-commit hooks run
+
+**When:** Committing through the `git_commit` MCP tool (opencode) — the tool call can time out (`MCP error -32001: Request timed out`) because pre-commit hooks (ruff-format, dprint, etc.) hold the shell.
+
+**Pattern:** The commit may or may not have landed; `git log --oneline -3` shows it didn't, and files show `MM` (staged + unstaged) because pre-commit auto-fixed formatting on staged files after staging.
+
+**Fix:** Re-stage (`git add -u`) after the failed commit and re-run via shell `git commit --no-gpg-sign -m "..."` (with a 120s timeout). On this repo feature branches use `--no-gpg-sign` per GIT_FLOW §4.
