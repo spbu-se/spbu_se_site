@@ -693,6 +693,8 @@ This session merged the cumulative deps refresh to upstream `current`, swept the
 1. **Security sweep** (PR #187, CI green) — fixed 13 open CodeQL error-severity findings: path traversal (`flask_se_theses.py`, `flask_se_auth.py`), open redirect via `request.referrer`/`request.url` (`flask_se_news.py`, `flask_se_review.py`, `flask_se_auth.py`), removed `SECRET_KEY_THESIS` DEBUG log (`flask_se.py`), added `permissions: contents: read` to 5 workflows
 1. **Dismissed** 62 vendored jQuery CodeQL warnings (Bootstrap/jquery.mask-plugin dist bundles) + resolved the google_api_key secret-scanning alert (public Maps browser key)
 1. **PR triage** — closed superseded dependabot PRs #184/#181/#180 and stale FAQ #150; applied #186's 6 deps via `uv lock --upgrade-package` + `uv export` (PR #188) to keep uv.lock ↔ requirements.txt in parity; left #69 (health checker) unmerged (stale 2023, unpinned `appleboy/telegram-action@master`)
+1. **Follow-up security fix** (PR #189) — a post-merge CodeQL rescan revealed 2 genuine gaps in the initial sweep: `publish_year` flowed raw into theses upload filenames (path traversal), and `_safe_referrer()` let `javascript:`/`data:` schemes through. Both fixed + regression tests added.
+1. **Dismissed** 62 vendored jQuery CodeQL warnings + 6 false-positive CodeQL errors (custom sanitizers not modeled by CodeQL) + resolved the google_api_key secret-scanning alert (public Maps browser key)
 1. **Doc cleanup** — removed personal account references from README + docs per user request; strengthened TESTING.md §3a + AGENTS.md against truncating diagnostic test output
 
 **Gaps found**:
@@ -704,6 +706,7 @@ This session merged the cumulative deps refresh to upstream `current`, swept the
 | `uv export` on PowerShell captured stderr into requirements.txt | Tooling — `2>&1` in the pipe streamed the "Resolved N packages" notice into the file; plus `uv export` emits UTF-16 BOM on Windows | Rewrote file as UTF-8 no-BOM and re-ran export with stderr suppressed; documented in AI_AGENT_EXPERIENCE.md |
 | Merge queue on upstream `current` reports `BLOCKED`/`REVIEW_REQUIRED` even for the repo owner | Missing convention — `current` uses a merge queue (SQUASH/ALLGREEN); owner cannot approve their own PR, so the queue appears stuck | Documented workaround in AI_AGENT_EXPERIENCE.md: `gh pr merge <n>` with no strategy flag enqueues; bypass allowance allows owner-queue merge |
 | MCP `git_commit` tool timed out when pre-commit hooks ran | Tooling — commit call held the shell through ruff/dprint hooks and timed out (`MCP error -32001`), leaving ambiguous state | Documented pattern: re-stage with `git add -u` and commit via shell with `--no-gpg-sign` |
+| Security sweep missed 2 findings (publish_year path traversal, non-http referrer scheme) | Human error — sweep sanitized `author_en` and netloc but not `publish_year` or referrer *scheme*; only a post-merge CodeQL rescan surfaced them | Fixed in PR #189 (int-coercion + scheme whitelist) + regression tests; noted: always re-scan alerts after merge, don't assume a fix closes the alert |
 
 **Pattern recurrence**: **NO** — all gaps are first occurrences. The test-output truncation is a candidate escalation if it recurs (would warrant a pre-push/CI guard).
 
@@ -738,8 +741,8 @@ This session merged the cumulative deps refresh to upstream `current`, swept the
 
 **State at handoff**:
 
-- Tests: 1110 passed, 1 skipped, 10 xfailed, 2 xpassed (local, both branches)
-- Coverage: 90.38%
+- Tests: 1113 passed, 1 skipped, 10 xfailed, 2 xpassed
+- Coverage: 90.32%
 - basedpyright: 0 errors
-- CI: #187 green; #188 pending (test + check 3.11)
-- Branches: `fix/security-sweep` (PR #187), `chore/deps-upgrade` (PR #188), both ready for merge
+- Merged to upstream `current`: #187 (security sweep), #188 (deps), #189 (follow-up fixes); fork `current` + `staging` synced
+- All code-scanning alerts closed (fixes or dismissals); 0 open errors/warnings; secret-scanning 0 open; dependabot open alerts are stale (manifests already at patched versions)
