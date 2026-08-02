@@ -24,8 +24,8 @@ jobs:
 
       - run: uv sync
 
-      - run: uv run ruff format --check src/
-      - run: uv run ruff check src/
+      - run: uv run ruff format --check src/ tests/
+      - run: uv run ruff check src/ tests/
       - run: uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
       - run: uv run basedpyright src/
       - run: uv run pylint --disable=all --enable=similarities src/ tests/
