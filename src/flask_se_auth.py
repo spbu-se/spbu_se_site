@@ -24,7 +24,7 @@ from PIL import Image
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from flask_se_config import secure_filename
+from flask_se_config import VK_CLIENT_ID, VK_CLIENT_SECRET, secure_filename
 from se_models import Users, db
 
 # Global variables
@@ -138,7 +138,8 @@ def vk_callback():
 
     # Get access token
     response = requests.get(
-        "https://oauth.vk.com/access_token?client_id=8051225&client_secret=ZPNX8y5nQmzGCghUKdJ9&redirect_uri=https://se.math.spbu.ru/vk_callback&code="
+        f"https://oauth.vk.com/access_token?client_id={VK_CLIENT_ID}"
+        f"&client_secret={VK_CLIENT_SECRET}&redirect_uri=https://se.math.spbu.ru/vk_callback&code="
         + user_code,
         timeout=10,
     )

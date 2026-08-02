@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-import io
 from datetime import datetime, timedelta
 
-import pytest
 from conftest import assert_ok
 
 
@@ -389,8 +387,6 @@ class TestPracticeDataForPractice:
             data={"delete_thesis_button": "1"},
         )
         assert resp.status_code in (200, 302)
-
-
 
 
 class TestPracticeDefense:

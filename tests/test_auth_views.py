@@ -88,6 +88,49 @@ class TestAuth:
         )
         assert resp.status_code in (200, 302)
 
+    def test_login_legacy_hmac_hash_fallback(self, seeded_client):
+        import hashlib
+        import hmac
+
+        from se_models import Users, db
+
+        # Simulate a legacy HMAC password hash: algorithm$salt$hexdigest.
+        # check_password_hash is patched to always return True in conftest, so
+        # patch it to False to force the legacy HMAC fallback branch in login_index.
+        password = "legacy-pass"
+        salt = "somesalt"
+        digest = hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()
+        u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+        u.password_hash = f"sha256${salt}${digest}"
+        db.session.commit()
+
+        with patch("flask_se_auth.check_password_hash", return_value=False):
+            resp = seeded_client.post(
+                "/login.html",
+                data={"email": "a.terekhov@spbu.ru", "password": password},
+            )
+        assert resp.status_code in (200, 302)
+
+    def test_login_hmac_fallback_wrong_password(self, seeded_client):
+        import hashlib
+        import hmac
+
+        from se_models import Users, db
+
+        password = "legacy-pass"
+        salt = "somesalt"
+        digest = hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()
+        u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+        u.password_hash = f"sha256${salt}${digest}"
+        db.session.commit()
+
+        with patch("flask_se_auth.check_password_hash", return_value=False):
+            resp = seeded_client.post(
+                "/login.html",
+                data={"email": "a.terekhov@spbu.ru", "password": "wrong-password"},
+            )
+        assert resp.status_code in (200, 302)
+
     def test_login_then_access_profile(self, seeded_client):
         resp = seeded_client.post(
             "/login.html",
@@ -130,6 +173,32 @@ class TestAuth:
         mock_get.return_value.text = json.dumps({"error": "invalid_request"})
         resp = seeded_client.get("/vk_callback?code=badcode")
         assert resp.status_code in (200, 302)
+
+    @patch("requests.get")
+    def test_vk_callback_url_uses_config_secret(self, mock_get, seeded_client):
+        from flask_se_auth import VK_CLIENT_ID, VK_CLIENT_SECRET
+
+        token_resp = MagicMock()
+        token_resp.text = json.dumps(
+            {
+                "access_token": "test_token",
+                "user_id": 12345,
+                "email": "vkuser@spbu.ru",
+            }
+        )
+        user_resp = MagicMock()
+        user_resp.text = json.dumps(
+            {
+                "response": [{"first_name": "VK", "last_name": "User"}],
+            }
+        )
+        mock_get.side_effect = [token_resp, user_resp]
+        resp = seeded_client.get("/vk_callback?code=testcode")
+        assert resp.status_code in (200, 302)
+
+        url = mock_get.call_args_list[0].args[0]
+        assert f"client_id={VK_CLIENT_ID}" in url
+        assert f"client_secret={VK_CLIENT_SECRET}" in url
 
     def test_google_login_redirect(self, seeded_client):
         assert_ok(seeded_client, "/google_login", code={200, 302})

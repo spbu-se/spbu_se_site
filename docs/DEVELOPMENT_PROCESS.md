@@ -177,12 +177,14 @@ Three tiers of quality, from local convenience to production gate:
 Auto-fix formatting on touched files. Runs on every `git commit`.
 Not a quality gate — local commits can be imperfect. Using `git commit --no-verify` is acceptable.
 
-#### Pre-push (strict, ~33s, all files, fail-fast)
+#### Pre-push (strict, all files, fail-fast)
 
-Checks: format (all files, no auto-fix) -> basedpyright. Runs on every `git push`.
+Checks (in order): requirements format → actionlint → `uv lock --check` → format + lint (mdformat, ruff format `--check`, ruff check on `src/ tests/`, via PowerShell) → basedpyright. Runs on every `git push`.
 
-Failure at any step aborts. Format failure skips basedpyright.
+Failure at any step aborts. Format failure skips later checks.
 This is the local quality gate that prevents unformatted or type-unsafe code from reaching staging.
+
+**Platform caveat:** the format+lint step's entry is `powershell -Command "..."` (`.pre-commit-config.yaml` `pre-push-fast-checks`) — Windows-only. On Linux the pre-push hook fails with `Executable 'powershell' not found`; run the equivalent checks manually (see `AGENTS.md` §Pre-push) and log the `--no-verify` in the retrospective.
 
 The pre-push gate exists because the agent has a documented pattern of skipping fast local checks to save seconds, costing minutes in CI round-trips. The fail-fast chain ensures that a format failure wastes at most ~3s instead of triggering a full check cycle.
 
@@ -344,7 +346,7 @@ CI fails, creates false confidence and wastes server time.
 
 ### CI job vs step separation
 
-Sequential steps in a single job use fail-fast (`bash -e` by default) — a failed step aborts the job, masking later results. This is acceptable for local pre-push (fast iteration, fix and retry in ~33s).
+Sequential steps in a single job use fail-fast (`bash -e` by default) — a failed step aborts the job, masking later results. This is acceptable for local pre-push (fast iteration, fix and retry in seconds).
 
 For CI, use separate jobs with `needs: [...]` + `if: always()` so lint/type failures do not block test execution. Both results are visible in the CI summary. See `docs/QUALITY_MANAGEMENT.md §4` for rationale and pattern.
 

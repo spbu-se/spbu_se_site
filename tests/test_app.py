@@ -51,6 +51,37 @@ class TestErrorHandlers:
         assert "404" in content or "not found" in content
 
 
+class TestMarkdownFilter:
+    def test_markdown_bullet_list(self, app_ctx):
+        from flask import current_app
+
+        md = current_app.jinja_env.filters["markdown"]
+        out = md("- item one\n- item two")
+        assert "<ul>" in out
+        assert "<li>item one</li>" in out
+        assert "<li>item two</li>" in out
+
+    def test_markdown_plain_text(self, app_ctx):
+        from flask import current_app
+
+        md = current_app.jinja_env.filters["markdown"]
+        out = md("простой текст")
+        assert "простой текст" in out
+
+
+class TestUwsgiAppIni:
+    def test_app_ini_points_to_wsgi(self):
+        from pathlib import Path
+
+        ini = (Path(__file__).parent.parent / "src" / "app.ini").read_text()
+        assert "wsgi-file = wsgi.py" in ini
+
+    def test_wsgi_module_exists(self):
+        from pathlib import Path
+
+        assert (Path(__file__).parent.parent / "src" / "wsgi.py").is_file()
+
+
 class TestScheduler:
     def test_scheduler_imports(self):
         from flask_se import scheduler

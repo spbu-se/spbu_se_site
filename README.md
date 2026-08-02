@@ -38,13 +38,14 @@ The site runs at `http://127.0.0.1:5000`.
 
 ## Configuration
 
-Create these files in the project root (never committed):
+Create these files in `src/configs/` (never committed):
 
 | File | Purpose |
 |------|---------|
 | `flask_se_secret.conf` | Secret key, database path, thesis API key |
 | `flask_se_mail.conf` | SMTP settings for email notifications |
 | `flask_se_practice_yandex_secret.conf` | Yandex OAuth for practice file storage |
+| `flask_se_vk_secret.conf` | VK OAuth client secret |
 
 ## Commands
 

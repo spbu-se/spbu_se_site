@@ -8,6 +8,8 @@ from unicodedata import normalize
 
 SECRET_KEY = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_secret.conf")
 MAIL_PASSWORD_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_mail.conf")
+VK_CLIENT_ID = "8051225"
+VK_SECRET_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_vk_secret.conf")
 SECRET_KEY_THESIS = os.urandom(16).hex()
 SQLITE_DATABASE_NAME: str = "se.db"
 SQLITE_DATABASE_PATH: str = pathlib.Path("databases/").absolute().as_posix()
@@ -18,6 +20,13 @@ if os.path.exists(MAIL_PASSWORD_FILE):
 else:
     mail_password = os.urandom(16).hex()
 MAIL_PASSWORD = mail_password
+
+if os.path.exists(VK_SECRET_FILE):
+    with open(VK_SECRET_FILE) as file:
+        vk_secret = file.read().rstrip()
+else:
+    vk_secret = ""
+VK_CLIENT_SECRET = vk_secret
 
 
 current_data = datetime.today().strftime("%Y-%m-%d")

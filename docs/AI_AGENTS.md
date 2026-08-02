@@ -106,10 +106,15 @@ For progress reports during a session, follow the same structure: lead with timi
 
 Use for `gh pr create` descriptions on feature branches merged via `gh pr merge --squash` (see `docs/GIT_FLOW.md §2.1`).
 
+**Issue linkage:** if the PR fixes or closes GitHub issues, say so directly with `Closes #<n>` / `Fixes #<n>` in the body (one per line). GitHub then links the issues to the PR and auto-closes them on merge. Issues only partially addressed should use `References #<n>`.
+
 ```
 ## Summary
 
 <One-paragraph high-level description of what changed and why>
+
+Closes #<issue-number>
+Closes #<issue-number>
 
 **Timing: estimated as <planning estimate>, but <wall clock> wall clock elapsed**
 <optional one-line context>
