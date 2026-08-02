@@ -143,11 +143,12 @@ class TestFlaskSeConfigMailPassword:
 
         real_path = flask_se_config.MAIL_PASSWORD_FILE
         fake_content = "smtp_password\n"
+        original_exists = os.path.exists
 
         def mock_exists(path):
             if path == real_path:
                 return True
-            return os.path.exists(path)
+            return original_exists(path)
 
         original_open = builtins.open
 
