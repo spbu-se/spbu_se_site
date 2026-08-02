@@ -166,3 +166,23 @@ Covers: technology stack choices, framework-specific decisions, implementation p
 **Rationale**: Custom CRUD gives full control over template rendering, form handling, and access control. Eliminates an unmaintained security-critical dependency. The `CrudView` base class supports column lists, labels, choices, form overrides, form widgets, export, pagination, and role-based access.
 
 **Alternatives considered**: Flask-Appbuilder — powerful but overkill, adds its own security model and template system.
+
+## [2026-08-02] OAuth client secrets moved out of source into gitignored config files
+
+**Context**: Issue #115 flagged a hardcoded VK client_secret in `flask_se_auth.py` (the VK OAuth URL). Ruff's `S105` rule flags hardcoded passwords/secrets, so keeping it in source would fail lint and, more importantly, leaks the secret in the repo.
+
+**Decision**: Store OAuth client secrets in gitignored files under `src/configs/` (`flask_se_vk_secret.conf`), read at import in `flask_se_config.py` with an empty-string fallback (absent file → empty secret, VK login degrades gracefully). Client IDs stay in source (public, not secret). URL construction uses the config values.
+
+**Rationale**: Matches the existing `MAIL_PASSWORD` and `YANDEX_SECRET` pattern. Empty fallback (not the secret) keeps the secret out of the repo and keeps `S105` clean. An empty secret means VK login fails until the operator provides the config — acceptable, consistent with how the other secrets degrade.
+
+**Alternatives considered**: Keeping the secret in source with `# noqa: S105` — leaks the secret, defeats the purpose. Injecting via env vars — departs from the established config-file pattern.
+
+## [2026-08-02] Ruff format/check covers `tests/` in CI and pre-push
+
+**Context**: Pre-push and CI ruff checks gated only `src/`, so `tests/` accumulated formatting and lint drift (5 files, 35 errors: unused imports, duplicate `db` imports, unsorted import blocks, and a real N806/F811 shadowing bug in `test_se_models_deep.py`).
+
+**Decision**: Extend `ruff format --check` and `ruff check` to `src/ tests/` in `ci.yml`, `ci-staging.yml`, and the pre-push hook. Run a one-time format sweep of `tests/` to bring it in line.
+
+**Rationale**: Tests are code and deserve the same gate as production code. The drift was invisible precisely because the gate didn't cover `tests/`. Matches `pylint --enable=similarities` which already checks `src/ tests/`.
+
+**Alternatives considered**: Keeping the gate src-only and relying on pre-commit for touched files — that is exactly how the drift accumulated (untouched files never get reformatted).
