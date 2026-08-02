@@ -41,6 +41,16 @@ uv run python scripts/find_dup_coverage.py coverage_data.json
 
 **Fix:** Use `open().readlines()` directly, or call `linecache.clearcache()` before each read that follows a file modification.
 
+## init_db emits SAWarning about ThemesLevel.diploma_themes (benign)
+
+**When:** Running `uv run python src/flask_se.py init`.
+
+**Symptom:** `SAWarning: Object of type <DiplomaThemes> not in session, add operation along 'ThemesLevel.diploma_themes' won't proceed` from se_models.py:3042.
+
+**Root cause:** In `init_db()`, `c.levels.append(ThemesLevel.query...first())` appends to the `DiplomaThemes.levels` collection while the `DiplomaThemes` object is not yet in the session. The warning concerns only the reverse-side backref being skipped during autoflush — the forward relationship rows are still written.
+
+**Verify:** After init, `diploma_themes_level` contains rows (7 for seed data) — data is intact. No action needed; the warning is expected noise on every init.
+
 ## db.init_app: "already registered" on module-level import
 
 **When:** Importing a module that calls `db.init_app(app)` at module level when `conftest.py` has already registered the same `db` on the same `app`.

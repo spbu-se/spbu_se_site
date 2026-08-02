@@ -88,6 +88,12 @@ Fixed on `fix/security-sweep` (PR #187) — path traversal, open redirects, secr
 - Workflows — `permissions: contents: read` on ci.yml, ci-staging.yml, serviceability.yml, deploy_to_staging.yml, deploy_to_production.yml (CodeQL 137-138, 156-166)
 - pyasn1 0.6.3 → 0.6.4 via PR #183 — resolved 2 high-severity dependabot alerts (CVE-2026-59884/59885/59886)
 
+## P2 — SQLite runtime URI vs init path mismatch [OPEN]
+
+`app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + SQLITE_DATABASE_NAME` (flask_se.py:164) is **CWD-relative** — the runtime app resolves `se.db` against the current working directory. `init_db()` writes to `SQLITE_DATABASE_PATH + SQLITE_DATABASE_NAME` = `databases/se.db` (se_models.py:2859). So `flask_se.py init` populates a different file than the dev server reads when started from the repo root (documented dev flow in README §Setup serves an empty `./se.db`).
+
+Root cause of issue #126 step 2 (`cp src/databases/se.db databases/se.db`). Production impact unverified — depends on the uWSGI working directory. Fix: build the URI from `SQLITE_DATABASE_PATH` (like `init_db()` does) or align the dev flow's working directory.
+
 ### Dismissed (vendored/client-side, "won't fix")
 
 - 58 × Unsafe jQuery plugin — Bootstrap 4 dist bundle in `src/static/assets/libs/`

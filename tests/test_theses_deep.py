@@ -556,3 +556,55 @@ class TestThesesSearchFilterPopulation:
     def test_search_filter_startdate_enddate(self, seeded_client):
         assert_ok(seeded_client, "/theses.html?startdate=2020")
         assert_ok(seeded_client, "/theses.html?enddate=2024")
+
+
+class TestThesesFtsWildcardSearch:
+    def test_fts_search_plain_term(self, seeded_client):
+        from se_models import Thesis, db, thesis_fts_search
+
+        t = Thesis(
+            name_ru="Компьютерные сети",
+            author="Максим Иванов",
+            type_id=2,
+            course_id=1,
+            publish_year=2024,
+        )
+        db.session.add(t)
+        db.session.commit()
+        ids = thesis_fts_search("сети")
+        assert t.id in ids
+
+    def test_fts_search_prefix_wildcard(self, seeded_client):
+        from se_models import Thesis, db, thesis_fts_search
+
+        t = Thesis(
+            name_ru="Компьютерные сети",
+            author="Максим Иванов",
+            type_id=2,
+            course_id=1,
+            publish_year=2024,
+        )
+        db.session.add(t)
+        db.session.commit()
+        ids = thesis_fts_search("макс*")
+        assert t.id in ids
+
+    def test_fts_search_infix_wildcard_like_fallback(self, seeded_client):
+        from se_models import Thesis, db, thesis_fts_search
+
+        t = Thesis(
+            name_ru="Программная инженерия",
+            author="Алексей",
+            type_id=2,
+            course_id=1,
+            publish_year=2024,
+        )
+        db.session.add(t)
+        db.session.commit()
+        ids = thesis_fts_search("*грамм*")
+        assert t.id in ids
+
+    def test_fts_search_no_crash_on_wildcard_route(self, seeded_client):
+        assert_ok(seeded_client, "/fetch_theses?search=фаз*")
+        assert_ok(seeded_client, "/fetch_theses?search=*акс*")
+        assert_ok(seeded_client, "/fetch_theses?search=д?м")
