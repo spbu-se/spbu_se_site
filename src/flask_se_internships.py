@@ -173,7 +173,7 @@ def page_internship(id):
     )
 
 
-# @login_required
+@login_required
 def delete_internship(id):
     internship = Internships.query.get_or_404(id)
     user = current_user

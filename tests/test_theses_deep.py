@@ -387,10 +387,10 @@ class TestPostThesesApi:
 
 
 class TestThesesTmpList:
-    def test_tmp_list_empty(self, seeded_client):
-        assert_ok(seeded_client, "/theses_tmp.html")
+    def test_tmp_list_empty(self, admin_client):
+        assert_ok(admin_client, "/theses_tmp.html")
 
-    def test_tmp_list_with_temp_thesis(self, seeded_client):
+    def test_tmp_list_with_temp_thesis(self, admin_client):
         from se_models import Staff, Thesis, db
 
         supervisor = Staff.query.first()
@@ -405,21 +405,21 @@ class TestThesesTmpList:
         )
         db.session.add(t)
         db.session.commit()
-        resp = seeded_client.get("/theses_tmp.html")
+        resp = admin_client.get("/theses_tmp.html")
         assert resp.status_code == 200
 
 
 class TestThesesDeleteTmpDeep:
-    def test_delete_tmp_with_id(self, seeded_client):
+    def test_delete_tmp_with_id(self, admin_client):
         from se_models import Thesis, db
 
         t = _make_temp_thesis("T")
         tid = t.id
-        resp = seeded_client.get(f"/theses_delete_tmp?thesis_id={tid}")
+        resp = admin_client.get(f"/theses_delete_tmp?thesis_id={tid}")
         assert resp.status_code in (200, 302)
         assert db.session.get(Thesis, tid) is None
 
-    def test_delete_tmp_non_temporary_ignored(self, seeded_client):
+    def test_delete_tmp_non_temporary_ignored(self, admin_client):
         from se_models import Thesis, db
 
         t = Thesis(
@@ -427,13 +427,13 @@ class TestThesesDeleteTmpDeep:
         )
         db.session.add(t)
         db.session.commit()
-        resp = seeded_client.get(f"/theses_delete_tmp?thesis_id={t.id}")
+        resp = admin_client.get(f"/theses_delete_tmp?thesis_id={t.id}")
         assert resp.status_code in (200, 302)
         assert db.session.get(Thesis, t.id) is not None
 
 
 class TestThesesAddTmpDeep:
-    def test_add_tmp_with_text_uri(self, seeded_client):
+    def test_add_tmp_with_text_uri(self, admin_client):
         from se_models import Thesis, db
 
         Path("static/tmp/texts").mkdir(parents=True, exist_ok=True)
@@ -442,12 +442,12 @@ class TestThesesAddTmpDeep:
         Path("static/thesis/texts/test.pdf").unlink(missing_ok=True)
 
         t = _make_temp_thesis("T", "test.pdf")
-        resp = _approve_temp_thesis(seeded_client, t.id)
+        resp = _approve_temp_thesis(admin_client, t.id)
         assert resp.status_code in (200, 302)
         updated = db.session.get(Thesis, t.id)
         assert updated.temporary is False
 
-    def test_add_tmp_with_presentation_and_reviews(self, seeded_client):
+    def test_add_tmp_with_presentation_and_reviews(self, admin_client):
         from se_models import Thesis, db
 
         Path("static/tmp/texts").mkdir(parents=True, exist_ok=True)
@@ -486,12 +486,12 @@ class TestThesesAddTmpDeep:
         )
         db.session.add(t)
         db.session.commit()
-        resp = _approve_temp_thesis(seeded_client, t.id)
+        resp = _approve_temp_thesis(admin_client, t.id)
         assert resp.status_code in (200, 302)
         updated = db.session.get(Thesis, t.id)
         assert updated.temporary is False
 
-    def test_add_tmp_non_temporary_ignored(self, seeded_client):
+    def test_add_tmp_non_temporary_ignored(self, admin_client):
         from se_models import Thesis, db
 
         t = Thesis(
@@ -504,16 +504,16 @@ class TestThesesAddTmpDeep:
         )
         db.session.add(t)
         db.session.commit()
-        resp = _approve_temp_thesis(seeded_client, t.id)
+        resp = _approve_temp_thesis(admin_client, t.id)
         assert resp.status_code in (200, 302)
         assert db.session.get(Thesis, t.id).temporary is False
 
-    def test_add_tmp_nonexistent_thesis(self, seeded_client):
-        resp = seeded_client.get("/theses_add_tmp?thesis_id=99999")
+    def test_add_tmp_nonexistent_thesis(self, admin_client):
+        resp = admin_client.get("/theses_add_tmp?thesis_id=99999")
         assert resp.status_code in (200, 302)
 
-    def test_delete_tmp_nonexistent_thesis(self, seeded_client):
-        resp = seeded_client.get("/theses_delete_tmp?thesis_id=99999")
+    def test_delete_tmp_nonexistent_thesis(self, admin_client):
+        resp = admin_client.get("/theses_delete_tmp?thesis_id=99999")
         assert resp.status_code in (200, 302)
 
 

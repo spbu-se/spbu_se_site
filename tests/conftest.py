@@ -166,6 +166,19 @@ def logged_client(seeded_client):
 
 
 @pytest.fixture
+def admin_client(seeded_client):
+    """Seeded client logged in as the admin user (role >= 5)."""
+    from se_models import Users, db
+
+    u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+    u.role = 5
+    db.session.commit()
+    with seeded_client.session_transaction() as sess:
+        sess["_user_id"] = str(u.id)
+    return seeded_client
+
+
+@pytest.fixture
 def practice_thesis(logged_client):
     """Seeded client + a CurrentThesis belonging to the logged-in user."""
     _setup_current_thesis_with_report()

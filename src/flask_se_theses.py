@@ -10,8 +10,10 @@ from urllib.parse import urlparse
 
 import fitz
 from flask import jsonify, redirect, render_template, request, url_for
+from flask_login import current_user
 from transliterate import translit
 
+from flask_se_auth import login_required
 from flask_se_config import SECRET_KEY_THESIS, secure_filename, type_id_string
 from flask_se_practice_config import _paginate
 from se_forms import ThesisFilter
@@ -20,6 +22,12 @@ from se_models import Courses, Staff, Thesis, Users, Worktype, db, thesis_fts_se
 log = logging.getLogger("flask_se.sub")
 
 _safe_ext_re = re.compile(r"^\.[A-Za-z0-9]{1,10}$")
+
+_THESES_ROLE_LEVEL = 2
+
+
+def _require_theses_admin() -> bool:
+    return current_user.is_authenticated and current_user.role >= _THESES_ROLE_LEVEL
 
 
 def _safe_extension(filename: str | None) -> str:
@@ -436,12 +444,18 @@ def post_theses():
     return jsonify(status=success_status, string="Success")
 
 
+@login_required
 def theses_tmp():
+    if not _require_theses_admin():
+        return redirect(url_for("theses_search"))
     records = Thesis.query.filter_by(temporary=True).filter_by(review_status=10)
     return render_template("theses_tmp.html", theses=records)
 
 
+@login_required
 def theses_delete_tmp():
+    if not _require_theses_admin():
+        return redirect(url_for("theses_search"))
     thesis_id = request.args.get("thesis_id", default=1, type=int)
     thesis = Thesis.query.filter_by(id=thesis_id).filter_by(temporary=True).first()
 
@@ -452,7 +466,10 @@ def theses_delete_tmp():
     return redirect(url_for("theses_tmp"))
 
 
+@login_required
 def theses_add_tmp():
+    if not _require_theses_admin():
+        return redirect(url_for("theses_search"))
     thesis_id = request.args.get("thesis_id", default=1, type=int)
     thesis = Thesis.query.filter_by(id=thesis_id).filter_by(temporary=True).first()
 

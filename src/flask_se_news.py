@@ -2,6 +2,7 @@
 
 from urllib.parse import urlparse
 
+import nh3
 import textile
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user
@@ -124,7 +125,7 @@ def submit_post():
             domain = urlparse(post_uri).netloc
             post = Posts(title=title, uri=post_uri, domain=domain, author_id=current_user.id)
         else:
-            formated_text = textile.textile(post_text)
+            formated_text = nh3.clean(textile.textile(post_text))
             post = Posts(title=title, text=formated_text, author_id=current_user.id)
 
         db.session.add(post)

@@ -6,7 +6,24 @@ import re
 from datetime import UTC, datetime
 from unicodedata import normalize
 
-SECRET_KEY = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_secret.conf")
+SECRET_KEY_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_secret.conf")
+
+
+def read_secret_from_file(filepath: str, *, fallback_len: int = 24) -> str:
+    """Read a secret from a config file, or generate a dev-only fallback key.
+
+    The fallback must never be a filesystem path — it is opaque random key
+    material used only when the config file is absent (e.g. fresh checkout).
+    """
+    if os.path.exists(filepath):
+        with open(filepath) as file:
+            value = file.read().strip()
+        if value:
+            return value
+    return os.urandom(fallback_len).hex()
+
+
+SECRET_KEY = read_secret_from_file(SECRET_KEY_FILE)
 MAIL_PASSWORD_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_mail.conf")
 VK_CLIENT_ID = "8051225"
 VK_SECRET_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_vk_secret.conf")

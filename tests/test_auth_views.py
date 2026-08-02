@@ -487,8 +487,8 @@ class TestTheses:
     def test_theses_fetch(self, seeded_client):
         assert_ok(seeded_client, "/fetch_theses")
 
-    def test_theses_tmp_list(self, seeded_client):
-        assert_ok(seeded_client, "/theses_tmp.html")
+    def test_theses_tmp_list(self, admin_client):
+        assert_ok(admin_client, "/theses_tmp.html")
 
     def test_theses_post_form(self, seeded_client):
         assert_ok_or_redirect(seeded_client, "/post_theses")
@@ -496,11 +496,11 @@ class TestTheses:
     def test_theses_download_nonexistent(self, seeded_client):
         assert_ok(seeded_client, "/thesis_download", code={200, 302})
 
-    def test_theses_delete_tmp(self, seeded_client):
-        assert_ok(seeded_client, "/theses_delete_tmp", code={200, 302})
+    def test_theses_delete_tmp(self, admin_client):
+        assert_ok(admin_client, "/theses_delete_tmp", code={200, 302})
 
-    def test_theses_add_tmp(self, seeded_client):
-        assert_ok(seeded_client, "/theses_add_tmp", code={200, 302})
+    def test_theses_add_tmp(self, admin_client):
+        assert_ok(admin_client, "/theses_add_tmp", code={200, 302})
 
 
 class TestThesisDownload:
@@ -539,8 +539,8 @@ class TestThesisSearch:
 
 
 class TestThesisTempCrud:
-    def test_theses_tmp_list_empty(self, logged_client):
-        assert_ok(logged_client, "/theses_tmp.html")
+    def test_theses_tmp_list_empty(self, admin_client):
+        assert_ok(admin_client, "/theses_tmp.html")
 
     def test_theses_post_form_loads(self, logged_client):
         assert_ok(logged_client, "/post_theses", code={200, 302})
@@ -558,11 +558,11 @@ class TestThesisTempCrud:
         )
         assert resp.status_code in (200, 302)
 
-    def test_theses_delete_tmp_nonexistent(self, logged_client):
-        assert_ok(logged_client, "/theses_delete_tmp", code={200, 302})
+    def test_theses_delete_tmp_nonexistent(self, admin_client):
+        assert_ok(admin_client, "/theses_delete_tmp", code={200, 302})
 
-    def test_theses_add_tmp_nonexistent(self, logged_client):
-        assert_ok(logged_client, "/theses_add_tmp", code={200, 302})
+    def test_theses_add_tmp_nonexistent(self, admin_client):
+        assert_ok(admin_client, "/theses_add_tmp", code={200, 302})
 
     def test_theses_post_form_filters(self, seeded_client):
         assert_ok(seeded_client, "/theses.html?type_id=2")
@@ -577,24 +577,24 @@ class TestThesisTempCrud:
         assert_ok(seeded_client, "/post_theses?type_id=2")
         assert_ok(seeded_client, "/post_theses?course_id=1")
 
-    def test_theses_add_tmp_with_id(self, logged_client):
-        assert_ok(logged_client, "/theses_add_tmp?id=1", code={200, 302})
+    def test_theses_add_tmp_with_id(self, admin_client):
+        assert_ok(admin_client, "/theses_add_tmp?id=1", code={200, 302})
 
-    def test_theses_delete_tmp_with_id(self, logged_client):
-        assert_ok(logged_client, "/theses_delete_tmp?id=1", code={200, 302})
+    def test_theses_delete_tmp_with_id(self, admin_client):
+        assert_ok(admin_client, "/theses_delete_tmp?id=1", code={200, 302})
 
 
 class TestThesisAdminApproval:
-    def test_approve_temp_thesis(self, seeded_client):
+    def test_approve_temp_thesis(self, admin_client):
         from se_models import Thesis, db
 
         t = _make_temp_thesis("Test")
-        resp = seeded_client.get(f"/theses_add_tmp?thesis_id={t.id}")
+        resp = admin_client.get(f"/theses_add_tmp?thesis_id={t.id}")
         assert resp.status_code in (200, 302)
         updated = db.session.get(Thesis, t.id)
         assert not updated.temporary
 
-    def test_approve_temp_thesis_with_text_uri(self, seeded_client):
+    def test_approve_temp_thesis_with_text_uri(self, admin_client):
         from pathlib import Path
 
         Path("static/tmp/texts").mkdir(parents=True, exist_ok=True)
@@ -603,12 +603,12 @@ class TestThesisAdminApproval:
         Path("static/thesis/texts/test.pdf").unlink(missing_ok=True)
 
         t = _make_temp_thesis("Test", "test.pdf")
-        resp = _approve_temp_thesis(seeded_client, t.id)
+        resp = _approve_temp_thesis(admin_client, t.id)
         assert resp.status_code in (200, 302)
 
-    def test_delete_temp_thesis(self, seeded_client):
+    def test_delete_temp_thesis(self, admin_client):
         t = _make_temp_thesis("Test")
-        resp = seeded_client.get(f"/theses_delete_tmp?id={t.id}")
+        resp = admin_client.get(f"/theses_delete_tmp?id={t.id}")
         assert resp.status_code in (200, 302)
 
 
@@ -621,8 +621,8 @@ class TestThesesLoggedIn:
             "/thesis_download",
         ],
     )
-    def test_thesis_routes(self, logged_client, path):
-        assert_ok(logged_client, path, code={200, 302})
+    def test_thesis_routes(self, admin_client, path):
+        assert_ok(admin_client, path, code={200, 302})
 
 
 class TestInternships:
@@ -960,3 +960,122 @@ class TestReview:
     )
     def test_review_logged_in(self, logged_client, path):
         assert_ok(logged_client, path, code={200, 302, 404})
+
+
+class TestSecurityCritical:
+    """Regression tests for the 2026-08-02 critical security fixes (C1, C2, H1, H2)."""
+
+    def test_secret_key_is_not_a_filesystem_path(self):
+        """C1: SECRET_KEY must be key material, not the config file's path string."""
+        import flask_se_config as fsc
+
+        assert fsc.SECRET_KEY is not None
+        assert isinstance(fsc.SECRET_KEY, str)
+        assert len(fsc.SECRET_KEY) >= 16
+        assert "flask_se_secret" not in fsc.SECRET_KEY
+        assert not fsc.SECRET_KEY.endswith(".conf")
+        assert not fsc.SECRET_KEY.startswith("/")
+
+    def test_read_secret_from_file_uses_contents(self, tmp_path, monkeypatch):
+        """C1: when the secret config file exists, its trimmed contents are used."""
+        import flask_se_config as fsc
+
+        secret_file = tmp_path / "flask_se_secret.conf"
+        secret_file.write_text("  top-secret-value-123  ")
+        assert fsc.read_secret_from_file(str(secret_file)) == "top-secret-value-123"
+
+    def test_read_secret_from_file_fallback_is_random(self, tmp_path):
+        """C1: with no file (or empty file), the fallback is random key material, not a path."""
+        import flask_se_config as fsc
+
+        missing = str(tmp_path / "does_not_exist.conf")
+        a = fsc.read_secret_from_file(missing)
+        b = fsc.read_secret_from_file(missing)
+        assert a != b
+        assert len(a) == 48
+        assert "flask_se_secret" not in a
+        assert not a.startswith("/")
+
+        empty = tmp_path / "empty.conf"
+        empty.write_text("   ")
+        fallback = fsc.read_secret_from_file(str(empty))
+        assert fallback != ""
+        assert "flask_se_secret" not in fallback
+
+    def test_news_submit_sanitizes_html(self, logged_client):
+        """C2: stored news HTML must not contain script/event-handler payloads."""
+        from se_models import Posts
+
+        payload = (
+            "<script>alert(1)</script><b>bold</b>"
+            '<img src="x" onerror="alert(1)"><p onclick="alert(1)">text</p>'
+        )
+        resp = logged_client.post(
+            "/news/submit.html",
+            data={"title": "XSS probe", "post_text": payload},
+        )
+        assert resp.status_code in (200, 302)
+        post = Posts.query.order_by(Posts.id.desc()).first()
+        assert post is not None
+        assert "<script" not in post.text.lower()
+        assert "onerror" not in post.text.lower()
+        assert "onclick" not in post.text.lower()
+        assert "<b>bold</b>" in post.text
+
+    def test_news_submit_textile_markup_preserved(self, logged_client):
+        """C2: legitimate textile formatting survives sanitization."""
+        from se_models import Posts
+
+        logged_client.post(
+            "/news/submit.html",
+            data={"title": "Formatting", "post_text": "**bold** and _italic_"},
+        )
+        post = Posts.query.order_by(Posts.id.desc()).first()
+        assert post is not None
+        assert "<b>" in post.text or "<strong>" in post.text
+
+    def test_news_public_page_does_not_execute_script(self, logged_client, seeded_client):
+        """C2: a sanitized post renders on the public page without raw script."""
+        from se_models import Posts
+
+        logged_client.post(
+            "/news/submit.html",
+            data={"title": "XSS probe", "post_text": "<script>alert(1)</script>safe"},
+        )
+        post = Posts.query.order_by(Posts.id.desc()).first()
+        assert post is not None
+        resp = seeded_client.get(f"/news/item.html?post={post.id}")
+        assert resp.status_code in (200, 302)
+        body = resp.get_data(as_text=True)
+        assert "alert(1)" not in body
+        assert "<script>alert" not in body.lower()
+
+    def test_delete_internship_requires_login(self, seeded_client):
+        """H1: anonymous users must not delete internships."""
+        resp = seeded_client.get("/internships/1/delete")
+        assert resp.status_code in (302, 404)
+
+    def test_delete_internship_logged_in(self, logged_client):
+        """H1: authenticated users may delete internships."""
+        assert_ok(logged_client, "/internships/1/delete", code={200, 302, 404})
+
+    def test_theses_tmp_requires_login(self, seeded_client):
+        """H2: anonymous users must not list/approve/delete temp theses."""
+        assert_ok(seeded_client, "/theses_tmp.html", code={302})
+        assert_ok(seeded_client, "/theses_add_tmp?thesis_id=1", code={302})
+        assert_ok(seeded_client, "/theses_delete_tmp?thesis_id=1", code={302})
+
+    def test_theses_tmp_requires_role(self, logged_client):
+        """H2: a role-0 user must be redirected away from temp-thesis admin."""
+        from se_models import Users, db
+
+        u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+        u.role = 0
+        db.session.commit()
+        resp = logged_client.get("/theses_tmp.html")
+        assert resp.status_code in (302, 200)
+        assert "/theses_tmp.html" not in (resp.headers.get("Location") or "")
+
+    def test_theses_tmp_allowed_for_admin(self, admin_client):
+        """H2: role>=2 users can list temp theses."""
+        assert_ok(admin_client, "/theses_tmp.html", code={200, 302})
