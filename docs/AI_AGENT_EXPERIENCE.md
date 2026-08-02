@@ -360,3 +360,48 @@ for root, dirs, files in os.walk('src'):
 **Pattern:** The commit may or may not have landed; `git log --oneline -3` shows it didn't, and files show `MM` (staged + unstaged) because pre-commit auto-fixed formatting on staged files after staging.
 
 **Fix:** Re-stage (`git add -u`) after the failed commit and re-run via shell `git commit --no-gpg-sign -m "..."` (with a 120s timeout). On this repo feature branches use `--no-gpg-sign` per GIT_FLOW §4.
+
+## dprint pre-commit hook hangs downloading WASM plugins (network)
+
+**When:** Running `git commit` on this host — the dprint pre-commit hook (`.pre-commit-config.yaml` `trim21/dprint-pre-commit` → `dprint fmt`) took ~180s or timed out entirely.
+
+**Root cause:** dprint downloads its formatter plugins (`pretty_yaml`, `toml`, `json` WASM) from `https://plugins.dprint.dev/` on first use, caching them in `~/.cache/dprint/cache/plugins/`. On this host the CDN stalled (HTTP 200 headers but 0 bytes of the 576 KB body in 25s over IPv4; no IPv6 route; DNS resolves to IPv6-only). The plugin cache stayed empty, so **every** dprint run re-attempted all 3 downloads → ~180s wall, ~0 CPU.
+
+**Diagnosis:** `dprint check --verbose 2>&1` (redirect to a file, don't truncate) shows `[DEBUG] Downloading url: https://plugins.dprint.dev/...wasm` stalling with no progress. `curl -4 -w "%{http_code} %{size_download} %{time_total}"` confirms the stall. `~/.cache/dprint/cache/plugins/` missing/empty = cache never populated.
+
+**Fix:** Turn on VPN / fix egress to `plugins.dprint.dev`. Once populated, dprint runs in ~6s and stays cached. **Pre-warm after fresh env setup:** run `uv run pre-commit run dprint --all-files` once. Note: `dprint check` finds real drift too (e.g., `src/client_google_test.json` 4-space→2-space) — run `dprint fmt` to fix, then `git add`.
+
+## Config module test mocks `os.path.exists` — adding a new `exists()` call causes RecursionError
+
+**When:** Adding a new config file read guarded by `os.path.exists(...)` in `flask_se_config.py` (e.g., the VK secret).
+
+**Root cause:** `tests/test_flask_se_deep.py::TestFlaskSeConfigMailPassword::test_mail_password_read_from_file` monkeypatches `os.path.exists` with a wrapper whose fallback branch calls `os.path.exists(path)` **after** patching — self-recursion on any path that isn't the mocked one. It passed before only because `flask_se_config` had a single `exists()` call whose path matched the mock. CI failed with `RecursionError: maximum recursion depth exceeded` at `flask_se_config.py:24` (the new `os.path.exists(VK_SECRET_FILE)` call).
+
+**Fix:** Capture the original before patching: `original_exists = os.path.exists` then `return original_exists(path)`. Committed in PR #191.
+
+## `gh pr edit --body-file` fails with GraphQL "Projects (classic) is being deprecated" error
+
+**When:** Updating a PR body with `gh pr edit <n> --repo <owner>/<repo> --body-file file.md`.
+
+**Root cause:** `gh pr edit` uses a GraphQL mutation that queries `projectCards`, which errors out on repos with legacy Projects-classic enabled. The edit silently does not apply.
+
+**Fix:** Use the REST API instead:
+
+```
+gh api -X PATCH "repos/<owner>/<repo>/pulls/<n>" -f body="$(cat file.md)"
+```
+
+## Tests: conftest mocks `check_password_hash` to always return True — legacy HMAC login branch is dead in tests
+
+**When:** Writing a regression test for the legacy HMAC login fallback (`flask_se_auth.py` `login_index`, the `algorithm$salt$hexdigest` branch).
+
+**Root cause:** `tests/conftest.py` patches `werkzeug.security.check_password_hash` to `lambda pwhash, password: True` (scrypt unsupported on Python 3.13), so the first branch always succeeds and the HMAC fallback is unreachable in tests.
+
+**Fix:** Patch the module-local import so the fallback is exercised:
+
+```python
+with patch("flask_se_auth.check_password_hash", return_value=False):
+    resp = seeded_client.post("/login.html", data={"email": ..., "password": ...})
+```
+
+Seed the user's `password_hash` as `f"sha256${salt}${hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()}"` to match the legacy format. Committed in PR #191.
