@@ -42,10 +42,11 @@ Create these files in `src/configs/` (never committed):
 
 | File | Purpose |
 |------|---------|
-| `flask_se_secret.conf` | Secret key, database path, thesis API key |
+| `flask_se_secret.conf` | Session signing secret key |
 | `flask_se_mail.conf` | SMTP settings for email notifications |
 | `flask_se_practice_yandex_secret.conf` | Yandex OAuth for practice file storage |
 | `flask_se_vk_secret.conf` | VK OAuth client secret |
+| `flask_se_thesis.conf` | Thesis upload API key (`SECRET_KEY_THESIS`) |
 
 ## Commands
 
@@ -67,6 +68,15 @@ The project includes Docker configuration:
 - `docker-compose.yml` — Flask + nginx
 
 Production uses `current` branch with uWSGI behind nginx.
+
+### Docker quickstart
+
+```bash
+docker compose up --build
+```
+
+The entrypoint (`docker/entrypoint.sh`) initializes the SQLite database
+automatically on first boot, so no manual `cp`/`init` step is needed.
 
 ## Project structure
 
