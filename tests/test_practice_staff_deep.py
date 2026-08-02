@@ -57,7 +57,7 @@ class TestCurrentThesisExistsOrRedirect:
         assert resp.status_code in (200, 302)
 
     def test_thesis_not_owned_by_staff_redirects(self, staff_client):
-        from se_models import CurrentThesis, db, db
+        from se_models import CurrentThesis, db
 
         ct = CurrentThesis(author_id=2, worktype_id=1, area_id=1)
         ct.title = "Not my thesis"
@@ -118,7 +118,7 @@ class TestThesisStaffPost:
         assert ct.status == 2
 
     def test_submit_restore_work(self, thesis_with_report):
-        from se_models import CurrentThesis, db, db
+        from se_models import CurrentThesis, db
 
         client, ct_id, _ = thesis_with_report
         ct = db.session.get(CurrentThesis, ct_id)
@@ -161,7 +161,7 @@ class TestReportsStaff:
         assert resp.status_code in (200, 302)
 
     def test_reports_with_report_not_owned_redirects(self, thesis_with_report):
-        from se_models import CurrentThesis, db, ThesisReport, db
+        from se_models import CurrentThesis, ThesisReport, db
 
         client, ct_id, _ = thesis_with_report
         ct2 = CurrentThesis(author_id=2, worktype_id=1, area_id=1)

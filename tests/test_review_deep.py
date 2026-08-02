@@ -501,7 +501,7 @@ class TestReviewSubmitReview:
             },
         )
         assert resp.status_code == 302
-        from se_models import ThesisOnReview, db, ThesisReview
+        from se_models import ThesisOnReview, ThesisReview, db
 
         t = db.session.get(ThesisOnReview, other_thesis_on_review.id)
         assert t.review_status == 3
@@ -522,7 +522,9 @@ class TestReviewSubmitReview:
         )
         assert resp.status_code == 302
 
-    @pytest.mark.xfail(strict=False, reason="Missing template notification/thesis_on_review_success.html")
+    @pytest.mark.xfail(
+        strict=False, reason="Missing template notification/thesis_on_review_success.html"
+    )
     @patch("flask_se_review.os.path.isfile", return_value=False)
     @patch.object(FileStorage, "save")
     def test_reviewed_with_file(
@@ -691,7 +693,9 @@ class TestFullReviewFlow:
     """End-to-end flow: become reviewer в†' submit в†' review."""
 
     @patch("flask_se_review.os.path.isfile", return_value=False)
-    @pytest.mark.xfail(strict=False, reason="Missing template notification/thesis_on_review_success.html")
+    @pytest.mark.xfail(
+        strict=False, reason="Missing template notification/thesis_on_review_success.html"
+    )
     @patch.object(FileStorage, "save")
     @patch("flask_se_review.translit")
     @patch("flask_se_review.get_thesis_type_id_string")

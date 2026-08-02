@@ -80,7 +80,7 @@ class TestPracticeAdminIndexGet:
 
 class TestPracticeAdminIndexPostFinishAll:
     def test_finish_all_work(self, current_thesis):
-        from se_models import CurrentThesis, db, db
+        from se_models import CurrentThesis, db
 
         client, ct_id = current_thesis
         ct = db.session.get(CurrentThesis, ct_id)
@@ -327,7 +327,7 @@ class TestPracticeAdminThesisPost:
         assert ct.status == 2
 
     def test_submit_restore_work(self, current_thesis):
-        from se_models import CurrentThesis, db, db
+        from se_models import CurrentThesis, db
 
         client, ct_id = current_thesis
         ct = db.session.get(CurrentThesis, ct_id)
@@ -381,7 +381,7 @@ class TestPracticeAdminArchiveThesis:
         assert resp.status_code in (200, 302)
 
     def test_archive_post_no_text(self, current_thesis):
-        from se_models import CurrentThesis, db, db
+        from se_models import CurrentThesis, db
 
         client, ct_id = current_thesis
         ct = db.session.get(CurrentThesis, ct_id)
@@ -397,7 +397,7 @@ class TestPracticeAdminArchiveThesis:
         assert resp.status_code in (200, 302)
 
     def test_archive_post_no_presentation(self, current_thesis):
-        from se_models import CurrentThesis, db, db
+        from se_models import CurrentThesis, db
 
         client, ct_id = current_thesis
         ct = db.session.get(CurrentThesis, ct_id)
@@ -413,7 +413,7 @@ class TestPracticeAdminArchiveThesis:
         assert resp.status_code in (200, 302)
 
     def test_archive_post_no_supervisor_review(self, current_thesis):
-        from se_models import CurrentThesis, db, db
+        from se_models import CurrentThesis, db
 
         client, ct_id = current_thesis
         ct = db.session.get(CurrentThesis, ct_id)
@@ -429,7 +429,7 @@ class TestPracticeAdminArchiveThesis:
         assert resp.status_code in (200, 302)
 
     def test_archive_post_success_with_all_files(self, current_thesis):
-        from se_models import CurrentThesis, db, Thesis
+        from se_models import CurrentThesis, Thesis, db
 
         client, ct_id = current_thesis
         ct = db.session.get(CurrentThesis, ct_id)
@@ -454,7 +454,7 @@ class TestPracticeAdminArchiveThesis:
         assert archived.name_ru == "Test Practice Thesis Admin"
 
     def test_archive_post_with_uploaded_files(self, current_thesis):
-        from se_models import CurrentThesis, db, db
+        from se_models import CurrentThesis, db
 
         client, ct_id = current_thesis
         ct = db.session.get(CurrentThesis, ct_id)

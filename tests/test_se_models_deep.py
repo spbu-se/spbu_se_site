@@ -760,23 +760,13 @@ def test_diploma_themes_tags_delete(app_ctx):
 
 
 def test_init_db_creates_all_26_tables_in_one_call(app_ctx):
+    from conftest import _assert_seeded_tables
+
     from se_models import (
-        AreasOfStudy,
-        Courses,
         Curriculum,
-        DiplomaThemes,
-        InternshipFormat,
-        InternshipTag,
-        Posts,
-        Staff,
-        ThemesLevel,
-        Users,
-        Worktype,
         init_db,
     )
 
-    from conftest import _assert_seeded_tables
-
     init_db()
-    Curriculum = _assert_seeded_tables()
+    _assert_seeded_tables()
     assert Curriculum.query.count() > 0
