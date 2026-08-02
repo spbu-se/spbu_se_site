@@ -186,3 +186,53 @@ Covers: technology stack choices, framework-specific decisions, implementation p
 **Rationale**: Tests are code and deserve the same gate as production code. The drift was invisible precisely because the gate didn't cover `tests/`. Matches `pylint --enable=similarities` which already checks `src/ tests/`.
 
 **Alternatives considered**: Keeping the gate src-only and relying on pre-commit for touched files — that is exactly how the drift accumulated (untouched files never get reformatted).
+
+## [2026-08-02] Config secrets are file *contents*, never paths
+
+**Context**: The 2026-08-02 security audit found `SECRET_KEY = <path to flask_se_secret.conf>` — i.e. Flask's session-signing key was a guessable filesystem path, never the file's contents. Anyone knowing the deploy path could forge session cookies (full account takeover). Same trap for `SECRET_KEY_THESIS = os.urandom(16).hex()` regenerated per import (inconsistent across the 4 uWSGI workers).
+
+**Decision**: Add `flask_se_config.read_secret_from_file()`: reads a config file's trimmed contents, or returns `os.urandom(len).hex()` only when the file is absent (dev/fresh checkout). Used for `SECRET_KEY` (fallback_len=24) and `SECRET_KEY_THESIS` (fallback_len=16, new `flask_se_thesis.conf`). The thesis API key was also removed from the admin UI.
+
+**Rationale**: Mirrors the existing `MAIL_PASSWORD` read pattern. A config file is stable across workers and restarts; the dev fallback is opaque random material, never a path.
+
+**Alternatives considered**: Env-var injection — departs from the established config-file convention. Keeping the path-as-key — the vulnerability itself.
+
+## [2026-08-02] Sanitize user HTML at the storage boundary (nh3)
+
+**Context**: News posts were rendered through `textile.textile()` (sanitization off by default) then emitted with `{{ post.text|safe }}` — any registered user (open registration) could run stored XSS on the public news page. The `|markdown` filter had the same latent risk.
+
+**Decision**: Sanitize rendered HTML with `nh3.clean()` before persisting it (news). `nh3` (Rust, ammonia port) is already a transitive dependency. The `|markdown` filter keeps Jinja's autoescape (returns a plain `str`) so it stays non-executable; do not wrap it in `Markup` without sanitizing first.
+
+**Rationale**: Sanitize-then-store keeps the `|safe` render path but guarantees safe content; `nh3` is a hardened allowlist sanitizer with no Python-parse attack surface. It matches the "sanitize at the boundary" principle better than render-time sanitization, which would have to run on every view.
+
+**Alternatives considered**: Render-time sanitization — runs repeatedly and still needs the filter change. Escaping instead of sanitizing — would show raw HTML tags to users.
+
+## [2026-08-02] CSRFProtect global + POST-only mutations
+
+**Context**: No CSRF protection existed; state-changing actions (news vote/delete, diploma delete/archive, review delete/claim, internship delete, temp-thesis approve/delete) ran on GET, enabling drive-by `<img>`/link attacks.
+
+**Decision**: Enable Flask-WTF `CSRFProtect(app)` globally; add `{{ csrf_token() }}` to every POST form and the avatar fetch (JS reads a `<meta name="csrf-token">`); convert all GET mutations to POST (views read `request.form`/`request.values`); exempt `post_theses` (authenticated by `SECRET_KEY_THESIS`, called by an external script). Cookie hardened with `HttpOnly` + `SameSite=Lax` + `Secure` (env-gated).
+
+**Rationale**: Global CSRFProtect is the standard defense; converting GET mutations to POST removes the entire class of CSRF-by-navigation attacks. Tests disable CSRF via `WTF_CSRF_ENABLED=False`.
+
+**Alternatives considered**: Per-view manual tokens — error-prone across ~25 forms. Keeping GET mutations — leaves the drive-by hole open.
+
+## [2026-08-02] OAuth state validation + gated insecure transport
+
+**Context**: Google's callback had a dead `if not state: redirect(...)` (missing `return`) and no explicit state comparison; VK had no `state` param at all (OAuth login-CSRF/account confusion). `OAUTHLIB_INSECURE_TRANSPORT=1` was set unconditionally, allowing Google OAuth over HTTP in production.
+
+**Decision**: Google compares `request.args["state"]` against the popped session value and redirects on mismatch. VK gets a real `/vk_login` that mints a state, stores it in session, and the callback validates it; the token exchange moved to a POST body (avoids secret-in-URL). `OAUTHLIB_INSECURE_TRANSPORT` is set only when `SE_DEV_OAUTH_INSECURE=1`.
+
+**Rationale**: Standard OAuth state validation blocks login-CSRF; POST token exchange keeps `client_secret` out of logs/URLs; the insecure-transport flag should be dev-only.
+
+**Alternatives considered**: Relying on the library's built-in state check — undocumented, converts misuse into 500s.
+
+## [2026-08-02] In-memory rate limiter without new dependencies
+
+**Context**: Login/register had no rate limiting and distinct error messages enabled account enumeration.
+
+**Decision**: Add `flask_se_config.RateLimiter` — a small sliding-window in-memory limiter (login 10/5min per IP, register 5/h). Unify the login error message ("Пара логин и пароль указаны неверно") so it does not reveal whether an email exists. Minimum password length raised to 8.
+
+**Rationale**: No new dependency; adequate defense-in-depth. Per-worker state is acceptable for a single-host site.
+
+**Alternatives considered**: Flask-Limiter — new dependency, not worth it for this deployment.

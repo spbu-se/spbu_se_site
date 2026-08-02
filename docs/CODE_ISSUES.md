@@ -94,6 +94,61 @@ Fixed on `fix/security-sweep` (PR #187) — path traversal, open redirects, secr
 
 Root cause of issue #126 step 2 (`cp src/databases/se.db databases/se.db`). Production impact unverified — depends on the uWSGI working directory. Fix: build the URI from `SQLITE_DATABASE_PATH` (like `init_db()` does) or align the dev flow's working directory.
 
+## Security audit 2026-08-02 — full-code review + GH security surface [FIXED]
+
+Senior-dev review of the entire `src/` (authz/CSRF/OAuth, XSS, SQLi/file-handling)
+plus the GitHub security surface (Dependabot, CodeQL, private advisory). All
+findings below fixed in the stacked fork PR (#193). Regression tests live in
+`tests/test_auth_views.py` (`TestSecurityCritical`, `TestSecurityMedium`).
+
+### Phase 1 — Critical
+
+| Finding | Status | Fix |
+|---------|--------|-----|
+| `SECRET_KEY` was a **filesystem path string**, never the config file contents → forgeable session cookies = full takeover | FIXED | `flask_se_config.read_secret_from_file()` reads `flask_se_secret.conf`; random dev fallback |
+| Stored XSS on the public news page: `textile.textile()` (sanitize off) + `{{ post.text\|safe }}` | FIXED | `nh3.clean()` at the storage boundary |
+| `delete_internship` had `@login_required` commented out → anonymous delete | FIXED | decorator restored |
+| `theses_tmp`/`theses_delete_tmp`/`theses_add_tmp` unauthenticated → anyone could publish/destroy temp theses | FIXED | login + role>=2 gate |
+
+### Phase 2 — High hardening
+
+| Finding | Status | Fix |
+|---------|--------|-----|
+| No CSRF protection; GET-based mutations (`post_vote`, delete/archive, etc.) | FIXED | global `CSRFProtect`; csrf tokens on all POST forms; GET mutations moved to POST |
+| Upload extension whitelist accepted `.html/.svg` served from `static/` → stored XSS | FIXED | allowlist (pdf/doc/docx/ppt/pptx/txt/md) + `MAX_CONTENT_LENGTH` 64MB |
+| `SECRET_KEY_THESIS = os.urandom(16)` regenerated per uWSGI worker (inconsistent API key) + shown in admin UI | FIXED | persistent config file; removed from UI |
+| Google OAuth missing `return` + no state check; VK/Yandex no `state` (login-CSRF) | FIXED | explicit state validation; new VK `/vk_login` with state + POST exchange |
+| `OAUTHLIB_INSECURE_TRANSPORT=1` unconditional | FIXED | gated behind `SE_DEV_OAUTH_INSECURE` |
+| Session cookie without `Secure`/`SameSite` | FIXED | HttpOnly + SameSite=Lax + Secure (env-gated) |
+
+### Phase 3 — Medium hardening
+
+| Finding | Status | Fix |
+|---------|--------|-----|
+| Path-traversal **write** via unsanitized usernames in upload paths (practice + review) | FIXED | `secure_filename()` on all name-derived components |
+| Zip-slip on practice archive export (`arcname` from DB `text_uri`) | FIXED | `_safe_uri()` validation (regex `[A-Za-z0-9_.-]+`) |
+| `theses_add_tmp` `os.rename` with DB-controlled URI | FIXED | `_safe_uri()` gate |
+| Untrusted PDFs parsed by MuPDF without size/page caps; orphaned files on parse failure | FIXED | `get_text()` tolerant; `MAX_CONTENT_LENGTH`; temp cleanup |
+| Unbounded avatar download (`r.content`) — memory DoS | FIXED | streamed `_download_avatar()` with 2MB budget |
+| `DecompressionBombError` not caught (not an `OSError`) → 500 + tmp leak | FIXED | broad except + `finally` unlink |
+| Login brute-force + account enumeration via distinct error messages | FIXED | in-memory `RateLimiter` (login 10/5min, register 5/h); unified error message |
+| Weak password policy (min 5) | FIXED | min 8 |
+| Practice IDORs: task/report delete+edit not scoped to owner thesis; notification read not scoped | FIXED | scoped by `current_thesis.id` / `recipient_id` |
+| Review IDORs: result readable by anyone (author check commented out); any reviewer could submit for any thesis | FIXED | author-or-reviewer gate; `thesis.reviewer_id == user_reviewer.id` |
+| FTS5 query-language injection via embedded quotes | FIXED | quote escaping in `thesis_fts_search` |
+| CSV export formula injection; unbounded `page_size` | FIXED | `'` prefix on control chars; cap 200 |
+
+### Open / intentional
+
+- **Practice admin vs staff role separation** — both use the same `user_is_staff` guard by design; staff are the operators. Deferred; revisit if a curator-only role is needed.
+- **SQLite URI mismatch** (see P2 above) — root cause of issue #126; not part of this audit.
+- Dependabot Pillow (9 alerts) + Flask (1) alerts still show open in GH UI but the manifest is already patched (Pillow 12.3.0, Flask 3.1.3) — auto-resolve on the next Dependabot scan of `current`.
+
+### CodeQL
+
+- #171/#172 (weak SHA256 hashing in tests) — FIXED: tests now use a precomputed HMAC digest.
+- #173 (clear-text storage at `flask_se_auth.py` avatar write) — verified false positive (writes image bytes, not the token), dismissed with reason.
+
 ### Dismissed (vendored/client-side, "won't fix")
 
 - 58 × Unsafe jQuery plugin — Bootstrap 4 dist bundle in `src/static/assets/libs/`

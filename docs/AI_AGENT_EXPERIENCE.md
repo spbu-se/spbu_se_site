@@ -405,3 +405,45 @@ with patch("flask_se_auth.check_password_hash", return_value=False):
 ```
 
 Seed the user's `password_hash` as `f"sha256${salt}${hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()}"` to match the legacy format. Committed in PR #191.
+
+## Config-secret path vs contents trap (`SECRET_KEY` was a filesystem path)
+
+**When:** 2026-08-02 full security audit; reviewing `flask_se_config.py`.
+
+**Root cause:** `SECRET_KEY = os.path.join(..., "configs/flask_se_secret.conf")` — the *path string*, never the file's contents. Flask signed session cookies with a guessable absolute path → anyone knowing the deploy path could forge `_user_id` and take over any account incl. admin. A grep confirmed the file's contents were never read anywhere.
+
+**Lesson:** When a config module defines a secret as `os.path.join(...)`, check whether the *contents* are ever opened. The path-vs-contents confusion is silent: everything works, auth "seems" secure, until someone notices the signing key is public. Fix pattern: `read_secret_from_file()` (reads trimmed contents; random dev fallback).
+
+**Also:** `SECRET_KEY_THESIS = os.urandom(16).hex()` regenerated on *every import* → 4 uWSGI workers each had a different key, so `/post_theses` randomly 403'd and the "secret" was meaningless. Persistent secrets must come from a config file, not `os.urandom` at module scope.
+
+## textile defaults to unsanitized HTML (`textile.textile()` + `|safe` = stored XSS)
+
+**When:** 2026-08-02 audit of the news module.
+
+**Root cause:** `textile.textile(post_text)` runs with sanitization off (`textilefactory` defaults `restricted=False, sanitize=False`) — raw `<script>`/`onerror` passes through, persisted pre-rendered, then emitted with `{{ post.text|safe }}` on a public page. Any registered user (open registration) could execute JS site-wide.
+
+**Lesson:** Never assume a markup library sanitizes by default. `textile 4.0.4` has no `sanitize` kwarg on `textile()`; sanitize at the storage boundary with `nh3.clean()` (Rust/ammonia, already a transitive dep) and keep `|safe` only for sanitized content. Same principle applies to the `|markdown` filter: returning `Markup(...)` without sanitizing would create stored XSS.
+
+## Verify CodeQL dismissals against live code — stale sinks
+
+**When:** 2026-08-02 audit; reviewing dismissed alerts #162 (js/xss-through-dom at `base_practice_admin.html:33`).
+
+**Root cause:** The dismissed alert pointed at a jQuery `.html()` sink that *no longer exists* — the file's line 33 is now a `<select onchange>`, and `git log -S '.html('` over template history found zero matches. The dismissal rationale ("no attacker-controlled input reaches the sink") was moot: there is no sink.
+
+**Lesson:** Before trusting a CodeQL dismissal, check whether the sink still exists at the reported line. Re-run CodeQL after big refactors (no codeql workflow is configured, so alerts drift stale). For genuinely-open alerts, verify then dismiss with a concrete reason (e.g. #173: the flagged `f.write(r.content)` writes avatar image bytes, not the OAuth token — false positive).
+
+## Request method changes break `assert_ok` GET-based tests (static catch-all returns 404)
+
+**When:** 2026-08-02, converting GET mutations to POST in Phase 2.
+
+**Root cause:** The app sets `static_url_path=""`, so the catch-all route `/<path:filename>` (GET) serves *any* unmatched path. A GET to a now-POST-only route (e.g. `/news/delete`) is matched by the static rule → **404**, not 405. Tests expecting `{200, 302}` failed with 404.
+
+**Lesson:** With `static_url_path=""`, GET on a POST-only route returns 404 (static fallback), not 405. When converting mutations to POST, allow 404 in route-accessibility tests or change them to POST. Also: `request.values` (merged args+form) keeps vote/delete views compatible with both `url_for(...)` query-string POSTs and form-data POSTs.
+
+## djLint pre-commit reformats ALL html — conflicts with staged template edits
+
+**When:** 2026-08-02 Phase 2, adding `{{ csrf_token() }}` to templates.
+
+**Root cause:** The `djlint --reformat` hook (pre-commit stage) normalizes *every* html file during commit; if your staged template edits differ from djLint's output, the hook's stash/apply conflicts and the commit aborts with "Stashed changes conflicted with hook auto-fixes... Rolling back fixes".
+
+**Fix:** Run `uv run pre-commit run djlint --all-files` once to normalize templates *before* staging, then `git add -A` and commit. The hook then passes with no conflicts.
