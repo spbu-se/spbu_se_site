@@ -53,8 +53,11 @@
              class="btn btn-danger w-100">Отказаться</a>
         </div>
         <div class="col-lg-3">
-          <a href="{{ url_for('review_thesis_on_review', thesis_review_id=thesis.id, set_to_review=1) }}"
-             class="btn btn-primary w-100">Рецензировать</a>
+          <form method="post"
+                action="{{ url_for('review_thesis_on_review', thesis_review_id=thesis.id, set_to_review=1) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary w-100">Рецензировать</button>
+          </form>
         </div>
       </div>
     </div>

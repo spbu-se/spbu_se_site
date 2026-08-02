@@ -12,6 +12,7 @@
       </div>
     </div>
     <form method="POST" action="{{ url_for('thesis_admin', id=thesis.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div id="editTitleInput" class="row" style="display: none">
         <div class="col">
           <div class="card border-0 mb-2">
@@ -207,6 +208,7 @@
       </div>
     {% endif %}
     <form method="POST" action="{{ url_for('thesis_admin', id=thesis.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       {% if thesis.status == 1 %}
         <div class="row">
           <div class="col">
@@ -235,8 +237,12 @@
       <div class="row my-3">
         {% if not thesis.archived %}
           <div class="col">
-            <a class="btn btn-sm btn-outline-primary"
-               href="{{ url_for('archive_thesis', id=thesis.id) }}">Перенести в архив</a>
+            <form method="post"
+                  action="{{ url_for('archive_thesis', id=thesis.id) }}"
+                  class="d-inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-sm btn-outline-primary">Перенести в архив</button>
+            </form>
           </div>
         {% endif %}
         <div class="col d-flex justify-content-end">

@@ -23,6 +23,16 @@ log = logging.getLogger("flask_se.sub")
 
 _safe_ext_re = re.compile(r"^\.[A-Za-z0-9]{1,10}$")
 
+_ALLOWED_UPLOAD_EXTENSIONS = {
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".ppt",
+    ".pptx",
+    ".txt",
+    ".md",
+}
+
 _THESES_ROLE_LEVEL = 2
 
 
@@ -32,8 +42,8 @@ def _require_theses_admin() -> bool:
 
 def _safe_extension(filename: str | None) -> str:
     path = urlparse(filename or "").path
-    extension = splitext(path)[1]
-    if _safe_ext_re.fullmatch(extension):
+    extension = splitext(path)[1].lower()
+    if _safe_ext_re.fullmatch(extension) and extension in _ALLOWED_UPLOAD_EXTENSIONS:
         return extension
     return ""
 
@@ -304,6 +314,12 @@ def post_theses():
     if secret_key != SECRET_KEY_THESIS:
         return jsonify(status=error_status, string="Invalid secret key: " + str(secret_key))
 
+    if not _safe_extension(thesis_text.filename):
+        return jsonify(
+            status=error_status,
+            string="Disallowed file extension: " + str(thesis_text.filename),
+        )
+
     if "source_uri" in thesis_info:
         source_uri = thesis_info["source_uri"]
 
@@ -456,7 +472,7 @@ def theses_tmp():
 def theses_delete_tmp():
     if not _require_theses_admin():
         return redirect(url_for("theses_search"))
-    thesis_id = request.args.get("thesis_id", default=1, type=int)
+    thesis_id = request.form.get("thesis_id", default=1, type=int)
     thesis = Thesis.query.filter_by(id=thesis_id).filter_by(temporary=True).first()
 
     if thesis:
@@ -470,7 +486,7 @@ def theses_delete_tmp():
 def theses_add_tmp():
     if not _require_theses_admin():
         return redirect(url_for("theses_search"))
-    thesis_id = request.args.get("thesis_id", default=1, type=int)
+    thesis_id = request.form.get("thesis_id", default=1, type=int)
     thesis = Thesis.query.filter_by(id=thesis_id).filter_by(temporary=True).first()
 
     if thesis:

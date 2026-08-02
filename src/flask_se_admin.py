@@ -4,7 +4,6 @@ from flask import redirect, render_template, session, url_for
 from flask_login import current_user
 from wtforms import SelectField, TextAreaField
 
-from flask_se_config import SECRET_KEY_THESIS
 from flask_se_crud import CrudView
 from se_models import (
     DiplomaThemes,
@@ -34,7 +33,7 @@ class AdminIndexView(CrudView):
     def index(self):
         if not _accessible(THESIS_ROLE_LEVEL):
             return _inaccessible()
-        return render_template("admin/index.html", thesis_key=SECRET_KEY_THESIS)
+        return render_template("admin/index.html")
 
 
 class RestrictedCrudView(CrudView):

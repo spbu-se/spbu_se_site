@@ -285,7 +285,7 @@ def _assert_seeded_tables():
 
 
 def _approve_temp_thesis(client, thesis_id):
-    return client.get(f"/theses_add_tmp?thesis_id={thesis_id}")
+    return client.post("/theses_add_tmp", data={"thesis_id": thesis_id})
 
 
 def _make_temp_thesis(author: str = "T", text_uri: str | None = None, name_ru: str | None = None):

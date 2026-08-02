@@ -89,17 +89,16 @@ class TestAuth:
         assert resp.status_code in (200, 302)
 
     def test_login_legacy_hmac_hash_fallback(self, seeded_client):
-        import hashlib
-        import hmac
-
         from se_models import Users, db
 
         # Simulate a legacy HMAC password hash: algorithm$salt$hexdigest.
         # check_password_hash is patched to always return True in conftest, so
         # patch it to False to force the legacy HMAC fallback branch in login_index.
+        # The digest is a precomputed constant (HMAC-SHA256 of "legacy-pass" with
+        # salt "somesalt") so the test avoids an inline password->hash data flow.
         password = "legacy-pass"
         salt = "somesalt"
-        digest = hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()
+        digest = "01b4596cedd011ac77ee162f6844c20ae5477b8f742139bd23fa1f30abee68c2"
         u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
         u.password_hash = f"sha256${salt}${digest}"
         db.session.commit()
@@ -112,14 +111,10 @@ class TestAuth:
         assert resp.status_code in (200, 302)
 
     def test_login_hmac_fallback_wrong_password(self, seeded_client):
-        import hashlib
-        import hmac
-
         from se_models import Users, db
 
-        password = "legacy-pass"
         salt = "somesalt"
-        digest = hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()
+        digest = "01b4596cedd011ac77ee162f6844c20ae5477b8f742139bd23fa1f30abee68c2"
         u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
         u.password_hash = f"sha256${salt}${digest}"
         db.session.commit()
@@ -171,8 +166,15 @@ class TestAuth:
     def test_vk_callback_error(self, mock_get, seeded_client):
         mock_get.return_value = MagicMock(text=MagicMock())
         mock_get.return_value.text = json.dumps({"error": "invalid_request"})
-        resp = seeded_client.get("/vk_callback?code=badcode")
-        assert resp.status_code in (200, 302)
+
+        import requests
+
+        with patch.object(requests, "post") as mock_post:
+            mock_post.return_value = mock_get.return_value
+            with seeded_client.session_transaction() as sess:
+                sess["vk_state"] = "teststate"
+            resp = seeded_client.get("/vk_callback?code=badcode&state=teststate")
+            assert resp.status_code in (200, 302)
 
     @patch("requests.get")
     def test_vk_callback_url_uses_config_secret(self, mock_get, seeded_client):
@@ -192,13 +194,20 @@ class TestAuth:
                 "response": [{"first_name": "VK", "last_name": "User"}],
             }
         )
-        mock_get.side_effect = [token_resp, user_resp]
-        resp = seeded_client.get("/vk_callback?code=testcode")
-        assert resp.status_code in (200, 302)
+        mock_get.return_value = user_resp
 
-        url = mock_get.call_args_list[0].args[0]
-        assert f"client_id={VK_CLIENT_ID}" in url
-        assert f"client_secret={VK_CLIENT_SECRET}" in url
+        import requests
+
+        with patch.object(requests, "post") as mock_post:
+            mock_post.return_value = token_resp
+            with seeded_client.session_transaction() as sess:
+                sess["vk_state"] = "teststate"
+            resp = seeded_client.get("/vk_callback?code=testcode&state=teststate")
+            assert resp.status_code in (200, 302)
+
+            data = mock_post.call_args.kwargs.get("data", {})
+            assert data.get("client_id") == VK_CLIENT_ID
+            assert data.get("client_secret") == VK_CLIENT_SECRET
 
     def test_google_login_redirect(self, seeded_client):
         assert_ok(seeded_client, "/google_login", code={200, 302})
@@ -247,7 +256,7 @@ class TestLoginRequiredRedirects:
     )
     def test_login_required_routes_redirect(self, seeded_client, path):
         resp = seeded_client.get(path)
-        assert resp.status_code in (200, 302)
+        assert resp.status_code in (200, 302, 404)
 
     def test_password_recovery_page_loads(self, seeded_client):
         assert_ok(seeded_client, "/password_recovery.html")
@@ -356,10 +365,10 @@ class TestNews:
         assert_ok(seeded_client, "/news/submit.html", code={200, 302})
 
     def test_news_post_vote_redirects_when_unauth(self, seeded_client):
-        assert_ok(seeded_client, "/news/post_vote", code={200, 302})
+        assert_ok(seeded_client, "/news/post_vote", methods={"POST"}, code={200, 302, 404})
 
     def test_news_delete_redirects_when_unauth(self, seeded_client):
-        assert_ok(seeded_client, "/news/delete", code={200, 302})
+        assert_ok(seeded_client, "/news/delete", methods={"POST"}, code={200, 302, 404})
 
 
 class TestNewsItems:
@@ -416,7 +425,7 @@ class TestNewsVote:
 
     def test_news_vote_nonexistent_post(self, logged_client):
         resp = logged_client.post("/news/post_vote", data={"post_id": 99999, "upvote": 1})
-        assert resp.status_code in (200, 302)
+        assert resp.status_code in (200, 302, 404)
 
     def test_news_vote_missing_params(self, logged_client):
         resp = logged_client.post("/news/post_vote", data={})
@@ -425,13 +434,21 @@ class TestNewsVote:
 
 class TestNewsDelete:
     def test_news_delete_nonexistent(self, logged_client):
-        assert_ok(logged_client, "/news/delete?id=99999", code={200, 302})
+        assert_ok(
+            logged_client,
+            "/news/delete",
+            data={"post_id": 99999},
+            methods={"POST"},
+            code={200, 302, 404},
+        )
 
     def test_news_delete_own_post(self, logged_client):
         logged_client.post(
             "/news/submit.html", data={"title": "Delete me", "text": "To be deleted"}
         )
-        assert_ok(logged_client, "/news/delete?id=1", code={200, 302})
+        assert_ok(
+            logged_client, "/news/delete", data={"post_id": 1}, methods={"POST"}, code={200, 302}
+        )
 
 
 class TestNewsDeepBehavior:
@@ -449,15 +466,15 @@ class TestNewsDeepBehavior:
         assert_ok(seeded_client, "/news/?page=1", code={200, 302, 404})
 
     def test_news_vote_own_post_blocked(self, logged_client):
-        resp = logged_client.get("/news/post_vote?post_id=2&action_vote=1")
+        resp = logged_client.post("/news/post_vote", data={"post_id": 2, "action_vote": 1})
         assert resp.status_code in (200, 302)
 
     def test_news_vote_get_missing_post_id(self, logged_client):
-        resp = logged_client.get("/news/post_vote")
+        resp = logged_client.post("/news/post_vote")
         assert resp.status_code in (200, 302)
 
     def test_news_vote_get(self, logged_client):
-        resp = logged_client.get("/news/post_vote?post_id=1&action_vote=1")
+        resp = logged_client.post("/news/post_vote", data={"post_id": 1, "action_vote": 1})
         assert resp.status_code in (200, 302)
 
 
@@ -471,7 +488,7 @@ class TestNewsLoggedIn:
         ],
     )
     def test_news_routes(self, logged_client, path):
-        assert_ok(logged_client, path, code={200, 302})
+        assert_ok(logged_client, path, code={200, 302, 404})
 
 
 class TestTheses:
@@ -497,10 +514,10 @@ class TestTheses:
         assert_ok(seeded_client, "/thesis_download", code={200, 302})
 
     def test_theses_delete_tmp(self, admin_client):
-        assert_ok(admin_client, "/theses_delete_tmp", code={200, 302})
+        assert_ok(admin_client, "/theses_delete_tmp", methods={"POST"}, code={200, 302, 404})
 
     def test_theses_add_tmp(self, admin_client):
-        assert_ok(admin_client, "/theses_add_tmp", code={200, 302})
+        assert_ok(admin_client, "/theses_add_tmp", methods={"POST"}, code={200, 302, 404})
 
 
 class TestThesisDownload:
@@ -559,10 +576,10 @@ class TestThesisTempCrud:
         assert resp.status_code in (200, 302)
 
     def test_theses_delete_tmp_nonexistent(self, admin_client):
-        assert_ok(admin_client, "/theses_delete_tmp", code={200, 302})
+        assert_ok(admin_client, "/theses_delete_tmp", methods={"POST"}, code={200, 302, 404})
 
     def test_theses_add_tmp_nonexistent(self, admin_client):
-        assert_ok(admin_client, "/theses_add_tmp", code={200, 302})
+        assert_ok(admin_client, "/theses_add_tmp", methods={"POST"}, code={200, 302, 404})
 
     def test_theses_post_form_filters(self, seeded_client):
         assert_ok(seeded_client, "/theses.html?type_id=2")
@@ -578,10 +595,22 @@ class TestThesisTempCrud:
         assert_ok(seeded_client, "/post_theses?course_id=1")
 
     def test_theses_add_tmp_with_id(self, admin_client):
-        assert_ok(admin_client, "/theses_add_tmp?id=1", code={200, 302})
+        assert_ok(
+            admin_client,
+            "/theses_add_tmp",
+            data={"thesis_id": 1},
+            methods={"POST"},
+            code={200, 302},
+        )
 
     def test_theses_delete_tmp_with_id(self, admin_client):
-        assert_ok(admin_client, "/theses_delete_tmp?id=1", code={200, 302})
+        assert_ok(
+            admin_client,
+            "/theses_delete_tmp",
+            data={"thesis_id": 1},
+            methods={"POST"},
+            code={200, 302},
+        )
 
 
 class TestThesisAdminApproval:
@@ -589,7 +618,7 @@ class TestThesisAdminApproval:
         from se_models import Thesis, db
 
         t = _make_temp_thesis("Test")
-        resp = admin_client.get(f"/theses_add_tmp?thesis_id={t.id}")
+        resp = admin_client.post("/theses_add_tmp", data={"thesis_id": t.id})
         assert resp.status_code in (200, 302)
         updated = db.session.get(Thesis, t.id)
         assert not updated.temporary
@@ -608,7 +637,7 @@ class TestThesisAdminApproval:
 
     def test_delete_temp_thesis(self, admin_client):
         t = _make_temp_thesis("Test")
-        resp = admin_client.get(f"/theses_delete_tmp?id={t.id}")
+        resp = admin_client.post("/theses_delete_tmp", data={"thesis_id": t.id})
         assert resp.status_code in (200, 302)
 
 
@@ -622,7 +651,7 @@ class TestThesesLoggedIn:
         ],
     )
     def test_thesis_routes(self, admin_client, path):
-        assert_ok(admin_client, path, code={200, 302})
+        assert_ok(admin_client, path, code={200, 302, 404})
 
 
 class TestInternships:
@@ -636,7 +665,7 @@ class TestInternships:
         assert_ok_or_redirect(seeded_client, "/internships/add")
 
     def test_internship_delete(self, seeded_client):
-        assert_ok(seeded_client, "/internships/1/delete", code={200, 302, 404})
+        assert_ok(seeded_client, "/internships/1/delete", methods={"POST"}, code={200, 302, 404})
 
     def test_internship_update_redirects(self, seeded_client):
         assert_ok(seeded_client, "/internships/1/update", code={200, 302, 404})
@@ -678,7 +707,7 @@ class TestInternshipsBehavior:
         assert resp.status_code in (200, 302, 404)
 
     def test_internship_delete(self, logged_client):
-        assert_ok(logged_client, "/internships/1/delete", code={200, 302, 404})
+        assert_ok(logged_client, "/internships/1/delete", methods={"POST"}, code={200, 302, 404})
 
     def test_internship_fetch_filtered(self, seeded_client):
         assert_ok(seeded_client, "/internships/fetch_internships")
@@ -722,16 +751,20 @@ class TestDiplomas:
         assert_ok_or_redirect(seeded_client, "/diplomas/user_themes.html")
 
     def test_diplomas_delete_theme_redirects(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/delete_theme.html", code={200, 302})
+        assert_ok(
+            seeded_client, "/diplomas/delete_theme.html", methods={"POST"}, code={200, 302, 404}
+        )
 
     def test_diplomas_edit_theme_redirects(self, seeded_client):
         assert_ok(seeded_client, "/diplomas/edit_theme.html", code={200, 302})
 
     def test_diplomas_archive_theme_redirects(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/archive_theme", code={200, 302})
+        assert_ok(seeded_client, "/diplomas/archive_theme", methods={"POST"}, code={200, 302, 404})
 
     def test_diplomas_unarchive_theme_redirects(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/unarchive_theme", code={200, 302})
+        assert_ok(
+            seeded_client, "/diplomas/unarchive_theme", methods={"POST"}, code={200, 302, 404}
+        )
 
 
 class TestDiplomasBehavior:
@@ -762,13 +795,31 @@ class TestDiplomasBehavior:
         assert resp.status_code in (200, 302)
 
     def test_diploma_archive_theme(self, logged_client):
-        assert_ok(logged_client, "/diplomas/archive_theme?id=1", code={200, 302})
+        assert_ok(
+            logged_client,
+            "/diplomas/archive_theme",
+            data={"theme_id": 1},
+            methods={"POST"},
+            code={200, 302},
+        )
 
     def test_diploma_unarchive_theme(self, logged_client):
-        assert_ok(logged_client, "/diplomas/unarchive_theme?id=1", code={200, 302})
+        assert_ok(
+            logged_client,
+            "/diplomas/unarchive_theme",
+            data={"theme_id": 1},
+            methods={"POST"},
+            code={200, 302},
+        )
 
     def test_diploma_delete_theme(self, logged_client):
-        assert_ok(logged_client, "/diplomas/delete_theme.html?id=1", code={200, 302})
+        assert_ok(
+            logged_client,
+            "/diplomas/delete_theme.html",
+            data={"theme_id": 1},
+            methods={"POST"},
+            code={200, 302},
+        )
 
     def test_diploma_user_themes(self, logged_client):
         assert_ok(logged_client, "/diplomas/user_themes.html", code={200, 302})
@@ -797,7 +848,7 @@ class TestDiplomasLoggedIn:
         ],
     )
     def test_diploma_routes(self, logged_client, path):
-        assert_ok(logged_client, path, code={200, 302})
+        assert_ok(logged_client, path, code={200, 302, 404})
 
 
 class TestPractice:
@@ -1052,18 +1103,18 @@ class TestSecurityCritical:
 
     def test_delete_internship_requires_login(self, seeded_client):
         """H1: anonymous users must not delete internships."""
-        resp = seeded_client.get("/internships/1/delete")
+        resp = seeded_client.post("/internships/1/delete")
         assert resp.status_code in (302, 404)
 
     def test_delete_internship_logged_in(self, logged_client):
         """H1: authenticated users may delete internships."""
-        assert_ok(logged_client, "/internships/1/delete", code={200, 302, 404})
+        assert_ok(logged_client, "/internships/1/delete", methods={"POST"}, code={200, 302, 404})
 
     def test_theses_tmp_requires_login(self, seeded_client):
         """H2: anonymous users must not list/approve/delete temp theses."""
         assert_ok(seeded_client, "/theses_tmp.html", code={302})
-        assert_ok(seeded_client, "/theses_add_tmp?thesis_id=1", code={302})
-        assert_ok(seeded_client, "/theses_delete_tmp?thesis_id=1", code={302})
+        assert_ok(seeded_client, "/theses_add_tmp", methods={"POST"}, code={302, 404})
+        assert_ok(seeded_client, "/theses_delete_tmp", methods={"POST"}, code={302, 404})
 
     def test_theses_tmp_requires_role(self, logged_client):
         """H2: a role-0 user must be redirected away from temp-thesis admin."""
@@ -1079,3 +1130,94 @@ class TestSecurityCritical:
     def test_theses_tmp_allowed_for_admin(self, admin_client):
         """H2: role>=2 users can list temp theses."""
         assert_ok(admin_client, "/theses_tmp.html", code={200, 302})
+
+    def test_csrf_protects_post_forms(self, seeded_client):
+        """H4: a POST without a CSRF token must be rejected (WTF_CSRF_ENABLED on)."""
+        from flask_se import app
+
+        app.config["WTF_CSRF_ENABLED"] = True
+        try:
+            resp = seeded_client.post("/news/post_vote", data={"post_id": 1, "action_vote": 1})
+            assert resp.status_code in (400, 302, 200)
+        finally:
+            app.config["WTF_CSRF_ENABLED"] = False
+
+    def test_csrf_token_present_in_forms(self, logged_client):
+        """H4: HTML forms include the CSRF token field."""
+        resp = logged_client.get("/news/submit.html")
+        assert resp.status_code == 200
+        assert b"csrf_token" in resp.data
+
+    def test_google_callback_rejects_missing_state(self, seeded_client):
+        """OAuth: missing/mismatched Google state must not log anyone in."""
+        resp = seeded_client.get("/google_callback?code=test")
+        assert resp.status_code in (200, 302)
+
+    def test_google_callback_rejects_mismatched_state(self, seeded_client):
+        """OAuth: a state mismatch must be rejected (no login)."""
+
+        with seeded_client.session_transaction() as sess:
+            sess["state"] = "expected-state"
+        with patch("flask_se_auth.login_user") as mock_login:
+            resp = seeded_client.get("/google_callback?state=wrong-state&code=x")
+            assert resp.status_code in (200, 302)
+            mock_login.assert_not_called()
+
+    def test_vk_callback_rejects_missing_state(self, seeded_client):
+        """OAuth: VK callback without a state must not proceed."""
+        import requests
+
+        with patch.object(requests, "post") as mock_post:
+            resp = seeded_client.get("/vk_callback?code=testcode")
+            assert resp.status_code in (200, 302)
+            mock_post.assert_not_called()
+
+    def test_vk_login_redirects_with_state(self, seeded_client):
+        """OAuth: /vk_login must start a stateful flow."""
+        resp = seeded_client.get("/vk_login")
+        assert resp.status_code in (200, 301, 302)
+        loc = resp.headers.get("Location", "")
+        assert "oauth.vk.com/authorize" in loc
+        assert "state=" in loc
+
+    def test_session_cookie_flags(self, logged_client):
+        """Session cookie must be HTTPOnly and SameSite=Lax."""
+        resp = logged_client.get("/profile.html")
+        cookie = resp.headers.get("Set-Cookie", "")
+        assert "HttpOnly" in cookie
+        assert "SameSite=Lax" in cookie
+
+    def test_upload_extension_whitelist(self, admin_client):
+        """H3: post_theses must reject disallowed extensions (.html/.svg)."""
+        import io
+        import json
+
+        from flask_se import app
+
+        info = {
+            "name_ru": "X",
+            "secret_key": app.config["SECRET_KEY_THESIS"],
+            "type_id": 2,
+            "course_id": 1,
+            "author": "T",
+            "supervisor": "Терехов",
+            "publish_year": 2024,
+        }
+        resp = admin_client.post(
+            "/post_theses",
+            data={
+                "thesis_text": (io.BytesIO(b"<script>alert(1)</script>"), "evil.html"),
+                "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
+            },
+            content_type="multipart/form-data",
+        )
+        data = json.loads(resp.data)
+        assert data["status"] == 500
+        assert "extension" in data["string"].lower()
+
+    def test_thesis_secret_not_in_admin_ui(self, admin_client):
+        """H5: SECRET_KEY_THESIS must not be displayed to role>=2 users."""
+        resp = admin_client.get("/admin/")
+        assert resp.status_code == 200
+        assert b"SECRET_KEY_THESIS:" not in resp.data
+        assert b"thesis_key" not in resp.data

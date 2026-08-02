@@ -27,7 +27,11 @@ SECRET_KEY = read_secret_from_file(SECRET_KEY_FILE)
 MAIL_PASSWORD_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_mail.conf")
 VK_CLIENT_ID = "8051225"
 VK_SECRET_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_vk_secret.conf")
-SECRET_KEY_THESIS = os.urandom(16).hex()
+THESIS_SECRET_FILE = os.path.join(
+    pathlib.Path(__file__).parent,
+    "configs/flask_se_thesis.conf",
+)
+SECRET_KEY_THESIS = read_secret_from_file(THESIS_SECRET_FILE, fallback_len=16)
 SQLITE_DATABASE_NAME: str = "se.db"
 SQLITE_DATABASE_PATH: str = pathlib.Path("databases/").absolute().as_posix()
 

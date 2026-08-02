@@ -79,8 +79,12 @@
             <hr class="my-2" />
           {% endif %}
           {% if internship.author_id == user.id %}
-            <a href="/internships/{{ internship.id }}/delete"
-               class="btn btn-outline-danger btn-xs">Удалить</a>
+            <form method="post"
+                  action="/internships/{{ internship.id }}/delete"
+                  class="d-inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-outline-danger btn-xs">Удалить</button>
+            </form>
             <a href="/internships/{{ internship.id }}/update"
                class="btn btn-outline-primary btn-xs">Редактировать</a>
           {% endif %}

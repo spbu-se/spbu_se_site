@@ -149,9 +149,11 @@
                     </div>
                     <div class="modal-body">Вы точно хотите удалить эту тему'?</div>
                     <div class="modal-footer">
-                      <a href="{{ url_for('delete_theme', theme_id=theme.id) }}"
-                         type="button"
-                         class="btn btn-secondary">Да, точно</a>
+                      <form method="post"
+                            action="{{ url_for('delete_theme', theme_id=theme.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-secondary">Да, точно</button>
+                      </form>
                       <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
                     </div>
                   </div>
@@ -190,9 +192,11 @@
                       </div>
                       <div class="modal-body">Вы всегда сможете вернуть и опубликовать тему из архива. Убрать текущую тему в архив?</div>
                       <div class="modal-footer">
-                        <a href="{{ url_for('archive_theme', theme_id=theme.id) }}"
-                           type="button"
-                           class="btn btn-secondary">Да, убрать</a>
+                        <form method="post"
+                              action="{{ url_for('archive_theme', theme_id=theme.id) }}">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                          <button type="submit" class="btn btn-secondary">Да, убрать</button>
+                        </form>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
                       </div>
                     </div>
@@ -232,9 +236,11 @@
                       </div>
                       <div class="modal-body">Вернуть текущую тему из архива?</div>
                       <div class="modal-footer">
-                        <a href="{{ url_for('unarchive_theme', theme_id=theme.id) }}"
-                           type="button"
-                           class="btn btn-secondary">Да, вернуть</a>
+                        <form method="post"
+                              action="{{ url_for('unarchive_theme', theme_id=theme.id) }}">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                          <button type="submit" class="btn btn-secondary">Да, вернуть</button>
+                        </form>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
                       </div>
                     </div>

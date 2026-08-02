@@ -37,7 +37,9 @@ login_manager.login_view = "login_index"  # pyright: ignore[reportAttributeAcces
 
 
 # Google auth (https://github.com/code-specialist/flask_google_login/blob/main/app.py)
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+# Disable transport security only in dev; production must enforce HTTPS.
+if os.environ.get("SE_DEV_OAUTH_INSECURE", "") == "1":
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 GOOGLE_CLIENT_ID = "593053078492-i6hf335m9hm0vtj23df62q09j07esbhu.apps.googleusercontent.com"
 # Hack: the flask_se app does not follow application factory pattern, so at this point we
@@ -130,17 +132,41 @@ def login_index():
 
 
 # https://vk.com/dev/authcode_flow_user
+def vk_login():
+    state = os.urandom(16).hex()
+    session["vk_state"] = state
+    redirect_uri = url_for("vk_callback", _external=True)
+    auth_url = (
+        "https://oauth.vk.com/authorize?"
+        f"client_id={VK_CLIENT_ID}"
+        "&display=page"
+        f"&redirect_uri={redirect_uri}"
+        "&scope=friends,email&response_type=code&v=5.130"
+        f"&state={state}"
+    )
+    return redirect(auth_url)
+
+
 def vk_callback():
     user_code = request.args.get("code")
 
     if not user_code:
         return redirect(url_for("index"))
 
+    expected_state = session.pop("vk_state", None)
+    returned_state = request.args.get("state")
+    if not expected_state or not returned_state or expected_state != returned_state:
+        return redirect(url_for("login_index"))
+
     # Get access token
-    response = requests.get(
-        f"https://oauth.vk.com/access_token?client_id={VK_CLIENT_ID}"
-        f"&client_secret={VK_CLIENT_SECRET}&redirect_uri=https://se.math.spbu.ru/vk_callback&code="
-        + user_code,
+    response = requests.post(
+        "https://oauth.vk.com/access_token",
+        data={
+            "client_id": VK_CLIENT_ID,
+            "client_secret": VK_CLIENT_SECRET,
+            "redirect_uri": url_for("vk_callback", _external=True),
+            "code": user_code,
+        },
         timeout=10,
     )
     access_token_json = json.loads(response.text)
@@ -349,10 +375,11 @@ def google_login():
 
 
 def google_callback():
-    state = session["state"]
+    expected_state = session.pop("state", None)
+    returned_state = request.args.get("state")
 
-    if not state:
-        redirect(url_for("login_index"))
+    if not expected_state or not returned_state or expected_state != returned_state:
+        return redirect(url_for("login_index"))
 
     flow = Flow.from_client_secrets_file(
         client_secrets_file=client_secrets_file,

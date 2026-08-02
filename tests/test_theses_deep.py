@@ -415,7 +415,7 @@ class TestThesesDeleteTmpDeep:
 
         t = _make_temp_thesis("T")
         tid = t.id
-        resp = admin_client.get(f"/theses_delete_tmp?thesis_id={tid}")
+        resp = admin_client.post("/theses_delete_tmp", data={"thesis_id": tid})
         assert resp.status_code in (200, 302)
         assert db.session.get(Thesis, tid) is None
 
@@ -427,7 +427,7 @@ class TestThesesDeleteTmpDeep:
         )
         db.session.add(t)
         db.session.commit()
-        resp = admin_client.get(f"/theses_delete_tmp?thesis_id={t.id}")
+        resp = admin_client.post("/theses_delete_tmp", data={"thesis_id": t.id})
         assert resp.status_code in (200, 302)
         assert db.session.get(Thesis, t.id) is not None
 
@@ -509,11 +509,11 @@ class TestThesesAddTmpDeep:
         assert db.session.get(Thesis, t.id).temporary is False
 
     def test_add_tmp_nonexistent_thesis(self, admin_client):
-        resp = admin_client.get("/theses_add_tmp?thesis_id=99999")
+        resp = admin_client.post("/theses_add_tmp", data={"thesis_id": 99999})
         assert resp.status_code in (200, 302)
 
     def test_delete_tmp_nonexistent_thesis(self, admin_client):
-        resp = admin_client.get("/theses_delete_tmp?thesis_id=99999")
+        resp = admin_client.post("/theses_delete_tmp", data={"thesis_id": 99999})
         assert resp.status_code in (200, 302)
 
 

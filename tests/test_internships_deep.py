@@ -96,7 +96,7 @@ class TestInternshipDetail:
 class TestInternshipDelete:
     def test_delete(self, logged_client):
         internship_id = _seed_internship(logged_client)
-        resp = logged_client.get(f"/internships/{internship_id}/delete")
+        resp = logged_client.post(f"/internships/{internship_id}/delete")
         assert resp.status_code in (200, 302, 404)
 
 

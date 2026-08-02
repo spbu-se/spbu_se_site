@@ -29,8 +29,12 @@
       </div>
       <div class="row justify-content-center pb-5">
         <div class="col-lg-4">
-          <a href="{{ url_for('review_become_thesis_reviewer_confirm', code=promocode) }}"
-             class="btn btn-primary w-100">Стать рецензентом</a>
+          <form method="post"
+                action="{{ url_for('review_become_thesis_reviewer_confirm') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="code" value="{{ promocode }}">
+            <button type="submit" class="btn btn-primary w-100">Стать рецензентом</button>
+          </form>
         </div>
       </div>
     </div>

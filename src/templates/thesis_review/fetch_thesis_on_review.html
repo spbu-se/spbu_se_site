@@ -60,9 +60,11 @@
                     </div>
                     <div class="modal-body">Вы точно хотите удалить эту работу'?</div>
                     <div class="modal-footer">
-                      <a href="{{ url_for('delete_thesis_on_review', thesis_review_id=t.id) }}"
-                         type="button"
-                         class="btn btn-secondary">Да, точно</a>
+                      <form method="post"
+                            action="{{ url_for('delete_thesis_on_review', thesis_review_id=t.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-secondary">Да, точно</button>
+                      </form>
                       <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, я передумал</button>
                     </div>
                   </div>

@@ -17,6 +17,7 @@
     {{ name }}
   </h3>
   <form method="POST" action="">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     {% for field in form %}
       {% if field.type == "HiddenField" %}
         {{ field() }}

@@ -325,7 +325,7 @@ def edit_thesis_on_review():
 
 @login_required
 def delete_thesis_on_review():
-    thesis_id = request.args.get("thesis_review_id", type=int)
+    thesis_id = request.form.get("thesis_review_id", type=int)
 
     if not thesis_id:
         return redirect(url_for("thesis_review_index"))
@@ -346,8 +346,8 @@ def delete_thesis_on_review():
 def review_thesis_on_review():
     user = current_user
     user_reviewer = Reviewer.query.filter_by(user_id=user.id).first_or_404()
-    thesis_id = request.args.get("thesis_review_id", type=int)
-    set_to_review = request.args.get("set_to_review", type=int, default=0)
+    thesis_id = request.values.get("thesis_review_id", type=int)
+    set_to_review = request.values.get("set_to_review", type=int, default=0)
 
     if not user_reviewer:
         return redirect(url_for("thesis_review_index"))
@@ -370,7 +370,10 @@ def review_thesis_on_review():
 
     # Set review_status to 2 (On review)
     # Set reviewer_id to user.id
+    # State-changing part must be POST (CSRF-protected).
     if (thesis.review_status == 1) and (set_to_review != 0):
+        if request.method != "POST":
+            return redirect(url_for("thesis_review_index"))
         thesis.review_status = 2
         thesis.reviewer_id = user_reviewer.id
         db.session.commit()
@@ -585,7 +588,7 @@ def review_become_thesis_reviewer_ask():
 def review_become_thesis_reviewer_confirm():
     user = current_user
 
-    promocode = request.args.get("code", type=str, default="")
+    promocode = request.form.get("code", type=str, default="")
 
     promo = PromoCode.query.filter_by(code=promocode).first()
 
