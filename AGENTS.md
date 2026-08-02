@@ -58,12 +58,19 @@ Three tiers of quality, from local convenience to production gate:
 Run automatically on `git commit`. Auto-fix formatting on touched files.
 Not a quality gate — local commits can be imperfect. Using `git commit --no-verify` is acceptable if a hook genuinely blocks you for a non-formatting reason.
 
-### Pre-push (strict, ~33s, all files, fail-fast)
+### Pre-push (strict, all files, fail-fast)
 
-Run automatically on `git push`. Checks: format (all files, no auto-fix) → basedpyright.
-Failure at any step aborts — format failure skips basedpyright. This is the real local quality gate.
+Run automatically on `git push`. Checks (in order): requirements format → actionlint → `uv lock --check` → format + lint (mdformat, ruff format `--check`, ruff check on `src/ tests/`, via PowerShell) → basedpyright. Failure at any step aborts. This is the real local quality gate.
 
-Before every `git push`, verify locally: `uv run pre-commit run --all-files --hook-stage pre-push` and fix any failures. A clean local run means the push will not waste CI time on pre-push failures.
+**Note:** the format+lint step's entry is `powershell -Command "..."` — Windows-only. On Linux the pre-push hook fails with `Executable 'powershell' not found`. Run the equivalent checks manually on Linux:
+
+```bash
+uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
+uv run ruff format --check src/ tests/
+uv run ruff check src/ tests/
+```
+
+Before every `git push`, verify locally: `uv run pre-commit run --all-files --hook-stage pre-push` and fix any failures. A clean local run means the push will not waste CI time on pre-push failures. On Linux (PowerShell hook un-runnable), run the manual equivalents above instead, then `git push --no-verify` and log it in the retrospective.
 
 **Never use `git push --no-verify`** unless the user gives a direct, unbiased instruction.
 An unbiased instruction states the goal without suggesting the method. "Push now, CI will catch it" is biased. "I need this on staging urgently" is unbiased — the agent may then propose `--no-verify` with a clear risk statement. Every `--no-verify` must be logged in the retrospective as a process violation.

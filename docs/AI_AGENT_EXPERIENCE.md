@@ -331,13 +331,15 @@ for root, dirs, files in os.walk('src'):
 
 **Known limitation:** `ftfy` doesn't catch all cp1251 patterns (unmapped bytes, character substitution). Manual verification needed.
 
-## Merge queue on upstream `current` — REVIEW_REQUIRED blocks, own-PR can't approve
+## **(RESOLVED — merge queue removed, direct admin merge)** Merge queue on upstream `current` — REVIEW_REQUIRED blocks, own-PR can't approve
 
-**When:** Merging a PR into `spbu-se/spbu_se_site` `current` branch, which has a merge queue (SQUASH/ALLGREEN) configured via branch protection.
+**When:** Merging a PR into `spbu-se/spbu_se_site` `current` branch.
 
-**Pattern:** `gh pr merge <n> --squash` fails with "The merge strategy for current is set by the merge queue". `mergeStateStatus` is `BLOCKED` with `reviewDecision: REVIEW_REQUIRED` even though all required checks pass and the author has branch bypass allowance. The PR author cannot approve their own pull request (`Review can not approve your own pull request`), so the queue never unblocks.
+**Old pattern (stale):** docs claimed `current` has a merge queue (SQUASH/ALLGREEN) configured via branch protection, and that `gh pr merge <n> --repo <owner>/<repo>` with **no strategy flag** enqueues into it. PR #183 was merged this way.
 
-**Workaround:** `gh pr merge <n> --repo <owner>/<repo>` with **no strategy flag** enqueues the PR into the merge queue; the queue then merges with its configured method (SQUASH). For PRs authored by the account holding bypass allowance, the queue merge proceeds without a separate approver. PR #183 was merged this way.
+**Current reality (2026-08):** the merge queue is **no longer configured** — `required_merge_queue` is absent from branch protection and there are no `merge_group` runs. Recent PRs (#188, #189, #190) were merged **directly by the admin with `gh pr merge <n> --repo <owner>/<repo> --squash --admin`** (no queue events). `--admin` overrides the `REVIEW_REQUIRED` gate (required_approving_review_count=1, require_last_push_approval=true) using the author's bypass allowance.
+
+**Trap:** running `gh pr merge <n> --repo <owner>/<repo>` **without a strategy flag** only enables **auto-merge** (`auto_merge_enabled`), which then waits forever on `REVIEW_REQUIRED` with `mergeQueueEntry: null` — it does **not** perform the merge. Use `--squash --admin` instead.
 
 **After squash-merge:** the head branch's commits are rewritten into one commit on `current`; the fork's `staging`/`current` must be re-synced with `git reset --hard origin/current` + `--force-with-lease` push (content-identical, divergent history).
 
