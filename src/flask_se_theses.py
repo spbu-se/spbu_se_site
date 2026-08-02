@@ -22,6 +22,7 @@ from se_models import Courses, Staff, Thesis, Users, Worktype, db, thesis_fts_se
 log = logging.getLogger("flask_se.sub")
 
 _safe_ext_re = re.compile(r"^\.[A-Za-z0-9]{1,10}$")
+_safe_uri_re = re.compile(r"^[A-Za-z0-9_.\-]+$")
 
 _ALLOWED_UPLOAD_EXTENSIONS = {
     ".pdf",
@@ -46,6 +47,13 @@ def _safe_extension(filename: str | None) -> str:
     if _safe_ext_re.fullmatch(extension) and extension in _ALLOWED_UPLOAD_EXTENSIONS:
         return extension
     return ""
+
+
+def _safe_uri(uri: str | None) -> bool:
+    """True if a stored file URI is a plain filename (no path separators)."""
+    if not uri:
+        return True
+    return bool(_safe_uri_re.fullmatch(uri))
 
 
 def theses_search():
@@ -231,14 +239,22 @@ def fetch_theses():
 
 
 def get_text(filename):
-    doc = fitz.open(filename)
-    text = ""
+    """Extract text from a PDF. Returns "" on parse failure to avoid 500s
+    and orphaned temp files (decompression bombs / malformed uploads)."""
+    try:
+        doc = fitz.open(filename)
+    except Exception:
+        return ""
 
-    for current_page in range(3, len(doc)):
-        page = doc.load_page(current_page)
-        text += page.get_text("text").lower() + "\n"  # pyright: ignore[reportAttributeAccessIssue]
-        text = text.replace("-\n", "")
-        text = re.sub(r"[^a-z а-я \n : / . () # - ]", "", text)
+    text = ""
+    try:
+        for current_page in range(3, len(doc)):
+            page = doc.load_page(current_page)
+            text += page.get_text("text").lower() + "\n"  # pyright: ignore[reportAttributeAccessIssue]
+            text = text.replace("-\n", "")
+            text = re.sub(r"[^a-z а-я \n : / . () # - ]", "", text)
+    finally:
+        doc.close()
 
     return text
 
@@ -493,25 +509,25 @@ def theses_add_tmp():
         thesis.temporary = False
         db.session.commit()
 
-        if thesis.text_uri:
+        if thesis.text_uri and _safe_uri(thesis.text_uri):
             os.rename(
                 "./static/tmp/texts/" + thesis.text_uri,
                 "./static/thesis/texts/" + thesis.text_uri,
             )
 
-        if thesis.presentation_uri:
+        if thesis.presentation_uri and _safe_uri(thesis.presentation_uri):
             os.rename(
                 "./static/tmp/slides/" + thesis.presentation_uri,
                 "./static/thesis/slides/" + thesis.presentation_uri,
             )
 
-        if thesis.supervisor_review_uri:
+        if thesis.supervisor_review_uri and _safe_uri(thesis.supervisor_review_uri):
             os.rename(
                 "./static/tmp/reviews/" + thesis.supervisor_review_uri,
                 "./static/thesis/reviews/" + thesis.supervisor_review_uri,
             )
 
-        if thesis.reviewer_review_uri:
+        if thesis.reviewer_review_uri and _safe_uri(thesis.reviewer_review_uri):
             os.rename(
                 "./static/tmp/reviews/" + thesis.reviewer_review_uri,
                 "./static/thesis/reviews/" + thesis.reviewer_review_uri,

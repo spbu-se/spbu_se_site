@@ -24,7 +24,7 @@ from string import Template
 
 from transliterate import translit
 
-from flask_se_config import get_thesis_type_id_string
+from flask_se_config import get_thesis_type_id_string, secure_filename
 from se_models import CurrentThesis
 
 # Yandex disk
@@ -95,7 +95,7 @@ def allowed_file(filename) -> bool:
 
 def get_filename(current_thesis: CurrentThesis, folder: str, type_of_file: str) -> tuple[str, str]:
     author_en = translit(current_thesis.user.get_name(), "ru", reversed=True)  # pyright: ignore[reportAttributeAccessIssue]
-    author_en = author_en.replace(" ", "_")
+    author_en = secure_filename(author_en) or "unknown"
 
     filename = author_en + "_" + get_thesis_type_id_string(current_thesis.worktype_id)
     filename = filename + "_" + str(date.today().year) + "_" + type_of_file

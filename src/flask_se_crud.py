@@ -119,7 +119,7 @@ class CrudView:
 
     def index_view(self):
         page = request.args.get("page", 1, type=int)
-        page_size = request.args.get("page_size", 20, type=int)
+        page_size = min(request.args.get("page_size", 20, type=int) or 20, 200)
         sort = request.args.get("sort", self._get_pk(), type=str)
         desc = request.args.get("desc", 0, type=int)
         query = self._list_query()
@@ -242,7 +242,15 @@ class CrudView:
         labels = self.column_labels or {}
         writer.writerow([labels.get(c, c) for c in cols])
         for obj in self._list_query().all():
-            writer.writerow([getattr(obj, c, "") for c in cols])
+            row = []
+            for c in cols:
+                value = getattr(obj, c, "")
+                # CSV formula injection guard: prefix cells starting with
+                # spreadsheet-control characters so formulas don't execute.
+                if isinstance(value, str) and value[:1] in ("=", "+", "-", "@"):
+                    value = "'" + value
+                row.append(value)
+            writer.writerow(row)
 
         return Response(
             out.getvalue(),

@@ -3,6 +3,7 @@
 import os
 import pathlib
 import re
+import time
 from datetime import UTC, datetime
 from unicodedata import normalize
 
@@ -145,3 +146,31 @@ def get_thesis_type_id_string(id):
     if id < 1 or id > len(type_id_string):
         return ""
     return type_id_string[id - 1]
+
+
+class RateLimiter:
+    """Simple in-memory sliding-window rate limiter keyed by a string.
+
+    Not a substitute for a full proxy-level limiter, but mitigates brute
+    force on login/register without new dependencies. Per-worker state on
+    multi-process deployments, which is acceptable defense-in-depth.
+    """
+
+    def __init__(self, *, limit: int, window_seconds: int):
+        self.limit = limit
+        self.window_seconds = window_seconds
+        self._hits: dict[str, list[float]] = {}
+
+    def allow(self, key: str, now: float | None = None) -> bool:
+        now = now if now is not None else time.monotonic()
+        hits = self._hits.setdefault(key, [])
+        cutoff = now - self.window_seconds
+        hits[:] = [t for t in hits if t > cutoff]
+        if len(hits) >= self.limit:
+            return False
+        hits.append(now)
+        return True
+
+
+LOGIN_RATE_LIMITER = RateLimiter(limit=10, window_seconds=300)
+REGISTER_RATE_LIMITER = RateLimiter(limit=5, window_seconds=3600)

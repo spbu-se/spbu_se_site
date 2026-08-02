@@ -3110,7 +3110,10 @@ def thesis_fts_search(search_str: str) -> list[int]:
     has_infix_wild = "*" in clean[1:-1] if len(clean) > 2 else False
 
     if not has_leading_wild and not has_infix_wild:
-        fts_query = " OR ".join(f'"{w}"*' if not w.endswith("*") else w for w in clean.split() if w)
+        # Escape embedded double quotes so attacker-controlled terms cannot
+        # break out of the FTS5 quoted token and alter the query language.
+        terms = [w.replace('"', '""') for w in clean.split() if w]
+        fts_query = " OR ".join(f'"{w}"*' if not w.endswith("*") else w for w in terms)
         try:
             rows = db.session.execute(
                 db.text("SELECT rowid FROM thesis_fts WHERE thesis_fts MATCH :q"),

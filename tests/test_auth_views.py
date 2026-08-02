@@ -1221,3 +1221,111 @@ class TestSecurityCritical:
         assert resp.status_code == 200
         assert b"SECRET_KEY_THESIS:" not in resp.data
         assert b"thesis_key" not in resp.data
+
+
+class TestSecurityMedium:
+    """Regression tests for the 2026-08-02 medium-severity fixes (Phase 3)."""
+
+    def test_rate_limiter_blocks_after_limit(self):
+        from flask_se_config import RateLimiter
+
+        limiter = RateLimiter(limit=3, window_seconds=60)
+        for _ in range(3):
+            assert limiter.allow("k")
+        assert not limiter.allow("k")
+        assert limiter.allow("other-key")
+
+    def test_rate_limiter_window_expiry(self):
+        from flask_se_config import RateLimiter
+
+        limiter = RateLimiter(limit=1, window_seconds=10)
+        assert limiter.allow("k", now=100.0)
+        assert not limiter.allow("k", now=105.0)
+        assert limiter.allow("k", now=115.0)
+
+    def test_fts_quote_escaped(self, seeded_client):
+        from se_models import thesis_fts_search
+
+        # A malicious term with embedded quotes must not raise or break out.
+        result = thesis_fts_search('python" OR name_ru MATCH "x')
+        assert isinstance(result, list)
+
+    def test_thesis_safe_uri_rejects_traversal(self):
+        from flask_se_theses import _safe_uri
+
+        assert _safe_uri("report.pdf")
+        assert _safe_uri("a_b-c.2024.pdf")
+        assert not _safe_uri("../../etc/passwd")
+        assert not _safe_uri("dir/file.pdf")
+        assert not _safe_uri("../x.pdf")
+        assert _safe_uri(None)
+
+    def test_login_error_does_not_enumerate(self, seeded_client):
+        """Unified error message: same text for missing email and wrong password."""
+        missing = seeded_client.post(
+            "/login.html",
+            data={"email": "no-such-user@spbu.ru", "password": "x"},
+        )
+        # The missing-email case must NOT say "Пользователя с таким почтовым
+        # адресом нет" — that message leaked account existence.
+        body = missing.get_data(as_text=True)
+        assert "Пользователя с таким почтовым адресом нет" not in body
+
+        # Wrong-password path (check_password_hash is mocked True in conftest,
+        # so force it False to exercise the failure branch).
+        from unittest.mock import patch as _patch
+
+        with _patch("flask_se_auth.check_password_hash", return_value=False):
+            wrong_pw = seeded_client.post(
+                "/login.html",
+                data={"email": "a.terekhov@spbu.ru", "password": "wrong"},
+            )
+        assert "Пользователя с таким почтовым адресом нет" not in wrong_pw.get_data(as_text=True)
+
+    def test_avatar_download_byte_budget(self):
+
+        import requests
+
+        from flask_se_auth import _download_avatar
+
+        class _FakeResp:
+            def __init__(self, chunks):
+                self._chunks = chunks
+
+            def raise_for_status(self):
+                return None
+
+            def iter_content(self, chunk_size):
+                yield from self._chunks
+
+            def close(self):
+                return None
+
+        fake = _FakeResp([b"a" * (2 * 1024 * 1024), b"b" * 1024])
+        with patch.object(requests, "get", return_value=fake):
+            assert _download_avatar("http://example.com/a.jpg") is None
+
+        small = _FakeResp([b"x" * 100])
+        with patch.object(requests, "get", return_value=small):
+            assert _download_avatar("http://example.com/a.jpg") == b"x" * 100
+
+    def test_review_result_requires_author_or_reviewer(self, logged_client):
+        """Phase 3: reading a review result requires being the author/reviewer."""
+        from se_models import ThesisOnReview, ThesisReview, Worktype, db
+
+        wt = Worktype.query.first()
+        other = ThesisOnReview(
+            author_id=9999,  # not the logged-in user
+            name_ru="Other Work",
+            review_status=3,
+            type_id=wt.id,
+        )
+        db.session.add(other)
+        db.session.flush()
+        db.session.add(ThesisReview(thesis_on_review_id=other.id, verdict=1))
+        db.session.commit()
+
+        resp = logged_client.get(f"/review/review_result?thesis_review_id={other.id}")
+        assert resp.status_code in (200, 302, 404)
+        # An unrelated user must be redirected, not shown the verdict.
+        assert b"verdict" not in resp.data.lower() or resp.status_code == 302
