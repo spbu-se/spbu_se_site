@@ -35,6 +35,9 @@ THESIS_SECRET_FILE = os.path.join(
 SECRET_KEY_THESIS = read_secret_from_file(THESIS_SECRET_FILE, fallback_len=16)
 SQLITE_DATABASE_NAME: str = "se.db"
 SQLITE_DATABASE_PATH: str = pathlib.Path("databases/").absolute().as_posix()
+SQLITE_DATABASE_URI: str = (
+    "sqlite:///" + pathlib.Path(SQLITE_DATABASE_PATH, SQLITE_DATABASE_NAME).as_posix()
+)
 
 if os.path.exists(MAIL_PASSWORD_FILE):
     with open(MAIL_PASSWORD_FILE) as file:

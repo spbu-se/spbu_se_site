@@ -3,6 +3,7 @@
 import os
 import sys
 from datetime import UTC, datetime
+from pathlib import Path
 
 __all__ = ["app", "db"]
 
@@ -49,8 +50,8 @@ from flask_se_bachelor import (
 from flask_se_config import (
     SECRET_KEY,
     SECRET_KEY_THESIS,
-    SQLITE_DATABASE_NAME,
     SQLITE_DATABASE_PATH,
+    SQLITE_DATABASE_URI,
     get_hours_since,
     plural_hours,
 )
@@ -164,7 +165,11 @@ app.config["FREEZER_DESTINATION"] = "../_flask_freezed"
 app.config["FREEZER_IGNORE_MIMETYPE_WARNINGS"] = True
 
 # SQLAlchimy config
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + SQLITE_DATABASE_NAME
+# Absolute DB path (databases/se.db) — matches init_db(); CWD-independent.
+# Ensure the directory exists so SQLAlchemy can open the file on first run
+# (init_db() creates it too, but the dev server / Docker may connect first).
+Path(SQLITE_DATABASE_PATH).mkdir(parents=True, exist_ok=True)
+app.config["SQLALCHEMY_DATABASE_URI"] = SQLITE_DATABASE_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 app.config["SECRET_KEY"] = SECRET_KEY
 app.config["SESSION_COOKIE_NAME"] = "se_session"

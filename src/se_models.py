@@ -2856,11 +2856,11 @@ def init_db() -> None:
         db_dir.mkdir()
 
     # Check if db file already exists. If so, backup it
-    db_file = Path(SQLITE_DATABASE_PATH + SQLITE_DATABASE_NAME)
+    db_file = Path(SQLITE_DATABASE_PATH, SQLITE_DATABASE_NAME)
     if db_file.is_file():
         shutil.copyfile(
-            SQLITE_DATABASE_PATH + SQLITE_DATABASE_NAME,
-            SQLITE_DATABASE_PATH + SQLITE_DATABASE_BACKUP_NAME,
+            db_file,
+            Path(SQLITE_DATABASE_PATH, SQLITE_DATABASE_BACKUP_NAME),
         )
 
     # Init DB

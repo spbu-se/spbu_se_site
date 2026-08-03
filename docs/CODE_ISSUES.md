@@ -88,11 +88,11 @@ Fixed on `fix/security-sweep` (PR #187) — path traversal, open redirects, secr
 - Workflows — `permissions: contents: read` on ci.yml, ci-staging.yml, serviceability.yml, deploy_to_staging.yml, deploy_to_production.yml (CodeQL 137-138, 156-166)
 - pyasn1 0.6.3 → 0.6.4 via PR #183 — resolved 2 high-severity dependabot alerts (CVE-2026-59884/59885/59886)
 
-## P2 — SQLite runtime URI vs init path mismatch [OPEN]
+## P2 — SQLite runtime URI vs init path mismatch [FIXED]
 
-`app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + SQLITE_DATABASE_NAME` (flask_se.py:164) is **CWD-relative** — the runtime app resolves `se.db` against the current working directory. `init_db()` writes to `SQLITE_DATABASE_PATH + SQLITE_DATABASE_NAME` = `databases/se.db` (se_models.py:2859). So `flask_se.py init` populates a different file than the dev server reads when started from the repo root (documented dev flow in README §Setup serves an empty `./se.db`).
+`app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + SQLITE_DATABASE_NAME` (flask_se.py:172) was **CWD-relative** — the runtime app resolved `se.db` against the current working directory, while `init_db()` targeted `databases/se.db` (se_models.py:2859). So `flask_se.py init` populated a different file than the dev server read, and in Docker (WORKDIR `/app`, volume mounted at `/app/databases`) the DB landed at `/app/se.db` — **outside the volume** (data lost on recreate) and the entrypoint's `databases/se.db` check never matched (re-seed every boot). The `init_db()` backup path also concatenated `SQLITE_DATABASE_PATH + SQLITE_DATABASE_NAME` with no separator (`databases` + `se.db` = `databasesse.db`), so backups never ran.
 
-Root cause of issue #126 step 2 (`cp src/databases/se.db databases/se.db`). Production impact unverified — depends on the uWSGI working directory. Fix: build the URI from `SQLITE_DATABASE_PATH` (like `init_db()` does) or align the dev flow's working directory.
+Fixed in this session (`fix/sqlite-db-path`): `SQLITE_DATABASE_URI` built from the absolute path (`"sqlite:///" + Path(SQLITE_DATABASE_PATH, SQLITE_DATABASE_NAME).as_posix()`), used by `flask_se.py`; `init_db()` backup paths now use `Path(...)` joins; `flask_se.py` ensures `databases/` exists before connecting. Root cause of issue #126 step 2 resolved.
 
 ## Security audit 2026-08-02 — full-code review + GH security surface [FIXED]
 
