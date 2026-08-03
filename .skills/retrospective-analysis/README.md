@@ -208,6 +208,8 @@ Ask these questions to surface waste and optimization opportunities:
 | **Did any ruff rule require multiple rounds of configuration tuning?** | RUF001 `allowed-confusables` needed 3 rounds adding characters. Single-pass would have saved time. Complete list for bilingual projects: all Cyrillic-Latin homoglyphs + typographic punctuation. |
 | **Did local vs CI environment diverge for any tool?** | basedpyright `reportInvalidCast` triggered on CI but not locally — version pin mismatch or cache staleness. Verify tool versions match between environments. |
 | **Did any test failure trace to a transitive dependency version rather than direct code changes?** | Flask-Admin 2.2.0 `create_view()` cls arg incompatible with newer Jinja2/Werkzeug. Lockfile age check needed before assuming code changes caused the failure. |
+| **Did a pre-commit auto-fix hook (djLint, ruff format, etc.) conflict with staged changes?** | Hooks that reformat ALL files (not just staged) abort commits when staged edits differ from the hook's output ("Stashed changes conflicted with hook auto-fixes"). Fix: run `pre-commit run <hook> --all-files` to normalize BEFORE staging. |
+| **Did you test an endpoint's HTTP status when its contract is a JSON body?** | Two test-design false starts traced to contract misread: news-XSS test asserted `"<script" not in body` (failed on legit GTM tags — assert the payload marker instead); upload-whitelist test expected HTTP 500 while the endpoint returns HTTP 200 + status in JSON. Verify the response contract (status vs body) before writing the assertion. |
 
 #### 8b. Generate prevention rules
 
@@ -432,6 +434,15 @@ Session surfaced several process gaps not covered by existing 8a questions:
 1. **Transitive dependency failures** — Flask-Admin `cls` arg traced to Jinja2/Werkzeug version, not code changes. No question asked about dependency version investigation.
 
 **Fix**: Added 6 new rows to §8a covering all gaps. Added "Verify CI shows test results, not just lint results" to AGENTS.md pre-flight checklist.
+
+### [2026-08-02] Add hook-conflict and JSON-contract questions to §8a
+
+2026-08-02 security-audit session surfaced two repeated false starts not covered by §8a:
+
+1. **Pre-commit auto-fix hooks conflicting with staged changes** — djLint reformats ALL html files during commit; staged template edits differing from its output caused 2 aborted commits before the normalize-then-stage fix. No question asked about hooks that reformat more than the staged set.
+1. **Endpoint-contract misreads** — news-XSS test asserted on a too-broad marker (failed on legit GTM `<script>` tags); upload-whitelist test expected HTTP 500 while the endpoint returns HTTP 200 + status in a JSON body. No question asked "is the response contract status-based or body-based?"
+
+**Fix**: Added 2 rows to §8a covering both, with the normalize-before-stage workaround and the contract-check rule.
 
 ## Dependencies
 

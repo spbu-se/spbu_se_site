@@ -3,7 +3,7 @@
 <!-- encoding: utf-8 -->
 
 Code quality and security audit: detect secrets in logs, validate redirects, scan deprecations, check crash safety and file safety, maintain bug inventory, and run repo-wide review patterns. Does not fix bugs — reports and saves for future work.
-Not doc health (see `.skills/docs-audit/`), not process improvement (see `.skills/retrospective-analysis/`).
+Not doc health (see `.skills/docs-audit/`), not process improvement (see `.skills/retrospective-analysis/`). For a deep security audit (GitHub security surface + three-pass authz/XSS/SQLi review), load `.skills/security-audit/` instead.
 
 ## When to load
 

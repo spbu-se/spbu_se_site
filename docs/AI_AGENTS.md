@@ -44,7 +44,7 @@ When the glob tool's `path` parameter points to a parent directory, patterns lik
 // WRONG — returns nothing:
 // glob(path=".", pattern=".skills/**/*.md")
 
-// CORRECT — finds all 11 skill files:
+// CORRECT — finds all 16 skill files:
 // glob(path=".skills", pattern="**/*.md")
 ```
 
@@ -245,6 +245,7 @@ When updating a skill, any useful info removed from the skill must first exist i
 | `.skills/retrospective-analysis/README.md` | Analysis | Process gap identification and classification | Retrospective workflow |
 | `.skills/docs-audit/README.md` | Docs | Doc health checks: freshness, cross-refs, scope, encoding, SPDX | Doc audit workflow |
 | `.skills/code-audit/README.md` | Code | Code quality and security audit: secrets, redirects, deprecations, crash safety, file safety, test health, bug inventory, repo review | Code audit workflow |
+| `.skills/security-audit/README.md` | Security | Structured security audit: GitHub security surface (Dependabot/CodeQL/advisories), three-pass deep review (authz/CSRF/OAuth, XSS, SQLi/files), verify-before-fix, dismissal-only-with-proof | Security audit workflow |
 | `.skills/test-writer/README.md` | Testing | Hermetic pytest test patterns | Test writing methodology |
 | `.skills/encoding-audit/README.md` | Encoding | UTF-8 detection and repair on Windows | Encoding fix recipes |
 | `.skills/unattended-mode/README.md` | Automation | Autonomous batch run rules | Auto-mode workflow |

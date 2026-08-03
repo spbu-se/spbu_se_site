@@ -28,6 +28,7 @@ Load skill workflows from `.skills/<name>/README.md` when the task matches:
 | `flask-test-patterns` | Reusable fixture templates for Flask + SQLAlchemy + pytest with xdist — load when adding test infrastructure |
 | `docs-audit` | Doc health checks: freshness, cross-refs, scope discipline, encoding, SPDX — load before finalization or after restructuring docs |
 | `code-audit` | Code quality and security audit: secrets, redirects, deprecations, crash safety, file safety, test health — load before staging→current gate or after 5+ source file changes |
+| `security-audit` | Structured security audit: GitHub security surface (Dependabot/CodeQL/advisories) + three-pass code review (authz/CSRF/OAuth, XSS, SQLi/files) with verify-before-fix — load on security review requests or before release gates |
 | `readme-generator` | Generating/updating project README — load to create a polished project-specific README |
 | `merge-gate` | Pre-merge workflow: audit docs, audit code, compact context, verify CI, merge with discipline — load at end of batch session or before manual merge to staging |
 | `skill-for-skills` | Maintain skills in sync with docs, enforce skills principles, self-maintain — load after doc restructuring or when a skill was created/modified |
