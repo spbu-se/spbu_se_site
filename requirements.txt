@@ -23,7 +23,7 @@ click==8.4.2
     # via flask
 colorama==0.4.6 ; sys_platform == 'win32'
     # via click
-cryptography==49.0.0
+cryptography==50.0.0
     # via google-auth
 et-xmlfile==2.0.0
     # via openpyxl
