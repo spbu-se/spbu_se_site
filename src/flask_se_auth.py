@@ -24,7 +24,13 @@ from PIL import Image
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from flask_se_config import VK_CLIENT_ID, VK_CLIENT_SECRET, secure_filename
+from flask_se_config import (
+    LOGIN_RATE_LIMITER,
+    REGISTER_RATE_LIMITER,
+    VK_CLIENT_ID,
+    VK_CLIENT_SECRET,
+    secure_filename,
+)
 from se_models import Users, db
 
 # Global variables
@@ -37,7 +43,9 @@ login_manager.login_view = "login_index"  # pyright: ignore[reportAttributeAcces
 
 
 # Google auth (https://github.com/code-specialist/flask_google_login/blob/main/app.py)
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+# Disable transport security only in dev; production must enforce HTTPS.
+if os.environ.get("SE_DEV_OAUTH_INSECURE", "") == "1":
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 GOOGLE_CLIENT_ID = "593053078492-i6hf335m9hm0vtj23df62q09j07esbhu.apps.googleusercontent.com"
 # Hack: the flask_se app does not follow application factory pattern, so at this point we
@@ -73,6 +81,26 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def _download_avatar(url: str, max_bytes: int = 2 * 1024 * 1024) -> bytes | None:
+    """Download an avatar with a byte budget (avoids memory-exhaustion DoS)."""
+    try:
+        r = requests.get(url, allow_redirects=True, timeout=30, stream=True)
+        r.raise_for_status()
+    except requests.RequestException:
+        return None
+
+    total = 0
+    chunks = []
+    for chunk in r.iter_content(chunk_size=64 * 1024):
+        total += len(chunk)
+        if total > max_bytes:
+            r.close()
+            return None
+        chunks.append(chunk)
+    r.close()
+    return b"".join(chunks)
+
+
 def login_index():
     if current_user.is_authenticated:
         return redirect(url_for("user_profile"))
@@ -91,7 +119,19 @@ def login_index():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
+
+        client_ip = request.remote_addr or "unknown"
+        if not LOGIN_RATE_LIMITER.allow("login:" + client_ip):
+            flash(
+                "Слишком много попыток входа. Попробуйте позже.",
+                category="error",
+            )
+            return render_template("auth/login.html", user=current_user)
+
         user = Users.query.filter_by(email=email).first()
+        # Unified error message: do not reveal whether the email exists
+        # (prevents account enumeration).
+        invalid_message = "Пара логин и пароль указаны неверно"
         if user:
             password_hash = user.password_hash
             if password_hash is not None:
@@ -111,17 +151,17 @@ def login_index():
                     login_user(user, remember=True)
                     return redirect_next_url(fallback=url_for("user_profile"))
                 flash(
-                    "Пара логин и пароль указаны неверно",
+                    invalid_message,
                     category="error",
                 )
                 return render_template("auth/login.html", user=current_user)
             flash(
-                "Пара логин и пароль указаны неверно",
+                invalid_message,
                 category="error",
             )
             return render_template("auth/login.html", user=current_user)
         flash(
-            "Пользователя с таким почтовым адресом нет",
+            invalid_message,
             category="error",
         )
         return render_template("auth/login.html", user=current_user)
@@ -130,17 +170,41 @@ def login_index():
 
 
 # https://vk.com/dev/authcode_flow_user
+def vk_login():
+    state = os.urandom(16).hex()
+    session["vk_state"] = state
+    redirect_uri = url_for("vk_callback", _external=True)
+    auth_url = (
+        "https://oauth.vk.com/authorize?"
+        f"client_id={VK_CLIENT_ID}"
+        "&display=page"
+        f"&redirect_uri={redirect_uri}"
+        "&scope=friends,email&response_type=code&v=5.130"
+        f"&state={state}"
+    )
+    return redirect(auth_url)
+
+
 def vk_callback():
     user_code = request.args.get("code")
 
     if not user_code:
         return redirect(url_for("index"))
 
+    expected_state = session.pop("vk_state", None)
+    returned_state = request.args.get("state")
+    if not expected_state or not returned_state or expected_state != returned_state:
+        return redirect(url_for("login_index"))
+
     # Get access token
-    response = requests.get(
-        f"https://oauth.vk.com/access_token?client_id={VK_CLIENT_ID}"
-        f"&client_secret={VK_CLIENT_SECRET}&redirect_uri=https://se.math.spbu.ru/vk_callback&code="
-        + user_code,
+    response = requests.post(
+        "https://oauth.vk.com/access_token",
+        data={
+            "client_id": VK_CLIENT_ID,
+            "client_secret": VK_CLIENT_SECRET,
+            "redirect_uri": url_for("vk_callback", _external=True),
+            "code": user_code,
+        },
         timeout=10,
     )
     access_token_json = json.loads(response.text)
@@ -173,13 +237,10 @@ def vk_callback():
             avatar_uri = avatar_uri + ".jpg"
 
             if "photo_100" in vk_user["response"][0]:
-                r = requests.get(
-                    vk_user["response"][0]["photo_100"],
-                    allow_redirects=True,
-                    timeout=30,
-                )
-                with open("static/images/avatars/" + avatar_uri, "wb") as f:
-                    f.write(r.content)
+                avatar = _download_avatar(vk_user["response"][0]["photo_100"])
+                if avatar is not None:
+                    with open("static/images/avatars/" + avatar_uri, "wb") as f:
+                        f.write(avatar)
 
             new_user = Users(
                 last_name=vk_user["response"][0]["last_name"],
@@ -208,6 +269,14 @@ def register_basic():
         password = request.form.get("password", "")
         first_name = request.form.get("first_name", "").strip()
 
+        client_ip = request.remote_addr or "unknown"
+        if not REGISTER_RATE_LIMITER.allow("register:" + client_ip):
+            flash(
+                "Слишком много попыток регистрации. Попробуйте позже.",
+                category="error",
+            )
+            return render_template("auth/register_basic.html", user=current_user)
+
         user = Users.query.filter_by(email=email).first()
         if user:
             flash(
@@ -219,9 +288,9 @@ def register_basic():
                 "Почтовый адрес должен быть больше чем 5 символов",
                 category="error",
             )
-        elif len(password) < 5:
+        elif len(password) < 8:
             flash(
-                "Пароль должен быть больше чем 5 символов",
+                "Пароль должен быть не короче 8 символов",
                 category="error",
             )
         elif len(first_name) < 1:
@@ -302,14 +371,17 @@ def upload_avatar():
             if ext in [".jpg", ".jpeg"]:
                 file.save(os.path.join(UPLOAD_FOLDER + "/" + new_filename + ".jpg"))
             else:
+                tmp_path = os.path.join(UPLOAD_TMP_FOLDER + "/" + new_filename + ext)
                 try:
-                    file.save(os.path.join(UPLOAD_TMP_FOLDER + "/" + new_filename + ext))
-                    with Image.open(UPLOAD_TMP_FOLDER + "/" + new_filename + ext) as im:
+                    file.save(tmp_path)
+                    with Image.open(tmp_path) as im:
                         rgb_im = im.convert("RGB")
                         rgb_im.save(UPLOAD_FOLDER + "/" + new_filename + ".jpg")
-                        os.unlink(UPLOAD_TMP_FOLDER + "/" + new_filename + ext)
-                except OSError:
+                except Exception:  # noqa: S110  DecompressionBombError is not an OSError
                     pass
+                finally:
+                    if os.path.isfile(tmp_path):
+                        os.unlink(tmp_path)
 
             user = Users.query.filter_by(id=current_user.id).first()
 
@@ -349,10 +421,11 @@ def google_login():
 
 
 def google_callback():
-    state = session["state"]
+    expected_state = session.pop("state", None)
+    returned_state = request.args.get("state")
 
-    if not state:
-        redirect(url_for("login_index"))
+    if not expected_state or not returned_state or expected_state != returned_state:
+        return redirect(url_for("login_index"))
 
     flow = Flow.from_client_secrets_file(
         client_secrets_file=client_secrets_file,
@@ -388,9 +461,10 @@ def google_callback():
             avatar_uri = avatar_uri + ".jpg"
 
             if "picture" in id_info:
-                r = requests.get(id_info.get("picture") or "", allow_redirects=True, timeout=30)
-                with open("static/images/avatars/" + avatar_uri, "wb") as f:
-                    f.write(r.content)
+                avatar = _download_avatar(id_info.get("picture") or "")
+                if avatar is not None:
+                    with open("static/images/avatars/" + avatar_uri, "wb") as f:
+                        f.write(avatar)
 
             new_user = Users(
                 last_name=id_info.get("family_name"),

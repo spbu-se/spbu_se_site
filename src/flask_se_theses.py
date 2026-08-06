@@ -10,8 +10,10 @@ from urllib.parse import urlparse
 
 import fitz
 from flask import jsonify, redirect, render_template, request, url_for
+from flask_login import current_user
 from transliterate import translit
 
+from flask_se_auth import login_required
 from flask_se_config import SECRET_KEY_THESIS, secure_filename, type_id_string
 from flask_se_practice_config import _paginate
 from se_forms import ThesisFilter
@@ -20,14 +22,38 @@ from se_models import Courses, Staff, Thesis, Users, Worktype, db, thesis_fts_se
 log = logging.getLogger("flask_se.sub")
 
 _safe_ext_re = re.compile(r"^\.[A-Za-z0-9]{1,10}$")
+_safe_uri_re = re.compile(r"^[A-Za-z0-9_.\-]+$")
+
+_ALLOWED_UPLOAD_EXTENSIONS = {
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".ppt",
+    ".pptx",
+    ".txt",
+    ".md",
+}
+
+_THESES_ROLE_LEVEL = 2
+
+
+def _require_theses_admin() -> bool:
+    return current_user.is_authenticated and current_user.role >= _THESES_ROLE_LEVEL
 
 
 def _safe_extension(filename: str | None) -> str:
     path = urlparse(filename or "").path
-    extension = splitext(path)[1]
-    if _safe_ext_re.fullmatch(extension):
+    extension = splitext(path)[1].lower()
+    if _safe_ext_re.fullmatch(extension) and extension in _ALLOWED_UPLOAD_EXTENSIONS:
         return extension
     return ""
+
+
+def _safe_uri(uri: str | None) -> bool:
+    """True if a stored file URI is a plain filename (no path separators)."""
+    if not uri:
+        return True
+    return bool(_safe_uri_re.fullmatch(uri))
 
 
 def theses_search():
@@ -213,14 +239,22 @@ def fetch_theses():
 
 
 def get_text(filename):
-    doc = fitz.open(filename)
-    text = ""
+    """Extract text from a PDF. Returns "" on parse failure to avoid 500s
+    and orphaned temp files (decompression bombs / malformed uploads)."""
+    try:
+        doc = fitz.open(filename)
+    except Exception:
+        return ""
 
-    for current_page in range(3, len(doc)):
-        page = doc.load_page(current_page)
-        text += page.get_text("text").lower() + "\n"  # pyright: ignore[reportAttributeAccessIssue]
-        text = text.replace("-\n", "")
-        text = re.sub(r"[^a-z а-я \n : / . () # - ]", "", text)
+    text = ""
+    try:
+        for current_page in range(3, len(doc)):
+            page = doc.load_page(current_page)
+            text += page.get_text("text").lower() + "\n"  # pyright: ignore[reportAttributeAccessIssue]
+            text = text.replace("-\n", "")
+            text = re.sub(r"[^a-z а-я \n : / . () # - ]", "", text)
+    finally:
+        doc.close()
 
     return text
 
@@ -295,6 +329,12 @@ def post_theses():
 
     if secret_key != SECRET_KEY_THESIS:
         return jsonify(status=error_status, string="Invalid secret key: " + str(secret_key))
+
+    if not _safe_extension(thesis_text.filename):
+        return jsonify(
+            status=error_status,
+            string="Disallowed file extension: " + str(thesis_text.filename),
+        )
 
     if "source_uri" in thesis_info:
         source_uri = thesis_info["source_uri"]
@@ -436,13 +476,19 @@ def post_theses():
     return jsonify(status=success_status, string="Success")
 
 
+@login_required
 def theses_tmp():
+    if not _require_theses_admin():
+        return redirect(url_for("theses_search"))
     records = Thesis.query.filter_by(temporary=True).filter_by(review_status=10)
     return render_template("theses_tmp.html", theses=records)
 
 
+@login_required
 def theses_delete_tmp():
-    thesis_id = request.args.get("thesis_id", default=1, type=int)
+    if not _require_theses_admin():
+        return redirect(url_for("theses_search"))
+    thesis_id = request.form.get("thesis_id", default=1, type=int)
     thesis = Thesis.query.filter_by(id=thesis_id).filter_by(temporary=True).first()
 
     if thesis:
@@ -452,33 +498,36 @@ def theses_delete_tmp():
     return redirect(url_for("theses_tmp"))
 
 
+@login_required
 def theses_add_tmp():
-    thesis_id = request.args.get("thesis_id", default=1, type=int)
+    if not _require_theses_admin():
+        return redirect(url_for("theses_search"))
+    thesis_id = request.form.get("thesis_id", default=1, type=int)
     thesis = Thesis.query.filter_by(id=thesis_id).filter_by(temporary=True).first()
 
     if thesis:
         thesis.temporary = False
         db.session.commit()
 
-        if thesis.text_uri:
+        if thesis.text_uri and _safe_uri(thesis.text_uri):
             os.rename(
                 "./static/tmp/texts/" + thesis.text_uri,
                 "./static/thesis/texts/" + thesis.text_uri,
             )
 
-        if thesis.presentation_uri:
+        if thesis.presentation_uri and _safe_uri(thesis.presentation_uri):
             os.rename(
                 "./static/tmp/slides/" + thesis.presentation_uri,
                 "./static/thesis/slides/" + thesis.presentation_uri,
             )
 
-        if thesis.supervisor_review_uri:
+        if thesis.supervisor_review_uri and _safe_uri(thesis.supervisor_review_uri):
             os.rename(
                 "./static/tmp/reviews/" + thesis.supervisor_review_uri,
                 "./static/thesis/reviews/" + thesis.supervisor_review_uri,
             )
 
-        if thesis.reviewer_review_uri:
+        if thesis.reviewer_review_uri and _safe_uri(thesis.reviewer_review_uri):
             os.rename(
                 "./static/tmp/reviews/" + thesis.reviewer_review_uri,
                 "./static/thesis/reviews/" + thesis.reviewer_review_uri,

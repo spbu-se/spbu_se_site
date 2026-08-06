@@ -3,16 +3,41 @@
 import os
 import pathlib
 import re
+import time
 from datetime import UTC, datetime
 from unicodedata import normalize
 
-SECRET_KEY = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_secret.conf")
+SECRET_KEY_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_secret.conf")
+
+
+def read_secret_from_file(filepath: str, *, fallback_len: int = 24) -> str:
+    """Read a secret from a config file, or generate a dev-only fallback key.
+
+    The fallback must never be a filesystem path — it is opaque random key
+    material used only when the config file is absent (e.g. fresh checkout).
+    """
+    if os.path.exists(filepath):
+        with open(filepath) as file:
+            value = file.read().strip()
+        if value:
+            return value
+    return os.urandom(fallback_len).hex()
+
+
+SECRET_KEY = read_secret_from_file(SECRET_KEY_FILE)
 MAIL_PASSWORD_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_mail.conf")
 VK_CLIENT_ID = "8051225"
 VK_SECRET_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_vk_secret.conf")
-SECRET_KEY_THESIS = os.urandom(16).hex()
+THESIS_SECRET_FILE = os.path.join(
+    pathlib.Path(__file__).parent,
+    "configs/flask_se_thesis.conf",
+)
+SECRET_KEY_THESIS = read_secret_from_file(THESIS_SECRET_FILE, fallback_len=16)
 SQLITE_DATABASE_NAME: str = "se.db"
 SQLITE_DATABASE_PATH: str = pathlib.Path("databases/").absolute().as_posix()
+SQLITE_DATABASE_URI: str = (
+    "sqlite:///" + pathlib.Path(SQLITE_DATABASE_PATH, SQLITE_DATABASE_NAME).as_posix()
+)
 
 if os.path.exists(MAIL_PASSWORD_FILE):
     with open(MAIL_PASSWORD_FILE) as file:
@@ -124,3 +149,31 @@ def get_thesis_type_id_string(id):
     if id < 1 or id > len(type_id_string):
         return ""
     return type_id_string[id - 1]
+
+
+class RateLimiter:
+    """Simple in-memory sliding-window rate limiter keyed by a string.
+
+    Not a substitute for a full proxy-level limiter, but mitigates brute
+    force on login/register without new dependencies. Per-worker state on
+    multi-process deployments, which is acceptable defense-in-depth.
+    """
+
+    def __init__(self, *, limit: int, window_seconds: int):
+        self.limit = limit
+        self.window_seconds = window_seconds
+        self._hits: dict[str, list[float]] = {}
+
+    def allow(self, key: str, now: float | None = None) -> bool:
+        now = now if now is not None else time.monotonic()
+        hits = self._hits.setdefault(key, [])
+        cutoff = now - self.window_seconds
+        hits[:] = [t for t in hits if t > cutoff]
+        if len(hits) >= self.limit:
+            return False
+        hits.append(now)
+        return True
+
+
+LOGIN_RATE_LIMITER = RateLimiter(limit=10, window_seconds=300)
+REGISTER_RATE_LIMITER = RateLimiter(limit=5, window_seconds=3600)

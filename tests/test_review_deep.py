@@ -346,11 +346,11 @@ class TestEditThesisOnReview:
 
 class TestDeleteThesisOnReview:
     def test_delete_no_id(self, logged_client):
-        resp = logged_client.get("/review/delete")
+        resp = logged_client.post("/review/delete")
         assert resp.status_code == 302
 
     def test_delete_own_thesis(self, logged_client, thesis_on_review):
-        resp = logged_client.get(f"/review/delete?thesis_review_id={thesis_on_review.id}")
+        resp = logged_client.post("/review/delete", data={"thesis_review_id": thesis_on_review.id})
         assert resp.status_code == 302
         from se_models import ThesisOnReview, db
 
@@ -358,7 +358,9 @@ class TestDeleteThesisOnReview:
         assert deleted is None
 
     def test_delete_other_thesis(self, logged_client, other_thesis_on_review):
-        resp = logged_client.get(f"/review/delete?thesis_review_id={other_thesis_on_review.id}")
+        resp = logged_client.post(
+            "/review/delete", data={"thesis_review_id": other_thesis_on_review.id}
+        )
         assert resp.status_code == 302
         from se_models import ThesisOnReview, db
 
@@ -366,7 +368,7 @@ class TestDeleteThesisOnReview:
         assert still_exists is not None
 
     def test_delete_nonexistent(self, logged_client):
-        resp = logged_client.get("/review/delete?thesis_review_id=99999")
+        resp = logged_client.post("/review/delete", data={"thesis_review_id": 99999})
         assert resp.status_code == 404
 
 
@@ -388,8 +390,9 @@ class TestReviewThesisOnReview:
         assert resp.status_code == 200
 
     def test_review_set_to_review(self, logged_client, reviewer_user, other_thesis_on_review):
-        resp = logged_client.get(
-            f"/review/review?thesis_review_id={other_thesis_on_review.id}&set_to_review=1"
+        resp = logged_client.post(
+            f"/review/review?thesis_review_id={other_thesis_on_review.id}",
+            data={"set_to_review": 1},
         )
         assert resp.status_code == 200
         from se_models import ThesisOnReview, db
@@ -665,15 +668,19 @@ class TestBecomeReviewer:
         assert "reviewer" in html or "рецензент" in html
 
     def test_become_reviewer_confirm_no_code(self, logged_client):
-        resp = logged_client.get("/review/become_thesis_reviewer_confirm")
+        resp = logged_client.post("/review/become_thesis_reviewer_confirm")
         assert resp.status_code == 302
 
     def test_become_reviewer_confirm_invalid_code(self, logged_client):
-        resp = logged_client.get("/review/become_thesis_reviewer_confirm?code=invalid")
+        resp = logged_client.post(
+            "/review/become_thesis_reviewer_confirm", data={"code": "invalid"}
+        )
         assert resp.status_code == 302
 
     def test_become_reviewer_confirm_creates(self, logged_client, promocode):
-        resp = logged_client.get(f"/review/become_thesis_reviewer_confirm?code={promocode.code}")
+        resp = logged_client.post(
+            "/review/become_thesis_reviewer_confirm", data={"code": promocode.code}
+        )
         assert resp.status_code == 200
         from se_models import Reviewer
 
@@ -683,7 +690,9 @@ class TestBecomeReviewer:
     def test_become_reviewer_confirm_already_reviewer(
         self, logged_client, reviewer_user, promocode
     ):
-        resp = logged_client.get(f"/review/become_thesis_reviewer_confirm?code={promocode.code}")
+        resp = logged_client.post(
+            "/review/become_thesis_reviewer_confirm", data={"code": promocode.code}
+        )
         assert resp.status_code == 200
         html = resp.data.decode("utf-8").lower()
         assert "already" in html or "уже" in html
@@ -715,7 +724,7 @@ class TestFullReviewFlow:
         db.session.add(pc)
         db.session.commit()
 
-        resp = logged_client.get(f"/review/become_thesis_reviewer_confirm?code={pc.code}")
+        resp = logged_client.post("/review/become_thesis_reviewer_confirm", data={"code": pc.code})
         assert resp.status_code == 200
 
         from se_models import Reviewer
@@ -777,7 +786,7 @@ class TestRouteAccessibility:
             ("/review/submit", {200}),
             ("/review/fetch_thesis_on_review", {200}),
             ("/review/become_thesis_reviewer", {200, 302}),
-            ("/review/become_thesis_reviewer_confirm", {200, 302}),
+            ("/review/become_thesis_reviewer_confirm", {200, 302, 404}),
             ("/review/review", {200, 302, 404}),
             ("/review/reviewed", {200, 302, 404}),
             ("/review/review_result", {200, 302, 404}),

@@ -746,3 +746,76 @@ This session merged the cumulative deps refresh to upstream `current`, swept the
 - basedpyright: 0 errors
 - Merged to upstream `current`: #187 (security sweep), #188 (deps), #189 (follow-up fixes); fork `current` + `staging` synced
 - All code-scanning alerts closed (fixes or dismissals); 0 open errors/warnings; secret-scanning 0 open; dependabot open alerts are stale (manifests already at patched versions)
+
+### Retrospective — 2026-08-02: full security audit, 5-phase stacked fork PR
+
+Deep security review (GitHub security surface + three-pronged code review) delivered as five phased hardening PRs on one stacked fork PR (#193, CI green). 5 commits, 60 files, +1183/−258 across source (19), templates (25), tests (6), workflows (2), docs (4), Docker (2).
+
+**What was done**:
+
+1. **GH security surface** — Dependabot (10 open, all stale/patched: Pillow 12.3.0, Flask 3.1.3), private advisory GHSA-5vfc-v7hg-pvwm (already mitigated), CodeQL 3 open (2 fixed, 1 dismissed with reason)
+1. **Three-parallel-pass code review** — authz/CSRF/OAuth, XSS, SQLi/file-handling via explore agents, every critical claim verified before fixing
+1. **Phase 1 (critical)** — C1 `SECRET_KEY` was a filesystem *path* string (forgeable sessions → full takeover); C2 stored XSS on news (`textile` + `|safe`); H1 `delete_internship` auth commented out; H2 unauthenticated temp-thesis admin
+1. **Phase 2 (high)** — global `CSRFProtect` + tokens on all POST forms + GET mutations → POST; upload extension whitelist + `MAX_CONTENT_LENGTH`; `SECRET_KEY_THESIS` to persistent config, removed from admin UI; OAuth state validation (Google missing-return + explicit state; new VK `/vk_login` with state + POST exchange); `OAUTHLIB_INSECURE_TRANSPORT` env-gated; session cookie flags
+1. **Phase 3 (medium)** — path traversal (`secure_filename` on name-derived paths), zip-slip + `_safe_uri`, PDF/avatar DoS hardening, in-memory rate limiter + unified login errors + min password 8, practice/review IDORs, FTS5 query escaping, CSV formula guard, page_size cap
+1. **Phase 4 (stale issues)** — Docker hardening (#115/#126 incl. auto-DB-init entrypoint), deploy `--fail` + version pinning (#57/#58), README (#60)
+1. **Phase 5 (docs)** — CODE_ISSUES audit section, 5 DESIGN_DECISIONS entries, AGENTS gotchas, 5 AI_AGENT_EXPERIENCE lessons
+1. **CodeQL** — #171/#172 fixed (precomputed HMAC digest in tests), #173 dismissed after verifying it writes image bytes, not the token
+
+**Gaps found**:
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| djLint pre-commit reformats ALL html → 2 aborted commits ("Stashed changes conflicted with hook auto-fixes") | Missing convention — hook normalizes every template during commit, conflicting with staged edits | Run `pre-commit run djlint --all-files` before staging; documented in AI_AGENT_EXPERIENCE.md |
+| `static_url_path=""` makes GET-on-POST-route return 404, not 405 | New knowledge — app's catch-all static rule masks wrong-method semantics | Allow 404 in route-accessibility tests; documented in AI_AGENT_EXPERIENCE.md |
+| `importlib.reload()` config test flawed (re-reads real config, not monkeypatch) | Human error — reload re-executes module source | Extracted `read_secret_from_file()` helper and tested it directly |
+| News XSS test asserted `"<script" not in body` — failed on legitimate GTM tags | Test design — assertion too broad vs site chrome | Assert on payload marker (`alert(1)`) |
+| Upload-whitelist test expected HTTP 500; endpoint returns HTTP 200 with status in JSON body | Test design — contract is JSON, not HTTP status | Assert on JSON body |
+| Rate limiter is per-uWSGI-worker (4 workers = 4 counters) | Tooling limitation, accepted | Documented as defense-in-depth; proxy-level limiter flagged as future work |
+
+**Pattern recurrence**: **NO** — none of the 2026-08-01 gaps (test-output truncation, `uv export` BOM, merge-queue stall) recurred.
+
+**What went well**:
+
+- Fork-stacked PR workflow: all 5 phases on one `iakov:staging` PR, stayed `MERGEABLE`, zero conflicts
+- Parallel review surfaced genuinely critical bugs a single pass misses
+- Verify-before-fix discipline (grep for config reads, nh3 behavior test, `git log -S '.html('` proving a CodeQL sink never existed)
+- No new dependencies (nh3 already transitive; rate limiter built in-house)
+- Tests kept green throughout: 1135 → 1151 passing, full suite run after each phase
+- Self-scoping: practice admin-vs-staff role separation deliberately NOT forced (would break real workflow) — recorded as intentional deferral
+
+**What went wrong**:
+
+- djLint hook conflicts cost 2 failed commit attempts before the normalize-then-stage fix
+- Two test-design false starts (GTM `<script>` assertion, JSON-body contract) — both contract misreads
+
+**Root causes**:
+
+1. **Missing convention** — no documented pattern for pre-commit hooks that reformat all files
+1. **New knowledge** — `static_url_path=""` → 404-vs-405; endpoint contracts that are JSON bodies
+1. **Human error** — `importlib.reload()` misuse in a test
+
+**Fix**:
+
+- AI_AGENT_EXPERIENCE.md: djLint-normalize-before-stage, static-404-vs-405, config path-vs-contents, per-worker urandom keys
+- DESIGN_DECISIONS.md: config-secrets-are-contents, nh3 sanitize-at-boundary, CSRFProtect + POST-only, OAuth state, in-memory rate limiter
+- CODE_ISSUES.md: full security-audit section
+- AGENTS.md: config path-vs-contents gotcha + CSRF/POST convention
+- GIT_FLOW.md §8.5: fork workflow (work-only-in-fork, squash to `origin/staging`, stacked PR, no upstream pushes, re-sync)
+- New skill `.skills/security-audit/`: extracted the 3-pass + verify + dismissal-with-proof workflow
+- Retro skill §8a: added djLint-conflict and JSON-contract questions
+
+**Knowledge extracted**:
+
+- `SECRET_KEY`-as-path → forgeable sessions: secrets are file *contents*, never paths; persistent secrets come from config files, never `os.urandom` at module scope
+- `textile.textile()` sanitizes nothing; `nh3.clean()` at storage boundary
+- `static_url_path=""` catch-all returns 404 (not 405) for wrong-method requests
+- djLint pre-commit normalizes all html — normalize before staging edits
+- GET→POST mutation conversion: views read `request.values` to stay compatible with both `url_for` query-string POSTs and form-data POSTs
+
+**State at handoff**:
+
+- Tests: 1151 passed, 1 skipped, 5 xfailed, 7 xpassed
+- ruff/basedpyright/mdformat clean; PR #193 open on upstream (5 commits, 60 files), CI green (test, lint, check 3.11/3.12, dependency-review)
+- Fork `staging` at `d39121d`, working tree clean, feature branches deleted
+- CodeQL: #171/#172 fixed in code (auto-close on merge), #173 dismissed; dependabot open alerts stale (patched manifests)

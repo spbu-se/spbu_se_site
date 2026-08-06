@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import os
 import sys
 from datetime import UTC, datetime
+from pathlib import Path
 
 __all__ = ["app", "db"]
 
@@ -11,6 +13,7 @@ from dateutil import tz
 from flask import Flask, make_response, redirect, render_template, url_for
 from flask_frozen import Freezer
 from flask_migrate import Migrate
+from flask_wtf import CSRFProtect
 
 import flask_se_theses
 from flask_se_admin import (
@@ -35,6 +38,7 @@ from flask_se_auth import (
     upload_avatar,
     user_profile,
     vk_callback,
+    vk_login,
 )
 from flask_se_bachelor import (
     bachelor_admission,
@@ -46,8 +50,8 @@ from flask_se_bachelor import (
 from flask_se_config import (
     SECRET_KEY,
     SECRET_KEY_THESIS,
-    SQLITE_DATABASE_NAME,
     SQLITE_DATABASE_PATH,
+    SQLITE_DATABASE_URI,
     get_hours_since,
     plural_hours,
 )
@@ -161,10 +165,27 @@ app.config["FREEZER_DESTINATION"] = "../_flask_freezed"
 app.config["FREEZER_IGNORE_MIMETYPE_WARNINGS"] = True
 
 # SQLAlchimy config
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + SQLITE_DATABASE_NAME
+# Absolute DB path (databases/se.db) — matches init_db(); CWD-independent.
+# Ensure the directory exists so SQLAlchemy can open the file on first run
+# (init_db() creates it too, but the dev server / Docker may connect first).
+Path(SQLITE_DATABASE_PATH).mkdir(parents=True, exist_ok=True)
+app.config["SQLALCHEMY_DATABASE_URI"] = SQLITE_DATABASE_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 app.config["SECRET_KEY"] = SECRET_KEY
 app.config["SESSION_COOKIE_NAME"] = "se_session"
+
+# Secure session cookies: HTTPS-only + SameSite. Dev runs on plain HTTP, so
+# SECURE is toggled by an env flag (production deploys set it).
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SE_COOKIE_SECURE", "1") == "1"
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
+# Global CSRF protection. Tests set WTF_CSRF_ENABLED=False in conftest.
+# All POST forms must include {{ csrf_token() }}.
+csrf = CSRFProtect(app)
+
+# Upload/request body limit: 64 MB (thesis PDFs + presentations can be large).
+app.config["MAX_CONTENT_LENGTH"] = 64 * 1024 * 1024
 
 # Secret for API
 app.config["SECRET_KEY_THESIS"] = SECRET_KEY_THESIS
@@ -182,18 +203,24 @@ app.add_url_rule("/password_recovery.html", methods=["GET", "POST"], view_func=p
 app.add_url_rule("/profile.html", methods=["GET", "POST"], view_func=user_profile)
 app.add_url_rule("/upload_avatar", methods=["GET", "POST"], view_func=upload_avatar)
 app.add_url_rule("/logout", methods=["GET"], view_func=logout)
-app.add_url_rule("/vk_callback", methods=["GET"], view_func=vk_callback)
 app.add_url_rule("/google_login", methods=["GET"], view_func=google_login)
 app.add_url_rule("/google_callback", methods=["GET"], view_func=google_callback)
+app.add_url_rule("/vk_login", methods=["GET"], view_func=vk_login)
+app.add_url_rule("/vk_callback", methods=["GET"], view_func=vk_callback)
 
 
 # Theses
 app.add_url_rule("/theses.html", view_func=flask_se_theses.theses_search)
 app.add_url_rule("/fetch_theses", view_func=flask_se_theses.fetch_theses)
 app.add_url_rule("/post_theses", methods=["GET", "POST"], view_func=flask_se_theses.post_theses)
+# post_theses is an authenticated-by-secret API (external upload script),
+# not a browser form — exempt from CSRF.
+csrf.exempt(flask_se_theses.post_theses)
 app.add_url_rule("/theses_tmp.html", view_func=flask_se_theses.theses_tmp)
-app.add_url_rule("/theses_delete_tmp", view_func=flask_se_theses.theses_delete_tmp)
-app.add_url_rule("/theses_add_tmp", view_func=flask_se_theses.theses_add_tmp)
+app.add_url_rule(
+    "/theses_delete_tmp", methods=["POST"], view_func=flask_se_theses.theses_delete_tmp
+)
+app.add_url_rule("/theses_add_tmp", methods=["POST"], view_func=flask_se_theses.theses_add_tmp)
 app.add_url_rule("/thesis_download", view_func=flask_se_theses.download_thesis)
 
 
@@ -202,8 +229,8 @@ app.add_url_rule("/news/", view_func=list_news)
 app.add_url_rule("/news/index.html", view_func=list_news)
 app.add_url_rule("/news/item.html", view_func=get_post)
 app.add_url_rule("/news/submit.html", methods=["GET", "POST"], view_func=submit_post)
-app.add_url_rule("/news/post_vote", methods=["GET", "POST"], view_func=post_vote)
-app.add_url_rule("/news/delete", view_func=delete_post)
+app.add_url_rule("/news/post_vote", methods=["POST"], view_func=post_vote)
+app.add_url_rule("/news/delete", methods=["POST"], view_func=delete_post)
 
 
 # Scholarships
@@ -228,11 +255,11 @@ app.add_url_rule("/diplomas/index.html", view_func=diplomas_index)
 app.add_url_rule("/diplomas/theme.html", view_func=get_theme)
 app.add_url_rule("/diplomas/add_theme.html", methods=["GET", "POST"], view_func=add_user_theme)
 app.add_url_rule("/diplomas/user_themes.html", view_func=user_diplomas_index)
-app.add_url_rule("/diplomas/delete_theme.html", view_func=delete_theme)
+app.add_url_rule("/diplomas/delete_theme.html", methods=["POST"], view_func=delete_theme)
 app.add_url_rule("/diplomas/edit_theme.html", methods=["GET", "POST"], view_func=edit_user_theme)
 app.add_url_rule("/diplomas/fetch_themes", view_func=fetch_themes)
-app.add_url_rule("/diplomas/archive_theme", view_func=archive_theme)
-app.add_url_rule("/diplomas/unarchive_theme", view_func=unarchive_theme)
+app.add_url_rule("/diplomas/archive_theme", methods=["POST"], view_func=archive_theme)
+app.add_url_rule("/diplomas/unarchive_theme", methods=["POST"], view_func=unarchive_theme)
 
 
 # Review thesis
@@ -240,8 +267,8 @@ app.add_url_rule("/review/", methods=["GET"], view_func=thesis_review_index)
 app.add_url_rule("/review/index.html", methods=["GET"], view_func=thesis_review_index)
 app.add_url_rule("/review/submit", methods=["GET", "POST"], view_func=submit_thesis_on_review)
 app.add_url_rule("/review/edit", methods=["GET", "POST"], view_func=edit_thesis_on_review)
-app.add_url_rule("/review/delete", methods=["GET"], view_func=delete_thesis_on_review)
-app.add_url_rule("/review/review", methods=["GET"], view_func=review_thesis_on_review)
+app.add_url_rule("/review/delete", methods=["POST"], view_func=delete_thesis_on_review)
+app.add_url_rule("/review/review", methods=["GET", "POST"], view_func=review_thesis_on_review)
 app.add_url_rule("/review/reviewed", methods=["GET", "POST"], view_func=review_submit_review)
 app.add_url_rule("/review/review_result", methods=["GET"], view_func=review_result_thesis_on_review)
 app.add_url_rule(
@@ -256,7 +283,7 @@ app.add_url_rule(
 )
 app.add_url_rule(
     "/review/become_thesis_reviewer_confirm",
-    methods=["GET"],
+    methods=["POST"],
     view_func=review_become_thesis_reviewer_confirm,
 )
 
@@ -271,7 +298,7 @@ app.add_url_rule(
 app.add_url_rule("/internships/fetch_internships", methods=["GET"], view_func=fetch_internships)
 app.add_url_rule("/internships/add", methods=["GET", "POST"], view_func=add_internship)
 app.add_url_rule("/internships/<int:id>", methods=["GET", "POST"], view_func=page_internship)
-app.add_url_rule("/internships/<int:id>/delete", view_func=delete_internship)
+app.add_url_rule("/internships/<int:id>/delete", methods=["POST"], view_func=delete_internship)
 app.add_url_rule(
     "/internships/<int:id>/update",
     methods=["GET", "POST"],

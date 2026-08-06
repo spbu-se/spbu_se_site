@@ -100,6 +100,9 @@ flask_se_practice_yandex_secret.conf
 /**/flask_se_vk_secret.conf
 */src/flask_se_vk_secret.conf
 flask_se_vk_secret.conf
+/**/flask_se_thesis.conf
+*/src/flask_se_thesis.conf
+flask_se_thesis.conf
 
 # Do not track __pycache__
 **/__pycache__/

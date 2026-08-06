@@ -20,6 +20,7 @@
     {% else %}
       <form method="POST"
             action="{{ url_for('index_admin', area_id=area.id, worktype_id=worktype.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="row mb-2">
           <div class="col">
             <button type="button"

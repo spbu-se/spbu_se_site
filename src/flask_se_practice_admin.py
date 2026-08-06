@@ -15,6 +15,7 @@ limitations under the License.
 """
 # -*- coding: utf-8 -*-
 
+import re
 import shutil
 import tempfile
 from enum import Enum
@@ -26,7 +27,7 @@ from flask_login import current_user
 from transliterate import translit
 
 from flask_se_auth import login_required
-from flask_se_config import get_thesis_type_id_string
+from flask_se_config import get_thesis_type_id_string, secure_filename
 from flask_se_practice_config import (
     ARCHIVE_PRESENTATION_FOLDER,
     ARCHIVE_REVIEW_FOLDER,
@@ -57,6 +58,15 @@ from se_models import (
 from templates.notification.templates import NotificationTemplates
 from templates.practice.admin.templates import PracticeAdminTemplates
 
+_safe_uri_re = re.compile(r"^[A-Za-z0-9_.\-]+$")
+
+
+def _safe_uri(uri: str | None) -> bool:
+    """True if a stored file URI is a plain filename (no path separators)."""
+    if not uri:
+        return True
+    return bool(_safe_uri_re.fullmatch(uri))
+
 
 class PracticeAdminPage(Enum):
     CURRENT_THESISES = "current_thesises"
@@ -85,7 +95,7 @@ def __get_filename_without_extension(worktype: Worktype, area: AreasOfStudy) -> 
     return str(
         get_thesis_type_id_string(worktype.id)
         + "_"
-        + translit(area.area, "ru", reversed=True).replace(" ", "_"),
+        + (secure_filename(translit(area.area, "ru", reversed=True)) or "unknown"),
     )
 
 
@@ -244,19 +254,21 @@ def download_materials(area, worktype):
     with tempfile.NamedTemporaryFile() as tmp:
         with ZipFile(tmp.name, "w") as zip_file:
             for thesis in thesises:
-                if thesis.text_uri is not None:
+                if thesis.text_uri is not None and _safe_uri(thesis.text_uri):
                     zip_file.write(TEXT_UPLOAD_FOLDER + thesis.text_uri, arcname=thesis.text_uri)
-                if thesis.supervisor_review_uri is not None:
+                if thesis.supervisor_review_uri is not None and _safe_uri(
+                    thesis.supervisor_review_uri
+                ):
                     zip_file.write(
                         REVIEW_UPLOAD_FOLDER + thesis.supervisor_review_uri,
                         arcname=thesis.supervisor_review_uri,
                     )
-                if thesis.reviewer_review_uri is not None:
+                if thesis.reviewer_review_uri is not None and _safe_uri(thesis.reviewer_review_uri):
                     zip_file.write(
                         REVIEW_UPLOAD_FOLDER + thesis.reviewer_review_uri,
                         arcname=thesis.reviewer_review_uri,
                     )
-                if thesis.presentation_uri is not None:
+                if thesis.presentation_uri is not None and _safe_uri(thesis.presentation_uri):
                     zip_file.write(
                         PRESENTATION_UPLOAD_FOLDER + thesis.presentation_uri,
                         arcname=thesis.presentation_uri,

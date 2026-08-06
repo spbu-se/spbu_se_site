@@ -42,6 +42,7 @@
       <div class="row justify-content-center">
         <div class="col-lg-9">
           <form method="POST" action="/profile.html">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="row">
               <div class="col-lg-12">
                 <!-- Title -->
@@ -146,8 +147,10 @@ fileChosen.addEventListener('change', function(){
 
     const formData = new FormData();
     formData.append('file', file);
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    formData.append('csrf_token', csrfToken);
 
-    fetch('/upload_avatar', {method: "POST", body: formData}).then(function(response){
+    fetch('/upload_avatar', {method: "POST", body: formData, headers: {'X-CSRFToken': csrfToken}}).then(function(response){
 
         if (!response.ok){
             console.log(response);

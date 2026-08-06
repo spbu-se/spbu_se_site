@@ -9,7 +9,7 @@ from flask_login import current_user
 from transliterate import translit
 
 from flask_se_auth import login_required
-from flask_se_config import get_thesis_type_id_string
+from flask_se_config import get_thesis_type_id_string, secure_filename
 from se_forms import AddThesisOnReview, EditThesisOnReview, ThesisReviewFilter
 from se_models import (
     AreasOfStudy,
@@ -143,7 +143,7 @@ def submit_thesis_on_review():
 
         if file and allowed_file(file.filename):
             author_en = translit(author, "ru", reversed=True)
-            author_en = author_en.replace(" ", "_")
+            author_en = secure_filename(author_en) or "unknown"
             thesis_filename = author_en
             thesis_filename = thesis_filename + "_" + get_thesis_type_id_string(worktype)
 
@@ -262,7 +262,7 @@ def edit_thesis_on_review():
             if file.filename != "":
                 if file and allowed_file(file.filename):
                     author_en = translit(author, "ru", reversed=True)
-                    author_en = author_en.replace(" ", "_")
+                    author_en = secure_filename(author_en) or "unknown"
                     thesis_filename = author_en
                     thesis_filename = thesis_filename + "_" + get_thesis_type_id_string(worktype)
 
@@ -325,7 +325,7 @@ def edit_thesis_on_review():
 
 @login_required
 def delete_thesis_on_review():
-    thesis_id = request.args.get("thesis_review_id", type=int)
+    thesis_id = request.form.get("thesis_review_id", type=int)
 
     if not thesis_id:
         return redirect(url_for("thesis_review_index"))
@@ -346,8 +346,8 @@ def delete_thesis_on_review():
 def review_thesis_on_review():
     user = current_user
     user_reviewer = Reviewer.query.filter_by(user_id=user.id).first_or_404()
-    thesis_id = request.args.get("thesis_review_id", type=int)
-    set_to_review = request.args.get("set_to_review", type=int, default=0)
+    thesis_id = request.values.get("thesis_review_id", type=int)
+    set_to_review = request.values.get("set_to_review", type=int, default=0)
 
     if not user_reviewer:
         return redirect(url_for("thesis_review_index"))
@@ -370,7 +370,10 @@ def review_thesis_on_review():
 
     # Set review_status to 2 (On review)
     # Set reviewer_id to user.id
+    # State-changing part must be POST (CSRF-protected).
     if (thesis.review_status == 1) and (set_to_review != 0):
+        if request.method != "POST":
+            return redirect(url_for("thesis_review_index"))
         thesis.review_status = 2
         thesis.reviewer_id = user_reviewer.id
         db.session.commit()
@@ -418,6 +421,11 @@ def review_submit_review():
     # User can't review it's own thesis.
     if thesis.author_id == user.id:
         flash("Вы не можете рецензировать свою работу", "error")
+        return redirect(url_for("thesis_review_index"))
+
+    # Only the assigned reviewer may submit a review (IDOR guard).
+    if thesis.reviewer_id != user_reviewer.id:
+        flash("Эта работа назначена другому рецензенту", "error")
         return redirect(url_for("thesis_review_index"))
 
     # Only status == 2 allow us to review this thesis.
@@ -528,9 +536,13 @@ def review_result_thesis_on_review():
     thesis = ThesisOnReview.query.filter_by(id=thesis_id).first_or_404()
     review = ThesisReview.query.filter_by(thesis_on_review_id=thesis_id).first_or_404()
 
-    # if thesis.author_id != user.id:
-    #    flash("Вы не можете просматривать рецензию на чужую работу", 'error')
-    #    return redirect(url_for('thesis_review_index'))
+    user_reviewer = Reviewer.query.filter_by(user_id=user.id).first()
+    is_author = thesis.author_id == user.id
+    is_reviewer = user_reviewer is not None and thesis.reviewer_id == user_reviewer.id
+
+    if not is_author and not is_reviewer:
+        flash("Вы не можете просматривать рецензию на чужую работу", "error")
+        return redirect(url_for("thesis_review_index"))
 
     if thesis.review_status in {1, 2}:
         flash("Рецензия по данной работе не завершена", "error")
@@ -585,7 +597,7 @@ def review_become_thesis_reviewer_ask():
 def review_become_thesis_reviewer_confirm():
     user = current_user
 
-    promocode = request.args.get("code", type=str, default="")
+    promocode = request.form.get("code", type=str, default="")
 
     promo = PromoCode.query.filter_by(code=promocode).first()
 

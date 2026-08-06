@@ -47,7 +47,12 @@ class TestReviewAuthenticated:
         assert_ok(logged_client, "/review/become_thesis_reviewer", code={200, 302})
 
     def test_review_become_reviewer_confirm(self, logged_client):
-        assert_ok(logged_client, "/review/become_thesis_reviewer_confirm", code={200, 302})
+        assert_ok(
+            logged_client,
+            "/review/become_thesis_reviewer_confirm",
+            methods={"POST"},
+            code={200, 302},
+        )
 
     def test_review_page_with_id(self, thesis_on_review):
         assert_ok(thesis_on_review, "/review/review?thesis_review_id=1", code={200, 302, 404})

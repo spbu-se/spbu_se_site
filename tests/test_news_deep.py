@@ -48,36 +48,38 @@ class TestNewsSubmit:
 
 class TestNewsVote:
     def test_news_vote_own_post(self, logged_client):
-        resp = logged_client.get("/news/post_vote?post_id=1&action_vote=1")
+        resp = logged_client.post("/news/post_vote", data={"post_id": 1, "action_vote": 1})
         assert resp.status_code in (200, 302)
 
     def test_news_vote_new_downvote(self, logged_client):
-        resp = logged_client.get("/news/post_vote?post_id=2&action_vote=0")
+        resp = logged_client.post("/news/post_vote", data={"post_id": 2, "action_vote": 0})
         assert resp.status_code in (200, 302)
 
     def test_news_vote_change_vote(self, logged_client):
-        resp = logged_client.get("/news/post_vote?post_id=2&action_vote=1")
+        resp = logged_client.post("/news/post_vote", data={"post_id": 2, "action_vote": 1})
         assert resp.status_code in (200, 302)
-        resp = logged_client.get("/news/post_vote?post_id=2&action_vote=0")
+        resp = logged_client.post("/news/post_vote", data={"post_id": 2, "action_vote": 0})
         assert resp.status_code in (200, 302)
 
     def test_news_vote_already_voted(self, logged_client):
-        resp = logged_client.get("/news/post_vote?post_id=2&action_vote=1")
+        resp = logged_client.post("/news/post_vote", data={"post_id": 2, "action_vote": 1})
         assert resp.status_code in (200, 302)
-        resp = logged_client.get("/news/post_vote?post_id=2&action_vote=1")
+        resp = logged_client.post("/news/post_vote", data={"post_id": 2, "action_vote": 1})
         assert resp.status_code in (200, 302)
 
     def test_news_vote_rejects_non_http_referrer(self, logged_client):
-        resp = logged_client.get(
-            "/news/post_vote?post_id=1&action_vote=1",
+        resp = logged_client.post(
+            "/news/post_vote",
+            data={"post_id": 1, "action_vote": 1},
             headers={"Referer": "javascript:alert(1)"},
         )
         assert resp.status_code in (200, 302)
         assert "javascript:" not in resp.headers.get("Location", "")
 
     def test_news_vote_rejects_cross_host_referrer(self, logged_client):
-        resp = logged_client.get(
-            "/news/post_vote?post_id=1&action_vote=1",
+        resp = logged_client.post(
+            "/news/post_vote",
+            data={"post_id": 1, "action_vote": 1},
             headers={"Referer": "https://evil.example.com/path"},
         )
         assert resp.status_code in (200, 302)
@@ -86,10 +88,18 @@ class TestNewsVote:
 
 class TestNewsDelete:
     def test_news_delete_own_post(self, logged_client):
-        assert_ok(logged_client, "/news/delete?post_id=1", code={200, 302})
+        assert_ok(
+            logged_client, "/news/delete", data={"post_id": 1}, methods={"POST"}, code={200, 302}
+        )
 
     def test_news_delete_nonexistent(self, logged_client):
-        assert_ok(logged_client, "/news/delete?post_id=99999", code={200, 302, 404})
+        assert_ok(
+            logged_client,
+            "/news/delete",
+            data={"post_id": 99999},
+            methods={"POST"},
+            code={200, 302, 404},
+        )
 
 
 class TestNewsList:

@@ -84,7 +84,11 @@ def current_thesis_exists_or_redirect(func):
 def practice_index():
     if request.method == "POST" and "read_notification_button" in request.form:
         notification_id = request.form["read_notification_button"]
-        notification = NotificationPractice.query.filter_by(id=notification_id).first()
+        notification = (
+            NotificationPractice.query.filter_by(id=notification_id)
+            .filter_by(recipient_id=current_user.id)
+            .first()
+        )
         if notification:
             notification.viewed = True
             db.session.commit()
@@ -330,7 +334,11 @@ def practice_goals_tasks(current_thesis):
             "delete_task_id_button" in request.form and request.form["delete_task_id_button"] != "0"
         ):
             task_id = request.form["delete_task_id_button"]
-            task = ThesisTask.query.filter_by(id=task_id).first()
+            task = (
+                ThesisTask.query.filter_by(id=task_id)
+                .filter_by(current_thesis_id=current_thesis.id)
+                .first()
+            )
             if task is None:
                 return redirect(url_for("practice_goals_tasks", id=current_thesis.id))
 
@@ -340,7 +348,11 @@ def practice_goals_tasks(current_thesis):
 
         elif "edit_task_id_button" in request.form and request.form["edit_task_id_button"] != "0":
             task_id = request.form["edit_task_id_button"]
-            task = ThesisTask.query.filter_by(id=task_id).first()
+            task = (
+                ThesisTask.query.filter_by(id=task_id)
+                .filter_by(current_thesis_id=current_thesis.id)
+                .first()
+            )
             if task is None:
                 return redirect(url_for("practice_goals_tasks", id=current_thesis.id))
 
@@ -366,7 +378,11 @@ def practice_goals_tasks(current_thesis):
 def practice_workflow(current_thesis):
     if request.method == "POST" and "delete_button" in request.form:
         report_id = request.form["delete_button"]
-        report = ThesisReport.query.filter_by(id=report_id).first()
+        report = (
+            ThesisReport.query.filter_by(id=report_id)
+            .filter_by(current_thesis_id=current_thesis.id)
+            .first()
+        )
         if report is not None:
             report.deleted = True
             db.session.commit()

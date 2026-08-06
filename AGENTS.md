@@ -103,10 +103,11 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 ## Environment quirks
 
 - **Main branch**: `current` (not `main`)
-- **Config files** (never committed): `flask_se_secret.conf`, `flask_se_mail.conf`, `flask_se_practice_yandex_secret.conf`
+- **Config files** (never committed): `flask_se_secret.conf`, `flask_se_mail.conf`, `flask_se_practice_yandex_secret.conf`, `flask_se_vk_secret.conf`, `flask_se_thesis.conf`
 - **requirements.txt staleness** — CI runs `pip install -r` on every push. Must match `uv.lock`. Always regenerate before pushing
 - **mdformat CI vs local** — CI uses Linux (LF). Always run `uv run mdformat ...` (not `--check`) before committing on Windows
 - **GPG keylocker** — if `git config commit.gpgsign` is true, use `git commit --no-gpg-sign` on all branches (only `current` gets signed commits)
+- **Config-secret path vs contents** — secrets live in config files, and the code reads their **contents** via `flask_se_config.read_secret_from_file()`. Never treat a config file's *path* as the secret (that was CVE-class bug: `SECRET_KEY` was a path string → forgeable sessions). CSRF is globally enforced (`CSRFProtect`): any new POST form must include `{{ csrf_token() }}`, and new state-changing actions must be POST, not GET
 
 ## Gotchas
 

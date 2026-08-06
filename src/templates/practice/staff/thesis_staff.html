@@ -197,6 +197,7 @@
       </div>
     </div>
     <form method="POST" action="{{ url_for('thesis_staff', id=thesis.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       {% if thesis.status == 1 %}
         <div class="row">
           <div class="col">

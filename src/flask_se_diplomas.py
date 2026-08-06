@@ -228,7 +228,7 @@ def add_user_theme():
 
 @login_required
 def delete_theme():
-    theme_id = request.args.get("theme_id", type=int)
+    theme_id = request.form.get("theme_id", type=int)
 
     if not theme_id:
         return redirect(url_for("diplomas_index"))
@@ -321,7 +321,7 @@ def edit_user_theme():
 
 @login_required
 def archive_theme():
-    theme_id = request.args.get("theme_id", type=int)
+    theme_id = request.form.get("theme_id", type=int)
 
     if not theme_id:
         return redirect(url_for("diplomas_index"))
@@ -339,7 +339,7 @@ def archive_theme():
 
 @login_required
 def unarchive_theme():
-    theme_id = request.args.get("theme_id", type=int)
+    theme_id = request.form.get("theme_id", type=int)
 
     if not theme_id:
         return redirect(url_for("diplomas_index"))

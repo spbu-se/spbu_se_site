@@ -91,6 +91,7 @@
           <form method="POST"
                 action="{{ url_for('review_submit_review', thesis_review_id=thesis.id) }}"
                 enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <h5 class="my-3">Текст отчёта (группа критериев О)</h5>
             <div class="card">
               <div class="card-header">

@@ -33,6 +33,7 @@
             </div>
             <span class="clearfix"></span>
             <form method="post" action="{{ url_for('login_index') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <div class="form-group">
                 <div class="input-group">
                   <div class="input-group-prepend">
@@ -90,7 +91,7 @@
             <div class="row">
               <div class="col-sm-6 mx-auto">
                 <a class="btn btn-block btn-neutral btn-icon px-2 mb-3 mb-sm-0"
-                   href="https://oauth.vk.com/authorize?client_id=8051225&display=page&redirect_uri=https://se.math.spbu.ru/vk_callback&scope=friends,email&response_type=code&v=5.130">
+                   href="{{ url_for('vk_login') }}">
                   <span class="btn-inner--icon">
                     <img src="/assets/img/login/vk.svg" alt="Image placeholder">
                   </span>

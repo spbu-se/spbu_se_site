@@ -44,6 +44,7 @@
     <form method="POST"
           action="{{ url_for('practice_preparation', id=practice.id) }}"
           enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="row">
         <div class="col">
           <div class="card border-0 mb-2">
