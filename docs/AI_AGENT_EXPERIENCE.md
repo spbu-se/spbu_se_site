@@ -343,6 +343,16 @@ for root, dirs, files in os.walk('src'):
 
 **After squash-merge:** the head branch's commits are rewritten into one commit on `current`; the fork's `staging`/`current` must be re-synced with `git reset --hard origin/current` + `--force-with-lease` push (content-identical, divergent history).
 
+## **(ADDENDUM 2026-08-06 — queue toggled on then off; workflows now `merge_group`-aware)** Merge queue on upstream `current`
+
+**When:** Investigating why the `current` tip showed only CodeQL for `91229268` (PR #193 merge) while "a lot of CI must happen".
+
+**Evidence:** a `gh-readonly-queue/current/pr-194-*` merge group ran 08-06 15:47 (`serviceability` `check (3.11)` failed → #194 removed), and #193 merged 08-06 18:55 with **no `push`-event workflow runs**. Merge-queue merges don't fire `on: push`, so only GitHub-managed CodeQL + Dependency Graph appear on the merged tip. The queue was enabled for that batch and is **off again now**: branch protection has no `merge_queue` key, rulesets are tag-only, and `GET /merge-queue` returns 404.
+
+**Trap:** the branch-protection `merge_queue` field is absent when unset — do not alias it to `required_linear_history` in jq (same `enabled: true` shape, wrong meaning). Always read the live API, never the doc.
+
+**Fix:** `ci.yml` and `deploy_to_staging.yml` now declare `merge_group:`. With the queue off these triggers are inert; if it is re-enabled, GitHub requires a workflow that reports a required check (`lint`) to trigger on `merge_group`, and the staging deploy fires on the merge group so it still runs after a queue merge.
+
 ## Diagnostic test runs: `-q` + output truncation hides failures
 
 **When:** Running the full pytest suite on a feature branch to validate changes.

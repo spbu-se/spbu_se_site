@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "current"
+  merge_group:
   workflow_dispatch:
 
 permissions:
