@@ -277,3 +277,13 @@ with no release artifacts or notes.
 **Rationale**: No new dependency; adequate defense-in-depth. Per-worker state is acceptable for a single-host site.
 
 **Alternatives considered**: Flask-Limiter — new dependency, not worth it for this deployment.
+
+## [2026-08-08] Mail jobs: SE_STAGING gate + DB idempotency
+
+**Context**: Issue #76 — the daily "themes on review" digest arrived several times a day with drifting counts. Root cause: the APScheduler jobs run in **every** gunicorn/uwsgi worker (no app factory, scheduler starts at import in `flask_se.py`), so each worker fires the 24h job → N sends/day; and the count used `status==0` while the admin review page shows `status<2`. The developer's on-the-knee SMTP code was environment-unaware; his unmerged patch gated sends on an `SE_STAGING=1` env var.
+
+**Decision**: Two complementary guards in `se_sendmail.py`: (1) `SE_STAGING` env gate — when set (staging systemd unit), `sendmail` is skipped but the notification queue is still consumed (drains instead of growing); (2) the 24h digest claims an atomic slot on a new `NotificationLog` table (unique `type`, `last_sent_at`) — the first worker to commit a fresh timestamp wins, concurrent workers skip. Count changed to `status < 2` to match the admin review view. The table is created lazily with `checkfirst=True` because the Alembic tree is multi-headed and deploys are webhook-driven (no `flask db upgrade` in the pipeline).
+
+**Rationale**: Env gating matches the established `SE_*` pattern (no factory) and the developer's precedent; DB idempotency is robust to any worker count without systemd changes.
+
+**Alternatives considered**: Gating scheduler start behind a second env var — requires a prod systemd tweak and still risks two units racing. Pure file lock — host-local, fragile across processes. Relying on `status==0` — the reported bug itself.
