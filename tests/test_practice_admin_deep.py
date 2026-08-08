@@ -438,6 +438,7 @@ class TestPracticeAdminArchiveThesis:
         ct.supervisor_review_uri = "test_review.pdf"
         ct.reviewer_review_uri = "test_reviewer.pdf"
         ct.code_link = "https://github.com/test/repo"
+        ct.consultant = "Иван Консультантов"
 
         with patch("shutil.copyfile"):
             resp = client.post(
@@ -452,6 +453,7 @@ class TestPracticeAdminArchiveThesis:
         archived = Thesis.query.filter_by(author_id=1).first()
         assert archived is not None
         assert archived.name_ru == "Test Practice Thesis Admin"
+        assert archived.consultant == "Иван Консультантов"
 
     def test_archive_post_with_uploaded_files(self, current_thesis):
         from se_models import CurrentThesis, db

@@ -547,6 +547,7 @@ class Thesis(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     supervisor_id = db.Column(db.Integer, db.ForeignKey("staff.id"), nullable=True)
     reviewer_id = db.Column(db.Integer, db.ForeignKey("staff.id"), nullable=True)
+    consultant = db.Column(db.String(2048), nullable=True)
 
     publish_year = db.Column(db.Integer, nullable=False)
     recomended = db.Column(db.Boolean, default=False, nullable=False)

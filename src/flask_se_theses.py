@@ -11,6 +11,8 @@ from urllib.parse import urlparse
 import fitz
 from flask import jsonify, redirect, render_template, request, url_for
 from flask_login import current_user
+from sqlalchemy import inspect
+from sqlalchemy.exc import OperationalError
 from transliterate import translit
 
 from flask_se_auth import login_required
@@ -37,6 +39,23 @@ _ALLOWED_UPLOAD_EXTENSIONS = {
 _THESES_ROLE_LEVEL = 2
 
 
+def _ensure_thesis_consultant_column() -> None:
+    """Lazily add the ``consultant`` column to the ``thesis`` table.
+
+    The Alembic migration tree is multi-headed and deploys are webhook-driven,
+    so schema evolution runs in code (same pattern as NotificationLog in
+    se_sendmail). No-op once the column exists.
+    """
+    if "consultant" in inspect(db.engine).get_columns("thesis"):
+        return
+    try:
+        with db.engine.begin() as connection:
+            connection.execute(db.text("ALTER TABLE thesis ADD COLUMN consultant VARCHAR(2048)"))
+    except OperationalError:
+        # Concurrent worker may have added it first.
+        pass
+
+
 def _require_theses_admin() -> bool:
     return current_user.is_authenticated and current_user.role >= _THESES_ROLE_LEVEL
 
@@ -57,6 +76,7 @@ def _safe_uri(uri: str | None) -> bool:
 
 
 def theses_search():
+    _ensure_thesis_consultant_column()
     filter = ThesisFilter()
     hints = [
         '"Максим" можно искать как Максим, максим, Макс* или *акс*.',
@@ -124,11 +144,13 @@ def theses_search():
 
 
 def fetch_theses():
+    _ensure_thesis_consultant_column()
     worktype = request.args.get("worktype", default=1, type=int)
     page = request.args.get("page", default=1, type=int)
     supervisor = request.args.get("supervisor", default=0, type=int)
     course = request.args.get("course", default=0, type=int)
     search = request.args.get("search", default="", type=str)
+    consultant = request.args.get("consultant", default="", type=str)
     context = {}
 
     dates = [
@@ -182,6 +204,9 @@ def fetch_theses():
         else:
             supervisor = 0
 
+    if consultant:
+        records = records.filter(Thesis.consultant.ilike("%" + consultant + "%"))
+
     if worktype > 1:
         records = _paginate(records.filter_by(type_id=worktype), page)
     else:
@@ -232,6 +257,7 @@ def fetch_theses():
             startdate=startdate,
             enddate=enddate,
             supervisor=supervisor,
+            consultant=consultant,
             search=search,
             context=context,
         )
