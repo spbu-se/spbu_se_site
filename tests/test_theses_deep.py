@@ -40,6 +40,55 @@ class TestFetchThesesFilters:
         assert_ok(seeded_client, "/fetch_theses?page=2")
 
 
+class TestFetchThesesConsultantFilter:
+    def test_fetch_with_consultant_no_match(self, seeded_client):
+        resp = seeded_client.get("/fetch_theses?consultant=no_such_consultant_zzz")
+        assert resp.status_code == 200
+        assert "no_such_consultant_zzz" not in resp.get_data(as_text=True)
+
+    def test_fetch_consultant_filter_ignored_when_empty(self, seeded_client):
+        assert_ok(seeded_client, "/fetch_theses?consultant=")
+
+    def test_fetch_consultant_combined_with_supervisor(self, seeded_client):
+        assert_ok(seeded_client, "/fetch_theses?consultant=test&supervisor=1")
+
+    def test_fetch_consultant_match(self, app_ctx):
+        from se_models import Thesis, db
+
+        t = Thesis(
+            name_ru="Consultant Match Thesis",
+            author="Author",
+            type_id=2,
+            course_id=1,
+            publish_year=2024,
+            consultant="Иван Консультантов",
+        )
+        db.session.add(t)
+        db.session.commit()
+        client = app_ctx
+        resp = client.get("/fetch_theses?consultant=Консультантов")
+        assert resp.status_code == 200
+        assert "Consultant Match Thesis" in resp.get_data(as_text=True)
+
+    def test_fetch_consultant_partial_name(self, app_ctx):
+        from se_models import Thesis, db
+
+        t = Thesis(
+            name_ru="Partial Consultant Thesis",
+            author="Author",
+            type_id=2,
+            course_id=1,
+            publish_year=2024,
+            consultant="Иван Консультантов",
+        )
+        db.session.add(t)
+        db.session.commit()
+        client = app_ctx
+        resp = client.get("/fetch_theses?consultant=Консульт")
+        assert resp.status_code == 200
+        assert "Partial Consultant Thesis" in resp.get_data(as_text=True)
+
+
 class TestThesesSearchDetail:
     def test_search_page_contains_form(self, seeded_client):
         resp = seeded_client.get("/theses.html")
