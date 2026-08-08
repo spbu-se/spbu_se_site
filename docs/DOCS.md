@@ -267,7 +267,10 @@ Root-level `.md` files are listed explicitly. Each has a reason to live at root:
 
 - **CI runs `mdformat --check`** with the same explicit paths.
 - **Pre-commit hook** uses the same paths as CI — `pass_filenames: false` ensures all files are checked, not just staged ones.
-- **Windows vs Linux parity**: CI uses Linux which formats markdown differently (LF vs CRLF). Always run `mdformat` (not just `--check`) before committing to ensure files are in CI-compatible format.
+- **Windows vs Linux parity**: `.gitattributes` normalizes all text to LF
+  (`* text=auto eol=lf`), so checkouts are LF on every platform and mdformat
+  behaves identically locally and in CI. Still run `mdformat` (not just
+  `--check`) before committing so freshly-edited files are formatted.
 
 ### 7.2 CI mdformat Failure Diagnosis
 

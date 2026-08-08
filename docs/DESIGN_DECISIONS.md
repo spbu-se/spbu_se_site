@@ -22,6 +22,47 @@ Covers: technology stack choices, framework-specific decisions, implementation p
 | Migrations | Flask-Migrate (Alembic) | 2026-06-27 | Schema evolution tracking |
 | Static assets | Quick Website theme (Bootstrap 4) | 2026-06-27 | Pre-existing design, responsive |
 
+## [2026-08-08] Date-based versioning + draft releases
+
+**Context**: `docs/GIT_FLOW.md §7` and `docs/DEVELOPMENT_PROCESS.md §6` documented
+SemVer ("determine SemVer bump from commit log"), but the actual release tags
+were always zero-filled dates (`v2025.09.09`, `v2025.07.04`, …) — a silent
+doc-drift. Releases were created manually on GitHub with one-line titles and no
+structured notes, and the `deploy_to_production.yml` webhook fired on the tag
+with no release artifacts or notes.
+
+**Decision**:
+
+- All releases use zero-filled date versions `vYYYY.MM.DD`. Tags are GPG-signed
+  and pushed to the canonical repo only when a release is shipped — not on every
+  merge to `current`.
+- `deploy_to_production.yml` gains a `release` job: on a `v*.*.*` tag it runs
+  the `release-notes` skill (via opencode, requires `OPENCODE_ZEN_API_KEY`) and
+  creates a **DRAFT** GitHub release — never auto-published. The draft is
+  reviewed and published manually by the maintainer.
+- Release notes are two-part: Part 1 plain-English user summary, Part 2
+  developer changelog (dependencies table, major changes, contributors, compare
+  link). Encoded in `.skills/release-notes/`.
+
+**Rationale**:
+
+- Date versions are inherently ordered and unambiguous; no semantic bump to
+  derive or mis-guess. Tag and release string stay identical (`v2026.08.08`).
+- Draft semantics give a mandatory human review gate: notes are generated, but
+  nothing ships unread. This mirrors the pattern proven in trik-lobe-server
+  (LLM-generated notes + draft release + maintainer publish).
+- The `release` job is guarded on the secret's presence so tag pushes keep
+  deploying cleanly until `OPENCODE_ZEN_API_KEY` is configured (deliberate
+  deviation from lobe-server's fail-loudly: here deploy and release are
+  independent concerns).
+
+**Consequences**:
+
+- Release flow documented in `GIT_FLOW.md §7` and `DEVELOPMENT_PROCESS.md §6`;
+  README gains a "Releases" section.
+- Until the secret is added, draft notes are created manually following the
+  skill (the agent acts as the notes generator).
+
 ## [2026-07-03] Dual Dep Management: uv (dev) + pip (prod)
 
 **Context**: Development needs fast dependency resolution and lockfile consistency. Production (Docker, CI on `current`) needs minimal image size.
