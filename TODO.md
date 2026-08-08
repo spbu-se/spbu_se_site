@@ -2,6 +2,24 @@
 
 # TODO
 
+## Next run (post-2026-08-08: security triage + notification fix shipped)
+
+**Deferred feature issues (upstream, keep open):**
+
+- #87 practice reports read/unread status (bold seen reports; expand last; markdown support)
+- #70 admin theme management (reject + comment, archive w/ notifications, edit approved themes, theme sources CRUD)
+- #67 theme lifecycle for coursework themes
+- #38 consultant filter on practice archive page
+- #32 shareable report card for practice archive works
+
+**Merge / review follow-ups (stacked PRs in iakov/spbu_se_site):**
+
+- PR #15 `fix/security-triage` → `docs/release-process` (CodeQL XSS + info-exposure). Merge after #196.
+- PR #16 `fix/notification-bug-76` → `fix/security-triage` (SE_STAGING gate + DB idempotency, issue #76). Merge after #15.
+- PR #194 (upstream, cryptography 49→50) is repaired + green + approved, but the merge queue is blocked by `require_last_push_approval` (approver = last pusher). Needs a non-pusher review (e.g. KirillSmirnov) or web-UI merge via the `iakov` bypass allowance.
+- CodeQL #53/#54 dismissal needs `security_events` token scope (currently not granted).
+- `OPENCODE_ZEN_API_KEY` secret still needs to be added to enable automated draft-release generation.
+
 ## Batch run 2026-07-08 — session 5 (auto mode: CI stability + P0-P4 sweep)
 
 **Timing: estimated as 4h, but 1:27**
