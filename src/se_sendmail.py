@@ -1,14 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import os
 import smtplib
+from datetime import UTC, datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from sqlalchemy.exc import IntegrityError, OperationalError
+
 from flask_se_config import MAIL_PASSWORD
-from se_models import DiplomaThemes, Notification, Users, db
+from se_models import DiplomaThemes, Notification, NotificationLog, Users, db
 
 MAIL_DEFAULT_SENDER = "sysprog_notification@spbu.ru"
 MAIL_DEFAULT_SENDER_STRING = "SE уведомления <sysprog_notification@spbu.ru>"
+
+DIPLOMA_THEMES_JOB_TYPE = "diploma_themes_on_review"
+DIPLOMA_THEMES_SEND_INTERVAL = timedelta(hours=24)
 
 
 def notification_send_mail() -> None:
@@ -47,7 +54,10 @@ def notification_send_mail() -> None:
             pass
 
         try:
-            server.sendmail(MAIL_DEFAULT_SENDER, user.email, message.as_string())
+            # Staging must not send real mail, but the notification row is
+            # still consumed so the queue drains instead of growing unbounded.
+            if os.getenv("SE_STAGING") is None:
+                server.sendmail(MAIL_DEFAULT_SENDER, user.email, message.as_string())
             db.session.delete(n)
             db.session.commit()
 
@@ -61,10 +71,64 @@ def notification_send_mail() -> None:
             pass
 
 
+def _ensure_notification_log_table() -> None:
+    """Create the idempotency marker table if missing.
+
+    The migrations tree is not wired into the webhook deploys, so the small
+    NotificationLog table is created lazily (no-op when it already exists).
+    The race of two workers creating it on the very first run is absorbed by
+    ignoring the duplicate-table error.
+    """
+    try:
+        NotificationLog.__table__.create(bind=db.engine, checkfirst=True)
+    except OperationalError:
+        db.session.rollback()
+
+
+def _claim_diploma_themes_send() -> bool:
+    """Atomically claim the right to send today's themes digest.
+
+    Every gunicorn/uwsgi worker runs the same APScheduler job, so without a
+    guard the digest would be sent N times a day. The first worker to commit a
+    fresh ``last_sent_at`` wins; concurrent workers see it and skip. Returns
+    True when this process should send.
+    """
+    _ensure_notification_log_table()
+    now = datetime.now(UTC).replace(tzinfo=None)
+
+    log = NotificationLog.query.filter_by(type=DIPLOMA_THEMES_JOB_TYPE).first()
+    if log is not None:
+        if now - log.last_sent_at < DIPLOMA_THEMES_SEND_INTERVAL:
+            return False
+        # Update the timestamp under the unique row; the racing worker's
+        # UPDATE matches zero rows, so exactly one process proceeds.
+        updated = NotificationLog.query.filter_by(
+            type=DIPLOMA_THEMES_JOB_TYPE,
+            last_sent_at=log.last_sent_at,
+        ).update({NotificationLog.last_sent_at: now})
+        db.session.commit()
+        return updated == 1
+
+    db.session.add(NotificationLog(type=DIPLOMA_THEMES_JOB_TYPE, last_sent_at=now))
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return False
+    return True
+
+
 def notification_send_diploma_themes_on_review() -> None:
-    diploma_themes_on_review_count = DiplomaThemes.query.filter_by(status=0).count()
+    if os.getenv("SE_STAGING") is not None:
+        return
+
+    # Match the admin review view (status < 2: new + need-update themes).
+    diploma_themes_on_review_count = DiplomaThemes.query.filter(DiplomaThemes.status < 2).count()
 
     if not diploma_themes_on_review_count:
+        return
+
+    if not _claim_diploma_themes_send():
         return
 
     # Add recipients here!
@@ -105,7 +169,8 @@ def notification_send_diploma_themes_on_review() -> None:
         pass
 
     try:
-        server.sendmail(MAIL_DEFAULT_SENDER, recipients, message.as_string())
+        if os.getenv("SE_STAGING") is None:
+            server.sendmail(MAIL_DEFAULT_SENDER, recipients, message.as_string())
 
     except smtplib.SMTPRecipientsRefused:
         pass

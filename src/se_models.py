@@ -964,6 +964,27 @@ class Notification(db.Model):
         return self.title or ""
 
 
+class NotificationLog(db.Model):
+    """Idempotency markers for scheduled notification jobs.
+
+    One row per job type. ``last_sent_at`` lets the mail jobs run in every
+    gunicorn/uwsgi worker without sending duplicate mail: the first worker to
+    claim the slot wins, the rest observe a fresh timestamp and skip.
+    """
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Unique job type key, e.g. "diploma_themes_on_review".
+    type = db.Column(db.String(64), unique=True, nullable=False)
+    last_sent_at = db.Column(db.DateTime, nullable=False)
+
+    def __repr__(self) -> str:
+        return f"<NotificationLog {self.type}: {self.last_sent_at}>"
+
+    def __str__(self) -> str:
+        return f"{self.type}: {self.last_sent_at}"
+
+
 def recalculate_post_rank() -> None:
     posts = Posts.query.order_by(Posts.id.desc()).limit(100).all()
 

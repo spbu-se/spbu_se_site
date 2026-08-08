@@ -75,6 +75,14 @@ Three background jobs run within the Flask context:
 1. **SendMailNotification** — every 10 seconds: process the email notification queue
 1. **SendDiplomaThemesOnReviewNotification** — every 24 hours: notify about unmoderated themes
 
+> **Mail + staging**: the scheduler runs in every gunicorn/uwsgi worker, so each
+> job would fire N times per period. `se_sendmail.py` guards this two ways: (1)
+> when `SE_STAGING=1` is set in the environment (staging systemd unit), real
+> `sendmail` calls are skipped while the notification queue is still consumed;
+> (2) the 24h themes digest is protected by a DB idempotency claim on the
+> `NotificationLog` table (first worker to commit `last_sent_at` wins), so
+> production sends at most one digest per day regardless of worker count.
+
 ### Authentication Flow
 
 - Email/password: pbkdf2:sha256 hashing, Flask-Login session management
