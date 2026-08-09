@@ -343,15 +343,15 @@ for root, dirs, files in os.walk('src'):
 
 **After squash-merge:** the head branch's commits are rewritten into one commit on `current`; the fork's `staging`/`current` must be re-synced with `git reset --hard origin/current` + `--force-with-lease` push (content-identical, divergent history).
 
-## **(ADDENDUM 2026-08-06 — queue toggled on then off; workflows now `merge_group`-aware)** Merge queue on upstream `current`
+## **(ADDENDUM 2026-08-08 — queue toggles; check live API, never trust the doc)** Merge queue on upstream `current`
 
-**When:** Investigating why the `current` tip showed only CodeQL for `91229268` (PR #193 merge) while "a lot of CI must happen".
+**When:** Repairing PR #194 (cryptography bump) and attempting the merge.
 
-**Evidence:** a `gh-readonly-queue/current/pr-194-*` merge group ran 08-06 15:47 (`serviceability` `check (3.11)` failed → #194 removed), and #193 merged 08-06 18:55 with **no `push`-event workflow runs**. Merge-queue merges don't fire `on: push`, so only GitHub-managed CodeQL + Dependency Graph appear on the merged tip. The queue was enabled for that batch and is **off again now**: branch protection has no `merge_queue` key, rulesets are tag-only, and `GET /merge-queue` returns 404.
+**Reality check:** the queue **toggles on and off** between batches. On 2026-08-08 branch protection had **no** `required_merge_queue` key, yet `gh pr merge <n> --squash` reported "The merge strategy for current is set by the merge queue", `mergeable_state=blocked`, and auto-merge was already enabled. Branch protection also has `required_approving_review_count=1` **and `require_last_push_approval=true`**: if you were the **last pusher**, your own approval does **not** count (`reviewDecision: REVIEW_REQUIRED` persists even with an APPROVED review on the exact head commit).
 
-**Trap:** the branch-protection `merge_queue` field is absent when unset — do not alias it to `required_linear_history` in jq (same `enabled: true` shape, wrong meaning). Always read the live API, never the doc.
+**Trap:** the branch-protection `merge_queue` field is absent when unset — do not alias it to `required_linear_history` in jq (same `enabled: true` shape, wrong meaning). And do not read the merge-queue's on/off state from this doc — it has flipped repeatedly (08-06 on→off, 08-08 on again). Always probe live: `gh pr merge <n> --squash` stderr (says "set by the merge queue") or `GET /repos/<owner>/<repo>/actions/merge-queue/queue` (404 when off).
 
-**Fix:** `ci.yml` and `deploy_to_staging.yml` now declare `merge_group:`. With the queue off these triggers are inert; if it is re-enabled, GitHub requires a workflow that reports a required check (`lint`) to trigger on `merge_group`, and the staging deploy fires on the merge group so it still runs after a queue merge.
+**When blocked by `require_last_push_approval`:** get a review from a non-pusher (e.g. another maintainer) or merge via the web UI where the `iakov` bypass allowance applies. `--squash --admin` bypasses only when the queue is **off**; when the queue is on, the strategy is queue-controlled.
 
 ## Diagnostic test runs: `-q` + output truncation hides failures
 
@@ -441,6 +441,14 @@ Seed the user's `password_hash` as `f"sha256${salt}${hmac.new(salt.encode(), pas
 **Root cause:** The dismissed alert pointed at a jQuery `.html()` sink that *no longer exists* — the file's line 33 is now a `<select onchange>`, and `git log -S '.html('` over template history found zero matches. The dismissal rationale ("no attacker-controlled input reaches the sink") was moot: there is no sink.
 
 **Lesson:** Before trusting a CodeQL dismissal, check whether the sink still exists at the reported line. Re-run CodeQL after big refactors (no codeql workflow is configured, so alerts drift stale). For genuinely-open alerts, verify then dismiss with a concrete reason (e.g. #173: the flagged `f.write(r.content)` writes avatar image bytes, not the OAuth token — false positive).
+
+## GitHub dismissal scope matrix (dependabot vs CodeQL)
+
+**When:** 2026-08-08 triage — dismissing stale alerts.
+
+**Findings:** **dependabot** alerts dismiss fine with the `repo` token scope via `PATCH /repos/<owner>/<repo>/dependabot/alerts/<n>` with `state=dismissed`, `dismissed_reason`, `dismissed_comment`. **CodeQL** code-scanning alert dismissal (`POST .../code-scanning/alerts/<n>/dismiss`) returns **404** unless the token has the `security_events` scope — the API is not reachable at all, not merely rejected. `gh auth status` shows the granted scopes.
+
+**Lesson:** before attempting CodeQL dismissal, confirm `security_events` is in `gh auth status` scopes; otherwise log the token-upgrade as a maintainer action and dismiss via the web UI. Dependabot dismissal never needs the extra scope.
 
 ## Request method changes break `assert_ok` GET-based tests (static catch-all returns 404)
 

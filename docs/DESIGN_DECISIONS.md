@@ -277,3 +277,23 @@ with no release artifacts or notes.
 **Rationale**: No new dependency; adequate defense-in-depth. Per-worker state is acceptable for a single-host site.
 
 **Alternatives considered**: Flask-Limiter — new dependency, not worth it for this deployment.
+
+## [2026-08-08] Mail jobs: SE_STAGING gate + DB idempotency
+
+**Context**: Issue #76 — the daily "themes on review" digest arrived several times a day with drifting counts. Root cause: the APScheduler jobs run in **every** gunicorn/uwsgi worker (no app factory, scheduler starts at import in `flask_se.py`), so each worker fires the 24h job → N sends/day; and the count used `status==0` while the admin review page shows `status<2`. The developer's on-the-knee SMTP code was environment-unaware; his unmerged patch gated sends on an `SE_STAGING=1` env var.
+
+**Decision**: Two complementary guards in `se_sendmail.py`: (1) `SE_STAGING` env gate — when set (staging systemd unit), `sendmail` is skipped but the notification queue is still consumed (drains instead of growing); (2) the 24h digest claims an atomic slot on a new `NotificationLog` table (unique `type`, `last_sent_at`) — the first worker to commit a fresh timestamp wins, concurrent workers skip. Count changed to `status < 2` to match the admin review view. The table is created lazily with `checkfirst=True` because the Alembic tree is multi-headed and deploys are webhook-driven (no `flask db upgrade` in the pipeline).
+
+**Rationale**: Env gating matches the established `SE_*` pattern (no factory) and the developer's precedent; DB idempotency is robust to any worker count without systemd changes.
+
+**Alternatives considered**: Gating scheduler start behind a second env var — requires a prod systemd tweak and still risks two units racing. Pure file lock — host-local, fragile across processes. Relying on `status==0` — the reported bug itself.
+
+## [2026-08-08] Lazy DDL guard instead of Alembic migrations
+
+**Context**: Two schema changes landed in one session — a new `NotificationLog` table and a `consultant` column on `thesis`. The Alembic tree in `src/migrations/` is multi-headed and deploys are webhook-driven (no `flask db upgrade` anywhere in the pipeline), so a conventional migration would not be applied on the servers.
+
+**Decision**: Evolve the schema in code with a guarded, idempotent DDL helper per change: `NotificationLog.__table__.create(bind=db.engine, checkfirst=True)` (table) and `_ensure_thesis_consultant_column()` → `ALTER TABLE thesis ADD COLUMN consultant VARCHAR(2048)` when `inspect(db.engine).get_columns("thesis")` lacks it. Both swallow the concurrent-creation race (`OperationalError`/duplicate-column) so multiple workers on first request cannot double-apply. The helper runs at the top of the view(s) that need the column.
+
+**Rationale**: Matches the deployment reality — webhook deploys rebuild/restart without a migration step, and the multi-head Alembic tree makes autogenerate unreliable. The guard is a one-time no-op after the first request, and tests get the schema free via `db.create_all()`.
+
+**Alternatives considered**: Fixing the Alembic tree and running `flask db upgrade` on deploy — larger, riskier change touching deployment infrastructure. Adding columns via raw SQL in the old data-import path — fragmented, no single guard point.

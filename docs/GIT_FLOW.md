@@ -298,6 +298,10 @@ Wrap-up protocol is in `docs/DEVELOPMENT_PROCESS.md §0.7` — includes DESIGN_D
 
 **Gotchas**: Linux pre-push hook is PowerShell-only (`Executable 'powershell' not found`) — run the manual equivalents (ruff/mdformat/basedpyright) then `git push --no-verify` and log it. The `staging` head being shared means a PR body must be updated per phase (`gh api -X PATCH repos/spbu-se/spbu_se_site/pulls/<n> -f body="$(cat body.md)"` — the `gh pr edit` GraphQL path is deprecated).
 
+**Pushing a branch to the canonical repo directly**: the `upstream` remote's push URL is deliberately `no-push-to-upstream`. To update a canonical branch (e.g. repairing a dependabot PR's head) push to the bare URL:
+`git push --force-with-lease=<ref>:<oid> https://github.com/spbu-se/spbu_se_site.git <local>:<remote>`.
+The lease **must be the explicit `<remote-ref>:<expected-oid>` form** — a tracked-ref lease fails with "stale info" because the bare URL has no remote-tracking ref. Read the current remote oid first (`git fetch <url> <ref>`) and pass it as the expected value.
+
 **Stacked-PR merge discipline**: merge **bottom-up** (the PR whose base is
 `current` first) and **gate on CI after each merge** before merging the next PR.
 Never `--delete-branch` an upstream PR whose head is the shared fork `staging` —

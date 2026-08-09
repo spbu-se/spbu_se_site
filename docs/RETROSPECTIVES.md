@@ -819,3 +819,66 @@ Deep security review (GitHub security surface + three-pronged code review) deliv
 - ruff/basedpyright/mdformat clean; PR #193 open on upstream (5 commits, 60 files), CI green (test, lint, check 3.11/3.12, dependency-review)
 - Fork `staging` at `d39121d`, working tree clean, feature branches deleted
 - CodeQL: #171/#172 fixed in code (auto-close on merge), #173 dismissed; dependabot open alerts stale (patched manifests)
+
+### Retrospective — 2026-08-08: stacked PRs, security triage, notification fix, lazy schema evolution
+
+Stacked PRs over #196: PR #15 (security triage), PR #16 (mail notification fix, issue #76), PR #17 (consultant filter, issue #38), plus repair of upstream PR #194 (cryptography 49→50). 16 files, +304/−13 across source (6), tests (3), templates (2), JS (2), docs (3), TODO (1).
+
+**What was done**:
+
+1. **PR #15 fix/security-triage** — CodeQL #16 XSS (`se_practice_script.js` `.html()`→`.text()`), #57 info-exposure (dropped `str(e)` from `post_theses`); dismissed 14 stale dependabot alerts (flask/pillow already at patched versions). CodeQL #53/#54 dismissal **blocked** (token lacks `security_events` scope).
+1. **PR #16 fix/notification-bug-76** — issue #76: `SE_STAGING` env gate (developer's unmerged patch, adapted) so staging consumes the queue without sending mail; count `status < 2` to match admin review view; `NotificationLog` DB idempotency table with atomic claim (multi-worker gunicorn/uwsgi → at most one digest/24h).
+1. **PR #17 feat/consultant-filter** — issue #38: `Thesis.consultant` free-text column carried through `archive_thesis` (was dropped before), sidebar input + `fetch_theses?consultant=` substring filter + JS/pagination/card display; lazy `ALTER TABLE` guard (no Alembic — tree multi-headed, deploys webhook-driven).
+1. **PR #194 repair** — dependabot bump had red CI because it touched only `requirements.txt`, not `uv.lock`; rebased onto `current`, ran `uv lock --upgrade-package cryptography` + committed `uv.lock`, force-pushed to canonical. Fully green + approved, but **merge queue blocked by `require_last_push_approval`** (approver = last pusher, so own review doesn't count).
+
+**Gaps found**:
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `gh --jq` with inner double-quotes / `\t` escapes mangled by PowerShell (≈10 failed queries) | Missing convention — TOOLING.md covers `2>&1` flattening but not `--jq` quoting | Document `@tsv` / `ConvertFrom-Json` / no-inner-double-quotes pattern in TOOLING.md §PowerShell |
+| `Select-String`/`Get-Content` mojibake on UTF-8 Cyrillic (cp866 console) | Missing convention — TOOLING.md documents write-side encoding only | Add read-side `-Encoding UTF8` + `[Console]::OutputEncoding` fix; prefer dedicated read/grep tools |
+| All 3 stacked PR bodies lacked `Closes #`/`References #` linkage | Human error — AI_AGENTS.md §PR description template exists, not followed | Retro entry; pre-create checklist item in GIT_FLOW §8.4 |
+| `_ensure_thesis_consultant_column` defined but initially uncalled (basedpyright caught) | Missing validation step — define-and-forget | Function-call tests now cover the guard; retro note |
+| AI_AGENT_EXPERIENCE merge-queue entry claimed queue "off"; live state is ON | Stale constraint — queue toggles; docs made a firm claim | Update entry to "check live API, toggles on/off"; record `require_last_push_approval=true` behavior |
+| `gh pr view --json mergeable_state` doesn't exist (it's `mergeStateStatus`) | Missing convention — no canonical gh-field reference | Document valid fields for merge triage in AI_AGENT_EXPERIENCE |
+| Direct-URL push to canonical: tracked-ref `--force-with-lease` fails ("stale info") | Missing convention — §8.5 covers fork pushes, not bare-URL canonical push | Document explicit `--force-with-lease=<ref>:<oid>` form in GIT_FLOW §8.5 |
+| CodeQL dismiss 404 (needs `security_events` scope) vs dependabot dismiss works (`repo`) | Missing config — token scope matrix undocumented | Document scope matrix; log token-upgrade requirement |
+| Lazy DDL-guard pattern now used twice (table-create + `ALTER TABLE`) | New knowledge — evolved mid-session | Consolidate pattern in DESIGN_DECISIONS.md |
+| djLint aborted 2 commits (staged HTML ≠ hook output) | **Pattern recurrence** — already in AI_AGENT_EXPERIENCE; hit again | Escalate: pre-staging `pre-commit run djlint --all-files` as AGENTS.md pre-flight step |
+
+**Pattern recurrence**: **YES** — djLint-commit-abort is a 2nd recurrence of a documented AI_AGENT_EXPERIENCE issue (first in 2026-08-02 retro) → escalated from experience-note to pre-flight checklist. Others are new categories (doc staleness, scope matrix, PowerShell `--jq` quoting).
+
+**What went well**:
+
+- Stacked-PR discipline held: bottom-up merge order, base-branch-exists-in-base-repo constraint respected, no `--delete-branch` on shared bases
+- Lazy schema evolution reused cleanly (NotificationLog `checkfirst` → Thesis.consultant `ALTER TABLE` guard)
+- Pre-push gate green every push; targeted test runs 27–103 passed; basedpyright 0 errors
+- The Cyrillic-mojibake question was diagnosed correctly: files are clean UTF-8; symptom was PowerShell read/console encoding
+
+**What went wrong**:
+
+- Repeated `gh --jq` quoting attempts before switching to `ConvertFrom-Json` — wasted ~10 shell calls
+- 2 djLint-aborted commits (TODO.md and consultant PR) despite the documented fix
+- Merge-queue merge of #194 stalled because own approval doesn't count under `require_last_push_approval`
+
+**Root causes**:
+
+1. **Missing convention** — PowerShell `--jq` quoting and read-side encoding undocumented; bare-URL canonical push lease form undocumented; gh-field reference absent
+1. **Stale constraint** — merge-queue state toggles; docs asserted a firm "off" claim
+1. **Human error** — PR bodies missed `Closes #`/`References #`; `_ensure_thesis_consultant_column` initially uncalled
+1. **Pattern recurrence** — djLint commit-abort recurred (2nd time)
+
+**Fix**:
+
+- TOOLING.md §PowerShell: `--jq` quoting (`@tsv`/`ConvertFrom-Json`), read-side `-Encoding UTF8` + `[Console]::OutputEncoding`
+- AI_AGENT_EXPERIENCE.md: merge-queue entry updated to "check live, toggles"; `require_last_push_approval` behavior; dependabot-vs-CodeQL dismissal scope matrix
+- GIT_FLOW.md §8.5: canonical bare-URL push + explicit `--force-with-lease=<ref>:<oid>`
+- DESIGN_DECISIONS.md: lazy-DDL-guard pattern consolidated
+- AGENTS.md pre-flight: `pre-commit run djlint --all-files` before staging templates; PR bodies must include `Closes #`/`References #`
+- TODO.md: token-scope upgrade for CodeQL dismissal + merge-queue re-check
+
+**State at handoff**:
+
+- Stack: #196 → PR #15 → #16 → #17, all `MERGEABLE`; PR #194 green + approved, merge-blocked on `require_last_push_approval`
+- Tests: 103 passed (theses/admin), 27 passed (sendmail); pre-push gate + basedpyright clean
+- Docs: this entry + TOOLING/AI_AGENT_EXPERIENCE/GIT_FLOW/DESIGN_DECISIONS/AGENTS/TODO updated in the same commit

@@ -186,6 +186,30 @@ gh run watch <run-id>
 gh run list --branch staging --limit 1 --json databaseId --jq ".[0].databaseId"
 ```
 
+### `gh --jq` quoting: inner double-quotes are stripped by PowerShell
+
+When a `--jq` expression contains **inner double-quotes** (e.g. `join(",")`, `"text"`), PowerShell strips them when passing the argument to the native `gh` executable — jq then sees `join(,)` and fails with `unexpected token ","`. `\t` and `\n` escapes also get mangled.
+
+**Fixes**, in preference order:
+
+1. Avoid inner double-quotes entirely — use `@tsv` (tab-separated) and `tostring` for arrays:
+   ```powershell
+   gh pr list --json number,title --jq '.[] | [.number, .title] | @tsv'
+   gh issue list --json number,labels --jq '.[] | [.number, (.labels|map(.name)|tostring)] | @tsv'
+   ```
+1. Or parse JSON in PowerShell instead of jq:
+   ```powershell
+   $data = gh api "repos/owner/repo/issues?state=open" | ConvertFrom-Json
+   $data | ForEach-Object { "$($_.number) $($_.title)" }
+   ```
+1. If jq is unavoidable, pass the query via a file (single-quoted here-string) rather than inline.
+
+**Also**: `gh api graphql` on Windows needs a BOM-free query file (`[System.IO.File]::WriteAllText(..., UTF8Encoding($false))`) and `--input` expects a JSON object with a `query` key, not raw GraphQL.
+
+### `gh pr view --json` field names (merge triage)
+
+`mergeable_state` does **not** exist — the field is `mergeStateStatus` (`BLOCKED`/`MERGEABLE`/`CLEAN`). For cross-repo PRs `headRepository` is `null` (use `headRepositoryOwner.login`). To see why a merge is blocked, query `mergeStateStatus`, `reviewDecision`, and `mergeQueueEntry` via GraphQL rather than guessing at REST field names.
+
 ### Diagnosis: mdformat failure with truncated path
 
 When CI mdformat fails and the filename is truncated in logs, use:
@@ -409,6 +433,19 @@ Out-File -FilePath file.md -InputObject $content
 ### `Get-Content` with `-Raw` still defaults to Windows-1252
 
 Even `Get-Content -Path file.md -Raw` uses Windows-1252. Always use the .NET overload.
+
+### Read side: `Select-String` / `Get-Content` mojibake on UTF-8 Cyrillic
+
+`Select-String` and `Get-Content` **read** files as the ANSI code page (Windows-1251 on a Russian system) unless `-Encoding UTF8` is passed, and the console `OutputEncoding` is typically `cp866` — so UTF-8 Cyrillic becomes garbage even when the file is valid UTF-8 (verify with `uv run python` decode, not the shell). This looks like file corruption but is purely a read/console-encoding artifact.
+
+```powershell
+# CORRECT — read as UTF-8 and re-encode the console to UTF-8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+Get-Content -LiteralPath file.html -Encoding UTF8
+```
+
+Prefer the dedicated `read`/`grep` tools (they decode UTF-8 correctly) for real analysis; use the shell only when a tool requires it.
 
 ### `$(...)` subexpression flattens multi-line output to space-joined string
 
