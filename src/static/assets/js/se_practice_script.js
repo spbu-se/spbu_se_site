@@ -123,7 +123,7 @@ function UpdateReady()
         {
             var fileName = $(this).val();
             fileName = fileName.replace("C:\\fakepath\\", "");
-            $(this).next('label').html(fileName);
+            $(this).next('label').text(fileName);
         });
     });
 

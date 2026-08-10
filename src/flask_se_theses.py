@@ -324,8 +324,8 @@ def post_theses():
         author = thesis_info["author"]
         supervisor = thesis_info["supervisor"]
         publish_year = thesis_info["publish_year"]
-    except KeyError as e:
-        return jsonify(status=error_status, string="Key " + str(e) + " not found")
+    except KeyError:
+        return jsonify(status=error_status, string="Missing required field in thesis_info")
 
     if secret_key != SECRET_KEY_THESIS:
         return jsonify(status=error_status, string="Invalid secret key: " + str(secret_key))
