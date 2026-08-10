@@ -307,3 +307,13 @@ with no release artifacts or notes.
 **Rationale**: Block defaults make every page correct "by design" — any template that already defines `title`/`description` gets a sane card with zero further work, and future pages inherit it automatically. Per-content overrides stay minimal and live next to the content they describe. The excerpt helper avoids leaking raw textile/HTML markup into social previews.
 
 **Alternatives considered**: Per-page hardcoded OG tags in every template — drifts, easy to forget. Server-generated per-content images (PDF first page, Pillow banner) — deferred, needs a font/caching pipeline for marginal preview gain. A separate meta framework — overkill for a hand-rolled template set.
+
+## [2026-08-10] Shareable thesis cards + search-result OG
+
+**Context**: Issue #32 — the practice archive (`/theses.html`) let you share a link to a work's PDF or presentation, but not a "card" of the work itself (title + text + presentation together). Users wanted a shareable URL proving a specific work exists. Separately, a shared *search* URL (e.g. `/theses.html?search=android+performance`) rendered the generic archive preview, even though the page is a live search — so it couldn't be used to "prove a point" via preview text.
+
+**Decision**: (1) A new route `thesis_card` at `/thesis_card?thesis_id=N` renders a standalone card page (extends `base_dark.html`) for a single non-temporary thesis with per-work OG fields: `og:title` = `{name_ru} [{publish_year}]`, `og:type` = `article`, canonical = the card URL, description = author/supervisor/course. The card markup is extracted into a shared `_thesis_card.html` partial used by both the AJAX list fragment (`fetch_theses.html`) and the card page, with a "Карточка" link icon on each list card. (2) `theses_search` reads the `search` query arg and, when present, overrides `og:title` to `Результаты поиска: "<query>"` (and `og:description` accordingly); without a query the static archive defaults remain.
+
+**Rationale**: Reusing the card partial keeps the list and card markup from drifting. The `thesis_card` route filters `~Thesis.temporary` so only published works are shareable, mirroring `download_thesis` redirect behavior. Search-OG makes any shared `/theses.html?search=…` link preview meaningful and still works as a live search (the JS already restores the query into the search field from URL params).
+
+**Alternatives considered**: Per-thesis image generation for the card (PDF first page) — deferred per the OG decision above. A path-based URL `/theses/<id>.html` — diverges from the existing query-param convention (`/thesis_download?thesis_id=`) and the sitemap already excludes arg-based rules.

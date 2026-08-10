@@ -107,3 +107,83 @@ class TestOgDiplomaTheme:
         assert 'property="og:type" content="article"' in head
         assert 'property="og:title"' in head
         assert 'property="og:description"' in head
+
+    def test_theme_og_description_falls_back_to_title(self, seeded_client):
+        from se_models import DiplomaThemes
+
+        theme = DiplomaThemes.query.filter(DiplomaThemes.description.is_(None)).first()
+        if theme is None:
+            theme = DiplomaThemes.query.first()
+        assert theme is not None
+        resp = seeded_client.get(f"/diplomas/theme.html?id={theme.id}")
+        head = _head_html(resp)
+        assert _meta_content(head, "og:description") in (theme.title, theme.description)
+
+
+class TestOgThesisCard:
+    def _make_published_thesis(self):
+        from se_models import Thesis, db
+
+        thesis = Thesis(
+            name_ru="Published Thesis OG",
+            author="OG Author",
+            type_id=2,
+            course_id=1,
+            publish_year=2024,
+            temporary=False,
+        )
+        db.session.add(thesis)
+        db.session.commit()
+        return thesis
+
+    def test_card_valid_thesis(self, seeded_client):
+        thesis = self._make_published_thesis()
+        resp = seeded_client.get(f"/thesis_card?thesis_id={thesis.id}")
+        head = _head_html(resp)
+        assert resp.status_code == 200
+        assert _meta_content(head, "og:title") == f"{thesis.name_ru} [{thesis.publish_year}]"
+        assert 'property="og:type" content="article"' in head
+        canonical = re.search(r'rel="canonical" href="([^"]+)"', head)
+        assert canonical is not None
+        assert canonical.group(1) == f"https://se.math.spbu.ru/thesis_card?thesis_id={thesis.id}"
+        assert 'data-content="Карточка"' in resp.get_data(as_text=True)
+
+    def test_card_missing_id(self, seeded_client):
+        resp = seeded_client.get("/thesis_card")
+        assert resp.status_code == 302
+
+    def test_card_zero_id(self, seeded_client):
+        resp = seeded_client.get("/thesis_card?thesis_id=0")
+        assert resp.status_code == 302
+
+    def test_card_nonexistent(self, seeded_client):
+        resp = seeded_client.get("/thesis_card?thesis_id=99999")
+        assert resp.status_code == 302
+
+    def test_card_temporary_thesis_redirects(self, seeded_client):
+        from conftest import _make_temp_thesis
+
+        thesis = _make_temp_thesis(author="TempCard")
+        resp = seeded_client.get(f"/thesis_card?thesis_id={thesis.id}")
+        assert resp.status_code == 302
+
+    def test_fetch_theses_contains_card_link(self, seeded_client):
+        self._make_published_thesis()
+        resp = seeded_client.get("/fetch_theses")
+        assert resp.status_code == 200
+        assert "/thesis_card?thesis_id=" in resp.get_data(as_text=True)
+
+
+class TestOgThesisSearch:
+    def test_search_query_og_title(self, seeded_client):
+        resp = seeded_client.get("/theses.html?search=android+performance")
+        head = _head_html(resp)
+        assert resp.status_code == 200
+        assert "Результаты поиска" in (_meta_content(head, "og:title") or "")
+
+    def test_no_search_uses_static_title(self, seeded_client):
+        resp = seeded_client.get("/theses.html")
+        head = _head_html(resp)
+        assert _meta_content(head, "og:title") == (
+            "Курсовые, учебные практики и ВКР студентов Кафедры Системного Программирования"
+        )
