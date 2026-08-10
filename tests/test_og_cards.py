@@ -146,7 +146,13 @@ class TestOgThesisCard:
         canonical = re.search(r'rel="canonical" href="([^"]+)"', head)
         assert canonical is not None
         assert canonical.group(1) == f"https://se.math.spbu.ru/thesis_card?thesis_id={thesis.id}"
-        assert 'data-content="Карточка"' in resp.get_data(as_text=True)
+
+    def test_card_title_links_to_card(self, seeded_client):
+        thesis = self._make_published_thesis()
+        html = seeded_client.get(f"/thesis_card?thesis_id={thesis.id}").get_data(as_text=True)
+        assert f'href="/thesis_card?thesis_id={thesis.id}"' in html
+        assert f'data-copy-url="http://localhost/thesis_card?thesis_id={thesis.id}"' in html
+        assert 'data-content="Скопировать ссылку"' in html
 
     def test_card_missing_id(self, seeded_client):
         resp = seeded_client.get("/thesis_card")

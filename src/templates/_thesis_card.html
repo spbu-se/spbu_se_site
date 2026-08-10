@@ -3,21 +3,24 @@
     <div class="row align-items-center">
       <div class="col">
         <h6 class="mb-0">
-          <strong>{{ t.name_ru }} [{{ t.publish_year }}]</strong>
+          <a href="{{ url_for('thesis_card', thesis_id=t.id) }}"
+             class="text-reset">
+            <strong>{{ t.name_ru }} [{{ t.publish_year }}]</strong>
+          </a>
         </h6>
       </div>
       <div class="col-auto ml-auto text-right">
-        <a href="{{ url_for('thesis_card', thesis_id=t.id) }}"
-           class="text-reset"
-           target="_blank">
-          <div class="icon icon-sm icon-shape bg-soft-secondary text-secondary"
-               data-content="Карточка"
-               data-placement="top"
-               data-trigger="hover"
-               data-toggle="popoverhover">
+        <button type="button"
+                class="btn btn-sm p-0 border-0 bg-transparent thesis-copy-link"
+                data-copy-url="{{ url_for('thesis_card', thesis_id=t.id, _external=True) }}"
+                data-content="Скопировать ссылку"
+                data-placement="top"
+                data-trigger="hover"
+                data-toggle="popoverhover">
+          <div class="icon icon-sm icon-shape bg-soft-dark text-dark">
             <i class="fas fa-link"></i>
           </div>
-        </a>
+        </button>
         {% if t.text_uri %}
           <a href="{{ url_for('download_thesis', thesis_id=t.id) }}"
              class="text-reset"
