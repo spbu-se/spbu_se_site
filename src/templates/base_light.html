@@ -7,6 +7,25 @@
           content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="{% block description %}{% endblock %}">
     <meta name="author" content="{% block author %}Илья Зеленчук{% endblock %}">
+    {% block og_meta %}
+      <meta property="og:title"
+            content="{% block og_title %}{{ self.title() }}{% endblock %}">
+      <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+      <meta property="og:url" content="{{ request.url }}">
+      <meta property="og:image"
+            content="{% block og_image %}{{ url_for('static', filename='assets/img/main-back.jpg', _external=True) }}{% endblock %}">
+      <meta property="og:description"
+            content="{% block og_description %}{{ self.description() }}{% endblock %}">
+      <meta property="og:locale" content="ru_RU">
+      <meta name="twitter:card"
+            content="{% block twitter_card %}summary_large_image{% endblock %}">
+      <meta name="twitter:title"
+            content="{% block twitter_title %}{{ self.title() }}{% endblock %}">
+      <meta name="twitter:description"
+            content="{% block twitter_description %}{{ self.description() }}{% endblock %}">
+      <meta name="twitter:image"
+            content="{% block twitter_image %}{{ url_for('static', filename='assets/img/main-back.jpg', _external=True) }}{% endblock %}">
+    {% endblock og_meta %}
     <title>
       {% block title %}{% endblock %}
     </title>

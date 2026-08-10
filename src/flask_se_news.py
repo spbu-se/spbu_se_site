@@ -26,6 +26,18 @@ def _safe_referrer():
     return referrer or None
 
 
+def _og_description(text: str | None, limit: int = 160) -> str:
+    """Plain-text excerpt for Open Graph previews (strips markup, collapses
+    whitespace, truncates to ``limit`` chars with an ellipsis)."""
+    if not text:
+        return ""
+    plain = nh3.clean(text, tags=set()) or ""
+    plain = " ".join(plain.split())
+    if len(plain) > limit:
+        return plain[: limit - 1].rstrip() + "…"
+    return plain
+
+
 def list_news():
     page = request.args.get("page", default=1, type=int)
     news = Posts.query.order_by(Posts.rank.desc()).paginate(per_page=20, page=page, error_out=False)
@@ -53,7 +65,7 @@ def get_post():
     if post.uri:
         return redirect(post.uri)
 
-    return render_template("news/post.html", post=post)
+    return render_template("news/post.html", post=post, og_description=_og_description(post.text))
 
 
 @login_required

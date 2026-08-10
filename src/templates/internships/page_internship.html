@@ -1,7 +1,15 @@
 {% extends "base_dark.html" %}
 {% block title %}{{ internship.name_vacancy }}{% endblock %}
-{% block description %}Сервис для поиска студенческих IT-стажировок{% endblock %}
-{% block headers %}<link rel="canonical" href="https://se.math.spbu.ru/diplomas/index.html" />{% endblock %}
+{% block description %}{{ og_description or "Сервис для поиска студенческих IT-стажировок" }}{% endblock %}
+{% block headers %}
+  <link rel="canonical"
+        href="https://se.math.spbu.ru/internships/{{ internship.id }}" />
+{% endblock %}
+{% block og_title %}{{ internship.name_vacancy }}{% endblock %}
+{% block og_description %}{{ og_description or "Сервис для поиска студенческих IT-стажировок" }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block twitter_title %}{{ internship.name_vacancy }}{% endblock %}
+{% block twitter_description %}{{ og_description or "Сервис для поиска студенческих IT-стажировок" }}{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section class="slice pt-8 bg-dark bg-cover bg-size--cover"

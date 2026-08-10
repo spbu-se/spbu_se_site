@@ -1,0 +1,45 @@
+{% extends "base_dark.html" %}
+{% block title %}{{ thesis.name_ru }} [{{ thesis.publish_year }}]{% endblock %}
+{% block description %}
+  Работа: {{ thesis.name_ru }} [{{ thesis.publish_year }}]. Автор: {{ thesis.author }}.
+{% endblock %}
+{% block headers %}
+  <link rel="canonical"
+        href="https://se.math.spbu.ru/thesis_card?thesis_id={{ thesis.id }}" />
+{% endblock %}
+{% block og_title %}{{ thesis.name_ru }} [{{ thesis.publish_year }}]{% endblock %}
+{% block og_description %}
+  Автор: {{ thesis.author }}. Руководитель: {{ thesis.supervisor.user.get_name() if thesis.supervisor else "?" }}. Направление: {{ thesis.course.name }}.
+{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block twitter_title %}{{ thesis.name_ru }} [{{ thesis.publish_year }}]{% endblock %}
+{% block twitter_description %}
+  Автор: {{ thesis.author }}. Руководитель: {{ thesis.supervisor.user.get_name() if thesis.supervisor else "?" }}. Направление: {{ thesis.course.name }}.
+{% endblock %}
+{% block content %}
+  <section class="slice pt-8 bg-dark bg-cover bg-size--cover"
+           style="background-image: url({{ url_for('static', filename='/assets/img/main-back.jpg') }})">
+    <div class="container d-flex align-items-center text-center text-lg-left pt-3 pt-lg-4">
+      <div class="col px-0">
+        <div class="row align-items-center">
+          <div class="col-lg-12 text-center">
+            <h3 class="text-white mb-1">{{ thesis.name_ru }} [{{ thesis.publish_year }}]</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="slice clients delimiter-top delimiter-bottom bg-section-secondary">
+    <div class="container">
+      <div class="row row-grid">
+        <div class="col-lg-9">
+          {% set t = thesis %}
+          {% include "_thesis_card.html" %}
+          <a href="{{ url_for('theses_search') }}" class="btn btn-dark btn-icon">
+            <span class="btn-inner--text">К архиву практик и ВКР</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

@@ -1,5 +1,11 @@
 {% extends 'base_light.html' %}
 {% block title %}{{ post.title }}{% endblock %}
+{% block description %}{{ og_description or post.title }}{% endblock %}
+{% block og_title %}{{ post.title }}{% endblock %}
+{% block og_description %}{{ og_description or post.title }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block twitter_title %}{{ post.title }}{% endblock %}
+{% block twitter_description %}{{ og_description or post.title }}{% endblock %}
 {% block content %}
   <section class="mt-7 pt-6 bg-section-secondary">
     <div class="container">

@@ -62,13 +62,14 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 
 | Route | Method | View Function | Description |
 |---|---|---|---|
-| `/theses.html` | GET | `theses_search` | Thesis search with filters. Full-text search uses SQLite FTS5 virtual table `thesis_fts` (columns: name_ru, description, author, text). |
+| `/theses.html` | GET | `theses_search` | Thesis search with filters. Full-text search uses SQLite FTS5 virtual table `thesis_fts` (columns: name_ru, description, author, text). OG: when `search` param present, og:title = `Результаты поиска: "<query>"`. |
 | `/fetch_theses` | GET | `fetch_theses` | AJAX paginated thesis list. Query params: `worktype`, `supervisor`, `consultant` (free-text substring), `course`, `startdate`, `enddate`, `search`, `page` |
 | `/post_theses` | GET, POST | `post_theses` | Upload new thesis |
 | `/theses_tmp.html` | GET | `theses_tmp` | List temp theses for review |
 | `/theses_delete_tmp` | GET | `theses_delete_tmp` | Delete temp thesis |
 | `/theses_add_tmp` | GET | `theses_add_tmp` | Approve/publish temp thesis |
 | `/thesis_download` | GET | `download_thesis` | Download thesis PDF (tracks count) |
+| `/thesis_card` | GET | `thesis_card` | Shareable card for a single non-temporary thesis (OG: title = work name + year, type article, canonical). Query param: `thesis_id`. Redirects to `/theses.html` on 0/missing/temporary. |
 
 ## News
 
@@ -76,7 +77,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 |---|---|---|---|
 | `/news/` | GET | `list_news` | News listing (paginated by rank) |
 | `/news/index.html` | GET | `list_news` | Alias for `/news/` |
-| `/news/item.html` | GET | `get_post` | Single news post |
+| `/news/item.html` | GET | `get_post` | Single news post (OG: title = post title, type article, description = plain-text excerpt) |
 | `/news/submit.html` | GET, POST | `submit_post` | Submit news |
 | `/news/post_vote` | GET, POST | `post_vote` | Upvote/downvote news |
 | `/news/delete` | GET | `delete_post` | Delete own news post |
@@ -87,7 +88,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 |---|---|---|---|
 | `/diplomas/` | GET | `diplomas_index` | Browse approved themes |
 | `/diplomas/index.html` | GET | `diplomas_index` | Alias for `/diplomas/` |
-| `/diplomas/theme.html` | GET | `get_theme` | View single theme |
+| `/diplomas/theme.html` | GET | `get_theme` | View single theme (OG: title = theme title, type article, description = theme description or title) |
 | `/diplomas/add_theme.html` | GET, POST | `add_user_theme` | Add new theme |
 | `/diplomas/user_themes.html` | GET | `user_diplomas_index` | User own themes |
 | `/diplomas/delete_theme.html` | GET | `delete_theme` | Delete own theme |
@@ -120,7 +121,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/internships/index` | GET | `old_internships_index` | Old redirect endpoint |
 | `/internships/fetch_internships` | GET | `fetch_internships` | AJAX filtered list |
 | `/internships/add` | GET, POST | `add_internship` | Add internship |
-| `/internships/<int:id>` | GET, POST | `page_internship` | View single internship |
+| `/internships/<int:id>` | GET, POST | `page_internship` | View single internship (OG: title = vacancy name, type article, canonical fixed to `/internships/<id>`) |
 | `/internships/<int:id>/delete` | GET | `delete_internship` | Delete internship |
 | `/internships/<int:id>/update` | GET, POST | `update_internship` | Update internship |
 
