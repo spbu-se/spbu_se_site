@@ -78,6 +78,18 @@ docker compose up --build
 The entrypoint (`docker/entrypoint.sh`) initializes the SQLite database
 automatically on first boot, so no manual `cp`/`init` step is needed.
 
+## Релизы
+
+Релизы помечаются тегами вида `vYYYY.MM.DD` (например, `v2025.09.09`). Публикация релиза:
+
+1. Тег `vYYYY.MM.DD` (GPG-подписанный) пушится в канонический репозиторий.
+1. CI (`deploy_to_production.yml`) автоматически разворачивает сайт в production
+   и создаёт **черновик** релиза с заметками, сгенерированными по PR с момента
+   предыдущего релиза.
+1. Сопровождающий проверяет и публикует черновик вручную — автопубликации нет.
+
+Ссылка на все релизы: https://github.com/spbu-se/spbu_se_site/releases
+
 ## Project structure
 
 ```

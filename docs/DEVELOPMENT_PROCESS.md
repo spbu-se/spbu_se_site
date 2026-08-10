@@ -442,11 +442,26 @@ uv export --no-dev --no-hashes > requirements.txt  # update prod requirements
 
 ## 6. Release
 
-1. Determine SemVer bump from commit log since last tag
+Versioning is date-based — every release is tagged `vYYYY.MM.DD` (see
+`docs/GIT_FLOW.md` §Versioning). Releasing:
+
+1. Determine the previous release tag: `gh release list --repo spbu-se/spbu_se_site`
+1. Run the `release-notes` skill (`.skills/release-notes/`) to generate
+   `release-notes.md` — Part 1 plain-English user summary, Part 2 developer
+   changelog (dependencies table, major changes, contributors, compare link)
 1. Update version references if any
-1. Tag: `git tag v<version>`
 1. Build static site if needed: `python flask_se.py build`
 1. Update Dockerfile if dependency changes
+1. Tag and push to the canonical repo (GPG-signed):
+   ```bash
+   git tag -s vYYYY.MM.DD && git push <upstream> vYYYY.MM.DD
+   ```
+1. CI (`deploy_to_production.yml`): the `deploy` job POSTs the production
+   webhook; the `release` job (when `OPENCODE_ZEN_API_KEY` is set) creates a
+   **draft** GitHub release with the generated notes
+1. **Review the draft release, edit notes if needed, and publish manually** —
+   drafts are never auto-published. Until the secret is configured, create the
+   draft notes by hand following the skill.
 
 ### Open Source Recommendations
 

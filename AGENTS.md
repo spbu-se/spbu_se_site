@@ -105,10 +105,16 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 - **Main branch**: `current` (not `main`)
 - **Config files** (never committed): `flask_se_secret.conf`, `flask_se_mail.conf`, `flask_se_practice_yandex_secret.conf`, `flask_se_vk_secret.conf`, `flask_se_thesis.conf`
 - **requirements.txt staleness** — CI runs `pip install -r` on every push. Must match `uv.lock`. Always regenerate before pushing
-- **mdformat CI vs local** — CI uses Linux (LF). Always run `uv run mdformat ...` (not `--check`) before committing on Windows
+- **Line endings** — `.gitattributes` normalizes all text to LF (`* text=auto eol=lf`), so checkouts are LF on Windows too; mdformat behaves identically locally and in CI
 - **GPG keylocker** — if `git config commit.gpgsign` is true, use `git commit --no-gpg-sign` on all branches (only `current` gets signed commits)
 - **Config-secret path vs contents** — secrets live in config files, and the code reads their **contents** via `flask_se_config.read_secret_from_file()`. Never treat a config file's *path* as the secret (that was CVE-class bug: `SECRET_KEY` was a path string → forgeable sessions). CSRF is globally enforced (`CSRFProtect`): any new POST form must include `{{ csrf_token() }}`, and new state-changing actions must be POST, not GET
 
 ## Gotchas
 
 - **Flask-Admin `query_factory=lambda:`** — `query_factory=Staff.query.all` (without `lambda:`) fails because SQLAlchemy model query attributes are not available at admin-import time. The `lambda:` defers evaluation to render time. Never pass the method directly or call it (`lambda: Staff.query.all()` would also crash). Affects 6 views in `src/flask_se_admin.py:55,60,65,70,76,182`.
+
+## Process improvement
+
+- **Root-cause analysis** — when something goes wrong, fix the root cause, not the symptom (a surface fix repeats). Trace past the surface error to one of: **missing hook** (no trigger/checklist exists — add one), **missing in docs** (knowledge wasn't recorded — write it down), **forgot to search** (add a "check docs" step), **ignored error signal** (tool produced `fatal:` but execution continued — add an "On tool error" hook).
+- **Gaps escalate** — 1st occurrence: document (canonical doc); 2nd: automate (CI check or pre-commit hook); 3rd+: tool config (linter rule, structural guard).
+- **Safe updates** (when removing/changing documented content) — (1) would removing this change agent behavior? if yes, keep it; (2) is the claim provably wrong? only then delete/correct — verify against executable sources (config, workflow, code); (3) does it enforce a docs/structure contract? keep structural-convention rules even when the wording looks generic. Rationale must never be deleted — relocate it, don't drop it.

@@ -31,3 +31,46 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{\"tag\":\"${TAG}\",\"sha\":\"${SHA}\"}" \
             "${WEBHOOK_URL}"
+
+  release-gate:
+    runs-on: ubuntu-latest
+    outputs:
+      has_release_key: ${{ steps.check.outputs.has_release_key }}
+    steps:
+      - id: check
+        run: echo "has_release_key=${{ secrets.OPENCODE_ZEN_API_KEY != '' }}" >> "$GITHUB_OUTPUT"
+
+  release:
+    needs: release-gate
+    if: startsWith(github.ref, 'refs/tags/v') && needs.release-gate.outputs.has_release_key == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      OPENCODE_ZEN_API_KEY: ${{ secrets.OPENCODE_ZEN_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install opencode
+        run: npm install -g opencode-ai
+      - name: Determine previous release tag
+        shell: bash
+        run: |
+          prev="$(gh release list --limit 10 --json tagName --jq '.[].tagName' 2>/dev/null \
+            | grep -v "^${GITHUB_REF_NAME}$" | head -1 || true)"
+          echo "PREV_TAG=${prev:-v2025.09.09}" >> "$GITHUB_ENV"
+      - name: Generate release notes
+        run: |
+          opencode run --agent build --auto \
+            "Read .skills/release-notes/README.md and follow it exactly. Generate notes for tag ${GITHUB_REF_NAME}. Previous release: ${PREV_TAG}."
+      - name: Verify release notes were written
+        shell: bash
+        run: |
+          test -s release-notes.md || { echo "::error::release-notes.md missing or empty"; exit 1; }
+          head -5 release-notes.md
+      - name: Publish draft release
+        uses: softprops/action-gh-release@v3
+        with:
+          draft: true
+          body_path: release-notes.md
+          name: ${{ github.ref_name }}
