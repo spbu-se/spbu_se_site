@@ -404,6 +404,7 @@ def archive_thesis():
         thesis.author = current_thesis.user.get_name()  # pyright: ignore[reportAttributeAccessIssue]
         thesis.author_id = current_thesis.author_id
         thesis.supervisor_id = current_thesis.supervisor_id
+        thesis.consultant = current_thesis.consultant
         thesis.publish_year = request.form.get("publish_year", type=int)
 
         path_to_archive_text, archive_text_filename = get_filename(

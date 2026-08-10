@@ -20,6 +20,7 @@ class ThesisFilter(FlaskForm):
     worktype = SelectField("worktype", choices=[])
     course = SelectField("course", choices=[])
     supervisor = SelectField("supervisor", choices=[])
+    consultant = StringField("consultant")
     startdate = SelectField("worktype", choices=[])
     enddate = SelectField("worktype", choices=[])
 

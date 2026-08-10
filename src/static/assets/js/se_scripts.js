@@ -12,6 +12,7 @@ function theses_load() {
     let page = url.searchParams.get("page");
 
     let supervisor_select = document.getElementById('supervisor');
+    let consultant_field = document.getElementById('consultant');
     let course_select = document.getElementById('course');
     let startdate_select = document.getElementById('startdate');
     let enddate_select = document.getElementById('enddate');
@@ -35,6 +36,11 @@ function theses_load() {
     // Supervisor?
     if (supervisor_select){
         params.append('supervisor', supervisor_select.value);
+    }
+
+    // Consultant?
+    if (consultant_field){
+        params.append('consultant', consultant_field.value);
     }
 
     // Course?
@@ -75,6 +81,7 @@ function theses_update() {
     let startdate_select = document.getElementById('startdate');
     let enddate_select = document.getElementById('enddate');
     let supervisor_select = document.getElementById('supervisor');
+    let consultant_field = document.getElementById('consultant');
     let course_select = document.getElementById('course');
     let search_field = document.getElementById('thesis_search_field');
 
@@ -94,6 +101,11 @@ function theses_update() {
     // If supervisor?
     if (supervisor_select){
         params.append('supervisor', supervisor_select.value);
+    }
+
+    // If consultant?
+    if (consultant_field){
+        params.append('consultant', consultant_field.value);
     }
 
     // If course?
