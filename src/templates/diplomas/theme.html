@@ -5,6 +5,11 @@
   <link rel="canonical"
         href="https://se.math.spbu.ru/diplomas/theme.html?id={{ theme.id }}" />
 {% endblock %}
+{% block og_title %}{{ theme.title }}{% endblock %}
+{% block og_description %}{{ theme.title }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block twitter_title %}{{ theme.title }}{% endblock %}
+{% block twitter_description %}{{ theme.title }}{% endblock %}
 {% block head_links %}
   <style>
     .tooltip-inner {

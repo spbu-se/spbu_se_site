@@ -76,7 +76,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 |---|---|---|---|
 | `/news/` | GET | `list_news` | News listing (paginated by rank) |
 | `/news/index.html` | GET | `list_news` | Alias for `/news/` |
-| `/news/item.html` | GET | `get_post` | Single news post |
+| `/news/item.html` | GET | `get_post` | Single news post (OG: title = post title, type article, description = plain-text excerpt) |
 | `/news/submit.html` | GET, POST | `submit_post` | Submit news |
 | `/news/post_vote` | GET, POST | `post_vote` | Upvote/downvote news |
 | `/news/delete` | GET | `delete_post` | Delete own news post |
@@ -87,7 +87,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 |---|---|---|---|
 | `/diplomas/` | GET | `diplomas_index` | Browse approved themes |
 | `/diplomas/index.html` | GET | `diplomas_index` | Alias for `/diplomas/` |
-| `/diplomas/theme.html` | GET | `get_theme` | View single theme |
+| `/diplomas/theme.html` | GET | `get_theme` | View single theme (OG: title = theme title, type article) |
 | `/diplomas/add_theme.html` | GET, POST | `add_user_theme` | Add new theme |
 | `/diplomas/user_themes.html` | GET | `user_diplomas_index` | User own themes |
 | `/diplomas/delete_theme.html` | GET | `delete_theme` | Delete own theme |
@@ -120,7 +120,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/internships/index` | GET | `old_internships_index` | Old redirect endpoint |
 | `/internships/fetch_internships` | GET | `fetch_internships` | AJAX filtered list |
 | `/internships/add` | GET, POST | `add_internship` | Add internship |
-| `/internships/<int:id>` | GET, POST | `page_internship` | View single internship |
+| `/internships/<int:id>` | GET, POST | `page_internship` | View single internship (OG: title = vacancy name, type article, canonical fixed to `/internships/<id>`) |
 | `/internships/<int:id>/delete` | GET | `delete_internship` | Delete internship |
 | `/internships/<int:id>/update` | GET, POST | `update_internship` | Update internship |
 

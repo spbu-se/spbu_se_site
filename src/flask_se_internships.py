@@ -166,10 +166,12 @@ def page_internship(id):
     if internships.count() < 1:
         return render_template("404.html")
 
+    internship = internships.first()
     return render_template(
         "internships/page_internship.html",
-        internship=internships.first(),
+        internship=internship,
         user=user,
+        og_description=(internship.description or internship.requirements or "")[:160],
     )
 
 

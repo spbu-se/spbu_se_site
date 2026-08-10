@@ -297,3 +297,13 @@ with no release artifacts or notes.
 **Rationale**: Matches the deployment reality — webhook deploys rebuild/restart without a migration step, and the multi-head Alembic tree makes autogenerate unreliable. The guard is a one-time no-op after the first request, and tests get the schema free via `db.create_all()`.
 
 **Alternatives considered**: Fixing the Alembic tree and running `flask db upgrade` on deploy — larger, riskier change touching deployment infrastructure. Adding columns via raw SQL in the old data-import path — fragmented, no single guard point.
+
+## [2026-08-10] Open Graph cards by design — block-based defaults + per-content overrides
+
+**Context**: Every publicly shareable page (news items, internship details, diploma themes, scholarships, thesis archive) should render a proper preview card when pasted into social networks/messengers. Before this change `base_dark.html` hardcoded `og:title` to the site name and `og:image` to the 16×16 favicon, while `base_light.html` had **no** OG tags at all — so content pages shared as bare URLs with a generic title. One page even shipped a copy-pasted canonical pointing to `/diplomas/index.html`.
+
+**Decision**: Make OG metadata block-driven in **both** base templates (`base_dark.html`, `base_light.html`): `og_title` defaults to the page's own `<title>` (`self.title()`), `og_image` defaults to a shared hero image (`main-back.jpg`), `og_type` defaults to `website`, plus mirrored `twitter:card` = `summary_large_image` tags. Content pages then override only what is content-specific: news items and diploma themes set title/description/type `article`; internship details also set title from `name_vacancy`, description from `description`/`requirements`, and a corrected canonical; news items additionally get a plain-text `og_description` excerpt (HTML stripped, truncated to 160 chars) computed in `get_post`. No per-content image generation — one good default image keeps previews consistent without an image pipeline.
+
+**Rationale**: Block defaults make every page correct "by design" — any template that already defines `title`/`description` gets a sane card with zero further work, and future pages inherit it automatically. Per-content overrides stay minimal and live next to the content they describe. The excerpt helper avoids leaking raw textile/HTML markup into social previews.
+
+**Alternatives considered**: Per-page hardcoded OG tags in every template — drifts, easy to forget. Server-generated per-content images (PDF first page, Pillow banner) — deferred, needs a font/caching pipeline for marginal preview gain. A separate meta framework — overkill for a hand-rolled template set.
