@@ -222,6 +222,7 @@ app.add_url_rule(
 )
 app.add_url_rule("/theses_add_tmp", methods=["POST"], view_func=flask_se_theses.theses_add_tmp)
 app.add_url_rule("/thesis_download", view_func=flask_se_theses.download_thesis)
+app.add_url_rule("/thesis_card", view_func=flask_se_theses.thesis_card)
 
 
 # News
@@ -576,6 +577,8 @@ def sitemap():
         "/theses_tmp.html",
         "/theses_delete_tmp",
         "/theses_add_tmp",
+        "/thesis_download",
+        "/thesis_card",
         "/google_callback",
         "/vk_callback",
     ]

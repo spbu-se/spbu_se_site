@@ -140,7 +140,20 @@ def theses_search():
     filter.course.choices = [(0, "Все"), *course_choices]  # pyright: ignore[reportAttributeAccessIssue]
     filter.worktype.choices = [(0, "Все"), *worktype_choices]  # pyright: ignore[reportAttributeAccessIssue]
 
-    return render_template("theses.html", filter=filter, hint=hint)
+    search = request.args.get("search", default="", type=str).strip()
+    og_title = None
+    og_description = None
+    if search:
+        og_title = f'Результаты поиска: "{search}"'
+        og_description = f'Работы по запросу "{search}" в архиве практик и ВКР кафедры.'
+
+    return render_template(
+        "theses.html",
+        filter=filter,
+        hint=hint,
+        og_title=og_title,
+        og_description=og_description,
+    )
 
 
 def fetch_theses():
@@ -305,6 +318,21 @@ def download_thesis():
     db.session.commit()
 
     return redirect(url_for("static", filename="/thesis/texts/" + thesis.text_uri))
+
+
+# Shareable card for a single thesis
+def thesis_card():
+    thesis_id = request.args.get("thesis_id", default=0, type=int)
+
+    if not thesis_id:
+        return redirect("theses_search")
+
+    thesis = Thesis.query.filter(Thesis.id == thesis_id, ~Thesis.temporary).first()
+
+    if not thesis:
+        return redirect("theses_search")
+
+    return render_template("thesis_card.html", thesis=thesis)
 
 
 def post_theses():

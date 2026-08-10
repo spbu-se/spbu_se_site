@@ -4,6 +4,14 @@
   Готовые дипломные работы по программированию, курсовые по программированию, ВКР бакалавров и магистров Кафедры Системного программирования Математико-механического факультета СПбГУ.
 {% endblock %}
 {% block headers %}<link rel="canonical" href="https://se.math.spbu.ru/theses.html" />{% endblock %}
+{% block og_title %}
+  {{ og_title or "Курсовые, учебные практики и ВКР студентов Кафедры Системного Программирования" }}
+{% endblock %}
+{% block og_description %}{{ og_description or self.description() }}{% endblock %}
+{% block twitter_title %}
+  {{ og_title or "Курсовые, учебные практики и ВКР студентов Кафедры Системного Программирования" }}
+{% endblock %}
+{% block twitter_description %}{{ og_description or self.description() }}{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section class="slice pt-8 bg-dark bg-cover bg-size--cover"
