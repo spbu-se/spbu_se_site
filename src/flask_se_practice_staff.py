@@ -222,3 +222,15 @@ def reports_staff(user_staff, current_thesis):
         reports=reports,
         form=add_report_comment,
     )
+
+
+def register_routes(app) -> None:
+    app.add_url_rule("/practice_staff", methods=["GET"], view_func=index_staff)
+    app.add_url_rule("/practice_staff/", methods=["GET"], view_func=index_staff)
+    app.add_url_rule("/practice_staff/thesis/", methods=["GET", "POST"], view_func=thesis_staff)
+    app.add_url_rule("/practice_staff/reports/", methods=["GET", "POST"], view_func=reports_staff)
+    app.add_url_rule(
+        "/practice_staff/finished_thesises/",
+        methods=["GET"],
+        view_func=finished_thesises_staff,
+    )

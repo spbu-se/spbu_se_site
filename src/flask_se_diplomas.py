@@ -353,3 +353,18 @@ def unarchive_theme():
     db.session.commit()
 
     return redirect(url_for("get_theme", id=theme.id))
+
+
+def register_routes(app) -> None:
+    app.add_url_rule("/diplomas/", view_func=diplomas_index)
+    app.add_url_rule("/diplomas/index.html", view_func=diplomas_index)
+    app.add_url_rule("/diplomas/theme.html", view_func=get_theme)
+    app.add_url_rule("/diplomas/add_theme.html", methods=["GET", "POST"], view_func=add_user_theme)
+    app.add_url_rule("/diplomas/user_themes.html", view_func=user_diplomas_index)
+    app.add_url_rule("/diplomas/delete_theme.html", methods=["POST"], view_func=delete_theme)
+    app.add_url_rule(
+        "/diplomas/edit_theme.html", methods=["GET", "POST"], view_func=edit_user_theme
+    )
+    app.add_url_rule("/diplomas/fetch_themes", view_func=fetch_themes)
+    app.add_url_rule("/diplomas/archive_theme", methods=["POST"], view_func=archive_theme)
+    app.add_url_rule("/diplomas/unarchive_theme", methods=["POST"], view_func=unarchive_theme)

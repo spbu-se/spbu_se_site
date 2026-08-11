@@ -164,3 +164,12 @@ def delete_post():
     db.session.commit()
 
     return redirect(url_for("list_news"))
+
+
+def register_routes(app) -> None:
+    app.add_url_rule("/news/", view_func=list_news)
+    app.add_url_rule("/news/index.html", view_func=list_news)
+    app.add_url_rule("/news/item.html", view_func=get_post)
+    app.add_url_rule("/news/submit.html", methods=["GET", "POST"], view_func=submit_post)
+    app.add_url_rule("/news/post_vote", methods=["POST"], view_func=post_vote)
+    app.add_url_rule("/news/delete", methods=["POST"], view_func=delete_post)

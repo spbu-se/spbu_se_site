@@ -53,3 +53,19 @@ def get_scholarships_12():
 
 def get_scholarships_13():
     return render_template("scholarships/13.html")
+
+
+def register_routes(app) -> None:
+    app.add_url_rule("/scholarships/1.html", view_func=get_scholarships_1)
+    app.add_url_rule("/scholarships/2.html", view_func=get_scholarships_2)
+    app.add_url_rule("/scholarships/3.html", view_func=get_scholarships_3)
+    app.add_url_rule("/scholarships/4.html", view_func=get_scholarships_4)
+    app.add_url_rule("/scholarships/5.html", view_func=get_scholarships_5)
+    app.add_url_rule("/scholarships/6.html", view_func=get_scholarships_6)
+    app.add_url_rule("/scholarships/7.html", view_func=get_scholarships_7)
+    app.add_url_rule("/scholarships/8.html", view_func=get_scholarships_8)
+    app.add_url_rule("/scholarships/9.html", view_func=get_scholarships_9)
+    app.add_url_rule("/scholarships/10.html", view_func=get_scholarships_10)
+    app.add_url_rule("/scholarships/11.html", view_func=get_scholarships_11)
+    app.add_url_rule("/scholarships/12.html", view_func=get_scholarships_12)
+    app.add_url_rule("/scholarships/13.html", view_func=get_scholarships_13)

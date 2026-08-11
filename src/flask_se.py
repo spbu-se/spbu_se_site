@@ -31,17 +31,10 @@ from flask_se_admin import (
     SeAdminModelViewUsers,
 )
 from flask_se_auth import (
-    google_callback,
-    google_login,
-    login_index,
     login_manager,
-    logout,
-    password_recovery,
-    register_basic,
-    upload_avatar,
-    user_profile,
-    vk_callback,
-    vk_login,
+)
+from flask_se_auth import (
+    register_routes as register_auth_routes,
 )
 from flask_se_bachelor import (
     bachelor_admission,
@@ -58,82 +51,16 @@ from flask_se_config import (
     get_hours_since,
     plural_hours,
 )
-from flask_se_diplomas import (
-    add_user_theme,
-    archive_theme,
-    delete_theme,
-    diplomas_index,
-    edit_user_theme,
-    fetch_themes,
-    get_theme,
-    unarchive_theme,
-    user_diplomas_index,
-)
-from flask_se_internships import (
-    add_internship,
-    delete_internship,
-    fetch_internships,
-    internships_index,
-    old_internships_index,
-    page_internship,
-    update_internship,
-)
-from flask_se_news import delete_post, get_post, list_news, post_vote, submit_post
-from flask_se_practice import (
-    practice_add_new_report,
-    practice_choosing_topic,
-    practice_data_for_practice,
-    practice_edit_theme,
-    practice_goals_tasks,
-    practice_guide,
-    practice_index,
-    practice_new_thesis,
-    practice_preparation,
-    practice_thesis_defense,
-    practice_workflow,
-)
-from flask_se_practice_admin import (
-    archive_thesis,
-    choose_area_and_worktype_admin,
-    finished_thesises_admin,
-    index_admin,
-    thesis_admin,
-)
-from flask_se_practice_staff import (
-    finished_thesises_staff,
-    index_staff,
-    reports_staff,
-    thesis_staff,
-)
-from flask_se_practice_yandex_disk import yandex_code
-from flask_se_review import (
-    delete_thesis_on_review,
-    edit_thesis_on_review,
-    fetch_thesis_on_review,
-    review_become_thesis_reviewer_ask,
-    review_become_thesis_reviewer_confirm,
-    review_result_thesis_on_review,
-    review_submit_review,
-    review_thesis_on_review,
-    submit_thesis_on_review,
-    thesis_review_index,
-)
-from flask_se_scholarships import (
-    get_scholarships_1,
-    get_scholarships_2,
-    get_scholarships_3,
-    get_scholarships_4,
-    get_scholarships_5,
-    get_scholarships_6,
-    get_scholarships_7,
-    get_scholarships_8,
-    get_scholarships_9,
-    get_scholarships_10,
-    get_scholarships_11,
-    get_scholarships_12,
-    get_scholarships_13,
-)
-from flask_se_summer_schools import create_summer_school_view, summer_school_list
+from flask_se_diplomas import register_routes as register_diplomas_routes
+from flask_se_internships import register_routes as register_internships_routes
+from flask_se_news import register_routes as register_news_routes
+from flask_se_practice import register_routes as register_practice_routes
+from flask_se_practice_admin import register_routes as register_practice_admin_routes
+from flask_se_practice_staff import register_routes as register_practice_staff_routes
+from flask_se_review import register_routes as register_review_routes
+from flask_se_scholarships import register_routes as register_scholarships_routes
+from flask_se_summer_schools import register_routes as register_summer_schools_routes
+from flask_se_theses import register_routes as register_theses_routes
 from se_models import (
     CurrentThesis,
     DiplomaThemes,
@@ -241,190 +168,23 @@ def _init_extensions(app: Flask) -> None:
 
 
 def _register_routes(app: Flask) -> None:
-    """All app routes, grouped by domain. Endpoint names derive from the
-    view function's __name__, so adding a rule here never renames a URL."""
-    # Login
-    app.add_url_rule("/login.html", methods=["GET", "POST"], view_func=login_index)
-    app.add_url_rule("/register_basic.html", methods=["GET", "POST"], view_func=register_basic)
-    app.add_url_rule(
-        "/password_recovery.html", methods=["GET", "POST"], view_func=password_recovery
-    )
-    app.add_url_rule("/profile.html", methods=["GET", "POST"], view_func=user_profile)
-    app.add_url_rule("/upload_avatar", methods=["GET", "POST"], view_func=upload_avatar)
-    app.add_url_rule("/logout", methods=["GET"], view_func=logout)
-    app.add_url_rule("/google_login", methods=["GET"], view_func=google_login)
-    app.add_url_rule("/google_callback", methods=["GET"], view_func=google_callback)
-    app.add_url_rule("/vk_login", methods=["GET"], view_func=vk_login)
-    app.add_url_rule("/vk_callback", methods=["GET"], view_func=vk_callback)
-
-    # Theses
-    app.add_url_rule("/theses.html", view_func=flask_se_theses.theses_search)
-    app.add_url_rule("/fetch_theses", view_func=flask_se_theses.fetch_theses)
-    app.add_url_rule("/post_theses", methods=["GET", "POST"], view_func=flask_se_theses.post_theses)
+    """All app routes, registered by domain module. Endpoint names derive from
+    each view function's __name__, so registering via these helpers never
+    renames a URL. Adding a route means editing the module that owns it."""
+    register_auth_routes(app)
+    register_theses_routes(app)
     # post_theses is an authenticated-by-secret API (external upload script),
     # not a browser form — exempt from CSRF.
     csrf.exempt(flask_se_theses.post_theses)
-    app.add_url_rule("/theses_tmp.html", view_func=flask_se_theses.theses_tmp)
-    app.add_url_rule(
-        "/theses_delete_tmp", methods=["POST"], view_func=flask_se_theses.theses_delete_tmp
-    )
-    app.add_url_rule("/theses_add_tmp", methods=["POST"], view_func=flask_se_theses.theses_add_tmp)
-    app.add_url_rule("/thesis_download", view_func=flask_se_theses.download_thesis)
-    app.add_url_rule("/thesis_card", view_func=flask_se_theses.thesis_card)
-
-    # News
-    app.add_url_rule("/news/", view_func=list_news)
-    app.add_url_rule("/news/index.html", view_func=list_news)
-    app.add_url_rule("/news/item.html", view_func=get_post)
-    app.add_url_rule("/news/submit.html", methods=["GET", "POST"], view_func=submit_post)
-    app.add_url_rule("/news/post_vote", methods=["POST"], view_func=post_vote)
-    app.add_url_rule("/news/delete", methods=["POST"], view_func=delete_post)
-
-    # Scholarships
-    app.add_url_rule("/scholarships/1.html", view_func=get_scholarships_1)
-    app.add_url_rule("/scholarships/2.html", view_func=get_scholarships_2)
-    app.add_url_rule("/scholarships/3.html", view_func=get_scholarships_3)
-    app.add_url_rule("/scholarships/4.html", view_func=get_scholarships_4)
-    app.add_url_rule("/scholarships/5.html", view_func=get_scholarships_5)
-    app.add_url_rule("/scholarships/6.html", view_func=get_scholarships_6)
-    app.add_url_rule("/scholarships/7.html", view_func=get_scholarships_7)
-    app.add_url_rule("/scholarships/8.html", view_func=get_scholarships_8)
-    app.add_url_rule("/scholarships/9.html", view_func=get_scholarships_9)
-    app.add_url_rule("/scholarships/10.html", view_func=get_scholarships_10)
-    app.add_url_rule("/scholarships/11.html", view_func=get_scholarships_11)
-    app.add_url_rule("/scholarships/12.html", view_func=get_scholarships_12)
-    app.add_url_rule("/scholarships/13.html", view_func=get_scholarships_13)
-
-    # Diplomas
-    app.add_url_rule("/diplomas/", view_func=diplomas_index)
-    app.add_url_rule("/diplomas/index.html", view_func=diplomas_index)
-    app.add_url_rule("/diplomas/theme.html", view_func=get_theme)
-    app.add_url_rule("/diplomas/add_theme.html", methods=["GET", "POST"], view_func=add_user_theme)
-    app.add_url_rule("/diplomas/user_themes.html", view_func=user_diplomas_index)
-    app.add_url_rule("/diplomas/delete_theme.html", methods=["POST"], view_func=delete_theme)
-    app.add_url_rule(
-        "/diplomas/edit_theme.html", methods=["GET", "POST"], view_func=edit_user_theme
-    )
-    app.add_url_rule("/diplomas/fetch_themes", view_func=fetch_themes)
-    app.add_url_rule("/diplomas/archive_theme", methods=["POST"], view_func=archive_theme)
-    app.add_url_rule("/diplomas/unarchive_theme", methods=["POST"], view_func=unarchive_theme)
-
-    # Review thesis
-    app.add_url_rule("/review/", methods=["GET"], view_func=thesis_review_index)
-    app.add_url_rule("/review/index.html", methods=["GET"], view_func=thesis_review_index)
-    app.add_url_rule("/review/submit", methods=["GET", "POST"], view_func=submit_thesis_on_review)
-    app.add_url_rule("/review/edit", methods=["GET", "POST"], view_func=edit_thesis_on_review)
-    app.add_url_rule("/review/delete", methods=["POST"], view_func=delete_thesis_on_review)
-    app.add_url_rule("/review/review", methods=["GET", "POST"], view_func=review_thesis_on_review)
-    app.add_url_rule("/review/reviewed", methods=["GET", "POST"], view_func=review_submit_review)
-    app.add_url_rule(
-        "/review/review_result", methods=["GET"], view_func=review_result_thesis_on_review
-    )
-    app.add_url_rule(
-        "/review/fetch_thesis_on_review",
-        methods=["GET"],
-        view_func=fetch_thesis_on_review,
-    )
-    app.add_url_rule(
-        "/review/become_thesis_reviewer",
-        methods=["GET"],
-        view_func=review_become_thesis_reviewer_ask,
-    )
-    app.add_url_rule(
-        "/review/become_thesis_reviewer_confirm",
-        methods=["POST"],
-        view_func=review_become_thesis_reviewer_confirm,
-    )
-
-    # Internships
-    app.add_url_rule("/internships/index", methods=["GET"], view_func=old_internships_index)
-    app.add_url_rule(
-        "/internships/internships_index.html",
-        methods=["GET"],
-        view_func=internships_index,
-    )
-    app.add_url_rule("/internships/fetch_internships", methods=["GET"], view_func=fetch_internships)
-    app.add_url_rule("/internships/add", methods=["GET", "POST"], view_func=add_internship)
-    app.add_url_rule("/internships/<int:id>", methods=["GET", "POST"], view_func=page_internship)
-    app.add_url_rule("/internships/<int:id>/delete", methods=["POST"], view_func=delete_internship)
-    app.add_url_rule(
-        "/internships/<int:id>/update",
-        methods=["GET", "POST"],
-        view_func=update_internship,
-    )
-
-    # Practice
-    app.add_url_rule("/practice", methods=["GET", "POST"], view_func=practice_index)
-    app.add_url_rule("/practice/", methods=["GET", "POST"], view_func=practice_index)
-    app.add_url_rule("/practice/guide/", methods=["GET"], view_func=practice_guide)
-    app.add_url_rule("/practice/new/", methods=["GET", "POST"], view_func=practice_new_thesis)
-    app.add_url_rule(
-        "/practice/data_for_practice/",
-        methods=["GET", "POST"],
-        view_func=practice_data_for_practice,
-    )
-    app.add_url_rule(
-        "/practice/choosing_topic/",
-        methods=["GET", "POST"],
-        view_func=practice_choosing_topic,
-    )
-    app.add_url_rule(
-        "/practice/edit_theme/", methods=["GET", "POST"], view_func=practice_edit_theme
-    )
-    app.add_url_rule(
-        "/practice/goals_tasks/", methods=["GET", "POST"], view_func=practice_goals_tasks
-    )
-    app.add_url_rule(
-        "/practice/add_new_report/",
-        methods=["GET", "POST"],
-        view_func=practice_add_new_report,
-    )
-    app.add_url_rule("/practice/workflow/", methods=["GET", "POST"], view_func=practice_workflow)
-    app.add_url_rule(
-        "/practice/preparation_for_defense/",
-        methods=["GET", "POST"],
-        view_func=practice_preparation,
-    )
-    app.add_url_rule("/practice/defense/", methods=["GET"], view_func=practice_thesis_defense)
-
-    # Practice staff
-    app.add_url_rule("/practice_staff", methods=["GET"], view_func=index_staff)
-    app.add_url_rule("/practice_staff/", methods=["GET"], view_func=index_staff)
-    app.add_url_rule("/practice_staff/thesis/", methods=["GET", "POST"], view_func=thesis_staff)
-    app.add_url_rule("/practice_staff/reports/", methods=["GET", "POST"], view_func=reports_staff)
-    app.add_url_rule(
-        "/practice_staff/finished_thesises/",
-        methods=["GET"],
-        view_func=finished_thesises_staff,
-    )
-
-    # Practice admin
-    app.add_url_rule("/practice_admin", methods=["GET", "POST"], view_func=index_admin)
-    app.add_url_rule("/practice_admin/", methods=["GET", "POST"], view_func=index_admin)
-    app.add_url_rule(
-        "/practice_admin/choose_area_worktype",
-        methods=["GET"],
-        view_func=choose_area_and_worktype_admin,
-    )
-    app.add_url_rule(
-        "/practice_admin/finished_thesises",
-        methods=["GET"],
-        view_func=finished_thesises_admin,
-    )
-    app.add_url_rule("/practice_admin/thesis", methods=["GET", "POST"], view_func=thesis_admin)
-    app.add_url_rule("/practice_admin/yandex_code", methods=["GET"], view_func=yandex_code)
-    app.add_url_rule(
-        "/practice_admin/thesis_to_archive",
-        methods=["GET", "POST"],
-        view_func=archive_thesis,
-    )
-
-    # Summer schools
-    app.add_url_rule("/summer_school_2021.html", view_func=create_summer_school_view(2021))
-    app.add_url_rule("/summer_school_2022.html", view_func=create_summer_school_view(2022))
-    app.add_url_rule("/summer_school_2024.html", view_func=create_summer_school_view(2024))
-    app.add_url_rule("/summer_school_2026.html", view_func=create_summer_school_view(2026))
-    app.add_url_rule("/summer_school_list.html", view_func=summer_school_list)
+    register_news_routes(app)
+    register_scholarships_routes(app)
+    register_diplomas_routes(app)
+    register_review_routes(app)
+    register_internships_routes(app)
+    register_practice_routes(app)
+    register_practice_staff_routes(app)
+    register_practice_admin_routes(app)
+    register_summer_schools_routes(app)
 
 
 def _register_static_pages(app: Flask) -> None:

@@ -342,3 +342,21 @@ def fetch_internships():
             user=user,
         )
     return render_template("internships/fetch_internships_blank.html")
+
+
+def register_routes(app) -> None:
+    app.add_url_rule("/internships/index", methods=["GET"], view_func=old_internships_index)
+    app.add_url_rule(
+        "/internships/internships_index.html",
+        methods=["GET"],
+        view_func=internships_index,
+    )
+    app.add_url_rule("/internships/fetch_internships", methods=["GET"], view_func=fetch_internships)
+    app.add_url_rule("/internships/add", methods=["GET", "POST"], view_func=add_internship)
+    app.add_url_rule("/internships/<int:id>", methods=["GET", "POST"], view_func=page_internship)
+    app.add_url_rule("/internships/<int:id>/delete", methods=["POST"], view_func=delete_internship)
+    app.add_url_rule(
+        "/internships/<int:id>/update",
+        methods=["GET", "POST"],
+        view_func=update_internship,
+    )

@@ -868,3 +868,38 @@ def get_remaining_time(deadline, type_deadline):
             remaining_time = (days, word_for_time, "body")
 
     return remaining_time
+
+
+def register_routes(app) -> None:
+    app.add_url_rule("/practice", methods=["GET", "POST"], view_func=practice_index)
+    app.add_url_rule("/practice/", methods=["GET", "POST"], view_func=practice_index)
+    app.add_url_rule("/practice/guide/", methods=["GET"], view_func=practice_guide)
+    app.add_url_rule("/practice/new/", methods=["GET", "POST"], view_func=practice_new_thesis)
+    app.add_url_rule(
+        "/practice/data_for_practice/",
+        methods=["GET", "POST"],
+        view_func=practice_data_for_practice,
+    )
+    app.add_url_rule(
+        "/practice/choosing_topic/",
+        methods=["GET", "POST"],
+        view_func=practice_choosing_topic,
+    )
+    app.add_url_rule(
+        "/practice/edit_theme/", methods=["GET", "POST"], view_func=practice_edit_theme
+    )
+    app.add_url_rule(
+        "/practice/goals_tasks/", methods=["GET", "POST"], view_func=practice_goals_tasks
+    )
+    app.add_url_rule(
+        "/practice/add_new_report/",
+        methods=["GET", "POST"],
+        view_func=practice_add_new_report,
+    )
+    app.add_url_rule("/practice/workflow/", methods=["GET", "POST"], view_func=practice_workflow)
+    app.add_url_rule(
+        "/practice/preparation_for_defense/",
+        methods=["GET", "POST"],
+        view_func=practice_preparation,
+    )
+    app.add_url_rule("/practice/defense/", methods=["GET"], view_func=practice_thesis_defense)
