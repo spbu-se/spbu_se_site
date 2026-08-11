@@ -12,8 +12,11 @@ Covers: module responsibilities, execution flow, template structure. Does not co
 
 | Module | Responsibility |
 |---|---|
-| `flask_se.py` | Module-level app (singleton `app = Flask(__name__)`), route registration, scheduler init, custom admin views init |
+| `flask_se.py` | Application factory (`create_app()`), module-level singleton `app`, extension init, route orchestration, custom admin views init, template filters |
 | `flask_se_config.py` | App configuration, secret management, DB path, ranking algorithm |
+| `flask_se_scheduler.py` | APScheduler mechanics: the module-level `scheduler` + `configure_scheduler()` (job specs are supplied by `flask_se.py`) |
+| `flask_se_static.py` | Public static pages, 404 handler, legacy 301 redirects |
+| `sitemap.py` | `sitemap.xml` generation + the URL skip list |
 | `wsgi.py` | WSGI entry point (uWSGI) |
 | `app.ini` | uWSGI process/thread configuration |
 
@@ -69,11 +72,16 @@ Request -> nginx (reverse proxy) -> uWSGI -> Flask app
 
 ### Scheduled Jobs (BackgroundScheduler)
 
-Three background jobs run within the Flask context:
+Three background jobs run within the Flask context (job specs are passed to
+`flask_se_scheduler.configure_scheduler()` from `create_app()`):
 
 1. **RecalculatePostRank** — every hour: recalculate news ranking based on votes and views
 1. **SendMailNotification** — every 10 seconds: process the email notification queue
 1. **SendDiplomaThemesOnReviewNotification** — every 24 hours: notify about unmoderated themes
+
+Scheduler start is explicit: production leaves `SE_START_SCHEDULER` unset (jobs
+run), while `tests/conftest.py` sets it to `0` before importing so the suite and
+the import pipeline (`extract_text.py`, `thesesImport.py`) never fire jobs.
 
 > **Mail + staging**: the scheduler runs in every gunicorn/uwsgi worker, so each
 > job would fire N times per period. `se_sendmail.py` guards this two ways: (1)

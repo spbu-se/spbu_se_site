@@ -96,9 +96,9 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 ## Testing quirks
 
 - **Whoosh index cached per-session** — `_seeded_db_path` (seeded) + `_empty_whoosh_dir` (unseeded) session fixtures build Whoosh index once; per-test fixtures copy it (~ms). Avoids ~37s per-test `whooshee.reindex()`.
-- **No Flask factory** — `app` is a module-level global. Patch configs BEFORE `from flask_se import app`
+- **Application factory** — `create_app(config_overrides, start_scheduler)` in `flask_se.py`; module-level `app = create_app()` singleton preserved for wsgi/scripts/tests. `config_overrides` builds test instances without import-time patching.
 - **scrypt unsupported on Python 3.13** — conftest.py mocks `check_password_hash` at module level
-- **APScheduler fires in tests** — `scheduler.shutdown(wait=False)` called at conftest module level
+- **APScheduler gated off in tests** — conftest sets `SE_START_SCHEDULER=0` before importing `flask_se` (replaces the old `scheduler.shutdown()`). Production leaves it unset → jobs run.
 - **Session-scoped DB template** — `_seeded_db_path` fixture creates + seeds once; per-test fixtures copy it (~ms)
 - **Login bypass fixture** — `logged_client` injects `session["_user_id"]` instead of POST login (avoids scrypt)
 
