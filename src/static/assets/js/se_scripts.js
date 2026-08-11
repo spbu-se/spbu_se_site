@@ -822,3 +822,32 @@ let practice_admin_filter_element = document.getElementById('practice-admin-titl
 if (practice_student_filter_element || practice_admin_filter_element){
     $('[data-toggle="popoverhover"]').popover({ trigger: "hover" });
 }
+
+// Copy thesis card link to clipboard
+$(document).on('click', '.thesis-copy-link', function (e) {
+    e.preventDefault();
+    let btn = $(this);
+    let url = btn.data('copy-url');
+    let flash = function () {
+        btn.find('i').removeClass('fa-link').addClass('fa-check');
+        btn.attr('data-content', 'Скопировано');
+        setTimeout(function () {
+            btn.find('i').removeClass('fa-check').addClass('fa-link');
+            btn.attr('data-content', 'Скопировать ссылку');
+        }, 1500);
+    };
+    let fallback = function () {
+        let ta = document.createElement('textarea');
+        ta.value = url;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        flash();
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(flash).catch(fallback);
+    } else {
+        fallback();
+    }
+});
