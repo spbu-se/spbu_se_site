@@ -19,18 +19,16 @@ Does NOT cover: project-specific test structure, individual test cases, coverage
 
 ## Fixture patterns
 
-### 1. Flask app config before import
+### 1. Flask app factory + config overrides
 
-When the app uses module-level globals (no `create_app()` factory), monkeypatch configs BEFORE importing the app:
+The app uses `create_app(config_overrides=None, start_scheduler=None)` in `flask_se.py`; the module-level `app = create_app()` singleton keeps `from flask_se import app` working. To build a differently-configured instance without import-time monkeypatching:
 
 ```python
-import flask_se_config
-flask_se_config.SQLITE_DATABASE_NAME = "test.db"
-flask_se_config.SQLITE_DATABASE_PATH = "/tmp/test_db"
-from flask_se import app, db
+from flask_se import create_app
+app = create_app(config_overrides={"SQLALCHEMY_DATABASE_URI": "sqlite:///..."})
 ```
 
-This works because the app reads config values at import time. Any imports triggered by the app (auth libs, scheduler) also see the patched values.
+Prefer `config_overrides` over patching `flask_se_config` module globals. The one remaining global patch in `tests/conftest.py` (`flask_se_config.SQLITE_DATABASE_*`) exists only because `init_db()` reads those globals directly (backup path), not because of app construction.
 
 ### 2. Auth bypass fixture (passwordless login)
 
@@ -123,14 +121,25 @@ def seeded_client(_seeded_db_path):
 
 On Windows, use `str(Path() / ...)` for SQLite URI paths — `Path.as_posix()` (forward slashes) silently fails and `db.create_all()` raises no error but doesn't create the file.
 
-### 7. APScheduler shutdown in tests
+### 7. APScheduler: env-gated in tests (not shutdown)
 
-Flask-APScheduler auto-starts at import time. Background jobs see the test DB with no tables and crash:
+Since the application-factory refactor, the scheduler never starts in tests because `conftest.py` sets `SE_START_SCHEDULER=0` BEFORE importing `flask_se` (production leaves it unset → jobs run):
 
 ```python
-# In conftest.py or fixture:
-app.config["TESTING"] = True
-# Or disable scheduler in test fixtures:
-from flask_se import scheduler
-scheduler.shutdown(wait=False)
+import os
+os.environ["SE_START_SCHEDULER"] = "0"
+from flask_se import app, db
 ```
+
+Do not reintroduce `scheduler.shutdown(wait=False)` — the env gate is set before import so the scheduler never starts. If jobs must fire in a test, call `configure_scheduler(jobs, start_scheduler=True)` on the module-level `scheduler` explicitly.
+
+### 8. Route-map verification for refactors
+
+When moving `add_url_rule` calls (into helpers, blueprints, or modules), prove the route map is preserved before running the full suite — endpoints derive from `view_func.__name__`, so moving calls never renames URLs:
+
+```python
+rs = sorted((r.rule, sorted(r.methods or [])) for r in app.url_map.iter_rules())
+open(".tmp/routes.txt", "w").write(str(rs))  # dump before/after, diff byte-identically
+```
+
+A byte-identical map means zero template/endpoint churn — templates using `url_for('endpoint')` keep working.

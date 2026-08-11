@@ -882,3 +882,66 @@ Stacked PRs over #196: PR #15 (security triage), PR #16 (mail notification fix, 
 - Stack: #196 → PR #15 → #16 → #17, all `MERGEABLE`; PR #194 green + approved, merge-blocked on `require_last_push_approval`
 - Tests: 103 passed (theses/admin), 27 passed (sendmail); pre-push gate + basedpyright clean
 - Docs: this entry + TOOLING/AI_AGENT_EXPERIENCE/GIT_FLOW/DESIGN_DECISIONS/AGENTS/TODO updated in the same commit
+
+### Retrospective — 2026-08-11: application factory, route decentralization, module extraction
+
+PR #206 (`refactor/app-factory` → `current`): application factory (`create_app(config_overrides, start_scheduler)`), per-module `register_routes(app)`, and extraction of `flask_se_scheduler.py`/`flask_se_static.py`/`sitemap.py`. `flask_se.py` went 650 → ~250 lines. Route map verified byte-identical (191 rules) at every phase; 1176 passed, 92% coverage. Also merged PR #205 (thesis-card share) and updated TODO.md (#32 shipped, OG-polish items added).
+
+**What was done**:
+
+1. **PR #205 merged** — thesis-card share (title links to card, copy-to-clipboard button); `current` → `df5ea3a`.
+1. **Phase 1 — factory** — `create_app(config_overrides=None, start_scheduler=None)`; module-level `app = create_app()` singleton preserved (wsgi/scripts/tests unchanged); config → `_configure_app()`; migrate/freezer/csrf → `init_app()`; scheduler gated by `SE_START_SCHEDULER` env (conftest sets `0` → never fires; prod unset → runs).
+1. **Phase 2 — route registration** — ~70 `add_url_rule` calls moved into per-module `register_routes(app)` (11 modules); endpoints derive from `view_func.__name__`, so route map stayed byte-identical; `csrf.exempt(post_theses)` carried over.
+1. **Phase 3 — module extraction** — `flask_se_scheduler.py` (mechanics, job specs passed in), `flask_se_static.py` (public pages, 404, legacy redirects), `sitemap.py` (sitemap + centralized skip list). `flask_se.py` = pure composition.
+1. **Docs** — ARCHITECTURE module map, DESIGN_DECISIONS (factory entry + amended No-Blueprints entry), AGENTS.md + TESTING.md testing quirks (factory + env-gated scheduler).
+
+**Gaps found**:
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| 4 refactor commits landed on `current` instead of `refactor/app-factory` | **Pattern recurrence** — branch-discipline violation (3rd occurrence; 2026-07-04 direct-commit to current, 2026-07-06 to staging). Root cause: after `git checkout -b`, a later `git checkout current` + work happened without re-verifying the active branch; commits went to `current` | Recovered via cherry-pick onto `refactor/app-factory` + hard-reset `current`. Escalated (3rd+) to Layer-1 proposal: pre-push/pre-commit branch guard — see GIT_FLOW §2 |
+| ruff-format auto-fix aborted 2 commits ("Stashed changes conflicted with hook auto-fixes") | **Pattern recurrence** — pre-commit auto-fix hook conflict; djLint variant documented in AGENTS.md pre-flight, ruff-format variant not covered | Normalize BEFORE staging: `uv run ruff format src/` (and `pre-commit run djlint --all-files` for templates). AGENTS.md note generalized to both hooks |
+| `git cherry-pick --continue` failed with `gpg: signing failed: Timeout` | **Missing convention** — `commit.gpgsign=true` makes cherry-pick-continue attempt signing; only plain `git commit` documented with `--no-gpg-sign` | `git cherry-pick --continue --no-gpg-sign` (or commit staged changes with `--no-gpg-sign`). Recorded in TOOLING.md |
+| basedpyright `reportUnusedFunction` false positives on decorator-registered nested route functions | **Missing convention** — moving `@app.route`-decorated functions inside `_register_*` helpers made pyright think they're unused | Module-level `# pyright: reportUnusedFunction=false` (precedent: `flask_se_practice_config.py`). Documented in AI_AGENT_EXPERIENCE.md |
+| `scheduler` import flagged unused by ruff after moving to `flask_se_scheduler.py` | **Missing convention** — re-export for tests (`from flask_se import scheduler`) not visible to ruff | Added to `__all__` (ruff honors `__all__` re-exports). Documented in AI_AGENT_EXPERIENCE.md |
+| TOOLING.md §51 ("no factory pattern") + §394 ("scheduler shutdown") became stale mid-session | **Missing doc update** — docs written for the pre-factory world not updated during the refactor | Rewrote both sections for the factory + env-gated scheduler |
+| `.skills/flask-test-patterns` §1/§7 and `.skills/test-writer` quirk described pre-factory world | **Missing skill update** — skills are derivable docs; canonical docs changed but skills not re-synced | Rewrote both skills in the retro commit (retro step 5c) |
+| xfail/xpass counts drifted across full-suite runs (5→3 xfailed, 7→9 xpassed between Phase 2/3) | **Stale constraint** — `post_theses` markers are `strict=False` for an *intermittent* CI 500; they XPASS whenever the flaky path happens to pass | Investigated: targeted rerun shows 5 xfailed/7 xpassed again — drift is flakiness, not stability. Markers kept; google-callback candidate flagged for a future confirmation run |
+
+**Pattern recurrence**: **YES** — branch-discipline violation (3rd consecutive), pre-commit auto-fix hook conflict (2nd). Both escalated per the ladder: branch guard is now a Layer-1 tool-config proposal; hook-conflict moved from djLint-only to a generalized normalize-before-stage pre-flight rule.
+
+**What went well**:
+
+- Route-map verification (`sorted(rule, methods) for rule in url_map.iter_rules()` before/after) made every refactor phase provably behavior-preserving — zero template/endpoint churn
+- Full suite green at every phase (1176 passed, 92% coverage); pre-push gate + basedpyright clean on the final branch
+- Factory kept the module-level `app = create_app()` singleton, so wsgi/scripts/tests needed no entry-point changes — the compatibility shim eliminated ~40 `from flask_se import app` test churn
+- Env-gated scheduler (`SE_START_SCHEDULER`) replaced the fragile `scheduler.shutdown()` in conftest and fixed the per-worker job duplication trigger at its root
+
+**What went wrong**:
+
+- Committed feature work to `current` (process violation, recovered) — cost an extra branch-repair round-trip
+- 2 aborted commits from ruff-format auto-fix before the normalize-first habit kicked in
+- cherry-pick `--continue` GPG stall when reconstructing the branch
+
+**Root causes**:
+
+1. **Pattern recurrence** — branch-discipline violation (3rd) → needs tool guard, not another doc note; pre-commit hook conflict (2nd) → generalized normalize-before-stage
+1. **Missing convention** — cherry-pick `--no-gpg-sign`, pyright module-level opt-out, `__all__` re-export, route-map verification technique all undocumented
+1. **Missing doc/skill update** — TOOLING.md and the two test skills drifted from the canonical refactor
+
+**Fix**:
+
+- GIT_FLOW.md §2: branch-guard proposal (Layer 1) — refuse commits/edits when the active branch is not the intended feature branch
+- AGENTS.md pre-flight: normalize-before-stage generalized (ruff-format + djLint); branch re-verification cue added
+- TOOLING.md: cherry-pick `--no-gpg-sign`; §51 + §394 rewritten for factory + env-gated scheduler
+- AI_AGENT_EXPERIENCE.md: `reportUnusedFunction=false` opt-out, `__all__` re-export, route-map-verification technique
+- `.skills/flask-test-patterns`, `.skills/test-writer`: synced to the factory world
+- `.skills/retrospective-analysis`: §8a questions added (branch-before-commit, cherry-pick GPG); self-improvement log entry
+- `.skills/skill-for-skills`: full Phase 1-4 audit run
+- TODO.md: xfail-drift note (google-callback confirmation run)
+
+**State at handoff**:
+
+- PR #206 open, all checks green (test/lint/check 3.11/3.12/dependency-review); awaiting merge
+- Tests: 1176 passed, 1 skipped, 92% coverage; pre-push gate + basedpyright clean
+- Docs/skills: this entry + TOOLING/AI_AGENT_EXPERIENCE/AGENTS/GIT_FLOW + 4 skills updated in the retro commit

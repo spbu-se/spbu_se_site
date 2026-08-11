@@ -465,3 +465,52 @@ Seed the user's `password_hash` as `f"sha256${salt}${hmac.new(salt.encode(), pas
 **Root cause:** The `djlint --reformat` hook (pre-commit stage) normalizes *every* html file during commit; if your staged template edits differ from djLint's output, the hook's stash/apply conflicts and the commit aborts with "Stashed changes conflicted with hook auto-fixes... Rolling back fixes".
 
 **Fix:** Run `uv run pre-commit run djlint --all-files` once to normalize templates *before* staging, then `git add -A` and commit. The hook then passes with no conflicts.
+
+## ruff-format auto-fix aborts commit — same conflict, Python variant
+
+**When:** 2026-08-11 refactor, appending per-module `register_routes()` blocks with long lines.
+
+**Root cause:** Same stash/apply conflict as djLint, but for `ruff format`. The pre-commit `ruff-format` hook rewrites long `app.add_url_rule(...)` lines; if the staged version differs from the hook's output, the commit aborts ("Stashed changes conflicted with hook auto-fixes").
+
+**Fix:** `uv run ruff format src/` BEFORE staging, then `git add` and commit. General rule: any auto-fix hook that reformats more than the staged set (djLint → templates, ruff-format → Python) must be run once on all files before staging.
+
+## `git cherry-pick --continue` fails: gpg signing Timeout
+
+**When:** 2026-08-11, moving refactor commits from `current` onto `refactor/app-factory`.
+
+**Root cause:** `commit.gpgsign=true` makes `git cherry-pick --continue` attempt to GPG-sign the reconstructed commit, which stalls/fails (`gpg: signing failed: Timeout`) when the agent is unlocked. Plain `git commit` had the `--no-gpg-sign` workaround documented, but cherry-pick-continue was not covered.
+
+**Fix options:**
+
+- `git cherry-pick --continue --no-gpg-sign`
+- Or, if hooks already staged the change: `git commit --no-gpg-sign -m "<msg>"` (clears the cherry-pick state because the commit exists)
+- To avoid the stall entirely: `git cherry-pick -n <commit>` then `git commit --no-gpg-sign`
+
+## basedpyright `reportUnusedFunction` false positives on decorator-registered route functions
+
+**When:** 2026-08-11, moving `@app.route`-decorated view functions inside `_register_*` helper functions.
+
+**Root cause:** basedpyright (with `reportUnusedFunction = "error"`) cannot see that the `@app.route` decorator registers the nested function, so it reports "Function X is not accessed" for every nested route view.
+
+**Fix:** Module-level opt-out `# pyright: reportUnusedFunction=false` in the module that owns the helpers (precedent: `flask_se_practice_config.py`). This is not an error-suppression of a real bug — the decorator does register the function at runtime.
+
+## Re-export for tests via `__all__` (ruff F401 + pyright)
+
+**When:** 2026-08-11, moving `scheduler` to `flask_se_scheduler.py` while tests still do `from flask_se import scheduler`.
+
+**Root cause:** An import that exists only to be re-exported (`from flask_se import scheduler`) is flagged unused by ruff F401, and ruff's `--fix` silently deletes it. Tests then fail with ImportError.
+
+**Fix:** Add the name to the module's `__all__` (`__all__ = ["app", "db", "scheduler"]`) — ruff honors `__all__` as an explicit re-export and stops flagging it. This keeps `from flask_se import scheduler` working for tests without a per-line `# noqa`.
+
+## Route-map verification before/after refactoring
+
+**When:** 2026-08-11, three-phase route refactor (factory → register_routes → module extraction).
+
+**How:** Before starting, dump the route map to a file; after each refactor step, dump again and compare byte-identically:
+
+```python
+rs = sorted((r.rule, sorted(r.methods or [])) for r in app.url_map.iter_rules())
+open(".tmp/routes.txt", "w").write(str(rs))
+```
+
+**Why it works:** Endpoint names derive from `view_func.__name__`, so moving `add_url_rule` calls between modules or wrapping them in helpers never renames URLs. A byte-identical map (191 rules) proves the refactor preserved every route and method — zero template/endpoint churn — before the full test suite runs.
