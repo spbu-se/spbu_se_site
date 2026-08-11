@@ -9,7 +9,12 @@
 - #87 practice reports read/unread status (bold seen reports; expand last; markdown support)
 - #70 admin theme management (reject + comment, archive w/ notifications, edit approved themes, theme sources CRUD)
 - #67 theme lifecycle for coursework themes
-- #32 shareable report card for practice archive works
+
+**OG polish (post-v2026.08.10, found during live verification):**
+
+- Diploma theme `og:description` leaks textile/HTML markup (raw `[Spla](url)` etc.) — reuse `_og_description` plain-text extraction
+- `thesis_card` `og:description` has leading/trailing whitespace — trim in the card view
+- `/news/` `og:description` empty (index has no description block) — set a default site description
 
 **Shipped in PR-C `feat/consultant-filter` (issue #38):**
 
