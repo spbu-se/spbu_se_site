@@ -6,6 +6,8 @@ Historical record of process gaps found during retrospectives. Each entry docume
 
 Covers: all retrospective entries from prior sessions. Does not cover: git workflow — see `docs/GIT_FLOW.md`, development process — see `docs/DEVELOPMENT_PROCESS.md`.
 
+> **Every PR must carry a retrospective entry** — run `.skills/retrospective-analysis` and append to this file before opening any PR. If a PR was opened without one, add the retro as the last commit and update the PR description. See `docs/DEVELOPMENT_PROCESS.md §0.7`.
+
 ### Retrospective — 2026-07-04: cross-doc duplication, CI mismatch, over-engineering recurrence
 
 This session touched 22 files across docs, tests, config, and skills. Gaps found:

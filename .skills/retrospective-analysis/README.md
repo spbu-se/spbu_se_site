@@ -213,6 +213,7 @@ Ask these questions to surface waste and optimization opportunities:
 | **Did you verify the active branch before every commit?** | Commits landed on `current` instead of the intended feature branch (3rd recurrence). `git branch --show-current` before each commit is the cue — if missed, the fix is `git cherry-pick -n` + `git commit --no-gpg-sign`. |
 | **Did a refactor change what a test's xfail marker reports?** | `strict=False` markers on intermittently-failing tests XPASS whenever the flaky path passes — xfail/xpass *counts* drift between runs without any real fix. Re-verify drift is stability, not flakiness, before removing a marker. |
 | **Did a move into functions break a linter/type check that module-level code passed?** | Moving `@app.route`-decorated views into `_register_*` helpers triggered basedpyright `reportUnusedFunction`; moving a re-export triggered ruff F401. Module-level opt-out (`# pyright: reportUnusedFunction=false`) and `__all__` re-export are the fixes. |
+| **Was this retrospective run before the PR?** | Retrospective is now mandatory before every PR (see `docs/DEVELOPMENT_PROCESS.md §0.7`). If the PR went out without one, the retro must be added as the last commit and the PR description updated. |
 
 #### 8b. Generate prevention rules
 
@@ -245,7 +246,7 @@ Since the retro skill is derived from docs, every full retro audits the retro sk
 1. **Does the retro skill still match its canonical docs?**
    - `docs/DEVELOPMENT_PROCESS.md` §2 — is procedure defined there?
    - `docs/AI_AGENTS.md` §Skills — are boundaries and principles followed?
-   - `docs/DOCS.md` §Skills directory — is catalog entry accurate?
+   - `docs/AI_AGENTS.md` §Skills directory — is catalog entry accurate?
 1. **Were docs updated when the skill changed this session?**
    - If a step was added/modified in the skill → was the corresponding canonical doc updated?
    - If not, add the missing info to the doc (skill is derivable, not source)

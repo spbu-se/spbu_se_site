@@ -61,16 +61,17 @@ jobs:
           echo "PREV_TAG=${prev:-v2025.09.09}" >> "$GITHUB_ENV"
       - name: Generate release notes
         run: |
+          mkdir -p .tmp
           opencode run --agent build --auto \
             "Read .skills/release-notes/README.md and follow it exactly. Generate notes for tag ${GITHUB_REF_NAME}. Previous release: ${PREV_TAG}."
       - name: Verify release notes were written
         shell: bash
         run: |
-          test -s release-notes.md || { echo "::error::release-notes.md missing or empty"; exit 1; }
-          head -5 release-notes.md
+          test -s .tmp/release-notes.md || { echo "::error::.tmp/release-notes.md missing or empty"; exit 1; }
+          head -5 .tmp/release-notes.md
       - name: Publish draft release
         uses: softprops/action-gh-release@v3
         with:
           draft: true
-          body_path: release-notes.md
+          body_path: .tmp/release-notes.md
           name: ${{ github.ref_name }}

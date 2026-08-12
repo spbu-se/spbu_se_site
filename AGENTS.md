@@ -30,10 +30,10 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Before merge: verify CI shows test results, not just lint results — inspect the CI run log to confirm pytest actually ran, not just basedpyright
 - Before merging a pushed feature branch: CI won't trigger on the branch. Create a PR first, wait for CI green, then squash-merge via `gh pr merge --squash --delete-branch`
 - Before merge: verify TODO.md has no completed items that belong in commit messages instead
-- Before merge: if session involved doc restructuring, propose retrospective as the final step (do not run mid-session)
+- **Session retrospective is mandatory before any PR** — run `.skills/retrospective-analysis` and append the entry to `docs/RETROSPECTIVES.md` before opening the PR. If a PR was opened without it, add the retro as the last commit and update the PR description. See `docs/DEVELOPMENT_PROCESS.md` §0.7.
 - Before any session summary or handoff: scan `docs/AI_AGENTS.md` §Output Format for the prescribed format — comply with timing, state, and section structure
 - When running tests: default to `--tb=long` for full diagnostics on first run. Only use `-q` for the final green confirmation when zero failures are expected. Never truncate a diagnostic run's output (`Select-Object -Last/-First`, `head`/`tail`) — let the full log be captured and search the captured file instead. See `docs/TESTING.md` §3a.
-- Proactively use `git-history_git_wrapup_instructions` at session start (orientation snapshot), mid-session (checkpoint against acceptance criteria), and pre-merge (readiness gate) — not just at the end. See `docs/GIT_FLOW.md` §Wrap-up protocol.
+- Proactively use `git-history_git_wrapup_instructions` at session start (orientation snapshot), mid-session (checkpoint against acceptance criteria), and pre-merge (readiness gate) — not just at the end. See `docs/DEVELOPMENT_PROCESS.md` §0.7 (Session lifecycle — wrap-up protocol).
 - Before staging templates/HTML or Python: run the auto-fix hooks on ALL files first (`pre-commit run djlint --all-files` for templates, `uv run ruff format src/` for Python) — these hooks reformat more than the staged set and abort with "Stashed changes conflicted with hook auto-fixes" if staged edits differ. See `docs/AI_AGENT_EXPERIENCE.md` §djLint / §ruff-format.
 - Verify the active branch before committing — `git branch --show-current` must be the intended feature branch, never `current`/`staging`. If work was committed to the wrong branch, recover via `git cherry-pick -n` + `git commit --no-gpg-sign` (see `.tooling.md` §cherry-pick).
 - Before creating any PR: include `Closes #<n>` / `References #<n>` per fixed/referenced issue in the body (one per line). See `docs/AI_AGENTS.md` §PR description.
@@ -54,18 +54,13 @@ See `docs/QUALITY_MANAGEMENT.md §6` for interpretation thresholds.
 
 ## Quality gates
 
-Three tiers of quality, from local convenience to production gate:
+Three tiers of quality, from local convenience to production gate. Full mechanics in `docs/DEVELOPMENT_PROCESS.md §0.6`; tier rationale in `docs/QUALITY_MANAGEMENT.md §2`.
 
-### Pre-commit (fast, ~1s, changed files only)
+- **Pre-commit** (fast, ~1s, changed files only): runs on `git commit`, auto-fixes formatting. Not a quality gate — local commits can be imperfect; `git commit --no-verify` is acceptable if a hook genuinely blocks you for a non-formatting reason.
+- **Pre-push** (strict, all files, fail-fast): runs on `git push`. Checks in order: requirements format → actionlint → `uv lock --check` → format + lint (mdformat, ruff format `--check`, ruff check on `src/ tests/`, via PowerShell) → basedpyright. Failure at any step aborts. This is the real local quality gate.
+- **CI** (async, ~10min): pytest runs on CI, not pre-push. See `docs/AI_AGENTS.md` §CI discipline for when to check.
 
-Run automatically on `git commit`. Auto-fix formatting on touched files.
-Not a quality gate — local commits can be imperfect. Using `git commit --no-verify` is acceptable if a hook genuinely blocks you for a non-formatting reason.
-
-### Pre-push (strict, all files, fail-fast)
-
-Run automatically on `git push`. Checks (in order): requirements format → actionlint → `uv lock --check` → format + lint (mdformat, ruff format `--check`, ruff check on `src/ tests/`, via PowerShell) → basedpyright. Failure at any step aborts. This is the real local quality gate.
-
-**Note:** the format+lint step's entry is `powershell -Command "..."` — Windows-only. On Linux the pre-push hook fails with `Executable 'powershell' not found`. Run the equivalent checks manually on Linux:
+**Windows-only pre-push step**: the format+lint step's entry is `powershell -Command "..."` — on Linux it fails with `Executable 'powershell' not found`. Run the equivalent checks manually:
 
 ```bash
 uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
@@ -73,20 +68,16 @@ uv run ruff format --check src/ tests/
 uv run ruff check src/ tests/
 ```
 
-Before every `git push`, verify locally: `uv run pre-commit run --all-files --hook-stage pre-push` and fix any failures. A clean local run means the push will not waste CI time on pre-push failures. On Linux (PowerShell hook un-runnable), run the manual equivalents above instead, then `git push --no-verify` and log it in the retrospective.
+Before every `git push`, verify locally: `uv run pre-commit run --all-files --hook-stage pre-push` and fix any failures.
 
 **Never use `git push --no-verify`** unless the user gives a direct, unbiased instruction.
-An unbiased instruction states the goal without suggesting the method. "Push now, CI will catch it" is biased. "I need this on staging urgently" is unbiased — the agent may then propose `--no-verify` with a clear risk statement. Every `--no-verify` must be logged in the retrospective as a process violation.
-
-### CI discipline
-
-See `docs/AI_AGENTS.md` §CI discipline for the trigger table. See `docs/QUALITY_MANAGEMENT.md` §4 for motivation.
+An unbiased instruction states the goal without suggesting the method. Every `--no-verify` must be logged in the retrospective as a process violation.
 
 ### Staging merge
 
 Never push directly to `staging`. Only squash-merge from a branch:
 `git merge --squash <branch> && git commit -m "<type>: <summary>"`
-CI must be green before merging (see `docs/QUALITY_MANAGEMENT.md` §CI discipline).
+CI must be green before merging (see `docs/AI_AGENTS.md` §CI discipline).
 
 ### First-time setup
 
@@ -96,11 +87,10 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 
 ## Testing quirks
 
-- **Whoosh index cached per-session** — `_seeded_db_path` (seeded) + `_empty_whoosh_dir` (unseeded) session fixtures build Whoosh index once; per-test fixtures copy it (~ms). Avoids ~37s per-test `whooshee.reindex()`.
+- **FTS5 search index in session DB template** — `_seeded_db_path` (seeded) session fixture builds the DB once; FTS5 index lives inside the DB file, so per-test `shutil.copy2` copies it (~ms). No separate index management (Whoosh was replaced by SQLite FTS5 in PR #11).
 - **Application factory** — `create_app(config_overrides, start_scheduler)` in `flask_se.py`; module-level `app = create_app()` singleton preserved for wsgi/scripts/tests. `config_overrides` builds test instances without import-time patching.
 - **scrypt unsupported on Python 3.13** — conftest.py mocks `check_password_hash` at module level
 - **APScheduler gated off in tests** — conftest sets `SE_START_SCHEDULER=0` before importing `flask_se` (replaces the old `scheduler.shutdown()`). Production leaves it unset → jobs run.
-- **Session-scoped DB template** — `_seeded_db_path` fixture creates + seeds once; per-test fixtures copy it (~ms)
 - **Login bypass fixture** — `logged_client` injects `session["_user_id"]` instead of POST login (avoids scrypt)
 
 ## Environment quirks
@@ -111,10 +101,7 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 - **Line endings** — `.gitattributes` normalizes all text to LF (`* text=auto eol=lf`), so checkouts are LF on Windows too; mdformat behaves identically locally and in CI
 - **GPG keylocker** — if `git config commit.gpgsign` is true, use `git commit --no-gpg-sign` on all branches (only `current` gets signed commits)
 - **Config-secret path vs contents** — secrets live in config files, and the code reads their **contents** via `flask_se_config.read_secret_from_file()`. Never treat a config file's *path* as the secret (that was CVE-class bug: `SECRET_KEY` was a path string → forgeable sessions). CSRF is globally enforced (`CSRFProtect`): any new POST form must include `{{ csrf_token() }}`, and new state-changing actions must be POST, not GET
-
-## Gotchas
-
-- **Flask-Admin `query_factory=lambda:`** — `query_factory=Staff.query.all` (without `lambda:`) fails because SQLAlchemy model query attributes are not available at admin-import time. The `lambda:` defers evaluation to render time. Never pass the method directly or call it (`lambda: Staff.query.all()` would also crash). Affects 6 views in `src/flask_se_admin.py:55,60,65,70,76,182`.
+- **Generated/temp files** — all scratch and generated files must live in `.tmp/` (gitignored): session notes, log captures, route-map dumps, release-note drafts. Never leave them at the repo root. See `docs/DOCS.md` §3.
 
 ## Process improvement
 

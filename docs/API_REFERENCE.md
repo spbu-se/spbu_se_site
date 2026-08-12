@@ -54,6 +54,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/profile.html` | GET, POST | `user_profile` | Edit user profile |
 | `/upload_avatar` | GET, POST | `upload_avatar` | Upload avatar image |
 | `/logout` | GET | `logout` | Logout |
+| `/vk_login` | GET | `vk_login` | VK OAuth redirect (mints + stores `state`) |
 | `/vk_callback` | GET | `vk_callback` | VK OAuth callback |
 | `/google_login` | GET | `google_login` | Google OAuth redirect |
 | `/google_callback` | GET | `google_callback` | Google OAuth callback |
@@ -66,8 +67,8 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/fetch_theses` | GET | `fetch_theses` | AJAX paginated thesis list. Query params: `worktype`, `supervisor`, `consultant` (free-text substring), `course`, `startdate`, `enddate`, `search`, `page` |
 | `/post_theses` | GET, POST | `post_theses` | Upload new thesis |
 | `/theses_tmp.html` | GET | `theses_tmp` | List temp theses for review |
-| `/theses_delete_tmp` | GET | `theses_delete_tmp` | Delete temp thesis |
-| `/theses_add_tmp` | GET | `theses_add_tmp` | Approve/publish temp thesis |
+| `/theses_delete_tmp` | POST | `theses_delete_tmp` | Delete temp thesis |
+| `/theses_add_tmp` | POST | `theses_add_tmp` | Approve/publish temp thesis |
 | `/thesis_download` | GET | `download_thesis` | Download thesis PDF (tracks count) |
 | `/thesis_card` | GET | `thesis_card` | Shareable card for a single non-temporary thesis (OG: title = work name + year, type article, canonical). Query param: `thesis_id`. Redirects to `/theses.html` on 0/missing/temporary. |
 
@@ -79,8 +80,8 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/news/index.html` | GET | `list_news` | Alias for `/news/` |
 | `/news/item.html` | GET | `get_post` | Single news post (OG: title = post title, type article, description = plain-text excerpt) |
 | `/news/submit.html` | GET, POST | `submit_post` | Submit news |
-| `/news/post_vote` | GET, POST | `post_vote` | Upvote/downvote news |
-| `/news/delete` | GET | `delete_post` | Delete own news post |
+| `/news/post_vote` | POST | `post_vote` | Upvote/downvote news |
+| `/news/delete` | POST | `delete_post` | Delete own news post |
 
 ## Diploma Themes
 
@@ -91,11 +92,11 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/diplomas/theme.html` | GET | `get_theme` | View single theme (OG: title = theme title, type article, description = theme description or title) |
 | `/diplomas/add_theme.html` | GET, POST | `add_user_theme` | Add new theme |
 | `/diplomas/user_themes.html` | GET | `user_diplomas_index` | User own themes |
-| `/diplomas/delete_theme.html` | GET | `delete_theme` | Delete own theme |
+| `/diplomas/delete_theme.html` | POST | `delete_theme` | Delete own theme |
 | `/diplomas/edit_theme.html` | GET, POST | `edit_user_theme` | Edit own theme |
 | `/diplomas/fetch_themes` | GET | `fetch_themes` | AJAX paginated themes |
-| `/diplomas/archive_theme` | GET | `archive_theme` | Archive own theme |
-| `/diplomas/unarchive_theme` | GET | `unarchive_theme` | Unarchive own theme |
+| `/diplomas/archive_theme` | POST | `archive_theme` | Archive own theme |
+| `/diplomas/unarchive_theme` | POST | `unarchive_theme` | Unarchive own theme |
 
 ## Thesis Review
 
@@ -105,7 +106,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/review/index.html` | GET | `thesis_review_index` | Alias for `/review/` |
 | `/review/submit` | GET, POST | `submit_thesis_on_review` | Submit thesis for review |
 | `/review/edit` | GET, POST | `edit_thesis_on_review` | Edit submitted thesis |
-| `/review/delete` | GET | `delete_thesis_on_review` | Delete own submission |
+| `/review/delete` | POST | `delete_thesis_on_review` | Delete own submission |
 | `/review/review` | GET | `review_thesis_on_review` | Enter review form |
 | `/review/reviewed` | GET, POST | `review_submit_review` | Submit completed review |
 | `/review/review_result` | GET | `review_result_thesis_on_review` | View review result |
@@ -122,7 +123,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/internships/fetch_internships` | GET | `fetch_internships` | AJAX filtered list |
 | `/internships/add` | GET, POST | `add_internship` | Add internship |
 | `/internships/<int:id>` | GET, POST | `page_internship` | View single internship (OG: title = vacancy name, type article, canonical fixed to `/internships/<id>`) |
-| `/internships/<int:id>/delete` | GET | `delete_internship` | Delete internship |
+| `/internships/<int:id>/delete` | POST | `delete_internship` | Delete internship |
 | `/internships/<int:id>/update` | GET, POST | `update_internship` | Update internship |
 
 ## Practice — Student
@@ -184,7 +185,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 
 | Route | Description |
 |---|---|
-| `/admin/` | custom admin dashboard (shows thesis secret key). Access: role >= 2 |
+| `/admin/` | custom admin dashboard (thesis upload API info; the API key itself is stored server-side in `configs/flask_se_thesis.conf` and never shown in the UI). Access: role >= 2 |
 | `/admin/user/` | Users CRUD. Access: role >= 5 |
 | `/admin/staff/` | Staff CRUD. Access: role >= 5 |
 | `/admin/thesis/` | Thesis CRUD. Access: role >= 5 |

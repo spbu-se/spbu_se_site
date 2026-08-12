@@ -4,7 +4,7 @@
 
 Copy-paste fixture templates for Flask + SQLAlchemy + pytest with xdist.
 
-Covers: auth bypass for passwordless testing, Whoosh index isolation for parallel workers, file upload testing patterns, scrypt/BCrypt mocking for Python 3.13, sendmail mocking, session-scoped test database seeding.
+Covers: auth bypass for passwordless testing, FTS5 index isolation for parallel workers, file upload testing patterns, scrypt/BCrypt mocking for Python 3.13, sendmail mocking, session-scoped test database seeding.
 
 Does NOT cover: project-specific test structure, individual test cases, coverage targets, or CI configuration — see each project's own `tests/conftest.py` and `docs/` for those.
 
@@ -13,7 +13,7 @@ Does NOT cover: project-specific test structure, individual test cases, coverage
 - Setting up a new Flask + SQLAlchemy test suite
 - Adding test infrastructure for authenticated routes
 - Adding tests for file upload endpoints
-- Adding tests that interact with Whoosh search indexes
+- Adding tests that interact with FTS5 search indexes
 - Debugging flaky tests in xdist parallel workers
 - Adding email notification tests
 

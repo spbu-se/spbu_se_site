@@ -64,7 +64,7 @@ Each doc has a knowledge discipline — what goes in, what stays out, how inform
 
 | Doc | Discipline | Typical sections | Section anatomy | Recovery if missing |
 |-----|-----------|-----------------|-----------------|---------------------|
-| `AGENTS.md` | Commands + pre-flight + quirks — actionable agent instructions only | Pre-flight checklist, Before committing, Testing quirks, Environment quirks | Bullet lists of if-then rules; code blocks for commands | Extract from relevant `docs/` — each line must cross-reference a canonical source |
+| `AGENTS.md` | Commands + pre-flight + quirks — actionable agent instructions only | Pre-flight checklist, Live metrics, Quality gates, Testing quirks, Environment quirks, Process improvement | Bullet lists of if-then rules; code blocks for commands | Extract from relevant `docs/` — each line must cross-reference a canonical source |
 | `CLAUDE.md` | Skill registry — which skills exist, when to load them | Skills table | Table: name, "load when" description | Rebuild from `.skills/*/README.md` headings |
 | `TODO.md` | Task tracking — backlog, bugs, coverage | Batch notes, Planned (table), Blocked (table), Module Coverage (table), Known bugs | Tables with priority/effort/depends-on columns | Restore from `docs/RETROSPECTIVES.md` state-at-handoff sections |
 
@@ -133,6 +133,16 @@ When creating any new file, directory, or tooling config, run through these four
 1. **Vendor lock-in** — Does it reference a specific AI tool? If yes, create a canonical vendor-agnostic version first, then thin wrappers per tool.
 1. **Convention** — Does an existing pattern apply? (e.g., all `.md` under `docs/` need aim + scope, skills go in `.skills/`, formatting via ruff+mdformat)
 1. **Canonical source** — If this could be referenced from multiple places, where does the one true version live? Other locations should be derived cross-references.
+
+### 3.2a Generated/Temporary Files live in `.tmp/`
+
+All scratch, generated, and temporary files **must** live in `.tmp/` (a gitignored
+local folder for temp data). Never leave them at the repo root.
+
+- **Examples**: session notes, log captures, route-map dumps (`routes_before.txt`/`routes_after.txt`), release-note drafts (`.tmp/release-notes.md`), stale search-index leftovers, coverage scratch.
+- **`.tmp/` is gitignored** — nothing in it is ever committed or pushed.
+- **Exceptions** (documented, stay at root): `.unfinished.plan.md` (session scratch, gitignored individually), `.local_development.db` (MCP database), `databases/test.db` (test fixture), `static/` upload dirs (app-managed runtime data — the dirs themselves must stay under `static/`).
+- When a tracked file's contents move to `.tmp/` (e.g. `release-notes.md`), update every reference to the old path: the producing skill, the consuming CI workflow, and the docs.
 
 ### 3.3 Pre-Creation Directory Audit
 

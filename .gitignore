@@ -145,5 +145,8 @@ _flask_freezed/
 # Temporary files for opencode batch work
 .tmp/
 
+# Session scratch file (stays at repo root, never committed)
+.unfinished.plan.md
+
 # Local SQLite development database
 .local_development.db

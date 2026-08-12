@@ -54,6 +54,12 @@ git commit -m "feat: <summary>"
 1. If CI fails, fix on branch, push, retry
 1. Only when green, merge: `gh pr merge <number> --squash --delete-branch`
 
+**Mandatory retrospective before any PR**: every PR must have a session
+retrospective entry appended to `docs/RETROSPECTIVES.md` (run
+`.skills/retrospective-analysis`) before the PR is created. If a PR was opened
+without one, add the retro as the last commit and update the PR description. See
+`docs/DEVELOPMENT_PROCESS.md §0.7` (Session lifecycle).
+
 **Exception**: `staging-auto-*` branches skip the PR gate — their name pattern already matches the CI workflow trigger.
 
 **Never continue on a squash-merged branch without explicit user instruction**. After `git merge --squash` to staging, the branch is consumed. Any further work must either start a new branch or be explicitly approved — squash-merge creates a different commit tree, and git cannot cleanly merge subsequent changes.
@@ -271,7 +277,7 @@ not a file-by-file changelog (recoverable from `git diff`). Cover:
 Do NOT list changed files, CI status, or commit hashes — all visible elsewhere.
 The squash-merge body (feature → staging) carries this information forward.
 
-Wrap-up protocol is in `docs/DEVELOPMENT_PROCESS.md §0.7` — includes DESIGN_DECISIONS.md and AI_AGENT_EXPERIENCE.md updates, docs-review for drift, and self-improvement check.
+Wrap-up protocol is in `docs/DEVELOPMENT_PROCESS.md §0.7` — includes DESIGN_DECISIONS.md and AI_AGENT_EXPERIENCE.md updates, docs-review for drift, self-improvement check, and the **mandatory session retrospective** (every PR must carry a `docs/RETROSPECTIVES.md` entry; if missing, add it as the last commit and update the PR description).
 
 ### 8.5 Fork workflow (contributions to upstream)
 

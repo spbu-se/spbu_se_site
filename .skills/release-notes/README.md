@@ -9,7 +9,8 @@ table, major changes, contributors, and a compare link.
 
 ## Scope guard (hard rule)
 
-- Write ONLY to `release-notes.md` at the repository root.
+- Write ONLY to `.tmp/release-notes.md` (the gitignored scratch folder). The
+  `.tmp/` directory is created on demand; never leave the draft at the repo root.
 - Do NOT modify any code, CI workflow, config, or documentation file.
 - Do NOT create, edit, or publish a GitHub release — the CI workflow creates a
   draft; the maintainer reviews and publishes it.
@@ -31,7 +32,7 @@ table, major changes, contributors, and a compare link.
    `gh pr list --repo spbu-se/spbu_se_site --state merged --base current --limit 100 --json number,title,mergedAt,author`
    Filter to PRs merged after the previous release. Keep newest-first order.
 1. Run the PROMPT below with that PR list, then write the result to
-   `release-notes.md`.
+   `.tmp/release-notes.md` (create `.tmp/` if missing).
 
 ## PROMPT
 

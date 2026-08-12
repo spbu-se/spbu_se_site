@@ -29,7 +29,7 @@ Walk through `.skills/code-audit/README.md` §1-9. Append findings to the same a
 
 Follow `docs/DEVELOPMENT_PROCESS.md` §0.6 (Workflow Discipline → Context compaction):
 
-1. Update `docs/ARCHITECTURE.md` Design Decisions with new choices
+1. Update `docs/DESIGN_DECISIONS.md` with new choices
 1. Update `TODO.md` — remove completed items (move to Resolved), reorder backlog
 1. Run AI instructions drift check (see `docs/DOCS.md §5.3`)
 1. Audit cross-references: scan every `.md` file under `docs/` and `.skills/` for hardcoded step numbers. Replace with section-title references.
@@ -38,7 +38,11 @@ Follow `docs/DEVELOPMENT_PROCESS.md` §0.6 (Workflow Discipline → Context comp
 #### 1.4 Pre-merge checks
 
 - `requirements.txt` matches `uv.lock` — regenerate if stale
-- Run commit checklist: `mdformat`, `ruff`, `mypy`, `pytest -n 2`
+- Run commit checklist: `mdformat`, `ruff`, `basedpyright`, `pytest -n 2`
+- **Verify the session retrospective was run** — every PR must include a
+  `docs/RETROSPECTIVES.md` entry (see `docs/DEVELOPMENT_PROCESS.md §0.7`). If the
+  PR was opened without one, run `.skills/retrospective-analysis`, add the entry
+  as the last commit, and update the PR description.
 - Check `origin/staging` CI status
 
 ### Phase 2 — Report

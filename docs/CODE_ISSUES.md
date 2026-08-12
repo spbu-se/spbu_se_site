@@ -4,6 +4,8 @@
 
 Found during the coverage-first phase (2026-07-04/05 auto run). Coverage target met — bugs below are unblocked.
 
+Covers: known production bugs and security findings, prioritized by severity, with fix status. Does not cover: process gaps — see `docs/RETROSPECTIVES.md`, testing strategy — see `docs/TESTING.md`.
+
 ## P0 — Production Bugs (crash on missing form fields)
 
 ### `flask_se_auth.py:197` — `register_basic` crashes on missing `first_name` [FIXED]
