@@ -82,15 +82,25 @@ with no release artifacts or notes.
 - Staging CI validates `requirements.txt` is fresh (fails if stale)
 - New dep workflow: `uv add <pkg>` → commit → staging CI auto-verifies refresh
 
-## [2026-06-27] No Flask Blueprints
+## [2026-06-27] No Flask Blueprints (updated 2026-08-11)
 
-**Context**: Routes are registered in a single module. The project predates widespread Blueprint adoption.
+**Context**: Routes were registered in a single module. The project predates widespread Blueprint adoption.
 
-**Decision**: Use `app.add_url_rule()` in `flask_se.py` rather than Flask Blueprints.
+**Decision**: Use `app.add_url_rule()` via per-module `register_routes(app)` functions rather than Flask Blueprints.
 
-**Rationale**: Keeps all routes visible in one file at the cost of module isolation. Each view function is imported from a separate module.
+**Rationale**: The original decision (single file, all routes visible) was revisited when the project grew to ~30 modules and 190+ routes. Blueprints would rename every endpoint (`bp.function` vs `function`), breaking ~30 templates and `_LEGACY_REDIRECTS`. Instead, each domain module owns a `register_routes(app)` helper called in order from `flask_se.py` — routes stay next to their views and endpoints stay byte-identical. `flask_se.py` remains the single orchestration point without holding every route line.
 
-**Alternatives considered**: Flask Blueprints — would add complexity without immediate benefit. If the project grows significantly, Blueprints would be the recommended refactor.
+**Alternatives considered**: Flask Blueprints — would add complexity (endpoint renaming) without benefit here. Keeping all routes inline in `flask_se.py` — the complexity this refactor removed.
+
+## [2026-08-11] Application factory
+
+**Context**: `app` was a module-level `Flask(__name__)` with config, extensions, routes, and the scheduler all set up at import. This forced tests to monkeypatch `flask_se_config` globals *before* import (`tests/conftest.py`), a per-import `db.app = app; db.init_app(app)` idiom repeated in `extract_text.py`/`thesesImport.py`, and the APScheduler to start in every worker.
+
+**Decision**: Introduce `create_app(config_overrides=None, start_scheduler=None)` in `flask_se.py`. The module-level `app = create_app()` singleton is preserved so `wsgi.py`, the import pipeline, and `from flask_se import app` in tests keep working unchanged. Config assignment moved into `_configure_app()`; extensions use `init_app()` (migrate, freezer, csrf); scheduler start is gated by the `SE_START_SCHEDULER` env var (production unset → runs; conftest sets `0` → never fires).
+
+**Rationale**: `config_overrides` lets tests build a differently-configured instance without import-time monkeypatching; the env-gated scheduler fixes the "every worker fires N jobs" trigger at its root (the NotificationLog idempotency claim in `se_sendmail.py` remains as defense-in-depth); the import pipeline no longer side-starts background threads.
+
+**Consequences**: `tests/conftest.py` sets `SE_START_SCHEDULER=0` before importing (replacing `scheduler.shutdown()`); `create_app` is the entry point for future multi-app or config-driven test setups. The `flask_se_config` global monkeypatch remains in conftest only because `init_db()` reads those globals directly (backup path), not because of app construction.
 
 ## [2026-06-27] Flat File Upload Structure
 

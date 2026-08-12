@@ -485,3 +485,18 @@ def google_callback():
 
     login_user(user, remember=True)
     return redirect_next_url(fallback=url_for("user_profile"))
+
+
+def register_routes(app) -> None:
+    app.add_url_rule("/login.html", methods=["GET", "POST"], view_func=login_index)
+    app.add_url_rule("/register_basic.html", methods=["GET", "POST"], view_func=register_basic)
+    app.add_url_rule(
+        "/password_recovery.html", methods=["GET", "POST"], view_func=password_recovery
+    )
+    app.add_url_rule("/profile.html", methods=["GET", "POST"], view_func=user_profile)
+    app.add_url_rule("/upload_avatar", methods=["GET", "POST"], view_func=upload_avatar)
+    app.add_url_rule("/logout", methods=["GET"], view_func=logout)
+    app.add_url_rule("/google_login", methods=["GET"], view_func=google_login)
+    app.add_url_rule("/google_callback", methods=["GET"], view_func=google_callback)
+    app.add_url_rule("/vk_login", methods=["GET"], view_func=vk_login)
+    app.add_url_rule("/vk_callback", methods=["GET"], view_func=vk_callback)

@@ -42,7 +42,7 @@ from flask_se_practice_config import (
     get_filename,
 )
 from flask_se_practice_table import edit_table
-from flask_se_practice_yandex_disk import handle_yandex_table
+from flask_se_practice_yandex_disk import handle_yandex_table, yandex_code
 from se_forms import ChooseCourseAndYear
 from se_models import (
     AreasOfStudy,
@@ -541,4 +541,26 @@ def finished_thesises_admin():
         list_of_areas=list_of_areas,
         list_of_worktypes=list_of_work_types,
         thesises=current_thesises,
+    )
+
+
+def register_routes(app) -> None:
+    app.add_url_rule("/practice_admin", methods=["GET", "POST"], view_func=index_admin)
+    app.add_url_rule("/practice_admin/", methods=["GET", "POST"], view_func=index_admin)
+    app.add_url_rule(
+        "/practice_admin/choose_area_worktype",
+        methods=["GET"],
+        view_func=choose_area_and_worktype_admin,
+    )
+    app.add_url_rule(
+        "/practice_admin/finished_thesises",
+        methods=["GET"],
+        view_func=finished_thesises_admin,
+    )
+    app.add_url_rule("/practice_admin/thesis", methods=["GET", "POST"], view_func=thesis_admin)
+    app.add_url_rule("/practice_admin/yandex_code", methods=["GET"], view_func=yandex_code)
+    app.add_url_rule(
+        "/practice_admin/thesis_to_archive",
+        methods=["GET", "POST"],
+        view_func=archive_thesis,
     )

@@ -13,6 +13,10 @@ import werkzeug.security as _ws
 _ws.check_password_hash = lambda pwhash, password: True
 _ws.generate_password_hash = lambda password, method="pbkdf2:sha256": f"mock:{password}"
 
+# Do not start the APScheduler: the module-level app is created on import via
+# create_app(), and conftest must not fire background jobs during the suite.
+os.environ["SE_START_SCHEDULER"] = "0"
+
 _db_dir = None
 _db_name = "test.db"
 _db_path = None
@@ -33,11 +37,7 @@ _db_dir, _db_path = _init_db_path()
 import pytest
 from sqlalchemy import create_engine
 
-import flask_se as _fs
 from flask_se import app, db
-
-_fs.scheduler.shutdown(wait=False)
-
 from se_models import init_db
 
 UPLOAD_DIRS = [

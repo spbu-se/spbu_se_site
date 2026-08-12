@@ -117,8 +117,8 @@ What we explicitly do not test and why:
 ### APScheduler: background jobs fire during tests
 
 **When:** Running pytest — `SendMailNotification` fires every 10s against the test DB.
-**Cause:** `BackgroundScheduler` auto-starts at import time. Background jobs see the test DB with no tables.
-**Fix:** Set `app.config["TESTING"] = True` before yielding the test client, or disable the scheduler in test fixtures.
+**Cause:** `BackgroundScheduler` started at import time. Background jobs see the test DB with no tables.
+**Fix:** Since the application-factory refactor, `tests/conftest.py` sets `SE_START_SCHEDULER=0` before importing `flask_se`, so jobs are registered but never started. Do not remove that env var.
 
 ### init_db: crashes on second call
 
@@ -142,7 +142,7 @@ What we explicitly do not test and why:
 
 **When:** APScheduler fires `SendMailNotification` during tests.
 **Cause:** Scheduler started during app init; runs on the test's temp DB which has no tables yet.
-**Fix:** Ensure scheduler is stopped in test teardown or use `TESTING` config.
+**Fix:** The factory's `SE_START_SCHEDULER=0` gate (set in `tests/conftest.py`) prevents this. Ensure conftest still sets it before importing `flask_se`.
 
 ### Password hashing: "unsupported hash type scrypt"
 

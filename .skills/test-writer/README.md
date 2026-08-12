@@ -93,6 +93,6 @@ def test_with_logged_in_user(self, seeded_client):
 
 - `init_db()` must not be called twice without `db.session.remove()` in between
 - FTS5 index is inside the SQLite DB — copying the DB file also copies the search index
-- APScheduler is shut down at conftest module level to avoid `no such table: notification` errors
+- APScheduler is env-gated in tests (`SE_START_SCHEDULER=0` in conftest before importing `flask_se`) to avoid `no such table: notification` errors
 - Use `logged_client` fixture instead of login POST to avoid scrypt hash issues on Python 3.13
 - Assert `resp.status_code` against a set: `{200}` not `200`, to allow easy widening

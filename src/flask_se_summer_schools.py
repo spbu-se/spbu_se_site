@@ -45,3 +45,11 @@ def create_summer_school_view(year: int):
 
 def summer_school_list():
     return render_template("summer_school_list.html", schools=schools)
+
+
+def register_routes(app) -> None:
+    app.add_url_rule("/summer_school_2021.html", view_func=create_summer_school_view(2021))
+    app.add_url_rule("/summer_school_2022.html", view_func=create_summer_school_view(2022))
+    app.add_url_rule("/summer_school_2024.html", view_func=create_summer_school_view(2024))
+    app.add_url_rule("/summer_school_2026.html", view_func=create_summer_school_view(2026))
+    app.add_url_rule("/summer_school_list.html", view_func=summer_school_list)

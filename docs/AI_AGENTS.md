@@ -257,6 +257,7 @@ When updating a skill, any useful info removed from the skill must first exist i
 | `.skills/js-bundle-analysis/README.md` | JS | Reverse-engineering JS bundles | Bundle analysis |
 | `.skills/readme-generator/README.md` | README | Generating polished project READMEs | README generation |
 | `.skills/merge-gate/README.md` | Merge | Pre-merge workflow: audit, compact, verify CI, merge with discipline | Merge gate workflow |
+| `.skills/release-notes/README.md` | Release | Generate end-user release notes (Part 1) + developer changelog (Part 2) for a `vYYYY.MM.DD` GitHub release | Release-notes workflow |
 | `.skills/skill-for-skills/README.md` | Meta | Enforce skills principles, maintain skills in sync with docs, self-maintain | Skill audit workflow |
 
 ### Vendor skill stubs (.opencode/skills/, .claude/skills/, .agents/skills/)

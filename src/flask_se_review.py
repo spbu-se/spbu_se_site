@@ -614,3 +614,31 @@ def review_become_thesis_reviewer_confirm():
     db.session.commit()
 
     return render_template("thesis_review/become_reviewer_confirm.html", user=user)
+
+
+def register_routes(app) -> None:
+    app.add_url_rule("/review/", methods=["GET"], view_func=thesis_review_index)
+    app.add_url_rule("/review/index.html", methods=["GET"], view_func=thesis_review_index)
+    app.add_url_rule("/review/submit", methods=["GET", "POST"], view_func=submit_thesis_on_review)
+    app.add_url_rule("/review/edit", methods=["GET", "POST"], view_func=edit_thesis_on_review)
+    app.add_url_rule("/review/delete", methods=["POST"], view_func=delete_thesis_on_review)
+    app.add_url_rule("/review/review", methods=["GET", "POST"], view_func=review_thesis_on_review)
+    app.add_url_rule("/review/reviewed", methods=["GET", "POST"], view_func=review_submit_review)
+    app.add_url_rule(
+        "/review/review_result", methods=["GET"], view_func=review_result_thesis_on_review
+    )
+    app.add_url_rule(
+        "/review/fetch_thesis_on_review",
+        methods=["GET"],
+        view_func=fetch_thesis_on_review,
+    )
+    app.add_url_rule(
+        "/review/become_thesis_reviewer",
+        methods=["GET"],
+        view_func=review_become_thesis_reviewer_ask,
+    )
+    app.add_url_rule(
+        "/review/become_thesis_reviewer_confirm",
+        methods=["POST"],
+        view_func=review_become_thesis_reviewer_confirm,
+    )

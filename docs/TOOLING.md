@@ -48,17 +48,16 @@ uv run pre-commit install --install-hooks
 
 ## pytest + SQLAlchemy
 
-### Flask app test setup (no factory pattern)
+### Flask app test setup (application factory)
 
-When the app uses module-level globals (no `create_app()` factory), monkeypatch configs BEFORE importing the app:
+`flask_se.py` exposes `create_app(config_overrides=None, start_scheduler=None)`; the module-level `app = create_app()` singleton keeps `from flask_se import app` working for scripts/tests. To build a differently-configured test instance without import-time monkeypatching:
 
 ```python
-import flask_se_config
-flask_se_config.SQLITE_DATABASE_NAME = "test.db"
-from flask_se import app, db
+from flask_se import create_app
+app = create_app(config_overrides={"SQLALCHEMY_DATABASE_URI": "sqlite:///..."})
 ```
 
-This works because `flask_se` reads the config values at import time. Any imports triggered by `flask_se` (auth libs, scheduler) also see the patched values.
+Prefer `config_overrides` over patching `flask_se_config` module globals. The one remaining global patch in `tests/conftest.py` (`flask_se_config.SQLITE_DATABASE_*`) exists only because `init_db()` reads those globals directly (backup path), not because of app construction. The scheduler must be disabled in tests via `SE_START_SCHEDULER=0` before `import flask_se` (see §APScheduler below).
 
 ### Per-test temp directories
 
@@ -391,14 +390,17 @@ _ws.generate_password_hash = lambda password, method="pbkdf2:sha256": f"mock:{pa
 
 This is safe for testing view logic and route behavior, but means password security logic is never exercised in tests.
 
-## APScheduler shutdown in tests
+## APScheduler in tests (env-gated, not shutdown)
 
-`BackgroundScheduler` starts background jobs at import time (every 10 seconds for `SendMailNotification`). During tests, these jobs fire against the test DB which may not have the `notification` table, causing `sqlite3.OperationalError: no such table: notification`. Shut down at conftest module level:
+`BackgroundScheduler` jobs (e.g. `SendMailNotification` every 10s) would fire against the test DB which may not have the `notification` table, causing `sqlite3.OperationalError: no such table: notification`. Since the application-factory refactor, the scheduler is gated by the `SE_START_SCHEDULER` env var — production leaves it unset (jobs run), tests set it to `0` BEFORE importing `flask_se`:
 
 ```python
-import flask_se as _fs
-_fs.scheduler.shutdown(wait=False)
+import os
+os.environ["SE_START_SCHEDULER"] = "0"
+from flask_se import app, db
 ```
+
+This replaces the old `scheduler.shutdown(wait=False)` at conftest module level. Do not reintroduce shutdown — the env gate is set before import so the scheduler never starts.
 
 ## PowerShell encoding
 

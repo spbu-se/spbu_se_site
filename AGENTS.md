@@ -34,7 +34,8 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Before any session summary or handoff: scan `docs/AI_AGENTS.md` §Output Format for the prescribed format — comply with timing, state, and section structure
 - When running tests: default to `--tb=long` for full diagnostics on first run. Only use `-q` for the final green confirmation when zero failures are expected. Never truncate a diagnostic run's output (`Select-Object -Last/-First`, `head`/`tail`) — let the full log be captured and search the captured file instead. See `docs/TESTING.md` §3a.
 - Proactively use `git-history_git_wrapup_instructions` at session start (orientation snapshot), mid-session (checkpoint against acceptance criteria), and pre-merge (readiness gate) — not just at the end. See `docs/GIT_FLOW.md` §Wrap-up protocol.
-- Before staging templates/HTML: run `pre-commit run djlint --all-files` first — djLint reformats ALL html during commit and aborts with "Stashed changes conflicted with hook auto-fixes" if staged edits differ. See `docs/AI_AGENT_EXPERIENCE.md` §djLint.
+- Before staging templates/HTML or Python: run the auto-fix hooks on ALL files first (`pre-commit run djlint --all-files` for templates, `uv run ruff format src/` for Python) — these hooks reformat more than the staged set and abort with "Stashed changes conflicted with hook auto-fixes" if staged edits differ. See `docs/AI_AGENT_EXPERIENCE.md` §djLint / §ruff-format.
+- Verify the active branch before committing — `git branch --show-current` must be the intended feature branch, never `current`/`staging`. If work was committed to the wrong branch, recover via `git cherry-pick -n` + `git commit --no-gpg-sign` (see `.tooling.md` §cherry-pick).
 - Before creating any PR: include `Closes #<n>` / `References #<n>` per fixed/referenced issue in the body (one per line). See `docs/AI_AGENTS.md` §PR description.
 - Always learn, never forget — encode patterns before session ends
 
@@ -96,9 +97,9 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 ## Testing quirks
 
 - **Whoosh index cached per-session** — `_seeded_db_path` (seeded) + `_empty_whoosh_dir` (unseeded) session fixtures build Whoosh index once; per-test fixtures copy it (~ms). Avoids ~37s per-test `whooshee.reindex()`.
-- **No Flask factory** — `app` is a module-level global. Patch configs BEFORE `from flask_se import app`
+- **Application factory** — `create_app(config_overrides, start_scheduler)` in `flask_se.py`; module-level `app = create_app()` singleton preserved for wsgi/scripts/tests. `config_overrides` builds test instances without import-time patching.
 - **scrypt unsupported on Python 3.13** — conftest.py mocks `check_password_hash` at module level
-- **APScheduler fires in tests** — `scheduler.shutdown(wait=False)` called at conftest module level
+- **APScheduler gated off in tests** — conftest sets `SE_START_SCHEDULER=0` before importing `flask_se` (replaces the old `scheduler.shutdown()`). Production leaves it unset → jobs run.
 - **Session-scoped DB template** — `_seeded_db_path` fixture creates + seeds once; per-test fixtures copy it (~ms)
 - **Login bypass fixture** — `logged_client` injects `session["_user_id"]` instead of POST login (avoids scrypt)
 

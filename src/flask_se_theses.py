@@ -588,3 +588,14 @@ def theses_add_tmp():
             )
 
     return redirect(url_for("theses_tmp"))
+
+
+def register_routes(app) -> None:
+    app.add_url_rule("/theses.html", view_func=theses_search)
+    app.add_url_rule("/fetch_theses", view_func=fetch_theses)
+    app.add_url_rule("/post_theses", methods=["GET", "POST"], view_func=post_theses)
+    app.add_url_rule("/theses_tmp.html", view_func=theses_tmp)
+    app.add_url_rule("/theses_delete_tmp", methods=["POST"], view_func=theses_delete_tmp)
+    app.add_url_rule("/theses_add_tmp", methods=["POST"], view_func=theses_add_tmp)
+    app.add_url_rule("/thesis_download", view_func=download_thesis)
+    app.add_url_rule("/thesis_card", view_func=thesis_card)
