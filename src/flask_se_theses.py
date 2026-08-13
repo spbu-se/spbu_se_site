@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 import fitz
 from flask import jsonify, redirect, render_template, request, url_for
 from flask_login import current_user
+from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy import inspect
 from sqlalchemy.exc import OperationalError
 from transliterate import translit
@@ -147,16 +148,27 @@ def theses_search():
         og_title = f'Результаты поиска: "{search}"'
         og_description = f'Работы по запросу "{search}" в архиве практик и ВКР кафедры.'
 
+    records, ctx = _query_theses()
+
     return render_template(
         "theses.html",
         filter=filter,
         hint=hint,
         og_title=og_title,
         og_description=og_description,
+        theses=records,
+        **ctx,
     )
 
 
-def fetch_theses():
+def _query_theses() -> tuple[Pagination, dict[str, object]]:
+    """Build the filtered/paginated thesis query from request args.
+
+    Returns ``(records, template_context)``. ``template_context`` carries the
+    filter values needed to render ``fetch_theses.html`` and is shared by the
+    server-rendered archive page (``theses_search``) and the AJAX fragment
+    endpoint (``fetch_theses``) so both render identical content.
+    """
     _ensure_thesis_consultant_column()
     worktype = request.args.get("worktype", default=1, type=int)
     page = request.args.get("page", default=1, type=int)
@@ -262,18 +274,22 @@ def fetch_theses():
 
         records.items = first_priority + second_priority + third_priority
 
-        return render_template(
-            "fetch_theses.html",
-            theses=records,
-            worktype=worktype,
-            course=course,
-            startdate=startdate,
-            enddate=enddate,
-            supervisor=supervisor,
-            consultant=consultant,
-            search=search,
-            context=context,
-        )
+    return records, {
+        "worktype": worktype,
+        "course": course,
+        "startdate": startdate,
+        "enddate": enddate,
+        "supervisor": supervisor,
+        "consultant": consultant,
+        "search": search,
+        "context": context,
+    }
+
+
+def fetch_theses():
+    records, ctx = _query_theses()
+    if len(records.items):
+        return render_template("fetch_theses.html", theses=records, **ctx)
     return render_template("fetch_theses_blank.html")
 
 

@@ -3,6 +3,12 @@
 function theses_load() {
 
     let theses_list = document.getElementById('ThesisList');
+
+    // Content already server-rendered — progressive enhancement only.
+    if (theses_list && theses_list.childElementCount > 0) {
+        return;
+    }
+
     let wt_select = document.getElementById('worktype');
 
     // Get fileters from URI
@@ -306,6 +312,11 @@ function themes_load() {
 
     let themes_list = document.getElementById('ThemesList');
 
+    // Content already server-rendered — progressive enhancement only.
+    if (themes_list && themes_list.childElementCount > 0) {
+        return;
+    }
+
     let themes_level_select = document.getElementById('level');
     let themes_supervisor_select = document.getElementById('supervisor');
     let themes_company_select = document.getElementById('company');
@@ -501,6 +512,11 @@ if (user_diploma_filter) {
 function thesis_on_review_load() {
 
     let thesis_on_review_el = document.getElementById('ThesisReviewList');
+
+    // Content already server-rendered — progressive enhancement only.
+    if (thesis_on_review_el && thesis_on_review_el.childElementCount > 0) {
+        return;
+    }
 
     let thesis_on_review_status_select = document.getElementById('status');
     let thesis_on_review_worktype_select = document.getElementById('worktype');
