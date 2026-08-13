@@ -1,0 +1,28 @@
+# Кафедра системного программирования СПбГУ
+
+> Целевой сайт: https://se.math.spbu.ru
+
+Сайт кафедры системного программирования Математико-механического факультета СПбГУ. Содержит информацию о поступлении (бакалавриат, магистратура), учебных программах, преподавателях, направлениях исследований, архиве учебных практик и выпускных квалификационных работ (ВКР), темах практик и ВКР, сервисе рецензирования, стажировках и стипендиях.
+
+Основные разделы (ключевые страницы):
+
+- [Главная](https://se.math.spbu.ru/)
+- [Поступление в бакалавриат](https://se.math.spbu.ru/bachelor/admission.html)
+- [Программная инженерия (бакалавриат, 09.03.04)](https://se.math.spbu.ru/bachelor/software-engineering.html)
+- [Технологии программирования (бакалавриат, 02.03.03)](https://se.math.spbu.ru/bachelor/programming-technology.html)
+- [Программная инженерия (магистратура, 09.04.04)](https://se.math.spbu.ru/master/software-engineering.html)
+- [Математическое обеспечение и администрирование информационных систем (магистратура, 02.04.03)](https://se.math.spbu.ru/master/information-systems-administration.html)
+- [Преподаватели и сотрудники](https://se.math.spbu.ru/department/staff.html)
+- [Направления исследований](https://se.math.spbu.ru/research-directions)
+- [Архив практик и ВКР (полнотекстовый поиск)](https://se.math.spbu.ru/theses.html)
+- [Темы практик и ВКР](https://se.math.spbu.ru/diplomas/)
+- [Рецензирование практик и ВКР](https://se.math.spbu.ru/review/)
+- [Поиск IT-стажировок](https://se.math.spbu.ru/internships/internships_index.html)
+- [Стипендии и гранты](https://se.math.spbu.ru/students/scholarships.html)
+- [Новости кафедры](https://se.math.spbu.ru/news/)
+- [Вопросы и ответы](https://se.math.spbu.ru/frequently-asked-questions.html)
+- [Контакты](https://se.math.spbu.ru/contacts.html)
+
+Документ намеренно краткий: за деталями обращайтесь к страницам. Полный список индексируемых URL — в sitemap.xml: https://se.math.spbu.ru/Sitemap.xml
+
+Примечание для LLM-агентов: сайт является официальным информационным ресурсом кафедры и не является публичной офертой.

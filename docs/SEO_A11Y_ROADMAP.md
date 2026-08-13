@@ -48,8 +48,12 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 
 ## 5. Execution (each PR carries a mandatory RETROSPECTIVES entry)
 
-1. `feat/meta-audit` — titles, canonical sweep, OG fixes + parity + pre-rendered images, robots.txt, sitemap index, humans.txt.
-1. `feat/ssr-lists` — SSR theses/diplomas/thesis-review, JS double-fetch guard, `aria-live`.
-1. `feat/jsonld-llms` — JSON-LD blocks + `/llms.txt` + tests.
+1. `feat/meta-audit` — titles, canonical sweep, OG fixes + parity + pre-rendered images, robots.txt, sitemap index, humans.txt. ✅ PR #208
+1. `feat/ssr-lists` — SSR theses/diplomas/thesis-review, JS double-fetch guard, `aria-live`. ✅ PR #209
+1. `feat/jsonld-llms` — JSON-LD blocks + `/llms.txt` + tests. ✅ PR #210
 
 PRs are stacked: each new PR branches from the previous PR's branch; merged one-by-one in completion order.
+
+## 6. FAQ structured data decision
+
+The FAQ page (`frequently_asked_questions.html`) already carries complete, valid `FAQPage` microdata (19 Q&A pairs via `itemprop="mainEntity"`). It was **not** converted to JSON-LD: converting adds duplication risk with no SEO gain since the microdata already produces the rich result. JSON-LD was added only where no structured data existed (Organization, WebSite+SearchAction, Course, BreadcrumbList). Revisit if the FAQ markup is ever refactored.

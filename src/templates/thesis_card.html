@@ -14,6 +14,34 @@
 {% block twitter_description %}
   {{ ("Автор: " ~ thesis.author ~ ". Руководитель: " ~ (thesis.supervisor.user.get_name() if thesis.supervisor else "?") ~ ". Направление: " ~ thesis.course.name) | trim }}
 {% endblock %}
+{% block json_ld %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Главная",
+        "item": "https://se.math.spbu.ru/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Архив практик и ВКР",
+        "item": "https://se.math.spbu.ru/theses.html"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "{{ thesis.name_ru }} [{{ thesis.publish_year }}]",
+        "item": "https://se.math.spbu.ru/thesis_card?thesis_id={{ thesis.id }}"
+      }
+    ]
+  }
+  </script>
+{% endblock %}
 {% block content %}
   <section class="slice pt-8 bg-dark bg-cover bg-size--cover"
            style="background-image: url({{ url_for('static', filename='/assets/img/main-back.jpg') }})">

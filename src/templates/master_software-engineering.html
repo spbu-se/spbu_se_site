@@ -1,6 +1,22 @@
 {% extends "base_dark.html" %}
 {% block title %}Программная инженерия (магистратура){% endblock %}
 {% block og_image %}{{ url_for('static', filename='assets/img/og/og-programs.png', _external=True) }}{% endblock %}
+{% block json_ld %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Программная инженерия (магистратура, 09.04.04)",
+    "description": "Магистерская программа «Программная инженерия» (код 09.04.04) кафедры Системного программирования Математико-механического факультета СПбГУ.",
+    "provider": {
+      "@type": "EducationalOrganization",
+      "name": "Кафедра системного программирования СПбГУ",
+      "url": "https://se.math.spbu.ru/"
+    },
+    "url": "https://se.math.spbu.ru/master/software-engineering.html"
+  }
+  </script>
+{% endblock %}
 {% block description %}
   09.04.04 «Программная инженерия» (магистратура). Кафедра Системного программирования Математико-механического факультета СПбГУ.
 {% endblock %}

@@ -56,6 +56,42 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="stylesheet"
           href="{{ url_for('static', filename='/assets/libs/@fortawesome/fontawesome-free/css/all.min.css') }} ">
     {% block head_links %}{% endblock %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "Кафедра системного программирования СПбГУ",
+      "url": "https://se.math.spbu.ru/",
+      "logo": "https://se.math.spbu.ru/assets/img/logo.svg",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Университетский проспект, дом 28",
+        "addressLocality": "Санкт-Петербург",
+        "postalCode": "198504",
+        "addressCountry": "RU"
+      },
+      "telephone": "+7 (812) 428-71-09",
+      "email": "a.terekhov@spbu.ru",
+      "sameAs": [
+        "https://t.me/sysprog_admission",
+        "https://oops.math.spbu.ru/SE"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Кафедра системного программирования СПбГУ",
+      "url": "https://se.math.spbu.ru/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://se.math.spbu.ru/theses.html?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    {% block json_ld %}{% endblock %}
   </head>
   <body>
     <!-- Google Tag Manager (noscript) -->

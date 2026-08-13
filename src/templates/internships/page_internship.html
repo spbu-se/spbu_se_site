@@ -8,6 +8,34 @@
 {% block og_type %}article{% endblock %}
 {% block twitter_title %}{{ internship.name_vacancy }}{% endblock %}
 {% block twitter_description %}{{ og_description or "Сервис для поиска студенческих IT-стажировок" }}{% endblock %}
+{% block json_ld %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Главная",
+        "item": "https://se.math.spbu.ru/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "IT-стажировки",
+        "item": "https://se.math.spbu.ru/internships/internships_index.html"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "{{ internship.name_vacancy }}",
+        "item": "https://se.math.spbu.ru/internships/{{ internship.id }}"
+      }
+    ]
+  }
+  </script>
+{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section class="slice pt-8 bg-dark bg-cover bg-size--cover"
