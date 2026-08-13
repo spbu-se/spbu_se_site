@@ -1090,3 +1090,27 @@ Changes analyzed: 53 files (39 templates, sitemap.py, 2 test files, docs, robots
 - Tests: 1260 passed, 1 skipped, 5 xfailed, 7 xpassed; pre-push gate + basedpyright + djlint green.
 - Working tree clean; `.tmp/` holds `gen_og_images.py`, `route_meta_check.py`, `og_verify.py`, `sitemap_verify.py` (all gitignored).
 - Next: push → PR #208; then `feat/ssr-lists` branches from this branch.
+
+### Retrospective — 2026-08-13: server-render JS lists (theses, diploma themes, review)
+
+Changes analyzed: 9 files (3 view modules, 3 templates, se_scripts.js, API_REFERENCE, test_ssr_lists.py).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `/theses.html`, `/diplomas/`, `/review/` shipped empty list divs — all content via JS `fetch` | List rendering lived only in AJAX fragment endpoints | Extracted shared query helpers (`_query_theses`, `_query_themes`, `_query_thesis_on_review`) used by both the page view and the AJAX endpoint; pages now `{% include %}` the same fragment server-side |
+| JS double-fetched (replaced) server-rendered content on load | `theses_load`/`themes_load`/`thesis_on_review_load` always fetched on init | Added `childElementCount > 0` guard at the top of each — progressive enhancement only |
+| Pagination links pointed at server routes but were unreachable without JS | Content never server-rendered | Now crawlable: `?page=2` and filtered URLs render server-side; asserted in tests |
+| `/diplomas/` template duplicated the fetch-fragment markup | Two copies drifted | Removed inline loop; single `diplomas/fetch_themes.html` fragment included |
+| Empty results had no server-side fallback | Blank fragments were JS-only | Pages render the blank fragments when `theses/themes/thesis.items` is empty |
+| AJAX-updated regions invisible to screen readers | Plain empty divs | Added `aria-live="polite"` to all three list containers |
+
+**What went well**: shared query helpers keep page + fragment byte-identical (single source of truth); `test_ssr_lists.py` asserts server-side content, crawlable pagination, empty fallback, aria-live, and JS guards; full suite went 1260 → 1275 passed with zero regressions.
+
+**What went wrong**: `basedpyright` rejected bare `dict` in return annotations (needs `dict[str, object]`) — caught by the pre-push gate, 3 one-line fixes; the standalone verify script initially failed seeding `DiplomaThemes` (NOT NULL on `author_id`/`consultant_id`) — purely a scratch-script data issue, not a code bug.
+
+**State at handoff**:
+
+- Branch `feat/ssr-lists` (stacked on `feat/meta-audit`), 1 commit `333abba`.
+- Tests: 1275 passed, 1 skipped, 5 xfailed, 7 xpassed; pre-push gate + basedpyright + djlint green.
+- Working tree clean; `.tmp/` holds `ssr_verify.py` (gitignored).
+- Next: push → PR #209; then `feat/jsonld-llms` branches from this branch.
