@@ -1063,3 +1063,30 @@ skills fixes, `.gitignore` + `.tmp/` policy, mandatory-retro-before-PR rule.
   scratch (all gitignored).
 - Next: user reviews; push → PR with this retro as the mandatory last-commit
   entry.
+
+### Retrospective — 2026-08-13: meta audit — canonical/OG parity, og-images, sitemap index
+
+Changes analyzed: 53 files (39 templates, sitemap.py, 2 test files, docs, robots.txt, humans.txt, 11 og-images).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| 28 public pages had no `<link rel="canonical">` | Canonical was hand-added per template (16 existed), none in the base | Base-level `canonical_url` block defaulting to `request.url`; 16 hardcoded canonicals migrated to the block. `og:url` now follows canonical |
+| Canonical links in `base_light.html` templates were dead code | `base_light.html` had no `headers` block, so per-template canonical overrides silently vanished | Canonical moved to a real `canonical_url` block in all 4 bases; verified `/frequently-asked-questions.html` now emits canonical (was `canon=NO`) |
+| Audit false-positive: "4 empty `<title>` templates" | Regex-based audit missed multiline block content | Verified all render titles; only `theses_tmp.html` (admin temp archive) needs `noindex`. Corrected roadmap doc + memory |
+| OG block missing on `*_footer_white.html` bases | These bases were never given OG meta | Ported the OG block into both; all 4 bases now consistent |
+| `sitemap.py` faked `lastmod` as today; `thesis_card` never indexed | Arg-bearing rules excluded; no stable dates | Sitemap index (`sitemap.xml` → static + per-year theses sub-sitemaps from FTS); static lastmod = deploy constant; per-thesis lastmod = year date |
+| Auth/private/AJAX pages in sitemap | Filter only excluded `/admin/` + arg-bearing rules | `SITEMAP_SKIP_PAGES` set + prefix filter (`/practice*`, `/auth/`), legacy redirects imported and excluded |
+| No `og:image`, `apple-touch-icon`, `humans.txt` | Not present before | 10 pre-rendered 1200x630 section images + 180x180 apple-touch-icon (Pillow script in `.tmp/`); humans.txt added. **Guardrail: regenerate images before push on design change (D7)** |
+| Diploma theme `og:description` leaked textile markup (TODO:15) | `theme.description` raw in OG block | Reused `_og_description` plain-text extraction; test asserts no markup |
+| `thesis_card` og:description whitespace (TODO:16); `/news/` empty description (TODO:17) | Multiline blocks / no description block | Trimmed card description; added news index description |
+
+**What went well**: full-page metadata sweep (`TestPublicPageMeta`) + dedicated `test_sitemap.py` catch regressions across all public routes; base-level canonical is the correct single source of truth.
+
+**What went wrong**: initial "4 empty titles" audit finding was wrong (regex artifact) — caught by actually rendering pages before acting; a raw Python diagnostic embedded in a PowerShell `-c` string hit quoting errors repeatedly, costing ~4 attempts before switching to `.tmp/*.py` files.
+
+**State at handoff**:
+
+- Branch `feat/meta-audit` (stacked on `docs/docs-skills-audit`), 1 commit `2633964`.
+- Tests: 1260 passed, 1 skipped, 5 xfailed, 7 xpassed; pre-push gate + basedpyright + djlint green.
+- Working tree clean; `.tmp/` holds `gen_og_images.py`, `route_meta_check.py`, `og_verify.py`, `sitemap_verify.py` (all gitignored).
+- Next: push → PR #208; then `feat/ssr-lists` branches from this branch.
