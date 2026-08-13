@@ -4,10 +4,8 @@
 {% block description %}
   Ответы на основные вопросы про обучение на мат-мехе СПбГУ и в частности на направлениях "Программная инженерия" и "Технологии программирования".
 {% endblock %}
-{% block headers %}
-  <link rel="canonical"
-        href="https://se.math.spbu.ru/frequently-asked-questions.html" />
-{% endblock %}
+{% block canonical_url %}https://se.math.spbu.ru/frequently-asked-questions.html{% endblock %}
+{% block og_image %}{{ url_for('static', filename='assets/img/og/og-faq.png', _external=True) }}{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section xmlns="http://www.w3.org/1999/html" class="mt-7 pt-6">

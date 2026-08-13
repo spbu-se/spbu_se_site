@@ -3,18 +3,16 @@
 {% block description %}
   Работа: {{ thesis.name_ru }} [{{ thesis.publish_year }}]. Автор: {{ thesis.author }}.
 {% endblock %}
-{% block headers %}
-  <link rel="canonical"
-        href="https://se.math.spbu.ru/thesis_card?thesis_id={{ thesis.id }}" />
-{% endblock %}
+{% block canonical_url %}https://se.math.spbu.ru/thesis_card?thesis_id={{ thesis.id }}{% endblock %}
+{% block og_image %}{{ url_for('static', filename='assets/img/og/og-theses.png', _external=True) }}{% endblock %}
 {% block og_title %}{{ thesis.name_ru }} [{{ thesis.publish_year }}]{% endblock %}
 {% block og_description %}
-  Автор: {{ thesis.author }}. Руководитель: {{ thesis.supervisor.user.get_name() if thesis.supervisor else "?" }}. Направление: {{ thesis.course.name }}.
+  {{ ("Автор: " ~ thesis.author ~ ". Руководитель: " ~ (thesis.supervisor.user.get_name() if thesis.supervisor else "?") ~ ". Направление: " ~ thesis.course.name) | trim }}
 {% endblock %}
 {% block og_type %}article{% endblock %}
 {% block twitter_title %}{{ thesis.name_ru }} [{{ thesis.publish_year }}]{% endblock %}
 {% block twitter_description %}
-  Автор: {{ thesis.author }}. Руководитель: {{ thesis.supervisor.user.get_name() if thesis.supervisor else "?" }}. Направление: {{ thesis.course.name }}.
+  {{ ("Автор: " ~ thesis.author ~ ". Руководитель: " ~ (thesis.supervisor.user.get_name() if thesis.supervisor else "?") ~ ". Направление: " ~ thesis.course.name) | trim }}
 {% endblock %}
 {% block content %}
   <section class="slice pt-8 bg-dark bg-cover bg-size--cover"

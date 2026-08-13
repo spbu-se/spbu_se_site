@@ -3,7 +3,10 @@
 {% block description %}
   Летняя проектная онлайн-школа программирования для обучающихся СПбГУ (2024, онлайн). Школа проводилась с 8 июля по 3 августа 2024 года.
 {% endblock %}
-{% block headers %}<link rel="canonical" href="https://se.math.spbu.ru/{{ school.href }}.html" />{% endblock %}
+{% block canonical_url %}https://se.math.spbu.ru/{{ school.href }}.html{% endblock %}
+{% block og_image %}
+  {{ url_for('static', filename='assets/img/og/og-summer-school.png', _external=True) }}
+{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section xmlns="http://www.w3.org/1999/html" class="mt-7 pt-6">

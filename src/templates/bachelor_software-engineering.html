@@ -3,10 +3,8 @@
 {% block description %}
   Бакалаврская программа «Программная инженерия» (бакалавриат, код 09.03.04). Информация для поступающих, учебный план, минимальные баллы по ЕГЭ, количество бюджетных мест. Кафедра Системного программирования Математико-механического факультета СПбГУ.
 {% endblock %}
-{% block headers %}
-  <link rel="canonical"
-        href="https://se.math.spbu.ru/bachelor/software-engineering.html" />
-{% endblock %}
+{% block canonical_url %}https://se.math.spbu.ru/bachelor/software-engineering.html{% endblock %}
+{% block og_image %}{{ url_for('static', filename='assets/img/og/og-programs.png', _external=True) }}{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section class="slice pt-8 bg-dark bg-cover bg-size--cover"

@@ -51,6 +51,7 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 | `QUALITY_MANAGEMENT.md` | Quality | Quality philosophy, tiers motivation, agent protocol reasoning, CI discipline motivation, artifact catalog | Tool configs, agent instructions, testing discipline | Quality policy |
 | `DESIGN_DECISIONS.md` | Decisions | Technology choices, framework-specific decisions, implementation patterns | Architecture, testing | Framework/tech decisions |
 | `AI_AGENT_EXPERIENCE.md` | Experience | Dead ends, debugging trails, agent-specific tool limitations | Process, config, tooling | Agent-collected experience |
+| `SEO_A11Y_ROADMAP.md` | Roadmap | SEO/crawler/agent decisions, findings, deferred ideas | Implementation, architecture | SEO/accessibility backlog |
 
 ### Skills directory (.skills/)
 

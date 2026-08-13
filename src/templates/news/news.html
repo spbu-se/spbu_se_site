@@ -1,5 +1,9 @@
 {% extends 'base_light.html' %}
 {% block title %}Новости{% endblock %}
+{% block description %}
+  Новости кафедры Системного программирования Математико-механического факультета СПбГУ.
+{% endblock %}
+{% block og_image %}{{ url_for('static', filename='/assets/img/og/og-news.png', _external=True) }}{% endblock %}
 {% block content %}
   <section class="mt-7 pt-6 bg-section-secondary">
     <div class="container">

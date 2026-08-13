@@ -7,13 +7,15 @@
           content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="{% block description %}{% endblock %}">
     <meta name="author" content="{% block author %}Илья Зеленчук{% endblock %}">
+    <link rel="canonical"
+          href="{% block canonical_url %}{{ request.url }}{% endblock %}">
     {% block og_meta %}
       <meta property="og:title"
             content="{% block og_title %}{{ self.title() }}{% endblock %}">
       <meta property="og:type" content="{% block og_type %}website{% endblock %}">
-      <meta property="og:url" content="{{ request.url }}">
+      <meta property="og:url" content="{{ self.canonical_url() }}">
       <meta property="og:image"
-            content="{% block og_image %}{{ url_for('static', filename='assets/img/main-back.jpg', _external=True) }}{% endblock %}">
+            content="{% block og_image %}{{ url_for('static', filename='assets/img/og/og-default.png', _external=True) }}{% endblock %}">
       <meta property="og:description"
             content="{% block og_description %}{{ self.description() }}{% endblock %}">
       <meta property="og:locale" content="ru_RU">
@@ -24,7 +26,7 @@
       <meta name="twitter:description"
             content="{% block twitter_description %}{{ self.description() }}{% endblock %}">
       <meta name="twitter:image"
-            content="{% block twitter_image %}{{ url_for('static', filename='assets/img/main-back.jpg', _external=True) }}{% endblock %}">
+            content="{% block twitter_image %}{{ self.og_image() }}{% endblock %}">
     {% endblock og_meta %}
     <title>
       {% block title %}{% endblock %}
@@ -40,6 +42,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="icon"
           href="{{ url_for('static', filename='assets/img/favicon.png') }}"
           type="image/png">
+    <link rel="apple-touch-icon"
+          href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}">
     <!-- Quick CSS -->
     <link rel="stylesheet"
           href="{{ url_for('static', filename='/assets/css/quick-website.css') }}"

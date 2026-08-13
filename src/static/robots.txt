@@ -1,4 +1,14 @@
 User-agent: *
 Allow: /
-Sitemap: https://se.math.spbu.ru/Sitemap.xml
+Disallow: /admin/
+Disallow: /fetch_theses
+Disallow: /fetch_themes
+Disallow: /fetch_thesis_on_review
+Disallow: /google_callback
+Disallow: /vk_callback
+Disallow: /nooffer
 Disallow: /login.html
+Disallow: /post_theses
+Disallow: /theses_tmp.html
+
+Sitemap: https://se.math.spbu.ru/Sitemap.xml

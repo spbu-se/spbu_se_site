@@ -1,9 +1,9 @@
 {% extends "base_light.html" %}
 {% block title %}Летняя школа на мат-мехе СПбГУ{% endblock %}
 {% block description %}Летняя проектная онлайн-школа программирования для обучающихся СПбГУ.{% endblock %}
-{% block headers %}
-  <link rel="canonical"
-        href="https://se.math.spbu.ru/summer_school_list.html" />
+{% block canonical_url %}https://se.math.spbu.ru/summer_school_list.html{% endblock %}
+{% block og_image %}
+  {{ url_for('static', filename='/assets/img/og/og-summer-school.png', _external=True) }}
 {% endblock %}
 {% block content %}
   <!-- Main content -->

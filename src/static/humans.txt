@@ -1,0 +1,13 @@
+# humans.txt
+
+## Site
+Кафедра системного программирования СПбГУ
+https://se.math.spbu.ru
+Сайт носит информационный характер и не является публичной офертой.
+
+## Team
+Maintainer: Илья Зеленчук
+Foundation: Кафедра системного программирования, Математико-механический факультет, СПбГУ
+
+## Technology
+Flask · SQLite · Bootstrap 4 (Quick Website UI Kit) · Jinja2

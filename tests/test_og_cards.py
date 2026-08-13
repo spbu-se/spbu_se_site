@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
 
+import pytest
+
 
 def _seed_internship(client):
     from se_models import InternshipCompany, InternshipFormat, Internships, InternshipTag, db
@@ -45,7 +47,9 @@ def _assert_og_card(resp, title, description):
     assert resp.status_code == 200
     assert _meta_content(head, "og:title") == title
     assert _meta_content(head, "og:description") == description
-    assert 'property="og:image" content="http://localhost/assets/img/main-back.jpg"' in head
+    assert "/assets/img/og/og-" in (_meta_content(head, "og:image") or ""), (
+        "og:image not pre-rendered"
+    )
     assert 'name="twitter:card" content="summary_large_image"' in head
 
 
@@ -109,6 +113,7 @@ class TestOgDiplomaTheme:
         assert 'property="og:description"' in head
 
     def test_theme_og_description_falls_back_to_title(self, seeded_client):
+        from flask_se_news import _og_description
         from se_models import DiplomaThemes
 
         theme = DiplomaThemes.query.filter(DiplomaThemes.description.is_(None)).first()
@@ -117,7 +122,21 @@ class TestOgDiplomaTheme:
         assert theme is not None
         resp = seeded_client.get(f"/diplomas/theme.html?id={theme.id}")
         head = _head_html(resp)
-        assert _meta_content(head, "og:description") in (theme.title, theme.description)
+        expected = _og_description(theme.description) or theme.title
+        assert _meta_content(head, "og:description") == expected
+
+    def test_theme_og_description_strips_markup(self, seeded_client):
+        from se_models import DiplomaThemes
+
+        theme = DiplomaThemes.query.filter(DiplomaThemes.description.is_not(None)).first()
+        if theme is None:
+            theme = DiplomaThemes.query.first()
+        assert theme is not None
+        resp = seeded_client.get(f"/diplomas/theme.html?id={theme.id}")
+        head = _head_html(resp)
+        og_desc = _meta_content(head, "og:description") or ""
+        assert "[Spla]" not in og_desc
+        assert "<" not in og_desc and "]" not in og_desc
 
 
 class TestOgThesisCard:
@@ -193,3 +212,85 @@ class TestOgThesisSearch:
         assert _meta_content(head, "og:title") == (
             "Курсовые, учебные практики и ВКР студентов Кафедры Системного Программирования"
         )
+
+
+# Public pages that must carry a non-empty title, description, canonical and
+# Open Graph block. Routes needing query args / auth are excluded here (they
+# are covered by their dedicated test classes above).
+PUBLIC_META_PAGES = [
+    "/",
+    "/contacts.html",
+    "/students/index.html",
+    "/students/scholarships.html",
+    "/research-directions",
+    "/bachelor/admission.html",
+    "/bachelor/programming-technology.html",
+    "/bachelor/software-engineering.html",
+    "/bachelor/application.html",
+    "/master/information-systems-administration.html",
+    "/master/software-engineering.html",
+    "/department/staff.html",
+    "/frequently-asked-questions.html",
+    "/nooffer",
+    "/theses.html",
+    "/news/",
+    "/diplomas/",
+    "/internships/internships_index.html",
+    "/review/",
+    "/summer_school_list.html",
+    "/summer_school_2021.html",
+    "/scholarships/1.html",
+    "/scholarships/2.html",
+    "/scholarships/3.html",
+    "/scholarships/4.html",
+    "/scholarships/5.html",
+    "/scholarships/6.html",
+    "/scholarships/7.html",
+    "/scholarships/8.html",
+    "/scholarships/9.html",
+    "/scholarships/10.html",
+    "/scholarships/11.html",
+    "/scholarships/12.html",
+    "/scholarships/13.html",
+]
+
+
+class TestPublicPageMeta:
+    @pytest.mark.parametrize("path", PUBLIC_META_PAGES)
+    def test_meta_present(self, seeded_client, path):
+        resp = seeded_client.get(path)
+        head = _head_html(resp)
+        assert resp.status_code == 200
+        assert _meta_content(head, "og:title"), f"{path}: og:title missing"
+        assert _meta_content(head, "og:description"), f"{path}: og:description missing"
+        assert 'property="og:type"' in head
+        assert 'property="og:image"' in head
+        assert 'property="og:url"' in head
+        canonical = re.search(r'rel="canonical" href="([^"]+)"', head)
+        assert canonical is not None, f"{path}: canonical missing"
+        assert canonical.group(1) == _meta_content(head, "og:url"), f"{path}: og:url != canonical"
+
+    @pytest.mark.parametrize("path", PUBLIC_META_PAGES)
+    def test_title_nonempty(self, seeded_client, path):
+        resp = seeded_client.get(path)
+        html = resp.get_data(as_text=True)
+        title = re.search(r"<title>\s*(.*?)\s*</title>", html, re.S)
+        assert title is not None and title.group(1).strip(), f"{path}: empty <title>"
+
+
+class TestRobotsAndHumans:
+    def test_robots_disallows_private_paths(self, client):
+        resp = client.get("/robots.txt")
+        assert resp.status_code == 200
+        body = resp.get_data(as_text=True)
+        for path in ("/admin/", "/fetch_theses", "/login.html", "/google_callback"):
+            assert f"Disallow: {path}" in body
+
+    def test_robots_lists_sitemap(self, client):
+        resp = client.get("/robots.txt")
+        assert "Sitemap: https://se.math.spbu.ru/Sitemap.xml" in resp.get_data(as_text=True)
+
+    def test_humans_txt_exists(self, client):
+        resp = client.get("/humans.txt")
+        assert resp.status_code == 200
+        assert "Кафедра системного программирования" in resp.get_data(as_text=True)

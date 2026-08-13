@@ -18,8 +18,10 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/frequently-asked-questions.html` | GET | `frequently_asked_questions` | FAQ page |
 | `/nooffer` | GET | `nooffer` | No-offer page |
 | `/404.html` | GET | `status_404` | Custom 404 page |
-| `/sitemap.xml` | GET | `sitemap` | Dynamic sitemap XML |
-| `/Sitemap.xml` | GET | `sitemap` | Case-sensitive alias for sitemap.xml |
+| `/sitemap.xml` | GET | `sitemap` | Sitemap index referencing `sitemap-static.xml` + `sitemap-theses-<year>.xml` |
+| `/Sitemap.xml` | GET | `sitemap` | Case-sensitive alias for `sitemap.xml` |
+| `/sitemap-static.xml` | GET | `sitemap_static` | Static pages, `lastmod` = deploy constant |
+| `/sitemap-theses-<year>.xml` | GET | `sitemap_theses` | Published `thesis_card` URLs for a year, `lastmod` = year date; 404 for empty years |
 
 ## Student Pages
 
