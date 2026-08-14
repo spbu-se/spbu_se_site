@@ -89,6 +89,8 @@ _filename_strip_re = re.compile(r"[^A-Za-zа-яА-ЯёЁ0-9_.-]")
 
 def secure_filename(filename: str) -> str:
     if isinstance(filename, str):
+        if len(filename) > 255:
+            filename = filename[:255]
         filename = normalize("NFKD", filename)
 
     for sep in os.path.sep, os.path.altsep:

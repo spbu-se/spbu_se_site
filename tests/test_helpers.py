@@ -53,6 +53,25 @@ class TestSecureFilename:
         result = secure_filename(name)
         assert isinstance(result, str)
 
+    def test_oversized_unicode_filename_bounded(self):
+        result = secure_filename("\u2101" * 5_000_000 + ".bmp")
+        assert isinstance(result, str)
+
+    def test_normalize_receives_truncated_input(self, monkeypatch):
+        from flask_se_config import normalize as config_normalize
+
+        calls = []
+        real_normalize = config_normalize
+
+        def spy(form, string):
+            calls.append(len(string))
+            return real_normalize(form, string)
+
+        monkeypatch.setattr("flask_se_config.normalize", spy)
+        secure_filename("\u2101" * 1_000_000 + ".bmp")
+        assert calls
+        assert calls[0] <= 255
+
     @pytest.mark.parametrize("name", ["file\u0000.txt", "file\n.txt", "file\t.txt"])
     def test_null_and_control_chars(self, name):
         result = secure_filename(name)
