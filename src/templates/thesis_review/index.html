@@ -1,7 +1,8 @@
 {% extends "base_dark.html" %}
 {% block title %}Рецензирование учебных практик и ВКР{% endblock %}
 {% block description %}Сервис для рецензирования учебных практик и ВКР{% endblock %}
-{% block headers %}<link rel="canonical" href="https://se.math.spbu.ru/review/" />{% endblock %}
+{% block canonical_url %}https://se.math.spbu.ru/review/{% endblock %}
+{% block og_image %}{{ url_for('static', filename='/assets/img/og/og-review.png', _external=True) }}{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section class="slice pt-8 bg-dark bg-cover bg-size--cover"

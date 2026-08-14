@@ -16,7 +16,7 @@ Covers: module responsibilities, execution flow, template structure. Does not co
 | `flask_se_config.py` | App configuration, secret management, DB path, ranking algorithm |
 | `flask_se_scheduler.py` | APScheduler mechanics: the module-level `scheduler` + `configure_scheduler()` (job specs are supplied by `flask_se.py`) |
 | `flask_se_static.py` | Public static pages, 404 handler, legacy 301 redirects |
-| `sitemap.py` | `sitemap.xml` generation + the URL skip list |
+| `sitemap.py` | Sitemap index + per-year theses sub-sitemaps + the URL skip list |
 | `wsgi.py` | WSGI entry point (uWSGI) |
 | `app.ini` | uWSGI process/thread configuration |
 

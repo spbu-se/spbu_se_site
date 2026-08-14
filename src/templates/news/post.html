@@ -4,6 +4,7 @@
 {% block og_title %}{{ post.title }}{% endblock %}
 {% block og_description %}{{ og_description or post.title }}{% endblock %}
 {% block og_type %}article{% endblock %}
+{% block og_image %}{{ url_for('static', filename='/assets/img/og/og-news.png', _external=True) }}{% endblock %}
 {% block twitter_title %}{{ post.title }}{% endblock %}
 {% block twitter_description %}{{ og_description or post.title }}{% endblock %}
 {% block content %}

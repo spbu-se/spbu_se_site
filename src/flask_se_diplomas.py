@@ -6,6 +6,7 @@ from flask_login import current_user
 from sqlalchemy import or_
 
 from flask_se_auth import login_required
+from flask_se_news import _og_description
 from flask_se_practice_config import _paginate
 from se_forms import (
     DiplomaThemesFilter,
@@ -160,7 +161,9 @@ def get_theme():
 
     theme = DiplomaThemes.query.filter_by(id=theme_id).first_or_404()
 
-    return render_template("diplomas/theme.html", theme=theme)
+    return render_template(
+        "diplomas/theme.html", theme=theme, og_description=_og_description(theme.description)
+    )
 
 
 @login_required

@@ -318,6 +318,22 @@ with no release artifacts or notes.
 
 **Alternatives considered**: Per-page hardcoded OG tags in every template — drifts, easy to forget. Server-generated per-content images (PDF first page, Pillow banner) — deferred, needs a font/caching pipeline for marginal preview gain. A separate meta framework — overkill for a hand-rolled template set.
 
+## [2026-08-13] SEO/crawler/agent friendliness — SSR lists, sitemap index, pre-rendered og-images
+
+**Context**: `docs/SEO_A11Y_ROADMAP.md` audit found: `/theses.html` (and diplomas themes, thesis-review list) render content only via JS `fetch`, so crawlers/agents read empty pages; `sitemap.py` fakes `lastmod` as today and excludes arg-bearing rules (so `thesis_card` is never indexed); `robots.txt` disallows only `/login.html`; OG blocks are missing on the two `*_footer_white.html` bases and `og:url` points at `request.url`; no JSON-LD, no `llms.txt`, no `humans.txt`.
+
+**Decision**:
+
+- **Server-render the JS-only lists** (D2): the `theses_search` route renders the initial list server-side into `#ThesisList` using the existing `_thesis_card.html` partial; `se_scripts.js` guards against double-fetch (skips the initial load when content is already present). Pagination links already hit `theses_search` server-side, so filtered/paginated pages become crawlable. Same treatment for diplomas themes and the thesis-review list. Progressive enhancement — no visible UX change.
+- **Sitemap index with per-year theses sub-sitemaps** (D6): `sitemap.xml` serves static pages; `sitemap-theses-<year>.xml` generated per year from the theses archive (FTS-backed query), `lastmod` = per-thesis publish date. The theses archive is the site's most valuable crawlable content and was previously invisible to sitemaps because of the arg-bearing rule filter.
+- **Pre-rendered og-images** (D7): committed 1200×630 images under `src/static/assets/img/og/`, one per section (theses, news, diplomas, internships, programs, contacts, summer school, faq, default), plus `apple-touch-icon`. Per-page `og_image` block overrides. **Guardrail: re-generate these images before pushing whenever the site design changes significantly** — stale previews degrade social/sharing quality silently.
+- **Per-page real lastmod** (D8): static pages use a stable deploy-date constant; dynamic pages use real DB `updated`/`publish` timestamps. Replaces the "always today" `lastmod` crawlers distrust.
+- `og:url` defaults to the page canonical (was `request.url`); `robots.txt` disallows `fetch_*`, `/admin/`, auth callbacks; add `humans.txt` and `llms.txt`.
+
+**Rationale**: Server-rendering is the single largest agent/crawler/a11y win — content becomes readable without JS while keeping the existing interactive UX. Pre-rendered static images avoid a per-request image pipeline (matches the earlier "no per-content image generation" reasoning in the OG decision) while fixing preview consistency via a small curated asset set. Real `lastmod` and indexed theses pages are what make crawlers trust and discover the archive.
+
+**Alternatives considered**: Per-content generated og-images (Pillow) — deferred, needs a font/caching pipeline for marginal gain. Parameterless sitemap only — loses the theses archive from sitemaps. JS-only lists unchanged — keeps crawlers blind to the archive. Per-page lastmod from git log at deploy — provably accurate but adds deploy-time coupling; DB timestamps are already available for dynamic content.
+
 ## [2026-08-10] Shareable thesis cards + search-result OG
 
 **Context**: Issue #32 — the practice archive (`/theses.html`) let you share a link to a work's PDF or presentation, but not a "card" of the work itself (title + text + presentation together). Users wanted a shareable URL proving a specific work exists. Separately, a shared *search* URL (e.g. `/theses.html?search=android+performance`) rendered the generic archive preview, even though the page is a live search — so it couldn't be used to "prove a point" via preview text.
