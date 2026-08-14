@@ -19,6 +19,8 @@ table, major changes, contributors, and a compare link.
 ## When to load
 
 - Before tagging a release — see `docs/DEVELOPMENT_PROCESS.md` §Release.
+- Release-time drift fixes (dates, counts) live in `docs/RELEASE_CHECKLIST.md`
+  — run that guardrail first, then generate notes.
 
 ## Steps
 

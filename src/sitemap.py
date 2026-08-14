@@ -14,7 +14,7 @@ SITE_DOMAIN = "https://se.math.spbu.ru"
 
 # Static pages have no DB timestamps; use a single deploy-date constant.
 # Bump on each release (env var SE_SITE_LASTMOD overrides for staging tests).
-STATIC_LASTMOD = os.environ.get("SE_SITE_LASTMOD", "2026-08-13")
+STATIC_LASTMOD = os.environ.get("SE_SITE_LASTMOD", "2026-08-14")
 
 # Routes never to advertise to crawlers: auth/private pages, internal
 # management pages, AJAX fragments, and 301 legacy redirects.

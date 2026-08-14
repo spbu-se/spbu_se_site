@@ -1,7 +1,7 @@
 {% extends "base_light.html" %}
-{% block title %}Летняя школа на мат-мехе СПбГУ (2024){% endblock %}
+{% block title %}{{ school.name }} на мат-мехе СПбГУ{% endblock %}
 {% block description %}
-  Летняя проектная онлайн-школа программирования для обучающихся СПбГУ (2024, онлайн). Школа проводилась с 8 июля по 3 августа 2024 года.
+  {{ school.full_name|striptags }}. Летняя проектная школа программирования для обучающихся СПбГУ.
 {% endblock %}
 {% block canonical_url %}https://se.math.spbu.ru/{{ school.href }}.html{% endblock %}
 {% block og_image %}

@@ -1115,3 +1115,26 @@ Changes analyzed: 9 files (3 view modules, 3 templates, se_scripts.js, API_REFER
 - Working tree clean; `.tmp/` holds `ssr_verify.py` (gitignored).
 - Next: push → PR #209; then `feat/jsonld-llms` branches from this branch.
 
+### Retrospective — 2026-08-14: release guardrail, PR rebase, session finalization
+
+Changes analyzed: 13 files (new `docs/RELEASE_CHECKLIST.md`, `src/sitemap.py` lastmod, 4 base template copyrights, summer-school title, TESTING.md reference run, DOCS.md catalog + §2a, DEVELOPMENT_PROCESS.md §6, README tree + docs table, release-notes skill).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Release process (`DEVELOPMENT_PROCESS.md §6`) had no drift checklist — dates/counts/copyrights silently went stale | §6 covered note generation + tagging, not file verification | New `docs/RELEASE_CHECKLIST.md`: §A must-update (sitemap lastmod, copyright ×4, summer-school year, TESTING reference run, roadmap marks), §B check-only (requirements/uv.lock, actionlint, og-images D7 guardrail, build, Dockerfile, API_REFERENCE, bachelor admission year, robots/llms, .tmp hygiene, notes draft, tag discipline, CI green, full suite). Cross-referenced from §6 step 0 and the release-notes skill |
+| `STATIC_LASTMOD` was pinned to the previous release date | Hardcoded default in `sitemap.py:17` | Bumped to `2026-08-14`; release checklist A1 now makes it a mandatory pre-tag bump |
+| Copyright said `1996-2023` in all 4 bases | Year not maintained | `1996-2026` ×4; checklist A2 |
+| Summer-school template hardcoded `(2024)` in `<title>` | Title/description were literal, not derived from the `school` dict | `{{ school.name }}` + `full_name|striptags` — now correct per year (2021/2024/2026 verified) |
+| TESTING.md reference run said `1176 passed` (2026-08-12) | Not refreshed after the suite grew | Updated to `1286 passed, 4 skipped, 5 xfailed, 7 xpassed` (2026-08-14); checklist A4 keeps it fresh |
+| README docs table + sitemap comment stale after the SEO chain | New docs/routes not propagated | Added `RELEASE_CHECKLIST.md` + `SEO_A11Y_ROADMAP.md` to README table; `sitemap.py` comment updated; catalog + §2a updated |
+| PR #210 branch had 7 stacked commits, 5 already squash-merged upstream → CONFLICTING | Branch carried the whole pre-merge chain | `git rebase --onto upstream/current 698ca2f` replayed only the 2 JSON-LD commits; 1 trivial RETROSPECTIVES conflict resolved; `--force-with-lease` pushed; PR became MERGEABLE |
+
+**What went well**: the release guardrail was born from an actual drift audit — every §A item was a real stale value found in code, not hypothetical; the `--onto` rebase dropped the 5 duplicate commits with a single clean conflict; verification of the README `.py` count showed it was **correct** (30 top-level, not 34 recursive) — an audit false-positive caught before acting.
+
+**What went wrong**: initial README-count audit flagged 34 vs 30 — recursive count included `migrations/`+`static/`; caught by checking what the README actually enumerates. PowerShell `-c` inline scripts kept failing on quote escaping — resolved by writing `.tmp/*.py` verify scripts (3rd recurrence; the `.tmp/` script pattern is now the established workaround, see `docs/TOOLING.md`).
+
+**State at handoff**:
+
+- Branch `chore/release-prep` (from `upstream/current` `daba7d2`).
+- PR #210 rebased onto upstream — `MERGEABLE`, CI pending; then this release-prep PR.
+- After both merge: create the new release per `docs/RELEASE_CHECKLIST.md`.
