@@ -18,6 +18,9 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/frequently-asked-questions.html` | GET | `frequently_asked_questions` | FAQ page |
 | `/nooffer` | GET | `nooffer` | No-offer page |
 | `/404.html` | GET | `status_404` | Custom 404 page |
+| `/robots.txt` | GET | static | Crawler rules; disallows admin/AJAX/auth paths |
+| `/humans.txt` | GET | static | Site/team credits |
+| `/llms.txt` | GET | static | Agent-facing site index (LLM-friendly) |
 | `/sitemap.xml` | GET | `sitemap` | Sitemap index referencing `sitemap-static.xml` + `sitemap-theses-<year>.xml` |
 | `/Sitemap.xml` | GET | `sitemap` | Case-sensitive alias for `sitemap.xml` |
 | `/sitemap-static.xml` | GET | `sitemap_static` | Static pages, `lastmod` = deploy constant |
