@@ -1136,6 +1136,7 @@ Changes analyzed: 15 files (4 base templates, 7 content templates, llms.txt, tes
 - Tests: 1286 passed, 4 skipped, 5 xfailed, 7 xpassed; pre-push gate + basedpyright + djlint green.
 - Working tree clean.
 - Next: push → PR #210, closing the three-PR SEO/crawler chain.
+
 ### Retrospective — 2026-08-14: release guardrail, PR rebase, session finalization
 
 Changes analyzed: 13 files (new `docs/RELEASE_CHECKLIST.md`, `src/sitemap.py` lastmod, 4 base template copyrights, summer-school title, TESTING.md reference run, DOCS.md catalog + §2a, DEVELOPMENT_PROCESS.md §6, README tree + docs table, release-notes skill).
@@ -1160,3 +1161,24 @@ Changes analyzed: 13 files (new `docs/RELEASE_CHECKLIST.md`, `src/sitemap.py` la
 - PR #210 rebased onto upstream — `MERGEABLE`, CI pending; then this release-prep PR.
 - After both merge: create the new release per `docs/RELEASE_CHECKLIST.md`.
 
+### Retrospective — 2026-08-14: deploy-on-publish, upload DoS guard, CI mdformat fix
+
+Changes analyzed: 10 files (`deploy_to_production.yml`, `flask_se_config.py`, `test_helpers.py`, `RETROSPECTIVES.md`, `DESIGN_DECISIONS.md`, `GIT_FLOW.md §7`, `DEVELOPMENT_PROCESS.md §6`, `RELEASE_CHECKLIST.md` B2/B11, `TESTING.md` §4a, release-notes skill).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Prod deployed `v2026.08.10` on tag push while the release was never published — the stale draft lingered and prod ran an unreleased version | `deploy_to_production.yml` fired the webhook on `push: tags`, decoupling deploy from release | Deploy job now runs on `release: published` and `workflow_dispatch`; it checks out `github.event.release.tag_name` and pins tag+commit. Tag push only prepares a draft (`release` job) — it never deploys. Design record added to `DESIGN_DECISIONS.md` |
+| `secure_filename` ran unbounded `normalize("NFKD", ...)` — a multi-megabyte Unicode filename is a server-side DoS (GHSA-5vfc-v7hg-pvwm) | No input bound before normalization; upload paths call `secure_filename` with user filenames | Truncate to 255 chars before `normalize`; regression tests assert the normalize input is bounded (spy) and the PoC returns fast |
+| `docs/RETROSPECTIVES.md` on `current` failed CI `mdformat --check` (red lint run 31791880929) | The #211 squash-merge of stacked retros left the tail malformed — the JSON-LD retro's last bullet directly abutted the next heading (no blank line) plus a trailing blank line at EOF | `uv run mdformat docs/RETROSPECTIVES.md` — exactly 2 hunks (blank line + EOF), reviewed before commit |
+| `github.sha` is not the tagged commit on a `release` event (it is the default-branch HEAD) | GitHub event semantics — the deploy job must not trust `GITHUB_SHA` on release events | Checkout the release tag by ref, then `SHA="$(git rev-parse HEAD)"`; `TAG` falls back input → release tag → branch name |
+
+**What went well**: the deploy-on-publish design was validated against GitHub event semantics (tag comes from `github.event.release.tag_name`, never `GITHUB_REF_NAME` on a release event); mdformat auto-fix produced exactly the two expected hunks; the DoS regression test proves the fix via a `normalize`-input spy rather than fragile timing assertions; the existing `test_very_long_filename` cases still pass under truncation.
+
+**What went wrong**: the v2026.08.10 gap was discovered only during release-prep investigation — the stale draft sat on GitHub for days while prod ran unreleased code; stacked PRs that both append to `RETROSPECTIVES.md` produce merge artifacts (blank-line loss, dropped sections) — expect a post-merge `mdformat --check` after every stacked retro merge.
+
+**State at handoff**:
+
+- Branch `fix/release-cleanup` (from `upstream/current` `ccbae78`), single PR, awaiting manual merge.
+- Changes: deploy-on-publish workflow, DoS guard + 2 tests, CI mdformat fix, 5 docs synced, design-decision entry, this retro.
+- Tests: 1288 passed, 4 skipped, 4 xfailed, 8 xpassed; pre-push gate + basedpyright + actionlint + djlint green.
+- Next (after merge): security-alert triage + advisory close, delete stale draft `v2026.08.10`, RELEASE_CHECKLIST guardrail, tag `v2026.08.14`, draft release, publish.

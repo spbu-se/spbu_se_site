@@ -13,7 +13,8 @@ table, major changes, contributors, and a compare link.
   `.tmp/` directory is created on demand; never leave the draft at the repo root.
 - Do NOT modify any code, CI workflow, config, or documentation file.
 - Do NOT create, edit, or publish a GitHub release — the CI workflow creates a
-  draft; the maintainer reviews and publishes it.
+  draft on tag push (when `OPENCODE_ZEN_API_KEY` is set); the maintainer reviews
+  and publishes it. Publishing the draft is what triggers the production deploy.
 - Do NOT run git commands that change state (no commits, tags, pushes).
 
 ## When to load

@@ -460,12 +460,17 @@ Versioning is date-based — every release is tagged `vYYYY.MM.DD` (see
    ```bash
    git tag -s vYYYY.MM.DD && git push <upstream> vYYYY.MM.DD
    ```
-1. CI (`deploy_to_production.yml`): the `deploy` job POSTs the production
-   webhook; the `release` job (when `OPENCODE_ZEN_API_KEY` is set) creates a
-   **draft** GitHub release with the generated notes
-1. **Review the draft release, edit notes if needed, and publish manually** —
-   drafts are never auto-published. Until the secret is configured, create the
-   draft notes by hand following the skill.
+   Pushing the tag does **not** deploy — it only prepares the release.
+1. Create (or let CI create) the draft release:
+   - When `OPENCODE_ZEN_API_KEY` is set, the `release` job in
+     `deploy_to_production.yml` creates a **draft** GitHub release with the
+     generated notes on the tag push.
+   - Until the secret is configured, create the draft manually from the notes
+     in `.tmp/release-notes.md` (see the `release-notes` skill).
+1. **Publish the draft manually** — drafts are never auto-published. Publishing
+   is what triggers the production deploy: the `deploy` job in
+   `deploy_to_production.yml` runs on `release: published` and POSTs the
+   production webhook with the release tag and its pinned commit.
 
 ### Open Source Recommendations
 

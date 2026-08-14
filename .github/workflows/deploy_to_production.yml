@@ -4,27 +4,39 @@ on:
   push:
     tags:
       - "v*.*.*"
+  release:
+    types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to deploy (e.g. v2026.08.14); empty = branch head"
+        required: false
+        default: ""
 
 permissions:
   contents: read
 
 jobs:
   deploy:
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: deploy_environment
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.event.release.tag_name }}
 
       - name: Run deploy on production server
         env:
           AUTHKEY: ${{ secrets.XSEAUTH }}
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
         run: |
           # Pin the exact tag/commit so re-runs deploy the same version.
-          TAG="${GITHUB_REF_NAME}"
-          SHA="${GITHUB_SHA}"
+          TAG="${INPUT_TAG:-${RELEASE_TAG:-${GITHUB_REF_NAME}}}"
+          SHA="$(git rev-parse HEAD)"
           curl --fail --silent --show-error \
             -X POST \
             -H "X-SE-Auth: ${AUTHKEY}" \
@@ -42,7 +54,7 @@ jobs:
 
   release:
     needs: release-gate
-    if: startsWith(github.ref, 'refs/tags/v') && needs.release-gate.outputs.has_release_key == 'true'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && needs.release-gate.outputs.has_release_key == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write

@@ -343,3 +343,31 @@ with no release artifacts or notes.
 **Rationale**: Reusing the card partial keeps the list and card markup from drifting. The `thesis_card` route filters `~Thesis.temporary` so only published works are shareable, mirroring `download_thesis` redirect behavior. Search-OG makes any shared `/theses.html?search=…` link preview meaningful and still works as a live search (the JS already restores the query into the search field from URL params).
 
 **Alternatives considered**: Per-thesis image generation for the card (PDF first page) — deferred per the OG decision above. A path-based URL `/theses/<id>.html` — diverges from the existing query-param convention (`/thesis_download?thesis_id=`) and the sitemap already excludes arg-based rules.
+
+## [2026-08-14] Deploy only on a published release
+
+**Context**: `deploy_to_production.yml` fired the production webhook on every
+`v*.*.*` tag push. `v2026.08.10` was tagged and deployed to production yet never
+published as a release — production ran a version the public was never told
+about, and the stale draft lingered on GitHub. Supersedes the deploy-on-tag
+behavior described in [2026-08-08] "Date-based versioning + draft releases".
+
+**Decision**: Deploy and release are fully decoupled:
+
+- The `deploy` job in `deploy_to_production.yml` now runs on
+  `release: types: [published]` (and `workflow_dispatch` for manual redeploys),
+  not on tag push. It checks out `github.event.release.tag_name`, pins the tag
+  and its commit SHA, and POSTs the webhook.
+- The `release` job (draft creation) still runs on the `v*.*.*` tag push when
+  `OPENCODE_ZEN_API_KEY` is set. Publishing the draft — never auto-published —
+  is what triggers the deploy.
+
+**Rationale**: A published release is always anchored to a tag, so the deploy job
+can always be driven by `github.event.release.tag_name`. This closes the gap
+where a tag push could ship code that was never released; a tag that is never
+published never reaches production. Draft-on-tag keeps the mandatory human
+review gate from [2026-08-08] intact.
+
+**Consequences**: `GIT_FLOW.md §7`, `DEVELOPMENT_PROCESS.md §6`,
+`RELEASE_CHECKLIST.md` (B2/B11) updated; the release-notes skill documents that
+publishing triggers the deploy.
