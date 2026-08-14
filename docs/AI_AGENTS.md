@@ -44,7 +44,7 @@ When the glob tool's `path` parameter points to a parent directory, patterns lik
 // WRONG — returns nothing:
 // glob(path=".", pattern=".skills/**/*.md")
 
-// CORRECT — finds all 16 skill files:
+// CORRECT — finds all 17 skill files:
 // glob(path=".skills", pattern="**/*.md")
 ```
 
@@ -107,6 +107,11 @@ For progress reports during a session, follow the same structure: lead with timi
 Use for `gh pr create` descriptions on feature branches merged via `gh pr merge --squash` (see `docs/GIT_FLOW.md §2.1`).
 
 **Issue linkage:** if the PR fixes or closes GitHub issues, say so directly with `Closes #<n>` / `Fixes #<n>` in the body (one per line). GitHub then links the issues to the PR and auto-closes them on merge. Issues only partially addressed should use `References #<n>`.
+
+**Mandatory retrospective:** every PR must include a session retrospective entry
+in `docs/RETROSPECTIVES.md` (run `.skills/retrospective-analysis` before opening
+the PR). If a PR was opened without one, add the retro as the last commit and
+update the PR description to reference it. See `docs/DEVELOPMENT_PROCESS.md §0.7`.
 
 ```
 ## Summary
@@ -219,7 +224,7 @@ Checklist:
 1. Create the workflow in `.skills/<name>/README.md`
 1. Create thin stubs: `.claude/skills/<name>/SKILL.md`, `.agents/skills/<name>/SKILL.md`
 1. Register in `CLAUDE.md` skill table
-1. Register in `docs/DOCS.md` §Skills directory
+1. Register in `docs/AI_AGENTS.md` §Skills directory
 1. Process gap history → `docs/RETROSPECTIVES.md`, never inline in the skill
 
 ### Skill lifecycle

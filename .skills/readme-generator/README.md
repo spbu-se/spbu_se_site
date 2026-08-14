@@ -165,17 +165,6 @@ SPDX identifier mapping:
 
 ### 2. Build sections by project type
 
-| LICENSE content | SPDX header |
-|---|---|
-| MIT | `# SPDX-License-Identifier: MIT` |
-| Apache | `# SPDX-License-Identifier: Apache-2.0` |
-| GPL | `# SPDX-License-Identifier: GPL-3.0-or-later` |
-| BSD | `# SPDX-License-Identifier: BSD-3-Clause` |
-| MPL | `# SPDX-License-Identifier: MPL-2.0` |
-| other | `# SPDX-License-Identifier: <as-detected>` |
-
-### 2. Build sections by project type
-
 | Section | Web | CLI | Library | Always |
 |---------|-----|-----|---------|-------|
 | Title + description | ✓ | ✓ | ✓ | ✓ |

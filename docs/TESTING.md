@@ -39,7 +39,7 @@ Coverage is checked at staging→current gate. Steps below 90% block the merge.
 
 ## 3. Test Execution Strategy
 
-Run the full suite before every push. Parallel-safe at any worker count — per-fixture Whoosh directories eliminate the filesystem race that previously limited workers.
+Run the full suite before every push. Parallel-safe at any worker count — the FTS5 index lives inside the session-seeded SQLite DB template, so per-test copies are race-free.
 
 Pre-push mandatory: tests pass, lint clean, format clean.
 
@@ -74,18 +74,26 @@ Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_
 |------|-------|--------|----------|
 | Google OAuth callback | 1 | Requires OAuth session state not present in test | TODO.md Blocked |
 | review missing template | 2 | Missing `notification/thesis_on_review_success.html` | TODO.md tech debt |
+| theses_import runpy re-import | 1 | `runpy.run_module` re-imports `thesesImport` without patch | TODO.md tech debt |
 
 ### Current xfails — intermittent CI (strict=False)
 
 | Test | Count | Reason | Tracking |
 |------|-------|--------|----------|
-| theses xdist race | 1 | Intermittent — user creation not visible to parallel worker | TODO.md tech debt |
+| theses xdist race (`test_post_supervisor_found_in_users_not_in_staff`) | 1 | Intermittent — user creation not visible to parallel worker | TODO.md tech debt |
 | theses post_with_source_uri | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
 | theses post_with_presentation | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| theses bad authors | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| theses bad type | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| theses bad annotation | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| theses post_theses dev_key fails | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| theses post_with_supervisor_review | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| theses post_with_reviewer_review | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+| theses post_all_files | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+
+### Current xfails — strict=True (must stay failing; xpass = suite error)
+
+| Test | Count | Reason | Tracking |
+|------|-------|--------|----------|
+| admin staff create/edit views | 2 | `test_admin_create_views_load[staff]`, `test_admin_edit_views_load[staff]` | CODE_ISSUES.md — reason text still cites Flask-Admin (stale); verify after next admin refactor |
+
+Reference run (2026-08-12, `pytest --tb=no -q -rxX`): **1176 passed, 1 skipped, 4 xfailed, 8 xpassed, 91.83% coverage**. The intermittent-marker count drifts between runs (flaky XPASS whenever the path passes); re-verify drift is stability, not flakiness, before touching any marker.
 
 ## 5. Xpassed Tests
 
@@ -95,7 +103,7 @@ Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass i
 
 Architectural issues that limit test coverage and require production code changes to resolve:
 
-- **thesesImport module-level side effects**: `db.init_app(app)` at import time forces import-time monkeypatching in conftest, which breaks xdist isolation. Module-level `download` flag and direct `sys.exit()` calls also leak state between tests. Fix: refactor into a callable function with dependency injection. **Status**: mitigated — `try/except RuntimeError` guard in source + per-fixture Whoosh dirs, 22 stale xfails removed.
+- **thesesImport module-level side effects**: `db.init_app(app)` at import time forces import-time monkeypatching in conftest, which breaks xdist isolation. Module-level `download` flag and direct `sys.exit()` calls also leak state between tests. Fix: refactor into a callable function with dependency injection. **Status**: mitigated — `try/except RuntimeError` guard in source + session-seeded DB template, 22 stale xfails removed.
 - **FTS5 index inside SQLite — no separate index management needed**
 - **OAuth external dependencies**: Full-flow VK and Google OAuth tests require external config files and network access. CI tests use mock stubs — real OAuth flow is only tested manually.
 - **Practice file upload branches**: Cyclomatic complexity in practice route handlers leaves ~30 untested code branches in file upload logic. Adding tests requires multipart fixture infrastructure.

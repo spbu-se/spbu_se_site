@@ -56,9 +56,9 @@ Create these files in `src/configs/` (never committed):
 | `uv run python src/flask_se.py init` | Initialize database |
 | `uv run python src/wsgi.py` | Run via WSGI (production) |
 | `uv run pytest` | Run tests |
-| `uv run ruff check src/` | Lint |
-| `uv run ruff format src/` | Format |
-| `uv run mdformat .` | Format markdown |
+| `uv run ruff check src/ tests/` | Lint |
+| `uv run ruff format src/ tests/` | Format |
+| `uv run mdformat docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/` | Format markdown (explicit paths — never `mdformat .`) |
 
 ## Deployment
 
@@ -94,9 +94,12 @@ automatically on first boot, so no manual `cp`/`init` step is needed.
 
 ```
 se-site/
-├── src/                    # Application code (27 .py files)
-│   ├── flask_se.py         # Main app, routes
-│   ├── flask_se_admin.py   # Admin panel views
+├── src/                    # Application code (30 .py files)
+│   ├── flask_se.py         # Application factory + route orchestration
+│   ├── flask_se_scheduler.py  # APScheduler jobs
+│   ├── flask_se_static.py  # Public static pages + legacy redirects
+│   ├── sitemap.py          # sitemap.xml generation
+│   ├── flask_se_admin.py   # Admin panel views (custom CRUD)
 │   ├── flask_se_auth.py    # Authentication (email, VK, Google)
 │   ├── flask_se_config.py  # App configuration
 │   ├── flask_se_diplomas.py# Diploma themes
@@ -105,7 +108,7 @@ se-site/
 │   ├── flask_se_review.py  # Thesis review system
 │   ├── flask_se_theses.py  # Thesis search and management
 │   ├── se_models.py        # SQLAlchemy models
-│   └── templates/          # Jinja2 templates (107 files)
+│   └── templates/          # Jinja2 templates (114 files)
 ├── tests/                  # Comprehensive test suite
 ├── docs/                    # Process and architecture documentation
 ├── .github/workflows/      # CI/CD pipelines

@@ -6,6 +6,8 @@ Historical record of process gaps found during retrospectives. Each entry docume
 
 Covers: all retrospective entries from prior sessions. Does not cover: git workflow — see `docs/GIT_FLOW.md`, development process — see `docs/DEVELOPMENT_PROCESS.md`.
 
+> **Every PR must carry a retrospective entry** — run `.skills/retrospective-analysis` and append to this file before opening any PR. If a PR was opened without one, add the retro as the last commit and update the PR description. See `docs/DEVELOPMENT_PROCESS.md §0.7`.
+
 ### Retrospective — 2026-07-04: cross-doc duplication, CI mismatch, over-engineering recurrence
 
 This session touched 22 files across docs, tests, config, and skills. Gaps found:
@@ -945,3 +947,119 @@ PR #206 (`refactor/app-factory` → `current`): application factory (`create_app
 - PR #206 open, all checks green (test/lint/check 3.11/3.12/dependency-review); awaiting merge
 - Tests: 1176 passed, 1 skipped, 92% coverage; pre-push gate + basedpyright clean
 - Docs/skills: this entry + TOOLING/AI_AGENT_EXPERIENCE/AGENTS/GIT_FLOW + 4 skills updated in the retro commit
+
+### Retrospective — 2026-08-12: docs/skills drift audit, AGENTS.md slimming, .tmp policy
+
+Full strong-review of documentation and skills after the application-factory
+refactor landed (PR #206), triggered by user request. Changes analyzed:
+`ec17b0b` (21 files, +135/−111) — AGENTS.md rewrite, 10 docs drift fixes, 6
+skills fixes, `.gitignore` + `.tmp/` policy, mandatory-retro-before-PR rule.
+
+**Changes analyzed**:
+
+- `AGENTS.md`: 123 → 110 lines. Removed stale Whoosh quirk (replaced with FTS5
+  session-template quirk) and stale Flask-Admin `query_factory` gotcha
+  (Flask-Admin removed in PR #11); fixed 2 broken cross-refs; condensed the
+  ~40-line Quality gates section into a tier table + cross-references;
+  merged duplicate pre-flight bullets; added mandatory-retro-before-PR line.
+- `.tmp/` policy (new): all generated/temp scratch files MUST live in `.tmp/`
+  (gitignored). Moved `release-notes.md` and `whooshee/` (stale pre-FTS5
+  index) into `.tmp/`; updated the release-notes skill scope guard and the
+  `deploy_to_production.yml` release job (`mkdir -p .tmp`, `test -s .tmp/release-notes.md`, `body_path`). `.gitignore`: added
+  `.unfinished.plan.md` (stays at root — fixes the false "see .gitignore"
+  claim in DEVELOPMENT_PROCESS.md §0.7).
+- Docs drift: TESTING.md §3/§6 Whoosh→FTS5 + xfail tables regenerated from a
+  live `pytest -rxX` run (the old tables listed 4 nonexistent tests and
+  missed 5 real ones + the 2 strict=True admin xfails); API_REFERENCE.md
+  9 mutation routes GET→POST + added `/vk_login` + fixed `/admin/` "shows
+  thesis secret key" (removed from UI); QUALITY_MANAGEMENT.md pyright ignores
+  114→92 + wrong `docs/AGENTS.md` path; AI_AGENTS.md "16 skill files"→17 +
+  skill-creation step 7 wrong target; DEVELOPMENT_PROCESS.md "xC7" garbage
+  ref + 2 stale GIT_FLOW section refs + 2 stale ARCHITECTURE Design Decisions
+  refs + build commands missing `src/`; REVERSE_ENGINEERING.md Design
+  Decisions ref; DOCS.md §2a AGENTS sections list; CODE_ISSUES.md +
+  REPO_REVIEW.md gained `Covers:` headers; README.md counts (27→30 .py,
+  107→114 templates) + `mdformat .`→explicit paths + module list.
+- Skills: `unattended-mode` 22 mojibake em-dashes repaired (cp1251 double-
+  encoding) + `mypy`→`basedpyright` + `--tb=short`→`--tb=long`;
+  `merge-gate` `mypy`→`basedpyright` + ARCHITECTURE→DESIGN_DECISIONS +
+  mandatory-retro check; `readme-generator` duplicate section removed;
+  `flask-test-patterns` Whoosh→FTS5; `docs-audit` "4 docs"→2 + `§Before committing` ref fixed.
+- **Mandatory retrospective before any PR** (new process rule, user-mandated):
+  every PR must carry a `docs/RETROSPECTIVES.md` entry (run
+  `.skills/retrospective-analysis`) before opening; if a PR was opened without
+  one, add the retro as the last commit and update the PR description. Replaces
+  the old "retro is NOT part of wrap-up" rule in DEVELOPMENT_PROCESS.md §0.7.
+  Documented in DEVELOPMENT_PROCESS.md §0.7, GIT_FLOW.md §2.1/§8.4,
+  AI_AGENTS.md PR description, `merge-gate` §1.4, AGENTS.md pre-flight,
+  RETROSPECTIVES.md header.
+
+**Gaps found**:
+
+| Gap | Root cause | Fix |
+|---|---|---|
+| 2 stale AGENTS.md facts (Whoosh quirk, Flask-Admin gotcha) | Docs not updated after PR #11 refactor — agent would act on wrong info | Rewrote to FTS5; removed gotcha (Flask-Admin gone) |
+| 6+ broken cross-references across docs ("xC7", GIT_FLOW §3/§4.1, ARCHITECTURE Design Decisions, `docs/AGENTS.md`) | Section renames/moves never propagated to referrers | Fixed each to a real heading; DOCS.md §8.1 check #5 should catch these — ran it |
+| TESTING.md xfail tables listed nonexistent tests, missed real ones | Tables hand-edited, never regenerated from live markers | Regenerated from `pytest -rxX` (2026-08-12: 4 xfailed, 8 xpassed); noted the flaky-drift caveat |
+| API_REFERENCE.md listed 9 mutation routes as GET | CSRF POST-conversion (PR #193) never reflected in the route table | Verified every route against `add_url_rule` and fixed methods + missing `/vk_login` |
+| `unattended-mode` skill had 22 cp1251-mojibake em-dashes | Windows `Set-Content` encoding bug — the exact class the `encoding-audit` skill exists to catch, applied to its own sibling | Repaired via `encode('cp1251').decode('utf-8')` pattern |
+| `release-notes.md` + `whooshee/` at repo root (generated garbage) | No policy for where generated/temp files live | Enforced `.tmp/` policy; updated skill + CI + docs to the new path |
+| `.unfinished.plan.md` not actually in `.gitignore` | Doc claimed "(see .gitignore)" but entry was missing | Added to `.gitignore` |
+| `mypy` still referenced in 2 skills after basedpyright migration | Skills drifted independently of the tool change | `mypy`→`basedpyright` in merge-gate + unattended-mode |
+
+**What went wrong**:
+
+- `rg -rn` flag misuse twice in the audit — `-r` is ripgrep's *replace* flag, so
+  `-rn "pattern"` silently consumed the pattern and printed garbage ("n" in
+  place of "Whoosh"). Wasted two command rounds before catching it. This is
+  exactly the "What was going another way" divergence class.
+- Plan grew large (21 files); worked it in one commit — acceptable for a docs
+  branch, but the TESTING.md xfail refresh required the full 7-min suite, which
+  could have run in parallel with early edits (it did run first — good).
+
+**Root causes**:
+
+1. **Missing doc/skill update (recurring)** — process docs and skills drift from
+   code/config/refactors when updates land only in the touched file. The
+   application-factory refactor (#206) and CSRF POST conversion (#193) both
+   left stale references in docs they didn't directly touch.
+1. **Missing convention** — no rule for where generated/temp files live;
+   `release-notes.md`/`whooshee/` accumulated at root. Now codified in DOCS.md
+   §3.2a.
+1. **Human error** — stale metric counts (114 vs 92 pyright ignores, 16 vs 17
+   skills, 107 vs 114 templates) written once and never re-verified against
+   live queries; DOCS.md §8.1 #13 (stale metrics) exists but wasn't run.
+
+**Fix**:
+
+- DOCS.md §3.2a: generated/temp files live in `.tmp/` (gitignored) — exceptions
+  enumerated. AGENTS.md environment quirks cross-reference it.
+- DEVELOPMENT_PROCESS.md §0.7: **session retrospective is mandatory before any
+  PR** (replaces "retro is NOT part of wrap-up"). GIT_FLOW.md §2.1/§8.4,
+  AI_AGENTS.md PR description, merge-gate §1.4, AGENTS.md pre-flight updated to
+  match. RETROSPECTIVES.md header now carries the rule.
+- TESTING.md xfail tables regenerated from live markers; reference run noted.
+- AGENTS.md reduced to 110 lines with every line traceable to a canonical doc.
+- `.tmp/` policy enforced: `release-notes.md` + `whooshee/` moved; skill + CI +
+  docs updated to `.tmp/release-notes.md`; `.unfinished.plan.md` gitignored.
+
+**Flagged, not auto-fixed**:
+
+- `test_admin_deep.py` xfail *reasons* still cite "Flask-Admin 2.2.0" — the
+  tests genuinely still fail (strict=True, 2 xfailed confirmed), but the reason
+  text is stale. Verify the actual failure after the next admin refactor;
+  tracked in TESTING.md §4a.
+- `docs/REPO_REVIEW.md` is gitignored (generated by repo-review skill) yet listed
+  in the docs catalog — a pre-existing structural oddity, left for human
+  judgment.
+
+**State at handoff**:
+
+- Branch `docs/docs-skills-audit` (from `upstream/current` `c5db3ee`), 1 commit
+  (`ec17b0b`), **not pushed**.
+- Tests: 1176 passed, 1 skipped, 4 xfailed, 8 xpassed, 91.83% coverage
+  (2026-08-12 reference run); pre-push gate + basedpyright clean.
+- Working tree clean; `.tmp/` holds `release-notes.md`, `whooshee/`, and prior
+  scratch (all gitignored).
+- Next: user reviews; push → PR with this retro as the mandatory last-commit
+  entry.
