@@ -1114,3 +1114,4 @@ Changes analyzed: 9 files (3 view modules, 3 templates, se_scripts.js, API_REFER
 - Tests: 1275 passed, 1 skipped, 5 xfailed, 7 xpassed; pre-push gate + basedpyright + djlint green.
 - Working tree clean; `.tmp/` holds `ssr_verify.py` (gitignored).
 - Next: push → PR #209; then `feat/jsonld-llms` branches from this branch.
+
