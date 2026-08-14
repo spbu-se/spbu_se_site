@@ -54,7 +54,13 @@
            id="theses">
     <div class="container">
       <div class="row row-grid">
-        <div class="col-lg-9" id="ThesisList"></div>
+        <div class="col-lg-9" id="ThesisList" aria-live="polite">
+          {% if theses and theses.items %}
+            {% include "fetch_theses.html" %}
+          {% else %}
+            {% include "fetch_theses_blank.html" %}
+          {% endif %}
+        </div>
         <div class="col-lg-3 ml-lg-auto">
           <div data-toggle="sticky" data-sticky-offset="10">
             <div class="card" id="ThesisSearchFilter">

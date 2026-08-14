@@ -6,6 +6,7 @@ from pathlib import Path
 
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user
+from flask_sqlalchemy.pagination import Pagination
 from transliterate import translit
 
 from flask_se_auth import login_required
@@ -34,35 +35,13 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def thesis_review_index():
-    user = current_user
-    form = ThesisReviewFilter()
+def _query_thesis_on_review() -> tuple[Pagination, dict[str, object]]:
+    """Build the filtered/paginated thesis-on-review query from request args.
 
-    form.status.choices = [
-        (4, "Все статусы"),
-        (1, "Требуется рецензия"),
-        (2, "На рецензии"),
-        (3, "Требуется доработка"),
-        (0, "Работа зачтена"),
-    ]
-
-    form.worktype.choices = sorted(
-        [(type.id, type.type) for type in ThesisOnReviewWorktype.query.distinct().all()],
-        key=lambda tup: tup[0],
-    )  # pyright: ignore[reportAttributeAccessIssue]
-
-    form.areasofstudy.choices = sorted(
-        [(area.id, area.area) for area in AreasOfStudy.query.distinct().all()],
-        key=lambda tup: tup[0],
-    )  # pyright: ignore[reportAttributeAccessIssue]
-
-    thesis = ThesisOnReview.query.all()
-    return render_template("thesis_review/index.html", review_filter=form, thesis=thesis, user=user)
-
-
-def fetch_thesis_on_review():
-    user = current_user
-
+    Shared by the server-rendered index (``thesis_review_index``) and the AJAX
+    fragment endpoint (``fetch_thesis_on_review``) so both render identical
+    content. Returns ``(records, template_context)``.
+    """
     status = request.args.get("status", default=4, type=int)
     page = request.args.get("page", default=1, type=int)
     worktype = request.args.get("worktype", default=1, type=int)
@@ -93,13 +72,51 @@ def fetch_thesis_on_review():
     else:
         records = records.paginate(per_page=20, page=page, error_out=False)
 
+    return records, {"status": status, "worktype": worktype, "area": area}
+
+
+def thesis_review_index():
+    user = current_user
+    form = ThesisReviewFilter()
+
+    form.status.choices = [
+        (4, "Все статусы"),
+        (1, "Требуется рецензия"),
+        (2, "На рецензии"),
+        (3, "Требуется доработка"),
+        (0, "Работа зачтена"),
+    ]
+
+    form.worktype.choices = sorted(
+        [(type.id, type.type) for type in ThesisOnReviewWorktype.query.distinct().all()],
+        key=lambda tup: tup[0],
+    )  # pyright: ignore[reportAttributeAccessIssue]
+
+    form.areasofstudy.choices = sorted(
+        [(area.id, area.area) for area in AreasOfStudy.query.distinct().all()],
+        key=lambda tup: tup[0],
+    )  # pyright: ignore[reportAttributeAccessIssue]
+
+    records, ctx = _query_thesis_on_review()
+    return render_template(
+        "thesis_review/index.html",
+        review_filter=form,
+        thesis=records,
+        user=user,
+        **ctx,
+    )
+
+
+def fetch_thesis_on_review():
+    user = current_user
+
+    records, ctx = _query_thesis_on_review()
+
     return render_template(
         "thesis_review/fetch_thesis_on_review.html",
         thesis=records,
         user=user,
-        status=status,
-        worktype=worktype,
-        area=area,
+        **ctx,
     )
 
 

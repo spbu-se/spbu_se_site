@@ -3,6 +3,7 @@
 
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user
+from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy import or_
 
 from flask_se_auth import login_required
@@ -77,14 +78,24 @@ def diplomas_index():
         user = current_user
         user_themes_count = DiplomaThemes.query.filter_by(author_id=user.id).count()
 
+    records, ctx = _query_themes()
+
     return render_template(
         "diplomas/themes.html",
         user_themes_count=user_themes_count,
         diploma_filter=diploma_filter,
+        themes=records,
+        **ctx,
     )
 
 
-def fetch_themes():
+def _query_themes() -> tuple[Pagination, dict[str, object]]:
+    """Build the filtered/paginated diploma-themes query from request args.
+
+    Shared by the server-rendered themes page (``diplomas_index``) and the
+    AJAX fragment endpoint (``fetch_themes``) so both render identical content.
+    Returns ``(records, template_context)``.
+    """
     level = request.args.get("level", default=0, type=int)
     page = request.args.get("page", default=1, type=int)
     supervisor = request.args.get("supervisor", default=0, type=int)
@@ -125,14 +136,13 @@ def fetch_themes():
     else:
         records = _paginate(records, page)
 
+    return records, {"level": level, "company": company, "supervisor": supervisor}
+
+
+def fetch_themes():
+    records, ctx = _query_themes()
     if len(records.items):
-        return render_template(
-            "diplomas/fetch_themes.html",
-            themes=records,
-            level=level,
-            company=company,
-            supervisor=supervisor,
-        )
+        return render_template("diplomas/fetch_themes.html", themes=records, **ctx)
     return render_template("diplomas/fetch_themes_blank.html")
 
 

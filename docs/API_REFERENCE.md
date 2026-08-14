@@ -65,8 +65,8 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 
 | Route | Method | View Function | Description |
 |---|---|---|---|
-| `/theses.html` | GET | `theses_search` | Thesis search with filters. Full-text search uses SQLite FTS5 virtual table `thesis_fts` (columns: name_ru, description, author, text). OG: when `search` param present, og:title = `Результаты поиска: "<query>"`. |
-| `/fetch_theses` | GET | `fetch_theses` | AJAX paginated thesis list. Query params: `worktype`, `supervisor`, `consultant` (free-text substring), `course`, `startdate`, `enddate`, `search`, `page` |
+| `/theses.html` | GET | `theses_search` | Thesis search with filters. **Server-rendered** (cards + pagination in initial HTML; JS progressively enhances filtering). Full-text search uses SQLite FTS5 virtual table `thesis_fts` (columns: name_ru, description, author, text). OG: when `search` param present, og:title = `Результаты поиска: "<query>"`. |
+| `/fetch_theses` | GET | `fetch_theses` | AJAX paginated thesis list fragment (same query as `theses_search`, shared `_query_theses()` helper). Query params: `worktype`, `supervisor`, `consultant` (free-text substring), `course`, `startdate`, `enddate`, `search`, `page` |
 | `/post_theses` | GET, POST | `post_theses` | Upload new thesis |
 | `/theses_tmp.html` | GET | `theses_tmp` | List temp theses for review |
 | `/theses_delete_tmp` | POST | `theses_delete_tmp` | Delete temp thesis |
@@ -89,9 +89,9 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 
 | Route | Method | View Function | Description |
 |---|---|---|---|
-| `/diplomas/` | GET | `diplomas_index` | Browse approved themes |
+| `/diplomas/` | GET | `diplomas_index` | Browse approved themes — **server-rendered** list (JS progressively enhances filtering) |
 | `/diplomas/index.html` | GET | `diplomas_index` | Alias for `/diplomas/` |
-| `/diplomas/theme.html` | GET | `get_theme` | View single theme (OG: title = theme title, type article, description = theme description or title) |
+| `/diplomas/theme.html` | GET | `get_theme` | View single theme (OG: title = theme title, type article, description = plain-text `_og_description` of theme description or title) |
 | `/diplomas/add_theme.html` | GET, POST | `add_user_theme` | Add new theme |
 | `/diplomas/user_themes.html` | GET | `user_diplomas_index` | User own themes |
 | `/diplomas/delete_theme.html` | POST | `delete_theme` | Delete own theme |
@@ -104,7 +104,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 
 | Route | Method | View Function | Description |
 |---|---|---|---|
-| `/review/` | GET | `thesis_review_index` | Review dashboard |
+| `/review/` | GET | `thesis_review_index` | Review dashboard — **server-rendered** list (JS progressively enhances filtering) |
 | `/review/index.html` | GET | `thesis_review_index` | Alias for `/review/` |
 | `/review/submit` | GET, POST | `submit_thesis_on_review` | Submit thesis for review |
 | `/review/edit` | GET, POST | `edit_thesis_on_review` | Edit submitted thesis |
