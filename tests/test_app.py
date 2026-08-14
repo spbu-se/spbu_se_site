@@ -68,6 +68,74 @@ class TestMarkdownFilter:
         out = md("простой текст")
         assert "простой текст" in out
 
+    def test_markdown_renders_unescaped_through_jinja(self, app_ctx):
+        """The filter output must be marked safe so Jinja autoescape does not
+        re-escape the generated HTML (regression: literal tags shown as text)."""
+        from flask import current_app
+
+        tmpl = current_app.jinja_env.from_string("{{ text|markdown }}")
+        out = tmpl.render(text="[Spla](https://example.org)\n\n- a\n- b")
+        assert '<a href="https://example.org"' in out
+        assert "<ul>" in out
+        assert "&lt;" not in out
+
+    def test_markdown_sanitizes_unsafe_html(self, app_ctx):
+        """Marked-safe output must still be sanitized: raw HTML in the markdown
+        source (scripts, event handlers, dangerous URL schemes) is removed."""
+        from flask import current_app
+
+        md = current_app.jinja_env.filters["markdown"]
+        out = md(
+            "<script>alert(1)</script>"
+            "<img src=x onerror=alert(1)>"
+            '<a href="javascript:alert(1)">x</a>'
+        )
+        assert "<script>" not in out
+        assert "onerror" not in out
+        assert "javascript:" not in out
+
+    def test_markdown_keeps_legit_links_and_tables(self, app_ctx):
+        """The sanitizer must preserve markdown features (tables extension,
+        http/https links) used by the site's content."""
+        from flask import current_app
+
+        md = current_app.jinja_env.filters["markdown"]
+        out = md("| a | b |\n|---|---|\n| 1 | 2 |\n\n[x](https://ok.example)")
+        assert "<table>" in out
+        assert '<a href="https://ok.example"' in out
+
+
+class TestSafeHtmlFilter:
+    def test_safe_html_sanitizes(self, app_ctx):
+        from flask import current_app
+
+        safe = current_app.jinja_env.filters["safe_html"]
+        out = safe("<b>x</b><script>alert(1)</script>")
+        assert "<b>x</b>" in out
+        assert "<script>" not in out
+
+    def test_safe_html_keeps_paragraphs(self, app_ctx):
+        from flask import current_app
+
+        safe = current_app.jinja_env.filters["safe_html"]
+        out = safe("<p>text <strong>bold</strong></p>")
+        assert "<p>text <strong>bold</strong></p>" in out
+
+
+class TestRawHtmlGuardrail:
+    def test_no_raw_safe_output(self):
+        """Every raw-HTML output in templates must go through the sanitizing
+        ``safe_html`` filter — a bare ``|safe`` is an XSS regression risk."""
+        from pathlib import Path
+
+        root = Path(__file__).resolve().parent.parent / "src" / "templates"
+        bad = []
+        for p in root.rglob("*.html"):
+            for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+                if "|safe" in line and "|safe_html" not in line:
+                    bad.append(f"{p.relative_to(root)}:{i}: {line.strip()}")
+        assert not bad, "raw |safe without |safe_html:\n" + "\n".join(bad)
+
 
 class TestUwsgiAppIni:
     def test_app_ini_points_to_wsgi(self):

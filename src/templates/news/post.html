@@ -78,7 +78,7 @@
                 <div class="col my-auto">
                   <h6 class="font-weight-light">{{ post.title }}</h6>
                   <!--span class="text-sm text-muted">Автор: {{post.author.get_name()}}</span -->
-                  <p>{{ post.text|safe }}</p>
+                  <p>{{ post.text|safe_html }}</p>
                 </div>
               </div>
             </div>

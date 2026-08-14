@@ -8,11 +8,13 @@ from pathlib import Path
 __all__ = ["app", "db", "scheduler"]
 
 import markdown as _markdown
+import nh3
 from dateutil import tz
 from flask import Flask
 from flask_frozen import Freezer
 from flask_migrate import Migrate
 from flask_wtf import CSRFProtect
+from markupsafe import Markup
 
 import flask_se_theses
 from flask_se_admin import (
@@ -97,8 +99,24 @@ def notification_send_diploma_themes_on_review_wrapper() -> None:
 
 # Template filters (module-level functions registered in _configure_app so the
 # names stay importable for tests: flask_se.datetime_convert, flask_se.markdown).
-def render_markdown(text: str) -> str:
-    return _markdown.markdown(text, extensions=["tables"])
+def render_markdown(text: str) -> Markup:
+    """Render markdown to HTML, sanitize, and mark safe for Jinja.
+
+    Sanitization happens at render time so it covers every current and future
+    call site and legacy rows. It is required before marking the output safe:
+    python-markdown passes raw HTML through unchanged and the source is
+    user-authored (theme/report/internship content).
+    """
+    return Markup(nh3.clean(_markdown.markdown(text or "", extensions=["tables"])))  # noqa: S704  sanitized immediately before Markup
+
+
+def render_safe_html(text: str) -> Markup:
+    """Sanitize pre-rendered HTML and mark it safe for Jinja.
+
+    Defense-in-depth for content already cleaned at write time (e.g. news
+    posts) — protects legacy rows and any write path that bypasses cleaning.
+    """
+    return Markup(nh3.clean(text or ""))  # noqa: S704  sanitized immediately before Markup
 
 
 def datetime_convert(value, format="%d.%m.%Y %H:%M"):
@@ -154,6 +172,7 @@ def _init_extensions(app: Flask) -> None:
     login_manager.init_app(app)
 
     app.template_filter("markdown")(render_markdown)
+    app.template_filter("safe_html")(render_safe_html)
     app.template_filter("datatime_convert")(datetime_convert)
 
 
