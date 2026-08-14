@@ -93,7 +93,7 @@ Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_
 |------|-------|--------|----------|
 | admin staff create/edit views | 2 | `test_admin_create_views_load[staff]`, `test_admin_edit_views_load[staff]` | CODE_ISSUES.md — reason text still cites Flask-Admin (stale); verify after next admin refactor |
 
-Reference run (2026-08-12, `pytest --tb=no -q -rxX`): **1176 passed, 1 skipped, 4 xfailed, 8 xpassed, 91.83% coverage**. The intermittent-marker count drifts between runs (flaky XPASS whenever the path passes); re-verify drift is stability, not flakiness, before touching any marker.
+Reference run (2026-08-14, `pytest --tb=no -q -rxX`): **1286 passed, 4 skipped, 5 xfailed, 7 xpassed**. The intermittent-marker count drifts between runs (flaky XPASS whenever the path passes); re-verify drift is stability, not flakiness, before touching any marker.
 
 ## 5. Xpassed Tests
 

@@ -445,6 +445,9 @@ uv export --no-dev --no-hashes > requirements.txt  # update prod requirements
 Versioning is date-based — every release is tagged `vYYYY.MM.DD` (see
 `docs/GIT_FLOW.md` §Versioning). Releasing:
 
+0. **Run the release guardrail** — `docs/RELEASE_CHECKLIST.md` §A must-update
+   items (sitemap lastmod, copyright year, summer-school year, test reference
+   run) are fixed in the release commit; §B check-only items are verified.
 1. Determine the previous release tag: `gh release list --repo spbu-se/spbu_se_site`
 1. Run the `release-notes` skill (`.skills/release-notes/`) to generate
    `.tmp/release-notes.md` — Part 1 plain-English user summary, Part 2 developer

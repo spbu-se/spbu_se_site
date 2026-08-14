@@ -98,7 +98,7 @@ se-site/
 │   ├── flask_se.py         # Application factory + route orchestration
 │   ├── flask_se_scheduler.py  # APScheduler jobs
 │   ├── flask_se_static.py  # Public static pages + legacy redirects
-│   ├── sitemap.py          # sitemap.xml generation
+│   ├── sitemap.py          # Sitemap index + per-year theses sub-sitemaps
 │   ├── flask_se_admin.py   # Admin panel views (custom CRUD)
 │   ├── flask_se_auth.py    # Authentication (email, VK, Google)
 │   ├── flask_se_config.py  # App configuration
@@ -130,10 +130,12 @@ se-site/
 | [docs/GIT_FLOW.md](docs/GIT_FLOW.md) | Branching, merge strategy, commit discipline |
 | [docs/QUALITY_MANAGEMENT.md](docs/QUALITY_MANAGEMENT.md) | Quality philosophy and policy |
 | [docs/REPO_REVIEW.md](docs/REPO_REVIEW.md) | Repository audit checklist |
+| [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) | Pre-release verification guardrail |
 | [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | Feature specifications and user roles |
 | [docs/RETROSPECTIVES.md](docs/RETROSPECTIVES.md) | Process gap history |
 | [docs/REVERSE_ENGINEERING.md](docs/REVERSE_ENGINEERING.md) | Extracting knowledge from legacy code |
 | [docs/SCHEMA.md](docs/SCHEMA.md) | Database schema |
+| [docs/SEO_A11Y_ROADMAP.md](docs/SEO_A11Y_ROADMAP.md) | SEO/crawler/agent decisions and backlog |
 | [docs/TESTING.md](docs/TESTING.md) | Testing strategy and targets |
 | [docs/TOOLING.md](docs/TOOLING.md) | Cross-platform tooling knowledge |
 
