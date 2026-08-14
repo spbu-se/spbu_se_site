@@ -1182,3 +1182,26 @@ Changes analyzed: 10 files (`deploy_to_production.yml`, `flask_se_config.py`, `t
 - Changes: deploy-on-publish workflow, DoS guard + 2 tests, CI mdformat fix, 5 docs synced, design-decision entry, this retro.
 - Tests: 1288 passed, 4 skipped, 4 xfailed, 8 xpassed; pre-push gate + basedpyright + actionlint + djlint green.
 - Next (after merge): security-alert triage + advisory close, delete stale draft `v2026.08.10`, RELEASE_CHECKLIST guardrail, tag `v2026.08.14`, draft release, publish.
+
+### Retrospective — 2026-08-14: release v2026.08.14 go-live + deploy-on-publish validation
+
+Changes analyzed: the release execution after PR #212 merged (`740f231`) — CodeQL/security re-sort, stale-draft deletion, guardrail, GPG tag, draft release, production deploy.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Prod had run unreleased code (`v2026.08.10` deployed on tag push, never published) | Deploy fired on `push: tags` | New workflow validated end-to-end: tag push → `deploy` job **skipped** (verified in run 31807174719); publish → `release: published` → `deploy` job POSTed the webhook (run 31807336584, success) |
+| GPG signing blocked in this environment | No secret key in the local keyring — `gpg --batch --sign` → "No secret key"; `git tag -s` hung on the pinentry prompt | User signed the tag interactively via the GPG UI; `git tag -v` verified the signature at `740f231` |
+| `git push upstream v2026.08.14` refused | `remote.upstream.pushurl` is deliberately `no-push-to-upstream` (canonical-repo push guard, documented in `docs/GIT_FLOW.md` §8) | Used the documented escape hatch: `git push https://github.com/spbu-se/spbu_se_site.git v2026.08.14` (credential manager auth) |
+| GHSA-5vfc-v7hg-pvwm could not be closed | GitHub API forbids closing a *published* advisory ("Cannot close published advisory"); `patched_versions` PATCH rejected ("Must have valid affected versions" — date-style `vYYYY.MM.DD` versions are not semver) | Fix itself is merged (#212) and live; the advisory record stays published — a historical entry, no action possible via API |
+| Bachelor admission data still shows 2025 during the 2026 cycle | B7 checklist item is data, not code; 2026 campaign figures not yet sourced | **Deferred** by explicit user decision ("Not now") — recorded here for the next release |
+
+**What went well**: the deploy-on-publish design behaved exactly as specified in production — the tag push's `deploy` job was `skipped` (no webhook) and the publish triggered the deploy with the pinned tag+sha; every prod marker (`humans.txt`, `llms.txt`, sitemap index, `lastmod 2026-08-14`, JSON-LD, `og:url`) confirmed the new build; the `no-push-to-upstream` guard worked as a deliberate checkpoint rather than a blocker.
+
+**What went wrong**: the GPG key situation cost two attempt cycles (batch `--sign` proved "No secret key" before the tag path was clear); the advisory-close path is a GitHub API dead-end that must be documented rather than fought; the tag draft binding only resolves at publish time (draft URL shows `untagged-…` until then).
+
+**State at handoff**:
+
+- Release `v2026.08.14` published 2026-08-14 13:59:48Z, tag `v2026.08.14` GPG-signed at `740f231`, prod verified live.
+- CodeQL re-sort done (0 open alerts); stale draft `v2026.08.10` deleted (tag kept); advisory fix live (record stays published).
+- B7 (bachelor 2025 → 2026 admission data) deferred.
+- Next: none for this release; B7 update when data is available.
