@@ -1,6 +1,22 @@
 {% extends "base_dark.html" %}
 {% block title %}Математическое обеспечение и администрирование информационных систем (магистратура){% endblock %}
 {% block og_image %}{{ url_for('static', filename='assets/img/og/og-programs.png', _external=True) }}{% endblock %}
+{% block json_ld %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Математическое обеспечение и администрирование информационных систем (магистратура, 02.04.03)",
+    "description": "Магистерская программа «Математическое обеспечение и администрирование информационных систем» (код 02.04.03) кафедры Системного программирования Математико-механического факультета СПбГУ.",
+    "provider": {
+      "@type": "EducationalOrganization",
+      "name": "Кафедра системного программирования СПбГУ",
+      "url": "https://se.math.spbu.ru/"
+    },
+    "url": "https://se.math.spbu.ru/master/information-systems-administration.html"
+  }
+  </script>
+{% endblock %}
 {% block description %}
   02.04.03 «Математическое обеспечение и администрирование информационных систем» (магистратура). Кафедра Системного программирования Математико-механического факультета СПбГУ.
 {% endblock %}

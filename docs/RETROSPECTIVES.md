@@ -1115,3 +1115,24 @@ Changes analyzed: 9 files (3 view modules, 3 templates, se_scripts.js, API_REFER
 - Working tree clean; `.tmp/` holds `ssr_verify.py` (gitignored).
 - Next: push → PR #209; then `feat/jsonld-llms` branches from this branch.
 
+### Retrospective — 2026-08-13: JSON-LD structured data + llms.txt
+
+Changes analyzed: 15 files (4 base templates, 7 content templates, llms.txt, test_jsonld.py, API_REFERENCE, SEO roadmap).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| No JSON-LD anywhere — only partial microdata (Organization/Person/PostalAddress, one FAQPage) | Structured data was hand-added per page in microdata form; no machine-readable JSON-LD | Added `EducationalOrganization` + `WebSite`+`SearchAction` JSON-LD blocks to all 4 bases (single source); `Course` on 4 program pages; `BreadcrumbList` on news/internship/thesis-card |
+| FAQ had valid `FAQPage` microdata (19 Q&A pairs) | Converting to JSON-LD = duplication risk, no SEO gain | Kept microdata; documented the decision in roadmap §6. JSON-LD added only where no structured data existed |
+| `@type` could be a list in JSON-LD | Test helper assumed string | `_assert_type` normalizes single/list forms |
+| `llms.txt` absent | Agent-friendly index is new; no file existed | Added static `src/static/llms.txt` (site summary + key links + sitemap pointer) |
+
+**What went well**: JSON-LD blocks in bases give every page Organization/WebSite markup by inheritance; `test_jsonld.py` asserts valid JSON parsing + expected `@type` per page; full suite 1275 → 1286 passed.
+
+**What went wrong**: ruff TRY003/RET503 rejected the initial `_assert_type` (raise-after-loop shape) — restructured to a clean `for...return` + `pytest.fail`. Data-dependent BreadcrumbList tests use `pytest.skip` when seed rows are absent — this is a deliberate skip, not a gap.
+
+**State at handoff**:
+
+- Branch `feat/jsonld-llms` (stacked on `feat/ssr-lists`), 1 commit.
+- Tests: 1286 passed, 4 skipped, 5 xfailed, 7 xpassed; pre-push gate + basedpyright + djlint green.
+- Working tree clean.
+- Next: push → PR #210, closing the three-PR SEO/crawler chain.

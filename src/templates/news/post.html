@@ -7,6 +7,34 @@
 {% block og_image %}{{ url_for('static', filename='/assets/img/og/og-news.png', _external=True) }}{% endblock %}
 {% block twitter_title %}{{ post.title }}{% endblock %}
 {% block twitter_description %}{{ og_description or post.title }}{% endblock %}
+{% block json_ld %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Главная",
+        "item": "https://se.math.spbu.ru/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Новости",
+        "item": "https://se.math.spbu.ru/news/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "{{ post.title }}",
+        "item": "https://se.math.spbu.ru/news/item.html?post={{ post.id }}"
+      }
+    ]
+  }
+  </script>
+{% endblock %}
 {% block content %}
   <section class="mt-7 pt-6 bg-section-secondary">
     <div class="container">
