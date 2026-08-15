@@ -1227,3 +1227,34 @@ Changes analyzed: 8 files — `flask_se.py` (markdown + new `safe_html` filters)
 - Cleanup done: 16 local + 19 fork + 4 upstream branches deleted; upstream now only `current` + `gh-pages`; fork + local `current`/`staging` = `upstream/current` `adba34b`.
 - Tests: 1295 passed, 4 skipped, 4 xfailed, 8 xpassed; ruff format/check, basedpyright, djlint green.
 - PR to upstream `current` from `iakov:fix/markdown-sanitize-render` — user reviews and merges manually.
+
+### Retrospective — 2026-08-15 (full): markdown/safe-html fix, repo cleanup/sync, docs/skills/retro wrap-up
+
+Full retrospective (`.skills/retrospective-analysis` full workflow). Complements the light entry above: this is the comprehensive record of the session that shipped PR #214 plus this docs/skills/retro PR.
+
+Changes analyzed: PR #214 (merged `2c533dc` — `flask_se.py` filters, 3 templates, 6 tests, light retro, `TESTING.md`); repo cleanup/sync (16 local + 19 fork + 4 upstream branches deleted; `current`/`staging` re-synced twice — to `adba34b`, then `2c533dc` after #214); this PR (`DESIGN_DECISIONS.md`, `AI_AGENT_EXPERIENCE.md`, `TOOLING.md`, `GIT_FLOW.md`, `AGENTS.md`, `CODE_ISSUES.md`, 5 skill READMEs, this entry).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Markdown fields displayed literal HTML tags | `render_markdown` returned a plain `str` → Jinja autoescape re-escaped it; filter tests asserted on the raw return and never rendered through a template | `Markup(nh3.clean(_markdown.markdown(...)))` + `safe_html` filter + render-through-Jinja tests + route-level repro |
+| Marking user content safe without sanitizing = stored-XSS risk (python-markdown passes `<script>`/`javascript:` through) | No render-time sanitization layer existed; `nh3` was only used at the news write boundary | Sanitize-before-Markup enforced in the filters; XSS guard tests; template guardrail test rejects bare `\|safe` (structural, layer 2) |
+| No way to detect a squash-merged branch before deleting it (`git branch --merged` can't see them) | `git branch -d` refused; forced `-D` needs evidence | `gh pr list --state merged` as proof; pre-flight guardrail added to `AGENTS.md`; technique documented in `AI_AGENT_EXPERIENCE.md` |
+| Fork `staging` diverged from `current` (7 commits already in `current` via #193 squash) | Re-sync after the stacked-PR merge was skipped; individual-branch PRs advanced `current` past `staging` | `GIT_FLOW.md §8.5` now documents the diverged-`staging` recovery (verify content-in-current, `reset --hard`, `--force-with-lease` push) |
+| `ruff S704` flagged sanitized `Markup(...)` | Bandit-derived rule can't see `nh3.clean` in the same expression | `# noqa: S704` + justification (repo convention); documented in `AI_AGENT_EXPERIENCE.md` |
+| `git fetch --prune <r1> <r2>` failed | Second arg parsed as a refspec, not a remote | One fetch per remote; documented in `AI_AGENT_EXPERIENCE.md` |
+| `CODE_ISSUES.md` was mostly fixed-and-merged history (stale markers) | FIXED entries kept "for documentation completeness" outlived their usefulness | User-directed freshness pass: removed merged-fixed entries, kept open/intentional + dismissal rationale, policy documented in the header |
+| `unattended-mode` always forced `staging-auto-*` branching | Skill didn't cover the feature-PR delivery mode | Skill now documents the feature-PR variant when the user explicitly requests a PR |
+| Light retro ran on the feature PR; user later requested a full retro | Split not documented in the retro skill | `retrospective-analysis` skill documents the light→full sequence; full entry references the light one |
+
+**Pattern recurrence**: no recurrence of a previously-classified gap. The "render user HTML safely" theme recurs across sessions (#193 write-time nh3, #214 render-time nh3) — escalated from fix to structural guardrail (template `\|safe` scan test). New patterns (branch-deletion evidence, diverged-staging recovery, S704) are first occurrences — documented, not escalated.
+
+**What went well**: tests-first reproduced every symptom red before implementing (escaping, XSS, `safe_html` KeyError, guardrail) — 6 red → 9 green; the security analysis ran before code (12 XSS vectors empirically probed); `nh3` was already a dependency so no lockfile change; one merged PR (#214) delivered code + tests + light retro with CI green (test job confirmed pytest: 1295 passed); the branch cleanup used PR records as evidence and dropped one divergent duplicate commit (`fix/mail-jobs-76` `309e2ee`) safely; after #214 merged, the re-sync was a clean fast-forward (no divergence this time).
+
+**What went wrong**: the route-repro test hit `NOT NULL` constraints twice (`author_id`, `consultant_id`) — reading the model before writing the test would have saved a cycle; the first `git fetch --prune origin upstream` failed (two remotes); the CODE_ISSUES freshness pass risked losing dismissal/decision rationale — mitigated by keeping the Dismissed section and recording the policy in the header.
+
+**State at handoff**:
+
+- PR #214 merged (`2c533dc`); fork + local `current`/`staging` = `2c533dc`; `fix/markdown-sanitize-render` deleted (local + fork).
+- This PR (`docs/drift-skills-retro`): docs-drift fixes, 5 skill updates, full retro. Branch from `origin/staging` `2c533dc`.
+- Full suite: 1295 passed, 4 skipped, 4 xfailed, 8 xpassed (reference in `TESTING.md`).
+- Next: user reviews and merges this PR manually.

@@ -38,7 +38,8 @@ Launch three explore agents in parallel, one per concern, with explicit "read-on
 |------|-------|------------------|
 | **Authz / CSRF / OAuth** | Session signing key, secret handling, CSRF coverage, GET-vs-POST mutations, OAuth `state` validation, login enumeration, auth decorators, IDORs | Forgeable sessions (SECRET_KEY = path), commented-out `@login_required`, GET mutations, missing OAuth state, user enumeration |
 | **XSS** | Markup library defaults, `\|safe` sinks, JS-context interpolation, `innerHTML`/`.html()`, raw HTML storage | `textile`/`markdown` unsanitized defaults, `\|safe` on user HTML, stored XSS on public pages |
-| **SQLi / file handling** | Raw SQL parameterization, FTS query-language escaping, upload validation (extension + content + size), path traversal (read + write), zip-slip, unsafe deserialization, unbounded downloads | FTS5 query injection, arbitrary-extension uploads served from `static/`, name-derived path traversal, `r.content` memory DoS |
+
+**Render-time pattern to check**: a template filter that marks output safe (`Markup(...)`) without a sanitizer is a stored-XSS hole — python-markdown passes raw HTML (`<script>`, `javascript:` hrefs) through unchanged. A filter that returns a plain `str` instead is not an injection but an autoescape display bug (tags shown as text). Correct shape: `Markup(nh3.clean(...))` — sanitize first, then mark safe; plus a regression test and a template guardrail that rejects bare `\|safe`.
 
 Each agent must return severity (CRITICAL/HIGH/MEDIUM/LOW), file:line, data flow, and a suggested fix — and must NOT modify anything.
 

@@ -371,3 +371,32 @@ review gate from [2026-08-08] intact.
 **Consequences**: `GIT_FLOW.md §7`, `DEVELOPMENT_PROCESS.md §6`,
 `RELEASE_CHECKLIST.md` (B2/B11) updated; the release-notes skill documents that
 publishing triggers the deploy.
+
+## [2026-08-15] Sanitize user HTML at render time (markdown + safe_html filters)
+
+**Context**: the `markdown` template filter returned a plain `str`, so Jinja
+autoescape re-escaped its HTML output and markdown fields (diploma themes,
+practice reports/notifications, internship descriptions) displayed literal
+tags (`<p>`, `<a href=...>`) as text. Marking output safe without sanitizing
+would have created a stored-XSS hole — python-markdown 3.10.2 passes raw HTML
+(`<script>`, `<iframe>`, `javascript:` hrefs) through unchanged and the source
+is user-authored. `nh3` was already a dependency (write-time cleaning of news
+posts, see [2026-08-02] "Sanitize user HTML at the storage boundary").
+
+**Decision**: sanitize **at render time** in the template filters:
+
+- `render_markdown` returns `Markup(nh3.clean(_markdown.markdown(text, extensions=["tables"])))`.
+- New `safe_html` filter returns `Markup(nh3.clean(text))`; all raw `|safe`
+  usages (news post body, summer-school constants) migrated to it.
+- A template guardrail test fails any `|safe` not paired with `|safe_html`.
+
+**Rationale**: a render-time choke point covers every current and future call
+site and legacy rows retroactively, and cannot be bypassed by an unscanned
+write path. It complements — does not replace — write-time cleaning (news
+keeps `nh3.clean(textile(...))` on submit; the read path is defense-in-depth).
+
+**Consequences**: XSS-vectors empirically verified removed (scripts, event
+handlers, `javascript:`/`data:` schemes, `target`/`id`); `rel="noopener noreferrer"` added to links; inline `data:` images dropped (accepted, SVG-in-
+data XSS). `nh3.clean` preserves the `tables` extension output. Regression +
+guardrail tests in `tests/test_app.py` and `tests/test_diplomas_deep.py`
+(PR #214).

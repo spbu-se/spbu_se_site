@@ -41,6 +41,8 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 - In non-auto (interactive) mode, merges to staging require GPG signoff.
 - UTC timestamp format: `YYYYMMDDTHHMMSSZ` (e.g., `staging-auto-20260704T150706Z`).
 
+**Feature-PR variant**: when the user explicitly asks to deliver via a GitHub PR (e.g., "review in GH and merge manually"), the approved plan governs — branch `fix/`- or `docs/`-style from `origin/staging`, commit with `--no-gpg-sign`, push to the fork, and open the PR (base `current` for upstream PRs). Do not auto-create a `staging-auto-*` scratch branch in that case. The rest of the rules (granular commits, push to trigger CI, verify CI green after push, retro before PR) apply unchanged.
+
 ## Workflow
 
 1. Record start time (UTC ISO 8601)

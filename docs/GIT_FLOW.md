@@ -290,19 +290,34 @@ Wrap-up protocol is in `docs/DEVELOPMENT_PROCESS.md §0.7` — includes DESIGN_D
 **Rules**:
 
 1. **Work only in the fork** — never push branches to `upstream`. `origin` = fork, `upstream` = canonical.
+
 1. **Squash-merge into fork `staging`** — each feature branch is squash-merged into the fork's `staging` (local: `git checkout staging && git merge --squash <branch> && git commit`), then pushed: `git push origin staging`.
+
 1. **Stacked PRs to upstream `current`** — the canonical repo has **no `staging` branch**; all PRs target `current`. Open the PR from `iakov:staging`:
+
    ```bash
    gh pr create --repo spbu-se/spbu_se_site --base current --head iakov:staging
    ```
+
    Multiple phases accumulate on the same `staging` head, so the PR stays open and grows — each phase is one squash commit on top.
+
 1. **No upstream merges by the contributor** — unless explicitly authorized, open the PR and stop; the maintainer merges.
+
 1. **Re-sync after each upstream merge** — fast-forward fork `current` and `staging` to `upstream/current`:
+
    ```bash
    git fetch upstream && git checkout current && git merge --ff-only upstream/current
    git push --no-verify origin current   # and same for staging
    ```
+
    The next phase's PR from `iakov:staging` then carries only the new phase's diff.
+
+   **Diverged fork `staging`** (2026-08-15): a plain `--ff-only` fails when `staging` is *ahead* of `upstream/current` — which happens when the re-sync was skipped after a stacked-PR squash (#193): `staging` still carries the pre-squash phase commits while `current` holds the squash. These commits are functionally already in `current`. Recover:
+
+   1. Verify nothing is lost — each `staging`-only commit must be functionally present in `current` (tree/content check, e.g. `git show upstream/current:<file>` for the touched paths; `git cherry` is patch-id-based and reports `+` for squash-merged commits — not evidence of loss).
+   1. `git checkout staging && git reset --hard upstream/current`
+   1. `git push --force-with-lease --no-verify origin staging`
+      Only do this when `staging` has no open stacked PR; if a PR head depends on the old commits, rebase that PR first.
 
 **Why**: The canonical `current` is a protected production branch; working entirely inside the fork keeps CI + review on the contributor's side and avoids cluttering upstream with WIP branches.
 
