@@ -65,57 +65,28 @@ class TestDiplomasDeep:
     def test_add_theme_page(self, logged_client):
         assert_ok(logged_client, "/diplomas/add_theme.html", code={200})
 
-    def test_add_theme_missing_title(self, logged_client):
-        resp = logged_client.post(
-            "/diplomas/add_theme.html",
-            data={
-                "description": "Some description",
-            },
-        )
-        assert resp.status_code in (200,)
-
-    def test_add_theme_missing_description(self, logged_client):
-        resp = logged_client.post(
-            "/diplomas/add_theme.html",
-            data={
-                "title": "Some title",
-            },
-        )
-        assert resp.status_code in (200,)
-
-    def test_add_theme_missing_levels(self, logged_client):
-        resp = logged_client.post(
-            "/diplomas/add_theme.html",
-            data={
-                "title": "Some title",
-                "description": "Some description",
-            },
-        )
-        assert resp.status_code in (200,)
-
-    def test_add_theme_missing_company(self, logged_client):
-        resp = logged_client.post(
-            "/diplomas/add_theme.html",
-            data={
-                "title": "Some title",
-                "description": "Some description",
-                "levels": 1,
-            },
-        )
-        assert resp.status_code in (200,)
-
-    def test_add_theme_success(self, logged_client):
-        resp = logged_client.post(
-            "/diplomas/add_theme.html",
-            data={
-                "title": "New Test Theme",
-                "description": "A description for the new theme",
-                "requirements": "Some requirements",
-                "levels": 1,
-                "company": 1,
-            },
-        )
-        assert resp.status_code in (200, 302)
+    @pytest.mark.parametrize(
+        "data,code",
+        [
+            ({"description": "Some description"}, {200}),
+            ({"title": "Some title"}, {200}),
+            ({"title": "Some title", "description": "Some description"}, {200}),
+            ({"title": "Some title", "description": "Some description", "levels": 1}, {200}),
+            (
+                {
+                    "title": "New Test Theme",
+                    "description": "A description for the new theme",
+                    "requirements": "Some requirements",
+                    "levels": 1,
+                    "company": 1,
+                },
+                {200, 302},
+            ),
+        ],
+    )
+    def test_add_theme(self, logged_client, data, code):
+        resp = logged_client.post("/diplomas/add_theme.html", data=data)
+        assert resp.status_code in code
 
     def test_edit_theme_page_no_id(self, logged_client):
         assert_ok(logged_client, "/diplomas/edit_theme.html", code={302})

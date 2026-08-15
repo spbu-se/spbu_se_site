@@ -33,6 +33,7 @@ MODEL_TESTS = [
     (ThemesLevel,),
     (InternshipFormat,),
     (InternshipTag,),
+    (DiplomaThemes,),
 ]
 
 
@@ -45,10 +46,6 @@ def test_init_db_creates_first_user(seeded):
     user = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
     assert user is not None
     assert user.last_name == "Терехов"
-
-
-def test_init_db_creates_diploma_themes(seeded):
-    assert DiplomaThemes.query.count() > 0
 
 
 def test_init_db_creates_all_expected_tables(seeded):
@@ -98,33 +95,18 @@ def test_init_db_idempotent(seeded):
     init_db()
 
 
-def test_init_db_user_count(seeded):
-    assert Users.query.count() == 29
-
-
-def test_init_db_staff_count(seeded):
-    assert Staff.query.count() == 29
-
-
-def test_init_db_worktype_count(seeded):
-    assert Worktype.query.count() == 10
-
-
-def test_init_db_course_count(seeded):
-    assert Courses.query.count() == 7
-
-
-def test_init_db_curriculum_count(seeded):
-    assert Curriculum.query.count() == 199
-
-
-def test_init_db_areas_count(seeded):
-    assert AreasOfStudy.query.count() == 9
-
-
-def test_init_db_theme_levels_count(seeded):
-    assert ThemesLevel.query.count() == 4
-
-
-def test_init_db_diploma_themes_count(seeded):
-    assert DiplomaThemes.query.count() == 3
+@pytest.mark.parametrize(
+    "model,count",
+    [
+        (Users, 29),
+        (Staff, 29),
+        (Worktype, 10),
+        (Courses, 7),
+        (Curriculum, 199),
+        (AreasOfStudy, 9),
+        (ThemesLevel, 4),
+        (DiplomaThemes, 3),
+    ],
+)
+def test_init_db_seed_counts(seeded, model, count):
+    assert model.query.count() == count

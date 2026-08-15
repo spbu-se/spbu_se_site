@@ -10,10 +10,6 @@ class TestNewsGetPost:
         resp = seeded_client.get("/news/item.html?post=1")
         assert resp.status_code in (200, 302)
 
-    def test_news_get_post_increments_views(self, seeded_client):
-        seeded_client.get("/news/item.html?post=2")
-        seeded_client.get("/news/item.html?post=2")
-
 
 class TestNewsSubmit:
     def test_news_submit_with_uri(self, logged_client):

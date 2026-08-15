@@ -355,20 +355,18 @@ class TestMasterPrograms:
 
 
 class TestNews:
-    def test_news_index_loads(self, seeded_client):
-        assert_ok(seeded_client, "/news/")
-
-    def test_news_item_with_text(self, seeded_client):
-        assert_ok_or_redirect(seeded_client, "/news/item.html?id=2")
-
-    def test_news_submit_redirects_when_unauth(self, seeded_client):
-        assert_ok(seeded_client, "/news/submit.html", code={200, 302})
-
-    def test_news_post_vote_redirects_when_unauth(self, seeded_client):
-        assert_ok(seeded_client, "/news/post_vote", methods={"POST"}, code={200, 302, 404})
-
-    def test_news_delete_redirects_when_unauth(self, seeded_client):
-        assert_ok(seeded_client, "/news/delete", methods={"POST"}, code={200, 302, 404})
+    @pytest.mark.parametrize(
+        "path,methods,code",
+        [
+            ("/news/", {"GET"}, {200}),
+            ("/news/item.html?id=2", {"GET"}, {200, 302}),
+            ("/news/submit.html", {"GET"}, {200, 302}),
+            ("/news/post_vote", {"POST"}, {200, 302, 404}),
+            ("/news/delete", {"POST"}, {200, 302, 404}),
+        ],
+    )
+    def test_news_routes(self, seeded_client, path, methods, code):
+        assert_ok(seeded_client, path, methods=methods, code=code)
 
 
 class TestNewsItems:
@@ -521,17 +519,17 @@ class TestTheses:
 
 
 class TestThesisDownload:
-    def test_thesis_download_no_id(self, logged_client):
-        assert_ok(logged_client, "/thesis_download", code={200, 302})
-
-    def test_thesis_download_with_id(self, seeded_client):
-        assert_ok(seeded_client, "/thesis_download?thesis_id=1", code={200, 302})
-
-    def test_thesis_download_nonexistent_id(self, seeded_client):
-        assert_ok(seeded_client, "/thesis_download?thesis_id=99999", code={200, 302})
-
-    def test_thesis_download_invalid_id(self, seeded_client):
-        assert_ok(seeded_client, "/thesis_download?thesis_id=abc", code={200, 302})
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "/thesis_download",
+            "/thesis_download?thesis_id=1",
+            "/thesis_download?thesis_id=99999",
+            "/thesis_download?thesis_id=abc",
+        ],
+    )
+    def test_thesis_download(self, seeded_client, path):
+        assert_ok(seeded_client, path, code={200, 302})
 
 
 class TestThesisSearch:
@@ -655,20 +653,18 @@ class TestThesesLoggedIn:
 
 
 class TestInternships:
-    def test_internships_index(self, seeded_client):
-        assert_ok(seeded_client, "/internships/internships_index.html")
-
-    def test_internship_detail_nonexistent(self, seeded_client):
-        assert_ok_or_redirect(seeded_client, "/internships/99999")
-
-    def test_internship_add_form(self, seeded_client):
-        assert_ok_or_redirect(seeded_client, "/internships/add")
-
-    def test_internship_delete(self, seeded_client):
-        assert_ok(seeded_client, "/internships/1/delete", methods={"POST"}, code={200, 302, 404})
-
-    def test_internship_update_redirects(self, seeded_client):
-        assert_ok(seeded_client, "/internships/1/update", code={200, 302, 404})
+    @pytest.mark.parametrize(
+        "path,methods,code",
+        [
+            ("/internships/internships_index.html", {"GET"}, {200}),
+            ("/internships/99999", {"GET"}, {200, 302}),
+            ("/internships/add", {"GET"}, {200, 302}),
+            ("/internships/1/delete", {"POST"}, {200, 302, 404}),
+            ("/internships/1/update", {"GET"}, {200, 302, 404}),
+        ],
+    )
+    def test_internships_routes(self, seeded_client, path, methods, code):
+        assert_ok(seeded_client, path, methods=methods, code=code)
 
 
 class TestInternshipsBehavior:
@@ -732,39 +728,23 @@ class TestInternshipsLoggedIn:
 
 
 class TestDiplomas:
-    def test_diplomas_index(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/")
-
-    def test_diplomas_add_theme(self, seeded_client):
-        assert_ok_or_redirect(seeded_client, "/diplomas/add_theme.html")
-
-    def test_diploma_theme_detail(self, seeded_client):
-        assert_ok_or_redirect(seeded_client, "/diplomas/theme.html?id=1")
-
-    def test_diploma_theme_nonexistent(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/theme.html?id=99999", code={200, 302, 404})
-
-    def test_diplomas_fetch(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/fetch_themes")
-
-    def test_diplomas_user_themes(self, seeded_client):
-        assert_ok_or_redirect(seeded_client, "/diplomas/user_themes.html")
-
-    def test_diplomas_delete_theme_redirects(self, seeded_client):
-        assert_ok(
-            seeded_client, "/diplomas/delete_theme.html", methods={"POST"}, code={200, 302, 404}
-        )
-
-    def test_diplomas_edit_theme_redirects(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/edit_theme.html", code={200, 302})
-
-    def test_diplomas_archive_theme_redirects(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/archive_theme", methods={"POST"}, code={200, 302, 404})
-
-    def test_diplomas_unarchive_theme_redirects(self, seeded_client):
-        assert_ok(
-            seeded_client, "/diplomas/unarchive_theme", methods={"POST"}, code={200, 302, 404}
-        )
+    @pytest.mark.parametrize(
+        "path,methods,code",
+        [
+            ("/diplomas/", {"GET"}, {200}),
+            ("/diplomas/add_theme.html", {"GET"}, {200, 302}),
+            ("/diplomas/theme.html?id=1", {"GET"}, {200, 302}),
+            ("/diplomas/theme.html?id=99999", {"GET"}, {200, 302, 404}),
+            ("/diplomas/fetch_themes", {"GET"}, {200}),
+            ("/diplomas/user_themes.html", {"GET"}, {200, 302}),
+            ("/diplomas/delete_theme.html", {"POST"}, {200, 302, 404}),
+            ("/diplomas/edit_theme.html", {"GET"}, {200, 302}),
+            ("/diplomas/archive_theme", {"POST"}, {200, 302, 404}),
+            ("/diplomas/unarchive_theme", {"POST"}, {200, 302, 404}),
+        ],
+    )
+    def test_diplomas_routes(self, seeded_client, path, methods, code):
+        assert_ok(seeded_client, path, methods=methods, code=code)
 
 
 class TestDiplomasBehavior:

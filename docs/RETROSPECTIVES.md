@@ -1297,3 +1297,22 @@ Changes analyzed: `pyproject.toml`/`uv.lock` (vulture dev dep), `.pre-commit-con
 - Full suite not re-run in this PR (test-only changes were the 3 consolidation files, each run green); reference stays 1297 passed.
 - Next: `test/consolidate-params`, then `fix/xdist-races`.
 
+### Retrospective — 2026-08-15: test consolidation pass (SLOC reduction, mechanical)
+
+Changes analyzed: 12 test files + `tests/conftest.py` + `docs/TESTING.md`. Mechanical, logic-preserving consolidation per the explore-agent re-analysis.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Dead/no-assertion tests inflated the suite | `test_news_get_post_increments_views` (no assertions), `test_index_returns_200` (subsumed), `test_coerce_is_int` (duplicate), `test_init_db_creates_diploma_themes` (duplicate) | Removed 4; `DiplomaThemes` folded into the `MODEL_TESTS` parametrization |
+| Duplicate fixtures (`admin_client`, `notification_in_db`) drifted across files | Same fixture re-defined per module | Moved `notification_in_db` to conftest; removed the local `admin_client` (conftest already provided it) |
+| Table-shaped tests written as methods instead of data | plural_hours (11), allowed_file (11), init_db seed counts (8), theses fetch filters (9) + pagination (7), diplomas routes (10), internships (5), news (5), thesis_download (4), review fetch (7) + submit-validation (4), og-card redirects (3), diploma add-theme (5), practice choosing-topic (6) | Folded into `@pytest.mark.parametrize` tables (~60 test methods → parametrized data, same coverage) |
+| Ruff import drift after fixture removal | Removed fixtures left unused `import pytest` in two sendmail files | `ruff check --fix` cleaned imports + ordering |
+
+**What went well**: every batch verified by running the affected files before the full suite; the full suite (1294 passed, 4 skipped, 3 xfailed, 7 xpassed, 92.26% coverage) stayed green end-to-end; the pylint-similarities gate (now in pre-push/CI) confirmed the consolidation added no new duplication.
+
+**What went wrong / deferred**: the largest clusters (`test_se_forms` ~450-line table, `test_se_models_deep` repr/str ~180, theses `post_theses` API ~170, practice preparation ~125, sendmail ~95, practice_table ~110) were left as-is — they carry per-branch assertions or constructor-heavy setup where a mechanical fold risks behavior drift; the pylint gate keeps them honest. Documented as tracked future work.
+
+**State at handoff**:
+
+- Branch `test/consolidate-params` (stacked on `chore/quality-tooling`). Full suite: **1294 passed, 4 skipped, 3 xfailed, 7 xpassed**; coverage 92.26%. Reference updated in `TESTING.md`.
+- Next: `fix/xdist-races` (the remaining `post_theses` intermittent-500 cluster).
