@@ -41,6 +41,27 @@ class TestDiplomasDeep:
     def test_get_theme_no_id(self, seeded_client):
         assert_ok(seeded_client, "/diplomas/theme.html", code={302})
 
+    def test_theme_page_renders_markdown_unescaped(self, seeded_client):
+        from se_models import DiplomaThemes, db
+
+        theme = DiplomaThemes(
+            title="Markdown Theme",
+            description="[Spla](https://example.org) and\n\n- one\n- two",
+            requirements="- req one\n- req two",
+            company_id=1,
+            author_id=1,
+            consultant_id=1,
+            status=2,
+        )
+        db.session.add(theme)
+        db.session.commit()
+        resp = seeded_client.get(f"/diplomas/theme.html?id={theme.id}")
+        assert resp.status_code == 200
+        body = resp.data.decode("utf-8")
+        assert '<a href="https://example.org"' in body
+        assert "<ul>" in body
+        assert "&lt;a href" not in body
+
     def test_add_theme_page(self, logged_client):
         assert_ok(logged_client, "/diplomas/add_theme.html", code={200})
 

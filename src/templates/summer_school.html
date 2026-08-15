@@ -17,9 +17,9 @@
           <div class="col-lg-9">
             <a href="{{ url_for('summer_school_list') }}">Архив описаний прошлых летних школ</a>
             <!-- Heading -->
-            <h1 class="h2 mb-2">{{ school.full_name|safe }}</h1>
+            <h1 class="h2 mb-2">{{ school.full_name|safe_html }}</h1>
             <!-- Text -->
-            <p class="lead">{{ school.description|safe }}</p>
+            <p class="lead">{{ school.description|safe_html }}</p>
           </div>
         </div>
       </div>

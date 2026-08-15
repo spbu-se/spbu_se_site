@@ -1205,3 +1205,25 @@ Changes analyzed: the release execution after PR #212 merged (`740f231`) — Cod
 - CodeQL re-sort done (0 open alerts); stale draft `v2026.08.10` deleted (tag kept); advisory fix live (record stays published).
 - B7 (bachelor 2025 → 2026 admission data) deferred.
 - Next: none for this release; B7 update when data is available.
+
+### Retrospective — 2026-08-15: sanitized unescaped markdown/HTML rendering + repo cleanup/sync
+
+Changes analyzed: 8 files — `flask_se.py` (markdown + new `safe_html` filters), `news/post.html`, `summer_school.html`, `summer_school_list.html` (`|safe` → `|safe_html`), `test_app.py` (+5 filter/guardrail tests), `test_diplomas_deep.py` (route repro), `TESTING.md` (reference run), this retro. Plus infra: 16 local + 19 fork + 4 upstream merged branches deleted; `current`/`staging` re-synced to `upstream/current`.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Theme/report/internship fields displayed literal HTML tags (`<p>`, `<a href=...>`) on diplomas themes, practice reports/notifications, internships | `render_markdown` returned a plain `str`; Jinja autoescape re-escaped the generated HTML (filter output was never marked safe). The escaping bug was invisible to tests — `TestMarkdownFilter` asserted on the raw filter return, never through a rendered template | `render_markdown` now returns `Markup(nh3.clean(_markdown.markdown(...)))` — output renders AND is sanitized. New regression tests render through `jinja_env` (assert no `&lt;`) plus a route-level repro on `/diplomas/theme.html` |
+| Marking the output safe without sanitizing would have created a stored-XSS hole (source is user-authored; python-markdown 3.10.2 passes `<script>`/`<iframe>`/`javascript:` hrefs through unchanged) | Sanitization and safety-marking are separate concerns; both are required, and `nh3` was already a dependency | `nh3.clean` runs before `Markup` on every output path; XSS guard tests assert `<script>`/`onerror`/`javascript:` are stripped while tables + https links survive (verified empirically before implementing) |
+| Raw `\|safe` with no render-time defense: news `post.text` (write-time-cleaned only) and summer-school `\|safe` (trusted constants) | Two divergent raw-HTML patterns; a future write path bypassing `nh3.clean` on news would be an XSS | New `safe_html` filter (`Markup(nh3.clean(...))`) — defense-in-depth at render; all 6 `\|safe` usages migrated (no visual change; nh3 preserves `<strong>`/`<p>`); a template guardrail test now fails any bare `\|safe` without `\|safe_html` |
+| Fork `staging` diverged from `current` (7 squash-commits already in `current` via PR #193), so the §8.5 re-sync could not be a plain `--ff-only` | The post-#193 re-sync step was skipped; individual-branch PRs (#195–#213) advanced `current` past the fork's `staging` | Verified all 7 staging-only commits are functionally in `current` (tree check: `SQLITE_DATABASE_URI`, `.skills/security-audit/` present), then `git reset --hard upstream/current` + `--force-with-lease` push. `current` fast-forwarded, both pushed to the fork |
+
+**What went well**: tests-first discipline reproduced every symptom red before implementation (escaping repro, XSS guard, `safe_html` KeyError, guardrail) — all 6 red, all 9 green after the fix; security analysis ran before any code (empirically probed the markdown→nh3 pipeline for 12 XSS vectors); one commit `b777189` carries the whole change; full suite 1295 passed with 92.26% coverage; branch cleanup used GitHub PR-merged records as evidence since squash-merged branches are not `git branch --merged`-detectable.
+
+**What went wrong**: the route-level repro insert hit `NOT NULL` constraints twice (`author_id`, then `consultant_id`) — reading `DiplomaThemes` model fields before writing the test would have saved one cycle; the first `git fetch --prune origin upstream` failed (two remotes in one `--prune`) — remotes must be fetched separately; `ruff` `S704` flags `Markup(...)` even when the argument is sanitized in the same expression — resolved with justified `# noqa: S704` (repo convention).
+
+**State at handoff**:
+
+- Branch `fix/markdown-sanitize-render` (from `origin/staging` `adba34b`), commit `b777189` (6 files) + docs commit (this retro + `TESTING.md` reference run).
+- Cleanup done: 16 local + 19 fork + 4 upstream branches deleted; upstream now only `current` + `gh-pages`; fork + local `current`/`staging` = `upstream/current` `adba34b`.
+- Tests: 1295 passed, 4 skipped, 4 xfailed, 8 xpassed; ruff format/check, basedpyright, djlint green.
+- PR to upstream `current` from `iakov:fix/markdown-sanitize-render` — user reviews and merges manually.
