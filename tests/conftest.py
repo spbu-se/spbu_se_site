@@ -37,6 +37,13 @@ _db_dir, _db_path = _init_db_path()
 import pytest
 from sqlalchemy import create_engine
 
+# Isolate the theses upload scratch dir per process (xdist worker) so parallel
+# tests never write the same file in the shared static/tmp tree.
+_upload_root = Path(tempfile.mkdtemp(prefix="se_uploads_"))
+for _sub in ("texts", "slides", "reviews"):
+    (_upload_root / _sub).mkdir(parents=True, exist_ok=True)
+os.environ["SE_THESIS_UPLOAD_ROOT"] = str(_upload_root)
+
 from flask_se import app, db
 from se_models import init_db
 

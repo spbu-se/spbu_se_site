@@ -27,6 +27,10 @@ log = logging.getLogger("flask_se.sub")
 _safe_ext_re = re.compile(r"^\.[A-Za-z0-9]{1,10}$")
 _safe_uri_re = re.compile(r"^[A-Za-z0-9_.\-]+$")
 
+# Scratch root for post_theses/theses_add_tmp uploads. Configurable so tests
+# isolate it per worker (shared same-name upload files were an xdist race).
+THESIS_UPLOAD_ROOT = os.environ.get("SE_THESIS_UPLOAD_ROOT", "./static/tmp")
+
 _ALLOWED_UPLOAD_EXTENSIONS = {
     ".pdf",
     ".doc",
@@ -459,9 +463,9 @@ def post_theses():
         return jsonify(status=error_status, string="Work already exists: " + str(thesis_filename))
 
     # Save file to TMP
-    thesis_text.save(os.path.join("./static/tmp/texts/", thesis_filename))
+    thesis_text.save(os.path.join(THESIS_UPLOAD_ROOT, "texts", thesis_filename))
 
-    text = get_text(os.path.join("./static/tmp/texts/", thesis_filename))
+    text = get_text(os.path.join(THESIS_UPLOAD_ROOT, "texts", thesis_filename))
 
     if presentation:
         presentation_filename = author_en
@@ -470,7 +474,7 @@ def post_theses():
 
         presentation_filename = presentation_filename + _safe_extension(presentation.filename)
 
-        presentation.save(os.path.join("./static/tmp/slides/", presentation_filename))
+        presentation.save(os.path.join(THESIS_UPLOAD_ROOT, "slides", presentation_filename))
 
     if supervisor_review:
         supervisor_review_filename = author_en
@@ -483,7 +487,9 @@ def post_theses():
             supervisor_review.filename,
         )
 
-        supervisor_review.save(os.path.join("./static/tmp/reviews/", supervisor_review_filename))
+        supervisor_review.save(
+            os.path.join(THESIS_UPLOAD_ROOT, "reviews", supervisor_review_filename)
+        )
 
     if reviewer_review:
         reviewer_review_filename = author_en
@@ -496,7 +502,7 @@ def post_theses():
             reviewer_review.filename,
         )
 
-        reviewer_review.save(os.path.join("./static/tmp/reviews/", reviewer_review_filename))
+        reviewer_review.save(os.path.join(THESIS_UPLOAD_ROOT, "reviews", reviewer_review_filename))
 
     if source_uri:
         t = Thesis(
@@ -581,25 +587,25 @@ def theses_add_tmp():
 
         if thesis.text_uri and _safe_uri(thesis.text_uri):
             os.rename(
-                "./static/tmp/texts/" + thesis.text_uri,
+                os.path.join(THESIS_UPLOAD_ROOT, "texts", thesis.text_uri),
                 "./static/thesis/texts/" + thesis.text_uri,
             )
 
         if thesis.presentation_uri and _safe_uri(thesis.presentation_uri):
             os.rename(
-                "./static/tmp/slides/" + thesis.presentation_uri,
+                os.path.join(THESIS_UPLOAD_ROOT, "slides", thesis.presentation_uri),
                 "./static/thesis/slides/" + thesis.presentation_uri,
             )
 
         if thesis.supervisor_review_uri and _safe_uri(thesis.supervisor_review_uri):
             os.rename(
-                "./static/tmp/reviews/" + thesis.supervisor_review_uri,
+                os.path.join(THESIS_UPLOAD_ROOT, "reviews", thesis.supervisor_review_uri),
                 "./static/thesis/reviews/" + thesis.supervisor_review_uri,
             )
 
         if thesis.reviewer_review_uri and _safe_uri(thesis.reviewer_review_uri):
             os.rename(
-                "./static/tmp/reviews/" + thesis.reviewer_review_uri,
+                os.path.join(THESIS_UPLOAD_ROOT, "reviews", thesis.reviewer_review_uri),
                 "./static/thesis/reviews/" + thesis.reviewer_review_uri,
             )
 
