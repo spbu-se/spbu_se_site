@@ -4,18 +4,6 @@ from conftest import LIST_VIEWS, assert_ok
 
 
 @pytest.fixture
-def admin_client(seeded_client):
-    from se_models import Users, db
-
-    u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
-    u.role = 5
-    db.session.commit()
-    with seeded_client.session_transaction() as sess:
-        sess["_user_id"] = str(u.id)
-    return seeded_client
-
-
-@pytest.fixture
 def diploma_themes_for_review(admin_client):
     from se_models import DiplomaThemes, db
 
