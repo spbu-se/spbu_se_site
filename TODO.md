@@ -2,7 +2,7 @@
 
 # TODO
 
-## Next run (post-2026-08-08: security triage + notification fix shipped)
+## Next run (post-2026-08-15: markdown/safe-html render-time sanitization shipped, PR #214)
 
 **Deferred feature issues (upstream, keep open):**
 
@@ -10,24 +10,10 @@
 - #70 admin theme management (reject + comment, archive w/ notifications, edit approved themes, theme sources CRUD)
 - #67 theme lifecycle for coursework themes
 
-**OG polish (post-v2026.08.10, found during live verification):**
+**Config/input-gated:**
 
-- Diploma theme `og:description` leaks textile/HTML markup (raw `[Spla](url)` etc.) — reuse `_og_description` plain-text extraction ✅ shipped in `feat/meta-audit` (PR #208)
-- `thesis_card` `og:description` has leading/trailing whitespace — trim in the card view ✅ shipped in `feat/meta-audit` (PR #208)
-- `/news/` `og:description` empty (index has no description block) — set a default site description ✅ shipped in `feat/meta-audit` (PR #208)
-
-**Shipped in PR-C `feat/consultant-filter` (issue #38):**
-
-- #38 consultant filter on the practice archive (free-text substring on `Thesis.consultant`, carried through `archive_thesis`; historical rows stay empty — consultant was dropped at archive time before this change)
-
-**Merge / review follow-ups (stacked PRs in iakov/spbu_se_site):**
-
-- PR #15 `fix/security-triage` → `docs/release-process` (CodeQL XSS + info-exposure). Merge after #196.
-- PR #16 `fix/notification-bug-76` → `fix/security-triage` (SE_STAGING gate + DB idempotency, issue #76). Merge after #15.
-- PR-C `feat/consultant-filter` → `fix/notification-bug-76` (issue #38). Merge after #16.
-- PR #194 (upstream, cryptography 49→50) is repaired + green + approved, but the merge queue is blocked by `require_last_push_approval` (approver = last pusher). Needs a non-pusher review (e.g. KirillSmirnov) or web-UI merge via the `iakov` bypass allowance. **Check the merge-queue on/off state live first** — it toggles between batches (see `docs/AI_AGENT_EXPERIENCE.md` merge-queue entry).
-- CodeQL #53/#54 dismissal needs `security_events` token scope (currently not granted); dependabot dismissals work with `repo` scope only.
-- `OPENCODE_ZEN_API_KEY` secret still needs to be added to enable automated draft-release generation.
+- `OPENCODE_ZEN_API_KEY` secret still needs to be added to enable automated draft-release generation (until then drafts are manual — `docs/GIT_FLOW.md §7`).
+- Bachelor admission data: 2026 campaign figures still needed in `src/flask_se_bachelor.py` (B7, deferred by user decision).
 
 ## Batch run 2026-07-08 — session 5 (auto mode: CI stability + P0-P4 sweep)
 
@@ -223,23 +209,20 @@ None.
 |------|----------|--------|---------------|
 | Practice deeper upload branches | 6 tests | ~30 branches remain | ~50 multipart fixture tests |
 | Review full workflow | 14 tests (ThesisOnReview) | Multi-request state untestable | ~30 sequenced request tests |
-| Practice admin file upload (xdist race) | 6 tests xfailed | File I/O race in xdist parallel workers — concurrent file creation corrupts test state | Isolate practice admin tests from xdist or use lock-based file fixtures |
-| Thesis admin approval (Whoosh+xdist) | 3 tests, 2 xfailed | Whoosh `EmptyIndexError` on CI | Whoosh index sync with per-test DB |
 | Google OAuth full flow | 2 tests pass with patch | Needs `client_google.json` file | Config stub or file-level mock |
-| `test_review_deep` 2 missing templates | Both xfailed (`strict=False`) | `notification/thesis_on_review_success.html` doesn't exist | Create the template or add fallback path |
-| `TestPostThesesDeep` 6 intermittent CI failures | xfailed (`strict=False`) | `post_theses` returns 500 on CI, passes locally | Likely Whoosh xdist race — isolate or serialize |
+| `TestPostThesesDeep` 6 intermittent CI failures | xfailed (`strict=False`) | `post_theses` returns 500 on CI, passes locally; marker reason "intermittent xdist race — passes alone, fails in full suite" | Suspected shared `static/tmp/…` upload-dir race between parallel workers — isolate uploads per test or serialize (see `fix/xdist-races`) |
 
 ## Module Coverage
 
 | Module | Coverage | Status |
 |--------|----------|--------|
-| `se_forms.py`, `se_review_forms.py`, `flask_se_bachelor.py` | 100% | Done |
-| `flask_se_config.py`, `scholarships.py`, `summer_schools.py` | 97-100% | Done |
-| `se_models.py`, `se_sendmail.py` | 80-92% | Mostly done |
-| `flask_se_news.py`, `auth.py`, `admin.py`, `diplomas.py`, `internships.py`, `practice_yandex_disk.py` | 45-60% | Partial |
-| `flask_se_review.py`, `theses.py`, `practice_table.py`, `practice.py`, `practice_staff.py`, `practice_admin.py`, `flask_se.py` | 35-50% | Partial |
-| `thesesImport.py` | ~2% (28 tests, 23 xfail—module interaction) | Modeled, needs isolation |
-| **TOTAL** | **92%** | |
+| `se_forms.py`, `se_review_forms.py`, `flask_se_bachelor.py`, `scholarships.py`, `summer_schools.py`, `practice_staff.py`, `practice_table.py`, `sitemap.py`, `flask_se_static.py` | 100% | Done |
+| `flask_se_diplomas.py`, `flask_se_practice_admin.py`, `flask_se_config.py`, `flask_se_practice_config.py` | 97-99% | Done |
+| `se_models.py`, `flask_se_news.py`, `flask_se_practice.py`, `flask_se.py`, `se_sendmail.py` | 93-97% | Mostly done |
+| `flask_se_review.py`, `flask_se_theses.py`, `flask_se_auth.py`, `flask_se_admin.py`, `flask_se_internships.py`, `flask_se_crud.py` | 73-92% | Partial |
+| `thesesImport.py` | ~2% (in coverage omit) | Modeled, needs isolation |
+| `se_internship_forms.py` | 0% | Untested |
+| **TOTAL** | **92.26%** (reference 2026-08-15) | |
 
 ## Technical Debt — remaining `# pyright: ignore` (114 total)
 

@@ -554,3 +554,11 @@ open(".tmp/routes.txt", "w").write(str(rs))
 **Root cause:** squash merges create a new commit, so the feature-branch tip is never an ancestor of `staging`/`current`; `git branch --merged` lists nothing and `git branch -d` refuses.
 
 **Fix:** Use GitHub as the source of truth: `gh pr list --repo <owner>/<repo> --state merged --json number,headRefName,mergedAt` maps merged PRs to head branches; then `git branch -D` (forced) is justified by the evidence. Verify no local-only commits are lost first (`git rev-list --left-right --count <local>...origin/<branch>`).
+
+## Patching `os.path.isfile` breaks Jinja template loading — silent `TemplateNotFound`
+
+**When:** 2026-08-15, removing two stale xfails whose reason was "Missing template `notification/thesis_on_review_success.html`" — the template existed and loaded fine, yet the tests still failed with `TemplateNotFound`.
+
+**Root cause:** the tests used `@patch("flask_se_review.os.path.isfile", return_value=False)`. Because `flask_se_review.os` *is* the `os` module, this patches the **global** `os.path.isfile`, and Jinja's `FileSystemLoader` (`open_if_exists`) calls `os.path.isfile` to resolve every template → **every** `render_template` during the patched window raises `TemplateNotFound`. Symptom masquerades as a missing template; pre-caching the template (`jinja_env.get_template`) hides it because the loader's cache short-circuits `open_if_exists`.
+
+**Fix:** don't patch `os.path.isfile` globally when a request will render templates. Patch a narrower target, or rely on the real `os.path.isfile` returning `False` for the non-existent upload file (as here — `FileStorage.save` was mocked so nothing existed on disk). Verify by running the test without the patch.

@@ -57,13 +57,6 @@ Pre-push mandatory: tests pass, lint clean, format clean.
 
 Reference: `docs/DEVELOPMENT_PROCESS.md` §Project Doctrine Layer 3 — "Save attempts, not screen space."
 
-### 3b. Known pre-existing failures
-
-| Test | Error | Reason | Fixed? |
-|------|-------|--------|--------|
-| `test_reviewed_with_file` | `TemplateNotFound: notification/thesis_on_review_success.html` | Template file missing from `src/templates/notification/` | No — xfailed |
-| `test_full_review_lifecycle` | `TemplateNotFound: notification/thesis_on_review_success.html` | Same missing template | No — xfailed |
-
 ## 4. xfail Policy
 
 Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_ISSUES.md` blocker entry. xfails are re-reviewed every 3 months or after refactoring the affected module — whichever comes first.
@@ -73,7 +66,6 @@ Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_
 | Test | Count | Reason | Tracking |
 |------|-------|--------|----------|
 | Google OAuth callback | 1 | Requires OAuth session state not present in test | TODO.md Blocked |
-| review missing template | 2 | Missing `notification/thesis_on_review_success.html` | TODO.md tech debt |
 | theses_import runpy re-import | 1 | `runpy.run_module` re-imports `thesesImport` without patch | TODO.md tech debt |
 
 ### Current xfails — intermittent CI (strict=False)
@@ -93,7 +85,7 @@ Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_
 |------|-------|--------|----------|
 | admin staff create/edit views | 2 | `test_admin_create_views_load[staff]`, `test_admin_edit_views_load[staff]` | CODE_ISSUES.md — reason text still cites Flask-Admin (stale); verify after next admin refactor |
 
-Reference run (2026-08-15, `pytest --tb=no -q -rxX`): **1295 passed, 4 skipped, 4 xfailed, 8 xpassed**. The intermittent-marker count drifts between runs (flaky XPASS whenever the path passes); re-verify drift is stability, not flakiness, before touching any marker.
+Reference run (2026-08-15, `pytest --tb=no -q -rxX`): **1297 passed, 4 skipped, 3 xfailed, 7 xpassed**. The intermittent-marker count drifts between runs (flaky XPASS whenever the path passes); re-verify drift is stability, not flakiness, before touching any marker.
 
 ## 5. Xpassed Tests
 
@@ -107,7 +99,6 @@ Architectural issues that limit test coverage and require production code change
 - **FTS5 index inside SQLite — no separate index management needed**
 - **OAuth external dependencies**: Full-flow VK and Google OAuth tests require external config files and network access. CI tests use mock stubs — real OAuth flow is only tested manually.
 - **Practice file upload branches**: Cyclomatic complexity in practice route handlers leaves ~30 untested code branches in file upload logic. Adding tests requires multipart fixture infrastructure.
-- **Notification templates missing** (2): `notification/thesis_on_review_success.html` does not exist. `test_reviewed_with_file` and `test_full_review_lifecycle` fail with `TemplateNotFound`. Pre-existing, unrelated to code changes.
 
 ## 7. Deliberate Exclusions
 

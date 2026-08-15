@@ -1258,3 +1258,21 @@ Changes analyzed: PR #214 (merged `2c533dc` — `flask_se.py` filters, 3 templat
 - This PR (`docs/drift-skills-retro`): docs-drift fixes, 5 skill updates, full retro. Branch from `origin/staging` `2c533dc`.
 - Full suite: 1295 passed, 4 skipped, 4 xfailed, 8 xpassed (reference in `TESTING.md`).
 - Next: user reviews and merges this PR manually.
+
+### Retrospective — 2026-08-15: TODO freshness + stale-xfail removal (review tests)
+
+Changes analyzed: `tests/test_review_deep.py` (2 xfail markers + global `os.path.isfile` patch removed), `TODO.md` (stale top sections, Blocked + Module Coverage tables), `docs/TESTING.md` (removed resolved xfail rows + reference run), `docs/AI_AGENT_EXPERIENCE.md` (new entry).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Two review tests xfailed with reason "Missing template `notification/thesis_on_review_success.html`" while the template **exists** and loads in isolation | `@patch("flask_se_review.os.path.isfile")` patches the **global** `os.path.isfile` (the module's `os` *is* `os`); Jinja's `FileSystemLoader` uses `os.path.isfile` (`open_if_exists`) to resolve templates → every render during the patch raises `TemplateNotFound` | Removed the global patch (real `os.path.isfile` returns `False` for the non-existent upload — `FileStorage.save` is mocked); removed the stale xfail markers; both tests now pass. Gotcha documented in `AI_AGENT_EXPERIENCE.md` |
+| TODO.md backlog was misleading (header said "post-2026-08-08", listed PRs #15/#16/#194 and Whoosh races long resolved) | Backlog not refreshed after the merged release chain + FTS5 migration (Whoosh replaced by FTS5 in PR #11) | Freshness pass: new header, dropped shipped/merged follow-ups, Blocked table keeps only real gaps (post_theses xdist cluster now links to `fix/xdist-races`), Module Coverage table updated to the 2026-08-15 run |
+
+**What went well**: the xfail removal was gated on reproduction, not on trusting the stale reason — a temporary diagnostic test proved the template loads (even under the same app), and bisecting the patch set isolated the global `os.path.isfile` mock as the true cause; a pre-caching print briefly masked it (the Jinja loader cache short-circuits `open_if_exists`), which itself became a debugging lesson.
+
+**What went wrong**: initial assumption that "template exists ⇒ stale xfail" was right, but the first `--runxfail` traceback still said `TemplateNotFound`, and the direct `render_template` worked — three rounds of diagnostic narrowing were needed before the patch culprit surfaced.
+
+**State at handoff**:
+
+- Branch `chore/todo-freshness-xfail`, one commit. Full suite: **1297 passed, 4 skipped, 3 xfailed, 7 xpassed**; coverage 92.26%.
+- Next: PR to upstream; then `chore/quality-tooling` (pylint-similarities parity + vulture gate), `test/consolidate-params`, `fix/xdist-races`.
