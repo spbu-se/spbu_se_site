@@ -1352,3 +1352,22 @@ Changes analyzed: 12 test files + `tests/conftest.py` + `docs/TESTING.md`. Mecha
 
 - Branch `test/consolidate-params` (stacked on `chore/quality-tooling`). Full suite: **1294 passed, 4 skipped, 3 xfailed, 7 xpassed**; coverage 92.26%. Reference updated in `TESTING.md`.
 - Next: `fix/xdist-races` (the remaining `post_theses` intermittent-500 cluster).
+
+### Retrospective — 2026-08-15: release-prep for v2026.08.15
+
+Changes analyzed: the 7 PRs merged since `v2026.08.14` (#213–#219: markdown/safe-html render fix, TODO backlog refresh, quality gates, test SLOC consolidation, xdist-race fix), plus the §A release guardrail drift items.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `STATIC_LASTMOD` pinned to `2026-08-14` | Release-date constant not bumped since last release | Bumped to `2026-08-15` (RELEASE_CHECKLIST A1) |
+| TESTING.md reference run stale (`1294 passed… 7 xpassed`) | Reference not updated after `fix/xdist-races` merged (1300/1) | Updated to the latest full green run (A4) |
+| Frozen-Flask build fails on external redirect | Pre-existing (v2026.08.14 also fails); freezer is not in the production deploy path (Dockerfile→uwsgi→webhook) | Check-only B4 — not a release blocker; noted for follow-up |
+
+**What went well**: the guardrail caught both §A drift items before tagging; the full suite was green (1300 passed, 4 skipped, 3 xfailed, 1 xpassed); CI on `current` was green (Basic checks, CD, CodeQL) before the prep commit; actionlint passed; requirements.txt unchanged since `vulture` is dev-only.
+
+**What went wrong**: none blocking. B4 (freezer build) is a known pre-existing failure outside the production path — recorded here rather than fixed in the release commit to keep the release commit minimal.
+
+**State at handoff**:
+
+- Branch `chore/release-prep-v2026.08.15` (from `upstream/current` `0905a12`). §A fixes applied (sitemap lastmod, TESTING reference), retro appended.
+- Next: generate `.tmp/release-notes.md`, push, open PR; after merge + CI green → tag `v2026.08.15`, push to `upstream`, create draft release, publish (triggers deploy).
