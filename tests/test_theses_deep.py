@@ -8,36 +8,22 @@ from conftest import _approve_temp_thesis, _make_temp_thesis, _min_pdf, assert_o
 
 
 class TestFetchThesesFilters:
-    def test_fetch_default_params(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses")
-
-    def test_fetch_with_worktype(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?worktype=2")
-
-    def test_fetch_with_course(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?course=1")
-
-    def test_fetch_with_supervisor(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?supervisor=1")
-
-    def test_fetch_with_all_filters(self, seeded_client):
-        assert_ok(
-            seeded_client,
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "/fetch_theses",
+            "/fetch_theses?worktype=2",
+            "/fetch_theses?course=1",
+            "/fetch_theses?supervisor=1",
             "/fetch_theses?worktype=2&course=1&supervisor=1&startdate=2010&enddate=2024&page=1",
-        )
-
-    def test_fetch_enddate_before_startdate(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?startdate=2024&enddate=2010")
-
-    def test_fetch_search_no_results(self, seeded_client):
-        resp = seeded_client.get("/fetch_theses?search=zzz_no_match_zzz")
-        assert resp.status_code == 200
-
-    def test_fetch_with_invalid_supervisor(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?supervisor=99999")
-
-    def test_fetch_with_multiple_pages(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?page=2")
+            "/fetch_theses?startdate=2024&enddate=2010",
+            "/fetch_theses?search=zzz_no_match_zzz",
+            "/fetch_theses?supervisor=99999",
+            "/fetch_theses?page=2",
+        ],
+    )
+    def test_fetch_filters(self, seeded_client, path):
+        assert_ok(seeded_client, path)
 
 
 class TestFetchThesesConsultantFilter:
@@ -573,29 +559,20 @@ class TestThesesAddTmpDeep:
 
 
 class TestThesesPagination:
-    def test_fetch_page_one(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?page=1")
-
-    def test_fetch_page_large_number(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?page=9999")
-
-    def test_fetch_with_search_paginated(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?search=python&page=1")
-
-    def test_fetch_with_worktype_filter_paginated(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?worktype=2&page=2")
-
-    def test_fetch_with_supervisor_and_course(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?supervisor=1&course=1")
-
-    def test_fetch_with_worktype_and_no_results(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?worktype=8")
-
-    def test_fetch_all_params(self, seeded_client):
-        assert_ok(
-            seeded_client,
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "/fetch_theses?page=1",
+            "/fetch_theses?page=9999",
+            "/fetch_theses?search=python&page=1",
+            "/fetch_theses?worktype=2&page=2",
+            "/fetch_theses?supervisor=1&course=1",
+            "/fetch_theses?worktype=8",
             "/fetch_theses?worktype=1&course=2&supervisor=1&startdate=2000&enddate=2030&page=1&search=",
-        )
+        ],
+    )
+    def test_fetch_pagination(self, seeded_client, path):
+        assert_ok(seeded_client, path)
 
 
 class TestThesesSearchFilterPopulation:

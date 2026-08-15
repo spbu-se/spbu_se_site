@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
+import pytest
 from conftest import assert_ok
 
 
@@ -73,49 +74,19 @@ class TestPracticeChoosingTopic:
         resp = practice_thesis.get("/practice/choosing_topic/?id=1")
         assert resp.status_code in (200, 302)
 
-    def test_post_save_topic_empty(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/choosing_topic/?id=1",
-            data={"save_topic_button": "1", "topic": "", "staff": 1},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_save_topic_short(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/choosing_topic/?id=1",
-            data={"save_topic_button": "1", "topic": "AB", "staff": 1},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_save_topic_no_supervisor(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/choosing_topic/?id=1",
-            data={"save_topic_button": "1", "topic": "My thesis topic"},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_save_topic_valid(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/choosing_topic/?id=1",
-            data={"save_topic_button": "1", "topic": "My thesis topic", "staff": 1},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_add_consultant(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/choosing_topic/?id=1",
-            data={
-                "add_consultant_button": "1",
-                "add_consultant_input": "Dr. Consultant Name",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_delete_topic(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/choosing_topic/?id=1",
-            data={"delete_topic_button": "1"},
-        )
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {"save_topic_button": "1", "topic": "", "staff": 1},
+            {"save_topic_button": "1", "topic": "AB", "staff": 1},
+            {"save_topic_button": "1", "topic": "My thesis topic"},
+            {"save_topic_button": "1", "topic": "My thesis topic", "staff": 1},
+            {"add_consultant_button": "1", "add_consultant_input": "Dr. Consultant Name"},
+            {"delete_topic_button": "1"},
+        ],
+    )
+    def test_post_choosing_topic(self, practice_thesis, data):
+        resp = practice_thesis.post("/practice/choosing_topic/?id=1", data=data)
         assert resp.status_code in (200, 302)
 
 

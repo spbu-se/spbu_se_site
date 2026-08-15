@@ -131,38 +131,24 @@ class TestPostRankingScore:
 
 
 class TestPluralHours:
-    def test_less_than_hour(self):
-        assert plural_hours(0) == "меньше часа"
-
-    def test_one_hour(self):
-        assert plural_hours(1) == "1 час"
-
-    def test_two_hours(self):
-        assert plural_hours(2) == "2 часа"
-
-    def test_five_hours(self):
-        assert plural_hours(5) == "5 часов"
-
-    def test_21_hours(self):
-        assert plural_hours(21) == "21 час"
-
-    def test_exactly_24_hours_returns_24_hours(self):
-        assert plural_hours(24) == "24 часа"
-
-    def test_25_hours_returns_one_day(self):
-        assert plural_hours(25) == "1 день"
-
-    def test_48_hours_returns_two_days(self):
-        assert plural_hours(48) == "2 дня"
-
-    def test_72_hours_returns_three_days(self):
-        assert plural_hours(72) == "3 дня"
-
-    def test_100_hours_returns_four_days(self):
-        assert plural_hours(100) == "4 дня"
-
-    def test_120_hours_returns_five_days(self):
-        assert plural_hours(120) == "5 дней"
+    @pytest.mark.parametrize(
+        "hours,expected",
+        [
+            (0, "меньше часа"),
+            (1, "1 час"),
+            (2, "2 часа"),
+            (5, "5 часов"),
+            (21, "21 час"),
+            (24, "24 часа"),
+            (25, "1 день"),
+            (48, "2 дня"),
+            (72, "3 дня"),
+            (100, "4 дня"),
+            (120, "5 дней"),
+        ],
+    )
+    def test_plural_hours(self, hours, expected):
+        assert plural_hours(hours) == expected
 
     @pytest.mark.parametrize("hours", [-1, -24, -100])
     def test_negative_hours(self, hours):
@@ -196,38 +182,24 @@ class TestGetThesisTypeIdString:
 
 
 class TestAllowedFile:
-    def test_pdf_allowed(self):
-        assert practice_allowed("document.pdf") is True
-
-    def test_uppercase_extension(self):
-        assert practice_allowed("document.PDF") is True
-
-    def test_no_extension(self):
-        assert practice_allowed("document") is False
-
-    def test_empty_filename(self):
-        assert practice_allowed("") is False
-
-    def test_dot_only(self):
-        assert practice_allowed(".") is False
-
-    def test_wrong_extension(self):
-        assert practice_allowed("document.exe") is False
-
-    def test_multiple_dots(self):
-        assert practice_allowed("file.backup.pdf") is True
-
-    def test_avatar_png_allowed(self):
-        assert auth_allowed("avatar.png") is True
-
-    def test_avatar_pdf_not_allowed(self):
-        assert auth_allowed("avatar.pdf") is False
-
-    def test_review_pdf_allowed(self):
-        assert review_allowed("review.pdf") is True
-
-    def test_review_exe_not_allowed(self):
-        assert review_allowed("review.exe") is False
+    @pytest.mark.parametrize(
+        "func,name,expected",
+        [
+            (practice_allowed, "document.pdf", True),
+            (practice_allowed, "document.PDF", True),
+            (practice_allowed, "document", False),
+            (practice_allowed, "", False),
+            (practice_allowed, ".", False),
+            (practice_allowed, "document.exe", False),
+            (practice_allowed, "file.backup.pdf", True),
+            (auth_allowed, "avatar.png", True),
+            (auth_allowed, "avatar.pdf", False),
+            (review_allowed, "review.pdf", True),
+            (review_allowed, "review.exe", False),
+        ],
+    )
+    def test_allowed_file(self, func, name, expected):
+        assert func(name) is expected
 
     @pytest.mark.parametrize("name", [".pdf", ".PDF", ".png", ".PNG"])
     def test_extension_only(self, name):

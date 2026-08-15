@@ -116,32 +116,20 @@ class TestThesisReviewIndex:
 
 
 class TestFetchThesisOnReview:
-    def test_fetch_default_params(self, logged_client):
-        resp = logged_client.get("/review/fetch_thesis_on_review")
-        assert resp.status_code == 200
-
-    def test_fetch_with_status_filter(self, logged_client):
-        resp = logged_client.get("/review/fetch_thesis_on_review?status=1")
-        assert resp.status_code == 200
-
-    def test_fetch_status_all(self, logged_client):
-        resp = logged_client.get("/review/fetch_thesis_on_review?status=4")
-        assert resp.status_code == 200
-
-    def test_fetch_with_worktype(self, logged_client):
-        resp = logged_client.get("/review/fetch_thesis_on_review?worktype=2")
-        assert resp.status_code == 200
-
-    def test_fetch_with_area(self, logged_client):
-        resp = logged_client.get("/review/fetch_thesis_on_review?area=2")
-        assert resp.status_code == 200
-
-    def test_fetch_with_page(self, logged_client):
-        resp = logged_client.get("/review/fetch_thesis_on_review?page=1")
-        assert resp.status_code == 200
-
-    def test_fetch_with_all_filters(self, logged_client):
-        resp = logged_client.get("/review/fetch_thesis_on_review?status=1&worktype=2&area=2&page=1")
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "",
+            "?status=1",
+            "?status=4",
+            "?worktype=2",
+            "?area=2",
+            "?page=1",
+            "?status=1&worktype=2&area=2&page=1",
+        ],
+    )
+    def test_fetch_filters(self, logged_client, query):
+        resp = logged_client.get("/review/fetch_thesis_on_review" + query)
         assert resp.status_code == 200
 
 
@@ -150,41 +138,17 @@ class TestSubmitThesisOnReview:
         resp = logged_client.get("/review/submit")
         assert resp.status_code == 200
 
-    def test_submit_post_no_title(self, logged_client):
-        resp = logged_client.post("/review/submit", data={"title": ""})
-        assert resp.status_code == 302
-
-    def test_submit_post_invalid_worktype(self, logged_client):
-        resp = logged_client.post(
-            "/review/submit",
-            data={
-                "title": "Test work",
-                "type": 999,
-                "area": 0,
-            },
-        )
-        assert resp.status_code == 302
-
-    def test_submit_post_invalid_area(self, logged_client):
-        resp = logged_client.post(
-            "/review/submit",
-            data={
-                "title": "Test work",
-                "type": 1,
-                "area": 999,
-            },
-        )
-        assert resp.status_code == 302
-
-    def test_submit_post_no_file(self, logged_client):
-        resp = logged_client.post(
-            "/review/submit",
-            data={
-                "title": "Test work",
-                "type": 1,
-                "area": 1,
-            },
-        )
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {"title": ""},
+            {"title": "Test work", "type": 999, "area": 0},
+            {"title": "Test work", "type": 1, "area": 999},
+            {"title": "Test work", "type": 1, "area": 1},
+        ],
+    )
+    def test_submit_post_validation_failures(self, logged_client, data):
+        resp = logged_client.post("/review/submit", data=data)
         assert resp.status_code == 302
 
     def test_submit_post_empty_filename(self, logged_client):

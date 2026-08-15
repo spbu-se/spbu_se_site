@@ -2,18 +2,6 @@
 import smtplib
 from unittest.mock import MagicMock, patch
 
-import pytest
-
-
-@pytest.fixture
-def notification_in_db(seeded_app_ctx):
-    from se_models import Notification, db
-
-    n = Notification(recipient=1, title="Test", content="Test content", type=0)
-    db.session.add(n)
-    db.session.commit()
-    return n
-
 
 class TestSendMail:
     @patch("smtplib.SMTP")

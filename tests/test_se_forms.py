@@ -65,13 +65,6 @@ class TestMultiCheckboxField:
         assert MultiCheckboxField.widget.__class__.__name__ == "ListWidget"
         assert MultiCheckboxField.option_widget.__class__.__name__ == "CheckboxInput"
 
-    def test_coerce_is_int(self):
-        from wtforms.fields.choices import SelectMultipleField
-
-        from se_forms import MultiCheckboxField
-
-        assert issubclass(MultiCheckboxField, SelectMultipleField)
-
 
 class TestUserAddTheme:
     def test_field_title_required_string(self):

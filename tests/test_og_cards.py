@@ -138,16 +138,11 @@ class TestOgThesisCard:
         assert f'data-copy-url="http://localhost/thesis_card?thesis_id={thesis.id}"' in html
         assert 'data-content="Скопировать ссылку"' in html
 
-    def test_card_missing_id(self, seeded_client):
-        resp = seeded_client.get("/thesis_card")
-        assert resp.status_code == 302
-
-    def test_card_zero_id(self, seeded_client):
-        resp = seeded_client.get("/thesis_card?thesis_id=0")
-        assert resp.status_code == 302
-
-    def test_card_nonexistent(self, seeded_client):
-        resp = seeded_client.get("/thesis_card?thesis_id=99999")
+    @pytest.mark.parametrize(
+        "path", ["/thesis_card", "/thesis_card?thesis_id=0", "/thesis_card?thesis_id=99999"]
+    )
+    def test_card_missing_or_invalid_redirects(self, seeded_client, path):
+        resp = seeded_client.get(path)
         assert resp.status_code == 302
 
     def test_card_temporary_thesis_redirects(self, seeded_client):

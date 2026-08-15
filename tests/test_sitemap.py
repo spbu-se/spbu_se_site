@@ -21,11 +21,6 @@ def _seed_thesis(client, year, temporary=False):
 
 
 class TestSitemapIndex:
-    def test_index_returns_200(self, seeded_client):
-        resp = seeded_client.get("/sitemap.xml")
-        assert resp.status_code == 200
-        assert resp.headers["Content-Type"] == "application/xml"
-
     def test_index_uppercase_alias(self, seeded_client):
         resp = seeded_client.get("/Sitemap.xml")
         assert resp.status_code == 200
