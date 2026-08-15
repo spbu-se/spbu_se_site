@@ -2,7 +2,7 @@
 
 import os
 import sys
-from datetime import UTC
+from datetime import UTC, date
 from pathlib import Path
 
 __all__ = ["app", "db", "scheduler"]
@@ -35,6 +35,7 @@ from flask_se_config import (
     SECRET_KEY_THESIS,
     SQLITE_DATABASE_PATH,
     SQLITE_DATABASE_URI,
+    site_deploy_date,
 )
 from flask_se_diplomas import register_routes as register_diplomas_routes
 from flask_se_internships import register_routes as register_internships_routes
@@ -174,6 +175,11 @@ def _init_extensions(app: Flask) -> None:
     app.template_filter("markdown")(render_markdown)
     app.template_filter("safe_html")(render_safe_html)
     app.template_filter("datatime_convert")(datetime_convert)
+
+    def _inject_template_globals() -> dict[str, str | int]:
+        return {"current_year": date.today().year, "ASSET_VERSION": site_deploy_date()}
+
+    app.context_processor(_inject_template_globals)
 
 
 def _register_routes(app: Flask) -> None:

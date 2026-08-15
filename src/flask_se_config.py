@@ -4,8 +4,18 @@ import os
 import pathlib
 import re
 import time
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from unicodedata import normalize
+
+
+def site_deploy_date() -> str:
+    """Deploy date (YYYY-MM-DD): ``SE_SITE_LASTMOD`` at deploy, today in dev/tests.
+
+    Single source for the sitemap static lastmod AND the asset cache-busting
+    version (``?v=``) so both stay in lockstep with the release date.
+    """
+    return os.environ.get("SE_SITE_LASTMOD", date.today().isoformat())
+
 
 SECRET_KEY_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_secret.conf")
 

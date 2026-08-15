@@ -1,5 +1,11 @@
 {% extends "practice/staff/base_practice_staff.html" %}
 {% block title %}Отчёты{% endblock %}
+{% block head_links %}
+  {% if request.headers.get("X-Requested-With") != "XMLHttpRequest" %}
+    <link rel="stylesheet" href="{{ asset('css/simplemde.min.css') }}">
+    <script src="{{ asset('libs/simplemde/simplemde.min.js') }}"></script>
+  {% endif %}
+{% endblock %}
 {% block content_writing_thesis_staff %}
   <div class="container">
     <div class="row">
