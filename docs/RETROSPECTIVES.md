@@ -1296,3 +1296,4 @@ Changes analyzed: `pyproject.toml`/`uv.lock` (vulture dev dep), `.pre-commit-con
 - Branch `chore/quality-tooling` (stacked on `chore/todo-freshness-xfail`). pre-push gate (mdformat/ruff/pylint/vulture/basedpyright) green.
 - Full suite not re-run in this PR (test-only changes were the 3 consolidation files, each run green); reference stays 1297 passed.
 - Next: `test/consolidate-params`, then `fix/xdist-races`.
+
