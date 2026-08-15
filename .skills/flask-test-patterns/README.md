@@ -143,3 +143,25 @@ open(".tmp/routes.txt", "w").write(str(rs))  # dump before/after, diff byte-iden
 ```
 
 A byte-identical map means zero template/endpoint churn — templates using `url_for('endpoint')` keep working.
+
+### 9. Template-filter output through Jinja (autoescape regression)
+
+A template filter returning a plain `str` is re-escaped by Jinja autoescape at the call site (`{{ x|markdown }}`), so filter-call unit tests pass while the page shows escaped tags. Test the filter through the app's Jinja environment, and when the filter marks output safe (`Markup`), assert sanitization separately:
+
+```python
+def test_filter_renders_unescaped_through_jinja(self, app_ctx):
+    from flask import current_app
+    tmpl = current_app.jinja_env.from_string("{{ text|markdown }}")
+    out = tmpl.render(text="[Spla](https://example.org)\n\n- a")
+    assert '<a href="https://example.org"' in out
+    assert "&lt;" not in out
+
+def test_filter_sanitizes_before_marking_safe(self, app_ctx):
+    from flask import current_app
+    md = current_app.jinja_env.filters["markdown"]
+    out = md('<script>alert(1)</script><img src=x onerror=alert(1)>')
+    assert "<script>" not in out
+    assert "onerror" not in out
+```
+
+Template-policy guardrail (scan for bare `|safe` without the sanitizing filter) belongs in the project's `tests/test_app.py` — see `.skills/test-writer/README.md`.

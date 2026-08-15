@@ -39,6 +39,8 @@ For quick retro after routine merge-gate. Covers only efficiency audit and self-
 
 If gaps suggest pattern recurrence or value contradiction, escalate to full retro.
 
+If the user later requests a **full retro** for a session that already has a light entry (e.g. light ran on the feature PR, full requested as a separate docs PR), write the full entry as the comprehensive record — it may reference the light entry, and both coexist chronologically in `docs/RETROSPECTIVES.md`.
+
 ## Full workflow
 
 ### 1. Collect changes
@@ -457,6 +459,12 @@ Session surfaced several process gaps not covered by existing 8a questions:
 1. **Move-into-function lint/type breakage** — moving decorated views into helpers triggered basedpyright `reportUnusedFunction`; moving a re-export triggered ruff F401. Both fixed with module-level patterns, but undocumented.
 
 **Fix**: Added 4 rows to §8a (branch-before-commit, xfail-drift, linter-on-move, plus route-map-verification as the prevention technique). Self-improvement log entry added; `.tooling.md` gained the `git cherry-pick --continue` GPG workaround.
+
+### [2026-08-15] Document the light-retro-on-PR → full-retro-on-docs-branch split
+
+The 2026-08-15 session ran a **light retro** as part of the feature PR (#214, mandatory retro-before-PR) and the user *then* requested a **full retro** as a separate docs PR. The light/full split (§When to load) did not cover this sequence — nothing said the full retro may arrive later, in a different PR, referencing the already-merged light entry.
+
+**Fix**: Add this pattern to the light workflow note: if the user later requests a full retro for a session that already has a light entry, write the full entry as the comprehensive record (it may reference the light entry); both entries coexist chronologically in `docs/RETROSPECTIVES.md`. Also: the 2026-08-15 step-10 review confirmed the skill still matches its canonical docs (`DEVELOPMENT_PROCESS.md §0.7`, `AI_AGENTS.md §Skills`) — no structural changes needed.
 
 ## Dependencies
 

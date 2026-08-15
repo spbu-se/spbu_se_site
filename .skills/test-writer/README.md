@@ -96,3 +96,39 @@ def test_with_logged_in_user(self, seeded_client):
 - APScheduler is env-gated in tests (`SE_START_SCHEDULER=0` in conftest before importing `flask_se`) to avoid `no such table: notification` errors
 - Use `logged_client` fixture instead of login POST to avoid scrypt hash issues on Python 3.13
 - Assert `resp.status_code` against a set: `{200}` not `200`, to allow easy widening
+
+### Filter-output tests (autoescape regression)
+
+A template filter that returns a plain `str` gets **re-escaped by Jinja autoescape** when used as `{{ x|filter }}` — direct filter-call assertions (`md("- a")`) never catch this. Assert through the Jinja environment:
+
+```python
+def test_filter_renders_unescaped(self, app_ctx):
+    from flask import current_app
+    tmpl = current_app.jinja_env.from_string("{{ text|markdown }}")
+    out = tmpl.render(text="[x](https://example.org)\n\n- a")
+    assert '<a href="https://example.org"' in out
+    assert "<ul>" in out
+    assert "&lt;" not in out
+```
+
+If the filter marks output safe (`Markup`), also assert the XSS guard separately (sanitize-before-Markup is mandatory for user-authored content).
+
+### Targeted subset runs: use `--no-cov`
+
+`pyproject.toml` `addopts` sets `--cov-fail-under=80`. A targeted run (`pytest tests/test_x.py`) fails the coverage gate at ~40% and masks pass/fail. Add `--no-cov` for red/green iteration: `uv run pytest tests/test_app.py --no-cov -q`. Only the full-suite reference run must meet the 80% gate.
+
+### Template-output guardrail
+
+Enforce a raw-HTML policy structurally: scan every template and fail if `|safe` is used without the sanitizing filter:
+
+```python
+def test_no_raw_safe_output(self):
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent / "src" / "templates"
+    bad = []
+    for p in root.rglob("*.html"):
+        for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+            if "|safe" in line and "|safe_html" not in line:
+                bad.append(f"{p.relative_to(root)}:{i}: {line.strip()}")
+    assert not bad, "raw |safe without |safe_html:\n" + "\n".join(bad)
+```
