@@ -2,7 +2,7 @@
 
 import os
 import sys
-from datetime import UTC
+from datetime import UTC, date
 from pathlib import Path
 
 __all__ = ["app", "db", "scheduler"]
@@ -174,6 +174,11 @@ def _init_extensions(app: Flask) -> None:
     app.template_filter("markdown")(render_markdown)
     app.template_filter("safe_html")(render_safe_html)
     app.template_filter("datatime_convert")(datetime_convert)
+
+    def _inject_current_year() -> dict[str, int]:
+        return {"current_year": date.today().year}
+
+    app.context_processor(_inject_current_year)
 
 
 def _register_routes(app: Flask) -> None:

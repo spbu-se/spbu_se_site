@@ -4,6 +4,7 @@
 # decorator registration and would flag it unused.
 
 import os
+from datetime import date
 
 from flask import Flask, make_response, render_template
 
@@ -12,9 +13,10 @@ from se_models import Thesis
 
 SITE_DOMAIN = "https://se.math.spbu.ru"
 
-# Static pages have no DB timestamps; use a single deploy-date constant.
-# Bump on each release (env var SE_SITE_LASTMOD overrides for staging tests).
-STATIC_LASTMOD = os.environ.get("SE_SITE_LASTMOD", "2026-08-15")
+# Static pages have no DB timestamps; lastmod = deploy date. Production sets
+# SE_SITE_LASTMOD at deploy from the release tag (vYYYY.MM.DD -> YYYY-MM-DD)
+# so the sitemap stays stable across days; dev/tests fall back to today.
+STATIC_LASTMOD = os.environ.get("SE_SITE_LASTMOD", date.today().isoformat())
 
 # Routes never to advertise to crawlers: auth/private pages, internal
 # management pages, AJAX fragments, and 301 legacy redirects.
