@@ -31,6 +31,10 @@
     <title>
       {% block title %}{% endblock %}
     </title>
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://topbar.spbu.ru">
+    <link rel="dns-prefetch" href="https://topbar.spbu.ru">
     <!-- Google Tag Manager -->
     <!--script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -46,14 +50,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}">
     <!-- Quick CSS -->
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='/assets/css/quick-website.css') }}"
+          href="{{ url_for('static', filename='/assets/css/quick-website.css', v='2026.08.15') }}"
           id="stylesheet">
     <!-- Page CSS -->
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='/assets/libs/animate.css/animate.min.css') }}">
+          href="{{ url_for('static', filename='/assets/libs/animate.css/animate.min.css', v='2026.08.15') }}">
     <!-- Font Awesome -->
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='/assets/libs/@fortawesome/fontawesome-free/css/all.min.css') }} ">
+          href="{{ url_for('static', filename='/assets/libs/@fortawesome/fontawesome-free/css/all.min.css', v='2026.08.15') }} ">
     <!-- Child template headers -->
     {% block headers %}{% endblock %}
     <script type="application/ld+json">
@@ -361,25 +365,26 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       </div>
     </footer>
     <!-- Core JS  -->
-    <script src="{{ url_for('static', filename='/assets/libs/jquery/dist/jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='/assets/libs/svg-injector/dist/svg-injector.min.js') }}"
+    <script src="{{ url_for('static', filename='/assets/libs/jquery/dist/jquery.min.js', v='2026.08.15') }}"></script>
+    <script src="{{ url_for('static', filename='/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js', v='2026.08.15') }}"></script>
+    <script src="{{ url_for('static', filename='/assets/libs/svg-injector/dist/svg-injector.min.js', v='2026.08.15') }}"
             async
             defer></script>
-    <script src="{{ url_for('static', filename='/assets/libs/feather-icons/dist/feather.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='/assets/libs/in-view/dist/in-view.min.js') }}"
+    <script src="{{ url_for('static', filename='/assets/libs/feather-icons/dist/feather.min.js', v='2026.08.15') }}"
+            defer></script>
+    <script src="{{ url_for('static', filename='/assets/libs/in-view/dist/in-view.min.js', v='2026.08.15') }}"
             async
             defer></script>
-    <script src="{{ url_for('static', filename='/assets/libs/sticky-kit/dist/sticky-kit.min.js') }}"
+    <script src="{{ url_for('static', filename='/assets/libs/sticky-kit/dist/sticky-kit.min.js', v='2026.08.15') }}"
             async
             defer></script>
-    <script src="{{ url_for('static', filename='/assets/libs/imagesloaded/imagesloaded.pkgd.min.js') }}"
+    <script src="{{ url_for('static', filename='/assets/libs/imagesloaded/imagesloaded.pkgd.min.js', v='2026.08.15') }}"
             async
             defer></script>
-    <script src="{{ url_for('static', filename='/assets/libs/bootstrap-notify/bootstrap-notify.min.js') }}"
+    <script src="{{ url_for('static', filename='/assets/libs/bootstrap-notify/bootstrap-notify.min.js', v='2026.08.15') }}"
             async
             defer></script>
-    <script src="{{ url_for('static', filename='/assets/libs/autosize/dist/autosize.min.js') }}"
+    <script src="{{ url_for('static', filename='/assets/libs/autosize/dist/autosize.min.js', v='2026.08.15') }}"
             async
             defer></script>
     <!-- Google maps -->
@@ -387,13 +392,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Recaptcha -->
     <!-- script src='https://www.google.com/recaptcha/api.js' async defer></script -->
     <!-- Quick JS -->
-    <script src="{{ url_for('static', filename='/assets/js/quick-website.js') }}"></script>
-    <script src="{{ url_for('static', filename='/assets/js/se_scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='/assets/js/quick-website.js', v='2026.08.15') }}"></script>
+    <script src="{{ url_for('static', filename='/assets/js/se_scripts.js', v='2026.08.15') }}"></script>
     <!-- Feather Icons -->
     <script>
-        feather.replace({
-            'width': '1em',
-            'height': '1em'
+        document.addEventListener('DOMContentLoaded', function () {
+            feather.replace({
+                'width': '1em',
+                'height': '1em'
+            })
         })
     </script>
   </body>
