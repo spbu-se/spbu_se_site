@@ -52,6 +52,7 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 | `DESIGN_DECISIONS.md` | Decisions | Technology choices, framework-specific decisions, implementation patterns | Architecture, testing | Framework/tech decisions |
 | `AI_AGENT_EXPERIENCE.md` | Experience | Dead ends, debugging trails, agent-specific tool limitations | Process, config, tooling | Agent-collected experience |
 | `SEO_A11Y_ROADMAP.md` | Roadmap | SEO/crawler/agent decisions, findings, deferred ideas | Implementation, architecture | SEO/accessibility backlog |
+| `PERFORMANCE.md` | Roadmap | Performance baseline, shipped optimizations, deferred ideas, post-deploy re-evaluation | Implementation, architecture | Performance backlog |
 | `RELEASE_CHECKLIST.md` | Release | Pre-release verification: dates, counts, hardcoded values | Release-note generation, versioning rules | Release-time drift items |
 
 ### Skills directory (.skills/)

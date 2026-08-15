@@ -1371,3 +1371,23 @@ Changes analyzed: the 7 PRs merged since `v2026.08.14` (#213–#219: markdown/sa
 
 - Branch `chore/release-prep-v2026.08.15` (from `upstream/current` `0905a12`). §A fixes applied (sitemap lastmod, TESTING reference), retro appended.
 - Next: generate `.tmp/release-notes.md`, push, open PR; after merge + CI green → tag `v2026.08.15`, push to `upstream`, create draft release, publish (triggers deploy).
+
+### Retrospective ? 2026-08-15: Tier 1 performance (PR feat/perf-assets-tier1)
+
+Changes analyzed: 4 commits ? versioned static assets + preconnect + defer feather in the 4 base templates, SimpleMDE moved out of the base_light global, hero JPEG recompression, performance roadmap docs.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `pre-commit run --all-files` reformatted ~10 unrelated config files (dprint/mdformat/EOF-fixer touched .commitlintrc.json, renovate.json, workflow yml, etc.) | Normalizing "all files" runs the whole pre-commit stage, not just the target hooks; AGENTS.md only prescribes the targeted hooks | Reverted the unrelated reformats; normalize before staging with targeted hooks only (`pre-commit run djlint --all-files`, `uv run ruff format src/`), not the full stage |
+| `docs/PERFORMANCE.md` created without a DOCS.md catalog row | Missing catalog entry (retro step 5b signal) | Added row to `docs/DOCS.md` catalog table |
+| Google Maps `defer` rejected during planning | `quick-website.js` calls `google.maps` eagerly at parse time when a map element exists; plain defer would break the homepage/contacts/bachelor maps | Kept Maps synchronous in Tier 1; documented lazy-load + guard as a Tier 2 item in `docs/PERFORMANCE.md` |
+
+**What went well**: baseline Lighthouse captured before changes (mobile 63); full suite green (1300 passed, 4 skipped, 3 xfailed, 1 xpassed); smoke-rendered all base templates + editor consumers; all pre-commit and pre-push gates passed before the first push.
+
+**What went wrong / deferred**: asset-byte wins are only realized once the host nginx gzip + immutable cache lands ? the return-item is recorded in `docs/PERFORMANCE.md` and `TODO.md`.
+
+**State at handoff**:
+
+- Branch `feat/perf-assets-tier1` (from `origin/staging` `2597d00`), 4 commits.
+- Full suite 1300 passed / 4 skipped / 3 xfailed / 1 xpassed; coverage 92.26%.
+- Next: push to fork, open PR to upstream (base `current`); pass `.tmp/nginx_tuning.md` to the nginx admin; after merge + nginx deploy, re-run Lighthouse and record results in `docs/PERFORMANCE.md`.
