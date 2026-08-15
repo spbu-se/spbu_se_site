@@ -210,7 +210,6 @@ None.
 | Practice deeper upload branches | 6 tests | ~30 branches remain | ~50 multipart fixture tests |
 | Review full workflow | 14 tests (ThesisOnReview) | Multi-request state untestable | ~30 sequenced request tests |
 | Google OAuth full flow | 2 tests pass with patch | Needs `client_google.json` file | Config stub or file-level mock |
-| `TestPostThesesDeep` 6 intermittent CI failures | xfailed (`strict=False`) | `post_theses` returns 500 on CI, passes locally; marker reason "intermittent xdist race — passes alone, fails in full suite" | Suspected shared `static/tmp/…` upload-dir race between parallel workers — isolate uploads per test or serialize (see `fix/xdist-races`) |
 
 ## Module Coverage
 

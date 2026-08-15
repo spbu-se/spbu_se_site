@@ -37,6 +37,19 @@ _db_dir, _db_path = _init_db_path()
 import pytest
 from sqlalchemy import create_engine
 
+# Isolate the theses upload scratch dir per process (xdist worker) so parallel
+# tests never write the same file in the shared static/tmp tree.
+_upload_root = Path(tempfile.mkdtemp(prefix="se_uploads_"))
+for _sub in ("texts", "slides", "reviews"):
+    (_upload_root / _sub).mkdir(parents=True, exist_ok=True)
+os.environ["SE_THESIS_UPLOAD_ROOT"] = str(_upload_root)
+
+# Deterministic thesis-secret per process: the config file is absent on CI, so
+# the random fallback differed between two flask_se_config module instances
+# under xdist ("Invalid secret key" flakiness). Env is process-global so every
+# import instance reads the same value.
+os.environ["SE_THESIS_SECRET"] = "test-thesis-secret"
+
 from flask_se import app, db
 from se_models import init_db
 

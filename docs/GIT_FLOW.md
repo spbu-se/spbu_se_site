@@ -338,3 +338,10 @@ stacked PR auto-closed:
 1. Delete the temporary base branch
 1. Rebuild the head onto the latest `current`: `git reset --hard upstream/current` then `git cherry-pick <first>^..<last>` (its own commits only; skip commits already upstream)
 1. `git push --force-with-lease`
+
+**Multi-PR sessions — avoid stacking collisions** (2026-08-15): when a session ships several independent PRs, **branch each PR from `origin/staging` synced to `upstream/current` — never from a sibling PR's branch**. Squash-merge rewrites commit hashes, so a branch built on an unmerged sibling PR conflicts with the merged result on every shared file (`docs/RETROSPECTIVES.md`, `docs/TESTING.md`, `tests/conftest.py`, `TODO.md`). Rules:
+
+1. **Independent PRs → independent bases**: branch each from the synced `staging`/`current`; they merge in any order with no rebase cascade.
+1. **Stack only on a real dependency** (the next PR needs the previous PR's code), then **rebase the dependent onto `upstream/current` immediately after each upstream merge** (`git rebase --onto upstream/current <old-base> <branch>`; replay only the dependent's own commits) and force-push.
+1. **Each PR carries only its own retro entry**; when resolving RETROSPECTIVES/TESTING conflicts keep upstream's content and append your own — never drop entries already merged upstream (verify with `git diff upstream/current...<branch> docs/RETROSPECTIVES.md`).
+1. After any merge touching the shared docs tail, run `uv run mdformat --check` post-merge (stacked retro merges produce blank-line/EOF artifacts).

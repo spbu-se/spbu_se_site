@@ -266,9 +266,7 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Can't find supervisor" in data["string"]
 
-    @pytest.mark.xfail(
-        strict=False, reason="intermittent xdist race — passes alone, fails in full suite"
-    )
+    @pytest.mark.xdist_group("post_theses")
     def test_post_supervisor_found_in_users_not_in_staff(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
         from se_models import Users, db
@@ -297,7 +295,7 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Can't find supervisor in staff" in data["string"]
 
-    @pytest.mark.xfail(reason="Intermittent CI failure: post_theses returns 500", strict=False)
+    @pytest.mark.xdist_group("post_theses")
     def test_post_with_source_uri(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -319,9 +317,9 @@ class TestPostThesesApi:
             },
         )
         data = json.loads(resp.data)
-        assert data["status"] == 0
+        assert data["status"] == 0, data
 
-    @pytest.mark.xfail(reason="Intermittent CI failure: post_theses returns 500", strict=False)
+    @pytest.mark.xdist_group("post_theses")
     def test_post_with_presentation(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -343,9 +341,9 @@ class TestPostThesesApi:
             },
         )
         data = json.loads(resp.data)
-        assert data["status"] == 0
+        assert data["status"] == 0, data
 
-    @pytest.mark.xfail(reason="Intermittent CI failure: post_theses returns 500", strict=False)
+    @pytest.mark.xdist_group("post_theses")
     def test_post_with_supervisor_review(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -367,9 +365,9 @@ class TestPostThesesApi:
             },
         )
         data = json.loads(resp.data)
-        assert data["status"] == 0
+        assert data["status"] == 0, data
 
-    @pytest.mark.xfail(reason="Intermittent CI failure: post_theses returns 500", strict=False)
+    @pytest.mark.xdist_group("post_theses")
     def test_post_with_reviewer_review(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -391,9 +389,9 @@ class TestPostThesesApi:
             },
         )
         data = json.loads(resp.data)
-        assert data["status"] == 0
+        assert data["status"] == 0, data
 
-    @pytest.mark.xfail(reason="Intermittent CI failure: post_theses returns 500", strict=False)
+    @pytest.mark.xdist_group("post_theses")
     def test_post_all_files(self, logged_client):
         from flask_se_config import SECRET_KEY_THESIS
 
@@ -418,7 +416,7 @@ class TestPostThesesApi:
             },
         )
         data = json.loads(resp.data)
-        assert data["status"] == 0
+        assert data["status"] == 0, data
 
 
 class TestThesesTmpList:
@@ -468,12 +466,19 @@ class TestThesesDeleteTmpDeep:
 
 
 class TestThesesAddTmpDeep:
+    @staticmethod
+    def _upload_root() -> Path:
+        from flask_se_theses import THESIS_UPLOAD_ROOT
+
+        return Path(THESIS_UPLOAD_ROOT)
+
     def test_add_tmp_with_text_uri(self, admin_client):
         from se_models import Thesis, db
 
-        Path("static/tmp/texts").mkdir(parents=True, exist_ok=True)
+        root = self._upload_root()
+        (root / "texts").mkdir(parents=True, exist_ok=True)
         Path("static/thesis/texts").mkdir(parents=True, exist_ok=True)
-        Path("static/tmp/texts/test.pdf").write_text("")
+        (root / "texts" / "test.pdf").write_text("")
         Path("static/thesis/texts/test.pdf").unlink(missing_ok=True)
 
         t = _make_temp_thesis("T", "test.pdf")
@@ -485,27 +490,28 @@ class TestThesesAddTmpDeep:
     def test_add_tmp_with_presentation_and_reviews(self, admin_client):
         from se_models import Thesis, db
 
-        Path("static/tmp/texts").mkdir(parents=True, exist_ok=True)
-        Path("static/tmp/slides").mkdir(parents=True, exist_ok=True)
-        Path("static/tmp/reviews").mkdir(parents=True, exist_ok=True)
-        Path("static/thesis/texts").mkdir(parents=True, exist_ok=True)
-        Path("static/thesis/slides").mkdir(parents=True, exist_ok=True)
-        Path("static/thesis/reviews").mkdir(parents=True, exist_ok=True)
+        root = self._upload_root()
+        for _sub in ("texts", "slides", "reviews"):
+            (root / _sub).mkdir(parents=True, exist_ok=True)
+            Path(f"static/thesis/{_sub}").mkdir(parents=True, exist_ok=True)
         for _f in [
-            "static/tmp/texts/text.pdf",
-            "static/tmp/slides/slides.pdf",
-            "static/tmp/reviews/sup.pdf",
-            "static/tmp/reviews/rev.pdf",
-            "static/thesis/texts/text.pdf",
-            "static/thesis/slides/slides.pdf",
-            "static/thesis/reviews/sup.pdf",
-            "static/thesis/reviews/rev.pdf",
+            root / "texts" / "text.pdf",
+            root / "slides" / "slides.pdf",
+            root / "reviews" / "sup.pdf",
+            root / "reviews" / "rev.pdf",
+            Path("static/thesis/texts/text.pdf"),
+            Path("static/thesis/slides/slides.pdf"),
+            Path("static/thesis/reviews/sup.pdf"),
+            Path("static/thesis/reviews/rev.pdf"),
         ]:
-            Path(_f).unlink(missing_ok=True)
-        Path("static/tmp/texts/text.pdf").write_text("")
-        Path("static/tmp/slides/slides.pdf").write_text("")
-        Path("static/tmp/reviews/sup.pdf").write_text("")
-        Path("static/tmp/reviews/rev.pdf").write_text("")
+            _f.unlink(missing_ok=True)
+        for _f in [
+            root / "texts" / "text.pdf",
+            root / "slides" / "slides.pdf",
+            root / "reviews" / "sup.pdf",
+            root / "reviews" / "rev.pdf",
+        ]:
+            _f.write_text("")
 
         t = Thesis(
             name_ru="FullApprove",

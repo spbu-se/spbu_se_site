@@ -70,14 +70,7 @@ Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_
 
 ### Current xfails — intermittent CI (strict=False)
 
-| Test | Count | Reason | Tracking |
-|------|-------|--------|----------|
-| theses xdist race (`test_post_supervisor_found_in_users_not_in_staff`) | 1 | Intermittent — user creation not visible to parallel worker | TODO.md tech debt |
-| theses post_with_source_uri | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| theses post_with_presentation | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| theses post_with_supervisor_review | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| theses post_with_reviewer_review | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
-| theses post_all_files | 1 | Intermittent CI failure: `assert 500 == 0` | TODO.md tech debt |
+None — the `post_theses` cluster (shared `static/tmp` same-name upload race between xdist workers) is fixed via a per-worker isolated `THESIS_UPLOAD_ROOT` (2026-08-15).
 
 ### Current xfails — strict=True (must stay failing; xpass = suite error)
 
