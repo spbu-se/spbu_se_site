@@ -1297,17 +1297,18 @@ Changes analyzed: `pyproject.toml`/`uv.lock` (vulture dev dep), `.pre-commit-con
 - Full suite not re-run in this PR (test-only changes were the 3 consolidation files, each run green); reference stays 1297 passed.
 - Next: `test/consolidate-params`, then `fix/xdist-races`.
 
-### Retrospective — 2026-08-15: xdist race fix — shared upload dir across parallel workers
+### Retrospective — 2026-08-15: xdist race fix — random `SECRET_KEY_THESIS` fallback across module instances
 
-Changes analyzed: `src/flask_se_theses.py` (configurable `THESIS_UPLOAD_ROOT`), `tests/conftest.py` (per-worker isolated root), `tests/test_theses_deep.py` + `tests/test_auth_views.py` (approve tests use the root; 6 xfail markers → `xdist_group`), `docs/TESTING.md`, `TODO.md`.
+Changes analyzed: `src/flask_se_config.py` (deterministic `SECRET_KEY_THESIS` via `SE_THESIS_SECRET` env override), `src/flask_se_theses.py` (configurable `THESIS_UPLOAD_ROOT`), `tests/conftest.py` (per-worker isolated upload root + env secret), `tests/test_theses_deep.py` + `tests/test_auth_views.py` (approve tests use the root; 6 xfail markers → `xdist_group`), `docs/TESTING.md`, `TODO.md`.
 
 | Gap | Root cause | Fix |
 | --- | ---------- | ---- |
-| 6 `post_theses` tests intermittently failed in the full suite ("post_theses returns 500", "intermittent xdist race") | Parallel xdist workers wrote **same-named upload files into the shared `./static/tmp` tree** (filenames are author-derived but the scratch dir is global); a concurrent save/read race corrupted the endpoint response. The 6 tests were `strict=False` xfails silently XPASSing | Root-cause fix: `THESIS_UPLOAD_ROOT` read from `SE_THESIS_UPLOAD_ROOT` env (default `./static/tmp` — production unchanged); conftest points it at a per-worker temp dir. `post_theses` + `theses_add_tmp` build paths from the root; approve tests updated. `xdist_group("post_theses")` kept as defense-in-depth |
+| 6 `post_theses` tests intermittently failed in the full suite ("post_theses returns 500") | **`SECRET_KEY_THESIS` fell back to `os.urandom(16).hex()` per module import** (the config file is absent on CI). Under xdist a worker can hold two `flask_se_config` module instances with different random values, so the test's inline `from flask_se_config import SECRET_KEY_THESIS` sometimes differed from the endpoint's → `"Invalid secret key"`. The 6 tests were `strict=False` xfails silently XPASSing | `SECRET_KEY_THESIS = os.environ.get("SE_THESIS_SECRET") or read_secret_from_file(...)` — the env is process-global so every import instance reads the same value (production unchanged: env unset → config file). conftest sets a fixed test secret |
+| Latent shared-`static/tmp` same-name upload race between parallel workers (theses/practice/review suites) | Scratch filenames are author-derived but the directory is global; concurrent save/read could corrupt responses | Defense-in-depth kept: `THESIS_UPLOAD_ROOT` (env, default `./static/tmp`) with per-worker isolation in conftest; `xdist_group("post_theses")` retained |
 
-**What went well**: the first attempt (`xdist_group` serialization) surfaced CI as intermittently red, proving the collision was cross-file (practice/review uploads share `static/tmp`), not intra-cluster — which forced the correct fix (per-worker isolation) instead of shipping a partial mitigation; the production refactor is behavior-preserving (env default matches the old hardcoded path) and also fixes a latent production same-name scratch collision; full suite green (**1303 passed**) with the xfails gone.
+**What went well**: the assertion-message diagnostic finally surfaced the real error string (`Invalid secret key: <random-hex>`), which pinned the random-per-import fallback as the true cause after the upload-dir hypothesis had not reproduced it; the env override is deterministic across any import-instance duplication and requires no production behavior change; the upload-root isolation remains as defense-in-depth and also documents a genuine latent production concern.
 
-**What went wrong**: two interim approaches were needed (serialization alone failed on CI; the first isolation draft omitted the upload subdirs and the approve/download tests using the literal path) — three verification cycles on CI before green.
+**What went wrong**: two earlier hypotheses (xdist_group serialization, then per-worker upload isolation) were necessary but insufficient — the true cause needed a failing CI run WITH the response body in the assertion message; three verification cycles on CI before the real error surfaced.
 
 **State at handoff**:
 

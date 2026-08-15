@@ -32,7 +32,13 @@ THESIS_SECRET_FILE = os.path.join(
     pathlib.Path(__file__).parent,
     "configs/flask_se_thesis.conf",
 )
-SECRET_KEY_THESIS = read_secret_from_file(THESIS_SECRET_FILE, fallback_len=16)
+# Env override makes the secret deterministic per process (tests set it so the
+# value is identical across module instances under xdist; production leaves it
+# unset and reads the config file).
+SECRET_KEY_THESIS = os.environ.get("SE_THESIS_SECRET") or read_secret_from_file(
+    THESIS_SECRET_FILE,
+    fallback_len=16,
+)
 SQLITE_DATABASE_NAME: str = "se.db"
 SQLITE_DATABASE_PATH: str = pathlib.Path("databases/").absolute().as_posix()
 SQLITE_DATABASE_URI: str = (
