@@ -19,8 +19,13 @@ measurements, shipped Tier 1 work, and the deferred ideas/goals backlog.
 ## Shipped — Tier 1 (PR: perf-assets-tier1)
 
 - 4 base templates: `preconnect`/`dns-prefetch` for GTM + topbar.spbu.ru;
-  versioned static URLs (`?v=`); `feather.min.js` deferred with the inline
-  `feather.replace()` moved to a DOMContentLoaded listener.
+  versioned static URLs via an `asset()` Jinja macro; `feather.min.js` deferred
+  with the inline `feather.replace()` moved to a DOMContentLoaded listener.
+- Asset version parametrized: a single `asset(path)` macro (defined in the 4
+  bases, inherited by children) appends `?v=ASSET_VERSION`; the version is the
+  deploy date (`flask_se_config.site_deploy_date()` ← `SE_SITE_LASTMOD`,
+  default today) — same single source as the sitemap static lastmod. No literal
+  version in any template, so nothing to bump per release.
 - SimpleMDE removed from the `base_light` global; explicit include added to the
   two pages that depend on it (`practice/student/new_report.html`,
   `practice/staff/reports_staff.html`) with an XHR guard.
@@ -66,6 +71,6 @@ Once the Tier 1 PR is merged **and** the nginx changes are live:
 - CDN (e.g., Cloudflare): brotli, HTTP/3, edge caching, on-the-fly image
   resizing, remove `Vary: Cookie` on static.
 - Service worker (stale-while-revalidate) for the static shell.
-- Replace the `?v=` convention with automated fingerprinting (see Tier 3
-  build pipeline); every release currently must bump the literal version in
-  the 4 base templates.
+- Replace the date-based `?v=` convention (`asset()` macro, `ASSET_VERSION` =
+  deploy date) with content-hash fingerprinting; date-based versioning cannot
+  bust assets for same-day hotfixes and couples caching to the release date.

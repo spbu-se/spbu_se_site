@@ -8,7 +8,10 @@ Covers: release-time drift items (dates, counts, hardcoded values), verification
 
 ## A. Must-update (verify each release; stale items are fixed in the release commit)
 
-> Auto-derived, no manual bump: sitemap `STATIC_LASTMOD` reads `SE_SITE_LASTMOD` at deploy (defaults to today) — see B14; the footer copyright uses the `{{ current_year }}` template global.
+> Auto-derived, no manual bump: the sitemap `STATIC_LASTMOD` and the asset
+> cache-busting version (`?v=`, via the `asset()` macro → `ASSET_VERSION`) both
+> read `SE_SITE_LASTMOD` at deploy (defaults to today) — see B14; the footer
+> copyright uses the `{{ current_year }}` template global.
 
 | # | File | What to update | When |
 |---|------|----------------|------|
@@ -33,4 +36,4 @@ Covers: release-time drift items (dates, counts, hardcoded values), verification
 | B11 | Tag discipline | Tag is GPG-signed (`git tag -s vYYYY.MM.DD`), pushed only to `upstream`, at `current`; pushing the tag alone does **not** deploy — prod deploys only after the release is **published** (see `docs/GIT_FLOW.md` §7) |
 | B12 | CI on `current` | `gh run list --branch current --limit 1 --json conclusion` green before tagging |
 | B13 | Full test suite | `uv run pytest --tb=no -q` green; record result for A2 |
-| B14 | `SE_SITE_LASTMOD` at deploy | Production must set `SE_SITE_LASTMOD` at deploy from the release tag (`vYYYY.MM.DD` → `YYYY-MM-DD`); verify `curl -s https://se.math.spbu.ru/sitemap-static.xml` shows the release date as `lastmod`, not today |
+| B14 | `SE_SITE_LASTMOD` at deploy | Production must set `SE_SITE_LASTMOD` at deploy from the release tag (`vYYYY.MM.DD` → `YYYY-MM-DD`); it drives both the sitemap static `lastmod` and the asset `?v=` version. Verify `curl -s https://se.math.spbu.ru/sitemap-static.xml` shows the release date as `lastmod`, not today |

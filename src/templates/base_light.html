@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+{% macro asset(path) -%}
+  {{ url_for('static', filename='/assets/' ~ path, v=ASSET_VERSION) }}
+{%- endmacro %}
 <html lang="ru" {% block schemapage %}{% endblock %}>
   <head>
     <meta charset="utf-8">
@@ -51,14 +54,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           href="{{ url_for('static', filename='/assets/img/apple-touch-icon.png') }}">
     <!-- Quick CSS -->
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='/assets/css/quick-website.css', v='2026.08.15') }}"
+          href="{{ asset('css/quick-website.css') }}"
           id="stylesheet">
     <!-- Page CSS -->
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='/assets/libs/animate.css/animate.min.css', v='2026.08.15') }}">
+          href="{{ asset('libs/animate.css/animate.min.css') }}">
     <!-- Font Awesome -->
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='/assets/libs/@fortawesome/fontawesome-free/css/all.min.css', v='2026.08.15') }} ">
+          href="{{ asset("libs/@fortawesome/fontawesome-free/css/all.min.css") }} ">
     {% block head_links %}{% endblock %}
     <script type="application/ld+json">
     {
@@ -333,34 +336,29 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       </div>
     </footer>
     <!-- Core JS  -->
-    <script src="{{ url_for('static', filename='/assets/libs/jquery/dist/jquery.min.js', v='2026.08.15') }}"></script>
-    <script src="{{ url_for('static', filename='/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js', v='2026.08.15') }}"></script>
-    <script src="{{ url_for('static', filename='/assets/libs/svg-injector/dist/svg-injector.min.js', v='2026.08.15') }}"
+    <script src="{{ asset('libs/jquery/dist/jquery.min.js') }}"></script>
+    <script src="{{ asset('libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('libs/svg-injector/dist/svg-injector.min.js') }}"
             async
             defer></script>
-    <script src="{{ url_for('static', filename='/assets/libs/feather-icons/dist/feather.min.js', v='2026.08.15') }}"
-            defer></script>
-    <script src="{{ url_for('static', filename='/assets/libs/in-view/dist/in-view.min.js', v='2026.08.15') }}"
+    <script src="{{ asset('libs/feather-icons/dist/feather.min.js') }}" defer></script>
+    <script src="{{ asset('libs/in-view/dist/in-view.min.js') }}" async defer></script>
+    <script src="{{ asset('libs/sticky-kit/dist/sticky-kit.min.js') }}"
             async
             defer></script>
-    <script src="{{ url_for('static', filename='/assets/libs/sticky-kit/dist/sticky-kit.min.js', v='2026.08.15') }}"
+    <script src="{{ asset('libs/imagesloaded/imagesloaded.pkgd.min.js') }}"
             async
             defer></script>
-    <script src="{{ url_for('static', filename='/assets/libs/imagesloaded/imagesloaded.pkgd.min.js', v='2026.08.15') }}"
-            async
-            defer></script>
-    <script src="{{ url_for('static', filename='/assets/libs/bootstrap-notify/bootstrap-notify.min.js', v='2026.08.15') }}"></script>
-    <script src="{{ url_for('static', filename='/assets/libs/autosize/dist/autosize.min.js', v='2026.08.15') }}"
-            async
-            defer></script>
+    <script src="{{ asset('libs/bootstrap-notify/bootstrap-notify.min.js') }}"></script>
+    <script src="{{ asset('libs/autosize/dist/autosize.min.js') }}" async defer></script>
     <!-- Google maps -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA74mo0V79zPcSWjgUMe9AdmLy3-ruPKLs"></script>
     <!-- Page JS -->
-    <script src="{{ url_for('static', filename='/assets/libs/flatpickr/dist/flatpickr.min.js', v='2026.08.15') }}"></script>
+    <script src="{{ asset('libs/flatpickr/dist/flatpickr.min.js') }}"></script>
     <!-- Quick JS -->
-    <script src="{{ url_for('static', filename='/assets/js/quick-website.min.js', v='2026.08.15') }}"></script>
-    <script src="{{ url_for('static', filename='/assets/js/se_scripts.js', v='2026.08.15') }}"></script>
-    <script src="{{ url_for('static', filename='/assets/js/se_practice_script.js', v='2026.08.15') }}"></script>
+    <script src="{{ asset('js/quick-website.min.js') }}"></script>
+    <script src="{{ asset('js/se_scripts.js') }}"></script>
+    <script src="{{ asset('js/se_practice_script.js') }}"></script>
     <!-- Feather Icons -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {

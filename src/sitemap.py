@@ -3,20 +3,18 @@
 # Route view functions registered via decorator; basedpyright cannot see the
 # decorator registration and would flag it unused.
 
-import os
-from datetime import date
-
 from flask import Flask, make_response, render_template
 
+from flask_se_config import site_deploy_date
 from flask_se_static import LEGACY_REDIRECTS
 from se_models import Thesis
 
 SITE_DOMAIN = "https://se.math.spbu.ru"
 
-# Static pages have no DB timestamps; lastmod = deploy date. Production sets
-# SE_SITE_LASTMOD at deploy from the release tag (vYYYY.MM.DD -> YYYY-MM-DD)
-# so the sitemap stays stable across days; dev/tests fall back to today.
-STATIC_LASTMOD = os.environ.get("SE_SITE_LASTMOD", date.today().isoformat())
+# Static pages have no DB timestamps; lastmod = deploy date (single source:
+# flask_se_config.site_deploy_date). Production sets SE_SITE_LASTMOD at deploy
+# from the release tag so the sitemap stays stable across days.
+STATIC_LASTMOD = site_deploy_date()
 
 # Routes never to advertise to crawlers: auth/private pages, internal
 # management pages, AJAX fragments, and 301 legacy redirects.
