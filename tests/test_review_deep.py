@@ -525,13 +525,9 @@ class TestReviewSubmitReview:
         )
         assert resp.status_code == 302
 
-    @pytest.mark.xfail(
-        strict=False, reason="Missing template notification/thesis_on_review_success.html"
-    )
-    @patch("flask_se_review.os.path.isfile", return_value=False)
     @patch.object(FileStorage, "save")
     def test_reviewed_with_file(
-        self, mock_save, mock_isfile, logged_client, reviewer_user, other_thesis_on_review
+        self, mock_save, logged_client, reviewer_user, other_thesis_on_review
     ):
         other_thesis_on_review.review_status = 2
         other_thesis_on_review.reviewer_id = reviewer_user.id
@@ -701,15 +697,11 @@ class TestBecomeReviewer:
 class TestFullReviewFlow:
     """End-to-end flow: become reviewer в†' submit в†' review."""
 
-    @patch("flask_se_review.os.path.isfile", return_value=False)
-    @pytest.mark.xfail(
-        strict=False, reason="Missing template notification/thesis_on_review_success.html"
-    )
     @patch.object(FileStorage, "save")
     @patch("flask_se_review.translit")
     @patch("flask_se_review.get_thesis_type_id_string")
     def test_full_review_lifecycle(
-        self, mock_get_type_str, mock_translit, mock_save, mock_isfile, logged_client
+        self, mock_get_type_str, mock_translit, mock_save, logged_client
     ):
         from se_models import AreasOfStudy, PromoCode, ThesisOnReviewWorktype, db
 
