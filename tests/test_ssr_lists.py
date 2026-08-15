@@ -1,28 +1,12 @@
 # -*- coding: utf-8 -*-
 import re
 
-from conftest import assert_ok
-
-
-def _make_published_thesis(client, name="SSR Thesis"):
-    from se_models import Thesis, db
-
-    thesis = Thesis(
-        name_ru=name,
-        author="SSR Author",
-        type_id=2,
-        course_id=1,
-        publish_year=2024,
-        temporary=False,
-    )
-    db.session.add(thesis)
-    db.session.commit()
-    return thesis
+from conftest import _make_published_thesis, assert_ok
 
 
 class TestThesesSsr:
     def test_archive_renders_list_server_side(self, seeded_client):
-        _make_published_thesis(seeded_client)
+        _make_published_thesis(name="SSR Thesis", author="SSR Author")
         resp = seeded_client.get("/theses.html")
         html = resp.get_data(as_text=True)
         assert resp.status_code == 200
@@ -30,7 +14,7 @@ class TestThesesSsr:
         assert 'id="ThesisList"' in html
 
     def test_archive_search_renders_server_side(self, seeded_client):
-        _make_published_thesis(seeded_client, name="Android Performance")
+        _make_published_thesis(name="Android Performance", author="SSR Author")
         resp = seeded_client.get("/theses.html?search=android")
         html = resp.get_data(as_text=True)
         assert resp.status_code == 200
@@ -38,7 +22,7 @@ class TestThesesSsr:
 
     def test_archive_pagination_is_crawlable(self, seeded_client):
         for i in range(15):
-            _make_published_thesis(seeded_client, name=f"Thesis {i}")
+            _make_published_thesis(name=f"Thesis {i}", author="SSR Author")
         resp = seeded_client.get("/theses.html?page=2")
         html = resp.get_data(as_text=True)
         assert resp.status_code == 200
@@ -50,7 +34,7 @@ class TestThesesSsr:
         assert "Работы по выбранным критериям отсутствуют" in html
 
     def test_fetch_fragment_still_works(self, seeded_client):
-        _make_published_thesis(seeded_client)
+        _make_published_thesis(name="SSR Thesis", author="SSR Author")
         assert_ok(seeded_client, "/fetch_theses", code={200})
 
 

@@ -29,6 +29,7 @@ jobs:
       - run: uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
       - run: uv run basedpyright src/
       - run: uv run pylint --disable=all --enable=similarities src/ tests/
+      - run: uv run vulture src/ --min-confidence 100 --exclude src/migrations,src/thesesImport.py --ignore-names is_created,revision
 
   test:
     runs-on: ubuntu-latest

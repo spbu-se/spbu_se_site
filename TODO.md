@@ -180,9 +180,9 @@ None.
 
 | Priority | Task | Effort | Depends on |
 |----------|------|--------|------------|
-| **M** | Dead code elimination tool — evaluate `vulture` or `coverage` dead-code detection for CI/gates (motivated by pylint duplicate-code: 86 findings, mostly Alembic) | M | — |
-| **M** | Code duplicates prevention — evaluate `pylint --enable=duplicate-code`, `pycode_similar`, `PyChase`; choose, configure, integrate into quality gates | M | — |
-| **L** | Eliminate remaining 114 pyright ignores — categories B/D/G (framework-level attrs, Flask-Admin generics, bridge points) | L | — |
+| **M** | Dead code elimination — ✅ shipped: `vulture` dev dep + pre-push + CI gate at `--min-confidence 100` (excludes `migrations`/`thesesImport`; framework callback params whitelisted) | M | ✅ done (PR #217) |
+| **M** | Code duplicates prevention — ✅ shipped: `pylint --disable=all --enable=similarities src/ tests/` gate added to pre-push + ci.yml (was ci-staging only) | M | ✅ done (PR #217) |
+| **L** | Eliminate remaining pyright ignores — categories B/D/G (framework-level attrs, Flask-Admin generics, bridge points) | L | — |
 | **P5** | Python 3.12+, Docker, static site, open source docs | M-S | Icebox |
 
 ## Resolved (this session)

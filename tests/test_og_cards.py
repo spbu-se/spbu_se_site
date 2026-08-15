@@ -2,33 +2,7 @@
 import re
 
 import pytest
-
-
-def _seed_internship(client):
-    from se_models import InternshipCompany, InternshipFormat, Internships, InternshipTag, db
-
-    company = InternshipCompany(name="OG Card Co")
-    db.session.add(company)
-    db.session.flush()
-
-    fmt = db.session.get(InternshipFormat, 1)
-    tag = db.session.get(InternshipTag, 1)
-
-    internship = Internships(
-        name_vacancy="OG Card Vacancy",
-        salary="50000",
-        description="OG card description",
-        location="SPb",
-        company_id=company.id,
-        requirements="Some requirements text for the og card",
-        more_inf="https://example.com",
-        author_id=1,
-    )
-    internship.format = [fmt]
-    internship.tag = [tag]
-    db.session.add(internship)
-    db.session.commit()
-    return internship.id
+from conftest import _make_published_thesis, _seed_internship
 
 
 def _head_html(resp) -> str:
@@ -84,7 +58,13 @@ class TestOgNewsItem:
 
 class TestOgInternship:
     def test_internship_og_and_canonical(self, seeded_client):
-        internship_id = _seed_internship(seeded_client)
+        internship_id = _seed_internship(
+            seeded_client,
+            company="OG Card Co",
+            vacancy="OG Card Vacancy",
+            description="OG card description",
+            requirements="Some requirements text for the og card",
+        )
         resp = seeded_client.get(f"/internships/{internship_id}")
         head = _head_html(resp)
         assert resp.status_code == 200
@@ -140,23 +120,8 @@ class TestOgDiplomaTheme:
 
 
 class TestOgThesisCard:
-    def _make_published_thesis(self):
-        from se_models import Thesis, db
-
-        thesis = Thesis(
-            name_ru="Published Thesis OG",
-            author="OG Author",
-            type_id=2,
-            course_id=1,
-            publish_year=2024,
-            temporary=False,
-        )
-        db.session.add(thesis)
-        db.session.commit()
-        return thesis
-
     def test_card_valid_thesis(self, seeded_client):
-        thesis = self._make_published_thesis()
+        thesis = _make_published_thesis(name="Published Thesis OG", author="OG Author")
         resp = seeded_client.get(f"/thesis_card?thesis_id={thesis.id}")
         head = _head_html(resp)
         assert resp.status_code == 200
@@ -167,7 +132,7 @@ class TestOgThesisCard:
         assert canonical.group(1) == f"https://se.math.spbu.ru/thesis_card?thesis_id={thesis.id}"
 
     def test_card_title_links_to_card(self, seeded_client):
-        thesis = self._make_published_thesis()
+        thesis = _make_published_thesis(name="Published Thesis OG", author="OG Author")
         html = seeded_client.get(f"/thesis_card?thesis_id={thesis.id}").get_data(as_text=True)
         assert f'href="/thesis_card?thesis_id={thesis.id}"' in html
         assert f'data-copy-url="http://localhost/thesis_card?thesis_id={thesis.id}"' in html
@@ -193,7 +158,7 @@ class TestOgThesisCard:
         assert resp.status_code == 302
 
     def test_fetch_theses_contains_card_link(self, seeded_client):
-        self._make_published_thesis()
+        _make_published_thesis(name="Published Thesis OG", author="OG Author")
         resp = seeded_client.get("/fetch_theses")
         assert resp.status_code == 200
         assert "/thesis_card?thesis_id=" in resp.get_data(as_text=True)
