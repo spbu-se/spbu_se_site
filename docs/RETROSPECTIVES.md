@@ -1276,3 +1276,24 @@ Changes analyzed: `tests/test_review_deep.py` (2 xfail markers + global `os.path
 
 - Branch `chore/todo-freshness-xfail`, one commit. Full suite: **1297 passed, 4 skipped, 3 xfailed, 7 xpassed**; coverage 92.26%.
 - Next: PR to upstream; then `chore/quality-tooling` (pylint-similarities parity + vulture gate), `test/consolidate-params`, `fix/xdist-races`.
+
+### Retrospective — 2026-08-15: quality tooling (vulture + pylint-similarities parity) and the red-staging fixture duplication
+
+Changes analyzed: `pyproject.toml`/`uv.lock` (vulture dev dep), `.pre-commit-config.yaml` + `.github/workflows/ci.yml` + `ci-staging.yml` (vulture + pylint-similarities gates), `tests/conftest.py` + 3 test files (duplicate-fixture consolidation), `docs/TOOLING.md` (vulture/pylint sections), `TODO.md` (Planned table).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Dead-code detection was documented as "evaluate" but never gated | Retro/TODO drift — no tool chosen | `vulture` dev dep + pre-push + both CI gates at `--min-confidence 100` (excludes `migrations`/`thesesImport`, framework callback params whitelisted) — higher confidence would drown in SQLAlchemy/Flask-route false positives |
+| Duplicate-code gate (`pylint similarities`) existed only on `ci-staging`, missing from pre-push + `ci.yml` (PR→current path) | Tooling parity (§0.12) gap | Added the gate to pre-push + `ci.yml`; added vulture to both CI workflows |
+| **Staging CI was already red**: `pylint similarities` flagged 2 R0801 duplicate-code pairs (`_seed_internship`, `_make_published_thesis`) | Recent PRs #208/#209 introduced near-identical seeding helpers in `test_og_cards.py`/`test_internships_deep.py`/`test_ssr_lists.py` | Consolidated both into shared `conftest.py` helpers with parameters (behavior preserved — asserted strings kept at call sites); gate now green |
+
+**What went well**: adding the pylint gate to pre-push immediately surfaced a pre-existing red on staging (verified via `gh run list --branch staging`) that would otherwise have broken CI the moment the new gate landed — the parity work and the fixture dedup landed in the same PR; consolidation matched the Phase-3 plan's fixture-dedupe item, so it wasn't wasted work.
+
+**What went wrong**: the gate couldn't be merged green without folding in the fixture consolidation — a scope addition to what looked like a config-only change.
+
+**State at handoff**:
+
+- Branch `chore/quality-tooling` (stacked on `chore/todo-freshness-xfail`). pre-push gate (mdformat/ruff/pylint/vulture/basedpyright) green.
+- Full suite not re-run in this PR (test-only changes were the 3 consolidation files, each run green); reference stays 1297 passed.
+- Next: `test/consolidate-params`, then `fix/xdist-races`.
+

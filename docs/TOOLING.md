@@ -345,6 +345,22 @@ Run: `ruff check --fix --unsafe-fixes`
 
 Set `target-version` in `[tool.ruff]` to match minimum supported Python. Affects which syntax is flagged as invalid.
 
+## vulture (dead-code gate)
+
+Gated in pre-push + both CI workflows (parity). The `--min-confidence 100` level is deliberate: at default confidence vulture flags hundreds of framework false positives (SQLAlchemy model columns, Alembic `upgrade`/`downgrade`, Flask route functions, WTForms fields) that it cannot resolve statically — gating there would make the check noise and get disabled. At 100% only true positives surface (currently only unused callback params).
+
+```bash
+uv run vulture src/ --min-confidence 100 --exclude src/migrations,src/thesesImport.py --ignore-names is_created,revision
+```
+
+- `migrations/` and `thesesImport.py` (legacy scraper, already in the coverage omit) are excluded.
+- `is_created`/`revision` are framework-contract callback params (Flask-Admin `on_model_change`, Alembic `process_revision_directives`) that ruff already suppresses with `# noqa: ARG002`.
+- To add new dead code to the exclusion, widen `--ignore-names` or `--exclude` with a documented reason, not to hide real findings.
+
+## pylint (duplicate-code gate)
+
+`uv run pylint --disable=all --enable=similarities src/ tests/` runs in pre-push + both CI workflows. `min-similarity-lines = 6` in `pyproject.toml` `[tool.pylint.similarities]`; migrations/templates/static are ignored. Keeps the test consolidation honest — consolidation removes duplication, never adds it.
+
 ## lxml dependency for BeautifulSoup HTML parsing
 
 `lxml>=6.1.1` is a dev dependency in `pyproject.toml` (`[dependency-groups] dev`). It's required for BeautifulSoup HTML parser tests (`features="lxml"`) in scrape tests under `test_theses_import.py`. The built-in `html.parser` is too lenient — it doesn't raise on malformed HTML that triggers different code paths.

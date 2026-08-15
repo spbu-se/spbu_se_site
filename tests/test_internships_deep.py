@@ -1,32 +1,5 @@
 # -*- coding: utf-8 -*-
-from conftest import assert_ok
-
-
-def _seed_internship(client):
-    from se_models import InternshipCompany, InternshipFormat, Internships, InternshipTag, db
-
-    company = InternshipCompany(name="Existing Co")
-    db.session.add(company)
-    db.session.flush()
-
-    fmt = db.session.get(InternshipFormat, 1)
-    tag = db.session.get(InternshipTag, 1)
-
-    internship = Internships(
-        name_vacancy="Existing Vacancy",
-        salary="50000",
-        description="Desc",
-        location="SPb",
-        company_id=company.id,
-        requirements="Req",
-        more_inf="https://example.com",
-        author_id=1,
-    )
-    internship.format = [fmt]
-    internship.tag = [tag]
-    db.session.add(internship)
-    db.session.commit()
-    return internship.id
+from conftest import _seed_internship, assert_ok
 
 
 class TestOldInternshipsRedirect:

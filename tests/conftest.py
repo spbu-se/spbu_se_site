@@ -205,6 +205,58 @@ def _setup_current_thesis_with_report():
     return ct.id, report.id
 
 
+def _seed_internship(
+    client,
+    *,
+    company="Existing Co",
+    vacancy="Existing Vacancy",
+    description="Desc",
+    requirements="Req",
+) -> int:
+    """Shared internship seeding helper (was duplicated in test_og_cards + test_internships_deep)."""
+    from se_models import InternshipCompany, InternshipFormat, Internships, InternshipTag, db
+
+    company_obj = InternshipCompany(name=company)
+    db.session.add(company_obj)
+    db.session.flush()
+
+    fmt = db.session.get(InternshipFormat, 1)
+    tag = db.session.get(InternshipTag, 1)
+
+    internship = Internships(
+        name_vacancy=vacancy,
+        salary="50000",
+        description=description,
+        location="SPb",
+        company_id=company_obj.id,
+        requirements=requirements,
+        more_inf="https://example.com",
+        author_id=1,
+    )
+    internship.format = [fmt]
+    internship.tag = [tag]
+    db.session.add(internship)
+    db.session.commit()
+    return internship.id
+
+
+def _make_published_thesis(name="Thesis", author="Author"):
+    """Shared published-thesis seeding helper (was duplicated in test_og_cards + test_ssr_lists)."""
+    from se_models import Thesis, db
+
+    thesis = Thesis(
+        name_ru=name,
+        author=author,
+        type_id=2,
+        course_id=1,
+        publish_year=2024,
+        temporary=False,
+    )
+    db.session.add(thesis)
+    db.session.commit()
+    return thesis
+
+
 def assert_ok(client, path, methods=None, data=None, code=None):
     """Helper: GET (or POST) a path, assert status matches."""
     if methods is None:
