@@ -1297,3 +1297,19 @@ Changes analyzed: `pyproject.toml`/`uv.lock` (vulture dev dep), `.pre-commit-con
 - Full suite not re-run in this PR (test-only changes were the 3 consolidation files, each run green); reference stays 1297 passed.
 - Next: `test/consolidate-params`, then `fix/xdist-races`.
 
+### Retrospective — 2026-08-15: xdist race fix — shared upload dir across parallel workers
+
+Changes analyzed: `src/flask_se_theses.py` (configurable `THESIS_UPLOAD_ROOT`), `tests/conftest.py` (per-worker isolated root), `tests/test_theses_deep.py` + `tests/test_auth_views.py` (approve tests use the root; 6 xfail markers → `xdist_group`), `docs/TESTING.md`, `TODO.md`.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| 6 `post_theses` tests intermittently failed in the full suite ("post_theses returns 500", "intermittent xdist race") | Parallel xdist workers wrote **same-named upload files into the shared `./static/tmp` tree** (filenames are author-derived but the scratch dir is global); a concurrent save/read race corrupted the endpoint response. The 6 tests were `strict=False` xfails silently XPASSing | Root-cause fix: `THESIS_UPLOAD_ROOT` read from `SE_THESIS_UPLOAD_ROOT` env (default `./static/tmp` — production unchanged); conftest points it at a per-worker temp dir. `post_theses` + `theses_add_tmp` build paths from the root; approve tests updated. `xdist_group("post_theses")` kept as defense-in-depth |
+
+**What went well**: the first attempt (`xdist_group` serialization) surfaced CI as intermittently red, proving the collision was cross-file (practice/review uploads share `static/tmp`), not intra-cluster — which forced the correct fix (per-worker isolation) instead of shipping a partial mitigation; the production refactor is behavior-preserving (env default matches the old hardcoded path) and also fixes a latent production same-name scratch collision; full suite green (**1303 passed**) with the xfails gone.
+
+**What went wrong**: two interim approaches were needed (serialization alone failed on CI; the first isolation draft omitted the upload subdirs and the approve/download tests using the literal path) — three verification cycles on CI before green.
+
+**State at handoff**:
+
+- Branch `fix/xdist-races`. Full suite: **1303 passed, 4 skipped, 3 xfailed, 1 xpassed**; coverage 92.26%. Reference updated in `TESTING.md`.
+- Phase 4 of four: #216 (todo freshness + review xfails), #217 (quality tooling + fixture dedup), #218 (test consolidation), this PR (xdist race).
