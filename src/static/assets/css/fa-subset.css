@@ -1,0 +1,23 @@
+/*!
+ * Font Awesome Free 5.15.1 subset (9 icons used by se.math.spbu.ru templates)
+ * Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT.
+ * Regenerate when a template uses a new `fas fa-*` icon (guardrail test
+ * tests/test_fontawesome_subset.py fails until fa-solid-subset.woff2 +
+ * the content rules below are updated). Command:
+ *   uv run --with fonttools --with brotli pyftsubset \
+ *     src/static/assets/libs/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 \
+ *     --output-file=src/static/assets/css/fa-solid-subset.woff2 \
+ *     --unicodes=U+F1C1,U+F1C4,U+F15C,U+F1C6,U+F2B6,U+F53F,U+F0A3,U+F0C1,U+F142 \
+ *     --layout-features=* --no-hinting
+ */
+@font-face{font-family:"Font Awesome 5 Free";font-style:normal;font-weight:900;font-display:block;src:url(fa-solid-subset.woff2) format("woff2")}
+.fas{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;display:inline-block;font-style:normal;font-variant:normal;text-rendering:auto;line-height:1;font-family:"Font Awesome 5 Free";font-weight:900}
+.fa-file-pdf:before{content:"\f1c1"}
+.fa-file-powerpoint:before{content:"\f1c4"}
+.fa-file-alt:before{content:"\f15c"}
+.fa-file-archive:before{content:"\f1c6"}
+.fa-envelope-open:before{content:"\f2b6"}
+.fa-palette:before{content:"\f53f"}
+.fa-certificate:before{content:"\f0a3"}
+.fa-link:before{content:"\f0c1"}
+.fa-ellipsis-v:before{content:"\f142"}

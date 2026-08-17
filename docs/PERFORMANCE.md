@@ -56,8 +56,14 @@ Once the Tier 1 PR is merged **and** the nginx changes are live:
 
 ## Deferred — Tier 2 (improvement / feature level)
 
-- Subset Font Awesome to the ~9 used icons (or FA SVG/JS subset) — full
-  `all.min.css` (59 KB) for a handful of `fas` icons.
+- ~~Subset Font Awesome to the ~9 used icons~~ ✅ done in `perf/fa-subset`:
+  `all.min.css` (59 KB) removed from the 4 bases; a hand-built `fa-subset.css`
+  (~1.4 KB) + `fa-solid-subset.woff2` (2.7 KB vs 78 KB) load only on the ~13
+  templates that use `fas` icons. Guardrail tests in
+  `tests/test_fontawesome_subset.py` fail on any new icon until the subset is
+  regenerated. Note: `quick-website.min.css` (59 KB) is a **stale build** (701
+  rules vs 6,427 in the full file; swiper/tagsinput rules missing) — do NOT
+  switch the templates to it; purge/rebase the theme instead.
 - Minify + bundle JS into 2–3 files; unify `quick-website.js` vs `-min.js`
   variants (base_light and base_dark differ).
 - Purge unused CSS from `quick-website.css` (573 KB theme, most unused on most
