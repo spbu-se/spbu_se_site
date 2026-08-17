@@ -1525,3 +1525,20 @@ Light retro for the Tier 2 maps PR.
 **What went well**: rebuilt min.js through the PR-3 pipeline (deterministic — css min unchanged); `node --check` clean on all three JS files; guardrail tests (`tests/test_maps_lazy.py`) cover no-sync-script, key leak, loader wiring, and registrations; rendered-page tests prove the homepage exposes the key global while `/news/` loads no maps code at all.
 
 **State at handoff**: branch `feat/perf-maps-lazy` (from `upstream/current` `154e128`). Next: push, open PR (base `current`), merge with `--admin --squash`; then PR-2 (JS deferral) toward one release + one re-measure.
+
+### Retrospective — 2026-08-17: JS deferral (perf/js-defer)
+
+Light retro for the Tier 2 JS-deferral PR.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| All bases loaded jquery/bootstrap/theme/first-party scripts **synchronously** (render-blocking, ~200 KB of script in the critical path) | Original Quick theme shipped `src` scripts at the end of body with no `defer` | Added `defer` to every script in the 4 bases; deferred scripts run in document order after parse, before DOMContentLoaded |
+| `async defer` on the jquery-dependent libs (sticky-kit, imagesloaded, bootstrap-notify) would let them execute **before** deferred jquery → `jQuery is not defined` | `async` and `defer` together: `async` wins and executes out of order | Removed `async`, kept `defer` on the jquery-dependent libs so they run after jquery |
+| Inline content-block scripts used `$(document).ready`/`$()` but jquery is no longer loaded at parse time (deferred) | Content blocks render before the bottom-of-body script tags; the old pattern silently failed and the new deferral made it explicit | Added an `seReady(fn)` queue helper in each base `<head>`, flushed on DOMContentLoaded; converted the 4 inline-`$` templates (3 to `seReady`, goals_tasks to vanilla `querySelectorAll`) |
+| The homepage hero (LCP) is a CSS `background-image` with no fetch hint | CSS backgrounds can't use `fetchpriority` | Added `<link rel="preload" as="image">` for `main-back.jpg` in index's headers block |
+| The curriculum templates' `$(` were false positives (inlined Plotly.js), not jquery | Grep-based audit | Confirmed via template reading; only 4 templates truly used inline jquery |
+| Post-deploy content drift can't be eyeballed | No baseline of what prod delivers | `.tmp/predeploy_snapshot.py` captured 43 routes + 44 assets (incl. the still-unminified 573 KB css and the sync maps script — the exact pre-fix state); `.tmp/compare_snapshot.py` diffs after deploy |
+
+**What went well**: full suite green (1351 passed / 4 skipped / 3 xfailed / 1 xpassed); the defer chain preserves document order so `se_scripts.js`/`se_practice_script.js` still see `$`; `node --check` clean; guardrails (`tests/test_js_deferral.py`) pin deferral + ordering + no inline jquery + SE_ON_READY placement; the pre-deploy snapshot proves the exact browser-delivered bytes pre-fix.
+
+**State at handoff**: branch `feat/perf-js-defer` (from `upstream/current` `ab07269`). Next: push, open PR (base `current`), merge with `--admin --squash`; then pre-release guardrail + release notes; STOP before tag signing.
