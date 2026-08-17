@@ -6,9 +6,9 @@ Scope: performance optimization roadmap for se.math.spbu.ru — baseline
 measurements, shipped Tier 1 work, and the deferred ideas/goals backlog.
 
 Covers: performance baseline/measurements, shipped optimizations (Tier 1, Font
-Awesome subset, app-side cache headers), deferred Tier 2/3 ideas, post-deploy
-re-evaluation return-item. Does not cover: SEO/agentic roadmap — see
-`docs/SEO_A11Y_ROADMAP.md`, general quality tiers — see
+Awesome subset, app-side cache headers, asset build pipeline), deferred Tier
+2/3 ideas, post-deploy re-evaluation return-item. Does not cover: SEO/agentic
+roadmap — see `docs/SEO_A11Y_ROADMAP.md`, general quality tiers — see
 `docs/QUALITY_MANAGEMENT.md`.
 
 ## Baseline (measured 2026-08-15)
@@ -77,13 +77,13 @@ homepage, mobile; 2 runs, stable):
   (~1.4 KB) + `fa-solid-subset.woff2` (2.7 KB vs 78 KB) load only on the ~13
   templates that use `fas` icons. Guardrail tests in
   `tests/test_fontawesome_subset.py` fail on any new icon until the subset is
-  regenerated. Note: `quick-website.min.css` (59 KB) is a **stale build** (701
-  rules vs 6,427 in the full file; swiper/tagsinput rules missing) — do NOT
-  switch the templates to it; purge/rebase the theme instead.
-- Minify + bundle JS into 2–3 files; unify `quick-website.js` vs `-min.js`
-  variants (base_light and base_dark differ).
-- Purge unused CSS from `quick-website.css` (573 KB theme, most unused on most
-  pages) or inline critical CSS.
+  regenerated.
+- ~~Minify + bundle JS into 2–3 files; unify `quick-website.js` vs `-min.js`
+  variants~~ ✅ done in `perf/build-pipeline`: bases now serve the regenerated
+  `quick-website.min.js` (terser, from the committed source).
+- ~~Purge unused CSS from `quick-website.css`~~ ✅ done in `perf/build-pipeline`:
+  6,427 → ~1,744 rules; 595 KB → ~140 KB min. All literal template classes kept
+  (guardrail `tests/test_asset_pipeline.py` mirrors purgecss's all-classes rule).
 - Per-page asset loading via `{% block page_css %}` / `{% block page_scripts %}`:
   flatpickr, bootstrap-notify, maps, simplemde only where used.
 - Google Maps lazy-load (IntersectionObserver) + defer — requires guarding the
@@ -91,11 +91,34 @@ homepage, mobile; 2 runs, stable):
   parse time; plain `defer` of the API breaks the homepage map).
 - `srcset`/`sizes` + AVIF/WebP for images; `width`/`height` attributes.
 
+## Shipped — Tier 2 build pipeline (PR: perf/build-pipeline)
+
+- `package.json` + `scripts/build-assets.mjs` (`npm run build`): purgecss
+  (content = all templates + all JS under assets, greedy safelist for dynamic
+  JS class families) → esbuild minify → `quick-website.min.css`; terser →
+  `quick-website.min.js`. Both outputs are committed (build-and-commit).
+- The committed `quick-website.min.css` was a **stale build** (60 KB / 701 rules
+  vs 6,427 in source) — regenerated now: ~140 KB / ~1,744 rules. The 4 bases +
+  `admin/master.html` reference the min files; the 595 KB unminified source css
+  stays committed as the build input.
+- Deleted stale build remnants: `.css.map`/`.js.map` files, the `css/min/`
+  directory, and the unused `quick-website-dark*` variant (not referenced by any
+  template).
+- CI `assets` job (ci.yml): `npm ci` → `npm run build` → `git diff --exit-code`
+  on both min outputs, so committed artifacts can never drift from the sources.
+  Local guardrail tests: `tests/test_asset_pipeline.py` (min files served, not
+  stale, every template class survives the purge, every `asset()` reference
+  resolves).
+- Decisions: content-hash `?v=` replacement deferred (date-based `?v=` still
+  busts correctly per release); Lighthouse CI budget deferred. See the PR-3
+  retrospective.
+
 ## Deferred — Tier 3 (smart / architecture level)
 
-- Asset build pipeline (esbuild/webpack/Flask-Assets): minify + content-hash
-  filenames + purgecss, wired into the release process → safe immutable cache
-  without manual `?v=` bumps.
+- Asset build pipeline content-hash fingerprinting: minify + purgecss now ship
+  (`perf/build-pipeline`); the remaining Tier 3 piece is **content-hash
+  filenames** replacing the date-based `?v=` (manifest read by Flask) so
+  same-day hotfixes bust assets without a date change.
 - CI performance budget (Lighthouse CI or transfer-size check in pre-push) so
   regressions fail the gate.
 - CDN (e.g., Cloudflare): brotli, HTTP/3, edge caching, on-the-fly image
