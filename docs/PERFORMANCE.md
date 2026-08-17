@@ -70,6 +70,28 @@ homepage, mobile; 2 runs, stable):
 - **Decision**: Tier 2 items below (maps lazy-load, JS minify/bundle, CSS purge)
   are the path to a >70 lab score. Not started this release — deferred.
 
+## Post-release measurement (2026-08-18, v2026.08.18 live)
+
+Tier 2 campaign shipped (build pipeline, maps lazy-load, JS deferral). Live
+content verified against the pre-deploy snapshot
+(`.tmp/predeploy_snapshot/` → `.tmp/postdeploy_snapshot/` via
+`.tmp/compare_snapshot.py`):
+
+- **Expected changes present**: all 4 bases serve `quick-website.min.css`/`.min.js`
+  (was the unminified 573 KB css); every script carries `defer`; `SE_ON_READY`
+  helper in each base `<head>`; hero `preload` on `/`; zero sync
+  `maps.googleapis.com/maps/api/js` script; `/news/` loads no maps code.
+- **Maps key was unprovisioned at deploy**: `SE_GMAPS_KEY=""` → `se_maps.js`
+  early-returns, so the 3 map pages (index, contacts, bachelor_admission) render
+  an empty 500px map box. Fixed by admin setting `SE_GOOGLE_MAPS_KEY` (or
+  `configs/flask_se_maps.conf`) on prod + restart. Guardrail: checklist B16.
+- **`?v=` / sitemap `lastmod` show today, not the release date**: `SE_SITE_LASTMOD`
+  is unset on prod, so `site_deploy_date()` falls back to `date.today()`. Same-day
+  it matches the previous release's `?v=`; it self-corrects next day. Not a cache
+  or content issue (B14 deviation only).
+- Re-measure lab mobile Lighthouse after the maps key is provisioned; record the
+  result here and in `RETROSPECTIVES.md` (return-item).
+
 ## Deferred — Tier 2 (improvement / feature level)
 
 - ~~Subset Font Awesome to the ~9 used icons~~ ✅ done in `perf/fa-subset`:

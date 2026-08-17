@@ -48,6 +48,19 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
   key read from `configs/flask_se_maps.conf`/`SE_GOOGLE_MAPS_KEY` (gitignored),
   injected via `{% block se_maps_key %}` only on the 3 map pages; the maps API is
   now lazy-loaded (IntersectionObserver) instead of a sync script on every base.
+- **Move from Google Maps to Yandex Maps** (deferred, 2026-08-18): the 3 map
+  elements (index, contacts, bachelor_admission) render via the Google Maps JS
+  API, lazy-loaded by `js/se_maps.js` (IntersectionObserver → inject API →
+  `window.__seMaps` initializers in `quick-website.js`). Yandex Maps JS API is a
+  drop-in at this layer: swap the API URL/key in `se_maps.js` and the
+  `google.maps.*` calls in the 3 `initMap` functions (Map/Marker/InfoWindow/
+  LatLng) for `ymaps3` equivalents, keeping the `window.__seMaps` registration
+  contract and the `{% block se_maps_key %}` key-injection pattern. Motivations:
+  RU-hosted map service, no Google referrer restriction, simpler key management
+  (`configs/flask_se_maps.conf` already gitignored). Guardrail: reuse/extend
+  `tests/test_maps_lazy.py` (no sync API script, no key leak, map pages render)
+  and re-run `.tmp/predeploy_snapshot.py` + `.tmp/compare_snapshot.py` for the
+  3 map routes post-change.
 - `WebSite` + `SearchAction` JSON-LD; convert remaining microdata to JSON-LD.
 - Fix GTM asymmetry.
 - Investigate legacy top-level `static/` dir (615 PDFs, not wired to Flask).
