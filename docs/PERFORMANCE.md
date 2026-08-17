@@ -52,15 +52,23 @@ release deploys Tier 1 + cache; do not extrapolate from this partial state.
   Safe because css/js/libs URLs carry the release-date `?v=`.
 - Baseline Lighthouse JSON: `.tmp/baseline_lighthouse.json`.
 
-## Return-item (mandatory re-evaluation)
+## Post-release measurement (2026-08-17, v2026.08.17 live)
 
-Once the perf PRs are merged and deployed:
+Return-item completed. Measured on the deployed release (local `npx lighthouse`,
+homepage, mobile; 2 runs, stable):
 
-1. Re-run `npx lighthouse https://se.math.spbu.ru/ --only-categories=performance --form-factor=mobile` and record the score here.
-1. Record `curl -sI` headers for `/assets/css/quick-website.css` (expect
-   `Content-Encoding: gzip`, `Cache-Control: ... immutable`).
-1. Decide whether to start Tier 2 items below; update this file with measured
-   before/after numbers and the retrospective.
+- **Lab mobile Performance: 66** (baseline 63 → +3). The **>70 target is NOT met**
+  by the lab score. Lab throttling (Slow 4G, 4x CPU) makes the synchronous unused
+  JS/CSS dominate: top opportunities were `unused-javascript` (~310 KiB, ~1.5 s),
+  `unused-css-rules` (~74 KiB), `unminified-css`, `unminified-javascript`.
+- **Field metrics stay green** (CrUX): mobile LCP 1.5 s, CLS 0, CWV Passed — real
+  users on fast connections get good LCP; the lab-vs-field gap is the synthetic
+  throttle, not a real-world regression.
+- Cache headers verified live: `/assets/css/quick-website.css` →
+  `public, max-age=31536000, immutable`; `/assets/img/mm.jpg` → 30 days; versioned
+  `?v=2026-08-17` URLs; sitemap `lastmod` = release date (B14).
+- **Decision**: Tier 2 items below (maps lazy-load, JS minify/bundle, CSS purge)
+  are the path to a >70 lab score. Not started this release — deferred.
 
 ## Deferred — Tier 2 (improvement / feature level)
 

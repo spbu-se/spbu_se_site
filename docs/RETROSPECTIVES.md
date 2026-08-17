@@ -1474,3 +1474,25 @@ full suite 1313 passed (incl. 7 new cache-header tests); all local gates green.
 `upstream/current` `54ec2e6`). Next: push, open PR, merge; then re-read docs
 (post-retro refresh), run the release guardrail, generate `.tmp/release-notes.md`,
 tag `v2026.08.17` signed, verify the signature gate, create the draft release.
+
+### Retrospective — 2026-08-17: post-release measurement (v2026.08.17 live)
+
+Release v2026.08.17 published and deployed (tag GPG-signed by the user,
+`verify-signature` gate green, CD deploy job success). Post-release return-item
+executed.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Lab mobile score 66 is below the >70 target despite the release | The lab's synthetic throttle (Slow 4G + 4x CPU) is dominated by synchronous unused JS/CSS that real users never pay for: measured `unused-javascript` ~310 KiB (~1.5 s), `unused-css-rules` ~74 KiB, plus unminified CSS/JS | Field CrUX stays green (mobile LCP 1.5 s, CLS 0, CWV Passed) — not a real-world regression. Recorded 66 + the measured drags in `docs/PERFORMANCE.md`; Tier 2 (maps lazy-load, JS minify/bundle, CSS purge) is the documented path to >70 |
+| `npx lighthouse` first run reported score 60 with LCP 7.3 s and a chrome-launcher kill trace | Headless Chrome launched with a Linux-style `--no-sandbox` flag; the broken run still wrote a JSON report | Re-ran with `CHROME_PATH` set to the installed Chrome and `--headless=new`; two clean runs both scored 66 — treat the first run as invalid |
+| PSI API kept returning 429 from this environment | Rate limit on the shared egress IP | Fell back to local `npx lighthouse` (same tooling as the 63 baseline) — measurement method recorded in `docs/PERFORMANCE.md` |
+
+**What went well**: the strict signing gate held end-to-end (user-signed tag, CI
+`verify-signature` green on both tag-push and release runs, draft created, published,
+deployed); B14 lastmod = release date; immutable/30-day cache headers and `?v=`
+versioned URLs all verified live; temp probe files now go to `.tmp/` per user
+correction.
+
+**State at handoff**: branch `docs/perf-return-item-v2026.08.17` (from
+`upstream/current` `3f4d4ff`). Next: push, open PR, merge; Tier 2 (maps lazy-load,
+JS bundle/minify, CSS purge) to close the >70 lab gap.
