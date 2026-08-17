@@ -24,7 +24,7 @@ Covers: release-time drift items (dates, counts, hardcoded values), verification
 | # | Item | Check |
 |---|------|-------|
 | B1 | `requirements.txt` vs `uv.lock` | Regenerate if deps changed: `uv export --no-dev --no-hashes > requirements.txt` (`docs/DEVELOPMENT_PROCESS.md` §Definition of Done). CI fails on mismatch |
-| B2 | `.github/workflows/` (ci.yml, deploy_to_production.yml) | `actionlint` passes; `deploy_to_production.yml` deploys on `release: published` (not tag push), and its `release` job still reads `.tmp/release-notes.md` with `mkdir -p .tmp` present |
+| B2 | `.github/workflows/` (ci.yml, deploy_to_production.yml) | `actionlint` passes; `deploy_to_production.yml` deploys on `release: published` (not tag push); its `verify-signature` job gates deploy on a GPG-verified tag and its `release` job still runs with `mkdir -p .tmp` present |
 | B3 | `src/static/assets/img/og/` (10 files) + `apple-touch-icon.png` | **D7 guardrail**: if the site design changed since generation, re-run `uv run python .tmp/gen_og_images.py` — stale previews degrade social shares silently (see `docs/DESIGN_DECISIONS.md` [2026-08-13]) |
 | B4 | Static site build | `uv run python src/flask_se.py build` succeeds (Frozen-Flask; only if the freezer is used) |
 | B5 | `Dockerfile` / `docker-compose.yml` | Update only if Python dependencies changed (`docs/DEVELOPMENT_PROCESS.md` §6) |
@@ -37,3 +37,4 @@ Covers: release-time drift items (dates, counts, hardcoded values), verification
 | B12 | CI on `current` | `gh run list --branch current --limit 1 --json conclusion` green before tagging |
 | B13 | Full test suite | `uv run pytest --tb=no -q` green; record result for A2 |
 | B14 | `SE_SITE_LASTMOD` at deploy | Production must set `SE_SITE_LASTMOD` at deploy from the release tag (`vYYYY.MM.DD` → `YYYY-MM-DD`); it drives both the sitemap static `lastmod` and the asset `?v=` version. Verify `curl -s https://se.math.spbu.ru/sitemap-static.xml` shows the release date as `lastmod`, not today |
+| B15 | **Strict signing gate (hard rule)** | Deploy/release only with a **GPG-signed tag**. `verify-signature` job in `deploy_to_production.yml` fails the run when the tag is lightweight or not GPG-verified (checks GitHub's git-data API `verification.verified`); the `deploy` job depends on it. Before creating the draft release, also run `git verify-tag vYYYY.MM.DD` locally — if it fails, STOP. Publishing an unsigned tag is a process violation |

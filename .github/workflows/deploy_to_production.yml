@@ -9,15 +9,50 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to deploy (e.g. v2026.08.14); empty = branch head"
-        required: false
-        default: ""
+        description: "GPG-signed tag to deploy (e.g. v2026.08.14). Strict policy: only signed tags deploy"
+        required: true
 
 permissions:
   contents: read
 
 jobs:
+  # Strict signing gate: deploy/release only with a GPG-signed tag. Verified via
+  # GitHub's git-data API (checks the tag object's signature against the user's
+  # uploaded keys). Fails on lightweight or unsigned annotated tags.
+  verify-signature:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.resolve.outputs.tag }}
+    steps:
+      - name: Resolve deploy tag
+        id: resolve
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          TAG="${INPUT_TAG:-${RELEASE_TAG:-${GITHUB_REF_NAME}}}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+      - name: Verify tag GPG signature
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.resolve.outputs.tag }}"
+          TAG_SHA="$(gh api "repos/${{ github.repository }}/git/refs/tags/${TAG}" --jq .object.sha)" || {
+            echo "::error::Tag '${TAG}' not found or not annotated. Deploy/release requires a GPG-signed tag (strict policy)."
+            exit 1
+          }
+          VERIFIED="$(gh api "repos/${{ github.repository }}/git/tags/${TAG_SHA}" --jq .verification.verified)" || {
+            echo "::error::Tag '${TAG}' has no tag object to verify (lightweight tag?). Deploy/release requires a GPG-signed tag (strict policy)."
+            exit 1
+          }
+          if [ "$VERIFIED" != "true" ]; then
+            echo "::error::Tag '${TAG}' is NOT GPG-verified. Deploy/release only with a signed tag (strict policy)."
+            exit 1
+          fi
+          echo "::notice::Tag '${TAG}' GPG signature verified."
+
   deploy:
+    needs: [verify-signature]
     if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: deploy_environment

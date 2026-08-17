@@ -462,6 +462,12 @@ Versioning is date-based — every release is tagged `vYYYY.MM.DD` (see
    git tag -s vYYYY.MM.DD && git push <upstream> vYYYY.MM.DD
    ```
    Pushing the tag does **not** deploy — it only prepares the release.
+1. **Verify the signing gate (hard rule — deploy/release only signed):** confirm
+   the `verify-signature` job in `deploy_to_production.yml` is **green** on the
+   tag-push run (`gh run list --branch vYYYY.MM.DD`) and run
+   `git verify-tag vYYYY.MM.DD` locally. If either fails, STOP — do not create or
+   publish the release. The `deploy` job runs only after this gate passes, so an
+   unsigned/lightweight tag can never deploy (checklist B15).
 1. Create (or let CI create) the draft release:
    - When `OPENCODE_ZEN_API_KEY` is set, the `release` job in
      `deploy_to_production.yml` creates a **draft** GitHub release with the

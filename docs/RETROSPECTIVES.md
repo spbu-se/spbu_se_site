@@ -1431,3 +1431,46 @@ non-FA pages; djlint/ruff/basedpyright/pre-push all green.
 **State at handoff**: branch `perf/fa-subset` (from `upstream/current` `7e04e7c`).
 Next: push to fork, open PR to upstream (base `current`); after both PRs merge, one release,
 then re-measure PSI (mobile target >70).
+
+### Retrospective — 2026-08-17: pre-release finalization (chore/prerelease-finalize-v2026.08.17)
+
+Full retrospective covering the whole release sprint (#222, #223, #224) plus the
+pre-release code/docs audits. Comprehensive record; the per-PR light entries above
+remain the source of the PR-level detail.
+
+**Release-policy decision (user): deploy/release only with a GPG-signed tag — strict.**
+`gh pr merge --squash` cannot produce a user-GPG-signed commit (GitHub is the
+committer), so the release gate is **tag-only**: the annotated tag covers the commit,
+and the deploy webhook pins tag+sha. Enforced structurally by the new `verify-signature`
+job in `deploy_to_production.yml` (fails lightweight/unsigned tags via the GitHub
+git-data API; `deploy` depends on it) + checklist B15 + `git verify-tag` before the draft.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `git rebase --continue` hung twice (GPG sign prompt + editor, no TTY) | `commit.gpgsign=true` + non-interactive shell | `.tooling.md` entry: temporarily `git config commit.gpgsign false`, set `$env:GIT_EDITOR="true"` in the **same** command, restore after |
+| `gh pr merge --delete-branch` rejected | Repo has a merge queue; the flag is disallowed | `.tooling.md` entry: merge without the flag, delete fork branches manually after `MERGED` (merged-PR evidence) |
+| RETROSPECTIVES.md + PERFORMANCE.md conflicted at the tail when rebasing #224 | Two parallel PRs both appended to the same docs | AGENTS.md Multi-PR note: expect shared-tail conflicts, merge sequentially, keep all entries |
+| PERFORMANCE.md lacked `Covers:`/`Does not cover:` header | Docs-audit scope-header check | Added per `docs/DOCS.md §3.1` template |
+| API_REFERENCE.md missing the new routes | Release-checklist B6 | Added Agent-Facing/SEO section (`/.well-known/llms.txt`, `/security.txt`, `/.well-known/security.txt`, `/opensearch.xml`, section 301s); `/index.html` now marked 301 |
+
+**Code-audit (`.skills/code-audit`)** — all clear, no new CODE_ISSUES.md entries:
+no open redirects (`next` validated via endpoint `url_for`, `redirect_next_url` is
+endpoint-based); no bare `except:`; `sys.exit` only in the CLI `thesesImport.py`;
+every `request.form.get(...).strip()` has a `""` default; `send_file` paths are
+server-constructed (temp dir + worktype/area filename); all `requests.*` calls carry
+timeouts. Bug inventory fresh (only open item: P2 practice-route complexity, unchanged).
+
+**Docs-audit (`.skills/docs-audit`)** — catalog and cross-refs intact; DOCS.md lists
+all 20 docs; encoding declarations fine; hardcoded `§N` cross-references exist
+repo-wide (pre-existing, out of scope for this PR — noted, not mass-converted).
+1 xpassed test (Google OAuth `xfail(strict=False)`) is the known drift pattern —
+markers left untouched per TESTING.md policy.
+
+**What went well**: the tag-only signing decision resolved the `gh pr merge` signing
+limitation cleanly; CI on current green at every merge point (Basic checks + CD + CodeQL);
+full suite 1313 passed (incl. 7 new cache-header tests); all local gates green.
+
+**State at handoff**: branch `chore/prerelease-finalize-v2026.08.17` (from
+`upstream/current` `54ec2e6`). Next: push, open PR, merge; then re-read docs
+(post-retro refresh), run the release guardrail, generate `.tmp/release-notes.md`,
+tag `v2026.08.17` signed, verify the signature gate, create the draft release.

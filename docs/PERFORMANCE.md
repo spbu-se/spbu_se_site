@@ -5,6 +5,12 @@
 Scope: performance optimization roadmap for se.math.spbu.ru — baseline
 measurements, shipped Tier 1 work, and the deferred ideas/goals backlog.
 
+Covers: performance baseline/measurements, shipped optimizations (Tier 1, Font
+Awesome subset, app-side cache headers), deferred Tier 2/3 ideas, post-deploy
+re-evaluation return-item. Does not cover: SEO/agentic roadmap — see
+`docs/SEO_A11Y_ROADMAP.md`, general quality tiers — see
+`docs/QUALITY_MANAGEMENT.md`.
+
 ## Baseline (measured 2026-08-15)
 
 - Mobile Lighthouse Performance score: **63** (local run, `npx lighthouse`,
