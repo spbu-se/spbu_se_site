@@ -1542,3 +1542,18 @@ Light retro for the Tier 2 JS-deferral PR.
 **What went well**: full suite green (1351 passed / 4 skipped / 3 xfailed / 1 xpassed); the defer chain preserves document order so `se_scripts.js`/`se_practice_script.js` still see `$`; `node --check` clean; guardrails (`tests/test_js_deferral.py`) pin deferral + ordering + no inline jquery + SE_ON_READY placement; the pre-deploy snapshot proves the exact browser-delivered bytes pre-fix.
 
 **State at handoff**: branch `feat/perf-js-defer` (from `upstream/current` `ab07269`). Next: push, open PR (base `current`), merge with `--admin --squash`; then pre-release guardrail + release notes; STOP before tag signing.
+
+### Retrospective — 2026-08-17: performance campaign ship + post-deploy verify (v2026.08.18)
+
+Session retro covering the Tier 2 campaign (PRs #227 build-pipeline, #229 maps-lazy, #230 js-deferral, #231 release-prep) shipped together in v2026.08.18, plus the post-deploy verification.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| The Google Maps key was moved to server config (`perf/maps-lazy`) but **never provisioned on the deploy host** → the 3 map pages shipped with `SE_GMAPS_KEY=""` and render **blank 500px map boxes** in prod | Config-driven secret (key) was relocated without a post-deploy check on the host; the deploy webhook only pins tag+sha, it does not verify app-level config | Recorded as an ops action (admin sets `SE_GOOGLE_MAPS_KEY`/`configs/flask_se_maps.conf` + restart); added checklist item **B16** (post-deploy verify `SE_GMAPS_KEY` non-empty) — no code guardrail until the planned Google→Yandex move (per maintainer decision) |
+| Post-deploy verification relied on eyeballing rather than a baseline | No local record of what prod delivered before the deploy | `.tmp/predeploy_snapshot.py` captured 43 routes + 44 assets pre-fix (unminified 573 KB css, sync maps script); `.tmp/compare_snapshot.py` diffs against a post-deploy capture and normalizes `?v=`/csrf so real content drift shows up |
+| `?v=` and sitemap `lastmod` read `2026-08-17` (today) on a `v2026.08.18` release | `SE_SITE_LASTMOD` unset on prod → `site_deploy_date()` falls back to `date.today()` | Verified harmless: it is just the current date, self-corrects next day, no cache/content impact. Noted in the post-release section (B14 deviation only) |
+| The main route set for the snapshot was ambiguous | No defined "main pages" list | Curated ~25 (every base variant + perf-affected templates) **plus** all 40 `sitemap-static.xml` URLs → 43 routes, covering all public pages |
+
+**What went well**: three perf PRs shipped and merged cleanly (`--admin --squash`) with CI green including the `assets` drift job; full suite 1351 passed; the deploy content verified correct (min assets, defer, SE_ON_READY, hero preload, zero sync maps on `/news/`); signed tag `v2026.08.18` (GPG) + draft release published → CD `deploy: success`; pre-deploy snapshot gives a durable before/after baseline for this and future releases.
+
+**State at handoff**: branch `docs/post-deploy-v2026.08.18` (from `upstream/current` `3896942`). Next: merge the docs PR (post-release measurement, Yandex-maps roadmap item, checklist B16, this retro); admin provisions the maps key on prod; then re-measure Lighthouse + record the return-item in PERFORMANCE.md.
