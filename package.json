@@ -1,0 +1,14 @@
+{
+  "name": "se-site-assets",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Asset build pipeline for spbu_se_site: regenerate quick-website.min.css/js from source.",
+  "scripts": {
+    "build": "node scripts/build-assets.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "purgecss": "^8.0.0",
+    "terser": "^5.36.0"
+  }
+}
