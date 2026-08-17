@@ -69,7 +69,7 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 1. `feat/meta-audit` — titles, canonical sweep, OG fixes + parity + pre-rendered images, robots.txt, sitemap index, humans.txt. ✅ PR #208
 1. `feat/ssr-lists` — SSR theses/diplomas/thesis-review, JS double-fetch guard, `aria-live`. ✅ PR #209
 1. `feat/jsonld-llms` — JSON-LD blocks + `/llms.txt` + tests. ✅ PR #210
-1. `feat/seo-agentic-hygiene` — `.well-known/llms.txt` alias, `/index.html`→301, section-index 301s, `security.txt`, OpenSearch, sitemap dedup. ✅ PR #224
+1. `feat/seo-agentic-hygiene` — `.well-known/llms.txt` alias, `/index.html`→301, section-index 301s, `security.txt`, OpenSearch, sitemap dedup. ✅ PR #223
 
 PRs are stacked: each new PR branches from the previous PR's branch; merged one-by-one in completion order.
 
