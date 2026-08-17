@@ -23,6 +23,11 @@
 - Next to close the >70 lab gap (measured drags): Google Maps lazy-load,
   minify/bundle JS (unused ~310 KiB), purge unminified `quick-website.css`
   (unused ~74 KiB) — Tier 2 in `docs/PERFORMANCE.md`.
+- Build pipeline shipped (PR perf/build-pipeline): minified+purged theme css
+  (595 KB → ~140 KB, 6,427 → ~1,744 rules) and regenerated min js now served by
+  all bases; CI `assets` job prevents build drift. Remaining Tier 2/3: Google
+  Maps lazy-load, JS deferral, content-hash `?v=`, Lighthouse budget — see
+  `docs/PERFORMANCE.md`.
 
 ## Batch run 2026-07-08 — session 5 (auto mode: CI stability + P0-P4 sweep)
 

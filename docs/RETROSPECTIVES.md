@@ -1496,3 +1496,18 @@ correction.
 **State at handoff**: branch `docs/perf-return-item-v2026.08.17` (from
 `upstream/current` `3f4d4ff`). Next: push, open PR, merge; Tier 2 (maps lazy-load,
 JS bundle/minify, CSS purge) to close the >70 lab gap.
+
+### Retrospective — 2026-08-17: asset build pipeline (perf/build-pipeline)
+
+Light retro for the Tier 2 build-pipeline PR (minify + purge + CI drift guard).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| The "minify only" decision premise was wrong: regenerating the min from source gives **438 KB** (not ~60 KB) — the committed 60 KB `quick-website.min.css` is a truncated 701-rule build, not a minified theme | The stale file looked like a valid min artifact; rule-count vs source was never verified before planning | Verified by regeneration during execution; surfaced the corrected numbers to the user and re-decided **minify + purge** (user chose) — final `quick-website.min.css` ~140 KB / ~1,744 rules with all template classes preserved |
+| PowerShell 5.1 `Set-Content -Encoding UTF8` corrupted the 4 bases + admin master (BOM + Cyrillic mojibake, 80-line diffs) on the first template edit | Classic PS 5.1 encoding trap; templates are UTF-8-no-BOM with Cyrillic | Reverted, redid with `[System.IO.File]::WriteAllText(..., UTF8Encoding($false))`; recorded in `docs/TOOLING.md` §Static asset build pipeline |
+| purgecss keeps a selector only when ALL its classes are used — a per-class guardrail false-failed on `form-control-prepend`/`counting-finished` | purgecss semantics misunderstood in the first test draft | `tests/test_asset_pipeline.py` now mirrors the all-classes rule (selector-level companion analysis with a brace-aware CSS parser); verified no genuinely-referenced class was purged |
+| purgecss globs fail silently on Windows backslash paths (ESM `css:` input returned 0 results) | `path.join` emits `\`; purgecss uses `glob` | Forward-slash normalization + a hard failure instead of a silent undefined (`purged[0].css`) |
+
+**What went well**: the 428-class template scan proved purge completeness before any deploy (only `form-control-prepend`, whose rules all require the unused `input-group-merge` companion, was correctly dropped); CI `assets` job makes build drift a red check; full pre-commit/ruff clean; decisions (content-hash deferral, Lighthouse budget deferral) honored the user's earlier 3-tier choices.
+
+**State at handoff**: branch `feat/perf-build-pipeline` (from `upstream/current` `a21301b`). Next: push, open PR (base `current`), merge with `--admin --squash`; then PR-1 (maps lazy-load) and PR-2 (JS deferral) toward one release + one re-measure.
