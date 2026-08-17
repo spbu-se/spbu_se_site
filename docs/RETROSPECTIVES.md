@@ -1511,3 +1511,17 @@ Light retro for the Tier 2 build-pipeline PR (minify + purge + CI drift guard).
 **What went well**: the 428-class template scan proved purge completeness before any deploy (only `form-control-prepend`, whose rules all require the unused `input-group-merge` companion, was correctly dropped); CI `assets` job makes build drift a red check; full pre-commit/ruff clean; decisions (content-hash deferral, Lighthouse budget deferral) honored the user's earlier 3-tier choices.
 
 **State at handoff**: branch `feat/perf-build-pipeline` (from `upstream/current` `a21301b`). Next: push, open PR (base `current`), merge with `--admin --squash`; then PR-1 (maps lazy-load) and PR-2 (JS deferral) toward one release + one re-measure.
+
+### Retrospective — 2026-08-17: Google Maps lazy-load (perf/maps-lazy)
+
+Light retro for the Tier 2 maps PR.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| The 3 map IIFEs called `google.maps` at parse time, so lazy-loading the API needed a source refactor, not just a `defer` on the script tag | Original Quick theme initializers attach via `google.maps.event.addDomListener(window,'load', initMap($map))` which also calls `initMap` immediately | Replaced the trigger with registration into `window.__seMaps` ({id, init}); `js/se_maps.js` runs them only after the API loads and the element scrolls into view |
+| The API key was hardcoded in all 4 base templates | Config hygiene deferred (SEO roadmap item) | Moved to `configs/flask_se_maps.conf`/`SE_GOOGLE_MAPS_KEY` (gitignored); rendered only on the 3 map pages via `{% block se_maps_key %}` |
+| The sync maps script was in ALL 4 bases though only base_dark pages have maps | Copy-paste template structure | Removed from all 4 bases; lazy loader added only to base_dark |
+
+**What went well**: rebuilt min.js through the PR-3 pipeline (deterministic — css min unchanged); `node --check` clean on all three JS files; guardrail tests (`tests/test_maps_lazy.py`) cover no-sync-script, key leak, loader wiring, and registrations; rendered-page tests prove the homepage exposes the key global while `/news/` loads no maps code at all.
+
+**State at handoff**: branch `feat/perf-maps-lazy` (from `upstream/current` `154e128`). Next: push, open PR (base `current`), merge with `--admin --squash`; then PR-2 (JS deferral) toward one release + one re-measure.

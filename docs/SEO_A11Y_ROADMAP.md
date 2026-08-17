@@ -44,7 +44,10 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 - WCAG 2.1 AA pass + optional `pytest-axe`/manual gate + `.skills/a11y-audit`.
 - CSP + security headers (Flask `after_request` + `nginx/default.conf.template`).
 - Asset hygiene: minified CSS default, `?v=`/fingerprint cache-busting, prune ~2,400 unused `assets/libs/` files.
-- Google Maps key hardcoded in HTML (`base_dark.html:346`) → config/server.
+- ~~Google Maps key hardcoded in HTML → config/server~~ ✅ done in `perf/maps-lazy`:
+  key read from `configs/flask_se_maps.conf`/`SE_GOOGLE_MAPS_KEY` (gitignored),
+  injected via `{% block se_maps_key %}` only on the 3 map pages; the maps API is
+  now lazy-loaded (IntersectionObserver) instead of a sync script on every base.
 - `WebSite` + `SearchAction` JSON-LD; convert remaining microdata to JSON-LD.
 - Fix GTM asymmetry.
 - Investigate legacy top-level `static/` dir (615 PDFs, not wired to Flask).
