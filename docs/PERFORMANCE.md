@@ -88,6 +88,11 @@ homepage, mobile; 2 runs, stable):
   maps only where used~~ ✅ maps handled by `perf/maps-lazy` (key block + lazy
   loader only on base_dark). Remaining: flatpickr, bootstrap-notify, simplemde
   only where used.
+- ~~Defer jquery/bootstrap + remaining sync libs; convert inline `$()` templates
+  to an SE_ON_READY queue~~ ✅ done in `perf/js-defer`: all scripts deferred
+  (document order preserved; `async` removed from jquery-dependent libs);
+  `seReady(fn)` helper in every base; 4 templates converted to `seReady`/vanilla
+  DOM; homepage hero preload. Guardrails in `tests/test_js_deferral.py`.
 - ~~Google Maps lazy-load (IntersectionObserver) + defer~~ ✅ done in
   `perf/maps-lazy`: the three `initMap` IIFEs in `quick-website.js` now register
   into `window.__seMaps` (no `google.maps` at parse time); `js/se_maps.js`
@@ -141,6 +146,36 @@ homepage, mobile; 2 runs, stable):
   key leak, loader wiring, registrations present, rendered pages).
 - Post-deploy verify: maps render on index/contacts/bachelor; zero maps requests
   on `/news/`.
+
+## Shipped — Tier 2 JS deferral (PR: perf/js-defer)
+
+- All scripts in the 4 bases now carry `defer` (was a mix of sync and
+  `async defer`): jquery, bootstrap, the theme bundle, all libs, and the
+  first-party scripts (`se_scripts.js`, `se_practice_script.js`,
+  `se_maps.js`). Deferred scripts run in document order after parsing, before
+  DOMContentLoaded — the parser is no longer blocked on ~200 KB of script.
+- **`async` removed from the jquery-dependent libs** (sticky-kit, imagesloaded,
+  bootstrap-notify, svg-injector, in-view, autosize): `async` would let them
+  execute before deferred jquery and throw `jQuery is not defined`. Plain
+  `defer` preserves the jquery-first order.
+- **SE_ON_READY helper** (`seReady(fn)`) defined in every base `<head>`: inline
+  content-block scripts can no longer rely on `$` at parse time (deferred
+  jquery is not loaded yet), so templates queue callbacks flushed on
+  DOMContentLoaded (jquery already loaded by then). Converts the old
+  `$(document).ready(...)` pattern.
+- Inline jquery converted in the 4 templates that used it:
+  `practice/{staff/reports_staff,thesis_staff,admin/thesis_admin}` now use
+  `seReady(...)` for `document.title`; `practice/student/goals_tasks.html` uses
+  vanilla `querySelectorAll` for its task-list reset (no jquery dependency).
+  No template calls `$()`/`$(document).ready` inline at parse time anymore.
+- LCP: the homepage hero (`main-back.jpg`, a CSS background) is `<link rel="preload" as="image">`-ed in index's headers block so the LCP image
+  starts fetching immediately.
+- Guardrail tests: `tests/test_js_deferral.py` (core scripts deferred + ordered
+  in all 4 bases, light-base libs deferred, SE_ON_READY defined before content,
+  no inline `$(document).ready`/`$()` in templates, se_maps.js still deferred).
+- Pre-deploy snapshot of main pages + assets in `.tmp/predeploy_snapshot/`
+  (capture via `.tmp/predeploy_snapshot.py`, compare post-deploy via
+  `.tmp/compare_snapshot.py`).
 
 ## Deferred — Tier 3 (smart / architecture level)
 
