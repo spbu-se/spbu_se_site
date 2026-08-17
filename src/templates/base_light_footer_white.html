@@ -63,6 +63,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Page CSS -->
     <link rel="stylesheet"
           href="{{ asset('libs/animate.css/animate.min.css') }}">
+    <!-- SE_ON_READY: deferred jquery (see Core JS below) is not loaded when
+         content-block inline scripts run; queue callbacks here instead. -->
+    <script>
+        window.SE_ON_READY = window.SE_ON_READY || [];
+        window.SE_ON_READY_FLUSHED = window.SE_ON_READY_FLUSHED || false;
+        function seReady(fn) {
+            if (window.SE_ON_READY_FLUSHED || document.readyState !== 'loading') {
+                fn();
+            } else {
+                window.SE_ON_READY.push(fn);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            window.SE_ON_READY_FLUSHED = true;
+            for (var i = 0; i < window.SE_ON_READY.length; i++) {
+                try {
+                    window.SE_ON_READY[i]();
+                } catch (e) {}
+            }
+            window.SE_ON_READY = [];
+        });
+    </script>
     {% block head_links %}{% endblock %}
     <script type="application/ld+json">
     {
@@ -335,24 +357,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       </div>
     </footer>
     <!-- Core JS  -->
-    <script src="{{ asset('libs/jquery/dist/jquery.min.js') }}"></script>
-    <script src="{{ asset('libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('libs/svg-injector/dist/svg-injector.min.js') }}"
-            async
+    <script src="{{ asset('libs/jquery/dist/jquery.min.js') }}" defer></script>
+    <script src="{{ asset('libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"
             defer></script>
+    <script src="{{ asset('libs/svg-injector/dist/svg-injector.min.js') }}" defer></script>
     <script src="{{ asset('libs/feather-icons/dist/feather.min.js') }}" defer></script>
-    <script src="{{ asset('libs/in-view/dist/in-view.min.js') }}" async defer></script>
-    <script src="{{ asset('libs/sticky-kit/dist/sticky-kit.min.js') }}"
-            async
+    <script src="{{ asset('libs/in-view/dist/in-view.min.js') }}" defer></script>
+    <script src="{{ asset('libs/sticky-kit/dist/sticky-kit.min.js') }}" defer></script>
+    <script src="{{ asset('libs/imagesloaded/imagesloaded.pkgd.min.js') }}" defer></script>
+    <script src="{{ asset('libs/bootstrap-notify/bootstrap-notify.min.js') }}"
             defer></script>
-    <script src="{{ asset('libs/imagesloaded/imagesloaded.pkgd.min.js') }}"
-            async
-            defer></script>
-    <script src="{{ asset('libs/bootstrap-notify/bootstrap-notify.min.js') }}"></script>
-    <script src="{{ asset('libs/autosize/dist/autosize.min.js') }}" async defer></script>
+    <script src="{{ asset('libs/autosize/dist/autosize.min.js') }}" defer></script>
     <!-- Quick JS -->
-    <script src="{{ asset('js/quick-website.min.js') }}"></script>
-    <script src="{{ asset('js/se_scripts.js') }}"></script>
+    <script src="{{ asset('js/quick-website.min.js') }}" defer></script>
+    <script src="{{ asset('js/se_scripts.js') }}" defer></script>
     <!-- Feather Icons -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {

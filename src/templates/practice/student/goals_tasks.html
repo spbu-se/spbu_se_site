@@ -373,8 +373,8 @@
 
     function resetTask() {
         editingTaskId = 0
-        $("li[data-purpose='task']").map(function() {
-            this.classList.remove("text-warning");
+        document.querySelectorAll("li[data-purpose='task']").forEach(function(li) {
+            li.classList.remove("text-warning");
         });
 
         document.getElementById("addTaskButton").style.display = "block";
