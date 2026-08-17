@@ -70,6 +70,7 @@ SITEMAP_SKIP_PAGES = {
     "/practice",
     "/index.html",
     "/news/item.html",
+    "/news/index.html",
     *LEGACY_REDIRECTS.keys(),
 }
 

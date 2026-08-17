@@ -1391,3 +1391,21 @@ Changes analyzed: 4 commits ? versioned static assets + preconnect + defer feath
 - Branch `feat/perf-assets-tier1` (from `origin/staging` `2597d00`), 4 commits.
 - Full suite 1300 passed / 4 skipped / 3 xfailed / 1 xpassed; coverage 92.26%.
 - Next: push to fork, open PR to upstream (base `current`); pass `.tmp/nginx_tuning.md` to the nginx admin; after merge + nginx deploy, re-run Lighthouse and record results in `docs/PERFORMANCE.md`.
+
+### Retrospective — 2026-08-17: SEO/agentic hygiene quick wins (PR feat/seo-agentic-hygiene)
+
+Changes analyzed: agent-friendly endpoints — `/.well-known/llms.txt` alias, `/index.html`→301,
+RFC 9116 `security.txt`, OpenSearch `/opensearch.xml` + autodiscovery, section-index 301s,
+sitemap dedup (`/news/index.html`), plus docs (SEO_A11Y_ROADMAP decisions D9–D15, deferred
+news/JSON-LD/llms-full/EN, PERFORMANCE.md post-gzip lab data point) and tests.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Two existing tests (`test_smoke`, `test_auth_views`) asserted `/index.html` → 302; the canonical 301 change broke them in the full-suite run | `/index.html` already had a route returning the default 302; only the full suite (7:44) surfaced the assertions, not the targeted run | Updated `test_smoke` to expect 301 and dropped the now-redundant `/index.html` entry from `test_auth_views` public-pages parametrize (covered by the smoke test) |
+| Execution-table PR number in SEO_A11Y_ROADMAP.md was guessed before the PR existed | Writing the PR number into docs before opening the PR | Verify and fix the number to the actual PR after creation, before merge |
+
+**What went well**: routes tested green on first targeted run (24 tests, incl. new agentic-endpoint suite); the catch-all Flask static route (`static_url_path=""`) does not shadow the new literal `/.well-known/llms.txt` and `/security.txt` redirect routes (literal rules win over the path converter); full suite 1300 passed / 4 skipped / 3 xfailed / 1 xpassed after the two test updates; coverage 92.28%; djlint/ruff clean.
+
+**State at handoff**: branch `feat/seo-agentic-hygiene` (from `upstream/current` `7e04e7c`).
+Next: push to fork, open PR to upstream (base `current`); then `perf/fa-subset` PR; both merged
+before one release; post-release re-measure PSI (mobile target >70) + verify nginx cache headers.

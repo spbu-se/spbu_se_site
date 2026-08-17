@@ -302,7 +302,6 @@ class TestPublicPages:
         "path",
         [
             "/",
-            "/index.html",
             "/research-directions",
             "/contacts.html",
             "/students/index.html",

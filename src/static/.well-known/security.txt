@@ -1,0 +1,4 @@
+Contact: mailto:dluciv@spbu.ru
+Preferred-Languages: ru, en
+Canonical: https://se.math.spbu.ru/.well-known/security.txt
+Expires: 2027-08-17T00:00:00.000Z

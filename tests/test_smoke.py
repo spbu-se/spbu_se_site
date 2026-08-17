@@ -14,7 +14,7 @@ def test_index_returns_200(client):
 
 def test_index_html_redirects_to_root(client):
     resp = client.get("/index.html")
-    assert resp.status_code == 302
+    assert resp.status_code == 301
     assert resp.location == "/"
 
 

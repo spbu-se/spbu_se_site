@@ -37,6 +37,12 @@ LEGACY_REDIRECTS = {
     "/directions.html": "research_directions",
     "/thesis_review": "thesis_review_index",
     "/thesis_review/index.html": "thesis_review_index",
+    # Section directory indexes: agents/crawlers that traverse directories get
+    # a 301 to the section's representative page instead of a 404.
+    "/bachelor/": "bachelor_software_engineering",
+    "/master/": "master_software_engineering",
+    "/department/": "department_staff",
+    "/students/": "students",
 }
 
 
@@ -53,7 +59,18 @@ def register_static_pages(app: Flask) -> None:
 
     @app.route("/index.html")
     def index_html():
-        return redirect(url_for("index"))
+        return redirect(url_for("index"), 301)
+
+    @app.route("/.well-known/llms.txt")
+    def well_known_llms():
+        # Some tooling probes only the .well-known path; single-source 301 to
+        # the canonical root llms.txt (served from static/ at site root).
+        return redirect(url_for("static", filename="llms.txt"), 301)
+
+    @app.route("/security.txt")
+    def security_txt():
+        # RFC 9116 root alias -> canonical .well-known location.
+        return redirect("/.well-known/security.txt", 301)
 
     @app.errorhandler(404)
     def page_not_found(e):  # noqa: ARG001
