@@ -33,6 +33,25 @@ jobs:
       - run: uv run pylint --disable=all --enable=similarities src/ tests/
       - run: uv run vulture src/ --min-confidence 100 --exclude src/migrations,src/thesesImport.py --ignore-names is_created,revision
 
+  assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Fail if committed build outputs drifted
+        run: |
+          git diff --exit-code -- \
+            src/static/assets/css/quick-website.min.css \
+            src/static/assets/js/quick-website.min.js || {
+              echo "::error::npm run build regenerated committed assets differently than the committed outputs. Rebuild locally (npm run build) and commit the result."
+              exit 1
+            }
+
   test:
     runs-on: ubuntu-latest
     needs: [lint]
