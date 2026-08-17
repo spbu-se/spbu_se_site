@@ -18,6 +18,13 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 | D6 | Sitemap index: static `sitemap.xml` + per-year `sitemap-theses-<year>.xml` from FTS index; `lastmod` = per-thesis dates. | `src/sitemap.py` |
 | D7 | Pre-rendered og-images in `src/static/assets/img/og/` (1200x630, one per section) + `apple-touch-icon`. **GUARDRAIL: re-generate images before push when design changes significantly.** | bases, `DESIGN_DECISIONS.md` |
 | D8 | Sitemap `lastmod` = per-page real dates (deploy constant for static, DB timestamps for dynamic). | `src/sitemap.py` |
+| D9 | `/.well-known/llms.txt` → 301 to root `/llms.txt` (single source for tooling that only probes `.well-known`). | `flask_se_static.py` |
+| D10 | `/index.html` → real **301** to `/` (was default 302). | `flask_se_static.py` |
+| D11 | Sitemap keeps exactly one canonical URL per resource: `/news/` only; `/news/index.html` dropped. | `src/sitemap.py` |
+| D12 | RFC 9116 `security.txt` at `/.well-known/security.txt` (contact `dluciv@spbu.ru`) + `/security.txt` → 301 alias. | `src/static/.well-known/security.txt` |
+| D13 | OpenSearch `/opensearch.xml` → `theses.html?search={searchTerms}` + `<link rel="search">` autodiscovery in the 4 bases. | `src/static/opensearch.xml`, bases |
+| D14 | Section directory indexes `/bachelor/`, `/master/`, `/department/`, `/students/` → 301 to the section's representative page (directory-traversing agents no longer get 404). | `flask_se_static.py` `LEGACY_REDIRECTS` |
+| D15 | robots.txt keeps `*` allow-all; explicit AI-crawler groups **not** added — a specific `User-agent:` group would override `*` for that bot, so each would need to repeat the sensitive disallow list; `*` already covers AI crawlers. | `src/static/robots.txt` |
 
 ## 2. Findings (audit 2026-08-13)
 
@@ -41,6 +48,17 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 - `WebSite` + `SearchAction` JSON-LD; convert remaining microdata to JSON-LD.
 - Fix GTM asymmetry.
 - Investigate legacy top-level `static/` dir (615 PDFs, not wired to Flask).
+- **News section** (audit 2026-08-16): `/news/item.html?post=N` URLs are 302 chains to an
+  external Tilda site (DDoS-Guard challenged), zero local content. Deferred content
+  decision: host summaries locally + 301/canonical to external detail, or keep a local
+  index. Add `/news/rss.xml` + pagination `canonical`/`rel=next|prev` + sitemap
+  inclusion when re-architecting.
+- **JSON-LD depth**: `Person` per staff member (with `sameAs`, email), `ScholarlyArticle`
+  on thesis detail pages, `BreadcrumbList` site-wide, `ItemList` for archive listings.
+- **`llms-full.txt`**: deep markdown dump of key program/staff content, cross-linked
+  from `llms.txt` (llms.txt proposal's "links to markdown files" pattern).
+- **EN variant + `hreflang`**: `html lang="ru"` is fixed today; a second language is a
+  separate content project.
 
 ## 4. Declined
 
@@ -51,6 +69,7 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 1. `feat/meta-audit` — titles, canonical sweep, OG fixes + parity + pre-rendered images, robots.txt, sitemap index, humans.txt. ✅ PR #208
 1. `feat/ssr-lists` — SSR theses/diplomas/thesis-review, JS double-fetch guard, `aria-live`. ✅ PR #209
 1. `feat/jsonld-llms` — JSON-LD blocks + `/llms.txt` + tests. ✅ PR #210
+1. `feat/seo-agentic-hygiene` — `.well-known/llms.txt` alias, `/index.html`→301, section-index 301s, `security.txt`, OpenSearch, sitemap dedup. ✅ PR #223
 
 PRs are stacked: each new PR branches from the previous PR's branch; merged one-by-one in completion order.
 

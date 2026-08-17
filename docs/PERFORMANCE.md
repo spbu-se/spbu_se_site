@@ -16,6 +16,12 @@ measurements, shipped Tier 1 work, and the deferred ideas/goals backlog.
 - Google Maps API JS loaded synchronously on every page; SimpleMDE loaded on
   every `base_light` page (only ~6 pages render the editor).
 
+## Post-gzip lab measurement (2026-08-17, pre-release)
+
+Only the host nginx gzip was live (cache headers not yet applied; app-side Tier 1
+not yet deployed): **mobile 67 / desktop 94** (PSI). Review the 67 after the next
+release deploys Tier 1 + cache; do not extrapolate from this partial state.
+
 ## Shipped — Tier 1 (PR: perf-assets-tier1)
 
 - 4 base templates: `preconnect`/`dns-prefetch` for GTM + topbar.spbu.ru;
@@ -33,7 +39,9 @@ measurements, shipped Tier 1 work, and the deferred ideas/goals backlog.
   main-back.jpg, main2.jpg, campus-1/2/3.jpg, building-photo.jpg
   (~670 KB → ~200 KB).
 - Host nginx ticket (`.tmp/nginx_tuning.md`): gzip + immutable cache for
-  `/assets/css|js|libs/`, 30-day cache for `/assets/img/`.
+  `/assets/css|js|libs/`, 30-day cache for `/assets/img/`. **gzip live** (verified
+  2026-08-17); the cache half is re-issued as a follow-up ticket (all `/assets/*`
+  still `Cache-Control: no-cache`).
 - Baseline Lighthouse JSON: `.tmp/baseline_lighthouse.json`.
 
 ## Return-item (mandatory re-evaluation)

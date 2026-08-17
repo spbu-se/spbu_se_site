@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>Кафедра СП СПбГУ</ShortName>
+  <Description>Поиск дипломных работ кафедры системного программирования СПбГУ</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <OutputEncoding>UTF-8</OutputEncoding>
+  <Url type="text/html" method="get" template="https://se.math.spbu.ru/theses.html?search={searchTerms}"/>
+</OpenSearchDescription>

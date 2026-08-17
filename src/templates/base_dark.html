@@ -12,6 +12,10 @@
     <meta name="author" content="{% block author %}Илья Зеленчук{% endblock %}">
     <link rel="canonical"
           href="{% block canonical_url %}{{ request.url }}{% endblock %}">
+    <link rel="search"
+          type="application/opensearchdescription+xml"
+          title="Поиск по кафедре СПбГУ"
+          href="{{ url_for('static', filename='opensearch.xml') }}">
     {% block og_meta %}
       <meta property="og:title"
             content="{% block og_title %}{{ self.title() }}{% endblock %}">
