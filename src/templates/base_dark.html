@@ -386,13 +386,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             async
             defer></script>
     <script src="{{ asset('libs/autosize/dist/autosize.min.js') }}" async defer></script>
-    <!-- Google maps -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA74mo0V79zPcSWjgUMe9AdmLy3-ruPKLs"></script>
+    <!-- Google maps (lazy-loaded by js/se_maps.js; API key from the page block) -->
+    {% block se_maps_key %}{% endblock %}
     <!-- Recaptcha -->
     <!-- script src='https://www.google.com/recaptcha/api.js' async defer></script -->
     <!-- Quick JS -->
     <script src="{{ asset('js/quick-website.min.js') }}"></script>
     <script src="{{ asset('js/se_scripts.js') }}"></script>
+    <script src="{{ asset('js/se_maps.js') }}" defer></script>
     <!-- Feather Icons -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {

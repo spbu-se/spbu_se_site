@@ -1094,7 +1094,8 @@ var GoogleMapCustom = (function() {
     }
 
     if (typeof($map) != 'undefined' && $map != null) {
-        google.maps.event.addDomListener(window, 'load', initMap($map));
+        window.__seMaps = window.__seMaps || [];
+        window.__seMaps.push({ id: 'map-custom', init: initMap });
     }
 })();
 
@@ -1174,7 +1175,8 @@ var GoogleMapCustom = (function() {
     }
 
     if (typeof($map) != 'undefined' && $map != null) {
-        google.maps.event.addDomListener(window, 'load', initMap($map));
+        window.__seMaps = window.__seMaps || [];
+        window.__seMaps.push({ id: 'map-mm-dormitory', init: initMap });
     }
 })();
 //
@@ -1224,7 +1226,8 @@ var GoogleMap = (function() {
     }
 
     if (typeof($map) != 'undefined' && $map != null) {
-        google.maps.event.addDomListener(window, 'load', initMap($map));
+        window.__seMaps = window.__seMaps || [];
+        window.__seMaps.push({ id: 'map-default', init: initMap });
     }
 })();
 

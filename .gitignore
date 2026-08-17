@@ -103,6 +103,9 @@ flask_se_vk_secret.conf
 /**/flask_se_thesis.conf
 */src/flask_se_thesis.conf
 flask_se_thesis.conf
+/**/flask_se_maps.conf
+*/src/flask_se_maps.conf
+flask_se_maps.conf
 
 # Do not track __pycache__
 **/__pycache__/

@@ -25,9 +25,10 @@
   (unused ~74 KiB) — Tier 2 in `docs/PERFORMANCE.md`.
 - Build pipeline shipped (PR perf/build-pipeline): minified+purged theme css
   (595 KB → ~140 KB, 6,427 → ~1,744 rules) and regenerated min js now served by
-  all bases; CI `assets` job prevents build drift. Remaining Tier 2/3: Google
-  Maps lazy-load, JS deferral, content-hash `?v=`, Lighthouse budget — see
-  `docs/PERFORMANCE.md`.
+  all bases; CI `assets` job prevents build drift. Maps lazy-load shipped
+  (PR perf/maps-lazy): sync ~350 KB API script removed from all bases, key moved
+  to config, loaded on scroll. Remaining Tier 2/3: JS deferral (jquery/
+  bootstrap), content-hash `?v=`, Lighthouse budget — see `docs/PERFORMANCE.md`.
 
 ## Batch run 2026-07-08 — session 5 (auto mode: CI stability + P0-P4 sweep)
 

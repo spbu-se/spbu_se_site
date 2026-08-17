@@ -5,6 +5,7 @@
 {% block description %}
   Готовим программистов высокой квалификации, способных решать любые задачи в самых разных областях информационных технологий.
 {% endblock %}
+{% block se_maps_key %}<script>window.SE_GMAPS_KEY = {{ se_google_maps_key|tojson }};</script>{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section class="slice py-8 bg-dark bg-cover bg-size--cover"

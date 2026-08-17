@@ -4,6 +4,7 @@
 {% block description %}
   Контактная информация кафедры Системного программирования Математико-механического факультета СПбГУ.
 {% endblock %}
+{% block se_maps_key %}<script>window.SE_GMAPS_KEY = {{ se_google_maps_key|tojson }};</script>{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section class="slice bg-dark bg-cover bg-size--cover pt-9"

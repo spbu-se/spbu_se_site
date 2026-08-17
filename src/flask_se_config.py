@@ -49,6 +49,26 @@ SECRET_KEY_THESIS = os.environ.get("SE_THESIS_SECRET") or read_secret_from_file(
     THESIS_SECRET_FILE,
     fallback_len=16,
 )
+GOOGLE_MAPS_KEY_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_maps.conf")
+
+
+def read_google_maps_key() -> str:
+    """Google Maps browser key from env or the local config file.
+
+    Not a secret (it ships to the browser in the maps URL), but it is kept out
+    of the repo like the other per-host configs. Empty string when unset — the
+    lazy maps loader simply never requests the API.
+    """
+    value = os.environ.get("SE_GOOGLE_MAPS_KEY")
+    if value:
+        return value
+    if os.path.exists(GOOGLE_MAPS_KEY_FILE):
+        with open(GOOGLE_MAPS_KEY_FILE) as file:
+            return file.read().strip()
+    return ""
+
+
+GOOGLE_MAPS_KEY = read_google_maps_key()
 SQLITE_DATABASE_NAME: str = "se.db"
 SQLITE_DATABASE_PATH: str = pathlib.Path("databases/").absolute().as_posix()
 SQLITE_DATABASE_URI: str = (

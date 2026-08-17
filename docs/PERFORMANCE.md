@@ -84,11 +84,18 @@ homepage, mobile; 2 runs, stable):
 - ~~Purge unused CSS from `quick-website.css`~~ ✅ done in `perf/build-pipeline`:
   6,427 → ~1,744 rules; 595 KB → ~140 KB min. All literal template classes kept
   (guardrail `tests/test_asset_pipeline.py` mirrors purgecss's all-classes rule).
-- Per-page asset loading via `{% block page_css %}` / `{% block page_scripts %}`:
-  flatpickr, bootstrap-notify, maps, simplemde only where used.
-- Google Maps lazy-load (IntersectionObserver) + defer — requires guarding the
-  three `initMap` IIFEs in `quick-website.js` (currently they run eagerly at
-  parse time; plain `defer` of the API breaks the homepage map).
+- ~~Per-page asset loading via `{% block page_css %}` / `{% block page_scripts %}`:
+  maps only where used~~ ✅ maps handled by `perf/maps-lazy` (key block + lazy
+  loader only on base_dark). Remaining: flatpickr, bootstrap-notify, simplemde
+  only where used.
+- ~~Google Maps lazy-load (IntersectionObserver) + defer~~ ✅ done in
+  `perf/maps-lazy`: the three `initMap` IIFEs in `quick-website.js` now register
+  into `window.__seMaps` (no `google.maps` at parse time); `js/se_maps.js`
+  (defer) injects the API only when a map element scrolls into view. The sync
+  maps `<script>` was removed from all 4 bases (only index/contacts/
+  bachelor_admission have maps) and the API key moved to config
+  (`flask_se_maps.conf` / `SE_GOOGLE_MAPS_KEY`, gitignored) — injected only on
+  the 3 map pages via `{% block se_maps_key %}`.
 - `srcset`/`sizes` + AVIF/WebP for images; `width`/`height` attributes.
 
 ## Shipped — Tier 2 build pipeline (PR: perf/build-pipeline)
@@ -112,6 +119,28 @@ homepage, mobile; 2 runs, stable):
 - Decisions: content-hash `?v=` replacement deferred (date-based `?v=` still
   busts correctly per release); Lighthouse CI budget deferred. See the PR-3
   retrospective.
+
+## Shipped — Tier 2 maps lazy-load (PR: perf/maps-lazy)
+
+- The Google Maps JS API was a **synchronous ~350 KB script on all 4 bases** —
+  removed. Only 3 pages have maps (index, contacts, bachelor_admission), all
+  base_dark.
+- `quick-website.js` map IIFEs: the eager `google.maps.event.addDomListener(...)`
+  triggers are replaced with registration into `window.__seMaps`
+  (`{id, init}`); `google.maps` is only touched inside `initMap`, called after
+  the API loads.
+- `js/se_maps.js` (defer, base_dark only): IntersectionObserver on the map
+  elements → injects the API script (`?key=...&callback=__seGmapsLoaded`) →
+  runs the registered initializers. No IO support → load immediately.
+- API key moved out of HTML into config: `configs/flask_se_maps.conf`
+  (gitignored) or `SE_GOOGLE_MAPS_KEY` env; template global
+  `se_google_maps_key`; rendered only on the 3 map pages via
+  `{% block se_maps_key %}`. Pages without maps never expose the key or request
+  the API.
+- Guardrail tests: `tests/test_maps_lazy.py` (no sync API script in bases, no
+  key leak, loader wiring, registrations present, rendered pages).
+- Post-deploy verify: maps render on index/contacts/bachelor; zero maps requests
+  on `/news/`.
 
 ## Deferred — Tier 3 (smart / architecture level)
 
