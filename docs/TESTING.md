@@ -78,7 +78,7 @@ None — the `post_theses` cluster (shared `static/tmp` same-name upload race be
 |------|-------|--------|----------|
 | admin staff create/edit views | 2 | `test_admin_create_views_load[staff]`, `test_admin_edit_views_load[staff]` | CODE_ISSUES.md — reason text still cites Flask-Admin (stale); verify after next admin refactor |
 
-Reference run (2026-08-17, `pytest --tb=no -q -rxX`): **1313 passed, 4 skipped, 3 xfailed, 1 xpassed**. The intermittent-marker count drifts between runs (flaky XPASS whenever the path passes); re-verify drift is stability, not flakiness, before touching any marker.
+Reference run (2026-08-17, `pytest --tb=no -q -rxX`): **1351 passed, 4 skipped, 3 xfailed, 1 xpassed**. The intermittent-marker count drifts between runs (flaky XPASS whenever the path passes); re-verify drift is stability, not flakiness, before touching any marker.
 
 ## 5. Xpassed Tests
 
