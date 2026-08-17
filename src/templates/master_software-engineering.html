@@ -1,4 +1,5 @@
 {% extends "base_dark.html" %}
+{% block headers %}<link rel="stylesheet" href="{{ asset('css/fa-subset.css') }}">{% endblock %}
 {% block title %}Программная инженерия (магистратура){% endblock %}
 {% block og_image %}{{ url_for('static', filename='assets/img/og/og-programs.png', _external=True) }}{% endblock %}
 {% block json_ld %}

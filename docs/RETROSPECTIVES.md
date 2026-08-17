@@ -1409,3 +1409,25 @@ news/JSON-LD/llms-full/EN, PERFORMANCE.md post-gzip lab data point) and tests.
 **State at handoff**: branch `feat/seo-agentic-hygiene` (from `upstream/current` `7e04e7c`).
 Next: push to fork, open PR to upstream (base `current`); then `perf/fa-subset` PR; both merged
 before one release; post-release re-measure PSI (mobile target >70) + verify nginx cache headers.
+
+### Retrospective — 2026-08-17: Font Awesome subset (PR perf/fa-subset)
+
+Changes analyzed: removed `all.min.css` (59 KB) from the 4 base templates; added a
+hand-built `fa-subset.css` (~1.4 KB) + `pyftsubset`-generated `fa-solid-subset.woff2`
+(2.7 KB vs 78 KB, 9 icons) loaded only on the ~13 templates that use `fas` icons;
+guardrail tests; docs (PERFORMANCE.md Tier 2).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| A pre-existing `quick-website.min.css` (59 KB, 701 rules) tempted a 9x CSS "quick win" — but it is a **stale build** missing ~5,700 rules (swiper, tagsinput, etc.) vs the current `quick-website.css` (6,427 rules) | Minified artifacts coexist with the live unminified source; nothing documents which is current | Verified before switching (rule-count + tail-selector diff) and recorded the trap in `docs/PERFORMANCE.md` Tier 2 — do NOT switch; purge/rebase the theme instead |
+| `pyftsubset` failed first run on the woff2 ("No module named brotli") | woff2 read requires the brotli codec, only installed on demand | Added `--with brotli` to the one-off `uv` invocation; command now embedded in the `fa-subset.css` header for regeneration |
+| 13 templates needed the FA link (fragments `_thesis_card`, `fetch_theses`, `fetch_thesis_on_review` are covered by their parent pages, not by their own link) | Per-page asset wiring touches many files | Mapped the extends chain first (base_dark → `headers` block, base_light → `head_links` block), then a single scripted insert; practice pages covered at their intermediate bases (`base_practice*`) |
+
+**What went well**: guardrail tests (`test_fontawesome_subset.py`) lock the subset to the
+exact icon set used — new icons fail CI until regeneration; full suite green (1306 passed,
+4 skipped, 3 xfailed, 1 xpassed); homepage smoke confirms `all.min.css` is gone from
+non-FA pages; djlint/ruff/basedpyright/pre-push all green.
+
+**State at handoff**: branch `perf/fa-subset` (from `upstream/current` `7e04e7c`).
+Next: push to fork, open PR to upstream (base `current`); after both PRs merge, one release,
+then re-measure PSI (mobile target >70).

@@ -38,15 +38,17 @@ release deploys Tier 1 + cache; do not extrapolate from this partial state.
 - Hero/card JPEGs recompressed (quality 72, progressive): mm.jpg, mm2.jpg,
   main-back.jpg, main2.jpg, campus-1/2/3.jpg, building-photo.jpg
   (~670 KB → ~200 KB).
-- Host nginx ticket (`.tmp/nginx_tuning.md`): gzip + immutable cache for
-  `/assets/css|js|libs/`, 30-day cache for `/assets/img/`. **gzip live** (verified
-  2026-08-17); the cache half is re-issued as a follow-up ticket (all `/assets/*`
-  still `Cache-Control: no-cache`).
+- Host nginx gzip (verified live 2026-08-17). The immutable/30-day cache headers
+  are set **app-side** (host nginx is a pure reverse proxy; static is served by
+  Flask/uwsgi) — `after_request` in `flask_se.py` gives
+  `/assets/{css,js,libs}/` → `public, max-age=31536000, immutable` and
+  `/assets/img/` → `public, max-age=2592000` (shipped in `perf/fa-subset`).
+  Safe because css/js/libs URLs carry the release-date `?v=`.
 - Baseline Lighthouse JSON: `.tmp/baseline_lighthouse.json`.
 
 ## Return-item (mandatory re-evaluation)
 
-Once the Tier 1 PR is merged **and** the nginx changes are live:
+Once the perf PRs are merged and deployed:
 
 1. Re-run `npx lighthouse https://se.math.spbu.ru/ --only-categories=performance --form-factor=mobile` and record the score here.
 1. Record `curl -sI` headers for `/assets/css/quick-website.css` (expect
@@ -56,8 +58,14 @@ Once the Tier 1 PR is merged **and** the nginx changes are live:
 
 ## Deferred — Tier 2 (improvement / feature level)
 
-- Subset Font Awesome to the ~9 used icons (or FA SVG/JS subset) — full
-  `all.min.css` (59 KB) for a handful of `fas` icons.
+- ~~Subset Font Awesome to the ~9 used icons~~ ✅ done in `perf/fa-subset`:
+  `all.min.css` (59 KB) removed from the 4 bases; a hand-built `fa-subset.css`
+  (~1.4 KB) + `fa-solid-subset.woff2` (2.7 KB vs 78 KB) load only on the ~13
+  templates that use `fas` icons. Guardrail tests in
+  `tests/test_fontawesome_subset.py` fail on any new icon until the subset is
+  regenerated. Note: `quick-website.min.css` (59 KB) is a **stale build** (701
+  rules vs 6,427 in the full file; swiper/tagsinput rules missing) — do NOT
+  switch the templates to it; purge/rebase the theme instead.
 - Minify + bundle JS into 2–3 files; unify `quick-website.js` vs `-min.js`
   variants (base_light and base_dark differ).
 - Purge unused CSS from `quick-website.css` (573 KB theme, most unused on most

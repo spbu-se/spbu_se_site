@@ -10,7 +10,7 @@ __all__ = ["app", "db", "scheduler"]
 import markdown as _markdown
 import nh3
 from dateutil import tz
-from flask import Flask
+from flask import Flask, request
 from flask_frozen import Freezer
 from flask_migrate import Migrate
 from flask_wtf import CSRFProtect
@@ -215,6 +215,29 @@ def _init_admin_views(app: Flask) -> None:
     SeAdminModelViewCurrentThesis(app, CurrentThesis, endpoint="currentthesis")
 
 
+# Static assets are served by the app (the host nginx is a pure reverse proxy),
+# so the long-term cache headers belong here, not in host nginx config. Safe
+# because every css/js/libs URL carries the release date (?v=, asset() macro),
+# so new releases bust the immutable cache automatically; images get 30 days so
+# a replaced photo is not stuck forever.
+ASSET_IMMUTABLE_PREFIXES = ("/assets/css/", "/assets/js/", "/assets/libs/")
+
+
+def _register_static_cache_headers(app: Flask) -> None:
+    """Immutable cache for versioned static assets, 30-day cap for images."""
+
+    @app.after_request
+    def _set_asset_cache_headers(response):  # pyright: ignore[reportUnusedFunction]
+        if response.status_code != 200:
+            return response
+        path = request.path
+        if path.startswith(ASSET_IMMUTABLE_PREFIXES):
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        elif path.startswith("/assets/img/"):
+            response.headers["Cache-Control"] = "public, max-age=2592000"
+        return response
+
+
 def create_app(
     config_overrides: dict[str, object] | None = None,
     start_scheduler: bool | None = None,
@@ -241,6 +264,7 @@ def create_app(
     register_content_pages(app)
     register_sitemap(app)
     register_legacy_redirects(app)
+    _register_static_cache_headers(app)
     _init_admin_views(app)
     # Default: read SE_START_SCHEDULER (production leaves it unset → jobs run).
     # conftest sets it to "0" before importing so the suite never fires jobs.

@@ -1,4 +1,5 @@
 {% extends "base_dark.html" %}
+{% block headers %}<link rel="stylesheet" href="{{ asset('css/fa-subset.css') }}">{% endblock %}
 {% block title %}{{ thesis.name_ru }} [{{ thesis.publish_year }}]{% endblock %}
 {% block description %}
   Работа: {{ thesis.name_ru }} [{{ thesis.publish_year }}]. Автор: {{ thesis.author }}.

@@ -1,5 +1,6 @@
 {% if request.headers.get("X-Requested-With") != "XMLHttpRequest" %}
   {% extends "base_light.html" %}
+  {% block head_links %}<link rel="stylesheet" href="{{ asset('css/fa-subset.css') }}">{% endblock %}
 {% endif %}
 {% block content %}
   <section class="mt-7 pt-4 bg-section-secondary">
