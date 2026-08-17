@@ -11,7 +11,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | Route | Method | View Function | Description |
 |---|---|---|---|
 | `/` | GET | `index` | Homepage with top 10 news |
-| `/index.html` | GET | `index_html` | Redirect to `/` |
+| `/index.html` | GET | `index_html` | **301** redirect to `/` |
 | `/research-directions` | GET | `research_directions` | Research areas listing |
 | `/contacts.html` | GET | `contacts` | Contact page |
 | `/department/staff.html` | GET | `department_staff` | Staff listing from DB |
@@ -25,6 +25,19 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/Sitemap.xml` | GET | `sitemap` | Case-sensitive alias for `sitemap.xml` |
 | `/sitemap-static.xml` | GET | `sitemap_static` | Static pages, `lastmod` = deploy constant |
 | `/sitemap-theses-<year>.xml` | GET | `sitemap_theses` | Published `thesis_card` URLs for a year, `lastmod` = year date; 404 for empty years |
+
+## Agent-Facing / SEO Endpoints
+
+| Route | Method | View Function | Description |
+|---|---|---|---|
+| `/.well-known/llms.txt` | GET | `well_known_llms` | 301 to `/llms.txt` (single source; for tooling that only probes `.well-known`) |
+| `/security.txt` | GET | `security_txt` | 301 to `/.well-known/security.txt` (RFC 9116 root alias) |
+| `/.well-known/security.txt` | GET | static | RFC 9116 security contact (`mailto:dluciv@spbu.ru`) |
+| `/opensearch.xml` | GET | static | OpenSearch description → `theses.html?search={searchTerms}`; autodiscovered via `<link rel="search">` in the base templates |
+| `/bachelor/` | GET | legacy redirect | 301 to `/bachelor/software-engineering.html` (section index) |
+| `/master/` | GET | legacy redirect | 301 to `/master/software-engineering.html` (section index) |
+| `/department/` | GET | legacy redirect | 301 to `/department/staff.html` (section index) |
+| `/students/` | GET | legacy redirect | 301 to `/students/index.html` (section index) |
 
 ## Student Pages
 

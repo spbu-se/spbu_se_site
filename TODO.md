@@ -15,10 +15,15 @@
 - `OPENCODE_ZEN_API_KEY` secret still needs to be added to enable automated draft-release generation (until then drafts are manual — `docs/GIT_FLOW.md §7`).
 - Bachelor admission data: 2026 campaign figures still needed in `src/flask_se_bachelor.py` (B7, deferred by user decision).
 
-**Performance (Tier 1 shipped in PR `feat/perf-assets-tier1`):**
+**Performance (Tier 1 + FA subset shipped: PRs #222, #224):**
 
-- Return-item: after the Tier 1 PR is merged **and** host nginx enables gzip + immutable `/assets/` cache (ticket in `.tmp/nginx_tuning.md`), re-run mobile Lighthouse and record the measured impact in `docs/PERFORMANCE.md`.
-- Full Tier 2/3 performance backlog (FA subset, JS bundle/minify, CSS purge, per-page assets, maps lazy-load, build pipeline + hashing, CDN, CI perf budget, service worker) — see `docs/PERFORMANCE.md`.
+- Return-item: after the v2026.08.17 release deploys (app-side immutable cache
+  headers + versioned URLs live), re-run mobile Lighthouse and record the
+  measured impact in `docs/PERFORMANCE.md`; verify
+  `curl -sI /assets/css/quick-website.css` shows the immutable `Cache-Control`.
+- Remaining Tier 2/3 performance backlog (JS bundle/minify, CSS purge, per-page
+  assets, maps lazy-load, build pipeline + hashing, CDN, CI perf budget, service
+  worker) — see `docs/PERFORMANCE.md`.
 
 ## Batch run 2026-07-08 — session 5 (auto mode: CI stability + P0-P4 sweep)
 
