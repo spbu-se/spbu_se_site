@@ -48,19 +48,21 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
   key read from `configs/flask_se_maps.conf`/`SE_GOOGLE_MAPS_KEY` (gitignored),
   injected via `{% block se_maps_key %}` only on the 3 map pages; the maps API is
   now lazy-loaded (IntersectionObserver) instead of a sync script on every base.
-- **Move from Google Maps to Yandex Maps** (deferred, 2026-08-18): the 3 map
-  elements (index, contacts, bachelor_admission) render via the Google Maps JS
-  API, lazy-loaded by `js/se_maps.js` (IntersectionObserver → inject API →
-  `window.__seMaps` initializers in `quick-website.js`). Yandex Maps JS API is a
-  drop-in at this layer: swap the API URL/key in `se_maps.js` and the
-  `google.maps.*` calls in the 3 `initMap` functions (Map/Marker/InfoWindow/
-  LatLng) for `ymaps3` equivalents, keeping the `window.__seMaps` registration
-  contract and the `{% block se_maps_key %}` key-injection pattern. Motivations:
-  RU-hosted map service, no Google referrer restriction, simpler key management
-  (`configs/flask_se_maps.conf` already gitignored). Guardrail: reuse/extend
-  `tests/test_maps_lazy.py` (no sync API script, no key leak, map pages render)
-  and re-run `.tmp/predeploy_snapshot.py` + `.tmp/compare_snapshot.py` for the
-  3 map routes post-change.
+- ~~Move from Google Maps to Yandex Maps~~ ✅ done in `feat/yandex-maps` (2026-08-19): the 3 map
+  elements (index, contacts, bachelor_admission) now support **both providers** — Yandex Maps v3
+  preferred, Google Maps fallback, and an inline **"Источник карты не задан"** placeholder when no key
+  is configured. `flask_se_config.maps_config()` picks the active provider by priority
+  (`YANDEX_MAPS_KEY` → `GOOGLE_MAPS_KEY`, env `SE_YANDEX_MAPS_KEY`/`SE_GOOGLE_MAPS_KEY` or
+  `configs/flask_se_maps.conf` with `YANDEX_MAPS_KEY=`/`GOOGLE_MAPS_KEY=` lines; a legacy single-value
+  file still counts as the Google key). `js/se_maps.js` lazily injects the active API
+  (`ymaps3.ready` for Yandex, JSONP callback for Google); `quick-website.js` keeps the
+  `window.__seMaps` registration contract and dispatches to `renderGoogle` (existing gray styles +
+  InfoWindow) or `renderYandex` (`ymaps3.YMap` + `YMapDefaultSchemeLayer` + `YMapDefaultMarker`
+  balloons). Deviations: the Yandex path uses the default scheme + pin markers — the Google grayscale
+  `styles` and `DROP` animation have no ymaps3 equivalent. Guardrails: `tests/test_maps_lazy.py`
+  (no sync API script, no key/provider leak, per-provider render + placeholder, initializer
+  dispatch) and re-run `.tmp/predeploy_snapshot.py` + `.tmp/compare_snapshot.py` for the 3 map
+  routes post-change.
 - `WebSite` + `SearchAction` JSON-LD; convert remaining microdata to JSON-LD.
 - Fix GTM asymmetry.
 - Investigate legacy top-level `static/` dir (615 PDFs, not wired to Flask).

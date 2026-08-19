@@ -49,26 +49,57 @@ SECRET_KEY_THESIS = os.environ.get("SE_THESIS_SECRET") or read_secret_from_file(
     THESIS_SECRET_FILE,
     fallback_len=16,
 )
-GOOGLE_MAPS_KEY_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_maps.conf")
+MAPS_KEY_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_maps.conf")
+YANDEX_MAPS_KEY_ENV = "SE_YANDEX_MAPS_KEY"
+GOOGLE_MAPS_KEY_ENV = "SE_GOOGLE_MAPS_KEY"
 
 
-def read_google_maps_key() -> str:
-    """Google Maps browser key from env or the local config file.
+def _read_maps_config_file() -> dict[str, str]:
+    """Parse the gitignored maps config file into ``{PROVIDER_KEY: value}``.
 
-    Not a secret (it ships to the browser in the maps URL), but it is kept out
-    of the repo like the other per-host configs. Empty string when unset — the
-    lazy maps loader simply never requests the API.
+    The file holds one ``KEY=value`` line per provider, e.g.::
+
+        YANDEX_MAPS_KEY=...
+        GOOGLE_MAPS_KEY=...
+
+    A legacy single-value file (the whole trimmed content was the Google key)
+    is still honoured so an already-provisioned key keeps working.
     """
-    value = os.environ.get("SE_GOOGLE_MAPS_KEY")
-    if value:
-        return value
-    if os.path.exists(GOOGLE_MAPS_KEY_FILE):
-        with open(GOOGLE_MAPS_KEY_FILE) as file:
-            return file.read().strip()
-    return ""
+    if not os.path.exists(MAPS_KEY_FILE):
+        return {}
+    with open(MAPS_KEY_FILE) as file:
+        lines = [line.strip() for line in file]
+    result: dict[str, str] = {}
+    for line in lines:
+        if not line or line.startswith("#"):
+            continue
+        if "=" in line:
+            key, _, value = line.partition("=")
+            result[key.strip()] = value.strip()
+        elif not result:
+            result[GOOGLE_MAPS_KEY_ENV] = line
+    return result
 
 
-GOOGLE_MAPS_KEY = read_google_maps_key()
+def maps_config() -> tuple[str, str]:
+    """Active map provider + its browser key, by priority Yandex then Google.
+
+    Returns ``(provider, key)`` or ``("", "")`` when neither key is
+    configured — the lazy maps loader then never requests an API and the map
+    templates render the "map source not set" placeholder instead. Keys are not
+    secrets (they ship to the browser in the maps URL), but they stay out of
+    the repo like the other per-host configs.
+    """
+    file_keys = _read_maps_config_file()
+    yandex = os.environ.get(YANDEX_MAPS_KEY_ENV) or file_keys.get("YANDEX_MAPS_KEY", "")
+    google = os.environ.get(GOOGLE_MAPS_KEY_ENV) or file_keys.get("GOOGLE_MAPS_KEY", "")
+    if yandex:
+        return "yandex", yandex
+    if google:
+        return "google", google
+    return "", ""
+
+
 SQLITE_DATABASE_NAME: str = "se.db"
 SQLITE_DATABASE_PATH: str = pathlib.Path("databases/").absolute().as_posix()
 SQLITE_DATABASE_URI: str = (

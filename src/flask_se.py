@@ -31,11 +31,11 @@ from flask_se_admin import (
 from flask_se_auth import login_manager
 from flask_se_auth import register_routes as register_auth_routes
 from flask_se_config import (
-    GOOGLE_MAPS_KEY,
     SECRET_KEY,
     SECRET_KEY_THESIS,
     SQLITE_DATABASE_PATH,
     SQLITE_DATABASE_URI,
+    maps_config,
     site_deploy_date,
 )
 from flask_se_diplomas import register_routes as register_diplomas_routes
@@ -178,10 +178,12 @@ def _init_extensions(app: Flask) -> None:
     app.template_filter("datatime_convert")(datetime_convert)
 
     def _inject_template_globals() -> dict[str, str | int]:
+        se_maps_provider, se_maps_key = maps_config()
         return {
             "current_year": date.today().year,
             "ASSET_VERSION": site_deploy_date(),
-            "se_google_maps_key": GOOGLE_MAPS_KEY,
+            "se_maps_provider": se_maps_provider,
+            "se_maps_key": se_maps_key,
         }
 
     app.context_processor(_inject_template_globals)
