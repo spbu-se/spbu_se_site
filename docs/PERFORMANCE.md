@@ -83,8 +83,11 @@ content verified against the pre-deploy snapshot
   `maps.googleapis.com/maps/api/js` script; `/news/` loads no maps code.
 - **Maps key was unprovisioned at deploy**: `SE_GMAPS_KEY=""` → `se_maps.js`
   early-returns, so the 3 map pages (index, contacts, bachelor_admission) render
-  an empty 500px map box. Fixed by admin setting `SE_GOOGLE_MAPS_KEY` (or
-  `configs/flask_se_maps.conf`) on prod + restart. Guardrail: checklist B16.
+  an empty 500px map box. Fixed by admin setting a provider key on prod +
+  restart — since `feat/yandex-maps` the site is **dual-provider** (Yandex
+  preferred via `SE_YANDEX_MAPS_KEY`, Google fallback via `SE_GOOGLE_MAPS_KEY`),
+  and with neither key set the box shows the "Источник карты не задан"
+  placeholder instead of an empty box. Guardrail: checklist B16.
 - **`?v=` / sitemap `lastmod` show today, not the release date**: `SE_SITE_LASTMOD`
   is unset on prod, so `site_deploy_date()` falls back to `date.today()`. Same-day
   it matches the previous release's `?v=`; it self-corrects next day. Not a cache
@@ -122,7 +125,8 @@ content verified against the pre-deploy snapshot
   maps `<script>` was removed from all 4 bases (only index/contacts/
   bachelor_admission have maps) and the API key moved to config
   (`flask_se_maps.conf` / `SE_GOOGLE_MAPS_KEY`, gitignored) — injected only on
-  the 3 map pages via `{% block se_maps_key %}`.
+  the 3 map pages via `{% block se_maps_key %}`. Superseded by the
+  dual-provider renderer (`feat/yandex-maps`) — see §Shipped — Tier 2 maps.
 - `srcset`/`sizes` + AVIF/WebP for images; `width`/`height` attributes.
 
 ## Shipped — Tier 2 build pipeline (PR: perf/build-pipeline)
@@ -147,25 +151,35 @@ content verified against the pre-deploy snapshot
   busts correctly per release); Lighthouse CI budget deferred. See the PR-3
   retrospective.
 
-## Shipped — Tier 2 maps lazy-load (PR: perf/maps-lazy)
+## Shipped — Tier 2 maps (lazy-load, then dual-provider)
 
 - The Google Maps JS API was a **synchronous ~350 KB script on all 4 bases** —
   removed. Only 3 pages have maps (index, contacts, bachelor_admission), all
   base_dark.
-- `quick-website.js` map IIFEs: the eager `google.maps.event.addDomListener(...)`
-  triggers are replaced with registration into `window.__seMaps`
-  (`{id, init}`); `google.maps` is only touched inside `initMap`, called after
-  the API loads.
+- `perf/maps-lazy` replaced the eager `google.maps.event.addDomListener(...)`
+  triggers with registration into `window.__seMaps` (`{id, init}`);
+  `feat/yandex-maps` then made the renderer **dual-provider**: the 3
+  initializers feed a shared `SEInitMap(el, markers)` that dispatches on
+  `window.SE_MAPS_PROVIDER` to `renderGoogle` (gray `styles`, `DROP`,
+  InfoWindow) or `renderYandex` (`ymaps3.YMap` + `YMapDefaultSchemeLayer` +
+  `YMapDefaultMarker` balloons). No `google.maps`/`ymaps3` is touched at parse
+  time.
 - `js/se_maps.js` (defer, base_dark only): IntersectionObserver on the map
-  elements → injects the API script (`?key=...&callback=__seGmapsLoaded`) →
-  runs the registered initializers. No IO support → load immediately.
-- API key moved out of HTML into config: `configs/flask_se_maps.conf`
-  (gitignored) or `SE_GOOGLE_MAPS_KEY` env; template global
-  `se_google_maps_key`; rendered only on the 3 map pages via
+  elements → injects the active provider's API (Yandex v3 via `ymaps3.ready`,
+  Google via `?key=...&callback=__seGmapsLoaded`) → runs the registered
+  initializers. No IO support → load immediately. No provider configured →
+  early return, and the map box renders the inline "Источник карты не задан"
+  placeholder instead of an empty box.
+- API keys moved out of HTML into config: `configs/flask_se_maps.conf`
+  (gitignored, `YANDEX_MAPS_KEY=`/`GOOGLE_MAPS_KEY=` lines) or env
+  `SE_YANDEX_MAPS_KEY`/`SE_GOOGLE_MAPS_KEY`; `flask_se_config.maps_config()`
+  picks the active provider by priority Yandex → Google → none. Template globals
+  `se_maps_provider`/`se_maps_key` render only on the 3 map pages via
   `{% block se_maps_key %}`. Pages without maps never expose the key or request
   the API.
-- Guardrail tests: `tests/test_maps_lazy.py` (no sync API script in bases, no
-  key leak, loader wiring, registrations present, rendered pages).
+- Guardrail tests: `tests/test_maps_lazy.py` (no sync API script of either
+  provider in bases, no key/provider leak, loader wiring, initializer dispatch,
+  per-provider + placeholder rendered pages).
 - Post-deploy verify: maps render on index/contacts/bachelor; zero maps requests
   on `/news/`.
 

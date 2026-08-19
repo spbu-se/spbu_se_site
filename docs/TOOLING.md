@@ -197,6 +197,34 @@ gh api -X DELETE repos/<owner>/<repo>/git/refs/heads/<branch>
 
 Works for any branch the token can write, including on protected repos (non-protected branches only) and dependabot heads.
 
+### `FETCH_HEAD` is overwritten by the next fetch
+
+`git fetch <url> <ref>` writes the fetched commit to `FETCH_HEAD`, but **any** subsequent fetch (even `git fetch upstream`) overwrites it. Never use `git checkout FETCH_HEAD -- <paths>` after another fetch has run — it silently stages the wrong ref (often a no-op). Capture the SHA immediately or use the explicit commit:
+
+```powershell
+git fetch https://github.com/spbu-se/spbu_se_site.git dependabot/npm_and_yarn/esbuild-0.28.1
+$sha = git rev-parse FETCH_HEAD   # read it NOW, before any other fetch
+git checkout $sha -- package.json package-lock.json
+```
+
+### Dependabot PR repair (stale head + regenerated assets)
+
+Dependabot branches are cut from the base tip at creation and never rebase when the base moves; GitHub PR metadata (`gh pr view --json changedFiles`) is cached against the stale base and **underreports the real delta** (a head four squashed merges behind `current` reported `changedFiles=2` while the live two-dot diff showed 27 files). Before merging any dependabot PR, verify the live diff:
+
+```powershell
+git fetch https://github.com/spbu-se/spbu_se_site.git dependabot/<branch>
+git diff --stat upstream/current..FETCH_HEAD   # two-dot: only intended files may appear
+```
+
+If the head is not a descendant of `current` (reversions of current work appear in the two-dot diff), rebuild the PR on `current`. CI gate: `.github/workflows/dependabot-gate.yml` fails a dependabot head that does not contain the base.
+
+1. `git checkout -b chore/<dep-bump> upstream/current`
+1. Take only the intended files from the dependabot head: `git checkout <dependabot-sha> -- package.json package-lock.json`
+1. Dep bumps that feed the asset pipeline (`esbuild`, `terser`, `purgecss`) change the minifier output — run `npm ci` + `npm run build` and commit the regenerated `quick-website.min.css`/`.min.js`, or the CI `assets` drift job fails
+1. Run the pre-push gate, then push to the canonical dependabot head with an explicit-oid lease (see `docs/GIT_FLOW.md`, "Pushing a branch to the canonical repo directly"):
+   `git push --force-with-lease=<dependabot-branch>:<expected-oid> https://github.com/spbu-se/spbu_se_site.git <local>:<dependabot-branch>`
+1. Wait for CI green (incl. `assets`), then `gh pr merge <n> --admin --squash`; the canonical dependabot branch is auto-deleted on merge
+
 ### `gh --jq` quoting: inner double-quotes are stripped by PowerShell
 
 When a `--jq` expression contains **inner double-quotes** (e.g. `join(",")`, `"text"`), PowerShell strips them when passing the argument to the native `gh` executable — jq then sees `join(,)` and fails with `unexpected token ","`. `\t` and `\n` escapes also get mangled.
@@ -510,6 +538,42 @@ Get-ChildItem -Recurse -Include "*.md" | ForEach-Object {
     catch { Write-Host $_.FullName }
 }
 ```
+
+## Quality Tool Catalog
+
+All quality tools used in this project, their exact configuration, and adoption status.
+See `docs/QUALITY_MANAGEMENT.md` for quality philosophy and policy.
+
+### Active tools
+
+| Tool | Purpose | Where it runs | Flags / config | Adopted |
+|------|---------|---------------|----------------|---------|
+| `ruff format` | Python formatter | Pre-commit (auto-fix) + CI (`--check`) | Default config | ✅ |
+| `ruff check` | Python linter | Pre-commit (auto-fix) + CI (`--check`) | `--fix` for pre-commit | ✅ |
+| `mdformat` | Markdown formatter | Pre-commit (changed files, auto-fix) + Pre-push/CI (`--check` all) | `types: [markdown]` in pre-commit | ✅ |
+| `basedpyright` | Static type checker | Pre-push (gate) | `pyproject.toml` config, `# pyright: ignore[code]` per-line | ✅ |
+| `dprint` | JS/JSON/TOML formatter | Pre-commit | Config in `dprint.json` | ✅ |
+| `pre-commit-hooks` | Trailing whitespace, EOF, JSON, large files | Pre-commit | Config in `.pre-commit-config.yaml` | ✅ |
+| `djlint` | HTML/Jinja formatter | Pre-commit | `--reformat` | ✅ |
+| `commitlint` | Commit message format | Pre-commit (commit-msg stage) | Conventional commits | ✅ |
+| `actionlint` | GHA workflow validator | Pre-push | Default config | ✅ |
+| `packaging.Requirement` | requirements.txt syntax validation | Pre-push | `encoding='utf-8-sig'`, skip `-e` lines | ✅ |
+| `uv lock --check` | Lockfile consistency | Pre-push | Default | ✅ |
+| `pytest` | Test suite | CI | `-n auto` (xdist) | ✅ |
+| `coverage` | Code coverage | CI (via pytest) | `--cov=src --cov-fail-under=80` | ✅ |
+| `pylint` (similarities) | Code duplicate detection | CI (lint job) | `--disable=all --enable=similarities src/ tests/` | ✅ |
+| `scripts/find_dup_coverage.py` | Coverage-based duplicate test detection | Manual (advisory) | Requires `coverage run --context=test` first | ✅ |
+
+### Proposed tools (agent suggested, user may adopt)
+
+| Tool | Purpose | Where it would run | Proposed reason |
+|------|---------|-------------------|-----------------|
+| ~~`bandit`~~ | ~~Python security scanner~~ | Replaced by ruff S rules (2026-07) | ruff `"S"` in `[tool.ruff.lint] select` covers the same surface (hardcoded secrets, debug configs, `eval()`) + more. See `pyproject.toml`. |
+| `codespell` | Spelling in source | Manual / CI (non-blocking) | Captures typos that survive code review — was in pre-commit, removed as not cleanup |
+
+### Encoding declaration policy
+
+See `docs/DOCS.md §6` for the project's encoding declaration policy.
 
 ## Static asset build pipeline (npm)
 
@@ -529,589 +593,4 @@ fails if the committed outputs drift.
 
 **Windows notes**: never edit the bases with `Set-Content`/PowerShell 5.1
 `-Encoding UTF8` (adds a BOM + re-encodes Cyrillic → mojibake). Use
-\`\[System.IO.File\]::WriteAllText(docs/TOOLING.md, # TOOLING
-
-<!-- encoding: utf-8 -->
-
-Covers: portable cross-platform tool patterns (uv, pytest, SQLAlchemy, pre-commit, GitHub CLI, PowerShell, Python, Ruff, etc.). Does not cover: host-local quirks — see `.tooling.md`.
-
-## uv
-
-### Universal lockfile resolution
-
-`uv lock` resolves for ALL platforms by default. If a dependency is source-only and can't build on one platform, `uv lock` fails even with platform markers. **Remove such deps from pyproject.toml entirely** and install separately (e.g., in Dockerfile).
-
-### Cross-platform export differences
-
-`uv export` output differs between platforms — wheel comment hashes for platform-specific packages (e.g., `msgpack`, `cachecontrol`) vary. CI checks that `diff` the exported output against a committed file are inherently fragile.
-
-### Windows PowerShell encoding trap
-
-`uv export > requirements.txt` in PowerShell defaults to UTF-16 LE encoding, corrupting the file for pip. Always use:
-
-```powershell
-uv export --no-dev --no-hashes --format requirements-txt 2>$null | Set-Content requirements.txt -Encoding utf8
-```
-
-### Build artifacts
-
-If `[build-system]` is present, `uv sync` builds the project and creates `*.egg-info/` directories. Add to `.gitignore`.
-
-### First pre-commit run
-
-`uv run pre-commit run --all-files` downloads environments on first run (2-3 min). Pre-warm with:
-
-```bash
-uv run pre-commit install --install-hooks
-```
-
-### uv lock fails with "No solution found"
-
-**When:** Adding a new dependency with `requires-python` constraints.
-**Cause:** `pyproject.toml` `requires-python` includes versions the dep doesn't support.
-**Fix:** Run `uv lock --python <version>` or narrow `requires-python`.
-
-### uv sync: "Failed to build uwsgi"
-
-**When:** `uwsgi` is in `pyproject.toml` dependencies on Windows.
-**Cause:** uWSGI is source-only, uses Unix-only `os.uname()`.
-**Fix:** Remove from pyproject; install via `RUN pip install uwsgi` in Dockerfile only.
-
-## pytest + SQLAlchemy
-
-### Flask app test setup (application factory)
-
-`flask_se.py` exposes `create_app(config_overrides=None, start_scheduler=None)`; the module-level `app = create_app()` singleton keeps `from flask_se import app` working for scripts/tests. To build a differently-configured test instance without import-time monkeypatching:
-
-```python
-from flask_se import create_app
-app = create_app(config_overrides={"SQLALCHEMY_DATABASE_URI": "sqlite:///..."})
-```
-
-Prefer `config_overrides` over patching `flask_se_config` module globals. The one remaining global patch in `tests/conftest.py` (`flask_se_config.SQLITE_DATABASE_*`) exists only because `init_db()` reads those globals directly (backup path), not because of app construction. The scheduler must be disabled in tests via `SE_START_SCHEDULER=0` before `import flask_se` (see §APScheduler below).
-
-### Per-test temp directories
-
-Each test fixture that needs a database must create its own `tempfile.mkdtemp()`. Shared global paths cause cross-test pollution — one test's teardown breaks the next test's setup.
-
-### NamedTemporaryFile on Linux
-
-`tempfile.NamedTemporaryFile` on Linux keeps the file descriptor open. SQLAlchemy gets "attempt to write a readonly database" on CREATE TABLE. Always use `tempfile.mkdtemp()` and let SQLAlchemy create the `.db` file.
-
-### Windows SQLite URI path format
-
-On Windows, SQLite URIs with forward slashes (`sqlite:///C:/Users/.../test.db`) silently fail — `db.create_all()` does NOT create the file and raises no error. Use backslash paths from `str(Path() / ...)` instead:
-
-```python
-# Works on all platforms:
-_p = str(Path(_dir) / "test.db")
-uri = f"sqlite:///{_p}"
-
-# Does NOT work on Windows (silent failure):
-_p = Path(_dir).as_posix() + "/test.db"
-uri = f"sqlite:///{_p}"
-```
-
-### Engine caching
-
-Changing `app.config["SQLALCHEMY_DATABASE_URI"]` after the app is initialized requires replacing the cached engine directly. `db.engine.dispose()` alone does NOT reset the cached engine — it only disposes the connection pool.
-
-**Correct pattern:**
-
-```python
-from sqlalchemy import create_engine
-
-app.config["SQLALCHEMY_DATABASE_URI"] = new_uri
-db.engines[None] = create_engine(new_uri)
-```
-
-This replaces the engine in Flask-SQLAlchemy's internal engine cache, so subsequent calls to `db.engine`, `db.create_all()`, etc. use the new URI.
-
-### Test data seeding is slow
-
-Seeded DB tests (`init_db()`) take 10-15s each due to seed data insertion. Mitigate by creating a session-scoped template and copying it per test:
-
-```python
-@pytest.fixture(scope="session")
-def _seeded_db_path():
-    ...  # create + seed once
-    yield _p
-
-@pytest.fixture
-def seeded_client(_seeded_db_path):
-    _p = str(Path(_dir) / _db_name)
-    shutil.copy2(_seeded_db_path, _p)
-    uri = "sqlite:///" + _p
-    app.config["SQLALCHEMY_DATABASE_URI"] = uri
-    db.engines[None] = create_engine(uri)
-    ...
-```
-
-### Login-required test fixture (session injection)
-
-When testing `@login_required` routes and the password hash is unavailable (e.g., scrypt unsupported on Python 3.13), inject the user ID directly into the Flask session instead of going through the login POST:
-
-```python
-@pytest.fixture
-def logged_client(seeded_client):
-    from se_models import Users
-    u = Users.query.first()
-    with seeded_client.session_transaction() as sess:
-        sess["_user_id"] = str(u.id)
-    return seeded_client
-```
-
-This works because Flask-Login reads `session["_user_id"]` on every request to load the current user via `user_loader`.
-
-## pytest config
-
-`pytest` reads `[tool.pytest.ini_options]` from `pyproject.toml` directly — no separate `pytest.ini` or `setup.cfg` needed.
-
-`addopts` enables coverage (`--cov=src --cov-report=term-missing --cov-fail-under=80 -n auto`). For targeted subset runs (a single file or `-k` filter), the `fail-under=80` gate fails on partial coverage — pass `--no-cov` to check only pass/fail (the full-suite reference run is the only one that must meet the 80% gate): `uv run pytest tests/test_app.py --no-cov -q`.
-
-## pre-commit
-
-### Hook listing
-
-The following hooks block obvious garbage (defined in `.pre-commit-config.yaml`):
-
-| Hook | Blocks |
-|---|---|
-| `check-added-large-files` | Files > 500 KB |
-| `check-case-conflict` | Case conflicts on case-insensitive FS |
-| `check-json` / `check-yaml` | Invalid syntax in structured files |
-| `commitlint` | Non-conventional commit messages |
-
-### Hook ordering
-
-Run formatters before linters. `ruff-format` before `ruff check --fix` avoids formatting-then-linting false positives.
-
-### System hooks
-
-`language: system` hooks run whatever is on PATH. Use `uv run <tool>` as the entry point to ensure the project's venv version is used.
-
-### First run performance
-
-First invocation downloads and caches hook environments. Install hooks early to make repeated runs fast.
-
-### CLI conciseness
-
-When a CLI option or path is implied by another option or glob, omit the redundant part. A directory path covers all files within it; listing a child file explicitly is noise. Keep commands short and clear — every redundant token distracts from the real structure.
-
-### Restoring vendor files that bypass hooks
-
-Formatters (trailing-whitespace, dprint) can modify vendor/static files. `git checkout HEAD -- path/to/dir` restores files and bypasses pre-commit hooks entirely — no need to disable hooks.
-
-## GitHub CLI
-
-```bash
-# Quick CI status on a branch
-gh run list --branch staging --json status,conclusion,databaseId
-
-# Only failed steps
-gh run view <run-id> --log-failed
-
-# Block until complete
-gh run watch <run-id>
-
-# Get latest run ID as a variable
-gh run list --branch staging --limit 1 --json databaseId --jq ".[0].databaseId"
-```
-
-### Deleting remote branches via the API
-
-`git push --delete` cannot reach a remote whose push URL is `no-push-to-upstream`, and runs the pre-push gate. `gh api` uses the gh token directly and skips hooks — 204 (no output) is success:
-
-```bash
-gh api -X DELETE repos/<owner>/<repo>/git/refs/heads/<branch>
-```
-
-Works for any branch the token can write, including on protected repos (non-protected branches only) and dependabot heads.
-
-### `gh --jq` quoting: inner double-quotes are stripped by PowerShell
-
-When a `--jq` expression contains **inner double-quotes** (e.g. `join(",")`, `"text"`), PowerShell strips them when passing the argument to the native `gh` executable — jq then sees `join(,)` and fails with `unexpected token ","`. `\t` and `\n` escapes also get mangled.
-
-**Fixes**, in preference order:
-
-1. Avoid inner double-quotes entirely — use `@tsv` (tab-separated) and `tostring` for arrays:
-   ```powershell
-   gh pr list --json number,title --jq '.[] | [.number, .title] | @tsv'
-   gh issue list --json number,labels --jq '.[] | [.number, (.labels|map(.name)|tostring)] | @tsv'
-   ```
-1. Or parse JSON in PowerShell instead of jq:
-   ```powershell
-   $data = gh api "repos/owner/repo/issues?state=open" | ConvertFrom-Json
-   $data | ForEach-Object { "$($_.number) $($_.title)" }
-   ```
-1. If jq is unavoidable, pass the query via a file (single-quoted here-string) rather than inline.
-
-**Also**: `gh api graphql` on Windows needs a BOM-free query file (`[System.IO.File]::WriteAllText(..., UTF8Encoding($false))`) and `--input` expects a JSON object with a `query` key, not raw GraphQL.
-
-### `gh pr view --json` field names (merge triage)
-
-`mergeable_state` does **not** exist — the field is `mergeStateStatus` (`BLOCKED`/`MERGEABLE`/`CLEAN`). For cross-repo PRs `headRepository` is `null` (use `headRepositoryOwner.login`). To see why a merge is blocked, query `mergeStateStatus`, `reviewDecision`, and `mergeQueueEntry` via GraphQL rather than guessing at REST field names.
-
-### Diagnosis: mdformat failure with truncated path
-
-When CI mdformat fails and the filename is truncated in logs, use:
-
-```powershell
-gh run view <run-id> --log | Select-String -Pattern "not formatted" -Context 0,1
-```
-
-### `gh run watch` times out
-
-`gh run watch` exits after ~5 minutes even if CI is still running. Use non-blocking polling:
-
-```powershell
-gh run list --branch staging --workflow "CI (staging)" --limit 1 --json conclusion
-```
-
-### Rate limits
-
-Rapid `gh run list` calls may hit GitHub API rate limits. Space polling calls 10-15 seconds apart.
-
-## PowerShell
-
-### `&&` / `||` not available
-
-```powershell
-# Wrong:
-cmd1 && cmd2
-
-# Correct:
-cmd1; if ($?) { cmd2 }
-```
-
-### No `grep`
-
-Use `Select-String` instead.
-
-### `curl` is an alias
-
-`curl` maps to `Invoke-WebRequest`, not the real `curl`. Use `curl.exe` for actual HTTP requests.
-
-### `||` not available
-
-```powershell
-# Wrong:
-cmd1 || cmd2
-
-# Correct:
-cmd1; if (-not $?) { cmd2 }
-```
-
-### Inline Python quoting
-
-`-c "..."` uses PowerShell string rules (double quotes interpolate `$`). Escape `$` with backtick or use single quotes on the outside:
-
-```powershell
-uv run python -c 'import os; print(os.name)'
-```
-
-### `2>&1` wraps stderr in noisy ErrorRecord objects
-
-`2>&1` redirects stderr to stdout, but PowerShell wraps each stderr line in an `ErrorRecord` object. Console output looks like an error even when the command succeeds:
-
-```
-git : To https://github.com/...
-At line:1 char:...
-+ ... git push ...
-+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (To https://github.com/...:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
-
-   abc123..def456  staging -> staging
-```
-
-The push **succeeded** — the `git :` block is just PowerShell rendering an ErrorRecord. To flatten:
-
-```powershell
-# Noisy — ErrorRecord wrappers:
-cmd 2>&1
-
-# Clean — ErrorRecords flattened to plain strings:
-cmd 2>&1 | ForEach-Object { "$_" }
-```
-
-Applies to any native command (git, gh, uv) whose stderr output is informative but not an actual error.
-
-## Python
-
-### datetime.timezone.UTC vs datetime.timezone.utc
-
-**When:** Using `datetime.timezone.UTC` on Python 3.13.
-**Cause:** Python 3.13 removed the deprecated `timezone.UTC` alias. Only `timezone.utc` (lowercase) is available.
-**Fix:** Replace `timezone.UTC` with `timezone.utc`.
-
-### `# pyright: ignore` not suppressing errors
-
-**When:** A `# pyright: ignore[code]` comment on a line produces a "suppression comment is unused" warning.
-**Cause:** `enableTypeIgnoreComments = true` is not set; or the error code in the comment doesn't match the actual error.
-**Fix:** Run `uv run basedpyright src/` and verify the error code matches exactly. If the issue is a framework pattern (SQLAlchemy `__init__`, WTForms `choices`), the standard set is:
-
-- `reportCallIssue` — for dynamic constructor kwargs
-- `reportAttributeAccessIssue` — for SQLAlchemy dynamic attributes/backrefs
-- `reportOptionalMemberAccess` — for access after `.first()` without None check
-- `reportAssignmentType` — for framework-level type mismatches
-
-## Ruff
-
-### N801 (class name convention) suppressed for tests
-
-`pyproject.toml` has `"tests/*.py" = ["N801"]` — test class names don't need to follow PascalCase conventions (e.g., `test_basic_auth` as a class is acceptable). This is intentional: test classes often describe scenarios rather than being named after the class under test.
-
-### Unsafe fixes
-
-`--unsafe-fixes` enables rules that safe mode skips:
-
-- E722 — bare `except`
-- E711 — `!= None` comparison
-- F841 — unused variable assignment
-
-Run: `ruff check --fix --unsafe-fixes`
-
-### Target version
-
-Set `target-version` in `[tool.ruff]` to match minimum supported Python. Affects which syntax is flagged as invalid.
-
-## vulture (dead-code gate)
-
-Gated in pre-push + both CI workflows (parity). The `--min-confidence 100` level is deliberate: at default confidence vulture flags hundreds of framework false positives (SQLAlchemy model columns, Alembic `upgrade`/`downgrade`, Flask route functions, WTForms fields) that it cannot resolve statically — gating there would make the check noise and get disabled. At 100% only true positives surface (currently only unused callback params).
-
-```bash
-uv run vulture src/ --min-confidence 100 --exclude src/migrations,src/thesesImport.py --ignore-names is_created,revision
-```
-
-- `migrations/` and `thesesImport.py` (legacy scraper, already in the coverage omit) are excluded.
-- `is_created`/`revision` are framework-contract callback params (Flask-Admin `on_model_change`, Alembic `process_revision_directives`) that ruff already suppresses with `# noqa: ARG002`.
-- To add new dead code to the exclusion, widen `--ignore-names` or `--exclude` with a documented reason, not to hide real findings.
-
-## pylint (duplicate-code gate)
-
-`uv run pylint --disable=all --enable=similarities src/ tests/` runs in pre-push + both CI workflows. `min-similarity-lines = 6` in `pyproject.toml` `[tool.pylint.similarities]`; migrations/templates/static are ignored. Keeps the test consolidation honest — consolidation removes duplication, never adds it.
-
-## lxml dependency for BeautifulSoup HTML parsing
-
-`lxml>=6.1.1` is a dev dependency in `pyproject.toml` (`[dependency-groups] dev`). It's required for BeautifulSoup HTML parser tests (`features="lxml"`) in scrape tests under `test_theses_import.py`. The built-in `html.parser` is too lenient — it doesn't raise on malformed HTML that triggers different code paths.
-
-## General
-
-### Never use pip.\_vendor
-
-Importing from `pip._vendor` is fragile — it depends on pip being installed and its internal structure being stable. Always install vendored packages as explicit dependencies.
-
-### Generated artifact diff fragility
-
-`diff` on generated files (requirements.txt, lockfiles) across platforms is unreliable. Comments and platform-specific hashes differ. Prefer CI checks that tolerate minor variations, or run the generation step in CI to verify consistency.
-
-### Coverage exclusions
-
-Exclude scripts that run once (importers, migrations) from coverage for realistic metrics:
-
-```toml
-[tool.coverage.run]
-omit = ["src/thesesImport.py", "src/migrations/*"]
-```
-
-### Coverage metrics accumulate across runs
-
-**When:** Running `pytest --cov` multiple times.
-**Cause:** `.coverage` file appends data, not replaces. Subsequent runs include old data.
-**Fix:** Delete `.coverage` before each session, or use `coverage erase`.
-
-## Commit signing
-
-Signoff policy is defined in `docs/GIT_FLOW.md §4`. This doc only adds cross-cutting notes.
-
-### Never touch global git config
-
-Global git options (`git config --global`) are user-specific and should never be modified by automation without explicit user approval.
-
-### Auto-branch commits: disable GPG signoff
-
-Auto/batch mode branches (`staging-auto-*`) must use `--no-gpg-sign` — they are throwaway branches that are squash-merged and never appear as individual commits in permanent history.
-
-```bash
-git commit --no-gpg-sign -m "..."
-```
-
-## Scrypt mock for tests on Python 3.13+
-
-Python 3.13 OpenSSL builds may lack scrypt support, causing `check_password_hash` to raise `ValueError: unsupported hash type scrypt`. Mock at conftest module level before any auth module is imported:
-
-```python
-import werkzeug.security as _ws
-_ws.check_password_hash = lambda pwhash, password: True
-_ws.generate_password_hash = lambda password, method="pbkdf2:sha256": f"mock:{password}"
-```
-
-This is safe for testing view logic and route behavior, but means password security logic is never exercised in tests.
-
-## APScheduler in tests (env-gated, not shutdown)
-
-`BackgroundScheduler` jobs (e.g. `SendMailNotification` every 10s) would fire against the test DB which may not have the `notification` table, causing `sqlite3.OperationalError: no such table: notification`. Since the application-factory refactor, the scheduler is gated by the `SE_START_SCHEDULER` env var — production leaves it unset (jobs run), tests set it to `0` BEFORE importing `flask_se`:
-
-```python
-import os
-os.environ["SE_START_SCHEDULER"] = "0"
-from flask_se import app, db
-```
-
-This replaces the old `scheduler.shutdown(wait=False)` at conftest module level. Do not reintroduce shutdown — the env gate is set before import so the scheduler never starts.
-
-## PowerShell encoding
-
-See `docs/AI_AGENTS.md` §Skills (`.skills/encoding-audit/`) for detection scripts, git recovery workflow, fix patterns, and encoding declaration templates.
-
-### `Set-Content` / `Out-File` default to Windows-1252 on en-US systems
-
-PowerShell's `Set-Content` and `Out-File` cmdlets default to the system's active ANSI code page (Windows-1252 on en-US Windows), NOT UTF-8. This corrupts any file containing non-ASCII characters when the file is expected to be UTF-8.
-
-```powershell
-# WRONG — writes Windows-1252
-Set-Content -Path file.md -Value $content
-
-# WRONG — also Windows-1252
-$content > file.md
-
-# WRONG — also Windows-1252
-Out-File -FilePath file.md -InputObject $content
-
-# CORRECT — writes UTF-8 without BOM
-[System.IO.File]::WriteAllText($path, $content, [System.Text.UTF8Encoding]::new($false))
-
-# CORRECT — reads UTF-8
-[System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
-
-# CORRECT — writes bytes as UTF-8
-[System.IO.File]::WriteAllBytes($path, [System.Text.Encoding]::UTF8.GetBytes($content))
-```
-
-**Applies to**: Any `.py`, `.md`, `.yaml`, `.json`, `.toml`, `.cfg` file — anything that should be UTF-8.
-
-### `Get-Content` with `-Raw` still defaults to Windows-1252
-
-Even `Get-Content -Path file.md -Raw` uses Windows-1252. Always use the .NET overload.
-
-### Read side: `Select-String` / `Get-Content` mojibake on UTF-8 Cyrillic
-
-`Select-String` and `Get-Content` **read** files as the ANSI code page (Windows-1251 on a Russian system) unless `-Encoding UTF8` is passed, and the console `OutputEncoding` is typically `cp866` — so UTF-8 Cyrillic becomes garbage even when the file is valid UTF-8 (verify with `uv run python` decode, not the shell). This looks like file corruption but is purely a read/console-encoding artifact.
-
-```powershell
-# CORRECT — read as UTF-8 and re-encode the console to UTF-8
-$OutputEncoding = [System.Text.Encoding]::UTF8
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-Get-Content -LiteralPath file.html -Encoding UTF8
-```
-
-Prefer the dedicated `read`/`grep` tools (they decode UTF-8 correctly) for real analysis; use the shell only when a tool requires it.
-
-### `$(...)` subexpression flattens multi-line output to space-joined string
-
-`$(command)` in PowerShell captures stdout as an **array of strings** (one per line). When passed to a function expecting a `string` (like `WriteAllText`), PowerShell joins the array with **spaces** — collapsing all lines into one.
-
-This corrupts files like `requirements.txt` that must retain line breaks:
-
-```powershell
-# WRONG — collapses to single line
-[System.IO.File]::WriteAllText("requirements.txt", $(uv export --no-dev --no-hashes), [System.Text.UTF8Encoding]::new($false))
-
-# CORRECT — capture as array, join explicitly
-$lines = uv export --no-dev --no-hashes 2>($null)
-[System.IO.File]::WriteAllText("requirements.txt", ($lines -join "`r`n"), [System.Text.UTF8Encoding]::new($false))
-```
-
-This quirk does NOT apply when the output is a single line (no `\n` in the captured text). Always verify multi-line output with `($content).GetType()` before passing to a string parameter.
-
-### pip install: "UnicodeDecodeError: 'utf-16-le'"
-
-**When:** `pip install -r requirements.txt` on Linux CI.
-**Cause:** `requirements.txt` written with UTF-8 BOM on Windows.
-**Fix:** Use `[System.IO.File]::WriteAllText()` with `UTF8Encoding($false)` to omit BOM.
-
-### mdformat doesn't show file path on UnicodeDecodeError
-
-When `uv run mdformat .` encounters a non-UTF-8 file, the error message omits the file path. To find the offending file:
-
-```powershell
-Get-ChildItem -Recurse -Include "*.md" | ForEach-Object {
-    try { $null = [System.Text.UTF8Encoding]::UTF8.GetString([System.IO.File]::ReadAllBytes($_.FullName)) }
-    catch { Write-Host $_.FullName }
-}
-```
-
-## Quality Tool Catalog
-
-All quality tools used in this project, their exact configuration, and adoption status.
-See `docs/QUALITY_MANAGEMENT.md` for quality philosophy and policy.
-
-### Active tools
-
-| Tool | Purpose | Where it runs | Flags / config | Adopted |
-|------|---------|---------------|----------------|---------|
-| `ruff format` | Python formatter | Pre-commit (auto-fix) + CI (`--check`) | Default config | ✅ |
-| `ruff check` | Python linter | Pre-commit (auto-fix) + CI (`--check`) | `--fix` for pre-commit | ✅ |
-| `mdformat` | Markdown formatter | Pre-commit (changed files, auto-fix) + Pre-push/CI (`--check` all) | `types: [markdown]` in pre-commit | ✅ |
-| `basedpyright` | Static type checker | Pre-push (gate) | `pyproject.toml` config, `# pyright: ignore[code]` per-line | ✅ |
-| `dprint` | JS/JSON/TOML formatter | Pre-commit | Config in `dprint.json` | ✅ |
-| `pre-commit-hooks` | Trailing whitespace, EOF, JSON, large files | Pre-commit | Config in `.pre-commit-config.yaml` | ✅ |
-| `djlint` | HTML/Jinja formatter | Pre-commit | `--reformat` | ✅ |
-| `commitlint` | Commit message format | Pre-commit (commit-msg stage) | Conventional commits | ✅ |
-| `actionlint` | GHA workflow validator | Pre-push | Default config | ✅ |
-| `packaging.Requirement` | requirements.txt syntax validation | Pre-push | `encoding='utf-8-sig'`, skip `-e` lines | ✅ |
-| `uv lock --check` | Lockfile consistency | Pre-push | Default | ✅ |
-| `pytest` | Test suite | CI | `-n auto` (xdist) | ✅ |
-| `coverage` | Code coverage | CI (via pytest) | `--cov=src --cov-fail-under=80` | ✅ |
-| `pylint` (similarities) | Code duplicate detection | CI (lint job) | `--disable=all --enable=similarities src/ tests/` | ✅ |
-| `scripts/find_dup_coverage.py` | Coverage-based duplicate test detection | Manual (advisory) | Requires `coverage run --context=test` first | ✅ |
-
-### Proposed tools (agent suggested, user may adopt)
-
-| Tool | Purpose | Where it would run | Proposed reason |
-|------|---------|-------------------|-----------------|
-| ~~`bandit`~~ | ~~Python security scanner~~ | Replaced by ruff S rules (2026-07) | ruff `"S"` in `[tool.ruff.lint] select` covers the same surface (hardcoded secrets, debug configs, `eval()`) + more. See `pyproject.toml`. |
-| `codespell` | Spelling in source | Manual / CI (non-blocking) | Captures typos that survive code review — was in pre-commit, removed as not cleanup |
-
-### Encoding declaration policy
-
-See `docs/DOCS.md §6` for the project's encoding declaration policy.
-, (New-Object System.Text.UTF8Encoding($false)))`(see`## PowerShell encoding\`). purgecss globs must use forward slashes even
-on Windows.
-
-## Quality Tool Catalog
-
-All quality tools used in this project, their exact configuration, and adoption status.
-See `docs/QUALITY_MANAGEMENT.md` for quality philosophy and policy.
-
-### Active tools
-
-| Tool | Purpose | Where it runs | Flags / config | Adopted |
-|------|---------|---------------|----------------|---------|
-| `ruff format` | Python formatter | Pre-commit (auto-fix) + CI (`--check`) | Default config | ✅ |
-| `ruff check` | Python linter | Pre-commit (auto-fix) + CI (`--check`) | `--fix` for pre-commit | ✅ |
-| `mdformat` | Markdown formatter | Pre-commit (changed files, auto-fix) + Pre-push/CI (`--check` all) | `types: [markdown]` in pre-commit | ✅ |
-| `basedpyright` | Static type checker | Pre-push (gate) | `pyproject.toml` config, `# pyright: ignore[code]` per-line | ✅ |
-| `dprint` | JS/JSON/TOML formatter | Pre-commit | Config in `dprint.json` | ✅ |
-| `pre-commit-hooks` | Trailing whitespace, EOF, JSON, large files | Pre-commit | Config in `.pre-commit-config.yaml` | ✅ |
-| `djlint` | HTML/Jinja formatter | Pre-commit | `--reformat` | ✅ |
-| `commitlint` | Commit message format | Pre-commit (commit-msg stage) | Conventional commits | ✅ |
-| `actionlint` | GHA workflow validator | Pre-push | Default config | ✅ |
-| `packaging.Requirement` | requirements.txt syntax validation | Pre-push | `encoding='utf-8-sig'`, skip `-e` lines | ✅ |
-| `uv lock --check` | Lockfile consistency | Pre-push | Default | ✅ |
-| `pytest` | Test suite | CI | `-n auto` (xdist) | ✅ |
-| `coverage` | Code coverage | CI (via pytest) | `--cov=src --cov-fail-under=80` | ✅ |
-| `pylint` (similarities) | Code duplicate detection | CI (lint job) | `--disable=all --enable=similarities src/ tests/` | ✅ |
-| `scripts/find_dup_coverage.py` | Coverage-based duplicate test detection | Manual (advisory) | Requires `coverage run --context=test` first | ✅ |
-
-### Proposed tools (agent suggested, user may adopt)
-
-| Tool | Purpose | Where it would run | Proposed reason |
-|------|---------|-------------------|-----------------|
-| ~~`bandit`~~ | ~~Python security scanner~~ | Replaced by ruff S rules (2026-07) | ruff `"S"` in `[tool.ruff.lint] select` covers the same surface (hardcoded secrets, debug configs, `eval()`) + more. See `pyproject.toml`. |
-| `codespell` | Spelling in source | Manual / CI (non-blocking) | Captures typos that survive code review — was in pre-commit, removed as not cleanup |
-
-### Encoding declaration policy
-
-See `docs/DOCS.md §6` for the project's encoding declaration policy.
+`[System.IO.File]::WriteAllText($path, $text, (New-Object System.Text.UTF8Encoding($false)))` instead.

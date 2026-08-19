@@ -28,6 +28,7 @@ All findings from the 2026-08-01 sweep (#187), the 2026-08-02 full audit (#193, 
 
 - **Practice admin vs staff role separation** — both use the same `user_is_staff` guard by design; staff are the operators. Deferred; revisit if a curator-only role is needed.
 - Dependabot Pillow + Flask alerts still show open in the GH UI but the manifest is already patched (Pillow 12.3.0, Flask 3.1.3) — auto-resolve on the next Dependabot scan of `current`.
+- Dependabot moderate alert #34 (esbuild, `package-lock.json`) — **closed** by the esbuild 0.24.2 → 0.28.1 bump (PR #228, merged 2026-08-19); verified `state=fixed` via the Dependabot alerts API.
 
 ### Dismissed (vendored/client-side, "won't fix")
 
