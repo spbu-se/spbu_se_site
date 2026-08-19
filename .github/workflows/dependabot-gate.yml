@@ -1,0 +1,27 @@
+name: dependabot-gate
+
+on:
+  pull_request:
+    branches: [current]
+
+permissions:
+  contents: read
+
+jobs:
+  head-descendant-of-base:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Fail when the dependabot head is not a descendant of the base
+        run: |
+          if git merge-base --is-ancestor \
+            "${{ github.event.pull_request.base.sha }}" \
+            "${{ github.event.pull_request.head.sha }}"; then
+            echo "dependabot head contains the base tip — OK"
+          else
+            echo "::error::dependabot head is based on an older commit than the base branch tip. Rebuild the PR on current (see docs/TOOLING.md §Dependabot PR repair) and force-push the canonical head."
+            exit 1
+          fi

@@ -80,6 +80,8 @@ None — the `post_theses` cluster (shared `static/tmp` same-name upload race be
 
 Reference run (2026-08-17, `pytest --tb=no -q -rxX`): **1351 passed, 4 skipped, 3 xfailed, 1 xpassed**. The intermittent-marker count drifts between runs (flaky XPASS whenever the path passes); re-verify drift is stability, not flakiness, before touching any marker.
 
+Reference run (2026-08-19, `pytest --tb=no -q -rxX`): **1354 passed, 4 skipped, 3 xfailed, 1 xpassed** — dual-provider maps added 3 rendered-page tests.
+
 ## 5. Xpassed Tests
 
 Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass is non-fatal): intermittent CI failures that happen to pass on this machine. Tracked in §4a's intermittent CI table. Check xpass count via `pytest --tb=no -q 2>&1 | Select-String "xpassed"`.

@@ -48,6 +48,8 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
   key read from `configs/flask_se_maps.conf`/`SE_GOOGLE_MAPS_KEY` (gitignored),
   injected via `{% block se_maps_key %}` only on the 3 map pages; the maps API is
   now lazy-loaded (IntersectionObserver) instead of a sync script on every base.
+  Config-wise superseded by the dual-provider item below (`YANDEX_MAPS_KEY=`/
+  `GOOGLE_MAPS_KEY=` lines + `SE_YANDEX_MAPS_KEY` env override).
 - ~~Move from Google Maps to Yandex Maps~~ ✅ done in `feat/yandex-maps` (2026-08-19): the 3 map
   elements (index, contacts, bachelor_admission) now support **both providers** — Yandex Maps v3
   preferred, Google Maps fallback, and an inline **"Источник карты не задан"** placeholder when no key

@@ -562,3 +562,19 @@ open(".tmp/routes.txt", "w").write(str(rs))
 **Root cause:** the tests used `@patch("flask_se_review.os.path.isfile", return_value=False)`. Because `flask_se_review.os` *is* the `os` module, this patches the **global** `os.path.isfile`, and Jinja's `FileSystemLoader` (`open_if_exists`) calls `os.path.isfile` to resolve every template → **every** `render_template` during the patched window raises `TemplateNotFound`. Symptom masquerades as a missing template; pre-caching the template (`jinja_env.get_template`) hides it because the loader's cache short-circuits `open_if_exists`.
 
 **Fix:** don't patch `os.path.isfile` globally when a request will render templates. Patch a narrower target, or rely on the real `os.path.isfile` returning `False` for the non-existent upload file (as here — `FileStorage.save` was mocked so nothing existed on disk). Verify by running the test without the patch.
+
+## Verify third-party JS API surface against published artifacts, not docs/memory
+
+**When:** 2026-08-19, the dual-provider maps PR (Yandex v3 + Google fallback). The SEO roadmap said Yandex was a "drop-in" at the loader layer — half true.
+
+**Root cause:** two guesses would have shipped broken code:
+
+- `YMap`/`YMapDefaultSchemeLayer` are **core globals** (`ymaps3.YMap`), NOT exports of `@yandex/ymaps3-default-ui-theme` — importing them from the UI theme returns `undefined`.
+- `YMapPopupMarker` string `content` is assigned via `textContent`, so an HTML string renders literally; HTML content must be a `() => HTMLElement` factory.
+
+**Fix:** instead of trusting docs/memory, downloaded the published artifacts and read them before writing `renderYandex`:
+
+- `@yandex/ymaps3-types` (`.d.ts`) — `declare global { const ymaps3: typeof import('./index') }` proves the core global surface; `imperative/index.d.ts` lists `YMap`, `YMapDefaultSchemeLayer`, `YMapMarker`.
+- `@yandex/ymaps3-default-ui-theme` dist (`index.mjs`) — confirmed `YMapDefaultMarker` props (`popup`, `onClick`), the popup toggle runtime (`_togglePopup`, `isOpen`), and the `textContent` string-content gotcha.
+
+**Rule:** for any third-party JS API you wire into production code, verify the surface against the published package (type defs + dist) before writing the integration — grep the `.d.ts`/dist, not the README.
