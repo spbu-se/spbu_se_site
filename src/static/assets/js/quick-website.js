@@ -1045,189 +1045,189 @@ var ScrollTo = (function() {
 })();
 
 //
-// Google maps
+// Maps (dual provider: Yandex Maps v3 or Google Maps)
 //
 
-var GoogleMapCustom = (function() {
-    var $map = document.getElementById('map-custom'),
-        lat,
-        lng,
-        color,
-        zoom;
+// The map initializers read the element's data attributes, build the marker
+// config, and register into `window.__seMaps`. js/se_maps.js waits for a map
+// element to scroll into view, loads the active provider's API (chosen by
+// `window.SE_MAPS_PROVIDER`, set with the key by the page template), and runs
+// the registered initializers. Nothing here touches `google.maps`/`ymaps3` at
+// parse time.
 
-    function initMap(map) {
+var SEInitMap = (function() {
+    'use strict';
 
-        lat = map.getAttribute('data-lat');
-        lng = map.getAttribute('data-lng');
-        color = map.getAttribute('data-color');
-        zoom = map.getAttribute('data-zoom') ? parseInt(map.getAttribute('data-zoom')) : 12;
+    function googleStyles(color) {
+        return [
+            {"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"color":"#444444"}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2f2f2"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"all","stylers":[{"saturation":-100},{"lightness":45}]},{"featureType":"road.highway","elementType":"all","stylers":[{"visibility":"simplified"}]},{"featureType":"road.arterial","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"all","stylers":[{"color":color},{"visibility":"on"}]}
+        ];
+    }
 
-        var myLatlng = new google.maps.LatLng(lat, lng);
+    function renderGoogle(mapEl, center, markers, zoom) {
+        var myLatlng = new google.maps.LatLng(center.lat, center.lng);
 
         var mapOptions = {
             zoom: zoom,
             scrollwheel: false,
             center: myLatlng,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            styles: [{"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"color":"#444444"}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2f2f2"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"all","stylers":[{"saturation":-100},{"lightness":45}]},{"featureType":"road.highway","elementType":"all","stylers":[{"visibility":"simplified"}]},{"featureType":"road.arterial","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"all","stylers":[{"color":color},{"visibility":"on"}]}]
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+
+        var color = mapEl.getAttribute('data-color');
+        if (color) {
+            mapOptions.styles = googleStyles(color);
         }
 
-        map = new google.maps.Map(map, mapOptions);
+        var map = new google.maps.Map(mapEl, mapOptions);
 
-        var marker = new google.maps.Marker({
-            position: myLatlng,
-            map: map,
-            animation: google.maps.Animation.DROP,
-            title: 'Hello World!'
-        });
+        markers.forEach(function(marker) {
+            var gm = new google.maps.Marker({
+                position: new google.maps.LatLng(marker.lat, marker.lng),
+                map: map,
+                animation: google.maps.Animation.DROP,
+                title: marker.title
+            });
 
-        var contentString = '<div class="info-window-content"><h5>Company Name</h5>' +
-            '<p>Description comes here...</p></div>';
+            var infowindow = new google.maps.InfoWindow({
+                content: marker.html
+            });
 
-        var infowindow = new google.maps.InfoWindow({
-            content: contentString
-        });
-
-        google.maps.event.addListener(marker, 'click', function() {
-            infowindow.open(map, marker);
+            google.maps.event.addListener(gm, 'click', function() {
+                infowindow.open(map, gm);
+            });
         });
     }
 
+    function balloonFor(html) {
+        return function() {
+            var el = document.createElement('div');
+            el.innerHTML = html;
+            return el;
+        };
+    }
+
+    function renderYandex(mapEl, center, markers, zoom) {
+        ymaps3.import('@yandex/ymaps3-default-ui-theme').then(function(ui) {
+            var map = new ymaps3.YMap(mapEl, {
+                location: { center: [center.lng, center.lat], zoom: zoom }
+            });
+            map.addChild(new ymaps3.YMapDefaultSchemeLayer());
+
+            markers.forEach(function(marker) {
+                var balloonHtml = marker.html;
+                var markerEntity;
+                var open = false;
+
+                markerEntity = new ui.YMapDefaultMarker({
+                    coordinates: [marker.lng, marker.lat],
+                    title: marker.title,
+                    staticHint: false,
+                    popup: {
+                        content: balloonFor(balloonHtml),
+                        position: 'top',
+                        show: false
+                    },
+                    onClick: function() {
+                        open = !open;
+                        markerEntity.update({
+                            popup: {
+                                content: balloonFor(balloonHtml),
+                                position: 'top',
+                                show: open
+                            }
+                        });
+                    }
+                });
+                map.addChild(markerEntity);
+            });
+        });
+    }
+
+    return function initMap(mapEl, markers) {
+        var lat = parseFloat(mapEl.getAttribute('data-lat'));
+        var lng = parseFloat(mapEl.getAttribute('data-lng'));
+        var zoom = mapEl.getAttribute('data-zoom') ? parseInt(mapEl.getAttribute('data-zoom'), 10) : 12;
+        var center = { lat: lat, lng: lng };
+
+        if (window.SE_MAPS_PROVIDER === 'yandex') {
+            renderYandex(mapEl, center, markers, zoom);
+        } else {
+            renderGoogle(mapEl, center, markers, zoom);
+        }
+    };
+})();
+
+var GoogleMapCustom = (function() {
+    var $map = document.getElementById('map-custom');
+
     if (typeof($map) != 'undefined' && $map != null) {
         window.__seMaps = window.__seMaps || [];
-        window.__seMaps.push({ id: 'map-custom', init: initMap });
+        window.__seMaps.push({
+            id: 'map-custom',
+            init: function(el) {
+                SEInitMap(el, [{
+                    lat: parseFloat(el.getAttribute('data-lat')),
+                    lng: parseFloat(el.getAttribute('data-lng')),
+                    title: 'Hello World!',
+                    html: '<div class="info-window-content"><h5>Company Name</h5>' +
+                        '<p>Description comes here...</p></div>'
+                }]);
+            }
+        });
     }
 })();
 
 //
-// Google maps for MM
+// Google maps for MM (dormitory map)
 //
 
 var GoogleMapCustom = (function() {
-    var $map = document.getElementById('map-mm-dormitory'),
-        lat_mm,
-        lng_mm,
-        lat_d,
-        lng_d,
-        color,
-        zoom;
-
-    function initMap(map) {
-
-        // Faculty of Mathematics and Mechanics
-        lat_mm = 59.87996;
-        lng_mm = 29.8305919;
-
-        // Dormitory
-        lat_d = 59.87487;
-        lng_d = 29.8248978;
-
-        color = map.getAttribute('data-color');
-        zoom = map.getAttribute('data-zoom') ? parseInt(map.getAttribute('data-zoom')) : 12;
-
-        var myLatlng_mm = new google.maps.LatLng(lat_mm, lng_mm);
-        var myLatlng_d = new google.maps.LatLng(lat_d, lng_d);
-
-        var mapOptions = {
-            zoom: zoom,
-            scrollwheel: false,
-            center: myLatlng_mm,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            styles: [{"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"color":"#444444"}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2f2f2"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"all","stylers":[{"saturation":-100},{"lightness":45}]},{"featureType":"road.highway","elementType":"all","stylers":[{"visibility":"simplified"}]},{"featureType":"road.arterial","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"all","stylers":[{"color":color},{"visibility":"on"}]}]
-        }
-
-        map = new google.maps.Map(map, mapOptions);
-
-        var marker_mm = new google.maps.Marker({
-            position: myLatlng_mm,
-            map: map,
-            animation: google.maps.Animation.DROP,
-            title: 'Математико-механической факультет'
-        });
-
-        var marker_d = new google.maps.Marker({
-            position: myLatlng_d,
-            map: map,
-            animation: google.maps.Animation.DROP,
-            title: 'Петергофский кампус СПбГУ'
-        });
-
-        var contentString_mm = '<div class="info-window-content"><h5>Математико-Механический факультет, СПбГУ</h5>' +
-            '<p>Учебный корпус математико-механического факультета, СПбГУ</p></div>';
-
-        var contentString_d = '<div class="info-window-content"><h5>Петергофский кампус СПбГУ</h5>' +
-            '<p>Общежитие, СПбГУ</p></div>';
-
-        var infowindow_mm = new google.maps.InfoWindow({
-            content: contentString_mm
-        });
-
-        var infowindow_d = new google.maps.InfoWindow({
-            content: contentString_d
-        });
-
-        google.maps.event.addListener(marker_mm, 'click', function() {
-            infowindow_mm.open(map, marker_mm);
-        });
-        google.maps.event.addListener(marker_d, 'click', function() {
-            infowindow_d.open(map, marker_d);
-        });
-    }
+    var $map = document.getElementById('map-mm-dormitory');
 
     if (typeof($map) != 'undefined' && $map != null) {
         window.__seMaps = window.__seMaps || [];
-        window.__seMaps.push({ id: 'map-mm-dormitory', init: initMap });
+        window.__seMaps.push({
+            id: 'map-mm-dormitory',
+            init: function(el) {
+                SEInitMap(el, [
+                    {
+                        lat: 59.87996,
+                        lng: 29.8305919,
+                        title: 'Математико-механической факультет',
+                        html: '<div class="info-window-content"><h5>Математико-Механический факультет, СПбГУ</h5>' +
+                            '<p>Учебный корпус математико-механического факультета, СПбГУ</p></div>'
+                    },
+                    {
+                        lat: 59.87487,
+                        lng: 29.8248978,
+                        title: 'Петергофский кампус СПбГУ',
+                        html: '<div class="info-window-content"><h5>Петергофский кампус СПбГУ</h5>' +
+                            '<p>Общежитие, СПбГУ</p></div>'
+                    }
+                ]);
+            }
+        });
     }
 })();
-//
-// Google maps
-//
 
 var GoogleMap = (function() {
-    var $map = document.getElementById('map-default'),
-        lat,
-        lng,
-        zoom;
-
-    function initMap(map) {
-
-        lat = map.getAttribute('data-lat');
-        lng = map.getAttribute('data-lng');
-        zoom = map.getAttribute('data-zoom') ? parseInt(map.getAttribute('data-zoom')) : 12;
-
-        var myLatlng = new google.maps.LatLng(lat, lng);
-
-        var mapOptions = {
-            zoom: zoom,
-            scrollwheel: false,
-            center: myLatlng,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-        }
-
-        map = new google.maps.Map(map, mapOptions);
-
-        var marker = new google.maps.Marker({
-            position: myLatlng,
-            map: map,
-            animation: google.maps.Animation.DROP,
-            title: 'Hello World!'
-        });
-
-        var contentString = '<div class="info-window-content"><h2>{{ site.product.name }} {{ site.product.name_long }}</h2>' +
-            '<p>{{ site.product.description }}</p></div>';
-
-        var infowindow = new google.maps.InfoWindow({
-            content: contentString
-        });
-
-        google.maps.event.addListener(marker, 'click', function() {
-            infowindow.open(map, marker);
-        });
-    }
+    var $map = document.getElementById('map-default');
 
     if (typeof($map) != 'undefined' && $map != null) {
         window.__seMaps = window.__seMaps || [];
-        window.__seMaps.push({ id: 'map-default', init: initMap });
+        window.__seMaps.push({
+            id: 'map-default',
+            init: function(el) {
+                SEInitMap(el, [{
+                    lat: parseFloat(el.getAttribute('data-lat')),
+                    lng: parseFloat(el.getAttribute('data-lng')),
+                    title: 'Hello World!',
+                    html: '<div class="info-window-content"><h2>{{ site.product.name }} {{ site.product.name_long }}</h2>' +
+                        '<p>{{ site.product.description }}</p></div>'
+                }]);
+            }
+        });
     }
 })();
 

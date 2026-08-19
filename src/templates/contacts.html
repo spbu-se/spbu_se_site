@@ -4,7 +4,11 @@
 {% block description %}
   Контактная информация кафедры Системного программирования Математико-механического факультета СПбГУ.
 {% endblock %}
-{% block se_maps_key %}<script>window.SE_GMAPS_KEY = {{ se_google_maps_key|tojson }};</script>{% endblock %}
+{% block se_maps_key %}
+  {% if se_maps_provider %}
+    <script>window.SE_MAPS_PROVIDER = {{ se_maps_provider|tojson }}; window.SE_MAPS_KEY = {{ se_maps_key|tojson }};</script>
+  {% endif %}
+{% endblock %}
 {% block content %}
   <!-- Main content -->
   <section class="slice bg-dark bg-cover bg-size--cover pt-9"
@@ -70,12 +74,22 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="card hover-shadow-lg">
-            <div id="map-custom"
-                 class="map-canvas rounded-left"
-                 data-lat="59.87996"
-                 data-lng="29.8305919"
-                 data-zoom="12"
-                 style="height: 500px"></div>
+            {% if se_maps_provider %}
+              <div id="map-custom"
+                   class="map-canvas rounded-left"
+                   data-lat="59.87996"
+                   data-lng="29.8305919"
+                   data-zoom="12"
+                   style="height: 500px"></div>
+            {% else %}
+              <div class="map-canvas rounded-left"
+                   style="height: 500px;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          text-align: center;
+                          color: #8898aa">Источник карты не задан</div>
+            {% endif %}
           </div>
         </div>
       </div>
