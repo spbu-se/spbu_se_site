@@ -1596,3 +1596,21 @@ Comprehensive full retro (10-step workflow) for the session that shipped the dep
 **What went well**: full suite 1354 passed / 4 skipped / 3 xfailed / 1 xpassed; the dependabot gate, the TOOLING repair recipe and the FETCH_HEAD/ymaps3 techniques give the next session searchable fixes instead of a buried retro note; step 10 confirms the retro skill still matches `DEVELOPMENT_PROCESS.md` §0.7 and `AI_AGENTS.md` §Skills (the light→full split handled this exact "full retro after a light entry" case).
 
 **State at handoff**: branch `docs/full-retro-yandex-maps` (from `upstream/current` `a2876be`). Next: pre-push gate, push, open PR (base `current`), merge `--admin --squash`; then admin provisions a Yandex (or Google) key on prod → post-deploy checklist B16 + the `.tmp` snapshot compare for the 3 map routes.
+
+### Retrospective — 2026-08-15: CSP + security headers — design approved, implementation deferred
+
+Changes analyzed: audit of the header/nginx state (none exist) and the CSP constraints (15 inline-script templates; GTM, SPbU topbar, Google Maps external resources). Design documented in `docs/SEO_A11Y_ROADMAP.md` §3 + `TODO.md`.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| No security headers (CSP, nosniff, frame-ancestors, HSTS, referrer/permissions policy) on any response | Never implemented — no `after_request`, empty `nginx/default.conf.template` | Pragmatic allowlist CSP + core headers via a new `flask_se_headers.py` `after_request`; `server_tokens off` in nginx; tests; gated HSTS/upgrade-insecure-requests on `SE_COOKIE_SECURE` |
+| Strict nonce-CSP not feasible now | GTM + Google Maps need `'unsafe-inline'`/`'unsafe-eval'`; 15 templates carry inline scripts (SimpleMDE init etc.) — nonce retrofit is high-effort/risky | Option B (allowlist) for v1; strict nonce-CSP documented as a follow-up with explicit re-visit conditions |
+
+**What went well**: the CSP policy was grounded in the actual template inventory (inline scripts, external hosts) rather than a generic template; the GTM/Maps constraint was identified up front, avoiding a broken strict-CSP rollout; seven open questions were recorded so implementation can proceed without re-research.
+
+**What went wrong**: none — design-and-document only, per user instruction ("update docs and stop").
+
+**State at handoff**:
+
+- Branch `docs/security-headers-plan` (from `upstream/current` `0905a12`). Docs only: `SEO_A11Y_ROADMAP.md` §3 (full plan + 7 open questions), `TODO.md` entry, this retro.
+- Implementation is a future task: branch `feat/security-headers` from synced `origin/staging` (see `GIT_FLOW.md §8.5` multi-PR rule — independent base).

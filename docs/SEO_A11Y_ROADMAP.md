@@ -42,7 +42,41 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 ## 3. Deferred ideas (return later — high value)
 
 - WCAG 2.1 AA pass + optional `pytest-axe`/manual gate + `.skills/a11y-audit`.
-- CSP + security headers (Flask `after_request` + `nginx/default.conf.template`).
+
+### CSP + security headers — planned (design approved 2026-08-15, not implemented)
+
+**Context**: no security headers anywhere today (no Flask `after_request`, none in
+`nginx/default.conf.template`). Prod = Docker nginx → uWSGI. 15 templates carry
+inline `<script>` (GTM, SPbU topbar, `feather.replace`, SimpleMDE init, auth/practice
+JS) + 3 with inline `<style>`; external resources from `googletagmanager.com`,
+`topbar.spbu.ru`, and the dual-provider maps (Google `maps.googleapis.com`/`*.googleapis.com`
+or Yandex `api-maps.yandex.ru` + tile hosts). GTM + Google Maps
+require `'unsafe-inline'`/`'unsafe-eval'`, so a strict nonce-CSP is deferred.
+
+**Chosen approach (Option B — pragmatic allowlist CSP)**:
+
+- New `src/flask_se_headers.py` `register_security_headers(app)` → `after_request` sets:
+  - `Content-Security-Policy`: `default-src 'self'`; `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://topbar.spbu.ru https://maps.googleapis.com https://*.googleapis.com https://api-maps.yandex.ru`; `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`; `img-src 'self' data: https:`; `font-src 'self' data: https://fonts.gstatic.com`; `connect-src 'self' https://www.googletagmanager.com https://topbar.spbu.ru https://*.googleapis.com https://api-maps.yandex.ru`; `frame-src https://www.googletagmanager.com`; `object-src 'none'`; `base-uri 'self'`; `form-action 'self'`; `frame-ancestors 'self'`; `upgrade-insecure-requests` (gated on `SE_COOKIE_SECURE=="1"`)
+  - `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()`, `Cross-Origin-Opener-Policy: same-origin`
+  - `Strict-Transport-Security` (gated on `SE_COOKIE_SECURE=="1"`)
+  - Omit `Cross-Origin-Resource-Policy` (would break cross-site og-image sharing)
+- `nginx/default.conf.template`: add `server_tokens off;` only (content headers come from Flask — avoids double-header risk).
+- Tests: assert headers present/correct on `/`, a static asset, and a 404; assert `object-src 'none'` + the allowlist.
+- Post-deploy manual check: devtools CSP violations on `/`, `/diplomas/`, `/theses.html`, `/contacts.html` (Maps).
+
+**Open questions to resolve at implementation**:
+
+1. **Strict nonce-CSP (Option A) vs allowlist (Option B)** — B chosen for v1. Follow-up for strict: nonce all 15 inline-script templates + GTM nonce propagation + Maps, then drop `'unsafe-inline'`. Revisit only if GTM/Maps get replaced — is removing/limiting GTM or Maps an option?
+1. **HSTS + `upgrade-insecure-requests` gated on `SE_COOKIE_SECURE=="1"`** — confirm production always sets this env (dev must stay HTTP-compatible); else gate on a new explicit `SE_ENABLE_HSTS`.
+1. **`form-action 'self'`** — verify no form submits cross-origin (OAuth uses GET redirects, not cross-origin form POSTs); add exceptions if the VK/Google exchange posts to an external endpoint via a form.
+1. **`Permissions-Policy` feature set** — confirm none of the disabled features (geolocation/mic/camera/payment/usb) is used (Google Maps uses geolocation only if the site calls it; we don't).
+1. **nginx `add_header` duplication** — Flask-only + `server_tokens off` chosen; revisit if a CDN/edge terminates TLS in front of nginx (then HSTS lives there).
+1. **`Cross-Origin-Resource-Policy`** — omitted to keep og-image hotlinking; revisit if we want to block hotlinking of thesis PDFs.
+1. **`after_request` placement** — `src/flask_se_headers.py` vs adding to `flask_se.py`; must not interfere with `send_file`/download responses or the frozen-static build.
+1. **Yandex Maps tile hosts** — if Yandex is the active provider, the allowlist must also cover its tile/CDN hosts (verified at implementation against the live network requests); `maps.googleapis.com` entries may be dropped if Google is retired.
+
+**Delivery**: branch `feat/security-headers` from synced `origin/staging` (independent base — see `docs/GIT_FLOW.md §8.5` multi-PR rules).
+
 - Asset hygiene: minified CSS default, `?v=`/fingerprint cache-busting, prune ~2,400 unused `assets/libs/` files.
 - ~~Google Maps key hardcoded in HTML → config/server~~ ✅ done in `perf/maps-lazy`:
   key read from `configs/flask_se_maps.conf`/`SE_GOOGLE_MAPS_KEY` (gitignored),
