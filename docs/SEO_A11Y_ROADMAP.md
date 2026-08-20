@@ -36,7 +36,7 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 - `sitemap.py`: lastmod always today; arg-bearing rules excluded → `thesis_card` never indexed.
 - `robots.txt` disallows only `/login.html`. No `humans.txt`, no `llms.txt`, no JSON-LD (partial microdata only).
 - TODO.md:13-17: 3 OG defects (diploma theme textile leak, thesis_card whitespace, `/news/` empty description).
-- GTM asymmetry: active in `base_light`, commented in `base_dark` (both have noscript iframe).
+- ~~GTM asymmetry: active in `base_light`, commented in `base_dark` (both have noscript iframe).~~ ✅ **Resolved v2026.08.20** (`feat/remove-gtm-add-metrica`): GTM removed from all 4 bases; Yandex Metrica is the only analytics provider, config-driven and dormant until a counter id is provisioned (see `docs/PRIVACY_COMPLIANCE.md`).
 - SSR makes pagination query URLs crawlable — robots disallows `fetch_*`; sitemap stays parameterless.
 
 ## 3. Deferred ideas (return later — high value)
