@@ -82,6 +82,8 @@ Reference run (2026-08-17, `pytest --tb=no -q -rxX`): **1351 passed, 4 skipped, 
 
 Reference run (2026-08-19, `pytest --tb=no -q -rxX`): **1354 passed, 4 skipped, 3 xfailed, 1 xpassed** — dual-provider maps added 3 rendered-page tests.
 
+Reference run (2026-08-20, `pytest --tb=no -q -rxX`): **1364 passed, 4 skipped, 3 xfailed, 1 xpassed** — GTM removal + dormant Metrica added 10 guardrail tests (`tests/test_analytics.py`).
+
 ## 5. Xpassed Tests
 
 Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass is non-fatal): intermittent CI failures that happen to pass on this machine. Tracked in §4a's intermittent CI table. Check xpass count via `pytest --tb=no -q 2>&1 | Select-String "xpassed"`.
