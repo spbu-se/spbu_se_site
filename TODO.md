@@ -15,22 +15,25 @@
 - `OPENCODE_ZEN_API_KEY` secret still needs to be added to enable automated draft-release generation (until then drafts are manual — `docs/GIT_FLOW.md §7`).
 - Bachelor admission data: 2026 campaign figures still needed in `src/flask_se_bachelor.py` (B7, deferred by user decision).
 
-**Performance (Tier 1 + FA subset shipped: PRs #222, #224; post-release measured):**
+**Security headers + CSP** — design approved 2026-08-15 (Option B, pragmatic allowlist). Not yet implemented. See `docs/SEO_A11Y_ROADMAP.md` (full plan + 8 open questions to resolve at implementation). Branch: `feat/security-headers`.
+
+**Performance (Tier 1 + Tier 2 shipped: PRs #222, #224, #227, #229, #230, #233; post-release measured):**
 
 - Return-item done (2026-08-17): lab mobile 66 (baseline 63), field CrUX green
   (LCP 1.5s); cache headers + versioned URLs + B14 lastmod verified live. Full
   record in `docs/PERFORMANCE.md` §Post-release measurement.
-- Next to close the >70 lab gap (measured drags): Google Maps lazy-load,
-  minify/bundle JS (unused ~310 KiB), purge unminified `quick-website.css`
-  (unused ~74 KiB) — Tier 2 in `docs/PERFORMANCE.md`.
-- Build pipeline shipped (PR perf/build-pipeline): minified+purged theme css
-  (595 KB → ~140 KB, 6,427 → ~1,744 rules) and regenerated min js now served by
-  all bases; CI `assets` job prevents build drift. Maps lazy-load shipped
-  (PR perf/maps-lazy): sync ~350 KB API script removed from all bases, key moved
-  to config, loaded on scroll. JS deferral shipped (PR perf/js-defer): all
-  scripts deferred in the 4 bases, `seReady` helper for inline scripts, 4
-  templates converted off inline `$()`, homepage hero preload; guardrails in
-  `tests/test_js_deferral.py`. Remaining Tier 2/3: per-page asset loading
+- Build pipeline (perf/build-pipeline): minified+purged theme css
+  (595 KB → ~140 KB) + terser min js served by all bases; CI `assets` job
+  prevents drift. Maps lazy-load (perf/maps-lazy): sync ~350 KB API script
+  removed, key moved to config. JS deferral (perf/js-defer): all scripts
+  deferred, `seReady` helper for inline scripts, homepage hero preload.
+  Dual-provider maps (feat/yandex-maps): Yandex v3 preferred + Google fallback
+  - "Источник карты не задан" placeholder when no key is set. Guardrails in
+    `tests/test_maps_lazy.py`, `tests/test_js_deferral.py`,
+    `tests/test_asset_pipeline.py`.
+- Open return-item: re-measure lab mobile Lighthouse once a maps key is
+  provisioned on prod (the 3 map pages currently render the placeholder) —
+  record in `docs/PERFORMANCE.md`. Remaining Tier 2/3: per-page asset loading
   (flatpickr/notify), content-hash `?v=`, Lighthouse budget — see
   `docs/PERFORMANCE.md`.
 
