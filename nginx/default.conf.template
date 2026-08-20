@@ -1,6 +1,11 @@
 server {
     listen 80;
 
+    # Do not advertise the nginx version in the Server header / error pages.
+    # Content security headers are set by Flask (after_request), not here, to
+    # avoid double-header risk (see docs/SEO_A11Y_ROADMAP.md §CSP).
+    server_tokens off;
+
     location / {
         include uwsgi_params;
         uwsgi_pass flask:8080;

@@ -43,7 +43,7 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 
 - WCAG 2.1 AA pass + optional `pytest-axe`/manual gate + `.skills/a11y-audit`.
 
-### CSP + security headers — planned (design approved 2026-08-15, not implemented)
+### CSP + security headers — shipped 2026-08-20 (`feat/security-headers`)
 
 **Context**: no security headers anywhere today (no Flask `after_request`, none in
 `nginx/default.conf.template`). Prod = Docker nginx → uWSGI. 15 templates carry
@@ -66,6 +66,19 @@ requires `'unsafe-inline'`/`'unsafe-eval'`, so a strict nonce-CSP is deferred.
 - Tests: assert headers present/correct on `/`, a static asset, and a 404; assert `object-src 'none'` + the allowlist.
 - Post-deploy manual check: devtools CSP violations on `/`, `/diplomas/`, `/theses.html`, `/contacts.html` (Maps).
 
+**Shipped 2026-08-20**: `src/flask_se_headers.py` `register_security_headers(app)` wired into `create_app` (after_request), `server_tokens off` in `nginx/default.conf.template`, guardrail tests in `tests/test_security_headers.py`. Open-question resolutions at implementation:
+
+1. **Option B** allowlist shipped; strict nonce-CSP remains the documented follow-up (15 inline-script templates + Maps).
+1. **HSTS + `upgrade-insecure-requests`** gated on `SE_COOKIE_SECURE=="1"` (defaults on — same flag as `SESSION_COOKIE_SECURE`); dev sets `SE_COOKIE_SECURE=0` → both omitted.
+1. **`form-action 'self'`** verified: no template form posts cross-origin (OAuth uses top-level GET redirects; token exchange is server-side `requests`, not browser).
+1. **`Permissions-Policy`** feature set confirmed unused by the site (Maps geolocation only if the site calls it; we don't).
+1. **nginx** Flask-only + `server_tokens off` shipped; revisit only if a CDN/edge terminates TLS in front of nginx.
+1. **`Cross-Origin-Resource-Policy`** omitted (og-image hotlinking kept).
+1. **`after_request` placement** — `src/flask_se_headers.py`, registered after `_register_static_cache_headers`; applies to downloads/404s too (no freezer build anymore).
+1. **Yandex Maps tile hosts** — `api-maps.yandex.ru` + `*.maps.yandex.net` (module/tile loader) added to script/connect-src; tile *images* are covered by the https-wildcard `img-src`. `maps.googleapis.com`/`*.googleapis.com` kept for the Google provider.
+
+**Delivery**: merged to fork `staging` (PR #19 batch, 2026-08-20); upstream PR from `iakov:staging` (see `docs/GIT_FLOW.md §8.5`).
+
 **Open questions to resolve at implementation**:
 
 1. **Strict nonce-CSP (Option A) vs allowlist (Option B)** — B chosen for v1. Follow-up for strict: nonce all 15 inline-script templates + Maps, then drop `'unsafe-inline'`. GTM was removed in v2026.08.20 (see `docs/PRIVACY_COMPLIANCE.md`); revisit if Metrica or Maps get replaced.
@@ -77,7 +90,7 @@ requires `'unsafe-inline'`/`'unsafe-eval'`, so a strict nonce-CSP is deferred.
 1. **`after_request` placement** — `src/flask_se_headers.py` vs adding to `flask_se.py`; must not interfere with `send_file`/download responses or the frozen-static build.
 1. **Yandex Maps tile hosts** — if Yandex is the active provider, the allowlist must also cover its tile/CDN hosts (verified at implementation against the live network requests); `maps.googleapis.com` entries may be dropped if Google is retired.
 
-**Delivery**: branch `feat/security-headers` from synced `origin/staging` (independent base — see `docs/GIT_FLOW.md §8.5` multi-PR rules).
+**Delivery**: shipped via `feat/security-headers` from synced `origin/staging` (see `docs/GIT_FLOW.md §8.5` multi-PR rules).
 
 - Asset hygiene: minified CSS default, `?v=`/fingerprint cache-busting, prune ~2,400 unused `assets/libs/` files.
 - ~~Google Maps key hardcoded in HTML → config/server~~ ✅ done in `perf/maps-lazy`:

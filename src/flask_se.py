@@ -41,6 +41,7 @@ from flask_se_config import (
     site_deploy_date,
 )
 from flask_se_diplomas import register_routes as register_diplomas_routes
+from flask_se_headers import register_security_headers
 from flask_se_internships import register_routes as register_internships_routes
 from flask_se_news import register_routes as register_news_routes
 from flask_se_practice import register_routes as register_practice_routes
@@ -278,6 +279,7 @@ def create_app(
     register_sitemap(app)
     register_legacy_redirects(app)
     _register_static_cache_headers(app)
+    register_security_headers(app)
     _init_admin_views(app)
     # Default: read SE_START_SCHEDULER (production leaves it unset → jobs run).
     # conftest sets it to "0" before importing so the suite never fires jobs.

@@ -1673,3 +1673,21 @@ Changes analyzed: granular consent banner on all 4 bases (`consent_banner.html` 
 **Fix**: the two guardrail-driven fixes above; no process change needed.
 
 **State at handoff**: branch `feat/privacy-compliance` (from `origin/staging` `c54f183`). Full suite green: 1376 passed / 4 skipped / 3 xfailed / 1 xpassed (92.10%). Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging`, then PR 3 `feat/security-headers`.
+
+### Retrospective — 2026-08-20: security headers + allowlist CSP (feat/security-headers)
+
+Changes analyzed: new `src/flask_se_headers.py` `register_security_headers(app)` (after_request) — allowlist CSP (Option B), nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy, COOP same-origin, HSTS + `upgrade-insecure-requests` gated on `SE_COOKIE_SECURE`; CORP deliberately omitted; wired into `create_app`; `server_tokens off` in `nginx/default.conf.template`; `tests/test_security_headers.py` (8); docs (SEO_A11Y_ROADMAP.md §CSP marked shipped + the 8 open questions resolved, TODO.md).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| ruff S105 flagged `_UPGRADE_TOKEN = "; upgrade-insecure-requests"` as a hardcoded password | Bandit heuristic matches names containing `token`/`secret` regardless of context | Renamed to `_UPGRADE_DIRECTIVE`; the directive string itself is not a credential |
+
+**Pattern recurrence**: NO.
+
+**What went well**: every open question was resolved against the actual code (no external form actions → `form-action 'self'` safe; OAuth is top-level GET redirects + server-side token exchange → COOP `same-origin` safe; no Google Fonts in the site → font/style entries are defensive-only; Yandex maps `*.maps.yandex.net` module host added and the https-wildcard `img-src` covers tiles); the module is 100% covered and the full suite is green (1384 passed, 92.15%); the plan doc was updated to "shipped" with resolutions recorded instead of left stale.
+
+**What went wrong**: none blocking — one linter false-positive (S105) fixed by renaming before the pre-push gate.
+
+**Fix**: rename; no process change needed.
+
+**State at handoff**: branch `feat/security-headers` (from `origin/staging` `f2774e7`). Full suite green: 1384 passed / 4 skipped / 3 xfailed / 1 xpassed (92.15%). Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging` → **one upstream PR** `iakov:staging` → `spbu-se:current`, then STOP.
