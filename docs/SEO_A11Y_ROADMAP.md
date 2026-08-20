@@ -36,7 +36,7 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 - `sitemap.py`: lastmod always today; arg-bearing rules excluded → `thesis_card` never indexed.
 - `robots.txt` disallows only `/login.html`. No `humans.txt`, no `llms.txt`, no JSON-LD (partial microdata only).
 - TODO.md:13-17: 3 OG defects (diploma theme textile leak, thesis_card whitespace, `/news/` empty description).
-- GTM asymmetry: active in `base_light`, commented in `base_dark` (both have noscript iframe).
+- ~~GTM asymmetry: active in `base_light`, commented in `base_dark` (both have noscript iframe).~~ ✅ **Resolved v2026.08.20** (`feat/remove-gtm-add-metrica`): GTM removed from all 4 bases; Yandex Metrica is the only analytics provider, config-driven and dormant until a counter id is provisioned (see `docs/PRIVACY_COMPLIANCE.md`).
 - SSR makes pagination query URLs crawlable — robots disallows `fetch_*`; sitemap stays parameterless.
 
 ## 3. Deferred ideas (return later — high value)
@@ -47,16 +47,18 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 
 **Context**: no security headers anywhere today (no Flask `after_request`, none in
 `nginx/default.conf.template`). Prod = Docker nginx → uWSGI. 15 templates carry
-inline `<script>` (GTM, SPbU topbar, `feather.replace`, SimpleMDE init, auth/practice
-JS) + 3 with inline `<style>`; external resources from `googletagmanager.com`,
-`topbar.spbu.ru`, and the dual-provider maps (Google `maps.googleapis.com`/`*.googleapis.com`
-or Yandex `api-maps.yandex.ru` + tile hosts). GTM + Google Maps
-require `'unsafe-inline'`/`'unsafe-eval'`, so a strict nonce-CSP is deferred.
+inline `<script>` (SPbU topbar, `feather.replace`, SimpleMDE init, auth/practice
+JS) + 3 with inline `<style>`; external resources from `topbar.spbu.ru`, the
+dual-provider maps (Google `maps.googleapis.com`/`*.googleapis.com` or Yandex
+`api-maps.yandex.ru` + tile hosts), and Yandex Metrica (`mc.yandex.ru`, dormant —
+see `docs/PRIVACY_COMPLIANCE.md`). Google Tag Manager was **removed** in
+v2026.08.20 (`feat/remove-gtm-add-metrica`). Google Maps (when active)
+requires `'unsafe-inline'`/`'unsafe-eval'`, so a strict nonce-CSP is deferred.
 
 **Chosen approach (Option B — pragmatic allowlist CSP)**:
 
 - New `src/flask_se_headers.py` `register_security_headers(app)` → `after_request` sets:
-  - `Content-Security-Policy`: `default-src 'self'`; `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://topbar.spbu.ru https://maps.googleapis.com https://*.googleapis.com https://api-maps.yandex.ru`; `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`; `img-src 'self' data: https:`; `font-src 'self' data: https://fonts.gstatic.com`; `connect-src 'self' https://www.googletagmanager.com https://topbar.spbu.ru https://*.googleapis.com https://api-maps.yandex.ru`; `frame-src https://www.googletagmanager.com`; `object-src 'none'`; `base-uri 'self'`; `form-action 'self'`; `frame-ancestors 'self'`; `upgrade-insecure-requests` (gated on `SE_COOKIE_SECURE=="1"`)
+  - `Content-Security-Policy`: `default-src 'self'`; `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://topbar.spbu.ru https://mc.yandex.ru https://maps.googleapis.com https://*.googleapis.com https://api-maps.yandex.ru`; `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`; `img-src 'self' data: https:`; `font-src 'self' data: https://fonts.gstatic.com`; `connect-src 'self' https://topbar.spbu.ru https://mc.yandex.ru https://*.googleapis.com https://api-maps.yandex.ru`; `object-src 'none'`; `base-uri 'self'`; `form-action 'self'`; `frame-ancestors 'self'`; `upgrade-insecure-requests` (gated on `SE_COOKIE_SECURE=="1"`)
   - `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()`, `Cross-Origin-Opener-Policy: same-origin`
   - `Strict-Transport-Security` (gated on `SE_COOKIE_SECURE=="1"`)
   - Omit `Cross-Origin-Resource-Policy` (would break cross-site og-image sharing)
@@ -66,7 +68,7 @@ require `'unsafe-inline'`/`'unsafe-eval'`, so a strict nonce-CSP is deferred.
 
 **Open questions to resolve at implementation**:
 
-1. **Strict nonce-CSP (Option A) vs allowlist (Option B)** — B chosen for v1. Follow-up for strict: nonce all 15 inline-script templates + GTM nonce propagation + Maps, then drop `'unsafe-inline'`. Revisit only if GTM/Maps get replaced — is removing/limiting GTM or Maps an option?
+1. **Strict nonce-CSP (Option A) vs allowlist (Option B)** — B chosen for v1. Follow-up for strict: nonce all 15 inline-script templates + Maps, then drop `'unsafe-inline'`. GTM was removed in v2026.08.20 (see `docs/PRIVACY_COMPLIANCE.md`); revisit if Metrica or Maps get replaced.
 1. **HSTS + `upgrade-insecure-requests` gated on `SE_COOKIE_SECURE=="1"`** — confirm production always sets this env (dev must stay HTTP-compatible); else gate on a new explicit `SE_ENABLE_HSTS`.
 1. **`form-action 'self'`** — verify no form submits cross-origin (OAuth uses GET redirects, not cross-origin form POSTs); add exceptions if the VK/Google exchange posts to an external endpoint via a form.
 1. **`Permissions-Policy` feature set** — confirm none of the disabled features (geolocation/mic/camera/payment/usb) is used (Google Maps uses geolocation only if the site calls it; we don't).

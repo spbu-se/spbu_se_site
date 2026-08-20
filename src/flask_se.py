@@ -36,6 +36,7 @@ from flask_se_config import (
     SQLITE_DATABASE_PATH,
     SQLITE_DATABASE_URI,
     maps_config,
+    metrica_id,
     site_deploy_date,
 )
 from flask_se_diplomas import register_routes as register_diplomas_routes
@@ -184,6 +185,7 @@ def _init_extensions(app: Flask) -> None:
             "ASSET_VERSION": site_deploy_date(),
             "se_maps_provider": se_maps_provider,
             "se_maps_key": se_maps_key,
+            "se_metrica_id": metrica_id(),
         }
 
     app.context_processor(_inject_template_globals)
