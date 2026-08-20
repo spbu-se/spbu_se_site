@@ -244,6 +244,7 @@ class TestLoginRequiredRedirects:
         "path",
         [
             "/profile.html",
+            "/profile/export.zip",
             "/upload_avatar",
             "/news/submit.html",
             "/news/post_vote",
@@ -268,6 +269,49 @@ class TestLoginRequiredRedirects:
     def test_profile_update(self, logged_client):
         resp = logged_client.get("/profile.html")
         assert resp.status_code == 200
+
+
+class TestUserExport:
+    def test_export_requires_login(self, seeded_client):
+        resp = seeded_client.get("/profile/export.zip")
+        assert resp.status_code in (200, 302)
+
+    def test_export_zip_contains_account_and_content(self, logged_client):
+        import zipfile
+
+        from se_models import Users
+
+        user = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+        resp = logged_client.get("/profile/export.zip")
+        assert resp.status_code == 200
+        assert resp.mimetype == "application/zip"
+        assert (
+            resp.headers["Content-Disposition"] == f"attachment; filename=user-data-{user.id}.zip"
+        )
+
+        archive = zipfile.ZipFile(io.BytesIO(resp.data))
+        assert set(archive.namelist()) == {"account.json", "content.json"}
+
+        account = json.loads(archive.read("account.json").decode("utf-8"))
+        assert account["email"] == "a.terekhov@spbu.ru"
+        assert account["first_name"] == "Андрей"
+        assert "password_hash" not in account
+
+        content = json.loads(archive.read("content.json").decode("utf-8"))
+        assert isinstance(content, dict)
+
+    def test_export_content_includes_owned_posts(self, logged_client):
+        import zipfile
+
+        from se_models import Posts, Users
+
+        user = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+        owned = Posts.query.filter_by(author_id=user.id).all()
+
+        resp = logged_client.get("/profile/export.zip")
+        archive = zipfile.ZipFile(io.BytesIO(resp.data))
+        content = json.loads(archive.read("content.json").decode("utf-8"))
+        assert len(content["posts"]) == len(owned)
 
 
 class TestGoogleOAuth:

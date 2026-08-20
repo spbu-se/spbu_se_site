@@ -1,0 +1,8 @@
+{# Consent notice for data-collecting forms (GDPR Art. 13 / 152-ФЗ notice
+   basis — information, not an opt-in checkbox). Inlined before </form> via
+   {% include 'consent_notice.html' %}. Links to the privacy policy page. #}
+<p class="form-text text-muted mb-2">
+  Отправляя форму, вы соглашаетесь на обработку персональных данных в
+  соответствии с <a href="{{ url_for('privacy') }}">политикой обработки
+  персональных данных</a>.
+</p>

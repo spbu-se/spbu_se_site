@@ -82,6 +82,8 @@ Reference run (2026-08-17, `pytest --tb=no -q -rxX`): **1351 passed, 4 skipped, 
 
 Reference run (2026-08-19, `pytest --tb=no -q -rxX`): **1354 passed, 4 skipped, 3 xfailed, 1 xpassed** — dual-provider maps added 3 rendered-page tests.
 
+Reference run (2026-08-20, `pytest --tb=no -q -rxX`): **1388 passed, 4 skipped, 3 xfailed, 1 xpassed** — compliance-followups added `TestUserExport` (3: zip contents, password_hash exclusion, owned posts) + `/profile/export.zip` login-required route (1).
+
 Reference run (2026-08-20, `pytest --tb=no -q -rxX`): **1364 passed, 4 skipped, 3 xfailed, 1 xpassed** — GTM removal + dormant Metrica added 10 guardrail tests (`tests/test_analytics.py`).
 
 Reference run (2026-08-20, `pytest --tb=no -q -rxX`): **1363 passed, 4 skipped, 3 xfailed, 1 xpassed** — Frozen-Flask purged (removed `test_main_build_dispatch`, the freezer's only test).

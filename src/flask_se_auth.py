@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import hmac
+import io
 import json
 import os
+import zipfile
 
 __all__ = ["login_required"]
 import pathlib
@@ -10,7 +12,7 @@ import pathlib
 import cachecontrol
 import google.auth.transport.requests
 import requests
-from flask import flash, redirect, render_template, request, session, url_for
+from flask import flash, redirect, render_template, request, send_file, session, url_for
 from flask_login import (
     LoginManager,
     current_user,
@@ -339,6 +341,61 @@ def user_profile():
     return render_template("auth/profile.html", user=user)
 
 
+def _row_to_dict(instance):
+    """Serialize a SQLAlchemy model row to a plain dict of its column values."""
+    return {column.key: getattr(instance, column.key) for column in instance.__table__.columns}
+
+
+def _user_owned_content(user):
+    """Collect all personal-data records owned by the user as plain dicts."""
+    collections = {
+        "posts": user.news,
+        "theses": user.thesises,
+        "diploma_themes": user.diploma_themes_author,
+        "theses_on_review": user.thesis_on_review_author,
+        "reviews": user.reviewer,
+        "post_votes": user.all_user_votes,
+        "internships": user.internship_author,
+        "current_theses": user.current_thesises,
+    }
+    return {
+        key: [_row_to_dict(item) for item in items] for key, items in collections.items() if items
+    }
+
+
+@login_required
+def user_export():
+    """Stream a ZIP archive with the current user's personal data (GDPR export)."""
+    user = Users.query.filter_by(id=current_user.id).first()
+
+    account = _row_to_dict(user)
+    account.pop("password_hash", None)
+
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr(
+            "account.json",
+            json.dumps(account, ensure_ascii=False, indent=2, default=str),
+        )
+        archive.writestr(
+            "content.json",
+            json.dumps(
+                _user_owned_content(user),
+                ensure_ascii=False,
+                indent=2,
+                default=str,
+            ),
+        )
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name=f"user-data-{user.id}.zip",
+    )
+
+
 @login_required
 def upload_avatar():
     if request.method == "POST":
@@ -494,6 +551,7 @@ def register_routes(app) -> None:
         "/password_recovery.html", methods=["GET", "POST"], view_func=password_recovery
     )
     app.add_url_rule("/profile.html", methods=["GET", "POST"], view_func=user_profile)
+    app.add_url_rule("/profile/export.zip", methods=["GET"], view_func=user_export)
     app.add_url_rule("/upload_avatar", methods=["GET", "POST"], view_func=upload_avatar)
     app.add_url_rule("/logout", methods=["GET"], view_func=logout)
     app.add_url_rule("/google_login", methods=["GET"], view_func=google_login)

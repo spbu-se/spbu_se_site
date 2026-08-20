@@ -1691,3 +1691,23 @@ Changes analyzed: new `src/flask_se_headers.py` `register_security_headers(app)`
 **Fix**: rename; no process change needed.
 
 **State at handoff**: branch `feat/security-headers` (from `origin/staging` `f2774e7`). Full suite green: 1384 passed / 4 skipped / 3 xfailed / 1 xpassed (92.15%). Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging` → **one upstream PR** `iakov:staging` → `spbu-se:current`, then STOP.
+
+### Retrospective — 2026-08-20: compliance follow-ups — user data export + form consent notice + cookie inventory (feat/compliance-followups)
+
+Changes analyzed: `/profile/export.zip` (GET, `@login_required`) streaming a ZIP with `account.json` (Users row minus `password_hash`) + `content.json` (owned records via the existing `Users` relationships: posts, theses, diploma themes, theses-on-review, reviews, votes, internships, current theses) using stdlib `zipfile`/`io` + `send_file`; profile-page download link; `src/templates/consent_notice.html` notice + policy link included on the registration, practice, thesis-review, and internship forms; `privacy.html` cookie section expanded to enumerate `se_session` / `se_consent` / `_ym_*` with the retention placeholder; `tests/test_auth_views.py::TestUserExport` (3) + login-required route; docs (PRIVACY_COMPLIANCE.md §4.5/§4.7/§5, TESTING.md reference run, RETROSPECTIVES).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| LSP reported `reportArgumentType` errors in `flask_se_auth.py` at lines I didn't touch (login `check_password_hash`, `secure_filename`) | Both call sites already carry `# pyright: ignore[reportArgumentType]` on base; the LSP surfaces them but the gate honors the ignores | Confirmed pre-existing via `git show origin/staging` diff — not introduced by the batch; no action |
+| `zipfile`/`io` needed for the export but `send_file` was not imported in `flask_se_auth.py` | The module imported only flash/redirect/render_template/request/session/url_for | Extended the flask import; matched the existing `flask_se_practice_admin.py` precedent for `send_file(..., as_attachment=True)` |
+| Export test asserts against seeded data owned by user 1 (`author_id=1` in `init_db` posts) | The seeded DB template (`_seeded_db_path` → `init_db()`) owns only one post for the test user | Verified against `se_models.init_db()` seed data before writing the assertion so the test is stable without extra fixtures |
+
+**Pattern recurrence**: NO.
+
+**What went well**: export is stdlib-only (no new dependencies, no asset pipeline churn), streams via `BytesIO` (no temp files on disk), GET/read-only (no CSRF surface), and reuses the existing `Users` relationships rather than duplicating query logic; the consent notice is a single include reused across 4 forms (charter-basis notice, no checkbox — consistent with §4.5); cookie inventory in the policy now matches the real cookie names (`se_consent.js` uses `COOKIE_NAME = 'se_consent'`, session `se_session`, Metrica `_ym_*`) — verified against source, not guessed; account deletion deliberately kept out of scope and tracked as §5 #6 (needs a dept deletion policy for educationally-required content).
+
+**What went wrong**: none blocking. One template-edit indentation slip (route registration line) was caught by LSP and fixed before running anything.
+
+**Fix**: no process change needed.
+
+**State at handoff**: branch `feat/compliance-followups` (from `origin/staging` `5b2d032`). Full suite green: see TESTING.md reference run line. Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging` → update upstream PR `spbu-se/spbu_se_site#237` head + note, then STOP.

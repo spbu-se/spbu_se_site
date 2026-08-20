@@ -109,7 +109,7 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 - Confirm the Roskomnadzor notification (уведомление) covers these processing operations (SPbU is likely already a registered operator — extend the scope).
 - Execute/confirm a processing instruction (поручение на обработку) with Yandex for Metrica.
 - Cross-border: Metrica = RU storage (OK); Google services = EU/US flows → GDPR SCCs and Roskomnadzor cross-border analysis before re-enabling GTM/Maps.
-- Add a consent statement to forms that collect personal data where no charter basis applies (legal review needed).
+- Add a consent statement to forms that collect personal data where no charter basis applies (legal review needed). **Repo-side: notice text shipped** — `src/templates/consent_notice.html` («Отправляя форму, вы соглашаетесь…» + policy link) included on registration, practice, thesis-review, and internship forms; legal review of the wording remains dept/legal action.
 
 ### 4.6 Supporting hardening (repo)
 
@@ -120,6 +120,7 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 ### 4.7 Acceptance criteria (definition of done)
 
 - [x] Consent banner on all bases; analytics snippet loads only after acceptance (asserted by `tests/test_analytics.py` + `tests/test_consent.py`: no `mc.yandex.ru` in DOM before consent).
+- [x] User data export (right of access / portability under 152-ФЗ ст. 14 / GDPR Art. 15, 20) — `/profile/export.zip` streams a ZIP with `account.json` (account data minus `password_hash`) + `content.json` (owned records); asserted by `tests/test_auth_views.py::TestUserExport`. Account deletion (`/profile/delete`) remains out of scope for this batch — tracked at §5 #6.
 - [ ] Metrica provisioned on prod → counter fires only for consenting visitors; Webvisor off; retention configured (**repo done**; admin must provision `configs/flask_se_metrica.conf` and set Metrica retention in the dashboard).
 - [x] `/privacy.html` live, linked from all bases, sitemap'd (draft shipped; copy approval pending — tracked at §4.4).
 - [ ] Roskomnadzor scope + Yandex processing instruction confirmed (out-of-repo sign-off recorded).
@@ -135,6 +136,7 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 | 3 | Which legal basis for analytics under 152-ФЗ (consent vs. legitimate interest)? | Consent (cleanest; also satisfies ePrivacy) | SPbU legal |
 | 4 | Privacy-policy copy owner | SPbU legal drafts; department reviews (**draft shipped in-repo**) | SPbU legal |
 | 5 | Data retention periods for user/practice data | Define explicitly in the policy | Department + legal |
+| 6 | Account deletion: policy for removing a user account and its content (right to be forgotten) | Not yet implemented — `/profile/export.zip` (right of access) shipped; deletion needs an owner-approved deletion policy (what content is deletable vs. educationally required) | Department + legal |
 
 ## 6. Cross-references
 
