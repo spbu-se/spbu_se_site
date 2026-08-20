@@ -96,7 +96,7 @@ with no release artifacts or notes.
 
 **Context**: `app` was a module-level `Flask(__name__)` with config, extensions, routes, and the scheduler all set up at import. This forced tests to monkeypatch `flask_se_config` globals *before* import (`tests/conftest.py`), a per-import `db.app = app; db.init_app(app)` idiom repeated in `extract_text.py`/`thesesImport.py`, and the APScheduler to start in every worker.
 
-**Decision**: Introduce `create_app(config_overrides=None, start_scheduler=None)` in `flask_se.py`. The module-level `app = create_app()` singleton is preserved so `wsgi.py`, the import pipeline, and `from flask_se import app` in tests keep working unchanged. Config assignment moved into `_configure_app()`; extensions use `init_app()` (migrate, freezer, csrf); scheduler start is gated by the `SE_START_SCHEDULER` env var (production unset → runs; conftest sets `0` → never fires).
+**Decision**: Introduce `create_app(config_overrides=None, start_scheduler=None)` in `flask_se.py`. The module-level `app = create_app()` singleton is preserved so `wsgi.py`, the import pipeline, and `from flask_se import app` in tests keep working unchanged. Config assignment moved into `_configure_app()`; extensions use `init_app()` (migrate, csrf); scheduler start is gated by the `SE_START_SCHEDULER` env var (production unset → runs; conftest sets `0` → never fires).
 
 **Rationale**: `config_overrides` lets tests build a differently-configured instance without import-time monkeypatching; the env-gated scheduler fixes the "every worker fires N jobs" trigger at its root (the NotificationLog idempotency claim in `se_sendmail.py` remains as defense-in-depth); the import pipeline no longer side-starts background threads.
 

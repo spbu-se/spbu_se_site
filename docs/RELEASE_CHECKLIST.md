@@ -26,7 +26,6 @@ Covers: release-time drift items (dates, counts, hardcoded values), verification
 | B1 | `requirements.txt` vs `uv.lock` | Regenerate if deps changed: `uv export --no-dev --no-hashes > requirements.txt` (`docs/DEVELOPMENT_PROCESS.md` §Definition of Done). CI fails on mismatch |
 | B2 | `.github/workflows/` (ci.yml, deploy_to_production.yml) | `actionlint` passes; `deploy_to_production.yml` deploys on `release: published` (not tag push); its `verify-signature` job gates deploy on a GPG-verified tag and its `release` job still runs with `mkdir -p .tmp` present |
 | B3 | `src/static/assets/img/og/` (10 files) + `apple-touch-icon.png` | **D7 guardrail**: if the site design changed since generation, re-run `uv run python .tmp/gen_og_images.py` — stale previews degrade social shares silently (see `docs/DESIGN_DECISIONS.md` [2026-08-13]) |
-| B4 | Static site build | `uv run python src/flask_se.py build` succeeds (Frozen-Flask; only if the freezer is used) |
 | B5 | `Dockerfile` / `docker-compose.yml` | Update only if Python dependencies changed (`docs/DEVELOPMENT_PROCESS.md` §6) |
 | B6 | `docs/API_REFERENCE.md` | New/changed routes since last release are listed (`/llms.txt`, `/humans.txt`, `/robots.txt`, `/sitemap-*.xml`) |
 | B7 | `src/flask_se_bachelor.py` | Admission-cycle year + PDF URLs match the current campaign (data, not code) |

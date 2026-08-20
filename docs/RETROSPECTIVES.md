@@ -1635,3 +1635,22 @@ Changes analyzed: GTM removal from the 4 base templates, config-driven Yandex Me
 **Fix**: AGENTS.md pre-flight corrected to the `current`-only flow; formatting run through the fixers before the final pre-push gate; full-compliance next task registered with acceptance criteria.
 
 **State at handoff**: branch `feat/remove-gtm-add-metrica` (from `upstream/current` `4828f53`), pre-push gate green. Next: full test suite (B13 gate) → push → PR (base `current`) → merge `--admin --squash` → release v2026.08.20 (5 PRs: #228, #233, #234, #235, + this) with post-deploy admin ops: maps key (B16) and Metrica counter id (`configs/flask_se_metrica.conf`).
+
+### Retrospective — 2026-08-20: purge Frozen-Flask (chore/remove-freezer)
+
+Changes analyzed: removed `Frozen-Flask==1.0.2` (pyproject/uv.lock/requirements.txt), stripped the freezer from `flask_se.py` (import, singleton, FREEZER\_\* config, `init_app`, `build` subcommand), deleted the freezer's only test (`test_main_build_dispatch`), re-pointed `test_app_config` to a live config key, deleted local `_flask_freezed/`, dropped release-checklist B4, updated DESIGN_DECISIONS (init_app list) and TESTING.md reference line. Prod path is Docker nginx → uWSGI → WSGI (no static build); `_flask_freezed` was a gitignored local artifact; the `build` subcommand was dead weight (`RETROSPECTIVES.md` 2026-08-15 already recorded B4 as a pre-existing failure outside the deploy path).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `uv export > requirements.txt` wrote UTF-16 LE (git showed the file as `Bin`) | Known PowerShell 5.1 redirect trap — TOOLING.md §Windows PowerShell encoding trap was documented but not read before the first attempt | Re-ran per the documented recipe (capture array + `[System.IO.File]::WriteAllText(..., UTF8Encoding($false))`); verified first bytes `23 20 54` (no BOM) and a clean text diff |
+| Prior session's line-inventory of freezer doc refs (ARCHITECTURE.md:102, DEVELOPMENT_PROCESS.md:83/458, REQUIREMENTS.md:183, SEO_A11Y_ROADMAP.md:77, TESTING.md:106) was half-wrong — live `rg -i "freezer"` found only DESIGN_DECISIONS.md, RELEASE_CHECKLIST.md, RETROSPECTIVES.md | Doc-reference inventory guessed from an earlier session, never re-grepped at edit time | Grep is ground truth for doc references, not a carried-forward line list; RETROSPECTIVES.md history kept verbatim (safe-update rule) since it records the B4/freezer story as historical fact |
+
+**Pattern recurrence**: NO (the UTF-16 trap is a documented, already-fixed trap in TOOLING.md — this session's slip is recorded, not escalated).
+
+**What went well**: the purge was complete and verified — `rg -i "freezer|_flask_freezed"` clean across the repo (excluding `.git`/`.venv`/`node_modules`/RETROSPECTIVES history); `uv lock` resolved with frozen-flask removed and requirements.txt regenerated; full suite green at 1363 passed / 4 skipped / 3 xfailed / 1 xpassed (92.08% coverage, gate ≥80%).
+
+**What went wrong**: none blocking — one documented-tooling slip (requirements.txt encoding) caught before staging via the `git diff --stat` Bin signal.
+
+**Fix**: encoding recovered via the documented TOOLING recipe; the recipe needs no change (the trap is already the canonical answer).
+
+**State at handoff**: branch `chore/remove-freezer` (from `origin/staging` `98a642e`). Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging`, then PR 2 `feat/privacy-compliance`.

@@ -11,7 +11,6 @@ import markdown as _markdown
 import nh3
 from dateutil import tz
 from flask import Flask, request
-from flask_frozen import Freezer
 from flask_migrate import Migrate
 from flask_wtf import CSRFProtect
 from markupsafe import Markup
@@ -79,7 +78,6 @@ from sitemap import register_sitemap
 # Extension singletons: init_app() is called inside create_app() so the same
 # objects can back multiple app instances (production WSGI + tests).
 migrate = Migrate()
-freezer = Freezer()
 csrf = CSRFProtect()
 
 
@@ -130,11 +128,6 @@ def _configure_app(app: Flask, config_overrides: dict[str, object] | None) -> No
     """Set every app.config key; ``config_overrides`` wins (used by tests)."""
     app.config["APPLICATION_ROOT"] = "/"
 
-    # Freezer config
-    app.config["FREEZER_RELATIVE_URLS"] = True
-    app.config["FREEZER_DESTINATION"] = "../_flask_freezed"
-    app.config["FREEZER_IGNORE_MIMETYPE_WARNINGS"] = True
-
     # SQLAlchemy config
     # Absolute DB path (databases/se.db) — matches init_db(); CWD-independent.
     # Ensure the directory exists so SQLAlchemy can open the file on first run
@@ -171,7 +164,6 @@ def _init_extensions(app: Flask) -> None:
     csrf.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db, render_as_batch=True)
-    freezer.init_app(app)
     login_manager.init_app(app)
 
     app.template_filter("markdown")(render_markdown)
@@ -302,9 +294,7 @@ app = create_app()
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        if sys.argv[1] == "build":
-            freezer.freeze()
-        elif sys.argv[1] == "init":
+        if sys.argv[1] == "init":
             with app.app_context():
                 init_db()
     else:

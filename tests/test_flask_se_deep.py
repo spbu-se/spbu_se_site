@@ -80,23 +80,7 @@ class TestIndexRouteAges:
         assert "Кафедра Системного Программирования" in html
 
 
-class TestMainBuildCommand:
-    def test_main_build_dispatch(self, monkeypatch, app_ctx):
-        import flask_se as _fs
-
-        monkeypatch.setattr(sys, "argv", ["flask_se.py", "build"])
-        monkeypatch.setattr(_fs, "__name__", "__main__")
-        freeze_called = []
-        monkeypatch.setattr(_fs.freezer, "freeze", lambda: freeze_called.append(True))
-
-        with open(_fs.__file__, encoding="utf-8") as f:
-            lines = f.readlines()
-        main_start = next(i for i, _line in enumerate(lines) if _line.startswith("if __name__"))
-        src = "".join(lines[main_start:])
-        code = compile(src, _fs.__file__, "exec")
-        exec(code, _fs.__dict__)
-        assert freeze_called == [True]
-
+class TestMainDispatch:
     def test_main_init_dispatch(self, monkeypatch, app_ctx):
         import flask_se as _fs
 
