@@ -30,10 +30,12 @@ from flask_se_admin import (
 from flask_se_auth import login_manager
 from flask_se_auth import register_routes as register_auth_routes
 from flask_se_config import (
+    CONSENT_COOKIE_NAME,
     SECRET_KEY,
     SECRET_KEY_THESIS,
     SQLITE_DATABASE_PATH,
     SQLITE_DATABASE_URI,
+    consent_categories,
     maps_config,
     metrica_id,
     site_deploy_date,
@@ -170,14 +172,24 @@ def _init_extensions(app: Flask) -> None:
     app.template_filter("safe_html")(render_safe_html)
     app.template_filter("datatime_convert")(datetime_convert)
 
-    def _inject_template_globals() -> dict[str, str | int]:
+    def _inject_template_globals() -> dict[str, object]:
         se_maps_provider, se_maps_key = maps_config()
+        se_consent_categories = consent_categories()
+        raw_consent = request.cookies.get(CONSENT_COOKIE_NAME, "").strip()
+        se_consent_granted = dict.fromkeys(se_consent_categories, False)
+        for _category in raw_consent.split(","):
+            _category = _category.strip()
+            if _category in se_consent_granted:
+                se_consent_granted[_category] = True
         return {
             "current_year": date.today().year,
             "ASSET_VERSION": site_deploy_date(),
             "se_maps_provider": se_maps_provider,
             "se_maps_key": se_maps_key,
             "se_metrica_id": metrica_id(),
+            "se_consent_categories": se_consent_categories,
+            "se_consent_granted": se_consent_granted,
+            "se_consent_decided": bool(raw_consent),
         }
 
     app.context_processor(_inject_template_globals)

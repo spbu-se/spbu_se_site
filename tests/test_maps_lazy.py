@@ -73,8 +73,12 @@ class TestNoSyncMapsScript:
 
 class TestLazyLoaderWiring:
     def test_base_dark_has_key_block_and_loader(self):
+        import re
+
         text = (TEMPLATES_DIR / "base_dark.html").read_text(encoding="utf-8")
-        assert "{% block se_maps_key %}{% endblock %}" in text
+        assert re.search(r"{% block se_maps_key %}.*?{% endblock %}", text, re.S), (
+            "maps key block missing"
+        )
         assert "js/se_maps.js" in text
 
     def test_map_pages_define_the_key_block(self):

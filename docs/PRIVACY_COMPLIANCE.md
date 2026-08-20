@@ -23,8 +23,9 @@ The operator is the Saint Petersburg State University (СПбГУ); the departme
 | Storage | Type | Purpose | Status | Consent needed? |
 |---------|------|---------|--------|-----------------|
 | `se_session` | first-party cookie (HttpOnly, SameSite=Lax, `Secure` gated on `SE_COOKIE_SECURE`) | Flask session: auth, CSRF, flash messages | Always set | No — strictly necessary (ePrivacy exemption; GDPR Art. 6(1)(b)/(f)) |
-| `modal_cookies` | localStorage | Remembers the cookie-banner choice | Dark templates only | N/A — stores the consent choice itself |
-| `_ym_*` cookies (`_ym_uid`, `_ym_d`, `_ym_isad`, …) | third-party (Yandex Metrica) | Visit statistics | **Dormant** — no counter id configured | **Yes** (ePrivacy/GDPR) once enabled |
+| `se_consent` | first-party cookie (SameSite=Lax) + `se_consent_choice` localStorage | Stores the granular consent decision (`essential[,statistics][,marketing]`); written by `js/se_consent.js`, read by Flask to gate analytics | Set after the banner decision; the server renders no optional tracker before it | No — it *is* the consent record (ePrivacy Art. 7/GDPR requires consent to be provable) |
+| `modal_cookies` | localStorage | Remembers the legacy cookie-banner choice | **Removed in the consent-gate PR** (replaced by `se_consent`) | N/A |
+| `_ym_*` cookies (`_ym_uid`, `_ym_d`, `_ym_isad`, …) | third-party (Yandex Metrica) | Visit statistics | **Dormant** — no counter id configured; when provisioned, the snippet renders only for visitors who accepted the `statistics` category | **Yes** (ePrivacy/GDPR) once enabled |
 | `_ga*` / GTM cookies | third-party (Google) | Analytics/marketing via GTM | **Removed in v2026.08.20** | Was required — GTM ran without consent (see §2.5) |
 
 ### 2.2 Third-party services
@@ -32,7 +33,7 @@ The operator is the Saint Petersburg State University (СПбГУ); the departme
 | Service | Domain | State | What it receives | Role |
 |---------|--------|-------|------------------|------|
 | Google Tag Manager (`GTM-NGT2J3Z`) | `googletagmanager.com` | **REMOVED v2026.08.20** | page URL, referrer, User-Agent, IP, client identifiers | processor/controller — ran without consent |
-| Yandex Metrica | `mc.yandex.ru` | **Dormant** (snippet renders only when a counter id is configured) | page URL, referrer, UA, IP, optional clickmap | processor — Yandex LLC processes on behalf of the operator |
+| Yandex Metrica | `mc.yandex.ru` | **Consent-gated** (snippet renders only when a counter id is configured AND the visitor accepted the `statistics` category) | page URL, referrer, UA, IP, optional clickmap | processor — Yandex LLC processes on behalf of the operator |
 | SPbU topbar | `topbar.spbu.ru` | Active on all 4 bases | loads the SPbU header bar; may set SPbU-first-party cookies | first-party component of SPbU |
 | Yandex Maps v3 / Google Maps | `api-maps.yandex.ru`, `maps.googleapis.com` | **Dormant** (no key — «Источник карты не задан» placeholder) | IP, geolocation context when a map is active | processor |
 | Google / VK OAuth login | `accounts.google.com`, `oauth.vk.com`, `oauth.yandex.ru` | Active | email + identity claims to create/link the account | identity provider |
@@ -74,11 +75,11 @@ Strategy for this release: achieve a defensible baseline by **removing the unsaf
 
 **Compliance posture after this release**: first-party `se_session` (strictly necessary) + SPbU topbar + dormant maps; no third-party analytics cookies set → defensible under ePrivacy/GDPR for EU visitors and low-risk under 152-ФЗ.
 
-## 4. FULL COMPLIANCE IMPLEMENTATION — next HIGH PRIORITY task
+## 4. FULL COMPLIANCE IMPLEMENTATION
 
-Goal: enable Yandex Metrica (and GTM, if the department wants it back) with proper consent, transparency, and 152-ФЗ/GDPR safeguards. Each item has an owner column — repo work (can do here) vs. department/legal action (must be confirmed outside the repo).
+Goal: enable Yandex Metrica (and GTM, if the department wants it back) with proper consent, transparency, and 152-ФЗ/GDPR safeguards. Each item has an owner column — repo work (done/here) vs. department/legal action (must be confirmed outside the repo). **Repo-side items shipped in the `feat/privacy-compliance` PR (2026-08-20); dept/legal items remain tracked below.**
 
-### 4.1 Consent management (repo)
+### 4.1 Consent management (repo — shipped)
 
 - Replace the dark-only `cookiealert` with a **consent banner on all 4 bases** offering granular choices: *essential* (always on), *statistics* (Yandex Metrica), *marketing* (GTM/Google, if re-enabled). Default-off.
 - Store the choice (localStorage + a marker cookie), allow re-decision from the footer, and **gate snippet loading on consent** — do not even load `mc.yandex.ru/metrika/tag.js` until accepted.
@@ -89,15 +90,19 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 - Load the GTM container with consent defaults; each tag is bound to a consent category so **no tag fires before acceptance** (GTM built-in consent mode / `gtag('consent', …)`).
 - Ensure no PII is sent to Google (no email/name in dataLayer beyond what a tag explicitly needs).
 
-### 4.3 Yandex Metrica privacy settings (dashboard, dept action + snippet defaults)
+### 4.3 Yandex Metrica privacy settings (dashboard, dept action + snippet defaults — defaults shipped)
 
 - Keep `webvisor:false` (no session recording), `clickmap` off or lean, IP truncated; set data-retention limits in the Metrica dashboard.
 - Confirm the department holds a Metrica **operator agreement** (Yandex acts as processor under 152-ФЗ) and enable Metrica's consent-integration features so the counter stops for users who decline.
 
-### 4.4 Privacy policy page (repo + legal copy by dept)
+> Shipped snippet defaults: `webvisor` is not enabled and `clickmap: false` (the old snippet's `clickmap: true` was dropped) — matching decision §5 #2 (no Webvisor; clickmap only if explicitly wanted). Retention limits and the Yandex operator agreement remain dashboard/dept actions.
+
+### 4.4 Privacy policy page (repo — shipped draft + legal copy by dept)
 
 - New `/privacy.html` (clone the `/n` static-page pattern), footer link on all 4 bases, entry in the sitemap.
 - Content (to be drafted/approved by SPbU legal): operator identity + registered details; categories of data (§2.3); purposes and legal basis (§2.4); cookies list (§2.1); analytics providers and their role (§2.2); retention periods (§2.3 → define); user rights under 152-ФЗ ст. 14 (access, rectification, deletion) and GDPR Art. 15-22; contact for requests; date of last update.
+
+> Shipped draft (`src/templates/privacy.html`, route `/privacy.html`, auto-sitemapped) links the official SPbU personal-data policy and the 05.06.2026 Metrica consent doc, names СПбГУ as operator (199034, СПб, Университетская набережная, 7–9), lists data categories/legal basis/cookies, and the rights under 152-ФЗ ст. 14 / GDPR. Final legal copy approval is SPbU legal's (acceptance criterion §4.7).
 
 ### 4.5 152-ФЗ operator obligations (dept/legal action, tracked here)
 
@@ -112,13 +117,13 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 - `Referrer-Policy: strict-origin-when-cross-origin` (already planned) trims referrer leakage to analytics providers.
 - Define a session/remember-me lifetime policy in the privacy policy.
 
-### 4.7 Acceptance criteria (definition of done for the next task)
+### 4.7 Acceptance criteria (definition of done)
 
-- [ ] Consent banner on all bases; analytics snippet loads only after acceptance (assert via `tests/test_analytics.py`-style guardrail: no `mc.yandex.ru` in DOM before consent).
-- [ ] Metrica provisioned on prod → counter fires only for consenting visitors; Webvisor off; retention configured.
-- [ ] `/privacy.html` live, linked from all bases, sitemap'd; copy approved by the department.
+- [x] Consent banner on all bases; analytics snippet loads only after acceptance (asserted by `tests/test_analytics.py` + `tests/test_consent.py`: no `mc.yandex.ru` in DOM before consent).
+- [ ] Metrica provisioned on prod → counter fires only for consenting visitors; Webvisor off; retention configured (**repo done**; admin must provision `configs/flask_se_metrica.conf` and set Metrica retention in the dashboard).
+- [x] `/privacy.html` live, linked from all bases, sitemap'd (draft shipped; copy approval pending — tracked at §4.4).
 - [ ] Roskomnadzor scope + Yandex processing instruction confirmed (out-of-repo sign-off recorded).
-- [ ] If GTM re-enabled: consent-mode verified (no tag before consent) + cross-border analysis documented.
+- [ ] If GTM re-enabled: consent-mode verified (no tag before consent) + cross-border analysis documented (GTM stays removed per §5 #1).
 - [ ] Legal review sign-off (human) recorded in this doc.
 
 ## 5. Decisions needed from the department
@@ -126,9 +131,9 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 | # | Question | Default stance | Owner |
 |---|----------|----------------|-------|
 | 1 | Should GTM ever return? User directive for v2026.08.20: *"site can use only Yandex Metrica"*. | Keep GTM removed; treat re-enable as an explicit decision | Department |
-| 2 | Webvisor/clickmap for Metrica at all? | No Webvisor; clickmap only if explicitly wanted | Department |
+| 2 | Webvisor/clickmap for Metrica at all? | No Webvisor; clickmap only if explicitly wanted (**repo shipped `clickmap: false`**) | Department |
 | 3 | Which legal basis for analytics under 152-ФЗ (consent vs. legitimate interest)? | Consent (cleanest; also satisfies ePrivacy) | SPbU legal |
-| 4 | Privacy-policy copy owner | SPbU legal drafts; department reviews | SPbU legal |
+| 4 | Privacy-policy copy owner | SPbU legal drafts; department reviews (**draft shipped in-repo**) | SPbU legal |
 | 5 | Data retention periods for user/practice data | Define explicitly in the policy | Department + legal |
 
 ## 6. Cross-references

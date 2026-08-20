@@ -158,6 +158,10 @@ def register_content_pages(app: Flask) -> None:
     def nooffer():
         return render_template("nooffer.html")
 
+    @app.route("/privacy.html")
+    def privacy():
+        return render_template("privacy.html")
+
 
 def register_legacy_redirects(app: Flask) -> None:
     """Legacy URL redirects (301) — preserve backwards compatibility."""

@@ -1654,3 +1654,22 @@ Changes analyzed: removed `Frozen-Flask==1.0.2` (pyproject/uv.lock/requirements.
 **Fix**: encoding recovered via the documented TOOLING recipe; the recipe needs no change (the trap is already the canonical answer).
 
 **State at handoff**: branch `chore/remove-freezer` (from `origin/staging` `98a642e`). Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging`, then PR 2 `feat/privacy-compliance`.
+
+### Retrospective — 2026-08-20: consent gate + privacy page (feat/privacy-compliance)
+
+Changes analyzed: granular consent banner on all 4 bases (`consent_banner.html` + `js/se_consent.js`) replacing the dark-only Wruczek `cookiealert`; server-side `se_consent` cookie gate (`consent_categories()` in `flask_se_config.py`, `se_consent_granted`/`se_consent_decided` globals); Metrica snippet now renders only when `se_metrica_id` AND the granted `statistics` category are present, with `clickmap: false`; `/privacy.html` route + template (operator identity, official SPbU policy + Metrica-consent-doc links, data inventory, 152-ФЗ/GDPR rights) + footer links + auto-sitemap; `tests/test_consent.py` (10) + `tests/test_analytics.py` updates; docs (PRIVACY_COMPLIANCE.md §2.1/§4/§4.7/§5, TODO.md, TESTING.md).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| djLint reformat of `{% block se_maps_key %}{% endblock %}` (pre-existing inline blocks) broke `test_maps_lazy` exact-string assert | Formatter rewrote semantically-identical block markup; the test hardcoded the single-line form | Made the assertion regex/multiline-tolerant while keeping the structural guardrail (block must still exist) |
+| Footer `·` separator used the theme class `mx-2`, which purgecss had already stripped → `TestPurgeCompleteness` failed ("regenerate npm build") | New markup reused a class the min build no longer contains; the purge-guardrail test exists precisely to catch this | Swapped to inline `style="margin: 0 0.5rem;"` + `text-white` (a class that survives); banner markup stays inline-styled by design so it never depends on purged classes |
+
+**Pattern recurrence**: NO.
+
+**What went well**: the consent gate is server-authoritative (no `mc.yandex.ru` in the DOM before the cookie grants `statistics` — asserted by guardrail); the Wruczek handler in `quick-website.min.js` stays inert (new class names/keys → no npm rebuild, no minified-asset churn); the privacy page reuses the official SPbU policy + 05.06.2026 Metrica consent doc links instead of inventing copy; acceptance criteria §4.7 updated to reflect what is repo-done vs. dept/legal.
+
+**What went wrong**: none blocking. djLint + purge-guardrail friction was expected and resolved before staging (per the AGENTS.md rule: run the auto-fix hooks on all files first).
+
+**Fix**: the two guardrail-driven fixes above; no process change needed.
+
+**State at handoff**: branch `feat/privacy-compliance` (from `origin/staging` `c54f183`). Full suite green: 1376 passed / 4 skipped / 3 xfailed / 1 xpassed (92.10%). Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging`, then PR 3 `feat/security-headers`.

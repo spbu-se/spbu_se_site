@@ -86,6 +86,8 @@ Reference run (2026-08-20, `pytest --tb=no -q -rxX`): **1364 passed, 4 skipped, 
 
 Reference run (2026-08-20, `pytest --tb=no -q -rxX`): **1363 passed, 4 skipped, 3 xfailed, 1 xpassed** — Frozen-Flask purged (removed `test_main_build_dispatch`, the freezer's only test).
 
+Reference run (2026-08-20, `pytest --tb=no -q -rxX`): **1376 passed, 4 skipped, 3 xfailed, 1 xpassed** — consent gate shipped: `tests/test_consent.py` (10), `tests/test_analytics.py` +3 (no-consent/declined metrica cases); `test_maps_lazy` key-block assertion made multiline-tolerant.
+
 ## 5. Xpassed Tests
 
 Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass is non-fatal): intermittent CI failures that happen to pass on this machine. Tracked in §4a's intermittent CI table. Check xpass count via `pytest --tb=no -q 2>&1 | Select-String "xpassed"`.
