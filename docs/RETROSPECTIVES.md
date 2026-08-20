@@ -1614,3 +1614,24 @@ Changes analyzed: audit of the header/nginx state (none exist) and the CSP const
 
 - Branch `docs/security-headers-plan` (from `upstream/current` `0905a12`). Docs only: `SEO_A11Y_ROADMAP.md` §3 (full plan + 7 open questions), `TODO.md` entry, this retro.
 - Implementation is a future task: branch `feat/security-headers` from synced `origin/staging` (see `GIT_FLOW.md §8.5` multi-PR rule — independent base).
+
+### Retrospective — 2026-08-20: GTM removal + Yandex Metrica plumbing + privacy compliance audit (feat/remove-gtm-add-metrica)
+
+Changes analyzed: GTM removal from the 4 base templates, config-driven Yandex Metrica (`flask_se_config.metrica_id()` + `se_metrica_id` template global), new `tests/test_analytics.py` (10 tests), new `docs/PRIVACY_COMPLIANCE.md` (GDPR + 152-ФЗ audit, v2026.08.20 mitigation, full-compliance implementation plan), `docs/SEO_A11Y_ROADMAP.md` CSP allowlist update (drop `googletagmanager.com`, add `mc.yandex.ru`), `docs/DOCS.md` catalog row, `TODO.md` HIGH-PRIORITY next-task registration, `.gitignore` (metrica conf), AGENTS.md pre-flight stale-rule fix.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| AGENTS.md pre-flight told agents to branch from `origin/staging` and check `origin/staging` CI, but upstream dropped the `staging` branch and all PRs (#228-#235) merge into `upstream/current`; the fork's `staging` was 15 commits stale (v2026.08.15) | Stale process rule — AGENTS.md not re-validated against repo reality after the flow moved to `current`-only | Fixed AGENTS.md pre-flight: branch from `upstream/current`, CI check `gh run list --repo spbu-se/spbu_se_site --branch current`, replaced the legacy "Staging merge" section with "Merge to `current`" (`gh pr merge --admin --squash`) |
+| `base_dark.html`'s GTM was only half-disabled — the head snippet was commented out (looked off) but the noscript `<iframe>` still loaded the GTM container, so `googletagmanager.com` requests kept firing | Manual partial disablement with no end-to-end verification or guardrail | Removed **all** GTM references from all 4 bases; guardrail test asserts no `googletagmanager`/`GTM-`/`dataLayer` in any HTML template |
+| No privacy/compliance document existed (operator info, cookie/third-party/personal-data inventory, legal basis) | Missing template — compliance was never audited | New `docs/PRIVACY_COMPLIANCE.md`; catalog row added to `docs/DOCS.md` (prevents the missing-catalog-entry pattern) |
+| Re-introducing analytics (provisioning a Metrica counter) would have had no consent gate, no privacy-page, and no settings guardrail (Webvisor etc.) | The mitigation disabled unsafe features but left the compliant re-enable path undefined | §4 of `docs/PRIVACY_COMPLIANCE.md` defines the next HIGH PRIORITY task: granular consent banner gating the snippet, `/privacy.html`, Metrica privacy settings (Webvisor off, retention), 152-ФЗ operator duties — with acceptance criteria (§4.7) and dept decisions (§5); registered in `TODO.md` |
+
+**Pattern recurrence**: NO.
+
+**What went well**: the base-branch divergence from AGENTS.md was caught by querying `gh pr` merge data + `git fetch upstream` instead of blindly following the stale pre-flight; GTM removal verified grep-clean across `src/`; Metrica is dormant by default (digits-only id, no snippet without it, no Webvisor even when set) so an admin can't accidentally enable session recording; the guardrail test file is self-documenting; the full-compliance plan is a concrete next task, not a vague "improve compliance".
+
+**What went wrong**: the pre-push gate failed twice on formatting (mdformat for the new doc, ruff format for the new test) — expected auto-fix friction, resolved by running the fixers before staging; AGENTS.md staleness meant the first branch attempt needed re-base research (no re-work, but the doc was misleading).
+
+**Fix**: AGENTS.md pre-flight corrected to the `current`-only flow; formatting run through the fixers before the final pre-push gate; full-compliance next task registered with acceptance criteria.
+
+**State at handoff**: branch `feat/remove-gtm-add-metrica` (from `upstream/current` `4828f53`), pre-push gate green. Next: full test suite (B13 gate) → push → PR (base `current`) → merge `--admin --squash` → release v2026.08.20 (5 PRs: #228, #233, #234, #235, + this) with post-deploy admin ops: maps key (B16) and Metrica counter id (`configs/flask_se_metrica.conf`).

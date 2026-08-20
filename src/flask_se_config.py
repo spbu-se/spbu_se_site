@@ -100,6 +100,30 @@ def maps_config() -> tuple[str, str]:
     return "", ""
 
 
+METRICA_ID_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_metrica.conf")
+METRICA_ID_ENV = "SE_YANDEX_METRICA_ID"
+_METRICA_ID_RE = re.compile(r"^\d+$")
+
+
+def metrica_id() -> str:
+    """Yandex Metrica counter id (digits only), or ``""`` when not configured.
+
+    Reads the gitignored ``configs/flask_se_metrica.conf`` file (the raw
+    counter number) or the ``SE_YANDEX_METRICA_ID`` env override (env wins,
+    mirroring the maps-key pattern). A missing or malformed value renders no
+    analytics snippet at all, so the site stays tracking-free until an admin
+    provisions a counter — GTM was removed in the same release (see
+    ``docs/PRIVACY_COMPLIANCE.md``).
+    """
+    value = os.environ.get(METRICA_ID_ENV) or ""
+    if not value and os.path.exists(METRICA_ID_FILE):
+        with open(METRICA_ID_FILE) as file:
+            value = file.read().strip()
+    if _METRICA_ID_RE.fullmatch(value):
+        return value
+    return ""
+
+
 SQLITE_DATABASE_NAME: str = "se.db"
 SQLITE_DATABASE_PATH: str = pathlib.Path("databases/").absolute().as_posix()
 SQLITE_DATABASE_URI: str = (

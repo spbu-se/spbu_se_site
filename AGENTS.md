@@ -14,13 +14,12 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 
 ## Pre-flight checklist
 
-- `git fetch --prune origin`
-- Create a branch BEFORE any work: `git checkout -b <prefix>/<short-desc> origin/staging`
-  Prefixes: feat/, fix/, refactor/, docs/, test/, chore/, ci/, staging-auto-<timestamp>
-  (see `docs/GIT_FLOW.md` §1.1). Never commit directly to `staging`.
-- Verify current branch is NOT `staging` or `current`: `git branch --show-current`
-  If you are on `staging`, checkpoint and re-branch.
-- Check `origin/staging` CI — if red, stop and fix first
+- `git fetch --prune origin upstream`
+- Create a branch BEFORE any work: `git checkout -b <prefix>/<short-desc> upstream/current`
+  Prefixes: feat/, fix/, refactor/, docs/, test/, chore/, ci/
+  (see `docs/GIT_FLOW.md` §1.1). Never commit directly to `current`.
+- Verify current branch is NOT `current`: `git branch --show-current`
+- Check `upstream/current` CI — `gh run list --repo spbu-se/spbu_se_site --branch current --limit 1 --json conclusion` — if red, stop and fix first
 - **Read the skill README for this task** — identify which task/skill matches (e.g., `retrospective-analysis`, `test-writer`, `merge-gate`) and read `.skills/<name>/README.md` before starting. Confirm by stating which skill READMEs were read.
 - Before using `2>&1`, flatten ErrorRecords with `| ForEach-Object { "$_" }` or suppress stderr with `2>($null)` — see `docs/TOOLING.md` §PowerShell
 - Before writing piped/chained commands, read `docs/TOOLING.md` §PowerShell
@@ -30,7 +29,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Before merge: verify CI shows test results, not just lint results — inspect the CI run log to confirm pytest actually ran, not just basedpyright
 - Before merging a pushed feature branch: CI won't trigger on the branch. Create a PR first, wait for CI green, then squash-merge via `gh pr merge --squash --delete-branch`
 - Before merging any dependabot PR: verify its head is a descendant of the base branch (`git diff --stat upstream/current..<head>` must show only the intended files — GH PR metadata is cached and can underreport the real delta). Dep bumps that feed the asset pipeline (`esbuild`, `terser`, `purgecss`) must also regenerate the committed min outputs (`npm run build`). Repair recipe: `docs/TOOLING.md` §Dependabot PR repair; CI gate: `.github/workflows/dependabot-gate.yml`
-- **Multi-PR sessions**: branch each PR from `origin/staging` synced to `upstream/current` — never from a sibling PR's branch (stacking + squash-merge rewrites hashes → merge conflicts). Only stack on a real code dependency and rebase dependents onto `upstream/current` after each merge. Each PR carries only its own retro; never drop merged retros when resolving conflicts. Parallel PRs that append to the same docs (`RETROSPECTIVES.md`, `PERFORMANCE.md`) conflict at the shared tail — merge sequentially and resolve by keeping all entries. See `docs/GIT_FLOW.md §8.5`.
+- **Multi-PR sessions**: branch each PR from `upstream/current` — never from a sibling PR's branch (stacking + squash-merge rewrites hashes → merge conflicts). Only stack on a real code dependency and rebase dependents onto `upstream/current` after each merge. Each PR carries only its own retro; never drop merged retros when resolving conflicts. Parallel PRs that append to the same docs (`RETROSPECTIVES.md`, `PERFORMANCE.md`) conflict at the shared tail — merge sequentially and resolve by keeping all entries. See `docs/GIT_FLOW.md §8.5`.
 - Before merge: verify TODO.md has no completed items that belong in commit messages instead
 - Before deleting any branch (local or remote): prove it is merged via `gh pr list --repo <owner>/<repo> --state merged --json number,headRefName` — squash-merged branches are never ancestors of `staging`/`current`, so `git branch --merged` and `-d` can't detect them; forced `-D` is justified only by merged-PR evidence. See `docs/AI_AGENT_EXPERIENCE.md`.
 - **Session retrospective is mandatory before any PR** — run `.skills/retrospective-analysis` and append the entry to `docs/RETROSPECTIVES.md` before opening the PR. If a PR was opened without it, add the retro as the last commit and update the PR description. See `docs/DEVELOPMENT_PROCESS.md` §0.7.
@@ -50,7 +49,7 @@ Always query live, never hardcode:
 |--------|---------|----------|
 | Test count + xfails | `pytest --tb=no -q` | ~7 min |
 | Coverage | `pytest --cov=src --cov-report=term-missing` | ~8 min |
-| CI status | `gh run list --branch staging --limit 1 --json conclusion` | ~2s |
+| CI status | `gh run list --repo spbu-se/spbu_se_site --branch current --limit 1 --json conclusion` | ~2s |
 | pyright ignores | `basedpyright src/` | ~30s |
 
 See `docs/QUALITY_MANAGEMENT.md §6` for interpretation thresholds.
@@ -76,10 +75,9 @@ Before every `git push`, verify locally: `uv run pre-commit run --all-files --ho
 **Never use `git push --no-verify`** unless the user gives a direct, unbiased instruction.
 An unbiased instruction states the goal without suggesting the method. Every `--no-verify` must be logged in the retrospective as a process violation.
 
-### Staging merge
+### Merge to `current`
 
-Never push directly to `staging`. Only squash-merge from a branch:
-`git merge --squash <branch> && git commit -m "<type>: <summary>"`
+PRs are squash-merged into `current` via `gh pr merge --admin --squash`. Never push directly to `current`.
 CI must be green before merging (see `docs/AI_AGENTS.md` §CI discipline).
 
 ### First-time setup

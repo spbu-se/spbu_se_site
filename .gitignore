@@ -106,6 +106,9 @@ flask_se_thesis.conf
 /**/flask_se_maps.conf
 */src/flask_se_maps.conf
 flask_se_maps.conf
+/**/flask_se_metrica.conf
+*/src/flask_se_metrica.conf
+flask_se_metrica.conf
 
 # Do not track __pycache__
 **/__pycache__/

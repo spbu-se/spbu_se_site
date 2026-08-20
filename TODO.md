@@ -17,6 +17,8 @@
 
 **Security headers + CSP** — design approved 2026-08-15 (Option B, pragmatic allowlist). Not yet implemented. See `docs/SEO_A11Y_ROADMAP.md` (full plan + 8 open questions to resolve at implementation). Branch: `feat/security-headers`.
 
+**HIGH PRIORITY — GDPR/152-ФЗ full compliance (enables Metrica + GTM safely)** — v2026.08.20 shipped the mitigation (GTM removed, Metrica dormant — see `docs/PRIVACY_COMPLIANCE.md` §3). The next task implements the full plan in `docs/PRIVACY_COMPLIANCE.md` §4: granular consent banner on all bases gating the analytics snippet, privacy-policy page `/privacy.html` + footer link, Metrica privacy settings (Webvisor off, retention), and — only if the department decides to re-enable GTM — consent-mode wiring. Acceptance criteria and dept/legal decisions in §4.7/§5. Branch: `feat/privacy-compliance`.
+
 **Performance (Tier 1 + Tier 2 shipped: PRs #222, #224, #227, #229, #230, #233; post-release measured):**
 
 - Return-item done (2026-08-17): lab mobile 66 (baseline 63), field CrUX green

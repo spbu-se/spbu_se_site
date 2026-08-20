@@ -54,6 +54,7 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 | `SEO_A11Y_ROADMAP.md` | Roadmap | SEO/crawler/agent decisions, findings, deferred ideas | Implementation, architecture | SEO/accessibility backlog |
 | `PERFORMANCE.md` | Roadmap | Performance baseline, shipped optimizations, deferred ideas, post-deploy re-evaluation | Implementation, architecture | Performance backlog |
 | `RELEASE_CHECKLIST.md` | Release | Pre-release verification: dates, counts, hardcoded values | Release-note generation, versioning rules | Release-time drift items |
+| `PRIVACY_COMPLIANCE.md` | Compliance | GDPR + 152-ФЗ audit, v2026.08.20 mitigation (GTM removal, dormant Metrica), full-compliance implementation plan | Legal advice, site copy | Privacy/analytics compliance posture and backlog |
 
 ### Skills directory (.skills/)
 
