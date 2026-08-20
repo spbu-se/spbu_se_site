@@ -42,12 +42,12 @@ The operator is the Saint Petersburg State University (СПбГУ); the departme
 
 | Data | Storage | Purpose | Retention today |
 |------|---------|---------|-----------------|
-| Account: name, email, password hash | `users` table (sqlite) | authentication, personal pages | indefinite, no auto-delete |
-| Avatar upload | static upload dir | profile display | indefinite |
-| Practice/VKR submissions: student full name, group, supervisor, work text, reviewer notes | `practice` / `theses` tables | educational process (department duty) | indefinite |
-| Diplomas themes | `diploma_themes` table | educational process | indefinite |
-| News posts, votes | `news` table | content publishing | indefinite |
-| OAuth identifiers (Google/VK) | users table | account linking | indefinite |
+| Account: name, email, password hash | `users` table (sqlite) | authentication, personal pages | while the account is active; **purged (login data) on account deletion** — see §4.7 deletion criterion |
+| Avatar upload | static upload dir | profile display | until account deletion |
+| Practice/VKR submissions: student full name, group, supervisor, work text, reviewer notes | `practice` / `theses` tables | educational process (department duty) | per university archival requirements |
+| Diplomas themes | `diploma_themes` table | educational process | per university archival requirements |
+| News posts, votes | `news` table | content publishing | for the lifetime of the publication |
+| OAuth identifiers (Google/VK) | users table | account linking | until account deletion |
 
 ### 2.4 Legal-basis analysis
 
@@ -106,7 +106,7 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 
 ### 4.5 152-ФЗ operator obligations (dept/legal action, tracked here)
 
-- Confirm the Roskomnadzor notification (уведомление) covers these processing operations (SPbU is likely already a registered operator — extend the scope).
+- Confirm the Roskomnadzor notification (уведомление) covers these processing operations (SPbU is likely already a registered operator — extend the scope). **Working assumption recorded 2026-08-21 (decision §5): SPbU is already a registered operator; the scope extension is tracked, not blocking repo work.**
 - Execute/confirm a processing instruction (поручение на обработку) with Yandex for Metrica.
 - Cross-border: Metrica = RU storage (OK); Google services = EU/US flows → GDPR SCCs and Roskomnadzor cross-border analysis before re-enabling GTM/Maps.
 - Add a consent statement to forms that collect personal data where no charter basis applies (legal review needed). **Repo-side: notice text shipped** — `src/templates/consent_notice.html` («Отправляя форму, вы соглашаетесь…» + policy link) included on registration, practice, thesis-review, and internship forms; legal review of the wording remains dept/legal action.
@@ -120,10 +120,11 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 ### 4.7 Acceptance criteria (definition of done)
 
 - [x] Consent banner on all bases; analytics snippet loads only after acceptance (asserted by `tests/test_analytics.py` + `tests/test_consent.py`: no `mc.yandex.ru` in DOM before consent).
-- [x] User data export (right of access / portability under 152-ФЗ ст. 14 / GDPR Art. 15, 20) — `/profile/export.zip` streams a ZIP with `account.json` (account data minus `password_hash`) + `content.json` (owned records); asserted by `tests/test_auth_views.py::TestUserExport`. Account deletion (`/profile/delete`) remains out of scope for this batch — tracked at §5 #6.
-- [ ] Metrica provisioned on prod → counter fires only for consenting visitors; Webvisor off; retention configured (**repo done**; admin must provision `configs/flask_se_metrica.conf` and set Metrica retention in the dashboard).
-- [x] `/privacy.html` live, linked from all bases, sitemap'd (draft shipped; copy approval pending — tracked at §4.4).
-- [ ] Roskomnadzor scope + Yandex processing instruction confirmed (out-of-repo sign-off recorded).
+- [x] User data export (right of access / portability under 152-ФЗ ст. 14 / GDPR Art. 15, 20) — `/profile/export.zip` streams a ZIP with `account.json` (account data minus `password_hash`) + `content.json` (owned records); asserted by `tests/test_auth_views.py::TestUserExport`.
+- [x] Account deletion (right to be forgotten / GDPR Art. 17) — `/profile/delete` soft-deletes the account (clears email, password hash, OAuth ids, avatar, contact; keeps names for published-content attribution); login blocked on all fronts; published content retained intact. Decision §5 #6 applied; asserted by `tests/test_auth_views.py::TestUserDelete`.
+- [ ] Metrica provisioned on prod → counter fires only for consenting visitors; Webvisor off; retention configured (**repo done**; admin must provision `configs/flask_se_metrica.conf` and set Metrica retention in the dashboard). **Gated on: merge to `current` AND legal sign-off** (RKN scope + Yandex processing instruction + copy approval).
+- [x] `/privacy.html` live, linked from all bases, sitemap'd (draft shipped; copy approval pending — tracked at §4.4). Retention terms shipped (§5 #5 tiered decision).
+- [ ] Roskomnadzor scope + Yandex processing instruction confirmed (out-of-repo sign-off recorded). **Working assumption: SPbU is already a registered operator — scope extension tracked, not blocking.**
 - [ ] If GTM re-enabled: consent-mode verified (no tag before consent) + cross-border analysis documented (GTM stays removed per §5 #1).
 - [ ] Legal review sign-off (human) recorded in this doc.
 
@@ -135,8 +136,8 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 | 2 | Webvisor/clickmap for Metrica at all? | No Webvisor; clickmap only if explicitly wanted (**repo shipped `clickmap: false`**) | Department |
 | 3 | Which legal basis for analytics under 152-ФЗ (consent vs. legitimate interest)? | Consent (cleanest; also satisfies ePrivacy) | SPbU legal |
 | 4 | Privacy-policy copy owner | SPbU legal drafts; department reviews (**draft shipped in-repo**) | SPbU legal |
-| 5 | Data retention periods for user/practice data | Define explicitly in the policy | Department + legal |
-| 6 | Account deletion: policy for removing a user account and its content (right to be forgotten) | Not yet implemented — `/profile/export.zip` (right of access) shipped; deletion needs an owner-approved deletion policy (what content is deletable vs. educationally required) | Department + legal |
+| 5 | Data retention periods for user/practice data | **DECIDED 2026-08-21 — tiered + fixed terms**: `se_session` 24h, `se_consent` 1y, account until deletion, educational records per university archival rules, publications for their lifetime. Shipped in `privacy.html` §Сроки хранения данных. | Department + legal |
+| 6 | Account deletion: policy for removing a user account and its content (right to be forgotten) | **DECIDED 2026-08-21 — fired-employee model**: all published materials (practices, votes, posts, etc.) stay; the account (login, email, password, OAuth links, avatar) is removed. Implemented as soft-delete `/profile/delete` (shipped) — names kept for attribution. | Department + legal |
 
 ## 6. Cross-references
 

@@ -145,6 +145,8 @@ class Users(db.Model, UserMixin):
     fb_id = db.Column(db.String(255), nullable=True)
     google_id = db.Column(db.String(255), nullable=True)
 
+    deleted = db.Column(db.Boolean, default=False, nullable=False)
+
     staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
     news = db.relationship("Posts", backref=db.backref("author", uselist=False))
     diploma_themes_supervisor = db.relationship(

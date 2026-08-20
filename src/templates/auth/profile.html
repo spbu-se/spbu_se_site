@@ -137,6 +137,46 @@
           </div>
         </form>
       </div>
+      <div class="row justify-content-center mt-3">
+        <div class="col-lg-9">
+          <h5 class="mb-3 text-danger">Удаление аккаунта</h5>
+          <p class="text-sm">
+            Удаление аккаунта блокирует вход и стирает персональные данные входа (почта, пароль,
+            аватар, привязанные внешние аккаунты). Опубликованные материалы (новости, практики,
+            темы, голоса, отзывы) остаются на сайте.
+          </p>
+          <button type="button"
+                  class="btn btn-sm btn-danger"
+                  data-toggle="modal"
+                  data-target="#deleteAccountModal">Удалить аккаунт</button>
+          <!-- Modal -->
+          <div class="modal fade"
+               id="deleteAccountModal"
+               tabindex="-1"
+               role="dialog"
+               aria-labelledby="DeleteAccountLabel"
+               aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="DeleteAccountLabel">Подтверждение удаления</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">Вы точно хотите удалить свой аккаунт?</div>
+                <div class="modal-footer">
+                  <form method="POST" action="/profile/delete">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">Да, удалить аккаунт</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет, я остаюсь</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>

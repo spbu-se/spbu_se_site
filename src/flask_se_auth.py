@@ -59,7 +59,10 @@ if not os.path.isfile(client_secrets_file):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.get(Users, int(user_id))
+    user = db.session.get(Users, int(user_id))
+    if user is not None and user.deleted:
+        return None
+    return user
 
 
 @login_manager.unauthorized_handler
@@ -397,6 +400,35 @@ def user_export():
 
 
 @login_required
+def delete_account():
+    """Soft-delete the current account: block login, purge identifying fields.
+
+    Published content (posts, theses, practice records, votes, reviews) stays in
+    place with intact attribution — the account row is kept as a tombstone so
+    foreign keys and author links keep working.
+    """
+    user = Users.query.filter_by(id=current_user.id).first()
+    if user is None or user.deleted:
+        flash("Аккаунт не найден или уже удалён.", category="error")
+        return redirect(url_for("index"))
+
+    user.deleted = True
+    user.email = None
+    user.password_hash = None
+    user.vk_id = None
+    user.fb_id = None
+    user.google_id = None
+    user.avatar_uri = "empty.jpg"
+    user.how_to_contact = None
+    user.role = 0
+    db.session.commit()
+
+    logout_user()
+    flash("Аккаунт удалён. Опубликованные материалы сохранены.")
+    return redirect(url_for("index"))
+
+
+@login_required
 def upload_avatar():
     if request.method == "POST":
         # check if the post request has the file part
@@ -552,6 +584,7 @@ def register_routes(app) -> None:
     )
     app.add_url_rule("/profile.html", methods=["GET", "POST"], view_func=user_profile)
     app.add_url_rule("/profile/export.zip", methods=["GET"], view_func=user_export)
+    app.add_url_rule("/profile/delete", methods=["POST"], view_func=delete_account)
     app.add_url_rule("/upload_avatar", methods=["GET", "POST"], view_func=upload_avatar)
     app.add_url_rule("/logout", methods=["GET"], view_func=logout)
     app.add_url_rule("/google_login", methods=["GET"], view_func=google_login)

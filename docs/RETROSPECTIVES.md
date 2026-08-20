@@ -1711,3 +1711,24 @@ Changes analyzed: `/profile/export.zip` (GET, `@login_required`) streaming a ZIP
 **Fix**: no process change needed.
 
 **State at handoff**: branch `feat/compliance-followups` (from `origin/staging` `5b2d032`). Full suite green: see TESTING.md reference run line. Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging` → update upstream PR `spbu-se/spbu_se_site#237` head + note, then STOP.
+
+### Retrospective — 2026-08-21: account deletion + retention policy (feat/account-deletion)
+
+Changes analyzed: /profile/delete (POST, @login_required) soft-deletes the account — sets Users.deleted, clears email, password_hash, k_id/b_id/google_id, vatar_uri, how_to_contact,
+ole; keeps irst_name/middle_name/last_name so published-content attribution survives (fired-employee model); load_user() returns None for deleted users; deleted column + alembic migration 1ed8f920695f; delete-account section + confirm modal on profile.html; tiered retention subsection in privacy.html (se_session 24h, se_consent 1y, account-until-deletion, educational records per university archival rules, publications for their lifetime); ests/test_auth_views.py::TestUserDelete (6); docs (PRIVACY_COMPLIANCE.md §4.7/§5, TESTING.md reference run, RETROSPECTIVES).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| GET on POST-only routes returns 404, not 405 | App-wide behavior — verified internships/1/delete (pre-existing POST-only route) also returns 404 on GET; likely a Flask/Werkzeug routing interaction with the registered 404 errorhandler | Asserted 404 in est_delete_requires_post after confirming the pre-existing convention; documented here rather than "fixing" app-wide routing |
+| Alembic upgrade from a fresh DB fails mid-chain ("no such table: users") | Pre-existing two-root migration graph (roots 25130df4ed9f + c4e88555c985, merge 33ca5df0bfc2) can never build from scratch — prod migrates incrementally | Confirmed pre-existing via the merge head; verified my migration only via incremental path + model-level db.create_all() (tests) |
+| Migration verification via lask_migrate.stamp fails with "Path doesn't exist" | Flask-Migrate resolves the scripts dir from the app/CLI, not from CWD | Used alembic offline --sql + module-parse validation instead of fighting stamp's directory resolution |
+
+**Pattern recurrence**: NO.
+
+**What went well**: soft-delete preserves content integrity (every owned-content table has a NOT NULL user_id FK with no cascade — hard delete would break author attribution, Staff joins, and admin pages); login is blocked on three independent fronts (email cleared, password_hash cleared, OAuth ids cleared) plus the load_user guard; names are retained so published attribution survives the account deletion — matches the department's fired-employee decision (§5 #6); tiered retention (§5 #5) is now in the shipped privacy page instead of a placeholder; deleted flag is greppable for future admin filtering.
+
+**What went wrong**: none blocking. One test assertion assumed 405 for GET on the POST-only route before I checked the app's actual routing behavior.
+
+**Fix**: assertion corrected to 404 after verifying the pre-existing convention; no process change needed.
+
+**State at handoff**: branch eat/account-deletion (from origin/staging ed56103). Full suite green: 1394 passed / 4 skipped / 3 xfailed / 1 xpassed (92.15%). Next: pre-push gate → push → fork PR (base staging) → ci-staging green → squash-merge → push origin/staging → update upstream PR spbu-se/spbu_se_site#237 head + note, then STOP.

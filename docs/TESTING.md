@@ -92,6 +92,8 @@ Reference run (2026-08-20, `pytest --tb=no -q -rxX`): **1376 passed, 4 skipped, 
 
 Reference run (2026-08-20, `pytest --tb=no -q -rxX`): **1384 passed, 4 skipped, 3 xfailed, 1 xpassed** — security headers shipped: `tests/test_security_headers.py` (8) covering CSP allowlist, header presence on pages/assets/404, the `SE_COOKIE_SECURE` HSTS/upgrade gate, and omitted CORP.
 
+Reference run (2026-08-21, `pytest --tb=no -q -rxX`): **1394 passed, 4 skipped, 3 xfailed, 1 xpassed** — account deletion shipped: `tests/test_auth_views.py::TestUserDelete` (6: login-required, POST-only, anonymization, content retention, logout, relogin-block).
+
 ## 5. Xpassed Tests
 
 Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass is non-fatal): intermittent CI failures that happen to pass on this machine. Tracked in §4a's intermittent CI table. Check xpass count via `pytest --tb=no -q 2>&1 | Select-String "xpassed"`.
