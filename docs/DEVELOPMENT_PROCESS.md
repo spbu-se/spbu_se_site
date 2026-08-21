@@ -440,6 +440,13 @@ uv sync                                # install all deps (dev + main)
 uv export --no-dev --no-hashes > requirements.txt  # update prod requirements
 ```
 
+**Declare direct imports as direct dependencies.** A package imported in `src/`
+must be listed in `[project] dependencies` — never rely on it being present as
+a transitive of something else. When removing a dependency, grep `src/` for
+direct imports of its transitive packages first (removing `flask-migrate`
+silently dropped `flask-sqlalchemy`/`sqlalchemy`, both imported directly;
+caught only by the fork's `serviceability.yml` pip-install check).
+
 ## 6. Release
 
 Versioning is date-based — every release is tagged `vYYYY.MM.DD` (see
