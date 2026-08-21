@@ -197,6 +197,7 @@ Ask these questions to surface waste and optimization opportunities:
 | Was there a long feedback loop between writing and validating? | Could have validated incrementally instead of batch-writing everything first |
 | Did `git diff --stat` show unexpected files changed? | Formatting noise or unintended edits hiding real changes |
 | **Did you skip any pre-flight step?** (fetch, CI check, branch naming, `--no-gpg-sign`) | Branch created without checking CI status first — wasted work if CI is red |
+| **Did you consult the canonical decisions/architecture docs before choosing an implementation approach?** | A documented decision was contradicted: `DESIGN_DECISIONS.md` [2026-08-08] "Lazy DDL guard instead of Alembic migrations" was regressed by re-introducing Alembic auto-migrate at boot — "forgot to search" | Search `docs/DESIGN_DECISIONS.md` + the relevant canonical doc (ARCHITECTURE.md, GIT_FLOW.md, DEVELOPMENT_PROCESS.md) before picking an approach. If a decision already covers the concern, extend it — don't re-decide |
 | **Did any new rule land outside its canonical doc?** | Scope boundary violation — e.g., universal knowledge in `.tooling.md`, process rules in config files |
 | **Could any change harm users or the product?** (Supreme Directive I/II) | Edge cases that aren't bugs but degrade UX, lose data, or incur technical debt |
 | **Did practice conflict with a Strategic Priority in the Project Doctrine?** | E.g., a rule we said was "low-effort" turned out high-effort in this context. Classify as **value contradiction** in step 3 — flag to user, do not fix autonomously. |
@@ -473,3 +474,7 @@ The 2026-08-15 session ran a **light retro** as part of the feature PR (#214, ma
 - Read access to `docs/GIT_FLOW.md` — to check git rules
 - Read access to `docs/DEVELOPMENT_PROCESS.md` — to check process rules
 - Read access to `.tooling.md` — to check mistake journal
+
+### [2026-08-21] Add "consult canonical decisions before choosing an approach" question to §8a
+
+The auto-migrate batch re-introduced Alembic at boot, contradicting the already-documented `DESIGN_DECISIONS.md` [2026-08-08] "Lazy DDL guard instead of Alembic migrations" decision — a "forgot to search" gap: the canonical decisions doc was never consulted before implementing. The regression was caught in design review, not by the process. Added a §8a row so every retro asks whether the session consulted `docs/DESIGN_DECISIONS.md` + the relevant canonical doc before choosing an architecture/implementation approach.

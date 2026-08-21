@@ -1,0 +1,56 @@
+{# Granular consent banner (ePrivacy / GDPR Art. 7 / 152-ФЗ consent basis).
+   Mirrors flask_se_config.consent_categories(): essential is always on,
+   optional categories (statistics = Yandex Metrica, marketing = GTM/Google)
+   start disabled and load only after explicit acceptance. Styling is inline
+   so the banner never depends on purgecss-removed theme classes; the Wruczek
+   cookiealert handler in quick-website.js stays inert (different classes/keys).
+   State lives in the se_consent cookie + localStorage, handled by
+   js/se_consent.js. #}
+{% set se_consent_labels = {"essential": "Необходимые", "statistics": "Статистика (Яндекс Метрика)", "marketing": "Маркетинг"} %}
+<div class="se-consent-banner"
+     id="se-consent-banner"
+     role="dialog"
+     aria-label="Согласие на обработку файлов cookie"
+     data-se-metrica-id="{{ se_metrica_id }}"
+     {% if se_consent_decided %}hidden{% endif %}
+     style="position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            display: {% if se_consent_decided %}none{% else %}block{% endif %};
+            background: rgba(20, 20, 30, 0.95);
+            color: #ffffff;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem">
+  <div style="max-width: 1140px;
+              margin: 0 auto;
+              display: flex;
+              flex-wrap: wrap;
+              align-items: center;
+              gap: 0.75rem">
+    <p style="margin: 0; flex: 1 1 320px;">
+      Сайт использует файлы cookie и метрическую программу «Яндекс Метрика»
+      для статистики посещаемости. Подробнее — в
+      <a href="{{ url_for('privacy') }}" style="color: #8ec5ff;">политике обработки персональных данных</a>.
+    </p>
+    <div style="display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem 1rem;
+                align-items: center">
+      {% for _name, _default in se_consent_categories.items() %}
+        <label style="margin: 0; font-weight: normal;">
+          <input type="checkbox"
+                 class="se-consent-category"
+                 value="{{ _name }}"
+                 {% if _name == "essential" %}checked disabled{% elif _default %}checked{% endif %}>
+          {{ se_consent_labels.get(_name, _name) }}
+        </label>
+      {% endfor %}
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <button type="button" class="se-consent-accept btn btn-sm btn-primary">Принять выбранные</button>
+      <button type="button" class="se-consent-decline btn btn-sm btn-secondary">Отклонить необязательные</button>
+    </div>
+  </div>
+</div>

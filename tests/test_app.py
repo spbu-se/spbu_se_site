@@ -16,7 +16,7 @@ class TestAppFactory:
     def test_app_config(self):
         from flask_se import app
 
-        assert app.config["FREEZER_RELATIVE_URLS"] is True
+        assert app.config["SESSION_COOKIE_NAME"] == "se_session"
 
     def test_sitemap(self, seeded_client):
         resp = seeded_client.get("/sitemap.xml")

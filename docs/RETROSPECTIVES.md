@@ -1635,3 +1635,141 @@ Changes analyzed: GTM removal from the 4 base templates, config-driven Yandex Me
 **Fix**: AGENTS.md pre-flight corrected to the `current`-only flow; formatting run through the fixers before the final pre-push gate; full-compliance next task registered with acceptance criteria.
 
 **State at handoff**: branch `feat/remove-gtm-add-metrica` (from `upstream/current` `4828f53`), pre-push gate green. Next: full test suite (B13 gate) → push → PR (base `current`) → merge `--admin --squash` → release v2026.08.20 (5 PRs: #228, #233, #234, #235, + this) with post-deploy admin ops: maps key (B16) and Metrica counter id (`configs/flask_se_metrica.conf`).
+
+### Retrospective — 2026-08-20: purge Frozen-Flask (chore/remove-freezer)
+
+Changes analyzed: removed `Frozen-Flask==1.0.2` (pyproject/uv.lock/requirements.txt), stripped the freezer from `flask_se.py` (import, singleton, FREEZER\_\* config, `init_app`, `build` subcommand), deleted the freezer's only test (`test_main_build_dispatch`), re-pointed `test_app_config` to a live config key, deleted local `_flask_freezed/`, dropped release-checklist B4, updated DESIGN_DECISIONS (init_app list) and TESTING.md reference line. Prod path is Docker nginx → uWSGI → WSGI (no static build); `_flask_freezed` was a gitignored local artifact; the `build` subcommand was dead weight (`RETROSPECTIVES.md` 2026-08-15 already recorded B4 as a pre-existing failure outside the deploy path).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `uv export > requirements.txt` wrote UTF-16 LE (git showed the file as `Bin`) | Known PowerShell 5.1 redirect trap — TOOLING.md §Windows PowerShell encoding trap was documented but not read before the first attempt | Re-ran per the documented recipe (capture array + `[System.IO.File]::WriteAllText(..., UTF8Encoding($false))`); verified first bytes `23 20 54` (no BOM) and a clean text diff |
+| Prior session's line-inventory of freezer doc refs (ARCHITECTURE.md:102, DEVELOPMENT_PROCESS.md:83/458, REQUIREMENTS.md:183, SEO_A11Y_ROADMAP.md:77, TESTING.md:106) was half-wrong — live `rg -i "freezer"` found only DESIGN_DECISIONS.md, RELEASE_CHECKLIST.md, RETROSPECTIVES.md | Doc-reference inventory guessed from an earlier session, never re-grepped at edit time | Grep is ground truth for doc references, not a carried-forward line list; RETROSPECTIVES.md history kept verbatim (safe-update rule) since it records the B4/freezer story as historical fact |
+
+**Pattern recurrence**: NO (the UTF-16 trap is a documented, already-fixed trap in TOOLING.md — this session's slip is recorded, not escalated).
+
+**What went well**: the purge was complete and verified — `rg -i "freezer|_flask_freezed"` clean across the repo (excluding `.git`/`.venv`/`node_modules`/RETROSPECTIVES history); `uv lock` resolved with frozen-flask removed and requirements.txt regenerated; full suite green at 1363 passed / 4 skipped / 3 xfailed / 1 xpassed (92.08% coverage, gate ≥80%).
+
+**What went wrong**: none blocking — one documented-tooling slip (requirements.txt encoding) caught before staging via the `git diff --stat` Bin signal.
+
+**Fix**: encoding recovered via the documented TOOLING recipe; the recipe needs no change (the trap is already the canonical answer).
+
+**State at handoff**: branch `chore/remove-freezer` (from `origin/staging` `98a642e`). Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging`, then PR 2 `feat/privacy-compliance`.
+
+### Retrospective — 2026-08-20: consent gate + privacy page (feat/privacy-compliance)
+
+Changes analyzed: granular consent banner on all 4 bases (`consent_banner.html` + `js/se_consent.js`) replacing the dark-only Wruczek `cookiealert`; server-side `se_consent` cookie gate (`consent_categories()` in `flask_se_config.py`, `se_consent_granted`/`se_consent_decided` globals); Metrica snippet now renders only when `se_metrica_id` AND the granted `statistics` category are present, with `clickmap: false`; `/privacy.html` route + template (operator identity, official SPbU policy + Metrica-consent-doc links, data inventory, 152-ФЗ/GDPR rights) + footer links + auto-sitemap; `tests/test_consent.py` (10) + `tests/test_analytics.py` updates; docs (PRIVACY_COMPLIANCE.md §2.1/§4/§4.7/§5, TODO.md, TESTING.md).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| djLint reformat of `{% block se_maps_key %}{% endblock %}` (pre-existing inline blocks) broke `test_maps_lazy` exact-string assert | Formatter rewrote semantically-identical block markup; the test hardcoded the single-line form | Made the assertion regex/multiline-tolerant while keeping the structural guardrail (block must still exist) |
+| Footer `·` separator used the theme class `mx-2`, which purgecss had already stripped → `TestPurgeCompleteness` failed ("regenerate npm build") | New markup reused a class the min build no longer contains; the purge-guardrail test exists precisely to catch this | Swapped to inline `style="margin: 0 0.5rem;"` + `text-white` (a class that survives); banner markup stays inline-styled by design so it never depends on purged classes |
+
+**Pattern recurrence**: NO.
+
+**What went well**: the consent gate is server-authoritative (no `mc.yandex.ru` in the DOM before the cookie grants `statistics` — asserted by guardrail); the Wruczek handler in `quick-website.min.js` stays inert (new class names/keys → no npm rebuild, no minified-asset churn); the privacy page reuses the official SPbU policy + 05.06.2026 Metrica consent doc links instead of inventing copy; acceptance criteria §4.7 updated to reflect what is repo-done vs. dept/legal.
+
+**What went wrong**: none blocking. djLint + purge-guardrail friction was expected and resolved before staging (per the AGENTS.md rule: run the auto-fix hooks on all files first).
+
+**Fix**: the two guardrail-driven fixes above; no process change needed.
+
+**State at handoff**: branch `feat/privacy-compliance` (from `origin/staging` `c54f183`). Full suite green: 1376 passed / 4 skipped / 3 xfailed / 1 xpassed (92.10%). Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging`, then PR 3 `feat/security-headers`.
+
+### Retrospective — 2026-08-20: security headers + allowlist CSP (feat/security-headers)
+
+Changes analyzed: new `src/flask_se_headers.py` `register_security_headers(app)` (after_request) — allowlist CSP (Option B), nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy, COOP same-origin, HSTS + `upgrade-insecure-requests` gated on `SE_COOKIE_SECURE`; CORP deliberately omitted; wired into `create_app`; `server_tokens off` in `nginx/default.conf.template`; `tests/test_security_headers.py` (8); docs (SEO_A11Y_ROADMAP.md §CSP marked shipped + the 8 open questions resolved, TODO.md).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| ruff S105 flagged `_UPGRADE_TOKEN = "; upgrade-insecure-requests"` as a hardcoded password | Bandit heuristic matches names containing `token`/`secret` regardless of context | Renamed to `_UPGRADE_DIRECTIVE`; the directive string itself is not a credential |
+
+**Pattern recurrence**: NO.
+
+**What went well**: every open question was resolved against the actual code (no external form actions → `form-action 'self'` safe; OAuth is top-level GET redirects + server-side token exchange → COOP `same-origin` safe; no Google Fonts in the site → font/style entries are defensive-only; Yandex maps `*.maps.yandex.net` module host added and the https-wildcard `img-src` covers tiles); the module is 100% covered and the full suite is green (1384 passed, 92.15%); the plan doc was updated to "shipped" with resolutions recorded instead of left stale.
+
+**What went wrong**: none blocking — one linter false-positive (S105) fixed by renaming before the pre-push gate.
+
+**Fix**: rename; no process change needed.
+
+**State at handoff**: branch `feat/security-headers` (from `origin/staging` `f2774e7`). Full suite green: 1384 passed / 4 skipped / 3 xfailed / 1 xpassed (92.15%). Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging` → **one upstream PR** `iakov:staging` → `spbu-se:current`, then STOP.
+
+### Retrospective — 2026-08-20: compliance follow-ups — user data export + form consent notice + cookie inventory (feat/compliance-followups)
+
+Changes analyzed: `/profile/export.zip` (GET, `@login_required`) streaming a ZIP with `account.json` (Users row minus `password_hash`) + `content.json` (owned records via the existing `Users` relationships: posts, theses, diploma themes, theses-on-review, reviews, votes, internships, current theses) using stdlib `zipfile`/`io` + `send_file`; profile-page download link; `src/templates/consent_notice.html` notice + policy link included on the registration, practice, thesis-review, and internship forms; `privacy.html` cookie section expanded to enumerate `se_session` / `se_consent` / `_ym_*` with the retention placeholder; `tests/test_auth_views.py::TestUserExport` (3) + login-required route; docs (PRIVACY_COMPLIANCE.md §4.5/§4.7/§5, TESTING.md reference run, RETROSPECTIVES).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| LSP reported `reportArgumentType` errors in `flask_se_auth.py` at lines I didn't touch (login `check_password_hash`, `secure_filename`) | Both call sites already carry `# pyright: ignore[reportArgumentType]` on base; the LSP surfaces them but the gate honors the ignores | Confirmed pre-existing via `git show origin/staging` diff — not introduced by the batch; no action |
+| `zipfile`/`io` needed for the export but `send_file` was not imported in `flask_se_auth.py` | The module imported only flash/redirect/render_template/request/session/url_for | Extended the flask import; matched the existing `flask_se_practice_admin.py` precedent for `send_file(..., as_attachment=True)` |
+| Export test asserts against seeded data owned by user 1 (`author_id=1` in `init_db` posts) | The seeded DB template (`_seeded_db_path` → `init_db()`) owns only one post for the test user | Verified against `se_models.init_db()` seed data before writing the assertion so the test is stable without extra fixtures |
+
+**Pattern recurrence**: NO.
+
+**What went well**: export is stdlib-only (no new dependencies, no asset pipeline churn), streams via `BytesIO` (no temp files on disk), GET/read-only (no CSRF surface), and reuses the existing `Users` relationships rather than duplicating query logic; the consent notice is a single include reused across 4 forms (charter-basis notice, no checkbox — consistent with §4.5); cookie inventory in the policy now matches the real cookie names (`se_consent.js` uses `COOKIE_NAME = 'se_consent'`, session `se_session`, Metrica `_ym_*`) — verified against source, not guessed; account deletion deliberately kept out of scope and tracked as §5 #6 (needs a dept deletion policy for educationally-required content).
+
+**What went wrong**: none blocking. One template-edit indentation slip (route registration line) was caught by LSP and fixed before running anything.
+
+**Fix**: no process change needed.
+
+**State at handoff**: branch `feat/compliance-followups` (from `origin/staging` `5b2d032`). Full suite green: see TESTING.md reference run line. Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging` → update upstream PR `spbu-se/spbu_se_site#237` head + note, then STOP.
+
+### Retrospective — 2026-08-21: account deletion + retention policy (feat/account-deletion)
+
+Changes analyzed: `/profile/delete` (POST, `@login_required`) soft-deletes the account — sets `Users.deleted`, clears `email`, `password_hash`, `vk_id`/`fb_id`/`google_id`, `avatar_uri`, `how_to_contact`, `role`; keeps `first_name`/`middle_name`/`last_name` so published-content attribution survives (fired-employee model); `load_user()` returns None for deleted users; `deleted` column + alembic migration `1ed8f920695f`; delete-account section + confirm modal on profile.html; tiered retention subsection in privacy.html (`se_session` 24h, `se_consent` 1y, account-until-deletion, educational records per university archival rules, publications for their lifetime); `tests/test_auth_views.py::TestUserDelete` (6); docs (PRIVACY_COMPLIANCE.md §4.7/§5, TESTING.md reference run, RETROSPECTIVES).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| GET on POST-only routes returns 404, not 405 | App-wide behavior — verified `internships/1/delete` (pre-existing POST-only route) also returns 404 on GET; likely a Flask/Werkzeug routing interaction with the registered 404 errorhandler | Asserted 404 in `test_delete_requires_post` after confirming the pre-existing convention; documented here rather than "fixing" app-wide routing |
+| Alembic upgrade from a fresh DB fails mid-chain ("no such table: users") | Pre-existing two-root migration graph (roots `25130df4ed9f` + `c4e88555c985`, merge `33ca5df0bfc2`) can never build from scratch — prod migrates incrementally | Confirmed pre-existing via the merge head; verified my migration only via incremental path + model-level `db.create_all()` (tests) |
+| Migration verification via `flask_migrate.stamp` fails with "Path doesn't exist" | Flask-Migrate resolves the scripts dir from the app/CLI, not from CWD | Used alembic offline `--sql` + module-parse validation instead of fighting stamp's directory resolution |
+
+**Pattern recurrence**: NO.
+
+**What went well**: soft-delete preserves content integrity (every owned-content table has a NOT NULL `user_id` FK with no cascade — hard delete would break author attribution, `Staff` joins, and admin pages); login is blocked on three independent fronts (email cleared, password_hash cleared, OAuth ids cleared) plus the `load_user` guard; names are retained so published attribution survives the account deletion — matches the department's fired-employee decision (§5 #6); tiered retention (§5 #5) is now in the shipped privacy page instead of a placeholder; `deleted` flag is greppable for future admin filtering.
+
+**What went wrong**: none blocking. One test assertion assumed 405 for GET on the POST-only route before I checked the app's actual routing behavior.
+
+**Fix**: assertion corrected to 404 after verifying the pre-existing convention; no process change needed.
+
+**State at handoff**: branch `feat/account-deletion` (from `origin/staging` `ed56103`). Full suite green: 1394 passed / 4 skipped / 3 xfailed / 1 xpassed (92.15%). Next: pre-push gate → push → fork PR (base `staging`) → ci-staging green → squash-merge → push `origin/staging` → update upstream PR `spbu-se/spbu_se_site#237` head + note, then STOP.
+
+### Retrospective — 2026-08-21: auto-migration on boot → self-healing ensure_schema pivot (feat/auto-migrate-compliance)
+
+Changes analyzed: initial implementation `flask_se.auto_migrate()` via alembic (`python flask_se.py migrate`: fresh DB → `init_db()` + stamp head; existing DB → backup + `flask_migrate.upgrade()`; legacy unstamped → backup + stamp with warning); `docker/entrypoint.sh` `SE_AUTO_MIGRATE` gate (default on, opt-out); `tests/test_migrations.py` (2); then a design review pivoted to a lean, self-healing `ensure_schema()` (models as the single source of truth; `db.create_all()` for missing tables + PRAGMA-driven `ADD COLUMN` for missing columns; column-presence as the version marker) that removes alembic entirely — recorded in DESIGN_DECISIONS [2026-08-21]; PRIVACY_COMPLIANCE.md §4.5/§4.7/§5 reword (Metrica dormant by decision §5 #7, RKN rides SPbU's operator registration, Yandex processing instruction = confirm-not-create, privacy page aligned with SPbU docs); RELEASE_CHECKLIST B17/B18; TOOLING.md §Auto-migrate; skills (retrospective-analysis §8a, test-writer).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| The batch re-introduced alembic at boot, contradicting the documented [2026-08-08] "Lazy DDL guard instead of Alembic migrations" decision | Forgot to search — `DESIGN_DECISIONS.md` was not consulted before choosing the schema approach; the documented multi-head-tree/webhook-deploy rationale made the alembic path a regression | Pivot to `ensure_schema()` — a formalization of the 2026-08-08 decision into one boot-time pass; added "consult the canonical decisions doc before choosing an architecture" to the retro §8a |
+| `stamp("head")` failed with "Path doesn't exist: head" | flask_migrate signature is `stamp(directory=None, revision='head')` — the positional arg binds to `directory` | Call `stamp()` (revision defaults to 'head'); moot after the alembic removal |
+| Migrations dir not found under pytest (CWD = repo root) | Flask-Migrate resolves `migrations/` relative to CWD, not the app root | Pass `directory=str(Path(current_app.root_path) / "migrations")` explicitly; moot after the alembic removal |
+| Retro appends via PowerShell `Add-Content` corrupted multibyte text (em-dash/arrow bytes → control chars; dropped leading `f`/`v`/`a`/`b`/`t`) | `Add-Content` + here-string mangling under the Windows console codepage | Rewrote the affected retro entries as UTF-8 via the write tool; never `Add-Content` docs containing multibyte characters |
+
+**Pattern recurrence**: NO.
+
+**What went well**: the design review (user: "do we really need migrations/versions?") surfaced the already-documented 2026-08-08 lazy-DDL decision — the lean instinct was already codified; `ensure_schema()` is strictly more robust than the alembic path (targets the true desired schema from models, self-heals any DB state with zero ops intervention, column-presence is the version marker so no version table is needed now); `SE_AUTO_MIGRATE=0` keeps an ops escape hatch; the compliance reword removes fabricated sign-off gates — dormant Metrica is the fully-compliant default.
+
+**What went wrong**: the alembic auto-migrate was built and green before the canonical decision doc was consulted — an avoidable regression risk caught in review; retro appends via `Add-Content` corrupted earlier entries.
+
+**Fix**: pivot recorded in DESIGN_DECISIONS [2026-08-21]; prevention rule (search canonical decisions first) added to the retro §8a; doc-appends switched to the write tool.
+
+**State at handoff**: branch `feat/auto-migrate-compliance`. Docs-only checkpoint committed locally (this entry + DESIGN_DECISIONS/ARCHITECTURE/TOOLING/RELEASE_CHECKLIST/skills). Code pending after context compaction: `ensure_schema()` replacing alembic, entrypoint, `tests/test_migrations.py` → `TestSchemaDeltas`, drop `flask-migrate`/`alembic` deps + `src/migrations/`.
+
+### Retrospective — 2026-08-21: self-healing ensure_schema() implementation + shipping (feat/auto-migrate-compliance)
+
+Changes analyzed: implementation of the pivoted `ensure_schema()` design (committed `37ef18f`, fork PR #23 → `56901a9`): `flask_se.ensure_schema()` (fresh DB → `init_db()`; existing DB → backup + `db.create_all()` + PRAGMA `table_info` diff → `ALTER TABLE ... ADD COLUMN`, column-presence as the version marker), `_synthesized_default_literal()` per-type constant defaults, fail-loud `EnsureSchemaError` for missing PK/UNIQUE/FK columns, `ensure_fts5_index()` (FTS5 table + triggers for legacy DBs), `Users.deleted` + `server_default=sa.false()`, entrypoint collapse to one `SE_AUTO_MIGRATE`-gated step, `src/migrations/` deleted + `flask-migrate`/`alembic` dropped, `tests/test_migrations.py` → `TestSchemaDeltas` (8), tooling/docs cleanup (vulture/pylint stale exclusions, TOOLING/TESTING lines). Plus two follow-up fork PRs: #24 (`e1d2787`) regenerating the drifted committed CSS min, and the dependency fix (`d3de603`) declaring flask-sqlalchemy/sqlalchemy directly.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `pip install -r requirements.txt` + `flask_se.py init` failed: `ModuleNotFoundError: No module named 'sqlalchemy'` (fork `serviceability.yml` check) | `flask-sqlalchemy`/`sqlalchemy` were only ever present **transitively via flask-migrate** — never declared in `pyproject.toml` despite direct imports in `se_models.py`/`flask_se.py`. Removing flask-migrate silently dropped both from the resolved requirements | Declared both directly at the exact prod versions (`Flask-SQLAlchemy==3.1.1`, `SQLAlchemy==2.0.51`); prevention rule added to `DEVELOPMENT_PROCESS.md §5` (declare direct imports as direct deps; grep transitive deps before removing one). The serviceability check worked exactly as designed |
+| `ALTER TABLE users ADD COLUMN deleted deleted BOOLEAN DEFAULT 0 NOT NULL` (declared type `deleted BOOLEAN`) | `_add_missing_column` concatenated `CreateColumn(column)` — which already includes the column name — with a second `{column.name} ` prefix | Built the full clause from `CreateColumn` in the nullable/server_default branch and included the name only in the hand-built synthesized branches; schema tests now assert the **declared type** via raw `PRAGMA table_info` (the old assertions checked nullable/default only, which passed despite the doubled name). Caught only by the live `python -m flask_se migrate` smoke test against the dev DB |
+| Old alembic tests silently took the fresh-DB branch; the config path swap was ignored | `flask_se.py` imported `SQLITE_DATABASE_PATH`/`NAME` at **module level**, so patching `flask_se_config` globals in tests had no effect on the imported copies (violates the documented call-time-patch contract — `DESIGN_DECISIONS` [2026-08-11]). The old `TestAutoMigrate` "existing DB" test never exercised the repair path | `ensure_schema()` reads `fsc.SQLITE_DATABASE_PATH` etc. live from the config module; `TestSchemaDeltas` verifies the repair path genuinely runs (backup file created, columns added, type asserted) |
+| Upstream `assets` job failed on `spbu-se/spbu_se_site#237` — `npm run build` drift guard | The committed `quick-website.min.css` still carried a `.ml-lg-4` rule removed by a template change in an earlier stacked batch commit; the min output was never regenerated | Reproduced `npm run build` locally, committed the regenerated CSS (fork PR #24); after merge the upstream `assets` job went green. Lesson: after any template change in a stacked batch, verify the upstream `assets` drift guard, not just fork ci-staging |
+
+**Pattern recurrence**: NO.
+
+**What went well**: the fork's `serviceability.yml` check caught the undeclared-dependency bug that the whole local suite (venv already had sqlalchemy) and fork ci-staging could not — a real CI layering win; the live dev-DB smoke test (`python -m flask_se migrate`) proved the self-heal end-to-end and caught the name-doubling bug the unit tests missed; `TestSchemaDeltas` covers every branch of the documented column-addability contract including the exotic-nullable warning and fail-loud UNIQUE path; full suite green (1402 passed, 92.09%) and pre-push gate green throughout; upstream PR #237 ended fully green (lint/test/assets/check 3.11+3.12/dependency-review) and the description updated with the two new stacked commits.
+
+**What went wrong**: the undeclared-dependency gap went unnoticed through two commits because nothing local validated `pip install -r requirements.txt` against a clean env (venv was never rebuilt); the `CreateColumn` name-doubling slipped past unit tests that asserted nullable/default but not the declared type; the module-level config import made the first test run misleadingly green (fresh-branch path) until the live smoke test exposed the real behavior; the asset drift sat unnoticed until the upstream `assets` job — fork ci-staging does not run `npm run build`.
+
+**Fix**: direct-dep declarations + `DEVELOPMENT_PROCESS.md §5` rule; schema tests assert declared types; `ensure_schema()` reads config live; regenerated the drifted asset. No further process change needed — `serviceability.yml` is the structural guard for the deps gap.
+
+**State at handoff**: fork `staging` = `e1d2787` (ensure_schema `56901a9` + asset regen `e1d2787`); upstream PR `spbu-se/spbu_se_site#237` head `e1d2787`, all checks green, `MERGEABLE`, awaiting maintainer merge. Local: branch `fix/assets-drift` (merged, remote deleted) — checkout `upstream/current` or a fresh branch from `origin/staging` for any next task. Retro added as the last commit after the PRs; description updated.

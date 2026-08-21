@@ -40,7 +40,7 @@
     </title>
     <link rel="preconnect" href="https://topbar.spbu.ru">
     <link rel="dns-prefetch" href="https://topbar.spbu.ru">
-    {% if se_metrica_id %}
+    {% if se_metrica_id and se_consent_granted["statistics"] %}
       <!-- Yandex Metrika -->
       <script type="text/javascript">
         (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -48,7 +48,7 @@
         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
         (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-        ym({{ se_metrica_id }}, "init", { clickmap: true, trackLinks: true, accurateTrackBounce: true });
+        ym({{ se_metrica_id }}, "init", { clickmap: false, trackLinks: true, accurateTrackBounce: true });
       </script>
     {% endif %}
     <!-- Favicon -->
@@ -125,7 +125,8 @@
     {% block json_ld %}{% endblock %}
   </head>
   <body>
-    {% if se_metrica_id %}
+    {% include 'consent_banner.html' %}
+    {% if se_metrica_id and se_consent_granted["statistics"] %}
       <!-- Yandex Metrika (noscript) -->
       <noscript>
         <div>
@@ -352,6 +353,17 @@
             <div class="col-lg-12">
               <div class="text-sm font-weight-bold text-center text-md-left">
                 <a href="{{ url_for('nooffer') }}" class="text-white">Данный сайт носит информационный характер и не является публичной офертой.</a>
+                <span class="text-white" style="margin: 0 0.5rem;">·</span>
+                <a href="{{ url_for('privacy') }}" class="text-white">Политика обработки персональных данных</a>
+                <button type="button"
+                        data-se-consent-reset
+                        style="background:none;
+                               border:none;
+                               color:#ffffff;
+                               padding:0;
+                               margin-left:0.75rem;
+                               text-decoration:underline;
+                               cursor:pointer">Настройка файлов cookie</button>
               </div>
               <div class="copyright text-sm font-weight-bold text-center text-md-left">
                 &copy; Кафедра системного программирования, Математико-механический факультет, СПбГУ, 1996-{{ current_year }}
@@ -375,6 +387,7 @@
     <script src="{{ asset('libs/autosize/dist/autosize.min.js') }}" defer></script>
     <!-- Quick JS -->
     <script src="{{ asset('js/quick-website.min.js') }}" defer></script>
+    <script src="{{ asset('js/se_consent.js') }}" defer></script>
     <script src="{{ asset('js/se_scripts.js') }}" defer></script>
     <!-- Feather Icons -->
     <script>

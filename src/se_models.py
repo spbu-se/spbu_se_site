@@ -7,7 +7,7 @@ from pathlib import Path
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, false, inspect
 from werkzeug.security import generate_password_hash
 
 from flask_se_config import (
@@ -144,6 +144,8 @@ class Users(db.Model, UserMixin):
     vk_id = db.Column(db.String(255), nullable=True)
     fb_id = db.Column(db.String(255), nullable=True)
     google_id = db.Column(db.String(255), nullable=True)
+
+    deleted = db.Column(db.Boolean, default=False, server_default=false(), nullable=False)
 
     staff = db.relationship("Staff", backref=db.backref("user", uselist=False))
     news = db.relationship("Posts", backref=db.backref("author", uselist=False))
@@ -3120,6 +3122,40 @@ def init_db() -> None:
         )
     )
     db.session.commit()
+
+
+def ensure_fts5_index() -> None:
+    """Create the ``thesis_fts`` FTS5 index and sync triggers if missing (idempotent).
+
+    ``db.create_all()`` never creates FTS5 virtual tables (they are raw SQL, see
+    ``init_db``), so ``ensure_schema`` calls this when repairing an existing DB
+    that predates full-text search. No-op once the table and triggers exist; a
+    freshly created table is rebuilt so existing thesis rows become searchable.
+    """
+    created = "thesis_fts" not in inspect(db.engine).get_table_names()
+    with db.engine.begin() as conn:
+        conn.execute(
+            db.text(
+                "CREATE VIRTUAL TABLE IF NOT EXISTS thesis_fts USING fts5("
+                "name_ru, description, author, text, content=thesis, content_rowid=id)"
+            )
+        )
+        if created:
+            conn.execute(db.text("INSERT INTO thesis_fts(thesis_fts) VALUES('rebuild')"))
+        for trigger in (
+            "CREATE TRIGGER IF NOT EXISTS thesis_fts_ai AFTER INSERT ON thesis BEGIN "
+            "INSERT INTO thesis_fts(rowid, name_ru, description, author, text) "
+            "VALUES (new.id, new.name_ru, new.description, new.author, new.text); END",
+            "CREATE TRIGGER IF NOT EXISTS thesis_fts_ad AFTER DELETE ON thesis BEGIN "
+            "INSERT INTO thesis_fts(thesis_fts, rowid, name_ru, description, author, text) "
+            "VALUES ('delete', old.id, old.name_ru, old.description, old.author, old.text); END",
+            "CREATE TRIGGER IF NOT EXISTS thesis_fts_au AFTER UPDATE ON thesis BEGIN "
+            "INSERT INTO thesis_fts(thesis_fts, rowid, name_ru, description, author, text) "
+            "VALUES ('delete', old.id, old.name_ru, old.description, old.author, old.text); "
+            "INSERT INTO thesis_fts(rowid, name_ru, description, author, text) "
+            "VALUES (new.id, new.name_ru, new.description, new.author, new.text); END",
+        ):
+            conn.execute(db.text(trigger))
 
 
 def thesis_fts_search(search_str: str) -> list[int]:

@@ -9,9 +9,8 @@ dependencies = [
     "chardet~=7.4.0",
     "Flask~=3.1.0",
     "Flask-Login==0.6.3",
-    "Flask-Migrate==4.1.0",
+    "Flask-SQLAlchemy==3.1.1",
     "Flask-WTF==1.3.0",
-    "Frozen-Flask==1.0.2",
     "google-auth-oauthlib==1.4.0",
     "apscheduler>=3.11.0",
     "markdown~=3.10.0",
@@ -20,6 +19,7 @@ dependencies = [
     "PyMuPDF~=1.28.0",
     "pyparsing==3.3.2",
     "python-dateutil>=2",
+    "SQLAlchemy==2.0.51",
     "textile==4.0.4",
     "zipp==4.1.0",
     "yadisk==3.4.1",
@@ -55,7 +55,7 @@ context = "test"
 omit = ["src/thesesImport.py", "src/wsgi.py", "src/extract_text.py", "src/static/files/*"]
 
 [tool.pylint.main]
-ignore-paths = [".*migrations.*", ".*\\.venv.*", ".*templates.*", ".*static.*"]
+ignore-paths = [".*\\.venv.*", ".*templates.*", ".*static.*"]
 
 [tool.pylint.similarities]
 ignore-comments = true

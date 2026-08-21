@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
-"""Guardrail for the GTM removal + config-driven Yandex Metrica wiring.
+"""Guardrail for the GTM removal + consent-gated, config-driven Yandex Metrica.
 
 GTM (`GTM-NGT2J3Z`) was removed from every template as the GDPR/152-ФЗ
 mitigation release (see `docs/PRIVACY_COMPLIANCE.md`). Yandex Metrica is the
 only analytics provider allowed; its counter id comes from the gitignored
 `configs/flask_se_metrica.conf` or the `SE_YANDEX_METRICA_ID` env var and is
-rendered only when a digit-only id is configured — an unconfigured site makes
-zero analytics requests. These tests protect the structural contract:
+rendered only when a digit-only id is configured. Since the consent-gate PR,
+the snippet additionally requires the visitor to have accepted the
+``statistics`` category (the ``se_consent`` cookie) — an unconfigured or
+non-consenting visitor sees zero analytics requests. These tests protect the
+structural contract:
 - no base (or any HTML template) carries a GTM reference;
-- every base gates the Metrica snippet behind `se_metrica_id`;
+- every base gates the Metrica snippet behind consent + `se_metrica_id`;
 - `metrica_id()` returns "" for missing/invalid values and digits otherwise;
-- a rendered page includes the Metrica snippet only when an id is configured.
+- a rendered page includes the Metrica snippet only when an id is configured
+  AND the consent cookie grants the `statistics` category.
 """
 
 from pathlib import Path
@@ -49,12 +53,20 @@ class TestGtmRemoved:
 
 
 class TestMetricaWiring:
-    def test_every_base_gates_metrica_behind_global(self):
+    def test_every_base_gates_metrica_behind_consent(self):
         for base in ALL_BASES:
             text = (TEMPLATES_DIR / base).read_text(encoding="utf-8")
-            assert "{% if se_metrica_id %}" in text, f"{base} missing the metrica gate"
+            assert 'se_consent_granted["statistics"]' in text, f"{base} missing the consent gate"
+            assert "{% if se_metrica_id %}" not in text, f"{base} metrica is not consent-gated"
             assert METRICA_URL in text, f"{base} missing the metrica snippet"
             assert "{{ se_metrica_id }}" in text, f"{base} missing the counter interpolation"
+            assert "clickmap: false" in text, f"{base} still enables clickmap"
+
+    def test_every_base_includes_consent_banner(self):
+        for base in ALL_BASES:
+            text = (TEMPLATES_DIR / base).read_text(encoding="utf-8")
+            assert "consent_banner.html" in text, f"{base} missing the consent banner include"
+            assert "se_consent.js" in text, f"{base} missing the consent script reference"
 
 
 class TestMetricaConfig:
@@ -95,19 +107,36 @@ def metrica_set(monkeypatch):
     monkeypatch.setattr(flask_se, "metrica_id", lambda: "48234321")
 
 
+def _consent(client, value="essential,statistics"):
+    client.set_cookie("se_consent", value)
+
+
 class TestRenderedPages:
     def test_homepage_has_no_analytics_without_id(self, seeded_client, metrica_none):
         body = seeded_client.get("/").get_data(as_text=True)
         assert METRICA_URL not in body
         assert "ym(" not in body
 
-    def test_homepage_renders_metrica_with_id(self, seeded_client, metrica_set):
+    def test_homepage_has_no_metrica_without_consent(self, seeded_client, metrica_set):
+        body = seeded_client.get("/").get_data(as_text=True)
+        assert METRICA_URL not in body
+        assert "ym(" not in body
+
+    def test_homepage_has_no_metrica_when_statistics_declined(self, seeded_client, metrica_set):
+        _consent(seeded_client, "essential")
+        body = seeded_client.get("/").get_data(as_text=True)
+        assert METRICA_URL not in body
+        assert "ym(" not in body
+
+    def test_homepage_renders_metrica_with_id_and_consent(self, seeded_client, metrica_set):
+        _consent(seeded_client)
         body = seeded_client.get("/").get_data(as_text=True)
         assert METRICA_URL in body
         assert 'ym(48234321, "init"' in body
         assert "https://mc.yandex.ru/watch/48234321" in body
 
-    def test_news_page_renders_metrica_with_id(self, seeded_client, metrica_set):
+    def test_news_page_renders_metrica_with_id_and_consent(self, seeded_client, metrica_set):
+        _consent(seeded_client)
         body = seeded_client.get("/news/").get_data(as_text=True)
         assert METRICA_URL in body
         assert "ym(48234321" in body

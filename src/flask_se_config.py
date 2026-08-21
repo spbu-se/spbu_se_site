@@ -124,6 +124,30 @@ def metrica_id() -> str:
     return ""
 
 
+# Consent-cookie name. The value is a comma-separated list of granted
+# categories (e.g. ``essential,statistics``), written by JS and read by Flask
+# so analytics snippets render only after explicit acceptance.
+CONSENT_COOKIE_NAME = "se_consent"
+
+
+def consent_categories() -> dict[str, bool]:
+    """Consent categories: ``{name: enabled-by-default}``.
+
+    ``essential`` (strictly-necessary cookies like ``se_session``) is always
+    on. Optional categories — ``statistics`` (Yandex Metrica) and
+    ``marketing`` (GTM/Google, currently removed from the site) — start
+    disabled and are enabled only by explicit visitor acceptance via the
+    consent banner. The server gates every analytics snippet on the granted
+    ``se_consent`` cookie, so nothing loads before consent (see
+    ``docs/PRIVACY_COMPLIANCE.md`` §4.1).
+    """
+    return {
+        "essential": True,
+        "statistics": False,
+        "marketing": False,
+    }
+
+
 SQLITE_DATABASE_NAME: str = "se.db"
 SQLITE_DATABASE_PATH: str = pathlib.Path("databases/").absolute().as_posix()
 SQLITE_DATABASE_URI: str = (

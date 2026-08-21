@@ -244,6 +244,7 @@ class TestLoginRequiredRedirects:
         "path",
         [
             "/profile.html",
+            "/profile/export.zip",
             "/upload_avatar",
             "/news/submit.html",
             "/news/post_vote",
@@ -268,6 +269,114 @@ class TestLoginRequiredRedirects:
     def test_profile_update(self, logged_client):
         resp = logged_client.get("/profile.html")
         assert resp.status_code == 200
+
+
+class TestUserExport:
+    def test_export_requires_login(self, seeded_client):
+        resp = seeded_client.get("/profile/export.zip")
+        assert resp.status_code in (200, 302)
+
+    def test_export_zip_contains_account_and_content(self, logged_client):
+        import zipfile
+
+        from se_models import Users
+
+        user = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+        resp = logged_client.get("/profile/export.zip")
+        assert resp.status_code == 200
+        assert resp.mimetype == "application/zip"
+        assert (
+            resp.headers["Content-Disposition"] == f"attachment; filename=user-data-{user.id}.zip"
+        )
+
+        archive = zipfile.ZipFile(io.BytesIO(resp.data))
+        assert set(archive.namelist()) == {"account.json", "content.json"}
+
+        account = json.loads(archive.read("account.json").decode("utf-8"))
+        assert account["email"] == "a.terekhov@spbu.ru"
+        assert account["first_name"] == "Андрей"
+        assert "password_hash" not in account
+
+        content = json.loads(archive.read("content.json").decode("utf-8"))
+        assert isinstance(content, dict)
+
+    def test_export_content_includes_owned_posts(self, logged_client):
+        import zipfile
+
+        from se_models import Posts, Users
+
+        user = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+        owned = Posts.query.filter_by(author_id=user.id).all()
+
+        resp = logged_client.get("/profile/export.zip")
+        archive = zipfile.ZipFile(io.BytesIO(resp.data))
+        content = json.loads(archive.read("content.json").decode("utf-8"))
+        assert len(content["posts"]) == len(owned)
+
+
+class TestUserDelete:
+    def test_delete_requires_login(self, seeded_client):
+        resp = seeded_client.post("/profile/delete")
+        assert resp.status_code == 302
+
+    def test_delete_requires_post(self, logged_client):
+        resp = logged_client.get("/profile/delete")
+        assert resp.status_code == 404
+
+    def test_delete_anonymizes_account(self, logged_client):
+        from se_models import Users
+
+        user = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+        user_id = user.id
+        user_first_name = user.first_name
+
+        resp = logged_client.post("/profile/delete")
+        assert resp.status_code == 302
+
+        deleted = Users.query.get(user_id)
+        assert deleted is not None
+        assert deleted.deleted is True
+        assert deleted.email is None
+        assert deleted.password_hash is None
+        assert deleted.vk_id is None
+        assert deleted.fb_id is None
+        assert deleted.google_id is None
+        assert deleted.avatar_uri == "empty.jpg"
+        assert deleted.how_to_contact is None
+        assert deleted.role == 0
+        assert deleted.first_name == user_first_name
+
+    def test_delete_keeps_published_content(self, logged_client):
+        from se_models import Posts, PostVote, Users
+
+        user = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+        posts_before = Posts.query.filter_by(author_id=user.id).count()
+        votes_before = PostVote.query.filter_by(user_id=user.id).count()
+        assert posts_before > 0
+
+        logged_client.post("/profile/delete")
+
+        assert Posts.query.filter_by(author_id=user.id).count() == posts_before
+        assert PostVote.query.filter_by(user_id=user.id).count() == votes_before
+
+    def test_delete_logs_out(self, logged_client):
+        logged_client.post("/profile/delete")
+        resp = logged_client.get("/profile.html")
+        assert resp.status_code in (200, 302)
+
+    def test_delete_blocks_relogin(self, seeded_client):
+        from se_models import Users
+
+        u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+        with seeded_client.session_transaction() as sess:
+            sess["_user_id"] = str(u.id)
+
+        seeded_client.post("/profile/delete")
+        resp = seeded_client.post(
+            "/login.html", data={"email": "a.terekhov@spbu.ru", "password": "WrongPass123!"}
+        )
+        assert Users.query.filter_by(email="a.terekhov@spbu.ru").first() is None
+        assert resp.status_code in (200, 302)
 
 
 class TestGoogleOAuth:
