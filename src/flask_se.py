@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import shutil
 import sys
 from datetime import UTC, date
 from pathlib import Path
@@ -11,10 +12,13 @@ import markdown as _markdown
 import nh3
 from dateutil import tz
 from flask import Flask, request
-from flask_migrate import Migrate
 from flask_wtf import CSRFProtect
 from markupsafe import Markup
+from sqlalchemy import Boolean, Float, Integer, Numeric, String, Text, inspect
+from sqlalchemy.dialects.sqlite import dialect as sqlite_dialect
+from sqlalchemy.schema import CreateColumn
 
+import flask_se_config as fsc
 import flask_se_theses
 from flask_se_admin import (
     AdminIndexView,
@@ -69,6 +73,7 @@ from se_models import (
     Thesis,
     Users,
     db,
+    ensure_fts5_index,
     init_db,
     recalculate_post_rank,
 )
@@ -80,7 +85,6 @@ from sitemap import register_sitemap
 
 # Extension singletons: init_app() is called inside create_app() so the same
 # objects can back multiple app instances (production WSGI + tests).
-migrate = Migrate()
 csrf = CSRFProtect()
 
 
@@ -166,7 +170,6 @@ def _init_extensions(app: Flask) -> None:
     # All POST forms must include {{ csrf_token() }}.
     csrf.init_app(app)
     db.init_app(app)
-    migrate.init_app(app, db, render_as_batch=True)
     login_manager.init_app(app)
 
     app.template_filter("markdown")(render_markdown)
@@ -306,11 +309,117 @@ def create_app(
 app = create_app()
 
 
+class EnsureSchemaError(RuntimeError):
+    """A schema delta cannot be applied automatically.
+
+    SQLite ADD COLUMN cannot add columns carrying PK/UNIQUE/FK constraints —
+    the developer fixes the model and redeploys manually, then re-runs
+    ``ensure_schema``. Never an ops step.
+    """
+
+    def __init__(self, column_name: str) -> None:
+        super().__init__(f"Cannot auto-add column {column_name} (PK/UNIQUE/FK)")
+
+
+def ensure_schema() -> None:
+    """Self-heal the SQLite schema to match the models (idempotent, no ops needed).
+
+    Fresh DB (no file yet): ``init_db()`` builds it from the models. Existing
+    DB: back it up to ``se_backup_<date>.db``, then ``db.create_all()`` for
+    missing tables plus a per-table ``PRAGMA table_info`` diff that adds every
+    column the model declares and the DB lacks. Column presence is the version
+    marker — there is no ``alembic_version`` table and no version state to
+    drift. Entrypoint runs this unless ``SE_AUTO_MIGRATE=0``.
+    """
+    db_file = Path(fsc.SQLITE_DATABASE_PATH, fsc.SQLITE_DATABASE_NAME)
+    if not db_file.is_file():
+        init_db()
+        print("[ensure-schema] Fresh DB initialized from models")
+        return
+
+    backup = Path(fsc.SQLITE_DATABASE_PATH, fsc.SQLITE_DATABASE_BACKUP_NAME)
+    shutil.copyfile(db_file, backup)
+    print(f"[ensure-schema] Backed up DB to {backup.name}")
+
+    db.create_all()
+    _ensure_schema_columns()
+    ensure_fts5_index()
+    print("[ensure-schema] Schema is up to date")
+
+
+def _ensure_schema_columns() -> None:
+    """Add every column the models declare but the DB lacks (idempotent)."""
+    dialect = sqlite_dialect()
+    inspector = inspect(db.engine)
+    existing_tables = set(inspector.get_table_names())
+    with db.engine.begin() as conn:
+        for table in db.Model.metadata.sorted_tables:
+            if table.name not in existing_tables:
+                continue
+            existing_columns = {column["name"] for column in inspector.get_columns(table.name)}
+            for column in table.columns:
+                if column.name in existing_columns:
+                    continue
+                _add_missing_column(conn, dialect, table, column)
+
+
+def _add_missing_column(conn, dialect, table, column) -> None:
+    """Emit the ``ALTER TABLE ... ADD COLUMN`` for one missing column.
+
+    A missing column is auto-added when it is nullable or carries a
+    ``server_default``; otherwise a constant default is synthesized by type
+    (``Boolean/Integer → 0``, ``Float/Numeric → 0.0``, ``String/Text → ''``);
+    exotic non-nullable types are added nullable with a logged warning. A
+    missing column carrying UNIQUE/PK/FK cannot be added via SQLite
+    ``ADD COLUMN`` — fail-loud: the developer fixes the model, never an ops step.
+    """
+    name = f"{table.name}.{column.name}"
+    if column.primary_key or column.unique or column.foreign_keys:
+        raise EnsureSchemaError(name)
+    if column.nullable or column.server_default is not None:
+        clause = str(CreateColumn(column).compile(dialect=dialect))
+    else:
+        literal = _synthesized_default_literal(column, dialect)
+        if literal is None:
+            print(
+                f"[ensure-schema] WARNING: {name} is NOT NULL {column.type} with no "
+                "server_default; adding it nullable. Set a server_default in the model."
+            )
+            clause = f"{column.name} {column.type.compile(dialect=dialect)}"
+        else:
+            clause = (
+                f"{column.name} {column.type.compile(dialect=dialect)} NOT NULL DEFAULT {literal}"
+            )
+    print(f"[ensure-schema] ADD COLUMN {name}")
+    conn.execute(db.text(f"ALTER TABLE {table.name} ADD COLUMN {clause}"))
+
+
+def _synthesized_default_literal(column, dialect) -> str | None:
+    """Constant literal for a NOT NULL column with no server_default, by type.
+
+    Returns ``None`` for exotic types (DateTime, etc.) — the caller then adds
+    the column nullable with a warning instead of failing the whole boot.
+    """
+    default: int | float | str
+    if isinstance(column.type, (Boolean, Integer)):
+        default = 0
+    elif isinstance(column.type, (Float, Numeric)):
+        default = 0.0
+    elif isinstance(column.type, (String, Text)):
+        default = ""
+    else:
+        return None
+    return column.type.literal_processor(dialect)(default)
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "init":
             with app.app_context():
                 init_db()
+        elif sys.argv[1] == "migrate":
+            with app.app_context():
+                ensure_schema()
     else:
         from werkzeug.serving import run_simple
 

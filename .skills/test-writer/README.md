@@ -97,6 +97,41 @@ def test_with_logged_in_user(self, seeded_client):
 - Use `logged_client` fixture instead of login POST to avoid scrypt hash issues on Python 3.13
 - Assert `resp.status_code` against a set: `{200}` not `200`, to allow easy widening
 
+### Schema/DDL tests: swap the engine per test
+
+For schema-management code (`ensure_schema()`, auto-migrate), tests need their own DB state without touching the fixture DB. Swap the engine the same way `conftest._set_db_uri()` does, and restore it in `finally`:
+
+```python
+import flask_se_config as fsc
+from sqlalchemy import create_engine, inspect, text
+from flask_se import app, db
+
+_dir = tempfile.mkdtemp()
+try:
+    with app.app_context():
+        old_name, old_path = fsc.SQLITE_DATABASE_NAME, fsc.SQLITE_DATABASE_PATH
+        old_uri = app.config["SQLALCHEMY_DATABASE_URI"]
+        old_engine = db.engines.get(None)
+        try:
+            fsc.SQLITE_DATABASE_NAME = "auto.db"                     # ensure_schema reads these globals
+            fsc.SQLITE_DATABASE_PATH = _dir
+            app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{Path(_dir) / 'auto.db'}"
+            db.engines[None] = create_engine(f"sqlite:///{Path(_dir) / 'auto.db'}")  # db.engines is a dict at runtime
+            ensure_schema()
+            assert "users" in inspect(db.engine).get_table_names()
+        finally:
+            fsc.SQLITE_DATABASE_NAME, fsc.SQLITE_DATABASE_PATH = old_name, old_path
+            app.config["SQLALCHEMY_DATABASE_URI"] = old_uri
+            if old_engine is not None:
+                db.engines[None] = old_engine
+            else:
+                db.engines.pop(None, None)
+finally:
+    shutil.rmtree(_dir, ignore_errors=True)
+```
+
+Notes: `db.engines[None] = ...` is a runtime dict (the type stub says `Mapping`, ignore the checker noise — basedpyright only gates `src/`); `current_app` must be accessed inside `app.app_context()`; use `tempfile.mkdtemp()` (never `NamedTemporaryFile` — see §Per-test temp directories).
+
 ### Filter-output tests (autoescape regression)
 
 A template filter that returns a plain `str` gets **re-escaped by Jinja autoescape** when used as `{{ x|filter }}` — direct filter-call assertions (`md("- a")`) never catch this. Assert through the Jinja environment:

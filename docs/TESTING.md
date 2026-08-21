@@ -33,7 +33,7 @@ Where edge cases emerge during testing, improve process documentation: what was 
 |-------|--------|------|
 | Production modules | 90% line coverage | Measured on `src/` excluding one-shot scripts |
 | New modules | 50% line coverage | Before first commit to staging |
-| Excluded | `thesesImport.py`, `migrations/` | One-shot importers — not exercised in normal operation |
+| Excluded | `thesesImport.py`, `wsgi.py`, `extract_text.py` | One-shot importers/entrypoints — not exercised in normal operation |
 
 Coverage is checked at staging→current gate. Steps below 90% block the merge.
 
@@ -93,6 +93,8 @@ Reference run (2026-08-20, `pytest --tb=no -q -rxX`): **1376 passed, 4 skipped, 
 Reference run (2026-08-20, `pytest --tb=no -q -rxX`): **1384 passed, 4 skipped, 3 xfailed, 1 xpassed** — security headers shipped: `tests/test_security_headers.py` (8) covering CSP allowlist, header presence on pages/assets/404, the `SE_COOKIE_SECURE` HSTS/upgrade gate, and omitted CORP.
 
 Reference run (2026-08-21, `pytest --tb=no -q -rxX`): **1394 passed, 4 skipped, 3 xfailed, 1 xpassed** — account deletion shipped: `tests/test_auth_views.py::TestUserDelete` (6: login-required, POST-only, anonymization, content retention, logout, relogin-block).
+
+Reference run (2026-08-21, `pytest --tb=no -q -rxX`): **1402 passed, 4 skipped, 3 xfailed, 1 xpassed** — Alembic removed, self-healing `ensure_schema()` shipped: `tests/test_migrations.py::TestSchemaDeltas` (8: fresh-DB init, backup+repair, server_default NOT NULL, synthesized constant defaults, exotic-nullable warning, fail-loud UNIQUE, idempotency, FTS5 index creation).
 
 ## 5. Xpassed Tests
 

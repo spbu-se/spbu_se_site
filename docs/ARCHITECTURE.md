@@ -126,7 +126,7 @@ Practice templates use `templates.py` enum files for path references rather than
 
 - SQLite backend (`se.db`)
 - SQLAlchemy ORM with declarative base
-- Alembic migrations in `migrations/versions/`
+- Schema evolved in code, not via Alembic: `init_db()` (`db.create_all()`) for fresh DBs + a boot-time `ensure_schema()` (PRAGMA-driven `ADD COLUMN`) for drift repair — see `docs/DESIGN_DECISIONS.md` [2026-08-08] and [2026-08-21]
 - Seed data in `init_db()` called via `python flask_se.py init`
 
 ### File Uploads

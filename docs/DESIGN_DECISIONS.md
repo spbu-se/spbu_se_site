@@ -19,7 +19,7 @@ Covers: technology stack choices, framework-specific decisions, implementation p
 | Auth | Flask-Login + custom (email, VK, Google) | 2026-06-27 | Standard Flask auth stack |
 | Scheduler | APScheduler (BackgroundScheduler) | 2026-07-12 | Standalone BackgroundScheduler replaces Flask-APScheduler (unmaintained since 2020) |
 | Forms | WTForms | 2026-06-27 | Flask community standard, CSRF protection built-in |
-| Migrations | Flask-Migrate (Alembic) | 2026-06-27 | Schema evolution tracking |
+| Migrations | Self-healing `ensure_schema()` (models = source of truth; `db.create_all()` + PRAGMA-driven `ADD COLUMN`) | 2026-08-21 | Webhook deploys have no migration step; the Alembic tree is multi-headed and broken from scratch — see [2026-08-08] Lazy DDL guard and [2026-08-21] Self-healing boot-time schema |
 | Static assets | Quick Website theme (Bootstrap 4) | 2026-06-27 | Pre-existing design, responsive |
 
 ## [2026-08-08] Date-based versioning + draft releases
@@ -153,7 +153,7 @@ with no release artifacts or notes.
 
 **Decision**: Keep all models in `se_models.py`.
 
-**Rationale**: Keeps the schema visible in one place. Database migrations (Alembic/Flask-Migrate) handle schema evolution; models are read-only references to the current schema.
+**Rationale**: Keeps the schema visible in one place. Database migrations (Alembic/Flask-Migrate) handle schema evolution; models are read-only references to the current schema. *(Superseded by [2026-08-21] — models are the schema source of truth and evolve via `ensure_schema()`; Alembic was removed.)*
 
 ## [2026-07-05] Basedpyright Per-Module Opt-Out Strategy
 
@@ -307,6 +307,35 @@ with no release artifacts or notes.
 **Rationale**: Matches the deployment reality — webhook deploys rebuild/restart without a migration step, and the multi-head Alembic tree makes autogenerate unreliable. The guard is a one-time no-op after the first request, and tests get the schema free via `db.create_all()`.
 
 **Alternatives considered**: Fixing the Alembic tree and running `flask db upgrade` on deploy — larger, riskier change touching deployment infrastructure. Adding columns via raw SQL in the old data-import path — fragmented, no single guard point.
+
+## [2026-08-21] Self-healing boot-time schema (`ensure_schema`) instead of Alembic
+
+**Context**: The 2026-08-08 lazy-DDL decision was being formalized into a boot-time auto-migrate step. The first attempt wired Alembic (`flask db upgrade` / `stamp`) into `docker/entrypoint.sh` — a regression against the documented decision: the Alembic tree in `src/migrations/` is multi-headed and **cannot build a fresh DB from scratch** (two roots `25130df4ed9f` + `c4e88555c985`, merge `33ca5df0bfc2`), deploys are webhook-driven (no migration step), and every historical migration is pure DDL (0 data operations). Review surfaced the existing decision and the requirement that the app be **self-healing with zero ops/admin intervention** (no `flask db current` pre-flight).
+
+**Decision**: Remove Alembic (`flask-migrate` + `alembic` deps, `src/migrations/`) and replace it with a single idempotent `ensure_schema()` run at boot (`python flask_se.py migrate`, gated by `SE_AUTO_MIGRATE`, default on):
+
+- **Fresh DB** (no `databases/se.db`) → `init_db()` (`db.create_all()` + seed) — the models are the schema source of truth.
+- **Existing DB** → back up to `se_backup_<date>.db` (reuses `SQLITE_DATABASE_BACKUP_NAME`), then `ensure_schema()`: `db.create_all()` for missing tables + per-table `PRAGMA table_info` diff against the model, `ALTER TABLE ... ADD COLUMN` for every missing column.
+- **Column-presence is the version marker** — no `alembic_version` table, no versioning needed now. Each delta self-verifies against the real DB state every boot.
+- **Column-addability contract**: a missing column is auto-added when it is nullable OR has a `server_default`; otherwise a constant default is synthesized by type (`Boolean→0`, `Integer→0`, `Float/Numeric→0.0`, `String/Text→''`); exotic non-nullable types (e.g. DateTime) are added nullable with a logged warning. A missing column carrying UNIQUE/PK/FK cannot be added via SQLite `ADD COLUMN` → fail-loud with a precise message (the *developer* fixes the model; never an ops step).
+- DDL runs inside `db.engine.begin()` (rollback on failure) and entrypoint `set -e` aborts boot loudly rather than serving a half-migrated schema.
+- The scattered per-view guards (`_ensure_thesis_consultant_column` in `flask_se_theses.py`, `NotificationLog.__table__.create(checkfirst=True)` in `se_sendmail.py`) stay as their one-time first-request guards for hot paths; `ensure_schema()` is the systematic boot-time pass.
+
+**Rationale**: Matches the deployment reality (webhook deploys rebuild/restart without a migration step) and the user's self-healing requirement (no ops intervention, no version-state drift). Target-schema repair from the models fixes any DB state regardless of history — including the legacy-unstamped case the Alembic path handled only by stamping with an assumption. All 29 historical migrations are pure DDL already reflected in the models, so schema-only repair is complete; no data backfills exist to lose.
+
+**Consequences**: `Users.deleted` must carry `server_default=sa.false()` (it previously had only a Python-side default) so `ADD COLUMN ... NOT NULL` can backfill existing rows. Future columns: add to the model as nullable or with a `server_default` — no migration files.
+
+**Alternatives considered**: Alembic auto-migrate at boot (built first) — regression; broken chain from scratch + assumption-based stamping. Squashing the Alembic tree to one baseline — keeps the machinery for no benefit (models already produce the fresh schema via `create_all`). A versioned ordered-deltas table — deferred; only needed for future non-additive changes (renames, drops, data backfills), same pattern, added when required.
+
+## [2026-08-21] Soft-delete account tombstone (fired-employee model)
+
+**Context**: Right-to-be-forgotten (152-ФЗ ст. 14 / GDPR Art. 17). Every owned-content table (`posts`, `theses`, `practice`, `post_votes`, `reviewer`, …) has a NOT NULL `user_id` FK with **no cascade**; a hard delete would break author attribution, `Staff` joins, and admin pages. Department decision (PRIVACY_COMPLIANCE.md §5 #6): "someone fired from the department — the domain account is deleted, but work results stay."
+
+**Decision**: Soft-delete via `Users.deleted` + `/profile/delete` (POST, `@login_required`, CSRF-protected): flag the row, purge identifying login data (`email`, `password_hash`, `vk_id`/`fb_id`/`google_id`, `avatar_uri`, `how_to_contact`, `role`), keep `first_name`/`middle_name`/`last_name` so published-content attribution survives. `load_user()` returns `None` for deleted rows. Content rows are untouched.
+
+**Rationale**: Content integrity — every owned-content table has a NOT NULL `user_id` FK with no cascade; the tombstone keeps FKs, attribution, and joins working while removing all login capability and identifying data.
+
+**Alternatives considered**: Hard delete with FK null-out — breaks attribution and `Staff` joins; full cascade delete — violates the archival duty for educational records and the department's fired-employee model. Anonymized "Удалённый пользователь" placeholder names — rejected: published content keeps its attribution.
 
 ## [2026-08-10] Open Graph cards by design — block-based defaults + per-content overrides
 
