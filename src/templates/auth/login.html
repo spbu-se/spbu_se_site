@@ -112,7 +112,7 @@
       </div>
     </div>
   </section>
-  <script>
+  <script nonce="{{ csp_nonce() }}">
 function pass_rec_page_switch()
 {
      location.href = "{{ url_for('login_index') }}";

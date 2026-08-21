@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
+# SPDX-License-Identifier: Apache-2.0
 """Security-header guardrails (docs/SEO_A11Y_ROADMAP.md §CSP + security headers).
 
 Every response (HTML page, static asset, error page) carries the security
 headers set by `flask_se_headers.register_security_headers`. These tests pin
-the allowlist CSP (Option B) and the HTTPS-only directives' gate on
+the strict nonce-CSP and the HTTPS-only directives' gate on
 `SE_COOKIE_SECURE`, and assert `Cross-Origin-Resource-Policy` stays omitted.
 """
 
@@ -52,9 +52,20 @@ class TestCspAllowlist:
         assert "api-maps.yandex.ru" in csp
         assert "maps.googleapis.com" in csp
 
-    def test_csp_string_has_https_only_upgrade(self):
-        assert "; upgrade-insecure-requests" in flask_se_headers.CSP
-        assert "; upgrade-insecure-requests" not in flask_se_headers.CSP_DEV
+    def test_no_unsafe_inline_in_script_src(self, seeded_client):
+        csp = seeded_client.get("/").headers["Content-Security-Policy"]
+        script_src = csp.split("script-src")[1].split(";")[0]
+        assert "'unsafe-inline'" not in script_src
+        assert "nonce-" in csp
+
+    def test_csp_string_has_https_only_upgrade(self, seeded_client, monkeypatch):
+        monkeypatch.setenv("SE_COOKIE_SECURE", "1")
+        csp_secure = seeded_client.get("/").headers["Content-Security-Policy"]
+        assert "; upgrade-insecure-requests" in csp_secure
+
+        monkeypatch.setenv("SE_COOKIE_SECURE", "0")
+        csp_dev = seeded_client.get("/").headers["Content-Security-Policy"]
+        assert "; upgrade-insecure-requests" not in csp_dev
 
 
 class TestHttpsGate:

@@ -93,7 +93,7 @@
                                       placeholder="Дайте студенту обратную связь по отчету, если хотите."
                                       rows="3"
                                       style="display: none"></textarea>
-                            <script>
+                            <script nonce="{{ csp_nonce() }}">
                                         (function () {
                                             var simplemde = new SimpleMDE({
                                             spellChecker: false,
@@ -118,7 +118,7 @@
         </div>
       {% endif %}
     </div>
-    <script>
+    <script nonce="{{ csp_nonce() }}">
     seReady(function()
     {
         document.title = "{{ thesis.title }}";

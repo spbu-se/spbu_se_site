@@ -9,7 +9,7 @@
 {% block twitter_title %}{{ internship.name_vacancy }}{% endblock %}
 {% block twitter_description %}{{ og_description or "Сервис для поиска студенческих IT-стажировок" }}{% endblock %}
 {% block json_ld %}
-  <script type="application/ld+json">
+  <script type="application/ld+json" nonce="{{ csp_nonce() }}">
   {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",

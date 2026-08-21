@@ -3,7 +3,7 @@
 {% block title %}Программная инженерия (магистратура){% endblock %}
 {% block og_image %}{{ url_for('static', filename='assets/img/og/og-programs.png', _external=True) }}{% endblock %}
 {% block json_ld %}
-  <script type="application/ld+json">
+  <script type="application/ld+json" nonce="{{ csp_nonce() }}">
   {
     "@context": "https://schema.org",
     "@type": "Course",

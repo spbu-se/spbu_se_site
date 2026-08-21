@@ -16,7 +16,7 @@
   {{ ("Автор: " ~ thesis.author ~ ". Руководитель: " ~ (thesis.supervisor.user.get_name() if thesis.supervisor else "?") ~ ". Направление: " ~ thesis.course.name) | trim }}
 {% endblock %}
 {% block json_ld %}
-  <script type="application/ld+json">
+  <script type="application/ld+json" nonce="{{ csp_nonce() }}">
   {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",

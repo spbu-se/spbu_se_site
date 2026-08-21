@@ -8,7 +8,7 @@
 {% block twitter_title %}{{ post.title }}{% endblock %}
 {% block twitter_description %}{{ og_description or post.title }}{% endblock %}
 {% block json_ld %}
-  <script type="application/ld+json">
+  <script type="application/ld+json" nonce="{{ csp_nonce() }}">
   {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",

@@ -1,24 +1,26 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import secrets
 
-from flask import Flask
+from flask import Flask, g
 
 # Security headers, set on every response via `after_request`. nginx only sets
 # `server_tokens off`; content headers come from Flask so there is no
 # double-header risk (see `docs/SEO_A11Y_ROADMAP.md` §CSP + security headers).
 #
-# Allowlist CSP (Option B): strict nonce-CSP is deferred — 15 templates carry
-# inline scripts and Google Maps (when provisioned) requires 'unsafe-inline'/
-# 'unsafe-eval'. Google Tag Manager was removed in v2026.08.20, so
-# `googletagmanager.com` is deliberately absent. Yandex Metrica (`mc.yandex.ru`)
-# is consent-gated (see `docs/PRIVACY_COMPLIANCE.md`) and only loads on pages
-# where the visitor accepted the `statistics` category. Maps hosts cover the
-# Yandex v3 API (+ its `*.maps.yandex.net` module/tile loader) and the Google
-# Maps API; map tiles themselves are covered by the https-wildcard `img-src`.
-CSP = (
+# Strict nonce-CSP (v2026.08.+): every inline <script> carries a per-request
+# nonce; `'unsafe-inline'` is absent from script-src. 'unsafe-eval' remains
+# because Yandex Maps / Metrica use eval(). Google Tag Manager was removed in
+# v2026.08.20, so `googletagmanager.com` is deliberately absent. Yandex
+# Metrica (`mc.yandex.ru`) is consent-gated (see `docs/PRIVACY_COMPLIANCE.md`)
+# and only loads on pages where the visitor accepted the `statistics` category.
+# Maps hosts cover the Yandex v3 API (+ its `*.maps.yandex.net` module/tile
+# loader) and the Google Maps API; map tiles themselves are covered by the
+# https-wildcard `img-src`.
+_CSP_BASE = (
     "default-src 'self'; "
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' "
+    "script-src 'self' 'nonce-{nonce}' 'unsafe-eval' "
     "https://topbar.spbu.ru https://mc.yandex.ru "
     "https://api-maps.yandex.ru https://*.maps.yandex.net "
     "https://maps.googleapis.com https://*.googleapis.com; "
@@ -32,15 +34,10 @@ CSP = (
     "object-src 'none'; "
     "base-uri 'self'; "
     "form-action 'self'; "
+    "merge_src 'self'; "
     "frame-ancestors 'self'; "
     "upgrade-insecure-requests"
 )
-
-# Drop the HTTPS-only directives when not running behind TLS (dev on plain
-# HTTP must not upgrade its own subresources or advertise HSTS). Mirrors the
-# SESSION_COOKIE_SECURE gate in `flask_se.py`.
-_UPGRADE_DIRECTIVE = "; upgrade-insecure-requests"
-CSP_DEV = CSP.replace(_UPGRADE_DIRECTIVE, "")
 
 PERMISSIONS_POLICY = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
 
@@ -50,17 +47,29 @@ def _secure_enabled() -> bool:
     return os.environ.get("SE_COOKIE_SECURE", "1") == "1"
 
 
+def _set_csp_nonce() -> None:
+    g.csp_nonce = secrets.token_urlsafe(16)
+
+
+def _build_csp() -> str:
+    """CSP with the current request's nonce. Drops `upgrade-insecure-requests`
+    when not behind TLS (mirrors the SESSION_COOKIE_SECURE gate)."""
+    csp = _CSP_BASE.format(nonce=g.csp_nonce)
+    if not _secure_enabled():
+        csp = csp.replace("; upgrade-insecure-requests", "")
+    return csp
+
+
 def register_security_headers(app: Flask) -> None:
     """Attach security headers to every response."""
+
+    app.before_request(_set_csp_nonce)
 
     @app.after_request
     def _set_security_headers(response):  # pyright: ignore[reportUnusedFunction]
         if _secure_enabled():
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-            csp = CSP
-        else:
-            csp = CSP_DEV
-        response.headers["Content-Security-Policy"] = csp
+        response.headers["Content-Security-Policy"] = _build_csp()
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
