@@ -54,7 +54,8 @@ def _set_csp_nonce() -> None:
 def _build_csp() -> str:
     """CSP with the current request's nonce. Drops `upgrade-insecure-requests`
     when not behind TLS (mirrors the SESSION_COOKIE_SECURE gate)."""
-    csp = _CSP_BASE.format(nonce=g.csp_nonce)
+    nonce = getattr(g, "csp_nonce", secrets.token_urlsafe(16))
+    csp = _CSP_BASE.format(nonce=nonce)
     if not _secure_enabled():
         csp = csp.replace("; upgrade-insecure-requests", "")
     return csp

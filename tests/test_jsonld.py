@@ -7,7 +7,7 @@ import pytest
 
 def _jsonld_blocks(resp):
     html = resp.get_data(as_text=True)
-    return re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)
+    return re.findall(r'<script type="application/ld\+json"[^>]*>(.*?)</script>', html, re.S)
 
 
 def _assert_type(blocks, expected_type):
