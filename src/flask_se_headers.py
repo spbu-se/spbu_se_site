@@ -34,7 +34,6 @@ _CSP_BASE = (
     "object-src 'none'; "
     "base-uri 'self'; "
     "form-action 'self'; "
-    "merge_src 'self'; "
     "frame-ancestors 'self'; "
     "upgrade-insecure-requests"
 )
