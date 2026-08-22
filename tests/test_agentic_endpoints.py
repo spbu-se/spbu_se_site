@@ -5,11 +5,6 @@ import pytest
 
 
 class TestWellKnown:
-    def test_llms_alias_redirects_to_root(self, seeded_client):
-        resp = seeded_client.get("/.well-known/llms.txt")
-        assert resp.status_code == 301
-        assert resp.headers["Location"] == "/llms.txt"
-
     def test_root_llms_served(self, seeded_client):
         resp = seeded_client.get("/llms.txt")
         assert resp.status_code == 200
@@ -18,11 +13,6 @@ class TestWellKnown:
         resp = seeded_client.get("/.well-known/security.txt")
         assert resp.status_code == 200
         assert "mailto:dluciv@spbu.ru" in resp.get_data(as_text=True)
-
-    def test_security_txt_root_alias(self, seeded_client):
-        resp = seeded_client.get("/security.txt")
-        assert resp.status_code == 301
-        assert resp.headers["Location"] == "/.well-known/security.txt"
 
 
 class TestOpenSearch:
@@ -38,10 +28,18 @@ class TestOpenSearch:
 
 
 class TestCanonicalRedirects:
-    def test_index_html_is_301(self, seeded_client):
-        resp = seeded_client.get("/index.html")
+    @pytest.mark.parametrize(
+        ("path", "target"),
+        [
+            ("/.well-known/llms.txt", "/llms.txt"),
+            ("/security.txt", "/.well-known/security.txt"),
+            ("/index.html", "/"),
+        ],
+    )
+    def test_canonical_redirect(self, seeded_client, path, target):
+        resp = seeded_client.get(path)
         assert resp.status_code == 301
-        assert resp.headers["Location"] == "/"
+        assert resp.headers["Location"] == target
 
 
 class TestSectionIndexes:

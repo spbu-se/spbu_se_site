@@ -9,6 +9,8 @@ in the fa-subset.css header).
 import re
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = REPO_ROOT / "src" / "templates"
 SUBSET_CSS = REPO_ROOT / "src" / "static" / "assets" / "css" / "fa-subset.css"
@@ -53,12 +55,14 @@ class TestSubsetCompleteness:
 
 
 class TestSubsetInPages:
-    def test_homepage_does_not_load_font_awesome(self, seeded_client):
-        body = seeded_client.get("/").get_data(as_text=True)
+    @pytest.mark.parametrize(
+        ("path", "subset_expected"),
+        [
+            ("/", False),
+            ("/theses.html", True),
+        ],
+    )
+    def test_page_fontawesome_subset(self, seeded_client, path, subset_expected):
+        body = seeded_client.get(path).get_data(as_text=True)
         assert "all.min.css" not in body
-        assert "fa-subset.css" not in body
-
-    def test_fa_page_loads_subset(self, seeded_client):
-        body = seeded_client.get("/theses.html").get_data(as_text=True)
-        assert "fa-subset.css" in body
-        assert "all.min.css" not in body
+        assert ("fa-subset.css" in body) is subset_expected

@@ -54,21 +54,21 @@ def test_init_db_creates_all_expected_tables(seeded):
     _assert_seeded_tables()
 
 
-def test_user_model_repr(seeded):
-    user = Users.query.first()
-    assert user is not None
-    assert repr(user) is not None
-
-
-def test_staff_model_repr(seeded):
-    staff = Staff.query.first()
-    assert staff is not None
-
-
-def test_worktype_model_str(seeded):
-    wt = Worktype.query.first()
-    assert wt is not None
-    assert str(wt) is not None
+@pytest.mark.parametrize(
+    "model,check",
+    [
+        (Users, "repr"),
+        (Staff, None),
+        (Worktype, "str"),
+    ],
+)
+def test_model_repr_str(seeded, model, check):
+    obj = model.query.first()
+    assert obj is not None
+    if check == "repr":
+        assert repr(obj) is not None
+    elif check == "str":
+        assert str(obj) is not None
 
 
 def test_model_relationships(seeded):

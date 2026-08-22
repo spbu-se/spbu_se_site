@@ -21,6 +21,8 @@ These tests protect the contract:
 import re
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = REPO_ROOT / "src" / "templates"
 
@@ -71,43 +73,40 @@ class TestCoreScriptsDeferred:
 
 
 class TestLightBaseLibsDeferred:
-    def test_light_base_deferred_libs(self):
-        text = (TEMPLATES_DIR / "base_light.html").read_text(encoding="utf-8")
+    @pytest.mark.parametrize(
+        ("base", "libs"),
+        [
+            (
+                "base_light.html",
+                [
+                    "libs/bootstrap-notify/bootstrap-notify.min.js",
+                    "libs/flatpickr/dist/flatpickr.min.js",
+                    "js/se_practice_script.js",
+                ],
+            ),
+            ("base_light_footer_white.html", ["libs/bootstrap-notify/bootstrap-notify.min.js"]),
+        ],
+    )
+    def test_light_base_deferred_libs(self, base, libs):
+        text = (TEMPLATES_DIR / base).read_text(encoding="utf-8")
         attrs = dict(_script_src_attrs(text))
-        for src in [
-            "libs/bootstrap-notify/bootstrap-notify.min.js",
-            "libs/flatpickr/dist/flatpickr.min.js",
-            "js/se_practice_script.js",
-        ]:
-            assert src in attrs, f"base_light missing {src}"
-            assert "defer" in attrs[src], f"base_light: {src} not deferred: '{attrs[src]}'"
-
-    def test_light_footer_white_deferred_notify(self):
-        text = (TEMPLATES_DIR / "base_light_footer_white.html").read_text(encoding="utf-8")
-        attrs = dict(_script_src_attrs(text))
-        src = "libs/bootstrap-notify/bootstrap-notify.min.js"
-        assert "defer" in attrs[src], f"base_light_footer_white: {src} not deferred"
+        for src in libs:
+            assert src in attrs, f"{base} missing {src}"
+            assert "defer" in attrs[src], f"{base}: {src} not deferred: '{attrs[src]}'"
 
 
 class TestSEOnReadyHelper:
-    def test_all_bases_define_se_ready(self):
-        for base in BASES:
-            text = (TEMPLATES_DIR / base).read_text(encoding="utf-8")
-            assert "SE_ON_READY" in text, f"{base} missing SE_ON_READY helper"
-            assert re.search(r"function\s+seReady\(", text), (
-                f"{base} missing `function seReady(...)`"
-            )
-
-    def test_helper_defined_in_head_before_content(self):
-        """seReady must be defined before content-block inline scripts parse."""
-        for base in BASES:
-            text = (TEMPLATES_DIR / base).read_text(encoding="utf-8")
-            helper_at = text.index("seReady")
-            content_at = text.index("block content")
-            assert helper_at < content_at, (
-                f"{base}: seReady defined after content block; inline scripts "
-                "in content would call an undefined seReady"
-            )
+    @pytest.mark.parametrize("base", BASES)
+    def test_se_ready_defined_in_head_before_content(self, base):
+        text = (TEMPLATES_DIR / base).read_text(encoding="utf-8")
+        assert "SE_ON_READY" in text, f"{base} missing SE_ON_READY helper"
+        assert re.search(r"function\s+seReady\(", text), f"{base} missing `function seReady(...)`"
+        helper_at = text.index("seReady")
+        content_at = text.index("block content")
+        assert helper_at < content_at, (
+            f"{base}: seReady defined after content block; inline scripts "
+            "in content would call an undefined seReady"
+        )
 
 
 class TestNoInlineJquery:

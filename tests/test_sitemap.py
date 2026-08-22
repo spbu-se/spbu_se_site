@@ -45,16 +45,12 @@ class TestSitemapIndex:
 
 
 class TestSitemapStatic:
-    def test_static_sitemap_lists_public_pages(self, seeded_client):
+    def test_static_sitemap_lists_public_and_excludes_private_pages(self, seeded_client):
         resp = seeded_client.get("/sitemap-static.xml")
         body = resp.get_data(as_text=True)
         assert resp.status_code == 200
         for path in ("/contacts.html", "/theses.html", "/scholarships/1.html"):
             assert path in body
-
-    def test_static_sitemap_excludes_private_pages(self, seeded_client):
-        resp = seeded_client.get("/sitemap-static.xml")
-        body = resp.get_data(as_text=True)
         for path in (
             "/login.html",
             "/admin/",

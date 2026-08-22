@@ -3,6 +3,8 @@
 from contextlib import contextmanager
 from pathlib import Path
 
+import pytest
+
 
 @contextmanager
 def _isolated_db(build_legacy=None):
@@ -61,6 +63,13 @@ def _users_table_info():
     return {row[1]: row for row in rows}
 
 
+def _legacy_users_table():
+    from flask_se import db
+
+    with db.engine.begin() as conn:
+        conn.execute(db.text("CREATE TABLE users (id INTEGER PRIMARY KEY, email VARCHAR(255))"))
+
+
 class TestSchemaDeltas:
     def test_fresh_db_initializes_all_tables_and_fts(self):
         from sqlalchemy import inspect
@@ -78,51 +87,33 @@ class TestSchemaDeltas:
 
     def test_existing_db_backs_up_then_repairs_missing_columns(self):
         import flask_se_config as fsc
-        from flask_se import db, ensure_schema
+        from flask_se import ensure_schema
 
-        def legacy():
-            with db.engine.begin() as conn:
-                conn.execute(
-                    db.text("CREATE TABLE users (id INTEGER PRIMARY KEY, email VARCHAR(255))")
-                )
-
-        with _isolated_db(build_legacy=legacy) as _dir:
+        with _isolated_db(build_legacy=_legacy_users_table) as _dir:
             ensure_schema()
             assert Path(_dir, fsc.SQLITE_DATABASE_BACKUP_NAME).is_file()
             cols = _users_columns()
             assert {"password_hash", "first_name", "middle_name", "last_name", "role"} <= cols
             assert "deleted" in cols
 
-    def test_not_null_with_server_default_uses_it(self):
-        from flask_se import db, ensure_schema
+    @pytest.mark.parametrize(
+        "col,expected_type,not_null,default",
+        [
+            ("deleted", "BOOLEAN", 1, "0"),
+            ("role", None, 1, "0"),
+            ("first_name", None, 1, "''"),
+        ],
+    )
+    def test_not_null_columns_repaired_with_defaults(self, col, expected_type, not_null, default):
+        from flask_se import ensure_schema
 
-        def legacy():
-            with db.engine.begin() as conn:
-                conn.execute(
-                    db.text("CREATE TABLE users (id INTEGER PRIMARY KEY, email VARCHAR(255))")
-                )
-
-        with _isolated_db(build_legacy=legacy):
+        with _isolated_db(build_legacy=_legacy_users_table):
             ensure_schema()
-            info = _users_table_info()["deleted"]
-            assert info[2] == "BOOLEAN"  # declared type
-            assert info[3] == 1  # NOT NULL
-            assert info[4] == "0"  # server_default backfills existing rows
-
-    def test_not_null_without_server_default_synthesizes_constant(self):
-        from flask_se import db, ensure_schema
-
-        def legacy():
-            with db.engine.begin() as conn:
-                conn.execute(
-                    db.text("CREATE TABLE users (id INTEGER PRIMARY KEY, email VARCHAR(255))")
-                )
-
-        with _isolated_db(build_legacy=legacy):
-            ensure_schema()
-            info = _users_table_info()
-            assert info["role"][3] == 1 and info["role"][4] == "0"
-            assert info["first_name"][3] == 1 and info["first_name"][4] == "''"
+            info = _users_table_info()[col]
+            if expected_type is not None:
+                assert info[2] == expected_type  # declared type
+            assert info[3] == not_null  # NOT NULL
+            assert info[4] == default  # server_default backfills existing rows
 
     def test_exotic_not_null_without_default_added_nullable(self):
         from flask_se import db, ensure_schema
@@ -146,8 +137,6 @@ class TestSchemaDeltas:
             assert info["last_sent_at"][3] == 0  # added nullable with a logged warning
 
     def test_missing_unique_column_fails_loud(self):
-        import pytest
-
         from flask_se import db, ensure_schema
 
         def legacy():
@@ -158,15 +147,9 @@ class TestSchemaDeltas:
             ensure_schema()
 
     def test_repair_is_idempotent(self):
-        from flask_se import db, ensure_schema
+        from flask_se import ensure_schema
 
-        def legacy():
-            with db.engine.begin() as conn:
-                conn.execute(
-                    db.text("CREATE TABLE users (id INTEGER PRIMARY KEY, email VARCHAR(255))")
-                )
-
-        with _isolated_db(build_legacy=legacy):
+        with _isolated_db(build_legacy=_legacy_users_table):
             ensure_schema()
             first = _users_columns()
             ensure_schema()
@@ -177,13 +160,7 @@ class TestSchemaDeltas:
 
         from flask_se import db, ensure_schema
 
-        def legacy():
-            with db.engine.begin() as conn:
-                conn.execute(
-                    db.text("CREATE TABLE users (id INTEGER PRIMARY KEY, email VARCHAR(255))")
-                )
-
-        with _isolated_db(build_legacy=legacy):
+        with _isolated_db(build_legacy=_legacy_users_table):
             assert "thesis_fts" not in inspect(db.engine).get_table_names()
             ensure_schema()
             tables = set(inspect(db.engine).get_table_names())

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 
+import pytest
 from conftest import _make_published_thesis, assert_ok
 
 
@@ -61,17 +62,17 @@ class TestReviewSsr:
 
 
 class TestNoContentNoJsFallback:
-    def test_theses_list_has_aria_live(self, seeded_client):
-        resp = seeded_client.get("/theses.html")
-        assert 'id="ThesisList" aria-live="polite"' in resp.get_data(as_text=True)
-
-    def test_diplomas_list_has_aria_live(self, seeded_client):
-        resp = seeded_client.get("/diplomas/")
-        assert 'id="ThemesList" aria-live="polite"' in resp.get_data(as_text=True)
-
-    def test_review_list_has_aria_live(self, seeded_client):
-        resp = seeded_client.get("/review/")
-        assert 'id="ThesisReviewList" aria-live="polite"' in resp.get_data(as_text=True)
+    @pytest.mark.parametrize(
+        ("path", "element_id"),
+        [
+            ("/theses.html", "ThesisList"),
+            ("/diplomas/", "ThemesList"),
+            ("/review/", "ThesisReviewList"),
+        ],
+    )
+    def test_list_has_aria_live(self, seeded_client, path, element_id):
+        resp = seeded_client.get(path)
+        assert f'id="{element_id}" aria-live="polite"' in resp.get_data(as_text=True)
 
 
 class TestJsGuards:
@@ -80,32 +81,22 @@ class TestJsGuards:
 
         return Path("src/static/assets/js/se_scripts.js").read_text(encoding="utf-8")
 
-    def test_theses_load_skips_rendered_content(self):
+    @pytest.mark.parametrize(
+        ("func_name", "anchor_regex"),
+        [
+            (
+                "theses_load",
+                r"let wt_select = document\.getElementById\('worktype'\);",
+            ),
+            (
+                "themes_load",
+                r"let themes_level_select = document\.getElementById\('level'\);",
+            ),
+            ("thesis_on_review_load", r"let thesis_on_review_status_select"),
+        ],
+    )
+    def test_load_skips_rendered_content(self, func_name, anchor_regex):
         js = self._js()
-        m = re.search(
-            r"function theses_load\(\) \{(.*?)let wt_select = document\.getElementById\('worktype'\);",
-            js,
-            re.S,
-        )
-        assert m is not None
-        assert "childElementCount > 0" in m.group(1)
-
-    def test_themes_load_skips_rendered_content(self):
-        js = self._js()
-        m = re.search(
-            r"function themes_load\(\) \{(.*?)let themes_level_select = document\.getElementById\('level'\);",
-            js,
-            re.S,
-        )
-        assert m is not None
-        assert "childElementCount > 0" in m.group(1)
-
-    def test_thesis_on_review_load_skips_rendered_content(self):
-        js = self._js()
-        m = re.search(
-            r"function thesis_on_review_load\(\) \{(.*?)let thesis_on_review_status_select",
-            js,
-            re.S,
-        )
+        m = re.search(rf"function {func_name}\(\) \{{(.*?){anchor_regex}", js, re.S)
         assert m is not None
         assert "childElementCount > 0" in m.group(1)

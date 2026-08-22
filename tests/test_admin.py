@@ -16,9 +16,3 @@ class TestAdminAccess:
     def test_admin_view_logged_in(self, logged_client, name, path):
         resp = logged_client.get(path)
         assert resp.status_code in (200, 302, 403)
-
-
-class TestAdminSecrets:
-    def test_admin_shows_secret_key(self, logged_client):
-        resp = logged_client.get("/admin/")
-        assert resp.status_code in (200, 302, 403)
