@@ -31,12 +31,12 @@
     function writeCookie(value) {
         var expires = new Date();
         expires.setTime(expires.getTime() + COOKIE_DAYS * 24 * 60 * 60 * 1000);
-        document.cookie = COOKIE_NAME + '=' + encodeURIComponent(value) +
-            '; expires=' + expires.toUTCString() + '; path=/; SameSite=Lax';
+document.cookie = COOKIE_NAME + '=' + encodeURIComponent(value) +
+        '; expires=' + expires.toUTCString() + '; path=/; SameSite=Lax; Secure';
     }
 
     function clearCookie() {
-        document.cookie = COOKIE_NAME + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax';
+        document.cookie = COOKIE_NAME + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax; Secure';
     }
 
     function hasStatistics(value) {

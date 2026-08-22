@@ -11,13 +11,19 @@ from flask import Flask, g
 #
 # Strict nonce-CSP (v2026.08.+): every inline <script> carries a per-request
 # nonce; `'unsafe-inline'` is absent from script-src. 'unsafe-eval' remains
-# because Yandex Maps / Metrica use eval(). Google Tag Manager was removed in
-# v2026.08.20, so `googletagmanager.com` is deliberately absent. Yandex
-# Metrica (`mc.yandex.ru`) is consent-gated (see `docs/PRIVACY_COMPLIANCE.md`)
-# and only loads on pages where the visitor accepted the `statistics` category.
-# Maps hosts cover the Yandex v3 API (+ its `*.maps.yandex.net` module/tile
-# loader) and the Google Maps API; map tiles themselves are covered by the
-# https-wildcard `img-src`.
+# (three external services + one bundled lib require eval at runtime:
+#  svg-injector.min.js via new Function(); Yandex Metrica; Yandex Maps v3
+#  module loader; Google Maps callback system). Google Tag Manager was
+#  removed in v2026.08.20, so `googletagmanager.com` is deliberately absent.
+# Yandex Metrica (`mc.yandex.ru`) is consent-gated (see
+# docs/PRIVACY_COMPLIANCE.md) and only loads on pages where the visitor
+# accepted the `statistics` category. Maps hosts cover the Yandex v3 API
+# (+ its `*.maps.yandex.net` module/tile loader) and the Google Maps API;
+# map tiles themselves are covered by the https-wildcard `img-src`.
+#
+# CSP violation reports: POST /csp-report (Content-Type: application/csp-report
+# or application/json). Logged via app.logger.warning with rate-limiting
+# (100 req/min per IP).
 _CSP_BASE = (
     "default-src 'self'; "
     "script-src 'self' 'nonce-{nonce}' 'unsafe-eval' "
@@ -35,7 +41,8 @@ _CSP_BASE = (
     "base-uri 'self'; "
     "form-action 'self'; "
     "frame-ancestors 'self'; "
-    "upgrade-insecure-requests"
+    "upgrade-insecure-requests; "
+    "report-uri /csp-report"
 )
 
 PERMISSIONS_POLICY = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
@@ -61,7 +68,7 @@ def _build_csp() -> str:
 
 
 def register_security_headers(app: Flask) -> None:
-    """Attach security headers to every response."""
+    """Attach security headers and CSP reporting to every response."""
 
     app.before_request(_set_csp_nonce)
 
