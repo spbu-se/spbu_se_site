@@ -261,7 +261,7 @@
       {% endfor %}
     {% endif %}
   </div>
-  <script type="text/javascript">
+  <script type="text/javascript" nonce="{{ csp_nonce() }}">
      function ChangeArrow() {
          let arrow = document.getElementById("arrow-column-name")
          let iconUp = arrow.querySelector('#iconUp');

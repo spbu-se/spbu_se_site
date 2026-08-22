@@ -42,7 +42,7 @@
     <link rel="dns-prefetch" href="https://topbar.spbu.ru">
     {% if se_metrica_id and se_consent_granted["statistics"] %}
       <!-- Yandex Metrika -->
-      <script type="text/javascript">
+      <script type="text/javascript" nonce="{{ csp_nonce() }}">
         (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
         m[i].l=1*new Date();
         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
@@ -66,7 +66,7 @@
           href="{{ asset('libs/animate.css/animate.min.css') }}">
     <!-- SE_ON_READY: deferred jquery (see Core JS below) is not loaded when
          content-block inline scripts run; queue callbacks here instead. -->
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         window.SE_ON_READY = window.SE_ON_READY || [];
         window.SE_ON_READY_FLUSHED = window.SE_ON_READY_FLUSHED || false;
         function seReady(fn) {
@@ -88,7 +88,7 @@
     </script>
     <!-- Child template headers -->
     {% block headers %}{% endblock %}
-    <script type="application/ld+json">
+    <script type="application/ld+json" nonce="{{ csp_nonce() }}">
     {
       "@context": "https://schema.org",
       "@type": "EducationalOrganization",
@@ -110,7 +110,7 @@
       ]
     }
     </script>
-    <script type="application/ld+json">
+    <script type="application/ld+json" nonce="{{ csp_nonce() }}">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
@@ -138,7 +138,7 @@
       </noscript>
     {% endif %}
     <!-- SPbU topbar (noscript) -->
-    <script type="text/javascript"> (function(){ var sc = document.createElement('script'); sc.type = 'text/javascript'; sc.async = true; sc.src = '//topbar.spbu.ru/loader.js'; var ls = document.getElementsByTagName('script')[0]; ls.parentNode.insertBefore(sc, ls); })(); </script>
+    <script type="text/javascript" nonce="{{ csp_nonce() }}"> (function(){ var sc = document.createElement('script'); sc.type = 'text/javascript'; sc.async = true; sc.src = '//topbar.spbu.ru/loader.js'; var ls = document.getElementsByTagName('script')[0]; ls.parentNode.insertBefore(sc, ls); })(); </script>
     <!-- End SPbU topbar (noscript) -->
     {% include 'consent_banner.html' %}
     <!-- Header -->
@@ -412,7 +412,7 @@
     <script src="{{ asset('js/se_consent.js') }}" defer></script>
     <script src="{{ asset('js/se_scripts.js') }}" defer></script>
     <!-- Feather Icons -->
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         document.addEventListener('DOMContentLoaded', function () {
             feather.replace({
                 'width': '1em',

@@ -21,7 +21,7 @@
                 Описание (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)
               </h6>
               {{ form.description(class_="form-control", placeholder=form.description.description, data_toggle="autosize", rows="9") }}
-              <script>
+              <script nonce="{{ csp_nonce() }}">
                         (function () {
                             var simplemde = new SimpleMDE({
                                 spellChecker: false,
@@ -35,7 +35,7 @@
                 Требования к студенту (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)
               </h6>
               {{ form.requirements(class_="form-control", placeholder=form.requirements.description, rows="3") }}
-              <script>
+              <script nonce="{{ csp_nonce() }}">
                         (function () {
                             var simplemde = new SimpleMDE({
                                 spellChecker: false,

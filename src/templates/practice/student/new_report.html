@@ -48,7 +48,7 @@
                       </h6>
                       <p class="text-sm pb-0 mb-2">Отделяйте пустой строкой каждый абзац, списки и т.п.</p>
                       {{ form.was_done(class_="form-control", placeholder=form.was_done.description, rows="3") }}
-                      <script>
+                      <script nonce="{{ csp_nonce() }}">
                                         (function () {
                                             var simplemde = new SimpleMDE({
                                             spellChecker: false,
@@ -67,7 +67,7 @@
                       </h6>
                       <p class="text-sm pb-0 mb-2">Отделяйте пустой строкой каждый абзац, списки и т.п.</p>
                       {{ form.planned_to_do(class_="form-control", placeholder=form.planned_to_do.description, rows="3") }}
-                      <script>
+                      <script nonce="{{ csp_nonce() }}">
                                         (function () {
                                             var simplemde = new SimpleMDE({
                                                 spellChecker: false,

@@ -43,7 +43,7 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 
 - WCAG 2.1 AA pass + optional `pytest-axe`/manual gate + `.skills/a11y-audit`.
 
-### CSP + security headers — shipped 2026-08-20 (`feat/security-headers`)
+### CSP + security headers — shipped 2026-08-20 (`feat/security-headers`), strict nonce-CSP follow-up shipped 2026-08-22 (`feat/strict-nonce-csp`)
 
 **Context**: no security headers anywhere today (no Flask `after_request`, none in
 `nginx/default.conf.template`). Prod = Docker nginx → uWSGI. 15 templates carry
@@ -52,10 +52,18 @@ JS) + 3 with inline `<style>`; external resources from `topbar.spbu.ru`, the
 dual-provider maps (Google `maps.googleapis.com`/`*.googleapis.com` or Yandex
 `api-maps.yandex.ru` + tile hosts), and Yandex Metrica (`mc.yandex.ru`, dormant —
 see `docs/PRIVACY_COMPLIANCE.md`). Google Tag Manager was **removed** in
-v2026.08.20 (`feat/remove-gtm-add-metrica`). Google Maps (when active)
-requires `'unsafe-inline'`/`'unsafe-eval'`, so a strict nonce-CSP is deferred.
+v2026.08.20 (`feat/remove-gtm-add-metrica`).
 
-**Chosen approach (Option B — pragmatic allowlist CSP)**:
+**Chosen approach (Option A — strict nonce-CSP) shipped 2026-08-22**:
+
+- Per-request `csp_nonce()` (via `secrets.token_urlsafe(16)`) replaces `'unsafe-inline'` in `script-src`.
+- Every inline `<script>` in all 31 template files carries `nonce="{{ csp_nonce() }}"`.
+- `'unsafe-eval'` retained (Maps/Metrica require eval).
+- Plotly.js v2.12.1 inline bundles extracted to `src/static/libs/plotly/plotly-2.12.1.min.js` (2 curriculum pages).
+- `'unsafe-inline'` removed from `script-src` — only `style-src` still allows it (CSS safe under CSP2+).
+- `before_request` sets the nonce on every request; non-matching nonces are harmless on non-HTML responses.
+
+**Original allowlist CSP (Option B, shipped 2026-08-20)**:
 
 - New `src/flask_se_headers.py` `register_security_headers(app)` → `after_request` sets:
   - `Content-Security-Policy`: `default-src 'self'`; `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://topbar.spbu.ru https://mc.yandex.ru https://maps.googleapis.com https://*.googleapis.com https://api-maps.yandex.ru`; `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`; `img-src 'self' data: https:`; `font-src 'self' data: https://fonts.gstatic.com`; `connect-src 'self' https://topbar.spbu.ru https://mc.yandex.ru https://*.googleapis.com https://api-maps.yandex.ru`; `object-src 'none'`; `base-uri 'self'`; `form-action 'self'`; `frame-ancestors 'self'`; `upgrade-insecure-requests` (gated on `SE_COOKIE_SECURE=="1"`)
@@ -79,9 +87,9 @@ requires `'unsafe-inline'`/`'unsafe-eval'`, so a strict nonce-CSP is deferred.
 
 **Delivery**: merged to fork `staging` (PR #19 batch, 2026-08-20); upstream PR from `iakov:staging` (see `docs/GIT_FLOW.md §8.5`).
 
-**Open questions to resolve at implementation**:
+**Open questions (resolved)**:
 
-1. **Strict nonce-CSP (Option A) vs allowlist (Option B)** — B chosen for v1. Follow-up for strict: nonce all 15 inline-script templates + Maps, then drop `'unsafe-inline'`. GTM was removed in v2026.08.20 (see `docs/PRIVACY_COMPLIANCE.md`); revisit if Metrica or Maps get replaced.
+1. ~~**Strict nonce-CSP (Option A) vs allowlist (Option B)** — B chosen for v1. Follow-up for strict: nonce all 15 inline-script templates + Maps, then drop `'unsafe-inline'`. GTM was removed in v2026.08.20 (see `docs/PRIVACY_COMPLIANCE.md`); revisit if Metrica or Maps get replaced.~~ ✅ **Shipped v2026.08.22** — `'unsafe-inline'` replaced with per-request nonces; Maps require `'unsafe-eval'` which is retained (`script-src` eval is orthogonal to nonce).
 1. **HSTS + `upgrade-insecure-requests` gated on `SE_COOKIE_SECURE=="1"`** — confirm production always sets this env (dev must stay HTTP-compatible); else gate on a new explicit `SE_ENABLE_HSTS`.
 1. **`form-action 'self'`** — verify no form submits cross-origin (OAuth uses GET redirects, not cross-origin form POSTs); add exceptions if the VK/Google exchange posts to an external endpoint via a form.
 1. **`Permissions-Policy` feature set** — confirm none of the disabled features (geolocation/mic/camera/payment/usb) is used (Google Maps uses geolocation only if the site calls it; we don't).

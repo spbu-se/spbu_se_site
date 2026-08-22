@@ -171,7 +171,7 @@
       {% endif %}
     </form>
   </div>
-  <script>
+  <script nonce="{{ csp_nonce() }}">
     function addConsultant() {
         document.getElementById("addConsultantInput").style.display = "block";
         document.getElementById("addConsultantButton").style.display = "none";

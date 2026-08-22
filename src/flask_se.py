@@ -11,7 +11,7 @@ __all__ = ["app", "db", "scheduler"]
 import markdown as _markdown
 import nh3
 from dateutil import tz
-from flask import Flask, request
+from flask import Flask, g, request
 from flask_wtf import CSRFProtect
 from markupsafe import Markup
 from sqlalchemy import Boolean, Float, Integer, Numeric, String, Text, inspect
@@ -194,6 +194,7 @@ def _init_extensions(app: Flask) -> None:
             "se_consent_categories": se_consent_categories,
             "se_consent_granted": se_consent_granted,
             "se_consent_decided": bool(raw_consent),
+            "csp_nonce": lambda: g.csp_nonce,
         }
 
     app.context_processor(_inject_template_globals)

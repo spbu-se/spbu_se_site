@@ -4,7 +4,7 @@
 {% block canonical_url %}https://se.math.spbu.ru/{% endblock %}
 {% block se_maps_key %}
   {% if se_maps_provider %}
-    <script>window.SE_MAPS_PROVIDER = {{ se_maps_provider|tojson }}; window.SE_MAPS_KEY = {{ se_maps_key|tojson }};</script>
+    <script nonce="{{ csp_nonce() }}">window.SE_MAPS_PROVIDER = {{ se_maps_provider|tojson }}; window.SE_MAPS_KEY = {{ se_maps_key|tojson }};</script>
   {% endif %}
 {% endblock %}
 {% block headers %}
