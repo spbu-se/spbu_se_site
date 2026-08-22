@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import io
 
+import pytest
 from conftest import assert_ok
 
 
@@ -28,23 +29,27 @@ class TestPracticeStudentNewThesis:
 
 
 class TestPracticeStudentThesisFlow:
-    def test_choosing_topic(self, practice_thesis):
-        assert_ok(practice_thesis, "/practice/choosing_topic/", code={200, 302})
-
-    def test_goals_tasks_page(self, practice_thesis):
-        assert_ok(practice_thesis, "/practice/goals_tasks/", code={200, 302})
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "/practice/choosing_topic/",
+            "/practice/goals_tasks/",
+            "/practice/workflow/",
+            "/practice/add_new_report/",
+            "/practice/edit_theme/",
+            "/practice/preparation_for_defense/",
+            "/practice/defense/",
+            "/practice/data_for_practice/",
+        ],
+    )
+    def test_flow_pages(self, practice_thesis, path):
+        assert_ok(practice_thesis, path, code={200, 302})
 
     def test_goals_tasks_add(self, practice_thesis):
         resp = practice_thesis.post(
             "/practice/goals_tasks/", data={"task_text": "New task", "add_task_button": "1"}
         )
         assert resp.status_code in (200, 302)
-
-    def test_workflow_page(self, practice_thesis):
-        assert_ok(practice_thesis, "/practice/workflow/", code={200, 302})
-
-    def test_add_report_page(self, practice_thesis):
-        assert_ok(practice_thesis, "/practice/add_new_report/", code={200, 302})
 
     def test_add_report_submit(self, practice_thesis):
         resp = practice_thesis.post(
@@ -56,109 +61,81 @@ class TestPracticeStudentThesisFlow:
         )
         assert resp.status_code in (200, 302)
 
-    def test_edit_theme(self, practice_thesis):
-        assert_ok(practice_thesis, "/practice/edit_theme/", code={200, 302})
-
-    def test_preparation(self, practice_thesis):
-        assert_ok(practice_thesis, "/practice/preparation_for_defense/", code={200, 302})
-
-    def test_defense(self, practice_thesis):
-        assert_ok(practice_thesis, "/practice/defense/", code={200, 302})
-
-    def test_data_for_practice(self, practice_thesis):
-        assert_ok(practice_thesis, "/practice/data_for_practice/", code={200, 302})
-
 
 class TestPracticeStaff:
-    def test_staff_index(self, logged_client):
-        assert_ok(logged_client, "/practice_staff", code={200, 302})
+    @pytest.mark.parametrize(
+        "path,code",
+        [
+            ("/practice_staff", {200, 302}),
+            ("/practice_staff/reports/", {200, 302, 404}),
+            ("/practice_staff/finished_thesises/", {200, 302}),
+        ],
+    )
+    def test_staff_pages(self, practice_thesis, path, code):
+        assert_ok(practice_thesis, path, code=code)
 
     def test_staff_thesis(self, practice_thesis):
         practice_thesis.get("/practice_staff/thesis/")
         # May not find advisee for the current user
         assert_ok(practice_thesis, "/practice_staff/thesis/", code={200, 302, 404})
 
-    def test_staff_reports(self, practice_thesis):
-        assert_ok(practice_thesis, "/practice_staff/reports/", code={200, 302, 404})
-
-    def test_staff_finished(self, logged_client):
-        assert_ok(logged_client, "/practice_staff/finished_thesises/", code={200, 302})
-
 
 class TestPracticeAdmin:
-    def test_admin_index(self, logged_client):
-        assert_ok(logged_client, "/practice_admin", code={200, 302})
-
-    def test_admin_choose_area(self, practice_thesis):
-        assert_ok(practice_thesis, "/practice_admin/choose_area_worktype", code={200, 302})
-
-    def test_admin_finished(self, logged_client):
-        assert_ok(logged_client, "/practice_admin/finished_thesises", code={200, 302})
-
-    def test_admin_thesis(self, practice_thesis):
-        assert_ok(practice_thesis, "/practice_admin/thesis", code={200, 302, 404})
-
-    def test_admin_yandex(self, logged_client):
-        assert_ok(logged_client, "/practice_admin/yandex_code", code={200, 302, 404})
-
-    def test_admin_archive_thesis(self, practice_thesis):
-        assert_ok(practice_thesis, "/practice_admin/thesis_to_archive", code={200, 302, 404})
+    @pytest.mark.parametrize(
+        "path,code",
+        [
+            ("/practice_admin", {200, 302}),
+            ("/practice_admin/choose_area_worktype", {200, 302}),
+            ("/practice_admin/finished_thesises", {200, 302}),
+            ("/practice_admin/thesis", {200, 302, 404}),
+            ("/practice_admin/yandex_code", {200, 302, 404}),
+            ("/practice_admin/thesis_to_archive", {200, 302, 404}),
+        ],
+    )
+    def test_admin_pages(self, practice_thesis, path, code):
+        assert_ok(practice_thesis, path, code=code)
 
 
 class TestPracticeFileUploads:
-    def test_upload_text_via_link(self, practice_thesis):
-        """Approach 1: Upload text via link field instead of file."""
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/",
-            data={
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {
                 "submit_text_button": "1",
                 "text_link": "https://example.com/thesis.pdf",
             },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_upload_text_with_pdf_file(self, practice_thesis):
-        """Approach 2: Upload PDF file via multipart - file in data dict."""
-        pdf_bytes = b"%PDF-1.4 fake pdf content for testing"
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/",
-            data={
+            {
                 "submit_text_button": "1",
-                "text": (io.BytesIO(pdf_bytes), "thesis.pdf", "application/pdf"),
+                "text": (
+                    io.BytesIO(b"%PDF-1.4 fake pdf content for testing"),
+                    "thesis.pdf",
+                    "application/pdf",
+                ),
             },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_upload_text_empty_file_and_link_rejected(self, practice_thesis):
-        """Approach 3: Empty file + empty link should redirect with flash."""
-        data = {
-            "submit_text_button": "1",
-            "text_link": "",
-        }
-        resp = practice_thesis.post("/practice/preparation_for_defense/", data=data)
-        assert resp.status_code in (200, 302)
-
-    def test_upload_review_files(self, practice_thesis):
-        """Upload supervisor and consultant review PDFs."""
-        pdf_bytes = b"%PDF-1.4 fake review"
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/",
-            data={
+            {"submit_text_button": "1", "text_link": ""},
+            {
                 "submit_review_button": "1",
-                "supervisor_review": (io.BytesIO(pdf_bytes), "review.pdf", "application/pdf"),
-                "consultant_review": (io.BytesIO(pdf_bytes), "consult.pdf", "application/pdf"),
+                "supervisor_review": (
+                    io.BytesIO(b"%PDF-1.4 fake review"),
+                    "review.pdf",
+                    "application/pdf",
+                ),
+                "consultant_review": (
+                    io.BytesIO(b"%PDF-1.4 fake review"),
+                    "consult.pdf",
+                    "application/pdf",
+                ),
             },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_upload_presentation(self, practice_thesis):
-        """Upload presentation file."""
-        pdf_bytes = b"%PDF-1.4 fake presentation"
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/",
-            data={
+            {
                 "submit_presentation_button": "1",
-                "presentation": (io.BytesIO(pdf_bytes), "slides.pdf", "application/pdf"),
+                "presentation": (
+                    io.BytesIO(b"%PDF-1.4 fake presentation"),
+                    "slides.pdf",
+                    "application/pdf",
+                ),
             },
-        )
+        ],
+    )
+    def test_upload(self, practice_thesis, data):
+        resp = practice_thesis.post("/practice/preparation_for_defense/", data=data)
         assert resp.status_code in (200, 302)

@@ -2,16 +2,20 @@
 from unittest.mock import MagicMock, patch
 
 
+def _mock_new_file_df(mock_pd):
+    mock_pd.DataFrame.return_value = MagicMock()
+    mock_df = MagicMock()
+    mock_pd.DataFrame.return_value = mock_df
+    mock_df.iterrows.return_value = []
+
+
 class TestPracticeTable:
     @patch("flask_se_practice_table.openpyxl", MagicMock())
     @patch("flask_se_practice_table.pd")
     def test_edit_table_new_file(self, mock_pd, app_ctx):
         from flask_se_practice_table import edit_table
 
-        mock_pd.DataFrame.return_value = MagicMock()
-        mock_df = MagicMock()
-        mock_pd.DataFrame.return_value = mock_df
-        mock_df.iterrows.return_value = []
+        _mock_new_file_df(mock_pd)
         edit_table("/tmp/test.xlsx", area_id=1, worktype_id=1)
         assert mock_pd.DataFrame.called
 
@@ -20,10 +24,7 @@ class TestPracticeTable:
     def test_edit_table_creates_workbook_for_new_path(self, mock_pd, mock_openpyxl, app_ctx):
         from flask_se_practice_table import edit_table
 
-        mock_pd.DataFrame.return_value = MagicMock()
-        mock_df = MagicMock()
-        mock_pd.DataFrame.return_value = mock_df
-        mock_df.iterrows.return_value = []
+        _mock_new_file_df(mock_pd)
         mock_wb = MagicMock()
         mock_openpyxl.Workbook.return_value = mock_wb
         import os
@@ -43,10 +44,7 @@ class TestPracticeTable:
             tmp_name = tmp.name
         try:
             mock_pd.read_table = MagicMock(return_value=None)
-            mock_pd.DataFrame.return_value = MagicMock()
-            mock_df = MagicMock()
-            mock_pd.DataFrame.return_value = mock_df
-            mock_df.iterrows.return_value = []
+            _mock_new_file_df(mock_pd)
             mock_openpyxl.Workbook.return_value = MagicMock()
             edit_table(tmp_name, area_id=1, worktype_id=1)
         finally:

@@ -7,6 +7,8 @@ the strict nonce-CSP and the HTTPS-only directives' gate on
 `SE_COOKIE_SECURE`, and assert `Cross-Origin-Resource-Policy` stays omitted.
 """
 
+import pytest
+
 import flask_se_headers
 
 
@@ -70,14 +72,21 @@ class TestCspAllowlist:
 
 
 class TestHttpsGate:
-    def test_hsts_and_upgrade_present_when_secure(self, seeded_client, monkeypatch):
-        monkeypatch.setenv("SE_COOKIE_SECURE", "1")
+    @pytest.mark.parametrize(
+        ("secure_flag", "expected_hsts"),
+        [
+            ("1", "max-age=31536000; includeSubDomains"),
+            ("0", None),
+        ],
+    )
+    def test_hsts_and_upgrade_gated_on_secure_flag(
+        self, seeded_client, monkeypatch, secure_flag, expected_hsts
+    ):
+        monkeypatch.setenv("SE_COOKIE_SECURE", secure_flag)
         resp = seeded_client.get("/")
-        assert resp.headers["Strict-Transport-Security"] == "max-age=31536000; includeSubDomains"
-        assert "upgrade-insecure-requests" in resp.headers["Content-Security-Policy"]
-
-    def test_hsts_and_upgrade_absent_in_dev(self, seeded_client, monkeypatch):
-        monkeypatch.setenv("SE_COOKIE_SECURE", "0")
-        resp = seeded_client.get("/")
-        assert "Strict-Transport-Security" not in resp.headers
-        assert "upgrade-insecure-requests" not in resp.headers["Content-Security-Policy"]
+        if expected_hsts is None:
+            assert "Strict-Transport-Security" not in resp.headers
+            assert "upgrade-insecure-requests" not in resp.headers["Content-Security-Policy"]
+        else:
+            assert resp.headers["Strict-Transport-Security"] == expected_hsts
+            assert "upgrade-insecure-requests" in resp.headers["Content-Security-Policy"]

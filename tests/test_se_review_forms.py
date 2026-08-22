@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
+from typing import cast
+
 import pytest
 from flask_wtf.file import FileField
 from wtforms import RadioField, StringField
 from wtforms.widgets import TextArea
+
+# Field-name prefixes whose review grades are 0..5; p1/p2 add an "x" grade.
+_SCORE_FIELDS = ("o1", "o2", "t1", "t2", "p1", "p2")
 
 
 @pytest.fixture(autouse=True)
@@ -15,138 +20,39 @@ def _form_ctx():
 
 
 class TestReviewForm:
-    def test_field_review_o1_radio_has_six_choices(self):
+    @pytest.mark.parametrize("prefix", _SCORE_FIELDS)
+    def test_score_radio_choice_count(self, prefix):
         from se_review_forms import ReviewForm
 
         f = ReviewForm()
-        assert isinstance(f.review_o1_radio_switcher, RadioField)
-        assert len(f.review_o1_radio_switcher.choices) == 6
+        field = cast(RadioField, getattr(f, f"review_{prefix}_radio_switcher"))
+        assert isinstance(field, RadioField)
+        assert len(cast(list[tuple[str, str]], field.choices)) == (
+            7 if prefix.startswith("p") else 6
+        )
 
-    def test_field_review_o1_choices_are_strings_0_to_5(self):
+    @pytest.mark.parametrize("prefix", _SCORE_FIELDS)
+    def test_score_radio_choice_keys(self, prefix):
         from se_review_forms import ReviewForm
 
         f = ReviewForm()
-        keys = [k for k, _ in f.review_o1_radio_switcher.choices]
-        assert keys == ["5", "4", "3", "2", "1", "0"]
+        field = cast(RadioField, getattr(f, f"review_{prefix}_radio_switcher"))
+        assert isinstance(field, RadioField)
+        choices = cast(list[tuple[str, str]], field.choices)
+        keys = [k for k, _ in choices]
+        expected = ["5", "4", "3", "2", "1", "0"]
+        if prefix.startswith("p"):
+            expected.append("x")
+        assert keys == expected
 
-    def test_field_review_o1_comment_is_textarea(self):
+    @pytest.mark.parametrize("prefix", (*_SCORE_FIELDS, "overall"))
+    def test_comment_is_textarea(self, prefix):
         from se_review_forms import ReviewForm
 
         f = ReviewForm()
-        assert isinstance(f.review_o1_comment, StringField)
-        assert isinstance(f.review_o1_comment.widget, TextArea)
-
-    def test_field_review_o2_radio_has_six_choices(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        assert isinstance(f.review_o2_radio_switcher, RadioField)
-        assert len(f.review_o2_radio_switcher.choices) == 6
-
-    def test_field_review_o2_choices_are_strings_0_to_5(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        keys = [k for k, _ in f.review_o2_radio_switcher.choices]
-        assert keys == ["5", "4", "3", "2", "1", "0"]
-
-    def test_field_review_o2_comment_is_textarea(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        assert isinstance(f.review_o2_comment, StringField)
-        assert isinstance(f.review_o2_comment.widget, TextArea)
-
-    def test_field_review_t1_radio_has_six_choices(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        assert isinstance(f.review_t1_radio_switcher, RadioField)
-        assert len(f.review_t1_radio_switcher.choices) == 6
-
-    def test_field_review_t1_choices_are_strings_0_to_5(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        keys = [k for k, _ in f.review_t1_radio_switcher.choices]
-        assert keys == ["5", "4", "3", "2", "1", "0"]
-
-    def test_field_review_t1_comment_is_textarea(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        assert isinstance(f.review_t1_comment, StringField)
-        assert isinstance(f.review_t1_comment.widget, TextArea)
-
-    def test_field_review_t2_radio_has_six_choices(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        assert isinstance(f.review_t2_radio_switcher, RadioField)
-        assert len(f.review_t2_radio_switcher.choices) == 6
-
-    def test_field_review_t2_choices_are_strings_0_to_5(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        keys = [k for k, _ in f.review_t2_radio_switcher.choices]
-        assert keys == ["5", "4", "3", "2", "1", "0"]
-
-    def test_field_review_t2_comment_is_textarea(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        assert isinstance(f.review_t2_comment, StringField)
-        assert isinstance(f.review_t2_comment.widget, TextArea)
-
-    def test_field_review_p1_radio_has_seven_choices(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        assert isinstance(f.review_p1_radio_switcher, RadioField)
-        assert len(f.review_p1_radio_switcher.choices) == 7
-
-    def test_field_review_p1_choices_include_x(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        keys = [k for k, _ in f.review_p1_radio_switcher.choices]
-        assert keys == ["5", "4", "3", "2", "1", "0", "x"]
-
-    def test_field_review_p1_comment_is_textarea(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        assert isinstance(f.review_p1_comment, StringField)
-        assert isinstance(f.review_p1_comment.widget, TextArea)
-
-    def test_field_review_p2_radio_has_seven_choices(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        assert isinstance(f.review_p2_radio_switcher, RadioField)
-        assert len(f.review_p2_radio_switcher.choices) == 7
-
-    def test_field_review_p2_choices_include_x(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        keys = [k for k, _ in f.review_p2_radio_switcher.choices]
-        assert keys == ["5", "4", "3", "2", "1", "0", "x"]
-
-    def test_field_review_p2_comment_is_textarea(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        assert isinstance(f.review_p2_comment, StringField)
-        assert isinstance(f.review_p2_comment.widget, TextArea)
-
-    def test_field_review_overall_comment_is_textarea(self):
-        from se_review_forms import ReviewForm
-
-        f = ReviewForm()
-        assert isinstance(f.review_overall_comment, StringField)
-        assert isinstance(f.review_overall_comment.widget, TextArea)
+        field = getattr(f, f"review_{prefix}_comment")
+        assert isinstance(field, StringField)
+        assert isinstance(field.widget, TextArea)
 
     def test_field_review_verdict_has_two_choices(self):
         from se_review_forms import ReviewForm

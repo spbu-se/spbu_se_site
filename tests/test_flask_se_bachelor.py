@@ -1,34 +1,24 @@
 # -*- coding: utf-8 -*-
+import pytest
 from conftest import assert_ok
 
-
-class TestBachelorApplication:
-    def test_application_page_loads(self, client):
-        assert_ok(client, "/bachelor/application.html")
-
-
-class TestBachelorProgrammingTechnology:
-    def test_programming_technology_page_loads_without_db(self, client):
-        assert_ok(client, "/bachelor/programming-technology.html")
-
-    def test_programming_technology_page_loads_with_seeded_db(self, seeded_client):
-        assert_ok(seeded_client, "/bachelor/programming-technology.html")
+PAGES = [
+    "/bachelor/application.html",
+    "/bachelor/programming-technology.html",
+    "/bachelor/software-engineering.html",
+    "/bachelor/admission.html",
+]
+SEEDED_PAGES = PAGES[1:]
 
 
-class TestBachelorSoftwareEngineering:
-    def test_software_engineering_page_loads_without_db(self, client):
-        assert_ok(client, "/bachelor/software-engineering.html")
+class TestBachelorPages:
+    @pytest.mark.parametrize("path", PAGES)
+    def test_page_loads_without_db(self, client, path):
+        assert_ok(client, path)
 
-    def test_software_engineering_page_loads_with_seeded_db(self, seeded_client):
-        assert_ok(seeded_client, "/bachelor/software-engineering.html")
-
-
-class TestBachelorAdmission:
-    def test_admission_page_loads_without_db(self, client):
-        assert_ok(client, "/bachelor/admission.html")
-
-    def test_admission_page_loads_with_seeded_db(self, seeded_client):
-        assert_ok(seeded_client, "/bachelor/admission.html")
+    @pytest.mark.parametrize("path", SEEDED_PAGES)
+    def test_page_loads_with_seeded_db(self, seeded_client, path):
+        assert_ok(seeded_client, path)
 
 
 class TestBachelorScoreInfo:
@@ -77,17 +67,18 @@ class TestBachelorScoreInfo:
         assert info.min_score_and_count_url == "https://example.com/min.pdf"
         assert info.year == 2025
 
-    def test_bachelor_score_info_module_level_has_correct_year(self):
+    @pytest.mark.parametrize(
+        ("attr", "expected"),
+        [
+            ("year", 2025),
+            ("se.pass_rate", 282),
+            ("tp.pass_rate", 252),
+        ],
+    )
+    def test_bachelor_score_info(self, attr, expected):
         from flask_se_bachelor import bachelor_score_info
 
-        assert bachelor_score_info.year == 2025
-
-    def test_bachelor_score_info_se_has_correct_pass_rate(self):
-        from flask_se_bachelor import bachelor_score_info
-
-        assert bachelor_score_info.se.pass_rate == 282
-
-    def test_bachelor_score_info_tp_has_correct_pass_rate(self):
-        from flask_se_bachelor import bachelor_score_info
-
-        assert bachelor_score_info.tp.pass_rate == 252
+        value = bachelor_score_info
+        for part in attr.split("."):
+            value = getattr(value, part)
+        assert value == expected

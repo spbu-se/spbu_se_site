@@ -3,60 +3,40 @@ import builtins
 import io
 import os
 import sys
-from datetime import UTC
+from datetime import UTC, datetime
+
+import pytest
 
 
-class TestRecalculatePostRankWrapper:
-    def test_wrapper_calls_recalculate_post_rank(self, app_ctx):
-        from flask_se import recalculate_post_rank_wrapper
+class TestWrapperCalls:
+    @pytest.mark.parametrize(
+        "wrapper_name",
+        [
+            "recalculate_post_rank_wrapper",
+            "notification_send_mail_wrapper",
+            "notification_send_diploma_themes_on_review_wrapper",
+        ],
+    )
+    def test_wrapper_calls_function(self, app_ctx, wrapper_name):
+        import flask_se
 
-        recalculate_post_rank_wrapper()
-
-
-class TestNotificationSendMailWrapper:
-    def test_wrapper_calls_notification_send_mail(self, app_ctx):
-        from flask_se import notification_send_mail_wrapper
-
-        notification_send_mail_wrapper()
-
-
-class TestNotificationSendDiplomaThemesOnReviewWrapper:
-    def test_wrapper_calls_notification_send_diploma_themes_on_review(self, app_ctx):
-        from flask_se import notification_send_diploma_themes_on_review_wrapper
-
-        notification_send_diploma_themes_on_review_wrapper()
+        getattr(flask_se, wrapper_name)()
 
 
 class TestDatetimeConvert:
-    def test_datetime_convert_returns_formatted_string(self, app_ctx):
-        from datetime import datetime
-
+    @pytest.mark.parametrize(
+        "dt,fmt,expected",
+        [
+            (datetime(2024, 6, 15, 10, 30, 0, tzinfo=UTC), "%d.%m.%Y %H:%M", "15.06.2024"),
+            (datetime(2024, 1, 1, 0, 0, 0, tzinfo=UTC), None, "01.01.2024"),
+            (datetime(2024, 12, 25, 8, 15, 0, tzinfo=UTC), "%Y-%m-%d", "2024-12-25"),
+        ],
+    )
+    def test_datetime_convert(self, app_ctx, dt, fmt, expected):
         import flask_se
 
-        result = flask_se.datetime_convert(
-            datetime(2024, 6, 15, 10, 30, 0, tzinfo=UTC),
-            format="%d.%m.%Y %H:%M",
-        )
-        assert "15.06.2024" in result
-
-    def test_datetime_convert_default_format(self, app_ctx):
-        from datetime import datetime
-
-        import flask_se
-
-        result = flask_se.datetime_convert(datetime(2024, 1, 1, 0, 0, 0, tzinfo=UTC))
-        assert "01.01.2024" in result
-
-    def test_datetime_convert_different_format(self, app_ctx):
-        from datetime import datetime
-
-        import flask_se
-
-        result = flask_se.datetime_convert(
-            datetime(2024, 12, 25, 8, 15, 0, tzinfo=UTC),
-            format="%Y-%m-%d",
-        )
-        assert "2024-12-25" in result
+        result = flask_se.datetime_convert(dt, format=fmt) if fmt else flask_se.datetime_convert(dt)
+        assert expected in result
 
 
 class TestIndexRouteAges:
@@ -157,41 +137,21 @@ class TestFlaskSeConfigMailPassword:
 
 
 class TestFlaskSeConfigSecureFilenameWindowsDevices:
-    def test_secure_filename_con_device(self):
+    @pytest.mark.parametrize(
+        "name,expected_non_nt",
+        [
+            ("CON", "CON"),
+            ("CON.txt", "CON.txt"),
+            ("AUX", None),
+            ("LPT1", None),
+            ("NUL", None),
+        ],
+    )
+    def test_secure_filename_device(self, name, expected_non_nt):
         from flask_se_config import secure_filename
 
-        result = secure_filename("CON")
+        result = secure_filename(name)
         if os.name == "nt":
             assert result == "_{filename}" or result.startswith("_")
-        else:
-            assert result == "CON"
-
-    def test_secure_filename_con_txt(self):
-        from flask_se_config import secure_filename
-
-        result = secure_filename("CON.txt")
-        if os.name == "nt":
-            assert result == "_{filename}" or result.startswith("_")
-        else:
-            assert result == "CON.txt"
-
-    def test_secure_filename_aux_device(self):
-        from flask_se_config import secure_filename
-
-        result = secure_filename("AUX")
-        if os.name == "nt":
-            assert result == "_{filename}" or result.startswith("_")
-
-    def test_secure_filename_lpt1_device(self):
-        from flask_se_config import secure_filename
-
-        result = secure_filename("LPT1")
-        if os.name == "nt":
-            assert result == "_{filename}" or result.startswith("_")
-
-    def test_secure_filename_nul_device(self):
-        from flask_se_config import secure_filename
-
-        result = secure_filename("NUL")
-        if os.name == "nt":
-            assert result == "_{filename}" or result.startswith("_")
+        elif expected_non_nt is not None:
+            assert result == expected_non_nt

@@ -79,34 +79,25 @@ def promocode(seeded_client):
 
 
 class TestAllowedFile:
-    def test_allowed_pdf(self):
+    @pytest.mark.parametrize(
+        "filename, expected",
+        [
+            ("thesis.pdf", True),
+            ("thesis.PDF", True),
+            ("thesis.docx", False),
+            ("thesis", False),
+        ],
+    )
+    def test_allowed_file(self, filename, expected):
         from flask_se_review import allowed_file
 
-        assert allowed_file("thesis.pdf") is True
-
-    def test_allowed_uppercase_pdf(self):
-        from flask_se_review import allowed_file
-
-        assert allowed_file("thesis.PDF") is True
-
-    def test_not_allowed_docx(self):
-        from flask_se_review import allowed_file
-
-        assert allowed_file("thesis.docx") is False
-
-    def test_not_allowed_no_ext(self):
-        from flask_se_review import allowed_file
-
-        assert allowed_file("thesis") is False
+        assert allowed_file(filename) is expected
 
 
 class TestThesisReviewIndex:
-    def test_index_returns_200(self, seeded_client):
-        resp = seeded_client.get("/review/")
-        assert resp.status_code == 200
-
-    def test_index_html_returns_200(self, seeded_client):
-        resp = seeded_client.get("/review/index.html")
+    @pytest.mark.parametrize("path", ["/review/", "/review/index.html"])
+    def test_index_returns_200(self, seeded_client, path):
+        resp = seeded_client.get(path)
         assert resp.status_code == 200
 
     def test_index_contains_review_filter_form(self, seeded_client):
@@ -212,9 +203,16 @@ class TestSubmitThesisOnReview:
 
 
 class TestEditThesisOnReview:
-    def test_edit_page_no_id(self, logged_client):
-        resp = logged_client.get("/review/edit")
-        assert resp.status_code == 302
+    @pytest.mark.parametrize(
+        "path, code",
+        [
+            ("/review/edit", 302),
+            ("/review/edit?thesis_review_id=99999", 404),
+        ],
+    )
+    def test_edit_page_bad_id(self, logged_client, path, code):
+        resp = logged_client.get(path)
+        assert resp.status_code == code
 
     def test_edit_page_own_thesis(self, logged_client, thesis_on_review):
         resp = logged_client.get(f"/review/edit?thesis_review_id={thesis_on_review.id}")
@@ -224,14 +222,18 @@ class TestEditThesisOnReview:
         resp = logged_client.get(f"/review/edit?thesis_review_id={other_thesis_on_review.id}")
         assert resp.status_code == 302
 
-    def test_edit_page_nonexistent(self, logged_client):
-        resp = logged_client.get("/review/edit?thesis_review_id=99999")
-        assert resp.status_code == 404
-
-    def test_edit_post_no_title(self, logged_client, thesis_on_review):
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {"name_ru": ""},
+            {"name_ru": "Title", "type": 999, "area": 1},
+            {"name_ru": "Title", "type": 1, "area": 999},
+        ],
+    )
+    def test_edit_post_validation_failure(self, logged_client, thesis_on_review, payload):
         resp = logged_client.post(
             f"/review/edit?thesis_review_id={thesis_on_review.id}",
-            data={"name_ru": ""},
+            data=payload,
         )
         assert resp.status_code == 302
 
@@ -249,20 +251,6 @@ class TestEditThesisOnReview:
 
         db.session.refresh(thesis_on_review)
         assert thesis_on_review.name_ru == "Updated title"
-
-    def test_edit_post_invalid_worktype(self, logged_client, thesis_on_review):
-        resp = logged_client.post(
-            f"/review/edit?thesis_review_id={thesis_on_review.id}",
-            data={"name_ru": "Title", "type": 999, "area": 1},
-        )
-        assert resp.status_code == 302
-
-    def test_edit_post_invalid_area(self, logged_client, thesis_on_review):
-        resp = logged_client.post(
-            f"/review/edit?thesis_review_id={thesis_on_review.id}",
-            data={"name_ru": "Title", "type": 1, "area": 999},
-        )
-        assert resp.status_code == 302
 
     @patch("flask_se_review.os.path.isfile", return_value=False)
     @patch.object(FileStorage, "save")
@@ -408,73 +396,57 @@ class TestReviewSubmitReview:
         )
         assert resp.status_code == 302
 
-    def test_reviewed_success_verdict(self, logged_client, reviewer_user, other_thesis_on_review):
+    @pytest.mark.parametrize(
+        "switcher, comments, overall_comment, expected_status, expected_verdict",
+        [
+            ("1", ["Good", "Ok", "Fine", "Nice", "Well done", "Great"], "Overall good", 0, 1),
+            ("0", ["Bad", "Poor", "Weak", "Incomplete", "Missing", "N/A"], "Needs work", 3, 0),
+        ],
+    )
+    def test_reviewed_verdict(
+        self,
+        logged_client,
+        reviewer_user,
+        other_thesis_on_review,
+        switcher,
+        comments,
+        overall_comment,
+        expected_status,
+        expected_verdict,
+    ):
         other_thesis_on_review.review_status = 2
         other_thesis_on_review.reviewer_id = reviewer_user.id
         from se_models import db
 
         db.session.commit()
 
+        data = {
+            "review_o1_radio_switcher": switcher,
+            "review_o1_comment": comments[0],
+            "review_o2_radio_switcher": switcher,
+            "review_o2_comment": comments[1],
+            "review_t1_radio_switcher": switcher,
+            "review_t1_comment": comments[2],
+            "review_t2_radio_switcher": switcher,
+            "review_t2_comment": comments[3],
+            "review_p1_radio_switcher": switcher,
+            "review_p1_comment": comments[4],
+            "review_p2_radio_switcher": switcher,
+            "review_p2_comment": comments[5],
+            "review_overall_comment": overall_comment,
+            "review_verdict_radio_switcher": switcher,
+        }
         resp = logged_client.post(
-            f"/review/reviewed?thesis_review_id={other_thesis_on_review.id}",
-            data={
-                "review_o1_radio_switcher": "1",
-                "review_o1_comment": "Good",
-                "review_o2_radio_switcher": "1",
-                "review_o2_comment": "Ok",
-                "review_t1_radio_switcher": "1",
-                "review_t1_comment": "Fine",
-                "review_t2_radio_switcher": "1",
-                "review_t2_comment": "Nice",
-                "review_p1_radio_switcher": "1",
-                "review_p1_comment": "Well done",
-                "review_p2_radio_switcher": "1",
-                "review_p2_comment": "Great",
-                "review_overall_comment": "Overall good",
-                "review_verdict_radio_switcher": "1",
-            },
+            f"/review/reviewed?thesis_review_id={other_thesis_on_review.id}", data=data
         )
         assert resp.status_code == 302
-        from se_models import ThesisReview
-
-        rv = ThesisReview.query.filter_by(thesis_on_review_id=other_thesis_on_review.id).first()
-        assert rv is not None
-        assert rv.verdict == 1
-
-    def test_reviewed_fail_verdict(self, logged_client, reviewer_user, other_thesis_on_review):
-        other_thesis_on_review.review_status = 2
-        other_thesis_on_review.reviewer_id = reviewer_user.id
-        from se_models import db
-
-        db.session.commit()
-
-        resp = logged_client.post(
-            f"/review/reviewed?thesis_review_id={other_thesis_on_review.id}",
-            data={
-                "review_o1_radio_switcher": "0",
-                "review_o1_comment": "Bad",
-                "review_o2_radio_switcher": "0",
-                "review_o2_comment": "Poor",
-                "review_t1_radio_switcher": "0",
-                "review_t1_comment": "Weak",
-                "review_t2_radio_switcher": "0",
-                "review_t2_comment": "Incomplete",
-                "review_p1_radio_switcher": "0",
-                "review_p1_comment": "Missing",
-                "review_p2_radio_switcher": "0",
-                "review_p2_comment": "N/A",
-                "review_overall_comment": "Needs work",
-                "review_verdict_radio_switcher": "0",
-            },
-        )
-        assert resp.status_code == 302
-        from se_models import ThesisOnReview, ThesisReview, db
+        from se_models import ThesisOnReview, ThesisReview
 
         t = db.session.get(ThesisOnReview, other_thesis_on_review.id)
-        assert t.review_status == 3
+        assert t.review_status == expected_status
         rv = ThesisReview.query.filter_by(thesis_on_review_id=other_thesis_on_review.id).first()
         assert rv is not None
-        assert rv.verdict == 0
+        assert rv.verdict == expected_verdict
 
     def test_reviewed_missing_fields(self, logged_client, reviewer_user, other_thesis_on_review):
         other_thesis_on_review.review_status = 2
@@ -530,13 +502,16 @@ class TestReviewSubmitReview:
 
 
 class TestReviewResult:
-    def test_result_no_id(self, logged_client):
-        resp = logged_client.get("/review/review_result")
-        assert resp.status_code == 302
-
-    def test_result_nonexistent(self, logged_client):
-        resp = logged_client.get("/review/review_result?thesis_review_id=99999")
-        assert resp.status_code == 404
+    @pytest.mark.parametrize(
+        "path, code",
+        [
+            ("/review/review_result", 302),
+            ("/review/review_result?thesis_review_id=99999", 404),
+        ],
+    )
+    def test_result_bad_id(self, logged_client, path, code):
+        resp = logged_client.get(path)
+        assert resp.status_code == code
 
     def test_result_no_review_yet(self, logged_client, thesis_on_review):
         resp = logged_client.get(f"/review/review_result?thesis_review_id={thesis_on_review.id}")
@@ -551,56 +526,44 @@ class TestReviewResult:
         resp = logged_client.get(f"/review/review_result?thesis_review_id={thesis_on_review.id}")
         assert resp.status_code == 404
 
-    def test_result_success(self, logged_client, reviewer_user, thesis_on_review):
+    @pytest.mark.parametrize(
+        "review_status, verdict, comments, overall_comment",
+        [
+            (0, 1, ["Good", "Ok", "Fine", "Nice", "Well", "Great"], "Overall good"),
+            (3, 0, ["Bad", "Poor", "Weak", "Bad", "Missing", "N/A"], "Needs work"),
+        ],
+    )
+    def test_result(
+        self,
+        logged_client,
+        reviewer_user,
+        thesis_on_review,
+        review_status,
+        verdict,
+        comments,
+        overall_comment,
+    ):
         from se_models import ThesisReview, db
 
-        thesis_on_review.review_status = 0
+        thesis_on_review.review_status = review_status
         thesis_on_review.reviewer_id = reviewer_user.id
         db.session.commit()
         rv = ThesisReview(
             thesis_on_review_id=thesis_on_review.id,
-            o1=1,
-            o1_comment="Good",
-            o2=1,
-            o2_comment="Ok",
-            t1=1,
-            t1_comment="Fine",
-            t2=1,
-            t2_comment="Nice",
-            p1=1,
-            p1_comment="Well",
-            p2=1,
-            p2_comment="Great",
-            verdict=1,
-            overall_comment="Overall good",
-        )
-        db.session.add(rv)
-        db.session.commit()
-        resp = logged_client.get(f"/review/review_result?thesis_review_id={thesis_on_review.id}")
-        assert resp.status_code == 200
-
-    def test_result_failed(self, logged_client, reviewer_user, thesis_on_review):
-        from se_models import ThesisReview, db
-
-        thesis_on_review.review_status = 3
-        thesis_on_review.reviewer_id = reviewer_user.id
-        db.session.commit()
-        rv = ThesisReview(
-            thesis_on_review_id=thesis_on_review.id,
-            o1=0,
-            o1_comment="Bad",
-            o2=0,
-            o2_comment="Poor",
-            t1=0,
-            t1_comment="Weak",
-            t2=0,
-            t2_comment="Bad",
-            p1=0,
-            p1_comment="Missing",
-            p2=0,
-            p2_comment="N/A",
-            verdict=0,
-            overall_comment="Needs work",
+            o1=verdict,
+            o1_comment=comments[0],
+            o2=verdict,
+            o2_comment=comments[1],
+            t1=verdict,
+            t1_comment=comments[2],
+            t2=verdict,
+            t2_comment=comments[3],
+            p1=verdict,
+            p1_comment=comments[4],
+            p2=verdict,
+            p2_comment=comments[5],
+            verdict=verdict,
+            overall_comment=overall_comment,
         )
         db.session.add(rv)
         db.session.commit()
@@ -609,53 +572,73 @@ class TestReviewResult:
 
 
 class TestBecomeReviewer:
-    def test_become_reviewer_ask_no_code(self, logged_client):
-        resp = logged_client.get("/review/become_thesis_reviewer")
-        assert resp.status_code == 302
-
-    def test_become_reviewer_ask_invalid_code(self, logged_client):
-        resp = logged_client.get("/review/become_thesis_reviewer?code=invalid")
-        assert resp.status_code == 302
-
-    def test_become_reviewer_ask_valid_code(self, logged_client, promocode):
-        resp = logged_client.get(f"/review/become_thesis_reviewer?code={promocode.code}")
-        assert resp.status_code == 200
-
-    def test_become_reviewer_ask_already_reviewer(self, logged_client, reviewer_user, promocode):
-        resp = logged_client.get(f"/review/become_thesis_reviewer?code={promocode.code}")
-        assert resp.status_code == 200
-        html = resp.data.decode("utf-8").lower()
-        assert "reviewer" in html or "рецензент" in html
-
-    def test_become_reviewer_confirm_no_code(self, logged_client):
-        resp = logged_client.post("/review/become_thesis_reviewer_confirm")
-        assert resp.status_code == 302
-
-    def test_become_reviewer_confirm_invalid_code(self, logged_client):
-        resp = logged_client.post(
-            "/review/become_thesis_reviewer_confirm", data={"code": "invalid"}
-        )
-        assert resp.status_code == 302
-
-    def test_become_reviewer_confirm_creates(self, logged_client, promocode):
-        resp = logged_client.post(
-            "/review/become_thesis_reviewer_confirm", data={"code": promocode.code}
-        )
-        assert resp.status_code == 200
-        from se_models import Reviewer
-
-        r = Reviewer.query.filter_by(user_id=1).first()
-        assert r is not None
-
-    def test_become_reviewer_confirm_already_reviewer(
-        self, logged_client, reviewer_user, promocode
+    @pytest.mark.parametrize(
+        "query, needs_promocode, needs_reviewer, expected_code, html_check",
+        [
+            ("", False, False, 302, None),
+            ("?code=invalid", False, False, 302, None),
+            ("?code=__PROMO__", True, False, 200, None),
+            ("?code=__PROMO__", True, True, 200, "reviewer"),
+        ],
+    )
+    def test_become_reviewer_ask(
+        self,
+        logged_client,
+        request,
+        query,
+        needs_promocode,
+        needs_reviewer,
+        expected_code,
+        html_check,
     ):
-        resp = logged_client.post(
-            "/review/become_thesis_reviewer_confirm", data={"code": promocode.code}
-        )
-        assert resp.status_code == 200
-        html = resp.data.decode("utf-8").lower()
-        assert "already" in html or "уже" in html
+        if needs_promocode:
+            promocode = request.getfixturevalue("promocode")
+            query = query.replace("__PROMO__", promocode.code)
+        if needs_reviewer:
+            request.getfixturevalue("reviewer_user")
+        resp = logged_client.get(f"/review/become_thesis_reviewer{query}")
+        assert resp.status_code == expected_code
+        if html_check:
+            html = resp.data.decode("utf-8").lower()
+            assert "reviewer" in html or "рецензент" in html
+
+    @pytest.mark.parametrize(
+        "code, needs_promocode, needs_reviewer, expected_code, db_check, html_check",
+        [
+            (None, False, False, 302, False, None),
+            ("invalid", False, False, 302, False, None),
+            ("__PROMO__", True, False, 200, True, None),
+            ("__PROMO__", True, True, 200, False, "already"),
+        ],
+    )
+    def test_become_reviewer_confirm(
+        self,
+        logged_client,
+        request,
+        code,
+        needs_promocode,
+        needs_reviewer,
+        expected_code,
+        db_check,
+        html_check,
+    ):
+        if needs_promocode:
+            promocode = request.getfixturevalue("promocode")
+        if needs_reviewer:
+            request.getfixturevalue("reviewer_user")
+        data = {}
+        if code is not None:
+            data["code"] = promocode.code if code == "__PROMO__" else code
+        resp = logged_client.post("/review/become_thesis_reviewer_confirm", data=data)
+        assert resp.status_code == expected_code
+        if db_check:
+            from se_models import Reviewer
+
+            r = Reviewer.query.filter_by(user_id=1).first()
+            assert r is not None
+        if html_check:
+            html = resp.data.decode("utf-8").lower()
+            assert "already" in html or "уже" in html
 
 
 class TestFullReviewFlow:

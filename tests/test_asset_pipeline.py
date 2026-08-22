@@ -20,6 +20,8 @@ The authoritative drift check is the CI `assets` job (npm run build + git diff
 import re
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = REPO_ROOT / "src" / "templates"
 STATIC_DIR = REPO_ROOT / "src" / "static"
@@ -182,18 +184,14 @@ class TestMinifiedAssetsServed:
 
 
 class TestPagesServeMinifiedAssets:
-    def test_homepage_uses_minified_css_and_js(self, seeded_client):
-        body = seeded_client.get("/").get_data(as_text=True)
+    @pytest.mark.parametrize("path", ["/", "/news/"])
+    def test_page_uses_minified_assets(self, seeded_client, path):
+        body = seeded_client.get(path).get_data(as_text=True)
         assert "quick-website.min.css" in body
         assert "quick-website.min.js" in body
         assert "asset('css/quick-website.css')" not in body
-        assert "asset('js/quick-website.js')" not in body
-
-    def test_light_base_page_uses_minified_assets(self, seeded_client):
-        body = seeded_client.get("/news/").get_data(as_text=True)
-        assert "quick-website.min.css" in body
-        assert "quick-website.min.js" in body
-        assert "asset('css/quick-website.css')" not in body
+        if path == "/":
+            assert "asset('js/quick-website.js')" not in body
 
 
 class TestPurgeCompleteness:

@@ -36,9 +36,6 @@ class TestSecureFilename:
         assert result != ""
         assert " " not in result
 
-    def test_empty_after_strip_returns_empty(self):
-        assert secure_filename("...") == ""
-
     def test_leading_trailing_dots_stripped(self):
         result = secure_filename(".hidden.")
         assert not result.startswith(".")
@@ -150,35 +147,29 @@ class TestPluralHours:
     def test_plural_hours(self, hours, expected):
         assert plural_hours(hours) == expected
 
-    @pytest.mark.parametrize("hours", [-1, -24, -100])
-    def test_negative_hours(self, hours):
-        result = plural_hours(hours)
-        assert isinstance(result, str)
-        assert len(result) > 0
-
-    @pytest.mark.parametrize("hours", [168, 720, 8760])
-    def test_large_hours(self, hours):
+    @pytest.mark.parametrize("hours", [-1, -24, -100, 168, 720, 8760])
+    def test_negative_and_large_hours(self, hours):
         result = plural_hours(hours)
         assert isinstance(result, str)
         assert len(result) > 0
 
 
 class TestGetThesisTypeIdString:
-    def test_id_1_returns_empty(self):
-        assert get_thesis_type_id_string(1) == ""
-
-    def test_id_2_returns_bachelor_report(self):
-        assert get_thesis_type_id_string(2) == "Bachelor_Report"
-
-    def test_id_4_returns_master_thesis(self):
-        assert get_thesis_type_id_string(4) == "Master_Thesis"
-
-    def test_id_10_returns_pre_graduate(self):
-        assert get_thesis_type_id_string(10) == "Pre_graduate_practice"
-
-    @pytest.mark.parametrize("tid", [0, -1, 999, -999])
-    def test_edge_ids(self, tid):
-        assert get_thesis_type_id_string(tid) == ""
+    @pytest.mark.parametrize(
+        ("tid", "expected"),
+        [
+            (1, ""),
+            (2, "Bachelor_Report"),
+            (4, "Master_Thesis"),
+            (10, "Pre_graduate_practice"),
+            (0, ""),
+            (-1, ""),
+            (999, ""),
+            (-999, ""),
+        ],
+    )
+    def test_get_thesis_type_id_string(self, tid, expected):
+        assert get_thesis_type_id_string(tid) == expected
 
 
 class TestAllowedFile:

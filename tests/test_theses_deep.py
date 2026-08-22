@@ -32,17 +32,18 @@ class TestFetchThesesConsultantFilter:
         assert resp.status_code == 200
         assert "no_such_consultant_zzz" not in resp.get_data(as_text=True)
 
-    def test_fetch_consultant_filter_ignored_when_empty(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?consultant=")
-
-    def test_fetch_consultant_combined_with_supervisor(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses?consultant=test&supervisor=1")
-
-    def test_fetch_consultant_match(self, app_ctx):
+    @pytest.mark.parametrize(
+        "search_term, expected_title",
+        [
+            ("Консультантов", "Consultant Match Thesis"),
+            ("Консульт", "Partial Consultant Thesis"),
+        ],
+    )
+    def test_fetch_consultant_match(self, app_ctx, search_term, expected_title):
         from se_models import Thesis, db
 
         t = Thesis(
-            name_ru="Consultant Match Thesis",
+            name_ru=expected_title,
             author="Author",
             type_id=2,
             course_id=1,
@@ -51,48 +52,45 @@ class TestFetchThesesConsultantFilter:
         )
         db.session.add(t)
         db.session.commit()
-        client = app_ctx
-        resp = client.get("/fetch_theses?consultant=Консультантов")
+        resp = app_ctx.get(f"/fetch_theses?consultant={search_term}")
         assert resp.status_code == 200
-        assert "Consultant Match Thesis" in resp.get_data(as_text=True)
+        assert expected_title in resp.get_data(as_text=True)
 
-    def test_fetch_consultant_partial_name(self, app_ctx):
-        from se_models import Thesis, db
-
-        t = Thesis(
-            name_ru="Partial Consultant Thesis",
-            author="Author",
-            type_id=2,
-            course_id=1,
-            publish_year=2024,
-            consultant="Иван Консультантов",
-        )
-        db.session.add(t)
-        db.session.commit()
-        client = app_ctx
-        resp = client.get("/fetch_theses?consultant=Консульт")
-        assert resp.status_code == 200
-        assert "Partial Consultant Thesis" in resp.get_data(as_text=True)
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "/fetch_theses?consultant=",
+            "/fetch_theses?consultant=test&supervisor=1",
+        ],
+    )
+    def test_fetch_consultant_ok(self, seeded_client, path):
+        assert_ok(seeded_client, path)
 
 
 class TestThesesSearchDetail:
-    def test_search_page_contains_form(self, seeded_client):
-        resp = seeded_client.get("/theses.html")
-        assert resp.status_code == 200
-
-    def test_search_with_all_filter_params(self, seeded_client):
-        resp = seeded_client.get(
-            "/theses.html?worktype=2&course=1&supervisor=1&startdate=2020&enddate=2024"
-        )
-        assert resp.status_code == 200
-
-    def test_search_with_invalid_params(self, seeded_client):
-        assert_ok(seeded_client, "/theses.html?worktype=99&course=99")
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "/theses.html",
+            "/theses.html?worktype=2&course=1&supervisor=1&startdate=2020&enddate=2024",
+            "/theses.html?worktype=99&course=99",
+        ],
+    )
+    def test_search_page_renders(self, seeded_client, path):
+        assert_ok(seeded_client, path)
 
 
 class TestDownloadThesis:
-    def test_download_no_text_uri(self, seeded_client):
-        resp = seeded_client.get("/thesis_download?thesis_id=1")
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "/thesis_download?thesis_id=1",
+            "/thesis_download?thesis_id=0",
+            "/thesis_download?thesis_id=99999",
+        ],
+    )
+    def test_download_status(self, seeded_client, path):
+        resp = seeded_client.get(path)
         assert resp.status_code in (200, 302)
 
     def test_download_counter_increment(self, seeded_client):
@@ -106,43 +104,32 @@ class TestDownloadThesis:
         db.session.refresh(thesis)
         assert thesis.download_thesis == before + 1
 
-    def test_download_zero_thesis_id(self, seeded_client):
-        resp = seeded_client.get("/thesis_download?thesis_id=0")
-        assert resp.status_code in (200, 302)
-
-    def test_download_missing_text_uri_column(self, seeded_client):
-        resp = seeded_client.get("/thesis_download?thesis_id=99999")
-        assert resp.status_code in (200, 302)
-
 
 class TestPostThesesApi:
-    def test_post_no_thesis_text(self, logged_client):
-        resp = logged_client.post("/post_theses", data={})
+    @pytest.mark.parametrize(
+        "payload, expected_string",
+        [
+            ({}, "No thesis text"),
+            ({"thesis_text": (io.BytesIO(_min_pdf()), "test.pdf")}, "No thesis_info"),
+            (
+                {
+                    "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
+                    "thesis_info": (
+                        io.BytesIO(json.dumps({"name_ru": "Test"}).encode()),
+                        "info.json",
+                    ),
+                },
+                None,
+            ),
+        ],
+    )
+    def test_post_missing_inputs(self, logged_client, payload, expected_string):
+        resp = logged_client.post("/post_theses", data=payload)
         assert resp.status_code == 200
-        data = json.loads(resp.data)
-        assert data["status"] == 500
-        assert "No thesis text" in data["string"]
-
-    def test_post_no_thesis_info(self, logged_client):
-        resp = logged_client.post(
-            "/post_theses", data={"thesis_text": (io.BytesIO(_min_pdf()), "test.pdf")}
-        )
-        assert resp.status_code == 200
-        data = json.loads(resp.data)
-        assert data["status"] == 500
-        assert "No thesis_info" in data["string"]
-
-    def test_post_missing_keys(self, logged_client):
-        resp = logged_client.post(
-            "/post_theses",
-            data={
-                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
-                "thesis_info": (io.BytesIO(json.dumps({"name_ru": "Test"}).encode()), "info.json"),
-            },
-        )
-        assert resp.status_code == 200
-        data = json.loads(resp.data)
-        assert data["status"] == 500
+        body = json.loads(resp.data)
+        assert body["status"] == 500
+        if expected_string:
+            assert expected_string in body["string"]
 
     def test_post_bad_secret_key(self, logged_client):
         info = {
@@ -166,57 +153,16 @@ class TestPostThesesApi:
         assert data["status"] == 500
         assert "Invalid secret key" in data["string"]
 
-    def test_post_bad_type_id(self, logged_client):
-        from flask_se import app
-
-        secret_key = app.config["SECRET_KEY_THESIS"]
-
-        info = {
-            "name_ru": "Test",
-            "secret_key": secret_key,
-            "type_id": 99,
-            "course_id": 1,
-            "author": "Author",
-            "supervisor": "Терехов",
-            "publish_year": 2024,
-        }
-        resp = logged_client.post(
-            "/post_theses",
-            data={
-                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
-                "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
-            },
-        )
-        data = json.loads(resp.data)
-        assert data["status"] == 500
-        assert "Wrong type_id" in data["string"]
-
-    def test_post_bad_course_id(self, logged_client):
-        from flask_se import app
-
-        secret_key = app.config["SECRET_KEY_THESIS"]
-
-        info = {
-            "name_ru": "Test",
-            "secret_key": secret_key,
-            "type_id": 2,
-            "course_id": 99,
-            "author": "Author",
-            "supervisor": "Терехов",
-            "publish_year": 2024,
-        }
-        resp = logged_client.post(
-            "/post_theses",
-            data={
-                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
-                "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
-            },
-        )
-        data = json.loads(resp.data)
-        assert data["status"] == 500
-        assert "Wrong course_id" in data["string"]
-
-    def test_post_bad_publish_year_path_traversal(self, logged_client):
+    @pytest.mark.parametrize(
+        "info_overrides, expected_error",
+        [
+            ({"type_id": 99}, "Wrong type_id"),
+            ({"course_id": 99}, "Wrong course_id"),
+            ({"publish_year": "../../evil"}, "Wrong publish_year"),
+            ({"supervisor": "NoOneHere"}, "Can't find supervisor"),
+        ],
+    )
+    def test_post_bad_field(self, logged_client, info_overrides, expected_error):
         from flask_se import app
 
         secret_key = app.config["SECRET_KEY_THESIS"]
@@ -228,33 +174,9 @@ class TestPostThesesApi:
             "course_id": 1,
             "author": "Author",
             "supervisor": "Терехов",
-            "publish_year": "../../evil",
-        }
-        resp = logged_client.post(
-            "/post_theses",
-            data={
-                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
-                "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
-            },
-        )
-        data = json.loads(resp.data)
-        assert data["status"] == 500
-        assert "Wrong publish_year" in data["string"]
-
-    def test_post_no_supervisor_match(self, logged_client):
-        from flask_se import app
-
-        secret_key = app.config["SECRET_KEY_THESIS"]
-
-        info = {
-            "name_ru": "Test",
-            "secret_key": secret_key,
-            "type_id": 2,
-            "course_id": 1,
-            "author": "Author",
-            "supervisor": "NoOneHere",
             "publish_year": 2024,
         }
+        info.update(info_overrides)
         resp = logged_client.post(
             "/post_theses",
             data={
@@ -262,9 +184,9 @@ class TestPostThesesApi:
                 "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
             },
         )
-        data = json.loads(resp.data)
-        assert data["status"] == 500
-        assert "Can't find supervisor" in data["string"]
+        body = json.loads(resp.data)
+        assert body["status"] == 500
+        assert expected_error in body["string"]
 
     @pytest.mark.xdist_group("post_theses")
     def test_post_supervisor_found_in_users_not_in_staff(self, logged_client):
@@ -296,7 +218,25 @@ class TestPostThesesApi:
         assert "Can't find supervisor in staff" in data["string"]
 
     @pytest.mark.xdist_group("post_theses")
-    def test_post_with_source_uri(self, logged_client):
+    @pytest.mark.parametrize(
+        "author, extra_files, source_uri",
+        [
+            ("SourceUriAuthor", [], "https://example.com/thesis"),
+            ("PresAuthor", [("presentation", b"slides", "slides.pdf")], None),
+            ("SupRevAuthor", [("supervisor_review", b"review", "review.pdf")], None),
+            ("RevRevAuthor", [("reviewer_review", b"review", "review.pdf")], None),
+            (
+                "AllFilesAuthor",
+                [
+                    ("presentation", _min_pdf("slides"), "slides.pdf"),
+                    ("supervisor_review", _min_pdf("sup"), "sup.pdf"),
+                    ("reviewer_review", _min_pdf("rev"), "rev.pdf"),
+                ],
+                "https://example.com/thesis",
+            ),
+        ],
+    )
+    def test_post_with_files(self, logged_client, author, extra_files, source_uri):
         from flask_se_config import SECRET_KEY_THESIS
 
         info = {
@@ -304,119 +244,21 @@ class TestPostThesesApi:
             "secret_key": SECRET_KEY_THESIS,
             "type_id": 2,
             "course_id": 1,
-            "author": "SourceUriAuthor",
-            "supervisor": "Терехов",
-            "publish_year": 2024,
-            "source_uri": "https://example.com/thesis",
-        }
-        resp = logged_client.post(
-            "/post_theses",
-            data={
-                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
-                "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
-            },
-        )
-        data = json.loads(resp.data)
-        assert data["status"] == 0, data
-
-    @pytest.mark.xdist_group("post_theses")
-    def test_post_with_presentation(self, logged_client):
-        from flask_se_config import SECRET_KEY_THESIS
-
-        info = {
-            "name_ru": "Test",
-            "secret_key": SECRET_KEY_THESIS,
-            "type_id": 2,
-            "course_id": 1,
-            "author": "PresAuthor",
+            "author": author,
             "supervisor": "Терехов",
             "publish_year": 2024,
         }
-        resp = logged_client.post(
-            "/post_theses",
-            data={
-                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
-                "presentation": (io.BytesIO(b"slides"), "slides.pdf"),
-                "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
-            },
-        )
-        data = json.loads(resp.data)
-        assert data["status"] == 0, data
-
-    @pytest.mark.xdist_group("post_theses")
-    def test_post_with_supervisor_review(self, logged_client):
-        from flask_se_config import SECRET_KEY_THESIS
-
-        info = {
-            "name_ru": "Test",
-            "secret_key": SECRET_KEY_THESIS,
-            "type_id": 2,
-            "course_id": 1,
-            "author": "SupRevAuthor",
-            "supervisor": "Терехов",
-            "publish_year": 2024,
+        if source_uri:
+            info["source_uri"] = source_uri
+        data = {
+            "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
+            "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
         }
-        resp = logged_client.post(
-            "/post_theses",
-            data={
-                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
-                "supervisor_review": (io.BytesIO(b"review"), "review.pdf"),
-                "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
-            },
-        )
-        data = json.loads(resp.data)
-        assert data["status"] == 0, data
-
-    @pytest.mark.xdist_group("post_theses")
-    def test_post_with_reviewer_review(self, logged_client):
-        from flask_se_config import SECRET_KEY_THESIS
-
-        info = {
-            "name_ru": "Test",
-            "secret_key": SECRET_KEY_THESIS,
-            "type_id": 2,
-            "course_id": 1,
-            "author": "RevRevAuthor",
-            "supervisor": "Терехов",
-            "publish_year": 2024,
-        }
-        resp = logged_client.post(
-            "/post_theses",
-            data={
-                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
-                "reviewer_review": (io.BytesIO(b"review"), "review.pdf"),
-                "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
-            },
-        )
-        data = json.loads(resp.data)
-        assert data["status"] == 0, data
-
-    @pytest.mark.xdist_group("post_theses")
-    def test_post_all_files(self, logged_client):
-        from flask_se_config import SECRET_KEY_THESIS
-
-        info = {
-            "name_ru": "Test",
-            "secret_key": SECRET_KEY_THESIS,
-            "type_id": 2,
-            "course_id": 1,
-            "author": "AllFilesAuthor",
-            "supervisor": "Терехов",
-            "publish_year": 2024,
-            "source_uri": "https://example.com/thesis",
-        }
-        resp = logged_client.post(
-            "/post_theses",
-            data={
-                "thesis_text": (io.BytesIO(_min_pdf()), "test.pdf"),
-                "presentation": (io.BytesIO(_min_pdf("slides")), "slides.pdf"),
-                "supervisor_review": (io.BytesIO(_min_pdf("sup")), "sup.pdf"),
-                "reviewer_review": (io.BytesIO(_min_pdf("rev")), "rev.pdf"),
-                "thesis_info": (io.BytesIO(json.dumps(info).encode()), "info.json"),
-            },
-        )
-        data = json.loads(resp.data)
-        assert data["status"] == 0, data
+        for field, content, filename in extra_files:
+            data[field] = (io.BytesIO(content), filename)
+        resp = logged_client.post("/post_theses", data=data)
+        body = json.loads(resp.data)
+        assert body["status"] == 0, body
 
 
 class TestThesesTmpList:
@@ -451,18 +293,6 @@ class TestThesesDeleteTmpDeep:
         resp = admin_client.post("/theses_delete_tmp", data={"thesis_id": tid})
         assert resp.status_code in (200, 302)
         assert db.session.get(Thesis, tid) is None
-
-    def test_delete_tmp_non_temporary_ignored(self, admin_client):
-        from se_models import Thesis, db
-
-        t = Thesis(
-            name_ru="Perm", author="T", type_id=2, course_id=1, publish_year=2024, temporary=False
-        )
-        db.session.add(t)
-        db.session.commit()
-        resp = admin_client.post("/theses_delete_tmp", data={"thesis_id": t.id})
-        assert resp.status_code in (200, 302)
-        assert db.session.get(Thesis, t.id) is not None
 
 
 class TestThesesAddTmpDeep:
@@ -532,29 +362,30 @@ class TestThesesAddTmpDeep:
         updated = db.session.get(Thesis, t.id)
         assert updated.temporary is False
 
-    def test_add_tmp_non_temporary_ignored(self, admin_client):
+    @pytest.mark.parametrize(
+        "endpoint, title",
+        [
+            ("/theses_add_tmp", "AlreadyPerm"),
+            ("/theses_delete_tmp", "Perm"),
+        ],
+    )
+    def test_tmp_non_temporary_ignored(self, admin_client, endpoint, title):
         from se_models import Thesis, db
 
         t = Thesis(
-            name_ru="AlreadyPerm",
-            author="T",
-            type_id=2,
-            course_id=1,
-            publish_year=2024,
-            temporary=False,
+            name_ru=title, author="T", type_id=2, course_id=1, publish_year=2024, temporary=False
         )
         db.session.add(t)
         db.session.commit()
-        resp = _approve_temp_thesis(admin_client, t.id)
+        resp = admin_client.post(endpoint, data={"thesis_id": t.id})
         assert resp.status_code in (200, 302)
-        assert db.session.get(Thesis, t.id).temporary is False
+        thesis = db.session.get(Thesis, t.id)
+        assert thesis is not None
+        assert thesis.temporary is False
 
-    def test_add_tmp_nonexistent_thesis(self, admin_client):
-        resp = admin_client.post("/theses_add_tmp", data={"thesis_id": 99999})
-        assert resp.status_code in (200, 302)
-
-    def test_delete_tmp_nonexistent_thesis(self, admin_client):
-        resp = admin_client.post("/theses_delete_tmp", data={"thesis_id": 99999})
+    @pytest.mark.parametrize("endpoint", ["/theses_add_tmp", "/theses_delete_tmp"])
+    def test_tmp_nonexistent_thesis(self, admin_client, endpoint):
+        resp = admin_client.post(endpoint, data={"thesis_id": 99999})
         assert resp.status_code in (200, 302)
 
 
@@ -576,64 +407,42 @@ class TestThesesPagination:
 
 
 class TestThesesSearchFilterPopulation:
-    def test_search_filter_worktype_and_course(self, seeded_client):
-        resp = seeded_client.get("/theses.html?worktype=2")
-        assert resp.status_code == 200
-        resp = seeded_client.get("/theses.html?course=1")
-        assert resp.status_code == 200
-
-    def test_search_filter_supervisor(self, seeded_client):
-        assert_ok(seeded_client, "/theses.html?supervisor=1")
-
-    def test_search_filter_startdate_enddate(self, seeded_client):
-        assert_ok(seeded_client, "/theses.html?startdate=2020")
-        assert_ok(seeded_client, "/theses.html?enddate=2024")
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "/theses.html?worktype=2",
+            "/theses.html?course=1",
+            "/theses.html?supervisor=1",
+            "/theses.html?startdate=2020",
+            "/theses.html?enddate=2024",
+        ],
+    )
+    def test_search_filter_population(self, seeded_client, path):
+        assert_ok(seeded_client, path)
 
 
 class TestThesesFtsWildcardSearch:
-    def test_fts_search_plain_term(self, seeded_client):
+    @pytest.mark.parametrize(
+        "name_ru, author, term",
+        [
+            ("Компьютерные сети", "Максим Иванов", "сети"),
+            ("Компьютерные сети", "Максим Иванов", "макс*"),
+            ("Программная инженерия", "Алексей", "*грамм*"),
+        ],
+    )
+    def test_fts_search(self, seeded_client, name_ru, author, term):
         from se_models import Thesis, db, thesis_fts_search
 
         t = Thesis(
-            name_ru="Компьютерные сети",
-            author="Максим Иванов",
+            name_ru=name_ru,
+            author=author,
             type_id=2,
             course_id=1,
             publish_year=2024,
         )
         db.session.add(t)
         db.session.commit()
-        ids = thesis_fts_search("сети")
-        assert t.id in ids
-
-    def test_fts_search_prefix_wildcard(self, seeded_client):
-        from se_models import Thesis, db, thesis_fts_search
-
-        t = Thesis(
-            name_ru="Компьютерные сети",
-            author="Максим Иванов",
-            type_id=2,
-            course_id=1,
-            publish_year=2024,
-        )
-        db.session.add(t)
-        db.session.commit()
-        ids = thesis_fts_search("макс*")
-        assert t.id in ids
-
-    def test_fts_search_infix_wildcard_like_fallback(self, seeded_client):
-        from se_models import Thesis, db, thesis_fts_search
-
-        t = Thesis(
-            name_ru="Программная инженерия",
-            author="Алексей",
-            type_id=2,
-            course_id=1,
-            publish_year=2024,
-        )
-        db.session.add(t)
-        db.session.commit()
-        ids = thesis_fts_search("*грамм*")
+        ids = thesis_fts_search(term)
         assert t.id in ids
 
     def test_fts_search_no_crash_on_wildcard_route(self, seeded_client):

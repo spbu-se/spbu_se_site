@@ -16,41 +16,25 @@ def _form_ctx():
 
 
 class TestThesisFilter:
-    def test_field_worktype_is_select(self):
+    @pytest.mark.parametrize(
+        ("field", "check_name"),
+        [
+            ("worktype", True),
+            ("course", False),
+            ("supervisor", False),
+            ("startdate", False),
+            ("enddate", False),
+        ],
+    )
+    def test_field_is_select(self, field, check_name):
         from se_forms import ThesisFilter
 
         f = ThesisFilter()
-        assert isinstance(f.worktype, SelectField)
-        assert f.worktype.name == "worktype"
-        assert f.worktype.choices == []
-
-    def test_field_course_is_select(self):
-        from se_forms import ThesisFilter
-
-        f = ThesisFilter()
-        assert isinstance(f.course, SelectField)
-        assert f.course.choices == []
-
-    def test_field_supervisor_is_select(self):
-        from se_forms import ThesisFilter
-
-        f = ThesisFilter()
-        assert isinstance(f.supervisor, SelectField)
-        assert f.supervisor.choices == []
-
-    def test_field_startdate_is_select(self):
-        from se_forms import ThesisFilter
-
-        f = ThesisFilter()
-        assert isinstance(f.startdate, SelectField)
-        assert f.startdate.choices == []
-
-    def test_field_enddate_is_select(self):
-        from se_forms import ThesisFilter
-
-        f = ThesisFilter()
-        assert isinstance(f.enddate, SelectField)
-        assert f.enddate.choices == []
+        field_obj = getattr(f, field)
+        assert isinstance(field_obj, SelectField)
+        assert field_obj.choices == []
+        if check_name:
+            assert field_obj.name == field
 
 
 class TestMultiCheckboxField:
@@ -67,26 +51,27 @@ class TestMultiCheckboxField:
 
 
 class TestUserAddTheme:
-    def test_field_title_required_string(self):
+    @pytest.mark.parametrize(
+        ("field", "required"),
+        [("title", True), ("consultant", False)],
+    )
+    def test_field_is_string(self, field, required):
         from se_forms import UserAddTheme
 
         f = UserAddTheme()
-        assert isinstance(f.title, StringField)
-        assert any(isinstance(v, DataRequired) for v in f.title.validators)
+        field_obj = getattr(f, field)
+        assert isinstance(field_obj, StringField)
+        if required:
+            assert any(isinstance(v, DataRequired) for v in field_obj.validators)
 
-    def test_field_description_is_textarea(self):
+    @pytest.mark.parametrize("field", ["description", "requirements"])
+    def test_field_is_textarea(self, field):
         from se_forms import UserAddTheme
 
         f = UserAddTheme()
-        assert isinstance(f.description, StringField)
-        assert isinstance(f.description.widget, TextArea)
-
-    def test_field_requirements_is_textarea(self):
-        from se_forms import UserAddTheme
-
-        f = UserAddTheme()
-        assert isinstance(f.requirements, StringField)
-        assert isinstance(f.requirements.widget, TextArea)
+        field_obj = getattr(f, field)
+        assert isinstance(field_obj, StringField)
+        assert isinstance(field_obj.widget, TextArea)
 
     def test_field_levels_is_multicheckbox(self):
         from se_forms import UserAddTheme
@@ -94,12 +79,6 @@ class TestUserAddTheme:
         f = UserAddTheme()
         assert isinstance(f.levels, SelectMultipleField)
         assert f.levels.coerce is int
-
-    def test_field_consultant_is_string(self):
-        from se_forms import UserAddTheme
-
-        f = UserAddTheme()
-        assert isinstance(f.consultant, StringField)
 
     def test_field_company_is_select(self):
         from se_forms import UserAddTheme
@@ -110,33 +89,39 @@ class TestUserAddTheme:
 
 
 class TestUserEditTheme:
-    def test_field_title_required_string(self):
+    @pytest.mark.parametrize(
+        ("field", "required"),
+        [
+            ("title", True),
+            ("comment", False),
+            ("consultant", False),
+            ("supervisor", False),
+            ("theme_id", False),
+            ("status", False),
+        ],
+    )
+    def test_field_is_string(self, field, required):
         from se_forms import UserEditTheme
 
         f = UserEditTheme()
-        assert isinstance(f.title, StringField)
-        assert any(isinstance(v, DataRequired) for v in f.title.validators)
+        field_obj = getattr(f, field)
+        assert isinstance(field_obj, StringField)
+        if required:
+            assert any(isinstance(v, DataRequired) for v in field_obj.validators)
 
-    def test_field_description_required_textarea(self):
+    @pytest.mark.parametrize(
+        ("field", "required"),
+        [("description", True), ("requirements", False)],
+    )
+    def test_field_is_textarea(self, field, required):
         from se_forms import UserEditTheme
 
         f = UserEditTheme()
-        assert isinstance(f.description, StringField)
-        assert isinstance(f.description.widget, TextArea)
-        assert any(isinstance(v, DataRequired) for v in f.description.validators)
-
-    def test_field_requirements_is_textarea(self):
-        from se_forms import UserEditTheme
-
-        f = UserEditTheme()
-        assert isinstance(f.requirements, StringField)
-        assert isinstance(f.requirements.widget, TextArea)
-
-    def test_field_comment_is_string(self):
-        from se_forms import UserEditTheme
-
-        f = UserEditTheme()
-        assert isinstance(f.comment, StringField)
+        field_obj = getattr(f, field)
+        assert isinstance(field_obj, StringField)
+        assert isinstance(field_obj.widget, TextArea)
+        if required:
+            assert any(isinstance(v, DataRequired) for v in field_obj.validators)
 
     def test_field_levels_is_multicheckbox(self):
         from se_forms import UserEditTheme
@@ -145,55 +130,20 @@ class TestUserEditTheme:
         assert isinstance(f.levels, SelectMultipleField)
         assert f.levels.coerce is int
 
-    def test_field_consultant_is_string(self):
-        from se_forms import UserEditTheme
-
-        f = UserEditTheme()
-        assert isinstance(f.consultant, StringField)
-
     def test_field_company_is_select(self):
         from se_forms import UserEditTheme
 
         f = UserEditTheme()
         assert isinstance(f.company, SelectField)
-
-    def test_field_supervisor_is_string(self):
-        from se_forms import UserEditTheme
-
-        f = UserEditTheme()
-        assert isinstance(f.supervisor, StringField)
-
-    def test_field_theme_id_is_string(self):
-        from se_forms import UserEditTheme
-
-        f = UserEditTheme()
-        assert isinstance(f.theme_id, StringField)
-
-    def test_field_status_is_string(self):
-        from se_forms import UserEditTheme
-
-        f = UserEditTheme()
-        assert isinstance(f.status, StringField)
 
 
 class TestDiplomaThemesFilter:
-    def test_field_company_is_select(self):
+    @pytest.mark.parametrize("field", ["company", "level", "supervisor"])
+    def test_field_is_select(self, field):
         from se_forms import DiplomaThemesFilter
 
         f = DiplomaThemesFilter()
-        assert isinstance(f.company, SelectField)
-
-    def test_field_level_is_select(self):
-        from se_forms import DiplomaThemesFilter
-
-        f = DiplomaThemesFilter()
-        assert isinstance(f.level, SelectField)
-
-    def test_field_supervisor_is_select(self):
-        from se_forms import DiplomaThemesFilter
-
-        f = DiplomaThemesFilter()
-        assert isinstance(f.supervisor, SelectField)
+        assert isinstance(getattr(f, field), SelectField)
 
 
 class TestUserDiplomaThemesFilter:
@@ -206,32 +156,27 @@ class TestUserDiplomaThemesFilter:
 
 
 class TestThesisReviewFilter:
-    def test_field_status_is_select(self):
+    @pytest.mark.parametrize("field", ["status", "worktype", "areasofstudy"])
+    def test_field_is_select(self, field):
         from se_forms import ThesisReviewFilter
 
         f = ThesisReviewFilter()
-        assert isinstance(f.status, SelectField)
-
-    def test_field_worktype_is_select(self):
-        from se_forms import ThesisReviewFilter
-
-        f = ThesisReviewFilter()
-        assert isinstance(f.worktype, SelectField)
-
-    def test_field_areasofstudy_is_select(self):
-        from se_forms import ThesisReviewFilter
-
-        f = ThesisReviewFilter()
-        assert isinstance(f.areasofstudy, SelectField)
+        assert isinstance(getattr(f, field), SelectField)
 
 
 class TestAddThesisOnReview:
-    def test_field_title_required_string(self):
+    @pytest.mark.parametrize(
+        ("field", "required"),
+        [("title", True), ("author", False)],
+    )
+    def test_field_is_string(self, field, required):
         from se_forms import AddThesisOnReview
 
         f = AddThesisOnReview()
-        assert isinstance(f.title, StringField)
-        assert any(isinstance(v, DataRequired) for v in f.title.validators)
+        field_obj = getattr(f, field)
+        assert isinstance(field_obj, StringField)
+        if required:
+            assert any(isinstance(v, DataRequired) for v in field_obj.validators)
 
     def test_field_thesis_is_file(self):
         from se_forms import AddThesisOnReview
@@ -239,38 +184,27 @@ class TestAddThesisOnReview:
         f = AddThesisOnReview()
         assert isinstance(f.thesis, FileField)
 
-    def test_field_author_is_string(self):
+    @pytest.mark.parametrize("field", ["supervisor", "type", "area"])
+    def test_field_is_select(self, field):
         from se_forms import AddThesisOnReview
 
         f = AddThesisOnReview()
-        assert isinstance(f.author, StringField)
-
-    def test_field_supervisor_is_select(self):
-        from se_forms import AddThesisOnReview
-
-        f = AddThesisOnReview()
-        assert isinstance(f.supervisor, SelectField)
-
-    def test_field_type_is_select(self):
-        from se_forms import AddThesisOnReview
-
-        f = AddThesisOnReview()
-        assert isinstance(f.type, SelectField)
-
-    def test_field_area_is_select(self):
-        from se_forms import AddThesisOnReview
-
-        f = AddThesisOnReview()
-        assert isinstance(f.area, SelectField)
+        assert isinstance(getattr(f, field), SelectField)
 
 
 class TestEditThesisOnReview:
-    def test_field_name_ru_required_string(self):
+    @pytest.mark.parametrize(
+        ("field", "required"),
+        [("name_ru", True), ("author", False)],
+    )
+    def test_field_is_string(self, field, required):
         from se_forms import EditThesisOnReview
 
         f = EditThesisOnReview()
-        assert isinstance(f.name_ru, StringField)
-        assert any(isinstance(v, DataRequired) for v in f.name_ru.validators)
+        field_obj = getattr(f, field)
+        assert isinstance(field_obj, StringField)
+        if required:
+            assert any(isinstance(v, DataRequired) for v in field_obj.validators)
 
     def test_field_text_uri_is_file(self):
         from se_forms import EditThesisOnReview
@@ -278,72 +212,38 @@ class TestEditThesisOnReview:
         f = EditThesisOnReview()
         assert isinstance(f.text_uri, FileField)
 
-    def test_field_author_is_string(self):
+    @pytest.mark.parametrize(
+        ("field", "coerce_is_int"),
+        [("supervisor", False), ("type", True), ("area", True)],
+    )
+    def test_field_is_select(self, field, coerce_is_int):
         from se_forms import EditThesisOnReview
 
         f = EditThesisOnReview()
-        assert isinstance(f.author, StringField)
-
-    def test_field_supervisor_is_select(self):
-        from se_forms import EditThesisOnReview
-
-        f = EditThesisOnReview()
-        assert isinstance(f.supervisor, SelectField)
-
-    def test_field_type_is_select_with_coerce_int(self):
-        from se_forms import EditThesisOnReview
-
-        f = EditThesisOnReview()
-        assert isinstance(f.type, SelectField)
-        assert f.type.coerce is int
-
-    def test_field_area_is_select_with_coerce_int(self):
-        from se_forms import EditThesisOnReview
-
-        f = EditThesisOnReview()
-        assert isinstance(f.area, SelectField)
-        assert f.area.coerce is int
+        field_obj = getattr(f, field)
+        assert isinstance(field_obj, SelectField)
+        if coerce_is_int:
+            assert field_obj.coerce is int
 
 
 class TestLecture:
-    def test_field_worktype_is_select(self):
+    @pytest.mark.parametrize("field", ["worktype", "course", "supervisor", "startdate", "enddate"])
+    def test_field_is_select(self, field):
         from se_forms import Lecture
 
         f = Lecture()
-        assert isinstance(f.worktype, SelectField)
-
-    def test_field_course_is_select(self):
-        from se_forms import Lecture
-
-        f = Lecture()
-        assert isinstance(f.course, SelectField)
-
-    def test_field_supervisor_is_select(self):
-        from se_forms import Lecture
-
-        f = Lecture()
-        assert isinstance(f.supervisor, SelectField)
-
-    def test_field_startdate_is_select(self):
-        from se_forms import Lecture
-
-        f = Lecture()
-        assert isinstance(f.startdate, SelectField)
-
-    def test_field_enddate_is_select(self):
-        from se_forms import Lecture
-
-        f = Lecture()
-        assert isinstance(f.enddate, SelectField)
+        assert isinstance(getattr(f, field), SelectField)
 
 
 class TestAddInternship:
-    def test_field_requirements_is_textarea(self):
+    @pytest.mark.parametrize("field", ["requirements", "description"])
+    def test_field_is_textarea(self, field):
         from se_forms import AddInternship
 
         f = AddInternship()
-        assert isinstance(f.requirements, StringField)
-        assert isinstance(f.requirements.widget, TextArea)
+        field_obj = getattr(f, field)
+        assert isinstance(field_obj, StringField)
+        assert isinstance(field_obj.widget, TextArea)
 
     def test_field_company_is_select(self):
         from se_forms import AddInternship
@@ -351,36 +251,12 @@ class TestAddInternship:
         f = AddInternship()
         assert isinstance(f.company, SelectField)
 
-    def test_field_name_vacancy_is_string(self):
+    @pytest.mark.parametrize("field", ["name_vacancy", "salary", "location", "more_inf", "tag"])
+    def test_field_is_string(self, field):
         from se_forms import AddInternship
 
         f = AddInternship()
-        assert isinstance(f.name_vacancy, StringField)
-
-    def test_field_salary_is_string(self):
-        from se_forms import AddInternship
-
-        f = AddInternship()
-        assert isinstance(f.salary, StringField)
-
-    def test_field_location_is_string(self):
-        from se_forms import AddInternship
-
-        f = AddInternship()
-        assert isinstance(f.location, StringField)
-
-    def test_field_more_inf_is_string(self):
-        from se_forms import AddInternship
-
-        f = AddInternship()
-        assert isinstance(f.more_inf, StringField)
-
-    def test_field_description_is_textarea(self):
-        from se_forms import AddInternship
-
-        f = AddInternship()
-        assert isinstance(f.description, StringField)
-        assert isinstance(f.description.widget, TextArea)
+        assert isinstance(getattr(f, field), StringField)
 
     def test_field_format_is_multicheckbox(self):
         from se_forms import AddInternship
@@ -389,59 +265,32 @@ class TestAddInternship:
         assert isinstance(f.format, SelectMultipleField)
         assert f.format.coerce is int
 
-    def test_field_tag_is_string(self):
-        from se_forms import AddInternship
-
-        f = AddInternship()
-        assert isinstance(f.tag, StringField)
-
 
 class TestInternshipsFilter:
-    def test_field_format_is_select(self):
+    @pytest.mark.parametrize("field", ["format", "company", "language", "tag"])
+    def test_field_is_select(self, field):
         from se_forms import InternshipsFilter
 
         f = InternshipsFilter()
-        assert isinstance(f.format, SelectField)
-
-    def test_field_company_is_select(self):
-        from se_forms import InternshipsFilter
-
-        f = InternshipsFilter()
-        assert isinstance(f.company, SelectField)
-
-    def test_field_language_is_select(self):
-        from se_forms import InternshipsFilter
-
-        f = InternshipsFilter()
-        assert isinstance(f.language, SelectField)
-
-    def test_field_tag_is_select(self):
-        from se_forms import InternshipsFilter
-
-        f = InternshipsFilter()
-        assert isinstance(f.tag, SelectField)
+        assert isinstance(getattr(f, field), SelectField)
 
 
 class TestCurrentWorktypeArea:
-    def test_field_worktype_is_select(self):
+    @pytest.mark.parametrize("field", ["worktype", "area"])
+    def test_field_is_select(self, field):
         from se_forms import CurrentWorktypeArea
 
         f = CurrentWorktypeArea()
-        assert isinstance(f.worktype, SelectField)
-
-    def test_field_area_is_select(self):
-        from se_forms import CurrentWorktypeArea
-
-        f = CurrentWorktypeArea()
-        assert isinstance(f.area, SelectField)
+        assert isinstance(getattr(f, field), SelectField)
 
 
 class TestChooseTopic:
-    def test_field_topic_is_string(self):
+    @pytest.mark.parametrize("field", ["topic", "consultant"])
+    def test_field_is_string(self, field):
         from se_forms import ChooseTopic
 
         f = ChooseTopic()
-        assert isinstance(f.topic, StringField)
+        assert isinstance(getattr(f, field), StringField)
 
     def test_field_staff_is_select(self):
         from se_forms import ChooseTopic
@@ -449,57 +298,26 @@ class TestChooseTopic:
         f = ChooseTopic()
         assert isinstance(f.staff, SelectField)
 
-    def test_field_consultant_is_string(self):
-        from se_forms import ChooseTopic
-
-        f = ChooseTopic()
-        assert isinstance(f.consultant, StringField)
-
 
 class TestDeadlineTemp:
-    def test_field_area_is_optional_select(self):
+    @pytest.mark.parametrize("field", ["area", "worktype"])
+    def test_field_is_optional_select(self, field):
         from se_forms import DeadlineTemp
 
         f = DeadlineTemp()
-        assert isinstance(f.area, SelectField)
-        assert any(isinstance(v, validators.Optional) for v in f.area.validators)
+        field_obj = getattr(f, field)
+        assert isinstance(field_obj, SelectField)
+        assert any(isinstance(v, validators.Optional) for v in field_obj.validators)
 
-    def test_field_worktype_is_optional_select(self):
+    @pytest.mark.parametrize(
+        "field",
+        ["choose_topic", "submit_work_for_review", "upload_reviews", "pre_defense", "defense"],
+    )
+    def test_field_is_datetime(self, field):
         from se_forms import DeadlineTemp
 
         f = DeadlineTemp()
-        assert isinstance(f.worktype, SelectField)
-        assert any(isinstance(v, validators.Optional) for v in f.worktype.validators)
-
-    def test_field_choose_topic_is_datetime(self):
-        from se_forms import DeadlineTemp
-
-        f = DeadlineTemp()
-        assert isinstance(f.choose_topic, DateTimeField)
-
-    def test_field_submit_work_for_review_is_datetime(self):
-        from se_forms import DeadlineTemp
-
-        f = DeadlineTemp()
-        assert isinstance(f.submit_work_for_review, DateTimeField)
-
-    def test_field_upload_reviews_is_datetime(self):
-        from se_forms import DeadlineTemp
-
-        f = DeadlineTemp()
-        assert isinstance(f.upload_reviews, DateTimeField)
-
-    def test_field_pre_defense_is_datetime(self):
-        from se_forms import DeadlineTemp
-
-        f = DeadlineTemp()
-        assert isinstance(f.pre_defense, DateTimeField)
-
-    def test_field_defense_is_datetime(self):
-        from se_forms import DeadlineTemp
-
-        f = DeadlineTemp()
-        assert isinstance(f.defense, DateTimeField)
+        assert isinstance(getattr(f, field), DateTimeField)
 
 
 class TestAddGoal:
@@ -519,19 +337,14 @@ class TestAddTask:
 
 
 class TestUserAddReport:
-    def test_field_was_done_is_textarea(self):
+    @pytest.mark.parametrize("field", ["was_done", "planned_to_do"])
+    def test_field_is_textarea(self, field):
         from se_forms import UserAddReport
 
         f = UserAddReport()
-        assert isinstance(f.was_done, StringField)
-        assert isinstance(f.was_done.widget, TextArea)
-
-    def test_field_planned_to_do_is_textarea(self):
-        from se_forms import UserAddReport
-
-        f = UserAddReport()
-        assert isinstance(f.planned_to_do, StringField)
-        assert isinstance(f.planned_to_do.widget, TextArea)
+        field_obj = getattr(f, field)
+        assert isinstance(field_obj, StringField)
+        assert isinstance(field_obj.widget, TextArea)
 
 
 class TestStaffAddCommentToReport:

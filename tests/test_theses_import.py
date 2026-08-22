@@ -138,60 +138,71 @@ class TestGet2020_02_03_03:
                 me.assert_called_once_with(0)
 
 
-class TestGet2020_09_03_04:
-    def test_runs(self):
-        _run(
-            "get_2020_09_03_04",
-            _html(
+class TestGetRuns:
+    @pytest.mark.parametrize(
+        ("func_name", "cols", "links", "header", "supervisor_words"),
+        [
+            (
+                "get_2020_09_03_04",
                 10,
                 {5: "t.pdf", 6: "s.pdf", 7: "r.pdf", 8: "r2.pdf", 9: "s"},
-                header="09.03.04",
-                supervisor_words=1,
+                "09.03.04",
+                1,
             ),
+            (
+                "get_2019_09_03_04",
+                8,
+                {4: "t.pdf", 5: "s.pdf", 6: "r.pdf", 7: "r2.pdf"},
+                "09.03.04",
+                1,
+            ),
+            (
+                "get_2019_02_03_03",
+                9,
+                {4: "t.pdf", 5: "s.pdf", 6: "r.pdf", 7: "r2.pdf", 8: "s"},
+                "02.03.03",
+                1,
+            ),
+            (
+                "get_2019_02_04_03",
+                7,
+                {2: "t.pdf", 3: "s.pdf", 4: "src", 5: "r.pdf", 6: "r2.pdf"},
+                "02.04.03",
+                1,
+            ),
+            ("get_2020_371", 5, {4: "t.pdf"}, "371", 4),
+            (
+                "get_report_2020_02_03_03",
+                9,
+                {4: "t.pdf", 5: "s.pdf", 6: "r.pdf", 7: "r2.pdf", 8: "s"},
+                "02.03.03",
+                1,
+            ),
+            ("get_2019_371", 4, {3: "t.pdf"}, "371", 1),
+            ("get_2019_343", 4, {3: "t.pdf"}, "343", 1),
+            ("get_2019_344", 4, {3: "t.pdf"}, "344", 1),
+            (
+                "get_2022_09_03_04",
+                10,
+                {4: "t.pdf", 5: "s.pdf", 6: "r.pdf", 7: "r2.pdf", 8: "s"},
+                "09.03.04",
+                1,
+            ),
+        ],
+    )
+    def test_runs(self, func_name, cols, links, header, supervisor_words):
+        _run(
+            func_name,
+            _html(cols, links, header=header, supervisor_words=supervisor_words),
         )
 
+
+class TestGet2020_09_03_04:
     def test_no_links_ok(self):
         _run("get_2020_09_03_04", _html(10, header="09.03.04"))
 
 
-class TestGet2019_09_03_04:
-    def test_runs(self):
-        _run(
-            "get_2019_09_03_04",
-            _html(
-                8,
-                {4: "t.pdf", 5: "s.pdf", 6: "r.pdf", 7: "r2.pdf"},
-                header="09.03.04",
-                supervisor_words=1,
-            ),
-        )
-
-
-class TestGet2019_02_03_03:
-    def test_runs(self):
-        _run(
-            "get_2019_02_03_03",
-            _html(
-                9,
-                {4: "t.pdf", 5: "s.pdf", 6: "r.pdf", 7: "r2.pdf", 8: "s"},
-                header="02.03.03",
-                supervisor_words=1,
-            ),
-        )
-
-
 class TestGet2019_02_04_03:
-    def test_runs(self):
-        _run(
-            "get_2019_02_04_03",
-            _html(
-                7,
-                {2: "t.pdf", 3: "s.pdf", 4: "src", 5: "r.pdf", 6: "r2.pdf"},
-                header="02.04.03",
-                supervisor_words=1,
-            ),
-        )
-
     def test_supervisor_from_col5(self):
         h = _html(
             7,
@@ -202,43 +213,12 @@ class TestGet2019_02_04_03:
         _run("get_2019_02_04_03", h)
 
 
-class TestGet2020_371:
-    def test_runs(self):
-        _run("get_2020_371", _html(5, {4: "t.pdf"}, header="371", supervisor_words=4))
-
-
 class TestGetReport2020_02_03_03:
-    def test_runs(self):
-        _run(
-            "get_report_2020_02_03_03",
-            _html(
-                9,
-                {4: "t.pdf", 5: "s.pdf", 6: "r.pdf", 7: "r2.pdf", 8: "s"},
-                header="02.03.03",
-                supervisor_words=1,
-            ),
-        )
-
     def test_partial_links_ok(self):
         _run(
             "get_report_2020_02_03_03",
             _html(9, {4: "t.pdf"}, header="02.03.03", supervisor_words=1),
         )
-
-
-class TestGet2019_371:
-    def test_runs(self):
-        _run("get_2019_371", _html(4, {3: "t.pdf"}, header="371", supervisor_words=1))
-
-
-class TestGet2019_343:
-    def test_runs(self):
-        _run("get_2019_343", _html(4, {3: "t.pdf"}, header="343", supervisor_words=1))
-
-
-class TestGet2019_344:
-    def test_runs(self):
-        _run("get_2019_344", _html(4, {3: "t.pdf"}, header="344", supervisor_words=1))
 
 
 class TestGet2022_271:
@@ -265,17 +245,6 @@ class TestGet2022_371:
 
 
 class TestGet2022_09_03_04:
-    def test_runs(self):
-        _run(
-            "get_2022_09_03_04",
-            _html(
-                10,
-                {4: "t.pdf", 5: "s.pdf", 6: "r.pdf", 7: "r2.pdf", 8: "s"},
-                header="09.03.04",
-                supervisor_words=1,
-            ),
-        )
-
     def test_exits_on_404(self):
         with _ctx(), patch("thesesImport.requests") as mr:
             mr.session.return_value.get.return_value = MagicMock(status_code=404, text="")

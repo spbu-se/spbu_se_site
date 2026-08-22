@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import pytest
+
+
 class TestAppFactory:
     def test_app_exists(self):
         from flask_se import app
@@ -18,29 +21,20 @@ class TestAppFactory:
 
         assert app.config["SESSION_COOKIE_NAME"] == "__Host-se_session"
 
-    def test_sitemap(self, seeded_client):
-        resp = seeded_client.get("/sitemap.xml")
-        assert resp.status_code == 200
-
-    def test_404_handler(self, seeded_client):
-        resp = seeded_client.get("/nonexistent-route-xyz")
-        assert resp.status_code == 404
-
-    def test_static_files(self, seeded_client):
-        resp = seeded_client.get("/static/css/quick-website.css")
-        assert resp.status_code in (200, 301, 302, 404)
-
-    def test_robots_txt(self, seeded_client):
-        resp = seeded_client.get("/robots.txt")
-        assert resp.status_code in (200, 301, 302, 404)
-
-    def test_favicon(self, seeded_client):
-        resp = seeded_client.get("/favicon.ico")
-        assert resp.status_code in (200, 301, 302, 404)
-
-    def test_404_page_renders(self, seeded_client):
-        resp = seeded_client.get("/404.html")
-        assert resp.status_code == 200
+    @pytest.mark.parametrize(
+        "path,allowed_codes",
+        [
+            ("/sitemap.xml", (200,)),
+            ("/nonexistent-route-xyz", (404,)),
+            ("/static/css/quick-website.css", (200, 301, 302, 404)),
+            ("/robots.txt", (200, 301, 302, 404)),
+            ("/favicon.ico", (200, 301, 302, 404)),
+            ("/404.html", (200,)),
+        ],
+    )
+    def test_get_status(self, seeded_client, path, allowed_codes):
+        resp = seeded_client.get(path)
+        assert resp.status_code in allowed_codes
 
 
 class TestErrorHandlers:

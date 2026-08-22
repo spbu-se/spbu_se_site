@@ -117,13 +117,12 @@ class TestRenderedPages:
         assert METRICA_URL not in body
         assert "ym(" not in body
 
-    def test_homepage_has_no_metrica_without_consent(self, seeded_client, metrica_set):
-        body = seeded_client.get("/").get_data(as_text=True)
-        assert METRICA_URL not in body
-        assert "ym(" not in body
-
-    def test_homepage_has_no_metrica_when_statistics_declined(self, seeded_client, metrica_set):
-        _consent(seeded_client, "essential")
+    @pytest.mark.parametrize("consent_value", [None, "essential"])
+    def test_homepage_has_no_metrica_without_statistics_consent(
+        self, seeded_client, metrica_set, consent_value
+    ):
+        if consent_value is not None:
+            _consent(seeded_client, consent_value)
         body = seeded_client.get("/").get_data(as_text=True)
         assert METRICA_URL not in body
         assert "ym(" not in body

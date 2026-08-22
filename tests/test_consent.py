@@ -40,21 +40,13 @@ class TestConsentCategories:
 
 
 class TestBannerPresence:
-    def test_banner_markup_in_all_bases(self):
-        for base in ALL_BASES:
-            text = (TEMPLATES_DIR / base).read_text(encoding="utf-8")
-            assert "{% include 'consent_banner.html' %}" in text, f"{base} missing banner include"
-
-    def test_consent_script_exists_and_is_referenced(self):
+    def test_banner_consent_script_and_privacy_link_in_all_bases(self):
         script = REPO_ROOT / "src" / "static" / "assets" / "js" / "se_consent.js"
         assert script.is_file(), "se_consent.js asset missing"
         for base in ALL_BASES:
             text = (TEMPLATES_DIR / base).read_text(encoding="utf-8")
+            assert "{% include 'consent_banner.html' %}" in text, f"{base} missing banner include"
             assert "js/se_consent.js" in text, f"{base} missing se_consent.js reference"
-
-    def test_privacy_link_in_all_bases(self):
-        for base in ALL_BASES:
-            text = (TEMPLATES_DIR / base).read_text(encoding="utf-8")
             assert "url_for('privacy')" in text, f"{base} missing privacy footer link"
 
 

@@ -89,7 +89,7 @@ class TestLazyLoaderWiring:
             assert "se_maps_key" in text, f"{page} does not render the configured key"
             assert PLACEHOLDER in text, f"{page} missing the no-provider placeholder"
 
-    def test_se_maps_loader_exists(self):
+    def test_se_maps_loader_exists_and_guards(self):
         loader = JS_DIR / "se_maps.js"
         assert loader.exists()
         text = loader.read_text(encoding="utf-8")
@@ -98,9 +98,6 @@ class TestLazyLoaderWiring:
         assert YANDEX_URL in text, "loader missing the Yandex Maps API URL"
         assert GOOGLE_URL in text, "loader missing the Google Maps API URL"
         assert "ymaps3.ready" in text, "loader must wait for the Yandex API readiness"
-
-    def test_se_maps_loader_guards_on_missing_provider(self):
-        text = (JS_DIR / "se_maps.js").read_text(encoding="utf-8")
         assert "SE_MAPS_PROVIDER" in text
         assert "SE_MAPS_KEY" in text
 
@@ -133,21 +130,15 @@ class TestRenderedPages:
         assert "window.SE_MAPS_PROVIDER" not in body
         assert PLACEHOLDER in body
 
-    def test_homepage_renders_yandex_when_yandex_key_configured(
-        self, seeded_client, maps_config_yandex
-    ):
+    @pytest.mark.parametrize(
+        ("provider", "key"),
+        [("yandex", "test-yandex-key"), ("google", "test-google-key")],
+    )
+    def test_homepage_renders_configured_provider(self, seeded_client, monkeypatch, provider, key):
+        monkeypatch.setattr(flask_se, "maps_config", lambda: (provider, key))
         body = seeded_client.get("/").get_data(as_text=True)
-        assert 'window.SE_MAPS_PROVIDER = "yandex"' in body
-        assert 'window.SE_MAPS_KEY = "test-yandex-key"' in body
-        assert "map-mm-dormitory" in body
-        assert PLACEHOLDER not in body
-
-    def test_homepage_renders_google_when_only_google_key_configured(
-        self, seeded_client, maps_config_google
-    ):
-        body = seeded_client.get("/").get_data(as_text=True)
-        assert 'window.SE_MAPS_PROVIDER = "google"' in body
-        assert 'window.SE_MAPS_KEY = "test-google-key"' in body
+        assert f'window.SE_MAPS_PROVIDER = "{provider}"' in body
+        assert f'window.SE_MAPS_KEY = "{key}"' in body
         assert "map-mm-dormitory" in body
         assert PLACEHOLDER not in body
 

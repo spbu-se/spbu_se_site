@@ -6,6 +6,33 @@ import pytest
 from conftest import assert_ok
 
 
+def _set_yandex_session(client):
+    with client.session_transaction() as sess:
+        sess["area_id"] = 2
+        sess["worktype_id"] = 5
+        sess["table_path"] = "/test/table.xlsx"
+        sess["sheet_name"] = "Sheet1"
+        sess["column_names_list"] = []
+
+
+YANDEX_UPLOAD_PAYLOAD = {
+    "yandex_button": "1",
+    "table_name": "table.xlsx",
+    "sheet_name": "Sheet1",
+    "user_name_column": "ФИО",
+    "how_to_contact_column": "Контакты",
+    "supervisor_column": "Руководитель",
+    "consultant_column": "Консультант",
+    "theme_column": "Тема",
+    "text_column": "Текст",
+    "supervisor_review_column": "Отзыв",
+    "reviewer_review_column": "Отзыв рец",
+    "code_column": "РљРѕРґ",
+    "committer_column": "Коммитер",
+    "presentation_column": "Презентация",
+}
+
+
 @pytest.fixture
 def current_thesis(staff_client):
     from se_models import CurrentThesis, db
@@ -48,28 +75,24 @@ class TestPracticeAdminAccess:
         resp = seeded_client.get("/practice_admin")
         assert resp.status_code in (200, 302)
 
-    def test_staff_can_access_admin_index(self, staff_client):
-        assert_ok(staff_client, "/practice_admin", code={200, 302})
-
-    def test_staff_can_access_admin_index_slash(self, staff_client):
-        assert_ok(staff_client, "/practice_admin/", code={200, 302})
+    @pytest.mark.parametrize("path", ["/practice_admin", "/practice_admin/"])
+    def test_staff_can_access_admin_index(self, staff_client, path):
+        assert_ok(staff_client, path, code={200, 302})
 
 
 class TestPracticeAdminIndexGet:
-    def test_index_without_params(self, staff_client):
-        resp = staff_client.get("/practice_admin")
-        assert resp.status_code in (200, 302)
-
-    def test_index_with_valid_params(self, staff_client):
-        resp = staff_client.get("/practice_admin?area_id=2&worktype_id=5")
-        assert resp.status_code in (200, 302)
-
-    def test_index_with_invalid_area(self, staff_client):
-        resp = staff_client.get("/practice_admin?area_id=999&worktype_id=5")
-        assert resp.status_code in (200, 302)
-
-    def test_index_with_invalid_worktype(self, staff_client):
-        resp = staff_client.get("/practice_admin?area_id=2&worktype_id=999")
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "",
+            "?area_id=2&worktype_id=5",
+            "?area_id=999&worktype_id=5",
+            "?area_id=2&worktype_id=999",
+        ],
+        ids=["without_params", "with_valid_params", "with_invalid_area", "with_invalid_worktype"],
+    )
+    def test_index_get(self, staff_client, query):
+        resp = staff_client.get(f"/practice_admin{query}")
         assert resp.status_code in (200, 302)
 
     def test_index_sets_previous_page_in_session(self, staff_client):
@@ -110,40 +133,33 @@ class TestPracticeAdminIndexPostDownloadTable:
 
 
 class TestPracticeAdminIndexPostYandex:
-    def test_yandex_empty_table_name(self, current_thesis):
+    @pytest.mark.parametrize(
+        "data",
+        [
+            pytest.param(
+                {"yandex_button": "1", "table_name": "", "sheet_name": "Sheet1"},
+                id="empty_table_name",
+            ),
+            pytest.param(
+                {"yandex_button": "1", "table_name": "table.csv", "sheet_name": "Sheet1"},
+                id="non_xlsx_extension",
+            ),
+            pytest.param(
+                {
+                    "yandex_button": "1",
+                    "table_name": "table.xlsx",
+                    "sheet_name": "Sheet1",
+                    "user_name_column": "",
+                },
+                id="empty_column_name",
+            ),
+        ],
+    )
+    def test_yandex_validation(self, current_thesis, data):
         client, _ct_id = current_thesis
         resp = client.post(
             "/practice_admin?area_id=2&worktype_id=5",
-            data={
-                "yandex_button": "1",
-                "table_name": "",
-                "sheet_name": "Sheet1",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_yandex_non_xlsx_extension(self, current_thesis):
-        client, _ct_id = current_thesis
-        resp = client.post(
-            "/practice_admin?area_id=2&worktype_id=5",
-            data={
-                "yandex_button": "1",
-                "table_name": "table.csv",
-                "sheet_name": "Sheet1",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_yandex_empty_column_name(self, current_thesis):
-        client, _ct_id = current_thesis
-        resp = client.post(
-            "/practice_admin?area_id=2&worktype_id=5",
-            data={
-                "yandex_button": "1",
-                "table_name": "table.xlsx",
-                "sheet_name": "Sheet1",
-                "user_name_column": "",
-            },
+            data=data,
         )
         assert resp.status_code in (200, 302)
 
@@ -153,22 +169,7 @@ class TestPracticeAdminIndexPostYandex:
             mock_handle.return_value = "success"
             resp = client.post(
                 "/practice_admin?area_id=2&worktype_id=5",
-                data={
-                    "yandex_button": "1",
-                    "table_name": "table.xlsx",
-                    "sheet_name": "Sheet1",
-                    "user_name_column": "ФИО",
-                    "how_to_contact_column": "Контакты",
-                    "supervisor_column": "Руководитель",
-                    "consultant_column": "Консультант",
-                    "theme_column": "Тема",
-                    "text_column": "Текст",
-                    "supervisor_review_column": "Отзыв",
-                    "reviewer_review_column": "Отзыв рец",
-                    "code_column": "РљРѕРґ",
-                    "committer_column": "Коммитер",
-                    "presentation_column": "Презентация",
-                },
+                data=YANDEX_UPLOAD_PAYLOAD,
             )
             assert resp.status_code in (200, 302)
             mock_handle.assert_called_once()
@@ -178,61 +179,53 @@ class TestPracticeAdminIndexPostYandex:
         with patch("flask_se_practice_admin.handle_yandex_table", side_effect=Exception):
             resp = client.post(
                 "/practice_admin?area_id=2&worktype_id=5",
-                data={
-                    "yandex_button": "1",
-                    "table_name": "table.xlsx",
-                    "sheet_name": "Sheet1",
-                    "user_name_column": "ФИО",
-                    "how_to_contact_column": "Контакты",
-                    "supervisor_column": "Руководитель",
-                    "consultant_column": "Консультант",
-                    "theme_column": "Тема",
-                    "text_column": "Текст",
-                    "supervisor_review_column": "Отзыв",
-                    "reviewer_review_column": "Отзыв рец",
-                    "code_column": "РљРѕРґ",
-                    "committer_column": "Коммитер",
-                    "presentation_column": "Презентация",
-                },
+                data=YANDEX_UPLOAD_PAYLOAD,
             )
             assert resp.status_code in (200, 302)
 
 
 class TestPracticeAdminChooseAreaWorktype:
-    def test_without_session(self, staff_client):
-        resp = staff_client.get("/practice_admin/choose_area_worktype?area_id=2&worktype_id=5")
-        assert resp.status_code in (200, 302)
-
-    def test_with_current_thesises_session(self, staff_client):
-        staff_client.get("/practice_admin?area_id=2&worktype_id=5")
-        resp = staff_client.get("/practice_admin/choose_area_worktype?area_id=2&worktype_id=5")
-        assert resp.status_code in (200, 302)
-
-    def test_with_finished_session(self, staff_client):
-        staff_client.get("/practice_admin/finished_thesises?area_id=2&worktype_id=5")
-        resp = staff_client.get("/practice_admin/choose_area_worktype?area_id=2&worktype_id=5")
-        assert resp.status_code in (200, 302)
-
-    def test_no_area_id(self, staff_client):
-        resp = staff_client.get("/practice_admin/choose_area_worktype")
-        assert resp.status_code in (200, 302)
-
-    def test_no_worktype_id(self, staff_client):
-        resp = staff_client.get("/practice_admin/choose_area_worktype?area_id=2")
+    @pytest.mark.parametrize(
+        ("priming_path_or_none", "target_path"),
+        [
+            pytest.param(
+                None,
+                "/practice_admin/choose_area_worktype?area_id=2&worktype_id=5",
+                id="without_session",
+            ),
+            pytest.param(
+                "/practice_admin?area_id=2&worktype_id=5",
+                "/practice_admin/choose_area_worktype?area_id=2&worktype_id=5",
+                id="with_current_thesises_session",
+            ),
+            pytest.param(
+                "/practice_admin/finished_thesises?area_id=2&worktype_id=5",
+                "/practice_admin/choose_area_worktype?area_id=2&worktype_id=5",
+                id="with_finished_session",
+            ),
+            pytest.param(None, "/practice_admin/choose_area_worktype", id="no_area_id"),
+            pytest.param(
+                None,
+                "/practice_admin/choose_area_worktype?area_id=2",
+                id="no_worktype_id",
+            ),
+        ],
+    )
+    def test_choose_area_worktype(self, staff_client, priming_path_or_none, target_path):
+        if priming_path_or_none is not None:
+            staff_client.get(priming_path_or_none)
+        resp = staff_client.get(target_path)
         assert resp.status_code in (200, 302)
 
 
 class TestPracticeAdminFinishedThesises:
-    def test_finished_without_params(self, staff_client):
-        resp = staff_client.get("/practice_admin/finished_thesises")
-        assert resp.status_code in (200, 302)
-
-    def test_finished_with_valid_params(self, staff_client):
-        resp = staff_client.get("/practice_admin/finished_thesises?area_id=2&worktype_id=5")
-        assert resp.status_code in (200, 302)
-
-    def test_finished_with_invalid_area(self, staff_client):
-        resp = staff_client.get("/practice_admin/finished_thesises?area_id=999&worktype_id=5")
+    @pytest.mark.parametrize(
+        "query",
+        ["", "?area_id=2&worktype_id=5", "?area_id=999&worktype_id=5"],
+        ids=["without_params", "with_valid_params", "with_invalid_area"],
+    )
+    def test_finished_get(self, staff_client, query):
+        resp = staff_client.get(f"/practice_admin/finished_thesises{query}")
         assert resp.status_code in (200, 302)
 
     def test_finished_sets_previous_page(self, staff_client):
@@ -247,12 +240,13 @@ class TestPracticeAdminFinishedThesises:
 
 
 class TestPracticeAdminThesis:
-    def test_thesis_without_id_redirects(self, staff_client):
-        resp = staff_client.get("/practice_admin/thesis")
-        assert resp.status_code in (200, 302)
-
-    def test_thesis_with_invalid_id_redirects(self, staff_client):
-        resp = staff_client.get("/practice_admin/thesis?id=99999")
+    @pytest.mark.parametrize(
+        "path",
+        ["/practice_admin/thesis", "/practice_admin/thesis?id=99999"],
+        ids=["without_id", "with_invalid_id"],
+    )
+    def test_thesis_redirects_without_valid_id(self, staff_client, path):
+        resp = staff_client.get(path)
         assert resp.status_code in (200, 302)
 
     def test_thesis_with_valid_id(self, current_thesis):
@@ -268,17 +262,28 @@ class TestPracticeAdminThesis:
 
 
 class TestPracticeAdminThesisPost:
-    def test_submit_notification_empty_content(self, current_thesis):
-
+    @pytest.mark.parametrize(
+        ("data", "code"),
+        [
+            pytest.param(
+                {"submit_notification_button": "1", "content": ""},
+                (200, 302),
+                id="empty_content",
+            ),
+            pytest.param(
+                {"submit_notification_button": "1"},
+                (200, 302, 400),
+                id="content_none",
+            ),
+        ],
+    )
+    def test_submit_notification_content_variants(self, current_thesis, data, code):
         client, ct_id = current_thesis
         resp = client.post(
             f"/practice_admin/thesis?id={ct_id}",
-            data={
-                "submit_notification_button": "1",
-                "content": "",
-            },
+            data=data,
         )
-        assert resp.status_code in (200, 302)
+        assert resp.status_code in code
 
     def test_submit_notification_valid(self, current_thesis):
         from se_models import NotificationPractice
@@ -310,49 +315,27 @@ class TestPracticeAdminThesisPost:
         ct = db.session.get(CurrentThesis, ct_id)
         assert ct.title == "Updated Title"
 
-    def test_submit_finish_work(self, current_thesis):
+    @pytest.mark.parametrize(
+        ("initial_status", "button", "final_status"),
+        [
+            (1, "submit_finish_work_button", 2),
+            (2, "submit_restore_work_button", 1),
+        ],
+    )
+    def test_submit_work_transition(self, current_thesis, initial_status, button, final_status):
         from se_models import CurrentThesis, db
 
         client, ct_id = current_thesis
         ct = db.session.get(CurrentThesis, ct_id)
-        ct.status = 1
-        resp = client.post(
-            f"/practice_admin/thesis?id={ct_id}",
-            data={
-                "submit_finish_work_button": "1",
-            },
-        )
-        assert resp.status_code in (200, 302)
-        ct = db.session.get(CurrentThesis, ct_id)
-        assert ct.status == 2
-
-    def test_submit_restore_work(self, current_thesis):
-        from se_models import CurrentThesis, db
-
-        client, ct_id = current_thesis
-        ct = db.session.get(CurrentThesis, ct_id)
-        ct.status = 2
+        ct.status = initial_status
         db.session.commit()
         resp = client.post(
             f"/practice_admin/thesis?id={ct_id}",
-            data={
-                "submit_restore_work_button": "1",
-            },
+            data={button: "1"},
         )
         assert resp.status_code in (200, 302)
         ct = db.session.get(CurrentThesis, ct_id)
-        assert ct.status == 1
-
-    def test_notification_with_content_none(self, current_thesis):
-
-        client, ct_id = current_thesis
-        resp = client.post(
-            f"/practice_admin/thesis?id={ct_id}",
-            data={
-                "submit_notification_button": "1",
-            },
-        )
-        assert resp.status_code in (200, 302, 400)
+        assert ct.status == final_status
 
 
 class TestPracticeAdminArchiveThesis:
@@ -380,44 +363,20 @@ class TestPracticeAdminArchiveThesis:
         )
         assert resp.status_code in (200, 302)
 
-    def test_archive_post_no_text(self, current_thesis):
+    @pytest.mark.parametrize(
+        ("field", "field_name"),
+        [
+            ("text_uri", "text"),
+            ("presentation_uri", "presentation"),
+            ("supervisor_review_uri", "supervisor_review"),
+        ],
+    )
+    def test_archive_post_missing_file(self, current_thesis, field, field_name):
         from se_models import CurrentThesis, db
 
         client, ct_id = current_thesis
         ct = db.session.get(CurrentThesis, ct_id)
-        ct.text_uri = None
-        db.session.commit()
-        resp = client.post(
-            f"/practice_admin/thesis_to_archive?id={ct_id}",
-            data={
-                "thesis_to_archive_button": "1",
-                "course": 1,
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_archive_post_no_presentation(self, current_thesis):
-        from se_models import CurrentThesis, db
-
-        client, ct_id = current_thesis
-        ct = db.session.get(CurrentThesis, ct_id)
-        ct.presentation_uri = None
-        db.session.commit()
-        resp = client.post(
-            f"/practice_admin/thesis_to_archive?id={ct_id}",
-            data={
-                "thesis_to_archive_button": "1",
-                "course": 1,
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_archive_post_no_supervisor_review(self, current_thesis):
-        from se_models import CurrentThesis, db
-
-        client, ct_id = current_thesis
-        ct = db.session.get(CurrentThesis, ct_id)
-        ct.supervisor_review_uri = None
+        setattr(ct, field, None)
         db.session.commit()
         resp = client.post(
             f"/practice_admin/thesis_to_archive?id={ct_id}",
@@ -533,12 +492,7 @@ class TestPracticeAdminYandexCode:
         mock_disk_instance.check_token.return_value = False
         mock_yadisk.return_value = mock_disk_instance
 
-        with staff_client.session_transaction() as sess:
-            sess["area_id"] = 2
-            sess["worktype_id"] = 5
-            sess["table_path"] = "/test/table.xlsx"
-            sess["sheet_name"] = "Sheet1"
-            sess["column_names_list"] = []
+        _set_yandex_session(staff_client)
 
         resp = staff_client.get("/practice_admin/yandex_code?code=testcode")
         assert resp.status_code in (200, 302)
@@ -552,12 +506,7 @@ class TestPracticeAdminYandexCode:
         mock_yadisk.return_value = mock_disk_instance
 
         with patch("flask_se_practice_yandex_disk.edit_table"):
-            with staff_client.session_transaction() as sess:
-                sess["area_id"] = 2
-                sess["worktype_id"] = 5
-                sess["table_path"] = "/test/table.xlsx"
-                sess["sheet_name"] = "Sheet1"
-                sess["column_names_list"] = []
+            _set_yandex_session(staff_client)
 
             resp = staff_client.get("/practice_admin/yandex_code?code=testcode")
             assert resp.status_code in (200, 302)
@@ -577,12 +526,7 @@ class TestPracticeAdminYandexCode:
         mock_yadisk.return_value = mock_disk_instance
 
         with patch("flask_se_practice_yandex_disk.edit_table"):
-            with staff_client.session_transaction() as sess:
-                sess["area_id"] = 2
-                sess["worktype_id"] = 5
-                sess["table_path"] = "/test/table.xlsx"
-                sess["sheet_name"] = "Sheet1"
-                sess["column_names_list"] = []
+            _set_yandex_session(staff_client)
 
             resp = staff_client.get("/practice_admin/yandex_code?code=testcode")
             assert resp.status_code in (200, 302)
@@ -599,12 +543,7 @@ class TestPracticeAdminYandexCode:
         mock_disk_instance.upload.side_effect = yadisk.exceptions.ParentNotFoundError
 
         with patch("flask_se_practice_yandex_disk.edit_table"):
-            with staff_client.session_transaction() as sess:
-                sess["area_id"] = 2
-                sess["worktype_id"] = 5
-                sess["table_path"] = "/test/table.xlsx"
-                sess["sheet_name"] = "Sheet1"
-                sess["column_names_list"] = []
+            _set_yandex_session(staff_client)
 
             resp = staff_client.get("/practice_admin/yandex_code?code=testcode")
             assert resp.status_code in (200, 302)

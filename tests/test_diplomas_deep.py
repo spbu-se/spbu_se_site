@@ -3,6 +3,24 @@ import pytest
 from conftest import assert_ok
 
 
+def _make_theme(title, **overrides):
+    from se_models import DiplomaThemes, ThemesLevel, db
+
+    defaults = {
+        "description": "Desc",
+        "company_id": 1,
+        "consultant_id": 1,
+        "author_id": 1,
+        "status": 0,
+    }
+    defaults.update(overrides)
+    theme = DiplomaThemes(title=title, **defaults)
+    theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
+    db.session.add(theme)
+    db.session.commit()
+    return theme
+
+
 @pytest.fixture
 def diploma_theme(logged_client):
     from se_models import DiplomaThemes, ThemesLevel, db
@@ -42,19 +60,12 @@ class TestDiplomasDeep:
         assert_ok(seeded_client, "/diplomas/theme.html", code={302})
 
     def test_theme_page_renders_markdown_unescaped(self, seeded_client):
-        from se_models import DiplomaThemes, db
-
-        theme = DiplomaThemes(
-            title="Markdown Theme",
+        theme = _make_theme(
+            "Markdown Theme",
             description="[Spla](https://example.org) and\n\n- one\n- two",
             requirements="- req one\n- req two",
-            company_id=1,
-            author_id=1,
-            consultant_id=1,
             status=2,
         )
-        db.session.add(theme)
-        db.session.commit()
         resp = seeded_client.get(f"/diplomas/theme.html?id={theme.id}")
         assert resp.status_code == 200
         body = resp.data.decode("utf-8")
@@ -62,8 +73,19 @@ class TestDiplomasDeep:
         assert "<ul>" in body
         assert "&lt;a href" not in body
 
-    def test_add_theme_page(self, logged_client):
-        assert_ok(logged_client, "/diplomas/add_theme.html", code={200})
+    @pytest.mark.parametrize(
+        "path, code, methods",
+        [
+            ("/diplomas/add_theme.html", {200}, {"GET"}),
+            ("/diplomas/edit_theme.html", {302}, {"GET"}),
+            ("/diplomas/delete_theme.html", {302}, {"POST"}),
+            ("/diplomas/user_themes.html", {200, 302}, {"GET"}),
+            ("/diplomas/fetch_themes?level=99999", {200}, {"GET"}),
+            ("/diplomas/fetch_themes?supervisor=5", {200}, {"GET"}),
+        ],
+    )
+    def test_route_checks(self, logged_client, path, code, methods):
+        assert_ok(logged_client, path, methods=methods, code=code)
 
     @pytest.mark.parametrize(
         "data,code",
@@ -88,9 +110,6 @@ class TestDiplomasDeep:
         resp = logged_client.post("/diplomas/add_theme.html", data=data)
         assert resp.status_code in code
 
-    def test_edit_theme_page_no_id(self, logged_client):
-        assert_ok(logged_client, "/diplomas/edit_theme.html", code={302})
-
     def test_edit_theme_page(self, diploma_theme):
         assert_ok(diploma_theme, "/diplomas/edit_theme.html?theme_id=1", code={200, 302, 404})
 
@@ -107,120 +126,57 @@ class TestDiplomasDeep:
         )
         assert resp.status_code in (200, 302)
 
-    def test_delete_theme_no_id(self, logged_client):
-        assert_ok(logged_client, "/diplomas/delete_theme.html", methods={"POST"}, code={302})
-
     def test_delete_theme_success(self, diploma_theme):
         resp = diploma_theme.post("/diplomas/delete_theme.html", data={"theme_id": 1})
         assert resp.status_code in (200, 302)
 
-    def test_archive_theme(self, diploma_theme):
-        resp = diploma_theme.post("/diplomas/archive_theme", data={"theme_id": 1})
+    @pytest.mark.parametrize("endpoint", ["/diplomas/archive_theme", "/diplomas/unarchive_theme"])
+    def test_archive_toggle(self, diploma_theme, endpoint):
+        resp = diploma_theme.post(endpoint, data={"theme_id": 1})
         assert resp.status_code in (200, 302)
-
-    def test_unarchive_theme(self, diploma_theme):
-        resp = diploma_theme.post("/diplomas/unarchive_theme", data={"theme_id": 1})
-        assert resp.status_code in (200, 302)
-
-    def test_user_themes_no_themes(self, logged_client):
-        assert_ok(logged_client, "/diplomas/user_themes.html", code={200, 302})
 
     def test_diplomas_index_with_nonexistent_supervisor(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
-
-        theme = DiplomaThemes(
-            title="Orphan Supervisor Theme",
-            description="Desc",
-            company_id=1,
-            supervisor_id=99999,
-            consultant_id=1,
-            author_id=1,
-            status=2,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
+        _make_theme("Orphan Supervisor Theme", supervisor_id=99999, status=2)
         assert_ok(logged_client, "/diplomas/", code={200})
 
-    def test_fetch_themes_blank(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/fetch_themes?level=99999", code={200})
-
-    def test_fetch_themes_with_valid_supervisor(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/fetch_themes?supervisor=5", code={200})
-
     def test_user_themes_render_with_themes(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
-
-        theme = DiplomaThemes(
-            title="User Theme for Render Test",
-            description="Desc",
-            company_id=1,
-            consultant_id=1,
-            author_id=1,
-            status=0,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
+        _make_theme("User Theme for Render Test")
         assert_ok(logged_client, "/diplomas/user_themes.html", code={200})
 
-    def test_add_theme_invalid_level(self, logged_client):
-        resp = logged_client.post(
-            "/diplomas/add_theme.html",
-            data={
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {
                 "title": "Test Invalid Level",
                 "description": "Test description",
                 "levels": [99999],
                 "company": 1,
             },
-        )
-        assert resp.status_code in (200,)
-
-    def test_add_theme_invalid_company(self, logged_client):
-        resp = logged_client.post(
-            "/diplomas/add_theme.html",
-            data={
+            {
                 "title": "Test Invalid Company",
                 "description": "Test description",
                 "levels": [1],
                 "company": 99999,
             },
-        )
+        ],
+    )
+    def test_add_theme_invalid_field(self, logged_client, payload):
+        resp = logged_client.post("/diplomas/add_theme.html", data=payload)
         assert resp.status_code in (200,)
 
     def test_delete_theme_created_by_user(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
+        from se_models import DiplomaThemes
 
-        theme = DiplomaThemes(
-            title="Theme to Delete",
-            description="Desc",
-            company_id=1,
-            consultant_id=1,
-            author_id=1,
-            status=0,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
+        theme = _make_theme("Theme to Delete")
         theme_id = theme.id
         resp = logged_client.post("/diplomas/delete_theme.html", data={"theme_id": theme_id})
         assert resp.status_code in (200, 302)
         assert DiplomaThemes.query.filter_by(id=theme_id).first() is None
 
     def test_edit_theme_post(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
+        from se_models import DiplomaThemes
 
-        theme = DiplomaThemes(
-            title="Theme to Edit",
-            description="Desc",
-            company_id=1,
-            consultant_id=1,
-            author_id=1,
-            status=0,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
+        theme = _make_theme("Theme to Edit")
         theme_id = theme.id
         resp = logged_client.post(
             f"/diplomas/edit_theme.html?theme_id={theme_id}",
@@ -236,213 +192,42 @@ class TestDiplomasDeep:
         updated = DiplomaThemes.query.filter_by(id=theme_id).first()
         assert updated.title == "Updated Title"
 
-    def test_edit_theme_missing_title_post(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
-
-        theme = DiplomaThemes(
-            title="Theme for Missing Title",
-            description="Desc",
-            company_id=1,
-            consultant_id=1,
-            author_id=1,
-            status=0,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {"title": "", "description": "Desc", "levels": [1], "company": 1},
+            {"title": "Title", "description": "Desc", "levels": [99999], "company": 1},
+            {"title": "Title", "description": "Desc", "levels": [1], "company": 99999},
+            {"title": "Title", "description": "", "levels": [1], "company": 1},
+            {"title": "Title", "description": "Desc", "company": 1},
+            {"title": "Title", "description": "Desc", "levels": [1]},
+        ],
+    )
+    def test_edit_theme_validation_failure(self, logged_client, payload):
+        theme = _make_theme("Theme")
         theme_id = theme.id
-        resp = logged_client.post(
-            f"/diplomas/edit_theme.html?theme_id={theme_id}",
-            data={
-                "title": "",
-                "description": "Desc",
-                "levels": [1],
-                "company": 1,
-            },
-        )
+        resp = logged_client.post(f"/diplomas/edit_theme.html?theme_id={theme_id}", data=payload)
         assert resp.status_code in (200,)
 
-    def test_edit_theme_invalid_level(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
+    @pytest.mark.parametrize(
+        "endpoint, initial_status, expected_status",
+        [
+            ("/diplomas/archive_theme", 0, 3),
+            ("/diplomas/unarchive_theme", 3, 0),
+        ],
+    )
+    def test_archive_toggle_owned_by_user(
+        self, logged_client, endpoint, initial_status, expected_status
+    ):
+        from se_models import DiplomaThemes
 
-        theme = DiplomaThemes(
-            title="Theme for Invalid Level",
-            description="Desc",
-            company_id=1,
-            consultant_id=1,
-            author_id=1,
-            status=0,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
+        theme = _make_theme("Theme", status=initial_status)
         theme_id = theme.id
-        resp = logged_client.post(
-            f"/diplomas/edit_theme.html?theme_id={theme_id}",
-            data={
-                "title": "Title",
-                "description": "Desc",
-                "levels": [99999],
-                "company": 1,
-            },
-        )
-        assert resp.status_code in (200,)
-
-    def test_edit_theme_invalid_company(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
-
-        theme = DiplomaThemes(
-            title="Theme for Invalid Company",
-            description="Desc",
-            company_id=1,
-            consultant_id=1,
-            author_id=1,
-            status=0,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
-        theme_id = theme.id
-        resp = logged_client.post(
-            f"/diplomas/edit_theme.html?theme_id={theme_id}",
-            data={
-                "title": "Title",
-                "description": "Desc",
-                "levels": [1],
-                "company": 99999,
-            },
-        )
-        assert resp.status_code in (200,)
-
-    def test_archive_theme_owned_by_user(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
-
-        theme = DiplomaThemes(
-            title="Theme to Archive",
-            description="Desc",
-            company_id=1,
-            consultant_id=1,
-            author_id=1,
-            status=0,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
-        theme_id = theme.id
-        resp = logged_client.post("/diplomas/archive_theme", data={"theme_id": theme_id})
+        resp = logged_client.post(endpoint, data={"theme_id": theme_id})
         assert resp.status_code in (200, 302)
-        archived = DiplomaThemes.query.filter_by(id=theme_id).first()
-        assert archived.status == 3
-
-    def test_unarchive_theme_owned_by_user(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
-
-        theme = DiplomaThemes(
-            title="Theme to Unarchive",
-            description="Desc",
-            company_id=1,
-            consultant_id=1,
-            author_id=1,
-            status=3,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
-        theme_id = theme.id
-        resp = logged_client.post("/diplomas/unarchive_theme", data={"theme_id": theme_id})
-        assert resp.status_code in (200, 302)
-        unarchived = DiplomaThemes.query.filter_by(id=theme_id).first()
-        assert unarchived.status == 0
+        updated = DiplomaThemes.query.filter_by(id=theme_id).first()
+        assert updated.status == expected_status
 
     def test_diplomas_index_with_null_supervisor(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
-
-        theme = DiplomaThemes(
-            title="Null Supervisor Theme",
-            description="Desc",
-            company_id=1,
-            supervisor_id=None,
-            consultant_id=1,
-            author_id=1,
-            status=2,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
+        _make_theme("Null Supervisor Theme", supervisor_id=None, status=2)
         assert_ok(logged_client, "/diplomas/", code={200})
-
-    def test_edit_theme_missing_description_post(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
-
-        theme = DiplomaThemes(
-            title="Theme for Missing Desc",
-            description="Desc",
-            company_id=1,
-            consultant_id=1,
-            author_id=1,
-            status=0,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
-        theme_id = theme.id
-        resp = logged_client.post(
-            f"/diplomas/edit_theme.html?theme_id={theme_id}",
-            data={
-                "title": "Title",
-                "description": "",
-                "levels": [1],
-                "company": 1,
-            },
-        )
-        assert resp.status_code in (200,)
-
-    def test_edit_theme_missing_levels_post(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
-
-        theme = DiplomaThemes(
-            title="Theme for Missing Levels",
-            description="Desc",
-            company_id=1,
-            consultant_id=1,
-            author_id=1,
-            status=0,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
-        theme_id = theme.id
-        resp = logged_client.post(
-            f"/diplomas/edit_theme.html?theme_id={theme_id}",
-            data={
-                "title": "Title",
-                "description": "Desc",
-                "company": 1,
-            },
-        )
-        assert resp.status_code in (200,)
-
-    def test_edit_theme_missing_company_post(self, logged_client):
-        from se_models import DiplomaThemes, ThemesLevel, db
-
-        theme = DiplomaThemes(
-            title="Theme for Missing Company",
-            description="Desc",
-            company_id=1,
-            consultant_id=1,
-            author_id=1,
-            status=0,
-        )
-        theme.levels = [ThemesLevel.query.filter_by(id=1).first()]
-        db.session.add(theme)
-        db.session.commit()
-        theme_id = theme.id
-        resp = logged_client.post(
-            f"/diplomas/edit_theme.html?theme_id={theme_id}",
-            data={
-                "title": "Title",
-                "description": "Desc",
-                "levels": [1],
-            },
-        )
-        assert resp.status_code in (200,)

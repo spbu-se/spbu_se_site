@@ -48,12 +48,13 @@ class TestUserIsStaff:
 
 
 class TestCurrentThesisExistsOrRedirect:
-    def test_missing_id_redirects(self, staff_client):
-        resp = staff_client.get("/practice_staff/thesis/")
-        assert resp.status_code in (200, 302)
-
-    def test_invalid_id_redirects(self, staff_client):
-        resp = staff_client.get("/practice_staff/thesis/?id=99999")
+    @pytest.mark.parametrize(
+        "path",
+        ["/practice_staff/thesis/", "/practice_staff/thesis/?id=99999"],
+        ids=["missing_id", "invalid_id"],
+    )
+    def test_missing_or_invalid_id_redirects(self, staff_client, path):
+        resp = staff_client.get(path)
         assert resp.status_code in (200, 302)
 
     def test_thesis_not_owned_by_staff_redirects(self, staff_client):
@@ -100,40 +101,28 @@ class TestThesisStaffPost:
         notification = NotificationPractice.query.filter_by(recipient_id=1).first()
         assert notification is not None
 
-    def test_submit_finish_work(self, thesis_with_report):
+    @pytest.mark.parametrize(
+        ("initial_status", "button", "final_status"),
+        [
+            (1, "submit_finish_work_button", 2),
+            (2, "submit_restore_work_button", 1),
+        ],
+    )
+    def test_submit_work_transition(self, thesis_with_report, initial_status, button, final_status):
         from se_models import CurrentThesis, db
 
         client, ct_id, _ = thesis_with_report
         ct = db.session.get(CurrentThesis, ct_id)
-        assert ct.status == 1
-
-        resp = client.post(
-            f"/practice_staff/thesis/?id={ct_id}",
-            data={
-                "submit_finish_work_button": "1",
-            },
-        )
-        assert resp.status_code in (200, 302)
-        ct = db.session.get(CurrentThesis, ct_id)
-        assert ct.status == 2
-
-    def test_submit_restore_work(self, thesis_with_report):
-        from se_models import CurrentThesis, db
-
-        client, ct_id, _ = thesis_with_report
-        ct = db.session.get(CurrentThesis, ct_id)
-        ct.status = 2
+        ct.status = initial_status
         db.session.commit()
 
         resp = client.post(
             f"/practice_staff/thesis/?id={ct_id}",
-            data={
-                "submit_restore_work_button": "1",
-            },
+            data={button: "1"},
         )
         assert resp.status_code in (200, 302)
         ct = db.session.get(CurrentThesis, ct_id)
-        assert ct.status == 1
+        assert ct.status == final_status
 
     def test_finished_thesises_staff(self, staff_client):
         assert_ok(staff_client, "/practice_staff/finished_thesises/", code={200, 302})
@@ -145,20 +134,19 @@ class TestThesisStaffPost:
 
 
 class TestReportsStaff:
-    def test_reports_without_report_id(self, thesis_with_report):
-        client, ct_id, _ = thesis_with_report
-        resp = client.get(f"/practice_staff/reports/?id={ct_id}")
-        assert resp.status_code == 200
-
-    def test_reports_with_valid_report_id(self, thesis_with_report):
+    @pytest.mark.parametrize(
+        ("query", "code"),
+        [
+            pytest.param("", (200,), id="without_report_id"),
+            pytest.param("_REPORT_ID_", (200,), id="with_valid_report_id"),
+            pytest.param("&report_id=99999", (200, 302), id="with_invalid_report_id_redirects"),
+        ],
+    )
+    def test_reports_get(self, thesis_with_report, query, code):
         client, ct_id, report_id = thesis_with_report
-        resp = client.get(f"/practice_staff/reports/?id={ct_id}&report_id={report_id}")
-        assert resp.status_code == 200
-
-    def test_reports_with_invalid_report_id_redirects(self, thesis_with_report):
-        client, ct_id, _ = thesis_with_report
-        resp = client.get(f"/practice_staff/reports/?id={ct_id}&report_id=99999")
-        assert resp.status_code in (200, 302)
+        query = query.replace("_REPORT_ID_", f"&report_id={report_id}")
+        resp = client.get(f"/practice_staff/reports/?id={ct_id}{query}")
+        assert resp.status_code in code
 
     def test_reports_with_report_not_owned_redirects(self, thesis_with_report):
         from se_models import CurrentThesis, ThesisReport, db
@@ -177,22 +165,19 @@ class TestReportsStaff:
         resp = client.get(f"/practice_staff/reports/?id={ct_id}&report_id={report2.id}")
         assert resp.status_code in (200, 302)
 
-    def test_reports_post_valid_comment(self, thesis_with_report):
+    @pytest.mark.parametrize(
+        ("comment", "expected_or_none"),
+        [("Great work!", "Great work!"), ("", None)],
+    )
+    def test_reports_post_comment(self, thesis_with_report, comment, expected_or_none):
         from se_models import ThesisReport, db
 
         client, ct_id, report_id = thesis_with_report
         resp = client.post(
             f"/practice_staff/reports/?id={ct_id}&report_id={report_id}",
-            data={f"submit_button{report_id}": "1", "comment": "Great work!"},
+            data={f"submit_button{report_id}": "1", "comment": comment},
         )
         assert resp.status_code in (200, 302)
-        updated = db.session.get(ThesisReport, report_id)
-        assert updated.comment == "Great work!"
-
-    def test_reports_post_empty_comment(self, thesis_with_report):
-        client, ct_id, report_id = thesis_with_report
-        resp = client.post(
-            f"/practice_staff/reports/?id={ct_id}&report_id={report_id}",
-            data={f"submit_button{report_id}": "1", "comment": ""},
-        )
-        assert resp.status_code in (200, 302)
+        if expected_or_none is not None:
+            updated = db.session.get(ThesisReport, report_id)
+            assert updated.comment == expected_or_none

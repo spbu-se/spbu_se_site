@@ -54,20 +54,20 @@ class TestReviewAuthenticated:
             code={200, 302},
         )
 
-    def test_review_page_with_id(self, thesis_on_review):
-        assert_ok(thesis_on_review, "/review/review?thesis_review_id=1", code={200, 302, 404})
-
-    def test_review_reviewed_page_with_id(self, thesis_on_review):
-        assert_ok(thesis_on_review, "/review/reviewed?thesis_review_id=1", code={200, 302, 404})
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "/review/review?thesis_review_id=1",
+            "/review/reviewed?thesis_review_id=1",
+            "/review/edit?thesis_review_id=1",
+            "/review/delete?thesis_review_id=1",
+        ],
+    )
+    def test_review_pages_with_id(self, thesis_on_review, path):
+        assert_ok(thesis_on_review, path, code={200, 302, 404})
 
     def test_review_result(self, logged_client):
         assert_ok(logged_client, "/review/review_result", code={200, 302})
-
-    def test_review_edit_with_id(self, thesis_on_review):
-        assert_ok(thesis_on_review, "/review/edit?thesis_review_id=1", code={200, 302, 404})
-
-    def test_review_delete_with_id(self, thesis_on_review):
-        assert_ok(thesis_on_review, "/review/delete?thesis_review_id=1", code={200, 302, 404})
 
 
 class TestReviewSubmitFlow:

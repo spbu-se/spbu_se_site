@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pytest
 from conftest import _seed_internship, assert_ok
 
 
@@ -20,26 +21,21 @@ class TestInternshipAdd:
         resp = logged_client.post("/internships/add", data={"tag": "python"})
         assert resp.status_code == 200
 
-    def test_add_success(self, logged_client):
+    @pytest.mark.parametrize(
+        ("tag", "vacancy", "company"),
+        [
+            ("C", "Junior Developer", "BrandNewCo"),
+            ("C++", "Middle Developer", "YetAnotherCo"),
+        ],
+    )
+    def test_add_success(self, logged_client, tag, vacancy, company):
         resp = logged_client.post(
             "/internships/add",
             data={
-                "tag": "C",
-                "name_vacancy": "Junior Developer",
+                "tag": tag,
+                "name_vacancy": vacancy,
                 "format": [1],
-                "company": "BrandNewCo",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_add_new_company(self, logged_client):
-        resp = logged_client.post(
-            "/internships/add",
-            data={
-                "tag": "C++",
-                "name_vacancy": "Middle Developer",
-                "format": [1],
-                "company": "YetAnotherCo",
+                "company": company,
             },
         )
         assert resp.status_code in (200, 302)
@@ -107,18 +103,10 @@ class TestInternshipUpdate:
 
 
 class TestInternshipFetch:
-    def test_fetch_by_tag(self, seeded_client):
-        resp = seeded_client.get("/internships/fetch_internships?tag=1")
-        assert resp.status_code == 200
-
-    def test_fetch_by_format(self, seeded_client):
-        resp = seeded_client.get("/internships/fetch_internships?format=1")
-        assert resp.status_code == 200
-
-    def test_fetch_by_company(self, seeded_client):
-        resp = seeded_client.get("/internships/fetch_internships?company=1")
-        assert resp.status_code == 200
-
-    def test_fetch_empty(self, seeded_client):
-        resp = seeded_client.get("/internships/fetch_internships?tag=99999")
+    @pytest.mark.parametrize(
+        "query",
+        ["tag=1", "format=1", "company=1", "tag=99999"],
+    )
+    def test_fetch(self, seeded_client, query):
+        resp = seeded_client.get(f"/internships/fetch_internships?{query}")
         assert resp.status_code == 200

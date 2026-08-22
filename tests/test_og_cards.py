@@ -229,26 +229,19 @@ class TestPublicPageMeta:
         canonical = re.search(r'rel="canonical" href="([^"]+)"', head)
         assert canonical is not None, f"{path}: canonical missing"
         assert canonical.group(1) == _meta_content(head, "og:url"), f"{path}: og:url != canonical"
-
-    @pytest.mark.parametrize("path", PUBLIC_META_PAGES)
-    def test_title_nonempty(self, seeded_client, path):
-        resp = seeded_client.get(path)
         html = resp.get_data(as_text=True)
         title = re.search(r"<title>\s*(.*?)\s*</title>", html, re.S)
         assert title is not None and title.group(1).strip(), f"{path}: empty <title>"
 
 
 class TestRobotsAndHumans:
-    def test_robots_disallows_private_paths(self, client):
+    def test_robots_disallows_private_paths_and_lists_sitemap(self, client):
         resp = client.get("/robots.txt")
         assert resp.status_code == 200
         body = resp.get_data(as_text=True)
         for path in ("/admin/", "/fetch_theses", "/login.html", "/google_callback"):
             assert f"Disallow: {path}" in body
-
-    def test_robots_lists_sitemap(self, client):
-        resp = client.get("/robots.txt")
-        assert "Sitemap: https://se.math.spbu.ru/Sitemap.xml" in resp.get_data(as_text=True)
+        assert "Sitemap: https://se.math.spbu.ru/Sitemap.xml" in body
 
     def test_humans_txt_exists(self, client):
         resp = client.get("/humans.txt")

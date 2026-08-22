@@ -9,57 +9,24 @@ class TestPracticePreparation:
         resp = practice_thesis.get("/practice/preparation_for_defense/?id=1")
         assert resp.status_code in (200, 302)
 
-    def test_post_text_no_file_empty_link(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={"submit_text_button": "1", "text_link": ""},
-        )
-        assert resp.status_code in (200, 302)
-        with practice_thesis.session_transaction() as sess:
-            flashes = sess["_flashes"]
-            assert any("Вы не указали ссылку" in str(msg) for _, msg in flashes)
-
-    def test_post_text_empty_file_and_empty_link(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={
-                "submit_text_button": "1",
-                "text": (io.BytesIO(b""), "", ""),
-                "text_link": "",
-            },
-        )
-        assert resp.status_code in (200, 302)
-        with practice_thesis.session_transaction() as sess:
-            flashes = sess["_flashes"]
-            assert any("не загрузили текст" in str(msg) for _, msg in flashes)
-
-    def test_post_text_empty_file_no_link_field(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={
-                "submit_text_button": "1",
-                "text": (io.BytesIO(b""), "", ""),
-            },
-        )
-        assert resp.status_code in (200, 302)
-        with practice_thesis.session_transaction() as sess:
-            flashes = sess["_flashes"]
-            assert any("не загрузили текст" in str(msg) for _, msg in flashes)
-
-    def test_post_text_valid_link(self, practice_thesis):
+    @pytest.mark.parametrize(
+        "button,link_field,url",
+        [
+            ("submit_text_button", "text_link", "https://example.com/thesis.pdf"),
+            ("submit_presentation_button", "presentation_link", "https://example.com/slides.pdf"),
+        ],
+    )
+    def test_post_valid_link(self, practice_thesis, button, link_field, url):
         from se_models import CurrentThesis, db
 
         resp = practice_thesis.post(
             "/practice/preparation_for_defense/?id=1",
-            data={
-                "submit_text_button": "1",
-                "text_link": "https://example.com/thesis.pdf",
-            },
+            data={button: "1", link_field: url},
         )
         assert resp.status_code in (200, 302)
         db.session.refresh(CurrentThesis.query.filter_by(author_id=1).first())
         ct = CurrentThesis.query.filter_by(author_id=1).first()
-        assert ct.text_link == "https://example.com/thesis.pdf"
+        assert getattr(ct, link_field) == url
 
     @pytest.mark.parametrize(
         "button,field,filename",
@@ -82,22 +49,31 @@ class TestPracticePreparation:
             flashes = sess["_flashes"]
             assert any(".PDF" in str(msg) for _, msg in flashes)
 
-    def test_post_text_valid_pdf(self, practice_thesis):
+    @pytest.mark.parametrize(
+        "button,field,filename,uri_attr",
+        [
+            ("submit_text_button", "text", "thesis.pdf", "text_uri"),
+            ("submit_review_button", "supervisor_review", "review.pdf", "supervisor_review_uri"),
+            ("submit_review_button", "consultant_review", "consult.pdf", "reviewer_review_uri"),
+            ("submit_presentation_button", "presentation", "slides.pdf", "presentation_uri"),
+        ],
+    )
+    def test_post_valid_pdf(self, practice_thesis, button, field, filename, uri_attr):
         from se_models import CurrentThesis, db
 
         pdf_bytes = b"%PDF-1.4 fake pdf content"
         resp = practice_thesis.post(
             "/practice/preparation_for_defense/?id=1",
             data={
-                "submit_text_button": "1",
-                "text": (io.BytesIO(pdf_bytes), "thesis.pdf", "application/pdf"),
+                button: "1",
+                field: (io.BytesIO(pdf_bytes), filename, "application/pdf"),
             },
         )
         assert resp.status_code in (200, 302)
         db.session.refresh(CurrentThesis.query.filter_by(author_id=1).first())
         ct = CurrentThesis.query.filter_by(author_id=1).first()
-        assert ct.text_uri is not None
-        assert ct.text_uri.endswith(".pdf")
+        assert getattr(ct, uri_attr) is not None
+        assert getattr(ct, uri_attr).endswith(".pdf")
 
     def test_post_review_both_none(self, practice_thesis):
         resp = practice_thesis.post(
@@ -106,61 +82,38 @@ class TestPracticePreparation:
         )
         assert resp.status_code in (200, 302)
 
-    def test_post_review_empty_filenames(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={
-                "submit_review_button": "1",
-                "supervisor_review": (io.BytesIO(b""), "", ""),
-                "consultant_review": (io.BytesIO(b""), "", ""),
-            },
-        )
+    @pytest.mark.parametrize(
+        "data,flash_substring",
+        [
+            ({"submit_text_button": "1", "text_link": ""}, "Вы не указали ссылку"),
+            (
+                {
+                    "submit_text_button": "1",
+                    "text": (io.BytesIO(b""), "", ""),
+                    "text_link": "",
+                },
+                "не загрузили текст",
+            ),
+            (
+                {"submit_text_button": "1", "text": (io.BytesIO(b""), "", "")},
+                "не загрузили текст",
+            ),
+            (
+                {
+                    "submit_review_button": "1",
+                    "supervisor_review": (io.BytesIO(b""), "", ""),
+                    "consultant_review": (io.BytesIO(b""), "", ""),
+                },
+                "не загрузили",
+            ),
+        ],
+    )
+    def test_post_empty_upload_flash(self, practice_thesis, data, flash_substring):
+        resp = practice_thesis.post("/practice/preparation_for_defense/?id=1", data=data)
         assert resp.status_code in (200, 302)
         with practice_thesis.session_transaction() as sess:
             flashes = sess["_flashes"]
-            assert any("не загрузили" in str(msg) for _, msg in flashes)
-
-    def test_post_review_supervisor_valid(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        pdf_bytes = b"%PDF-1.4 fake supervisor review"
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={
-                "submit_review_button": "1",
-                "supervisor_review": (
-                    io.BytesIO(pdf_bytes),
-                    "review.pdf",
-                    "application/pdf",
-                ),
-            },
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(CurrentThesis.query.filter_by(author_id=1).first())
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        assert ct.supervisor_review_uri is not None
-        assert ct.supervisor_review_uri.endswith(".pdf")
-
-    def test_post_review_reviewer_valid(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        pdf_bytes = b"%PDF-1.4 fake reviewer review"
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={
-                "submit_review_button": "1",
-                "consultant_review": (
-                    io.BytesIO(pdf_bytes),
-                    "consult.pdf",
-                    "application/pdf",
-                ),
-            },
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(CurrentThesis.query.filter_by(author_id=1).first())
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        assert ct.reviewer_review_uri is not None
-        assert ct.reviewer_review_uri.endswith(".pdf")
+            assert any(flash_substring in str(msg) for _, msg in flashes)
 
     def test_post_presentation_no_file_empty_link(self, practice_thesis):
         resp = practice_thesis.post(
@@ -172,42 +125,6 @@ class TestPracticePreparation:
             flashes = sess["_flashes"]
             assert any("не указали ссылку" in str(msg) for _, msg in flashes)
 
-    def test_post_presentation_valid_link(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={
-                "submit_presentation_button": "1",
-                "presentation_link": "https://example.com/slides.pdf",
-            },
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(CurrentThesis.query.filter_by(author_id=1).first())
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        assert ct.presentation_link == "https://example.com/slides.pdf"
-
-    def test_post_presentation_valid_pdf(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        pdf_bytes = b"%PDF-1.4 fake presentation"
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={
-                "submit_presentation_button": "1",
-                "presentation": (
-                    io.BytesIO(pdf_bytes),
-                    "slides.pdf",
-                    "application/pdf",
-                ),
-            },
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(CurrentThesis.query.filter_by(author_id=1).first())
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        assert ct.presentation_uri is not None
-        assert ct.presentation_uri.endswith(".pdf")
-
     def test_post_code_both_empty(self, practice_thesis):
         resp = practice_thesis.post(
             "/practice/preparation_for_defense/?id=1",
@@ -218,158 +135,64 @@ class TestPracticePreparation:
             flashes = sess["_flashes"]
             assert any("не указали" in str(msg) for _, msg in flashes)
 
-    def test_post_code_link_only(self, practice_thesis):
+    @pytest.mark.parametrize(
+        "data,field_asserts",
+        [
+            (
+                {"submit_code_button": "1", "code_link": "https://github.com/user/repo"},
+                [("code_link", "https://github.com/user/repo")],
+            ),
+            (
+                {"submit_code_button": "1", "account_name": "testuser"},
+                [("account_name", "testuser")],
+            ),
+            (
+                {
+                    "submit_code_button": "1",
+                    "code_link": "https://github.com/user/repo",
+                    "account_name": "testuser",
+                },
+                [("code_link", "https://github.com/user/repo"), ("account_name", "testuser")],
+            ),
+        ],
+    )
+    def test_post_code(self, practice_thesis, data, field_asserts):
         from se_models import CurrentThesis, db
 
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={
-                "submit_code_button": "1",
-                "code_link": "https://github.com/user/repo",
-            },
-        )
+        resp = practice_thesis.post("/practice/preparation_for_defense/?id=1", data=data)
         assert resp.status_code in (200, 302)
         db.session.refresh(CurrentThesis.query.filter_by(author_id=1).first())
         ct = CurrentThesis.query.filter_by(author_id=1).first()
-        assert ct.code_link == "https://github.com/user/repo"
+        for attr, expected in field_asserts:
+            assert getattr(ct, attr) == expected
 
-    def test_post_code_account_only(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={"submit_code_button": "1", "account_name": "testuser"},
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(CurrentThesis.query.filter_by(author_id=1).first())
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        assert ct.account_name == "testuser"
-
-    def test_post_code_both_valid(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={
-                "submit_code_button": "1",
-                "code_link": "https://github.com/user/repo",
-                "account_name": "testuser",
-            },
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(CurrentThesis.query.filter_by(author_id=1).first())
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        assert ct.code_link == "https://github.com/user/repo"
-        assert ct.account_name == "testuser"
-
-    def test_post_delete_text_button(self, practice_thesis):
+    @pytest.mark.parametrize(
+        "field,seed_value,button_name",
+        [
+            ("text_uri", "some_text.pdf", "delete_text_button"),
+            ("text_link", "https://example.com/thesis.pdf", "delete_text_link_button"),
+            ("presentation_uri", "some_slides.pdf", "delete_presentation_button"),
+            (
+                "presentation_link",
+                "https://example.com/slides.pdf",
+                "delete_presentation_link_button",
+            ),
+            ("reviewer_review_uri", "consultant_review.pdf", "delete_reviewer_review_button"),
+            ("supervisor_review_uri", "supervisor_review.pdf", "delete_supervisor_review_button"),
+            ("code_link", "https://github.com/user/repo", "delete_code_link_button"),
+            ("account_name", "testuser", "delete_account_name_button"),
+        ],
+    )
+    def test_post_delete_field(self, practice_thesis, field, seed_value, button_name):
         from se_models import CurrentThesis, db
 
         ct = CurrentThesis.query.filter_by(author_id=1).first()
-        ct.text_uri = "some_text.pdf"
+        setattr(ct, field, seed_value)
         db.session.commit()
         resp = practice_thesis.post(
             "/practice/preparation_for_defense/?id=1",
-            data={"delete_text_button": "1"},
+            data={button_name: "1"},
         )
         assert resp.status_code in (200, 302)
         db.session.refresh(ct)
-        assert ct.text_uri is None
-
-    def test_post_delete_text_link_button(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        ct.text_link = "https://example.com/thesis.pdf"
-        db.session.commit()
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={"delete_text_link_button": "1"},
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(ct)
-        assert ct.text_link is None
-
-    def test_post_delete_presentation_button(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        ct.presentation_uri = "some_slides.pdf"
-        db.session.commit()
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={"delete_presentation_button": "1"},
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(ct)
-        assert ct.presentation_uri is None
-
-    def test_post_delete_presentation_link_button(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        ct.presentation_link = "https://example.com/slides.pdf"
-        db.session.commit()
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={"delete_presentation_link_button": "1"},
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(ct)
-        assert ct.presentation_link is None
-
-    def test_post_delete_reviewer_review_button(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        ct.reviewer_review_uri = "consultant_review.pdf"
-        db.session.commit()
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={"delete_reviewer_review_button": "1"},
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(ct)
-        assert ct.reviewer_review_uri is None
-
-    def test_post_delete_supervisor_review_button(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        ct.supervisor_review_uri = "supervisor_review.pdf"
-        db.session.commit()
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={"delete_supervisor_review_button": "1"},
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(ct)
-        assert ct.supervisor_review_uri is None
-
-    def test_post_delete_code_link_button(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        ct.code_link = "https://github.com/user/repo"
-        db.session.commit()
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={"delete_code_link_button": "1"},
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(ct)
-        assert ct.code_link is None
-
-    def test_post_delete_account_name_button(self, practice_thesis):
-        from se_models import CurrentThesis, db
-
-        ct = CurrentThesis.query.filter_by(author_id=1).first()
-        ct.account_name = "testuser"
-        db.session.commit()
-        resp = practice_thesis.post(
-            "/practice/preparation_for_defense/?id=1",
-            data={"delete_account_name_button": "1"},
-        )
-        assert resp.status_code in (200, 302)
-        db.session.refresh(ct)
-        assert ct.account_name is None
+        assert getattr(ct, field) is None

@@ -6,6 +6,19 @@ import pandas as pd
 import pytest
 
 
+def _mock_table_df(rows=None):
+    from flask_se_practice_config import TABLE_COLUMNS as TC
+
+    col_values = [v for _, v in TC.items()]
+    mock_df = MagicMock()
+    if rows is None:
+        rows = [(0, pd.Series(dict.fromkeys(col_values, "")))]
+    mock_df.iterrows.return_value = rows
+    mock_df.columns = col_values
+    mock_df.sort_values.return_value = mock_df
+    return mock_df
+
+
 class TestReadTable:
     def test_read_table_value_error(self, app_ctx):
         from flask_se import app
@@ -25,7 +38,12 @@ class TestReadTable:
             result = read_table("/tmp/__nonexistent_xyz__.xlsx", "S1")
         assert result is None
 
-    def test_read_table_success(self, app_ctx):
+    @pytest.mark.parametrize(
+        ("sheet_name", "expected_column"),
+        [("S1", "A"), ("", None)],
+        ids=["named_sheet", "default_sheet"],
+    )
+    def test_read_table_success(self, app_ctx, sheet_name, expected_column):
         import os
         import tempfile
 
@@ -37,73 +55,44 @@ class TestReadTable:
             tmp_name = tmp.name
         try:
             with pd.ExcelWriter(tmp_name) as w:
-                df.to_excel(w, sheet_name="S1", index=False)
+                if sheet_name:
+                    df.to_excel(w, sheet_name=sheet_name, index=False)
+                else:
+                    df.to_excel(w, index=False)
             with app.test_request_context():
-                result = read_table(tmp_name, "S1")
+                result = read_table(tmp_name, sheet_name)
             assert result is not None
-            assert "A" in result.columns
-        finally:
-            os.unlink(tmp_name)
-
-    def test_read_table_default_sheet(self, app_ctx):
-        import os
-        import tempfile
-
-        from flask_se import app
-        from flask_se_practice_table import read_table
-
-        df = pd.DataFrame({"X": [10]})
-        with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
-            tmp_name = tmp.name
-        try:
-            with pd.ExcelWriter(tmp_name) as w:
-                df.to_excel(w, index=False)
-            with app.test_request_context():
-                result = read_table(tmp_name, "")
-            assert result is not None
+            if expected_column is not None:
+                assert expected_column in result.columns
         finally:
             os.unlink(tmp_name)
 
 
 class TestFindUser:
-    def test_find_user_full_name(self, app_ctx):
+    @pytest.mark.parametrize(
+        ("email", "first", "last", "middle", "query", "expected_email"),
+        [
+            ("a@b.ru", "Ivan", "Petrov", None, "Petrov Ivan", "a@b.ru"),
+            (None, None, None, None, "Petrov", None),
+            (None, None, None, None, "Nobody Here", None),
+            ("b@b.ru", "Petr", "Sidorov", "Ivanovich", "Sidorov Petr", "b@b.ru"),
+        ],
+        ids=["full_name", "short_name", "not_found", "middle_name_ignored"],
+    )
+    def test_find_user(self, app_ctx, email, first, last, middle, query, expected_email):
         from flask_se_practice_table import find_user
         from se_models import Users, db
 
-        u = Users(email="a@b.ru", first_name="Ivan", last_name="Petrov")
-        db.session.add(u)
-        db.session.commit()
-        result = find_user("Petrov Ivan")
-        assert result is not None
-        assert result.email == "a@b.ru"
-
-    def test_find_user_short_name(self, app_ctx):
-        from flask_se_practice_table import find_user
-
-        result = find_user("Petrov")
-        assert result is None
-
-    def test_find_user_not_found(self, app_ctx):
-        from flask_se_practice_table import find_user
-
-        result = find_user("Nobody Here")
-        assert result is None
-
-    def test_find_user_middle_name_ignored(self, app_ctx):
-        from flask_se_practice_table import find_user
-        from se_models import Users, db
-
-        u = Users(
-            email="b@b.ru",
-            first_name="Petr",
-            last_name="Sidorov",
-            middle_name="Ivanovich",
-        )
-        db.session.add(u)
-        db.session.commit()
-        result = find_user("Sidorov Petr")
-        assert result is not None
-        assert result.email == "b@b.ru"
+        if email is not None:
+            u = Users(email=email, first_name=first, last_name=last, middle_name=middle)
+            db.session.add(u)
+            db.session.commit()
+        result = find_user(query)
+        if expected_email is None:
+            assert result is None
+        else:
+            assert result is not None
+            assert result.email == expected_email
 
 
 class TestFindCurrentThesis:
@@ -137,40 +126,23 @@ class TestFindCurrentThesis:
 
 
 class TestUpdateIfCellIsEmpty:
-    def test_update_nan_via_float(self):
+    @pytest.mark.parametrize(
+        ("initial", "expected"),
+        [
+            (float("nan"), "new_value"),
+            (np.nan, "new_value"),
+            (None, "new_value"),
+            ("", "new_value"),
+            ("existing", "existing"),
+        ],
+        ids=["nan_via_float", "nan_via_numpy", "none", "empty_string", "non_empty_preserved"],
+    )
+    def test_update_if_cell_is_empty(self, initial, expected):
         from flask_se_practice_table import update_if_cell_is_empty
 
-        row = {"name": float("nan")}
+        row = {"name": initial}
         update_if_cell_is_empty(row, "name", "new_value")
-        assert row["name"] == "new_value"  # type: ignore[comparison-overlap]
-
-    def test_update_nan_via_numpy(self):
-        from flask_se_practice_table import update_if_cell_is_empty
-
-        row = {"name": np.nan}
-        update_if_cell_is_empty(row, "name", "new_value")
-        assert row["name"] == "new_value"
-
-    def test_update_none(self):
-        from flask_se_practice_table import update_if_cell_is_empty
-
-        row = {"name": None}
-        update_if_cell_is_empty(row, "name", "new_value")
-        assert row["name"] == "new_value"
-
-    def test_update_empty_string(self):
-        from flask_se_practice_table import update_if_cell_is_empty
-
-        row = {"name": ""}
-        update_if_cell_is_empty(row, "name", "new_value")
-        assert row["name"] == "new_value"
-
-    def test_update_non_empty_preserved(self):
-        from flask_se_practice_table import update_if_cell_is_empty
-
-        row = {"name": "existing"}
-        update_if_cell_is_empty(row, "name", "new_value")
-        assert row["name"] == "existing"
+        assert row["name"] == expected
 
     def test_update_missing_column_raises_with_flash(self, app_ctx):
         from flask_se import app
@@ -316,15 +288,9 @@ class TestEditTable:
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_existing_with_data(self, mock_exists, app_ctx):
         from flask_se import app
-        from flask_se_practice_config import TABLE_COLUMNS as TC
         from flask_se_practice_table import edit_table
 
-        col_values = [v for _, v in TC.items()]
-
-        mock_df = MagicMock()
-        mock_df.iterrows.return_value = [(0, pd.Series(dict.fromkeys(col_values, "")))]
-        mock_df.columns = col_values
-        mock_df.sort_values.return_value = mock_df
+        mock_df = _mock_table_df()
 
         with (
             patch("flask_se_practice_table.read_table", return_value=mock_df),
@@ -347,15 +313,9 @@ class TestEditTable:
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_user_not_found_skips_row(self, mock_exists, app_ctx):
         from flask_se import app
-        from flask_se_practice_config import TABLE_COLUMNS as TC
         from flask_se_practice_table import edit_table
 
-        col_values = [v for _, v in TC.items()]
-
-        mock_df = MagicMock()
-        mock_df.iterrows.return_value = [(0, pd.Series(dict.fromkeys(col_values, "")))]
-        mock_df.columns = col_values
-        mock_df.sort_values.return_value = mock_df
+        mock_df = _mock_table_df()
 
         with (
             patch("flask_se_practice_table.read_table", return_value=mock_df),
@@ -370,15 +330,9 @@ class TestEditTable:
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_no_thesis_skips_row(self, mock_exists, app_ctx):
         from flask_se import app
-        from flask_se_practice_config import TABLE_COLUMNS as TC
         from flask_se_practice_table import edit_table
 
-        col_values = [v for _, v in TC.items()]
-
-        mock_df = MagicMock()
-        mock_df.iterrows.return_value = [(0, pd.Series(dict.fromkeys(col_values, "")))]
-        mock_df.columns = col_values
-        mock_df.sort_values.return_value = mock_df
+        mock_df = _mock_table_df()
 
         with (
             patch("flask_se_practice_table.read_table", return_value=mock_df),
@@ -399,14 +353,9 @@ class TestEditTable:
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_key_error_in_row_loop(self, mock_exists, app_ctx):
         from flask_se import app
-        from flask_se_practice_config import TABLE_COLUMNS as TC
         from flask_se_practice_table import edit_table
 
-        col_values = [v for _, v in TC.items()]
-
-        mock_df = MagicMock()
-        mock_df.iterrows.return_value = [(0, pd.Series(dict.fromkeys(col_values, "")))]
-        mock_df.columns = col_values
+        mock_df = _mock_table_df()
 
         with (
             patch("flask_se_practice_table.read_table", return_value=mock_df),
@@ -425,14 +374,9 @@ class TestEditTable:
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_key_error_in_missing_thesis_loop(self, mock_exists, app_ctx):
         from flask_se import app
-        from flask_se_practice_config import TABLE_COLUMNS as TC
         from flask_se_practice_table import edit_table
 
-        col_values = [v for _, v in TC.items()]
-
-        mock_df = MagicMock()
-        mock_df.iterrows.return_value = []
-        mock_df.columns = col_values
+        mock_df = _mock_table_df([])
 
         mock_thesis = MagicMock()
         mock_thesis.id = 999
@@ -456,15 +400,9 @@ class TestEditTable:
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_adds_missing_thesises(self, mock_exists, app_ctx):
         from flask_se import app
-        from flask_se_practice_config import TABLE_COLUMNS as TC
         from flask_se_practice_table import edit_table
 
-        col_values = [v for _, v in TC.items()]
-
-        mock_df = MagicMock()
-        mock_df.iterrows.return_value = []
-        mock_df.columns = col_values
-        mock_df.sort_values.return_value = mock_df
+        mock_df = _mock_table_df([])
 
         mock_thesis = MagicMock()
         mock_thesis.id = 777
@@ -501,15 +439,9 @@ class TestEditTable:
     @patch("flask_se_practice_table.os.path.exists", return_value=True)
     def test_edit_table_skips_already_checked_thesis(self, mock_exists, app_ctx):
         from flask_se import app
-        from flask_se_practice_config import TABLE_COLUMNS as TC
         from flask_se_practice_table import edit_table
 
-        col_values = [v for _, v in TC.items()]
-
-        mock_df = MagicMock()
-        mock_df.iterrows.return_value = [(0, pd.Series(dict.fromkeys(col_values, "")))]
-        mock_df.columns = col_values
-        mock_df.sort_values.return_value = mock_df
+        mock_df = _mock_table_df()
 
         mock_thesis = MagicMock()
         mock_thesis.id = 42

@@ -6,12 +6,15 @@ from conftest import assert_ok
 
 
 class TestCurrentThesisDecorator:
-    def test_no_id_redirects_index(self, logged_client):
-        resp = logged_client.get("/practice/choosing_topic/")
-        assert resp.status_code == 302
-
-    def test_nonexistent_id_redirects(self, logged_client):
-        resp = logged_client.get("/practice/choosing_topic/?id=99999")
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "/practice/choosing_topic/",
+            "/practice/choosing_topic/?id=99999",
+        ],
+    )
+    def test_redirects_index(self, logged_client, url):
+        resp = logged_client.get(url)
         assert resp.status_code == 302
 
     def test_deleted_thesis_redirects(self, logged_client):
@@ -95,48 +98,23 @@ class TestPracticeEditTheme:
         resp = practice_thesis.get("/practice/edit_theme/?id=1")
         assert resp.status_code in (200, 302)
 
-    def test_post_save_empty_topic(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/edit_theme/?id=1",
-            data={"save_topic_button": "1", "topic": "", "staff": 1},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_save_short_topic(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/edit_theme/?id=1",
-            data={"save_topic_button": "1", "topic": "AB", "staff": 1},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_save_no_supervisor(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/edit_theme/?id=1",
-            data={"save_topic_button": "1", "topic": "Edited thesis topic"},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_save_valid(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/edit_theme/?id=1",
-            data={
-                "save_topic_button": "1",
-                "topic": "Edited thesis topic",
-                "staff": 1,
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_save_with_different_supervisor(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/edit_theme/?id=1",
-            data={
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {"save_topic_button": "1", "topic": "", "staff": 1},
+            {"save_topic_button": "1", "topic": "AB", "staff": 1},
+            {"save_topic_button": "1", "topic": "Edited thesis topic"},
+            {"save_topic_button": "1", "topic": "Edited thesis topic", "staff": 1},
+            {
                 "save_topic_button": "1",
                 "topic": "Edited thesis topic",
                 "staff": 2,
                 "consultant": "Ext. Consultant",
             },
-        )
+        ],
+    )
+    def test_post_save(self, practice_thesis, data):
+        resp = practice_thesis.post("/practice/edit_theme/?id=1", data=data)
         assert resp.status_code in (200, 302)
 
 
@@ -145,28 +123,32 @@ class TestPracticeGoalsTasks:
         resp = practice_thesis.get("/practice/goals_tasks/?id=1")
         assert resp.status_code in (200, 302)
 
-    def test_post_submit_goal(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {
                 "submit_goal_button": "1",
                 "goal": "My main goal for this practice project is to complete the work",
             },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_submit_goal_short(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={"submit_goal_button": "1", "goal": "AB"},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_submit_goal_missing_field(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={"submit_goal_button": "1"},
-        )
+            {"submit_goal_button": "1", "goal": "AB"},
+            {"submit_goal_button": "1"},
+            {"edit_goal_button": "1", "goal": "Updated main goal for the practice project"},
+            {"delete_goal_button": "1"},
+            {"submit_task_button": "1", "task": "Complete the first milestone of the project"},
+            {"submit_task_button": "1", "task": "AB"},
+            {"delete_task_id_button": "1"},
+            {"delete_task_id_button": "0"},
+            {"delete_task_id_button": "9999"},
+            {
+                "edit_task_id_button": "1",
+                "task": "Updated task description for the project milestone",
+            },
+            {"edit_task_id_button": "1", "task": "AB"},
+            {"edit_task_id_button": "9999", "task": "Updated task description"},
+        ],
+    )
+    def test_post_goals_tasks(self, practice_thesis, data):
+        resp = practice_thesis.post("/practice/goals_tasks/?id=1", data=data)
         assert resp.status_code in (200, 302)
 
     def test_post_submit_goal_same_value(self, practice_thesis):
@@ -184,127 +166,33 @@ class TestPracticeGoalsTasks:
         )
         assert resp.status_code in (200, 302)
 
-    def test_post_edit_goal(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={
-                "edit_goal_button": "1",
-                "goal": "Updated main goal for the practice project",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_delete_goal(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={"delete_goal_button": "1"},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_submit_task(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={
-                "submit_task_button": "1",
-                "task": "Complete the first milestone of the project",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_submit_task_short(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={"submit_task_button": "1", "task": "AB"},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_delete_task(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={"delete_task_id_button": "1"},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_delete_task_zero(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={"delete_task_id_button": "0"},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_delete_task_nonexistent(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={"delete_task_id_button": "9999"},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_edit_task(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={
-                "edit_task_id_button": "1",
-                "task": "Updated task description for the project milestone",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_edit_task_short(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={"edit_task_id_button": "1", "task": "AB"},
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_edit_task_nonexistent(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/goals_tasks/?id=1",
-            data={"edit_task_id_button": "9999", "task": "Updated task description"},
-        )
-        assert resp.status_code in (200, 302)
-
 
 class TestPracticeAddNewReport:
     def test_get(self, practice_thesis):
         resp = practice_thesis.get("/practice/add_new_report/?id=1")
         assert resp.status_code in (200, 302)
 
-    def test_post_missing_was_done(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/add_new_report/?id=1",
-            data={
-                "planned_to_do": "I plan to finish the remaining tasks soon for completion",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_missing_planned_to_do(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/add_new_report/?id=1",
-            data={
-                "was_done": "I completed many important tasks this week for the project",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_short_was_done(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/add_new_report/?id=1",
-            data={
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {"planned_to_do": "I plan to finish the remaining tasks soon for completion"},
+            {"was_done": "I completed many important tasks this week for the project"},
+            {
                 "was_done": "AB",
                 "planned_to_do": "I plan to finish the remaining tasks soon for completion",
             },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_short_planned_to_do(self, practice_thesis):
-        resp = practice_thesis.post(
-            "/practice/add_new_report/?id=1",
-            data={
+            {
                 "was_done": "I completed many important tasks this week for the project",
                 "planned_to_do": "AB",
             },
-        )
+            {
+                "was_done": "I completed many important tasks this week for the project",
+                "planned_to_do": "I plan to finish the remaining tasks soon for completion",
+            },
+        ],
+    )
+    def test_post_add_report(self, practice_thesis, data):
+        resp = practice_thesis.post("/practice/add_new_report/?id=1", data=data)
         assert resp.status_code in (200, 302)
 
     def test_post_supervisor_id_none(self, practice_thesis):
@@ -313,16 +201,6 @@ class TestPracticeAddNewReport:
         ct = CurrentThesis.query.filter_by(author_id=1).first()
         ct.supervisor_id = None
         db.session.commit()
-        resp = practice_thesis.post(
-            "/practice/add_new_report/?id=1",
-            data={
-                "was_done": "I completed many important tasks this week for the project",
-                "planned_to_do": "I plan to finish the remaining tasks soon for completion",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_post_valid(self, practice_thesis):
         resp = practice_thesis.post(
             "/practice/add_new_report/?id=1",
             data={
@@ -432,34 +310,31 @@ class TestGetListOfTheses:
 
 
 class TestGetRemainingTime:
-    def test_choosing_topic_with_deadline(self, practice_thesis):
+    @pytest.mark.parametrize(
+        "url,deadline_kwargs",
+        [
+            (
+                "/practice/choosing_topic/?id=1",
+                {"choose_topic": datetime.utcnow() + timedelta(days=10)},
+            ),
+            (
+                "/practice/choosing_topic/?id=1",
+                {"choose_topic": datetime.utcnow() - timedelta(days=1)},
+            ),
+            (
+                "/practice/preparation_for_defense/?id=1",
+                {
+                    "submit_work_for_review": datetime.utcnow() + timedelta(days=10),
+                    "upload_reviews": datetime.utcnow() + timedelta(days=20),
+                },
+            ),
+        ],
+    )
+    def test_get_with_deadline(self, practice_thesis, url, deadline_kwargs):
         from se_models import Deadline, db
 
-        dl = Deadline(worktype_id=1, area_id=1, choose_topic=datetime.utcnow() + timedelta(days=10))
+        dl = Deadline(worktype_id=1, area_id=1, **deadline_kwargs)
         db.session.add(dl)
         db.session.commit()
-        resp = practice_thesis.get("/practice/choosing_topic/?id=1")
-        assert resp.status_code in (200, 302)
-
-    def test_choosing_topic_expired_deadline(self, practice_thesis):
-        from se_models import Deadline, db
-
-        dl = Deadline(worktype_id=1, area_id=1, choose_topic=datetime.utcnow() - timedelta(days=1))
-        db.session.add(dl)
-        db.session.commit()
-        resp = practice_thesis.get("/practice/choosing_topic/?id=1")
-        assert resp.status_code in (200, 302)
-
-    def test_preparation_with_submit_deadline(self, practice_thesis):
-        from se_models import Deadline, db
-
-        dl = Deadline(
-            worktype_id=1,
-            area_id=1,
-            submit_work_for_review=datetime.utcnow() + timedelta(days=10),
-            upload_reviews=datetime.utcnow() + timedelta(days=20),
-        )
-        db.session.add(dl)
-        db.session.commit()
-        resp = practice_thesis.get("/practice/preparation_for_defense/?id=1")
+        resp = practice_thesis.get(url)
         assert resp.status_code in (200, 302)
