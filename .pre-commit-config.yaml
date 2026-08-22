@@ -90,7 +90,7 @@ repos:
 
       - id: pre-push-fast-checks
         name: "pre-push: format + lint (fail-fast)"
-        entry: powershell -Command "uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/; if ($?) { uv run ruff format --check src/ tests/ }; if ($?) { uv run ruff check src/ tests/ }; if ($?) { uv run pylint --disable=all --enable=similarities src/ tests/ }; if ($?) { uv run vulture src/ --min-confidence 100 --exclude src/thesesImport.py --ignore-names is_created }"
+        entry: powershell -Command "uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/; if ($?) { uv run ruff format --check src/ tests/ }; if ($?) { uv run ruff check src/ tests/ }; if ($?) { uv run pylint --disable=all --enable=similarities src/ tests/ }; if ($?) { uv run vulture src/ --min-confidence 100 --ignore-names is_created }"
         language: system
         pass_filenames: false
         always_run: true

@@ -6,7 +6,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 # their own guards (NotificationLog idempotency claim, SE_STAGING env gate),
 # so only the scheduling mechanics live here. Starting the scheduler is
 # explicit: production (wsgi.py) starts it, tests and the import pipeline
-# (extract_text.py, thesesImport.py) never do.
+# (extract_text.py, thesis_import.py) never do.
 scheduler = BackgroundScheduler(timezone="UTC")
 
 
