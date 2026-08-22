@@ -388,20 +388,15 @@ Set `target-version` in `[tool.ruff]` to match minimum supported Python. Affects
 Gated in pre-push + both CI workflows (parity). The `--min-confidence 100` level is deliberate: at default confidence vulture flags hundreds of framework false positives (SQLAlchemy model columns, Flask route functions, WTForms fields) that it cannot resolve statically — gating there would make the check noise and get disabled. At 100% only true positives surface (currently only unused callback params).
 
 ```bash
-uv run vulture src/ --min-confidence 100 --exclude src/thesesImport.py --ignore-names is_created
+uv run vulture src/ --min-confidence 100 --ignore-names is_created
 ```
 
-- `thesesImport.py` (legacy scraper, already in the coverage omit) is excluded.
 - `is_created` is a framework-contract callback param (Flask-Admin `on_model_change`) that ruff already suppresses with `# noqa: ARG002`.
 - To add new dead code to the exclusion, widen `--ignore-names` or `--exclude` with a documented reason, not to hide real findings.
 
 ## pylint (duplicate-code gate)
 
 `uv run pylint --disable=all --enable=similarities src/ tests/` runs in pre-push + both CI workflows. `min-similarity-lines = 6` in `pyproject.toml` `[tool.pylint.similarities]`; templates/static are ignored. Keeps the test consolidation honest — consolidation removes duplication, never adds it.
-
-## lxml dependency for BeautifulSoup HTML parsing
-
-`lxml>=6.1.1` is a dev dependency in `pyproject.toml` (`[dependency-groups] dev`). It's required for BeautifulSoup HTML parser tests (`features="lxml"`) in scrape tests under `test_theses_import.py`. The built-in `html.parser` is too lenient — it doesn't raise on malformed HTML that triggers different code paths.
 
 ## General
 
@@ -419,7 +414,7 @@ Exclude one-shot scripts (importers, entrypoints) from coverage for realistic me
 
 ```toml
 [tool.coverage.run]
-omit = ["src/thesesImport.py", "src/wsgi.py", "src/extract_text.py", "src/static/files/*"]
+omit = ["src/wsgi.py", "src/extract_text.py", "src/static/files/*"]
 ```
 
 ### Coverage metrics accumulate across runs

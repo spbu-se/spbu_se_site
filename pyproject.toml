@@ -39,7 +39,6 @@ dev = [
     "codespell",
     "pytest-xdist>=3.8.0",
     "basedpyright>=1.39.9",
-    "lxml>=6.1.1",
     "ftfy>=6.3.1",
     "pylint>=4.0.6",
     "vulture>=2.16",
@@ -52,7 +51,7 @@ filterwarnings = ["ignore::ResourceWarning"]
 
 [tool.coverage.run]
 context = "test"
-omit = ["src/thesesImport.py", "src/wsgi.py", "src/extract_text.py", "src/static/files/*"]
+omit = ["src/wsgi.py", "src/extract_text.py", "src/static/files/*"]
 
 [tool.pylint.main]
 ignore-paths = [".*\\.venv.*", ".*templates.*", ".*static.*"]
@@ -156,7 +155,6 @@ max-complexity = 15
 "src/flask_se_practice_config.py" = ["PLC0415"]
 "src/flask_se_theses.py" = ["C901"]
 "src/static/files/*" = ["SIM115"]
-"src/thesesImport.py" = ["SIM115", "C901"]
 "src/se_models.py" = ["C901"]
 
 [tool.djlint]

@@ -204,7 +204,7 @@ None.
 
 | Priority | Task | Effort | Depends on |
 |----------|------|--------|------------|
-| **M** | Dead code elimination — ✅ shipped: `vulture` dev dep + pre-push + CI gate at `--min-confidence 100` (excludes `migrations`/`thesesImport`; framework callback params whitelisted) | M | ✅ done (PR #217) |
+| **M** | Dead code elimination — ✅ shipped: `vulture` dev dep + pre-push + CI gate at `--min-confidence 100` (excludes `migrations`; framework callback params whitelisted) | M | ✅ done (PR #217) |
 | **M** | Code duplicates prevention — ✅ shipped: `pylint --disable=all --enable=similarities src/ tests/` gate added to pre-push + ci.yml (was ci-staging only) | M | ✅ done (PR #217) |
 | **L** | Eliminate remaining pyright ignores — categories B/D/G (framework-level attrs, Flask-Admin generics, bridge points) | L | — |
 | **P5** | Python 3.12+, Docker, static site, open source docs | M-S | Icebox |
@@ -243,7 +243,7 @@ None.
 | `flask_se_diplomas.py`, `flask_se_practice_admin.py`, `flask_se_config.py`, `flask_se_practice_config.py` | 97-99% | Done |
 | `se_models.py`, `flask_se_news.py`, `flask_se_practice.py`, `flask_se.py`, `se_sendmail.py` | 93-97% | Mostly done |
 | `flask_se_review.py`, `flask_se_theses.py`, `flask_se_auth.py`, `flask_se_admin.py`, `flask_se_internships.py`, `flask_se_crud.py` | 73-92% | Partial |
-| `thesesImport.py` | ~2% (in coverage omit) | Modeled, needs isolation |
+| `thesis_import.py` | new 2026-08-22, covered by `test_thesis_import.py` | Done (replaces `thesesImport.py`) |
 | `se_internship_forms.py` | 0% | Untested |
 | **TOTAL** | **92.26%** (reference 2026-08-15) | |
 
@@ -259,17 +259,22 @@ None.
 | `reportIncompatibleMethodOverride` | 2 | Flask-Admin method signature mismatch | Framework-level |
 | `reportGeneralTypeIssues` | 1 | Dict value union not narrowable | Trivial fix |
 
-**By file:** flask_se_review.py (30), flask_se_admin.py (24), flask_se_internships.py (17), thesesImport.py (16), flask_se_theses.py (9), others (29)
+**By file:** flask_se_review.py (30), flask_se_admin.py (24), flask_se_internships.py (17), flask_se_theses.py (9), others (29)
 
 ## Known bugs found in batch run
 
+**Resolved 2026-08-22** — `thesesImport.py` was removed (replaced by
+`thesis_import.py`); all 5 bugs below died with the scraper. The replacement
+module validates records, resolves lookups by name/code, and never calls
+`db.init_app` or `sys.exit` at module/import level.
+
 | Bug | Module | Impact |
 |-----|--------|--------|
-| `base_url + None` crashes when table has no `<a>` links | `thesesImport.py` (get_2019_371 etc.) | Scrape crashes on empty cells |
-| `supervisor.split()[-3]` IndexError on short names | `thesesImport.py` (get_2022_271) | Scrape crashes on 1-2 word names |
-| Wrong column index: checks cols[4] but uses cols[5] | `thesesImport.py` (get_2022_09_03_04) | Wrong file URL extracted |
-| Hardcoded `2019` in filename despite being `2022` | `thesesImport.py` (get_2022_09_03_04) | Wrong year in download filename |
-| `db.init_app(app)` at module level — blocks import after conftest | `thesesImport.py` | Requires import-time patching |
+| `base_url + None` crashes when table has no `<a>` links | ~~`thesesImport.py`~~ (get_2019_371 etc.) | Scrape crashes on empty cells |
+| `supervisor.split()[-3]` IndexError on short names | ~~`thesesImport.py`~~ (get_2022_271) | Scrape crashes on 1-2 word names |
+| Wrong column index: checks cols[4] but uses cols[5] | ~~`thesesImport.py`~~ (get_2022_09_03_04) | Wrong file URL extracted |
+| Hardcoded `2019` in filename despite being `2022` | ~~`thesesImport.py`~~ (get_2022_09_03_04) | Wrong year in download filename |
+| `db.init_app(app)` at module level — blocks import after conftest | ~~`thesesImport.py`~~ | Requires import-time patching |
 
 ## Known gaps found in session 3 retro
 

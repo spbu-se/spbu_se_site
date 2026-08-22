@@ -264,7 +264,7 @@ def create_app(
     """Application factory.
 
     ``app = create_app()`` at module level keeps the singleton semantics the
-    WSGI entry point, the import pipeline (extract_text/thesesImport) and the
+    WSGI entry point, the import pipeline (extract_text/thesis_import) and the
     test suite rely on. ``config_overrides`` lets tests and tooling build a
     differently-configured instance without import-time monkeypatching.
     """
@@ -289,7 +289,7 @@ def create_app(
     _init_admin_views(app)
     # Default: read SE_START_SCHEDULER (production leaves it unset → jobs run).
     # conftest sets it to "0" before importing so the suite never fires jobs.
-    # The import pipeline (extract_text.py, thesesImport.py) imports the app
+    # The import pipeline (extract_text.py, thesis_import.py) imports the app
     # without starting the scheduler either way.
     if start_scheduler is None:
         start_scheduler = os.environ.get("SE_START_SCHEDULER", "1") == "1"

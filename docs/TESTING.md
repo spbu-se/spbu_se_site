@@ -33,7 +33,7 @@ Where edge cases emerge during testing, improve process documentation: what was 
 |-------|--------|------|
 | Production modules | 90% line coverage | Measured on `src/` excluding one-shot scripts |
 | New modules | 50% line coverage | Before first commit to staging |
-| Excluded | `thesesImport.py`, `wsgi.py`, `extract_text.py` | One-shot importers/entrypoints — not exercised in normal operation |
+| Excluded | `wsgi.py`, `extract_text.py` | One-shot importers/entrypoints — not exercised in normal operation |
 
 Coverage is checked at staging→current gate. Steps below 90% block the merge.
 
@@ -66,7 +66,6 @@ Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_
 | Test | Count | Reason | Tracking |
 |------|-------|--------|----------|
 | Google OAuth callback | 1 | Requires OAuth session state not present in test | TODO.md Blocked |
-| theses_import runpy re-import | 1 | `runpy.run_module` re-imports `thesesImport` without patch | TODO.md tech debt |
 
 ### Current xfails — intermittent CI (strict=False)
 
@@ -104,7 +103,7 @@ Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass i
 
 Architectural issues that limit test coverage and require production code changes to resolve:
 
-- **thesesImport module-level side effects**: `db.init_app(app)` at import time forces import-time monkeypatching in conftest, which breaks xdist isolation. Module-level `download` flag and direct `sys.exit()` calls also leak state between tests. Fix: refactor into a callable function with dependency injection. **Status**: mitigated — `try/except RuntimeError` guard in source + session-seeded DB template, 22 stale xfails removed.
+- **thesis import module-level side effects** — **resolved 2026-08-22**: the legacy `thesesImport.py` (import-time `db.init_app`, module-level `download` flag, direct `sys.exit()`) was replaced by `thesis_import.py`, which is import-safe (no side effects), validates records, and collects per-record errors instead of exiting. Covered by `tests/test_thesis_import.py`.
 - **FTS5 index inside SQLite — no separate index management needed**
 - **OAuth external dependencies**: Full-flow VK and Google OAuth tests require external config files and network access. CI tests use mock stubs — real OAuth flow is only tested manually.
 - **Practice file upload branches**: Cyclomatic complexity in practice route handlers leaves ~30 untested code branches in file upload logic. Adding tests requires multipart fixture infrastructure.

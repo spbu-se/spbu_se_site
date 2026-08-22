@@ -51,7 +51,7 @@ Covers: module responsibilities, execution flow, template structure. Does not co
 | `se_sendmail.py` | Email notification service via SPbU SMTP |
 | `flask_se_crud.py` | Generic CRUD base class for admin views |
 | `extract_text.py` | Re-extract text content from thesis PDFs |
-| `thesesImport.py` | Import theses from external sources (web scraping, batch processing) |
+| `thesis_import.py` | Clean, validated bulk thesis importer (scripting API; no routes, no network I/O) |
 
 ### Configuration Modules
 
@@ -81,7 +81,7 @@ Three background jobs run within the Flask context (job specs are passed to
 
 Scheduler start is explicit: production leaves `SE_START_SCHEDULER` unset (jobs
 run), while `tests/conftest.py` sets it to `0` before importing so the suite and
-the import pipeline (`extract_text.py`, `thesesImport.py`) never fire jobs.
+the import pipeline (`extract_text.py`, `thesis_import.py`) never fire jobs.
 
 > **Mail + staging**: the scheduler runs in every gunicorn/uwsgi worker, so each
 > job would fire N times per period. `se_sendmail.py` guards this two ways: (1)
