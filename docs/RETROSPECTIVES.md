@@ -1815,3 +1815,24 @@ Changes analyzed: suite-wide test optimization across 43 test files (~14k SLOC) 
 **Fix**: none needed at the process level — post-batch reconciliation (single full-suite run + `git diff --name-only`) is now part of this stacked-PR flow; the xdist/cov flakes are environment noise, documented here.
 
 **State at handoff**: branch `refactor/test-optimization` (from `feat/security-csp-cookie-hardening` `93cdb8b`). Three commits: `20955ef` (13 files) + `deab6d7` (30 files) + `a35e2fd` (retro). Full suite green: 1332 passed / 4 skipped / 3 xfailed / 1 xpassed. Pre-push gate green. **Stacked PR `spbu-se/spbu_se_site#241` created** (head `iakov:refactor/test-optimization`, base `current`) — created via `--body-file` after the inline-body quoting failure. Next: CI green on #241 → merge parent PR #240 first, then rebase #241 onto the merged `current`, then squash-merge #241. This supplementary entry (gh quoting + final state) is the PR's last commit.
+
+### Retrospective — 2026-08-22: clean thesis import API (feat/thesis-import-api)
+
+Changes analyzed: replaced the 1802-line legacy scraper `src/thesesImport.py` with a clean, import-safe bulk importer `src/thesis_import.py` (ThesisRecord DTO + DB-backed `validate()` + skip-and-report `import_theses()`), shipped a scripting example `scripts/import_theses_csv.py` (`--dry-run`), wrote `tests/test_thesis_import.py` (27 tests, module at 93% coverage), removed the dead dev dep `lxml`, and swept every doc/config reference to the removed module.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| TODO.md's "Known bugs found in batch run" table listed 5 thesesImport bugs as open | The table is a historical record from 2026-07; all 5 bugs were actually fixed in commit `a39a79f` (2026-07-09) — the doc was never reconciled | Marked the table as **Resolved 2026-08-22** with a strikethrough on the module name; the new module replaces the scraper entirely |
+| "thesesImport ~2% coverage" in TODO.md's module table | Misleading: the module was in the coverage `omit` list (`pyproject.toml:55`), so 2% was a non-measurement, not a real number | Replaced the row with `thesis_import.py` (covered by its own test file); removed the omit entry |
+| `validate()` raising `RuntimeError: Working outside of application context` in the first test run | `validate()` resolves lookups (supervisor/type/course) against the DB, so it requires an active app context — 12 validation tests called it bare | Tests now use the `app_ctx`/`seeded_client` fixtures (matching the rest of the suite); the module docstring documents the app-context contract |
+| ruff TRY003 flagged script error messages, and PERF401 flagged two loop-appends in the module | TRY003 is enabled globally and rejects long literals at `raise`; PERF401 prefers `list.extend` over loop-append | Script raises a custom `CsvError` with `# noqa: TRY003` (the codebase's `EnsureSchemaError` pattern carries data, not literals); module uses `lines.extend(...)`/list-comprehension candidates |
+
+**Pattern recurrence**: NO.
+
+**What went well**: the API is import-safe by construction (no `db.init_app`, no `sys.exit`, no module-level mutable state — the two `AI_AGENT_EXPERIENCE.md` failure patterns the old module caused are gone and their entries now carry RESOLVED headers); lookups resolve by `Worktype.type`/`Courses.code`/`users.last_name` instead of positional ids (config survives seed reordering); skip-and-report `ImportSummary` keeps a bad record from aborting a backfill; the `--dry-run` CSV script gives a safe first-run; full suite green (1336 passed).
+
+**What went wrong**: `**overrides: object` in the test helper fought basedpyright across three edits (dict-typed kwargs widen every field) before switching to explicit `str()/int()/None-or-str` coercion; the dead `lxml` dep removal also pulled `frozen-flask`/`alembic`/`mako`/`flask-migrate` out of the environment (they were only present via lxml's chain) — harmless but a larger `uv` diff than expected.
+
+**Fix**: none needed at the process level — the endpoint-safety constraint (admin-only, POST, CSRF if the importer is ever exposed as a route) is recorded in the module docstring; the `scripts/` example documents `SE_START_SCHEDULER=0` before app import.
+
+**State at handoff**: branch `feat/thesis-import-api` from `upstream/current`. New files `src/thesis_import.py`, `scripts/import_theses_csv.py`, `tests/test_thesis_import.py`; removed `src/thesesImport.py`, `tests/test_theses_import.py`; config/docs swept (pyproject omit+ruff-ignore, vulture exclude in `.pre-commit-config.yaml` + both CI workflows, ARCHITECTURE/TESTING/TOOLING/DESIGN_DECISIONS/AI_AGENT_EXPERIENCE/TODO/RETROSPECTIVES). Full suite 1336 passed / 4 skipped / 2 xfailed / 1 xpassed; pre-push gate green.

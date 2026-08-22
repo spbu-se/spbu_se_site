@@ -94,7 +94,7 @@ with no release artifacts or notes.
 
 ## [2026-08-11] Application factory
 
-**Context**: `app` was a module-level `Flask(__name__)` with config, extensions, routes, and the scheduler all set up at import. This forced tests to monkeypatch `flask_se_config` globals *before* import (`tests/conftest.py`), a per-import `db.app = app; db.init_app(app)` idiom repeated in `extract_text.py`/`thesesImport.py`, and the APScheduler to start in every worker.
+**Context**: `app` was a module-level `Flask(__name__)` with config, extensions, routes, and the scheduler all set up at import. This forced tests to monkeypatch `flask_se_config` globals *before* import (`tests/conftest.py`), a per-import `db.app = app; db.init_app(app)` idiom repeated in `extract_text.py`/`thesesImport.py`, and the APScheduler to start in every worker. *(Note 2026-08-22: `thesesImport.py` was removed and replaced by `thesis_import.py`, which never calls `db.init_app` at import — the per-import idiom now lives only in `extract_text.py`.)*
 
 **Decision**: Introduce `create_app(config_overrides=None, start_scheduler=None)` in `flask_se.py`. The module-level `app = create_app()` singleton is preserved so `wsgi.py`, the import pipeline, and `from flask_se import app` in tests keep working unchanged. Config assignment moved into `_configure_app()`; extensions use `init_app()` (migrate, csrf); scheduler start is gated by the `SE_START_SCHEDULER` env var (production unset → runs; conftest sets `0` → never fires).
 

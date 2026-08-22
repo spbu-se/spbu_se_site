@@ -53,6 +53,13 @@ uv run python scripts/find_dup_coverage.py coverage_data.json
 
 ## db.init_app: "already registered" on module-level import
 
+> **RESOLVED 2026-08-22** — the module that triggered this, `thesesImport.py`,
+> was removed and replaced by `thesis_import.py`, which never calls
+> `db.init_app` at import time (pure library, no side effects). Keep this
+> entry as the rationale for the import-safety contract: **any new module that
+> needs the DB must be called inside `with app.app_context():`, never wired at
+> import.**
+
 **When:** Importing a module that calls `db.init_app(app)` at module level when `conftest.py` has already registered the same `db` on the same `app`.
 
 **Attempts:**
@@ -63,7 +70,7 @@ uv run python scripts/find_dup_coverage.py coverage_data.json
 
 **Error:** `RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app.`
 
-**Occurs in:** `thesesImport.py:20` — `from flask_se import app; db.init_app(app)` runs at import time.
+**Occurs in:** ~~`thesesImport.py:20`~~ (removed) — `from flask_se import app; db.init_app(app)` runs at import time.
 
 **Root cause:** Flask-SQLAlchemy v3 raises when `init_app` is called twice on the same app. `conftest.py` calls it first via `from flask_se import app, db`. Any later import of `thesesImport` calls it again.
 
@@ -95,6 +102,12 @@ except RuntimeError:
 ```
 
 ## thesesImport: module-level state breaks test isolation
+
+> **RESOLVED 2026-08-22** — `thesesImport.py` removed (see above). The
+> replacement `thesis_import.py` has no module-level mutable state: it defines
+> no `download` flag, never calls `sys.exit`, and its errors are returned as
+> per-record lists via `validate()`/`ImportSummary`. The pattern below is kept
+> as the cautionary tale that motivated the design.
 
 **When:** Writing tests for functions in `thesesImport.py` that share module-level state.
 
