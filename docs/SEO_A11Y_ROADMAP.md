@@ -42,6 +42,8 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 ## 3. Deferred ideas (return later — high value)
 
 - WCAG 2.1 AA pass + optional `pytest-axe`/manual gate + `.skills/a11y-audit`.
+- **SRI for external scripts** — deferred: all external scripts (topbar, Yandex Metrica, Maps) are dynamically injected at runtime; SRI cannot verify dynamically created `<script>` elements. Self-hosted assets are already under `'self'` CSP. No action planned.
+- **Inline `<style>` nonces** — canceled: `style-src 'unsafe-inline'` is an explicit CSP architecture decision. Only one `<style>` block exists (diplomas/theme.html:12-16); CSS `'unsafe-inline'` is safe under CSP2+ (cannot inject script via CSS alone) and noncing `<style>` would require structural refactoring of the template.
 
 ### CSP + security headers — shipped 2026-08-20 (`feat/security-headers`), strict nonce-CSP follow-up shipped 2026-08-22 (`feat/strict-nonce-csp`)
 
@@ -58,10 +60,11 @@ v2026.08.20 (`feat/remove-gtm-add-metrica`).
 
 - Per-request `csp_nonce()` (via `secrets.token_urlsafe(16)`) replaces `'unsafe-inline'` in `script-src`.
 - Every inline `<script>` in all 31 template files carries `nonce="{{ csp_nonce() }}"`.
-- `'unsafe-eval'` retained (Maps/Metrica require eval).
+- `'unsafe-eval'` retained — rationale: `svg-injector.min.js` uses `new Function()`, Yandex Metrica calls eval, Yandex Maps v3 module loader uses eval, Google Maps callback system uses eval.
 - Plotly.js v2.12.1 inline bundles extracted to `src/static/libs/plotly/plotly-2.12.1.min.js` (2 curriculum pages).
 - `'unsafe-inline'` removed from `script-src` — only `style-src` still allows it (CSS safe under CSP2+).
 - `before_request` sets the nonce on every request; non-matching nonces are harmless on non-HTML responses.
+- CSP violation reporting: `report-uri /csp-report` appended to `_CSP_BASE`; POST endpoint at `/csp-report` validates JSON, logs via `app.logger.warning`, returns 204, rate-limited (100 req/min/IP).
 
 **Original allowlist CSP (Option B, shipped 2026-08-20)**:
 

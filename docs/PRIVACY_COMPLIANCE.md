@@ -22,8 +22,8 @@ The operator is the Saint Petersburg State University (СПбГУ); the departme
 
 | Storage | Type | Purpose | Status | Consent needed? |
 |---------|------|---------|--------|-----------------|
-| `se_session` | first-party cookie (HttpOnly, SameSite=Lax, `Secure` gated on `SE_COOKIE_SECURE`) | Flask session: auth, CSRF, flash messages | Always set | No — strictly necessary (ePrivacy exemption; GDPR Art. 6(1)(b)/(f)) |
-| `se_consent` | first-party cookie (SameSite=Lax) + `se_consent_choice` localStorage | Stores the granular consent decision (`essential[,statistics][,marketing]`); written by `js/se_consent.js`, read by Flask to gate analytics | Set after the banner decision; the server renders no optional tracker before it | No — it *is* the consent record (ePrivacy Art. 7/GDPR requires consent to be provable) |
+| `__Host-se_session` | first-party cookie (HttpOnly, SameSite=Lax, `Secure` gated on `SE_COOKIE_SECURE`) | Flask session: auth, CSRF, flash messages | Always set | No — strictly necessary (ePrivacy exemption; GDPR Art. 6(1)(b)/(f)) |
+| `se_consent` | first-party cookie (SameSite=Lax, `Secure`) + `se_consent_choice` localStorage | Stores the granular consent decision (`essential[,statistics][,marketing]`); written by `js/se_consent.js`, read by Flask to gate analytics | Set after the banner decision; the server renders no optional tracker before it | No — it *is* the consent record (ePrivacy Art. 7/GDPR requires consent to be provable) |
 | `modal_cookies` | localStorage | Remembers the legacy cookie-banner choice | **Removed in the consent-gate PR** (replaced by `se_consent`) | N/A |
 | `_ym_*` cookies (`_ym_uid`, `_ym_d`, `_ym_isad`, …) | third-party (Yandex Metrica) | Visit statistics | **Dormant** — no counter id configured; when provisioned, the snippet renders only for visitors who accepted the `statistics` category | **Yes** (ePrivacy/GDPR) once enabled |
 | `_ga*` / GTM cookies | third-party (Google) | Analytics/marketing via GTM | **Removed in v2026.08.20** | Was required — GTM ran without consent (see §2.5) |

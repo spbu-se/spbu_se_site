@@ -52,6 +52,10 @@ class TestCspAllowlist:
         assert "api-maps.yandex.ru" in csp
         assert "maps.googleapis.com" in csp
 
+    def test_csp_has_report_uri(self, seeded_client):
+        csp = seeded_client.get("/").headers["Content-Security-Policy"]
+        assert "report-uri /csp-report" in csp
+
     def test_no_unsafe_inline_in_script_src(self, seeded_client):
         csp = seeded_client.get("/").headers["Content-Security-Policy"]
         script_src = csp.split("script-src")[1].split(";")[0]
