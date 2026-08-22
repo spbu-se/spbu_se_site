@@ -74,7 +74,8 @@ class TestAdminDeep:
             code={200, 302, 404},
         )
 
-    def test_admin_review_status_change_to_rejected(self, diploma_themes_for_review):
+    @pytest.mark.parametrize("status,comment", [("4", "Rejected"), ("1", "Needs update")])
+    def test_admin_review_status_change(self, diploma_themes_for_review, status, comment):
         diploma_themes_for_review.get("/admin/reviewdiplomathemes/edit/?id=1")
         resp = diploma_themes_for_review.post(
             "/admin/reviewdiplomathemes/edit/?id=1",
@@ -82,25 +83,8 @@ class TestAdminDeep:
                 "title": "Test Theme for Review",
                 "description": "Test description",
                 "requirements": "Req",
-                "status": "4",
-                "comment": "Rejected",
-                "author": "1",
-                "supervisor": "1",
-                "consultant": "1",
-            },
-        )
-        assert resp.status_code == 302
-
-    def test_admin_review_status_change_to_needs_update(self, diploma_themes_for_review):
-        diploma_themes_for_review.get("/admin/reviewdiplomathemes/edit/?id=1")
-        resp = diploma_themes_for_review.post(
-            "/admin/reviewdiplomathemes/edit/?id=1",
-            data={
-                "title": "Test Theme for Review",
-                "description": "Test description",
-                "requirements": "Req",
-                "status": "1",
-                "comment": "Needs update",
+                "status": status,
+                "comment": comment,
                 "author": "1",
                 "supervisor": "1",
                 "consultant": "1",

@@ -2,6 +2,8 @@
 import smtplib
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 
 def _seed_diploma_themes(status: int = 0):
     from se_models import DiplomaThemes, Users, db
@@ -18,51 +20,21 @@ def _seed_diploma_themes(status: int = 0):
 
 
 class TestSendMailEdges:
+    @pytest.mark.parametrize(
+        "attr,exc",
+        [
+            ("login", smtplib.SMTPNotSupportedError),
+            ("login", smtplib.SMTPException),
+            ("sendmail", smtplib.SMTPRecipientsRefused({})),
+            ("sendmail", smtplib.SMTPDataError(554, b"Data error")),
+            ("sendmail", smtplib.SMTPNotSupportedError),
+        ],
+    )
     @patch("smtplib.SMTP")
-    def test_send_mail_smtp_not_supported_on_login(self, mock_smtp, notification_in_db):
+    def test_send_mail_smtp_errors(self, mock_smtp, notification_in_db, attr, exc):
         mock_server = MagicMock()
         mock_smtp.return_value = mock_server
-        mock_server.login.side_effect = smtplib.SMTPNotSupportedError
-        from se_sendmail import notification_send_mail
-
-        notification_send_mail()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_send_mail_smtp_exception_on_login(self, mock_smtp, notification_in_db):
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.login.side_effect = smtplib.SMTPException
-        from se_sendmail import notification_send_mail
-
-        notification_send_mail()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_send_mail_recipients_refused(self, mock_smtp, notification_in_db):
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.sendmail.side_effect = smtplib.SMTPRecipientsRefused({})
-        from se_sendmail import notification_send_mail
-
-        notification_send_mail()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_send_mail_data_error(self, mock_smtp, notification_in_db):
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.sendmail.side_effect = smtplib.SMTPDataError(554, b"Data error")
-        from se_sendmail import notification_send_mail
-
-        notification_send_mail()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_send_mail_smtp_not_supported_on_sendmail(self, mock_smtp, notification_in_db):
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.sendmail.side_effect = smtplib.SMTPNotSupportedError
+        getattr(mock_server, attr).side_effect = exc
         from se_sendmail import notification_send_mail
 
         notification_send_mail()
@@ -87,6 +59,30 @@ class TestSendMailEdges:
 
 
 class TestDiplomaThemesSendMail:
+    @pytest.mark.parametrize(
+        "attr,exc",
+        [
+            ("ehlo", smtplib.SMTPHeloError(500, b"HELO failed")),
+            ("login", smtplib.SMTPAuthenticationError(535, b"Auth failed")),
+            ("login", smtplib.SMTPNotSupportedError),
+            ("login", smtplib.SMTPException),
+            ("sendmail", smtplib.SMTPRecipientsRefused({})),
+            ("sendmail", smtplib.SMTPDataError(554, b"Data error")),
+            ("sendmail", smtplib.SMTPSenderRefused(501, b"Bad sender", "from@test.com")),
+            ("sendmail", smtplib.SMTPNotSupportedError),
+        ],
+    )
+    @patch("smtplib.SMTP")
+    def test_diploma_themes_smtp_errors(self, mock_smtp, seeded_app_ctx, attr, exc):
+        _seed_diploma_themes()
+        mock_server = MagicMock()
+        mock_smtp.return_value = mock_server
+        getattr(mock_server, attr).side_effect = exc
+        from se_sendmail import notification_send_diploma_themes_on_review
+
+        notification_send_diploma_themes_on_review()
+        assert mock_smtp.called
+
     @patch("smtplib.SMTP")
     def test_diploma_themes_happy_path(self, mock_smtp, seeded_app_ctx):
         _seed_diploma_themes()
@@ -97,96 +93,6 @@ class TestDiplomaThemesSendMail:
         notification_send_diploma_themes_on_review()
         assert mock_smtp.called
         mock_server.sendmail.assert_called_once()
-
-    @patch("smtplib.SMTP")
-    def test_diploma_themes_helo_error(self, mock_smtp, seeded_app_ctx):
-        _seed_diploma_themes()
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.ehlo.side_effect = smtplib.SMTPHeloError(500, b"HELO failed")
-        from se_sendmail import notification_send_diploma_themes_on_review
-
-        notification_send_diploma_themes_on_review()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_diploma_themes_auth_error(self, mock_smtp, seeded_app_ctx):
-        _seed_diploma_themes()
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.login.side_effect = smtplib.SMTPAuthenticationError(535, b"Auth failed")
-        from se_sendmail import notification_send_diploma_themes_on_review
-
-        notification_send_diploma_themes_on_review()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_diploma_themes_smtp_not_supported_on_login(self, mock_smtp, seeded_app_ctx):
-        _seed_diploma_themes()
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.login.side_effect = smtplib.SMTPNotSupportedError
-        from se_sendmail import notification_send_diploma_themes_on_review
-
-        notification_send_diploma_themes_on_review()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_diploma_themes_smtp_exception_on_login(self, mock_smtp, seeded_app_ctx):
-        _seed_diploma_themes()
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.login.side_effect = smtplib.SMTPException
-        from se_sendmail import notification_send_diploma_themes_on_review
-
-        notification_send_diploma_themes_on_review()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_diploma_themes_recipients_refused(self, mock_smtp, seeded_app_ctx):
-        _seed_diploma_themes()
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.sendmail.side_effect = smtplib.SMTPRecipientsRefused({})
-        from se_sendmail import notification_send_diploma_themes_on_review
-
-        notification_send_diploma_themes_on_review()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_diploma_themes_data_error(self, mock_smtp, seeded_app_ctx):
-        _seed_diploma_themes()
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.sendmail.side_effect = smtplib.SMTPDataError(554, b"Data error")
-        from se_sendmail import notification_send_diploma_themes_on_review
-
-        notification_send_diploma_themes_on_review()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_diploma_themes_sender_refused(self, mock_smtp, seeded_app_ctx):
-        _seed_diploma_themes()
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.sendmail.side_effect = smtplib.SMTPSenderRefused(
-            501, b"Bad sender", "from@test.com"
-        )
-        from se_sendmail import notification_send_diploma_themes_on_review
-
-        notification_send_diploma_themes_on_review()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_diploma_themes_smtp_not_supported_on_sendmail(self, mock_smtp, seeded_app_ctx):
-        _seed_diploma_themes()
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.sendmail.side_effect = smtplib.SMTPNotSupportedError
-        from se_sendmail import notification_send_diploma_themes_on_review
-
-        notification_send_diploma_themes_on_review()
-        assert mock_smtp.called
 
     @patch("smtplib.SMTP")
     def test_diploma_themes_counts_need_update_status(self, mock_smtp, seeded_app_ctx):

@@ -8,39 +8,31 @@ from conftest import _approve_temp_thesis, _make_temp_thesis, assert_ok, assert_
 
 
 class TestAuth:
-    def test_login_form_renders(self, seeded_client):
-        assert_ok(seeded_client, "/login.html")
+    @pytest.mark.parametrize(
+        "path,code",
+        [
+            ("/login.html", {200}),
+            ("/upload_avatar", {200, 302}),
+            ("/logout", {200, 302}),
+            ("/register_basic.html", {200}),
+            ("/profile.html", {200, 302}),
+        ],
+    )
+    def test_smoke_get_routes(self, seeded_client, path, code):
+        assert_ok(seeded_client, path, code=code)
 
-    def test_upload_avatar_redirects(self, seeded_client):
-        assert_ok(seeded_client, "/upload_avatar", code={200, 302})
-
-    def test_login_form_accepts_submission(self, seeded_client):
-        resp = seeded_client.post("/login.html", data={"email": "test@spbu.ru", "password": "test"})
-        assert resp.status_code in (200, 302)
-
-    def test_logout_redirects(self, seeded_client):
-        assert_ok(seeded_client, "/logout", code={200, 302})
-
-    def test_register_page_loads(self, seeded_client):
-        assert_ok(seeded_client, "/register_basic.html")
-
-    def test_profile_redirects_when_unauth(self, seeded_client):
-        assert_ok(seeded_client, "/profile.html", code={200, 302})
-
-    def test_login_invalid_password(self, seeded_client):
-        resp = seeded_client.post(
-            "/login.html", data={"email": "a.terekhov@spbu.ru", "password": "wrong"}
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_login_nonexistent_user(self, seeded_client):
-        resp = seeded_client.post(
-            "/login.html", data={"email": "noone@spbu.ru", "password": "test"}
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_login_empty_fields(self, seeded_client):
-        resp = seeded_client.post("/login.html", data={"email": "", "password": ""})
+    @pytest.mark.parametrize(
+        "email,password",
+        [
+            ("test@spbu.ru", "test"),
+            ("a.terekhov@spbu.ru", "wrong"),
+            ("noone@spbu.ru", "test"),
+            ("", ""),
+            ("a.terekhov@spbu.ru", "any"),
+        ],
+    )
+    def test_login_submission(self, seeded_client, email, password):
+        resp = seeded_client.post("/login.html", data={"email": email, "password": password})
         assert resp.status_code in (200, 302)
 
     def test_profile_loads_when_logged_in(self, logged_client):
@@ -50,45 +42,30 @@ class TestAuth:
         resp = logged_client.get("/logout")
         assert resp.status_code in (200, 302)
 
-    def test_register_duplicate_email(self, seeded_client):
-        resp = seeded_client.post(
-            "/register_basic.html",
-            data={
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {
                 "email": "a.terekhov@spbu.ru",
                 "password": "test123",
                 "first_name": "Андрей",
                 "last_name": "Терехов",
             },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_register_missing_fields(self, seeded_client):
-        resp = seeded_client.post("/register_basic.html", data={"email": "new@spbu.ru"})
-        assert resp.status_code in (200, 302)
-
-    def test_register_valid_new_user(self, seeded_client):
-        resp = seeded_client.post(
-            "/register_basic.html",
-            data={
+            {"email": "new@spbu.ru"},
+            {
                 "email": "new.user@spbu.ru",
                 "password": "securePass123",
                 "first_name": "New",
                 "last_name": "User",
             },
-        )
+        ],
+    )
+    def test_register_submission(self, seeded_client, data):
+        resp = seeded_client.post("/register_basic.html", data=data)
         assert resp.status_code in (200, 302)
 
-    def test_login_valid_credentials(self, seeded_client):
-        resp = seeded_client.post(
-            "/login.html",
-            data={
-                "email": "a.terekhov@spbu.ru",
-                "password": "any",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_login_legacy_hmac_hash_fallback(self, seeded_client):
+    @pytest.mark.parametrize("password", ["legacy-pass", "wrong-password"])
+    def test_login_hmac_fallback(self, seeded_client, password):
         from se_models import Users, db
 
         # Simulate a legacy HMAC password hash: algorithm$salt$hexdigest.
@@ -96,7 +73,6 @@ class TestAuth:
         # patch it to False to force the legacy HMAC fallback branch in login_index.
         # The digest is a precomputed constant (HMAC-SHA256 of "legacy-pass" with
         # salt "somesalt") so the test avoids an inline password->hash data flow.
-        password = "legacy-pass"
         salt = "somesalt"
         digest = "01b4596cedd011ac77ee162f6844c20ae5477b8f742139bd23fa1f30abee68c2"
         u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
@@ -107,22 +83,6 @@ class TestAuth:
             resp = seeded_client.post(
                 "/login.html",
                 data={"email": "a.terekhov@spbu.ru", "password": password},
-            )
-        assert resp.status_code in (200, 302)
-
-    def test_login_hmac_fallback_wrong_password(self, seeded_client):
-        from se_models import Users, db
-
-        salt = "somesalt"
-        digest = "01b4596cedd011ac77ee162f6844c20ae5477b8f742139bd23fa1f30abee68c2"
-        u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
-        u.password_hash = f"sha256${salt}${digest}"
-        db.session.commit()
-
-        with patch("flask_se_auth.check_password_hash", return_value=False):
-            resp = seeded_client.post(
-                "/login.html",
-                data={"email": "a.terekhov@spbu.ru", "password": "wrong-password"},
             )
         assert resp.status_code in (200, 302)
 
@@ -265,10 +225,6 @@ class TestLoginRequiredRedirects:
     def test_password_recovery_submission(self, seeded_client):
         resp = seeded_client.post("/password_recovery.html", data={"email": "a.terekhov@spbu.ru"})
         assert resp.status_code in (200, 302)
-
-    def test_profile_update(self, logged_client):
-        resp = logged_client.get("/profile.html")
-        assert resp.status_code == 200
 
 
 class TestUserExport:
@@ -485,57 +441,36 @@ class TestNewsItems:
 
 
 class TestNewsSubmit:
-    def test_news_submit_form_loads(self, logged_client):
-        assert_ok(logged_client, "/news/submit.html")
-
-    def test_news_submit_post(self, logged_client):
-        resp = logged_client.post(
-            "/news/submit.html",
-            data={
-                "title": "Test news post",
-                "text": "This is a test news post content.",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_news_submit_empty_title(self, logged_client):
-        resp = logged_client.post(
-            "/news/submit.html",
-            data={
-                "title": "",
-                "text": "Some content",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_news_submit_with_uri(self, logged_client):
-        resp = logged_client.post(
-            "/news/submit.html",
-            data={
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {"title": "Test news post", "text": "This is a test news post content."},
+            {"title": "", "text": "Some content"},
+            {
                 "title": "External link post",
                 "uri": "https://example.com/news",
                 "text": "Check out this link",
             },
-        )
+        ],
+    )
+    def test_news_submit_post(self, logged_client, data):
+        resp = logged_client.post("/news/submit.html", data=data)
         assert resp.status_code in (200, 302)
 
 
 class TestNewsVote:
-    def test_news_vote_up(self, logged_client):
-        resp = logged_client.post("/news/post_vote", data={"post_id": 1, "upvote": 1})
-        assert resp.status_code in (200, 302)
-
-    def test_news_vote_down(self, logged_client):
-        resp = logged_client.post("/news/post_vote", data={"post_id": 1, "upvote": 0})
-        assert resp.status_code in (200, 302)
-
-    def test_news_vote_nonexistent_post(self, logged_client):
-        resp = logged_client.post("/news/post_vote", data={"post_id": 99999, "upvote": 1})
-        assert resp.status_code in (200, 302, 404)
-
-    def test_news_vote_missing_params(self, logged_client):
-        resp = logged_client.post("/news/post_vote", data={})
-        assert resp.status_code in (200, 302)
+    @pytest.mark.parametrize(
+        "data,code",
+        [
+            ({"post_id": 1, "upvote": 1}, {200, 302}),
+            ({"post_id": 1, "upvote": 0}, {200, 302}),
+            ({"post_id": 99999, "upvote": 1}, {200, 302, 404}),
+            ({}, {200, 302}),
+        ],
+    )
+    def test_news_vote(self, logged_client, data, code):
+        resp = logged_client.post("/news/post_vote", data=data)
+        assert resp.status_code in code
 
 
 class TestNewsDelete:
@@ -558,10 +493,6 @@ class TestNewsDelete:
 
 
 class TestNewsDeepBehavior:
-    def test_news_post_with_uri_redirects(self, seeded_client):
-        resp = seeded_client.get("/news/item.html?id=1")
-        assert resp.status_code in (200, 302)
-
     def test_news_post_view_count_increments(self, seeded_client):
         before = seeded_client.get("/news/item.html?id=2")
         assert before.status_code in (200, 302)
@@ -598,26 +529,11 @@ class TestNewsLoggedIn:
 
 
 class TestTheses:
-    def test_theses_search_loads(self, seeded_client):
-        assert_ok(seeded_client, "/theses.html")
-
-    def test_theses_with_search_param(self, seeded_client):
-        assert_ok(seeded_client, "/theses.html?search=python")
-
-    def test_theses_with_year_filter(self, seeded_client):
-        assert_ok(seeded_client, "/theses.html?startdate=2020&enddate=2024")
-
-    def test_theses_fetch(self, seeded_client):
-        assert_ok(seeded_client, "/fetch_theses")
-
     def test_theses_tmp_list(self, admin_client):
         assert_ok(admin_client, "/theses_tmp.html")
 
     def test_theses_post_form(self, seeded_client):
         assert_ok_or_redirect(seeded_client, "/post_theses")
-
-    def test_theses_download_nonexistent(self, seeded_client):
-        assert_ok(seeded_client, "/thesis_download", code={200, 302})
 
     def test_theses_delete_tmp(self, admin_client):
         assert_ok(admin_client, "/theses_delete_tmp", methods={"POST"}, code={200, 302, 404})
@@ -662,9 +578,6 @@ class TestThesisSearch:
 
 
 class TestThesisTempCrud:
-    def test_theses_tmp_list_empty(self, admin_client):
-        assert_ok(admin_client, "/theses_tmp.html")
-
     def test_theses_post_form_loads(self, logged_client):
         assert_ok(logged_client, "/post_theses", code={200, 302})
 
@@ -681,38 +594,20 @@ class TestThesisTempCrud:
         )
         assert resp.status_code in (200, 302)
 
-    def test_theses_delete_tmp_nonexistent(self, admin_client):
-        assert_ok(admin_client, "/theses_delete_tmp", methods={"POST"}, code={200, 302, 404})
-
-    def test_theses_add_tmp_nonexistent(self, admin_client):
-        assert_ok(admin_client, "/theses_add_tmp", methods={"POST"}, code={200, 302, 404})
-
     def test_theses_post_form_filters(self, seeded_client):
         assert_ok(seeded_client, "/theses.html?type_id=2")
         assert_ok(seeded_client, "/theses.html?course_id=1")
         assert_ok(seeded_client, "/theses.html?area_id=1")
 
-    def test_theses_download_increments_counter(self, seeded_client):
-        resp = seeded_client.get("/thesis_download?thesis_id=1")
-        assert resp.status_code in (200, 302)
-
     def test_theses_post_with_filter_params(self, seeded_client):
         assert_ok(seeded_client, "/post_theses?type_id=2")
         assert_ok(seeded_client, "/post_theses?course_id=1")
 
-    def test_theses_add_tmp_with_id(self, admin_client):
+    @pytest.mark.parametrize("route", ["/theses_add_tmp", "/theses_delete_tmp"])
+    def test_theses_tmp_with_id(self, admin_client, route):
         assert_ok(
             admin_client,
-            "/theses_add_tmp",
-            data={"thesis_id": 1},
-            methods={"POST"},
-            code={200, 302},
-        )
-
-    def test_theses_delete_tmp_with_id(self, admin_client):
-        assert_ok(
-            admin_client,
-            "/theses_delete_tmp",
+            route,
             data={"thesis_id": 1},
             methods={"POST"},
             code={200, 302},
@@ -779,9 +674,6 @@ class TestInternships:
 
 
 class TestInternshipsBehavior:
-    def test_internship_add_page(self, logged_client):
-        assert_ok(logged_client, "/internships/add")
-
     def test_internship_add_submit(self, logged_client):
         resp = logged_client.post(
             "/internships/add",
@@ -796,13 +688,6 @@ class TestInternshipsBehavior:
     def test_internship_detail(self, seeded_client):
         assert_ok(seeded_client, "/internships/1", code={200, 302, 404})
 
-    def test_internship_detail_nonexistent(self, seeded_client):
-        resp = seeded_client.get("/internships/99999")
-        assert resp.status_code in (200, 302, 404)
-
-    def test_internship_update_page(self, logged_client):
-        assert_ok(logged_client, "/internships/1/update", code={200, 302, 404})
-
     def test_internship_update_submit(self, logged_client):
         resp = logged_client.post(
             "/internships/1/update",
@@ -816,14 +701,9 @@ class TestInternshipsBehavior:
     def test_internship_delete(self, logged_client):
         assert_ok(logged_client, "/internships/1/delete", methods={"POST"}, code={200, 302, 404})
 
-    def test_internship_fetch_filtered(self, seeded_client):
-        assert_ok(seeded_client, "/internships/fetch_internships")
-
-    def test_internship_fetch_with_tag(self, seeded_client):
-        assert_ok(seeded_client, "/internships/fetch_internships?tag=python")
-
-    def test_internship_fetch_with_format(self, seeded_client):
-        assert_ok(seeded_client, "/internships/fetch_internships?format=1")
+    @pytest.mark.parametrize("query", ["", "?tag=python", "?format=1"])
+    def test_internship_fetch(self, seeded_client, query):
+        assert_ok(seeded_client, f"/internships/fetch_internships{query}")
 
 
 class TestInternshipsLoggedIn:
@@ -859,9 +739,6 @@ class TestDiplomas:
 
 
 class TestDiplomasBehavior:
-    def test_diploma_add_theme_page(self, logged_client):
-        assert_ok(logged_client, "/diplomas/add_theme.html")
-
     def test_diploma_add_theme_submit(self, logged_client):
         resp = logged_client.post(
             "/diplomas/add_theme.html",
@@ -912,19 +789,6 @@ class TestDiplomasBehavior:
             code={200, 302},
         )
 
-    def test_diploma_user_themes(self, logged_client):
-        assert_ok(logged_client, "/diplomas/user_themes.html", code={200, 302})
-
-    def test_diploma_theme_detail(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/theme.html?id=1", code={200, 302})
-
-    def test_diploma_theme_nonexistent(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/theme.html?id=99999", code={200, 302, 404})
-
-    def test_diploma_index_with_filters(self, seeded_client):
-        assert_ok(seeded_client, "/diplomas/")
-        assert_ok(seeded_client, "/diplomas/index.html")
-
 
 class TestDiplomasLoggedIn:
     @pytest.mark.parametrize(
@@ -959,82 +823,31 @@ class TestPractice:
         assert_ok(seeded_client, path, code={200, 302})
 
     @pytest.mark.parametrize(
-        "path",
+        "path,code",
         [
-            "/practice/new/",
-            "/practice/data_for_practice/",
-            "/practice/choosing_topic/",
-            "/practice/edit_theme/",
-            "/practice/goals_tasks/",
-            "/practice/add_new_report/",
-            "/practice/workflow/",
-            "/practice/preparation_for_defense/",
-            "/practice/defense/",
-            "/practice_staff/thesis/",
-            "/practice_staff/reports/",
-            "/practice_staff/finished_thesises/",
-            "/practice_admin/choose_area_worktype",
-            "/practice_admin/finished_thesises",
-            "/practice_admin/thesis",
-            "/practice_admin/yandex_code",
+            ("/practice", {200, 302}),
+            ("/practice_staff", {200, 302}),
+            ("/practice_admin", {200, 302}),
+            ("/practice/new/", {200, 302}),
+            ("/practice/data_for_practice/", {200, 302}),
+            ("/practice/choosing_topic/", {200, 302}),
+            ("/practice/edit_theme/", {200, 302, 404}),
+            ("/practice/goals_tasks/", {200, 302, 404}),
+            ("/practice/add_new_report/", {200, 302, 404}),
+            ("/practice/workflow/", {200, 302, 404}),
+            ("/practice/preparation_for_defense/", {200, 302}),
+            ("/practice/defense/", {200, 302}),
+            ("/practice_staff/thesis/", {200, 302, 404}),
+            ("/practice_staff/reports/", {200, 302, 404}),
+            ("/practice_staff/finished_thesises/", {200, 302}),
+            ("/practice_admin/choose_area_worktype", {200, 302}),
+            ("/practice_admin/finished_thesises", {200, 302}),
+            ("/practice_admin/thesis", {200, 302, 404}),
+            ("/practice_admin/yandex_code", {200, 302, 404}),
         ],
     )
-    def test_practice_logged_in(self, logged_client, path):
-        assert_ok(logged_client, path, code={200, 302, 404})
-
-
-class TestPracticeStudentFlow:
-    def test_practice_index_logged_in(self, logged_client):
-        assert_ok(logged_client, "/practice", code={200, 302})
-
-    def test_practice_guide(self, seeded_client):
-        assert_ok(seeded_client, "/practice/guide/", code={200, 302})
-
-    def test_practice_new_thesis_page(self, logged_client):
-        assert_ok(logged_client, "/practice/new/", code={200, 302})
-
-    def test_practice_data_for_practice(self, logged_client):
-        assert_ok(logged_client, "/practice/data_for_practice/", code={200, 302})
-
-    def test_practice_choosing_topic(self, logged_client):
-        assert_ok(logged_client, "/practice/choosing_topic/", code={200, 302})
-
-    def test_practice_preparation(self, logged_client):
-        assert_ok(logged_client, "/practice/preparation_for_defense/", code={200, 302})
-
-    def test_practice_defense(self, logged_client):
-        assert_ok(logged_client, "/practice/defense/", code={200, 302})
-
-
-class TestPracticeStaffFlow:
-    def test_practice_staff_index(self, logged_client):
-        assert_ok(logged_client, "/practice_staff", code={200, 302})
-
-    def test_practice_staff_thesis(self, logged_client):
-        assert_ok(logged_client, "/practice_staff/thesis/", code={200, 302, 404})
-
-    def test_practice_staff_reports(self, logged_client):
-        assert_ok(logged_client, "/practice_staff/reports/", code={200, 302, 404})
-
-    def test_practice_staff_finished(self, logged_client):
-        assert_ok(logged_client, "/practice_staff/finished_thesises/", code={200, 302})
-
-
-class TestPracticeAdminFlow:
-    def test_practice_admin_index(self, logged_client):
-        assert_ok(logged_client, "/practice_admin", code={200, 302})
-
-    def test_practice_admin_choose_area(self, logged_client):
-        assert_ok(logged_client, "/practice_admin/choose_area_worktype", code={200, 302})
-
-    def test_practice_admin_finished(self, logged_client):
-        assert_ok(logged_client, "/practice_admin/finished_thesises", code={200, 302})
-
-    def test_practice_admin_thesis(self, logged_client):
-        assert_ok(logged_client, "/practice_admin/thesis", code={200, 302, 404})
-
-    def test_practice_admin_yandex(self, logged_client):
-        assert_ok(logged_client, "/practice_admin/yandex_code", code={200, 302, 404})
+    def test_practice_logged_in(self, logged_client, path, code):
+        assert_ok(logged_client, path, code=code)
 
 
 class TestSummerSchools:

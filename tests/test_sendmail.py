@@ -2,6 +2,8 @@
 import smtplib
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 
 class TestSendMail:
     @patch("smtplib.SMTP")
@@ -18,33 +20,19 @@ class TestSendMail:
         notification_send_mail()
         assert not mock_smtp.called
 
+    @pytest.mark.parametrize(
+        "attr,exc",
+        [
+            ("login", smtplib.SMTPAuthenticationError(535, b"Auth failed")),
+            ("ehlo", smtplib.SMTPHeloError(500, b"HELO failed")),
+            ("sendmail", smtplib.SMTPSenderRefused(501, b"Bad sender", "from@test.com")),
+        ],
+    )
     @patch("smtplib.SMTP")
-    def test_send_mail_handles_auth_error(self, mock_smtp, notification_in_db):
+    def test_send_mail_handles_smtp_errors(self, mock_smtp, notification_in_db, attr, exc):
         mock_server = MagicMock()
         mock_smtp.return_value = mock_server
-        mock_server.login.side_effect = smtplib.SMTPAuthenticationError(535, b"Auth failed")
-        from se_sendmail import notification_send_mail
-
-        notification_send_mail()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_send_mail_handles_helo_error(self, mock_smtp, notification_in_db):
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.ehlo.side_effect = smtplib.SMTPHeloError(500, b"HELO failed")
-        from se_sendmail import notification_send_mail
-
-        notification_send_mail()
-        assert mock_smtp.called
-
-    @patch("smtplib.SMTP")
-    def test_send_mail_handles_sender_refused(self, mock_smtp, notification_in_db):
-        mock_server = MagicMock()
-        mock_smtp.return_value = mock_server
-        mock_server.sendmail.side_effect = smtplib.SMTPSenderRefused(
-            501, b"Bad sender", "from@test.com"
-        )
+        getattr(mock_server, attr).side_effect = exc
         from se_sendmail import notification_send_mail
 
         notification_send_mail()
