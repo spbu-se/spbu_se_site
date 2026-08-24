@@ -23,11 +23,11 @@ _buffer_lock = threading.Lock()
 
 _PATH_PATTERN = re.compile(
     r"""
-    (?:[A-Za-z]:\\)?                         # optional Windows drive
     (?:
-        /[^\s:"'<>|()]+/[^\s:"'<>|()]*      # Unix paths
+        (?:/[a-zA-Z][a-zA-Z0-9_]{0,31}/)        # filesystem path roots like /home/ /var/ /tmp/ /opt/
+        [^\s:"'<>|()]*                            # rest of the path
         |
-        (?:[A-Za-z]:\\)?[^\s:"'<>|()\\]+\\[^\s:"'<>|()\\]*
+        (?:[A-Za-z]:\\[^\s:"'<>|()\\]*\\[^\s:"'<>|()\\]*)  # Windows paths
     )
     """,
     re.VERBOSE,
@@ -125,7 +125,14 @@ def _is_rate_limited(ip: str) -> bool:
 def _public_preview(latest: dict[str, str | None] | None, nonce: str) -> str:
     if latest:
         msg = escape(latest["message"] or "")
-        line = f'<p class="error">{msg}</p>'
+        tb = latest.get("traceback")
+        extra = ""
+        if tb:
+            lines = [ln for ln in tb.split("\n") if ln.strip()]
+            if lines:
+                exc_line = escape(lines[-1].strip())
+                extra = f'<p class="exception">{exc_line}</p>'
+        line = f'<p class="error">{msg}</p>{extra}'
     else:
         line = '<p class="empty">Нет записей об ошибках.</p>'
 
@@ -141,6 +148,7 @@ body{{font-family:"SF Mono","Consolas","Liberation Mono",monospace;font-size:14p
 h1{{font-size:1.2rem;color:#b4befe;margin-bottom:1rem;}}
 p{{margin:1rem 0;}}
 .error{{color:#f38ba8;background:#181825;padding:1rem;border-radius:6px;word-break:break-word;text-align:left;}}
+.exception{{color:#fab387;background:#1e1e2e;padding:0.5rem 1rem;border-radius:6px;word-break:break-word;text-align:left;font-size:0.9rem;border:1px solid #313244;}}
 .empty{{color:#6c7086;}}
 .admin-link{{margin-top:2rem;font-size:0.85rem;}}
 .admin-link a{{color:#89b4fa;}}
