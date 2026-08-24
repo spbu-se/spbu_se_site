@@ -48,6 +48,7 @@ from flask_se_csp_report import register_csp_report
 from flask_se_diplomas import register_routes as register_diplomas_routes
 from flask_se_headers import register_security_headers
 from flask_se_internships import register_routes as register_internships_routes
+from flask_se_logviewer import register_log_viewer
 from flask_se_news import register_routes as register_news_routes
 from flask_se_practice import register_routes as register_practice_routes
 from flask_se_practice_admin import register_routes as register_practice_admin_routes
@@ -144,7 +145,7 @@ def _configure_app(app: Flask, config_overrides: dict[str, object] | None) -> No
     app.config["SQLALCHEMY_DATABASE_URI"] = SQLITE_DATABASE_URI
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
     app.config["SECRET_KEY"] = SECRET_KEY
-    app.config["SESSION_COOKIE_NAME"] = "__Host-se_session"
+    app.config["SESSION_COOKIE_NAME"] = "se_session"
 
     # Secure session cookies: HTTPS-only + SameSite. Dev runs on plain HTTP, so
     # SECURE is toggled by an env flag (production deploys set it).
@@ -286,6 +287,7 @@ def create_app(
     _register_static_cache_headers(app)
     register_security_headers(app)
     register_csp_report(app)
+    register_log_viewer(app)
     _init_admin_views(app)
     # Default: read SE_START_SCHEDULER (production leaves it unset → jobs run).
     # conftest sets it to "0" before importing so the suite never fires jobs.

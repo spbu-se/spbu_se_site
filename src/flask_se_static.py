@@ -3,7 +3,9 @@
 # Route view functions registered via decorators inside _register_* helpers;
 # basedpyright cannot see the decorator registration and would flag them unused.
 
-from flask import Flask, redirect, render_template, url_for
+import logging
+
+from flask import Flask, redirect, render_template, request, url_for
 
 from flask_se_bachelor import (
     bachelor_admission,
@@ -14,6 +16,8 @@ from flask_se_bachelor import (
 )
 from flask_se_config import get_hours_since, plural_hours
 from se_models import Posts, Staff
+
+log = logging.getLogger("flask_se.static")
 
 LEGACY_REDIRECTS = {
     "/auth/login": "login_index",
@@ -76,6 +80,11 @@ def register_static_pages(app: Flask) -> None:
     def page_not_found(e):  # noqa: ARG001
         # note that we set the 404 status explicitly
         return render_template("404.html"), 404
+
+    @app.errorhandler(500)
+    def internal_error(e):  # noqa: ARG001
+        log.exception("500 on %s", request.url)
+        return render_template("500.html"), 500
 
     @app.route("/404.html")
     def status_404():

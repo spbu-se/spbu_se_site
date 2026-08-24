@@ -51,7 +51,7 @@ def _ensure_thesis_consultant_column() -> None:
     so schema evolution runs in code (same pattern as NotificationLog in
     se_sendmail). No-op once the column exists.
     """
-    if "consultant" in inspect(db.engine).get_columns("thesis"):
+    if any(c["name"] == "consultant" for c in inspect(db.engine).get_columns("thesis")):
         return
     try:
         with db.engine.begin() as connection:

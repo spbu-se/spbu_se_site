@@ -3,6 +3,7 @@
 import hmac
 import io
 import json
+import logging
 import os
 import zipfile
 
@@ -140,7 +141,14 @@ def login_index():
         if user:
             password_hash = user.password_hash
             if password_hash is not None:
-                if check_password_hash(password_hash, password):  # pyright: ignore[reportArgumentType]
+                password_ok = False
+                try:
+                    password_ok = check_password_hash(password_hash, password)  # pyright: ignore[reportArgumentType]
+                except ValueError:
+                    logging.getLogger("flask_se.auth").exception(
+                        "check_password_hash failed for user %s", email
+                    )
+                if password_ok:
                     login_user(user, remember=True)
                     return redirect_next_url(fallback=url_for("user_profile"))
                 hs = password_hash.split("$")

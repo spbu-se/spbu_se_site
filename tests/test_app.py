@@ -19,7 +19,7 @@ class TestAppFactory:
     def test_app_config(self):
         from flask_se import app
 
-        assert app.config["SESSION_COOKIE_NAME"] == "__Host-se_session"
+        assert app.config["SESSION_COOKIE_NAME"] == "se_session"
 
     @pytest.mark.parametrize(
         "path,allowed_codes",
