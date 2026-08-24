@@ -1,26 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import time
-from collections import defaultdict
-
 from flask import Blueprint, current_app, json, request
+
+from flask_se_rate_limit import is_rate_limited
 
 csp_report_bp = Blueprint("csp_report", __name__)
 
-_rate_limit_store: dict[str, list[float]] = defaultdict(list)
 _RATE_LIMIT = 100
 _RATE_WINDOW = 60
 
 
 def _is_rate_limited(ip: str) -> bool:
-    now = time.monotonic()
-    window_start = now - _RATE_WINDOW
-    timestamps = _rate_limit_store[ip]
-    timestamps[:] = [t for t in timestamps if t > window_start]
-    if len(timestamps) >= _RATE_LIMIT:
-        return True
-    timestamps.append(now)
-    return False
+    return is_rate_limited(ip, _RATE_LIMIT, _RATE_WINDOW)
 
 
 @csp_report_bp.route("/csp-report", methods=["POST"])

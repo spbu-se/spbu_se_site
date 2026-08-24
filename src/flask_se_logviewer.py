@@ -6,17 +6,18 @@ import os
 import re
 import threading
 import time
-from collections import defaultdict, deque
+from collections import deque
 from html import escape
 
 from flask import Blueprint, g, request
 from flask_login import current_user
 
+from flask_se_rate_limit import is_rate_limited
+
 log_viewer_bp = Blueprint("log_viewer", __name__)
 
 _RATE_LIMIT = 10
 _RATE_WINDOW = 60
-_rate_limit_store: dict[str, list[float]] = defaultdict(list)
 _ADMIN_ROLE_LEVEL = 5
 
 _MAX_ENTRIES = 2000
@@ -146,14 +147,7 @@ def logs():
 
 
 def _is_rate_limited(ip: str) -> bool:
-    now = time.monotonic()
-    window_start = now - _RATE_WINDOW
-    timestamps = _rate_limit_store[ip]
-    timestamps[:] = [t for t in timestamps if t > window_start]
-    if len(timestamps) >= _RATE_LIMIT:
-        return True
-    timestamps.append(now)
-    return False
+    return is_rate_limited(ip, _RATE_LIMIT, _RATE_WINDOW)
 
 
 def _public_preview(latest: dict[str, str | None] | None, nonce: str) -> str:
