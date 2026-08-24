@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import logging
+import os
 import re
 import threading
 import time
@@ -20,6 +22,9 @@ _ADMIN_ROLE_LEVEL = 5
 _MAX_ENTRIES = 2000
 _buffer: deque[dict[str, str | None]] = deque(maxlen=_MAX_ENTRIES)
 _buffer_lock = threading.Lock()
+
+_SCRATCH_DIR = os.environ.get("SE_SCRATCH_DIR", ".tmp")
+_LOG_FILE_PATH = os.path.join(_SCRATCH_DIR, "server-errors.log")
 
 _PATH_PATTERN = re.compile(
     r"""
@@ -50,9 +55,35 @@ def _sanitize(text: str) -> str:
     )
 
 
+def _read_logs_from_file() -> list[dict[str, str | None]]:
+    """Read last 100 log entries from the shared file (cross-worker safe)."""
+    if not os.path.exists(_LOG_FILE_PATH):
+        return []
+    try:
+        with open(_LOG_FILE_PATH, encoding="utf-8") as f:
+            lines = f.readlines()
+        entries = []
+        for raw_line in reversed(lines):
+            ln = raw_line.strip()
+            if not ln:
+                continue
+            try:
+                entry = json.loads(ln)
+                entries.append(entry)
+            except json.JSONDecodeError:
+                continue
+            if len(entries) >= 100:
+                break
+    except Exception as exc:
+        logging.getLogger(__name__).debug("Log file read failed: %s", exc)
+        entries = []
+    return entries
+
+
 class LogViewerHandler(logging.Handler):
     def __init__(self, level=logging.WARNING) -> None:
         super().__init__(level)
+        os.makedirs(_SCRATCH_DIR, exist_ok=True)
 
     def emit(self, record: logging.LogRecord) -> None:
         entry = {
@@ -64,6 +95,11 @@ class LogViewerHandler(logging.Handler):
         }
         with _buffer_lock:
             _buffer.append(entry)
+        try:
+            with open(_LOG_FILE_PATH, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        except Exception:  # noqa: S110
+            pass
 
 
 def register_log_viewer(app) -> None:
@@ -89,8 +125,8 @@ def logs():
     if _is_rate_limited(ip):
         return "", 429
 
-    with _buffer_lock:
-        latest = _buffer[-1] if _buffer else None
+    entries = _read_logs_from_file()
+    latest = entries[0] if entries else (_buffer[-1] if _buffer else None)
 
     try:
         authed = (
@@ -104,8 +140,6 @@ def logs():
     nonce = getattr(g, "csp_nonce", "")
 
     if authed:
-        with _buffer_lock:
-            entries = list(reversed(_buffer))[:100]
         return _render_logs(entries, nonce), 200, {"Content-Type": "text/html; charset=utf-8"}
 
     return _public_preview(latest, nonce), 200, {"Content-Type": "text/html; charset=utf-8"}
