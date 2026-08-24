@@ -83,7 +83,8 @@ def register_static_pages(app: Flask) -> None:
 
     @app.errorhandler(500)
     def internal_error(e):
-        log.error("500 on %s", request.url, exc_info=e)
+        exc = getattr(e, "original_exception", e)
+        log.error("500 on %s", request.url, exc_info=exc)
         return render_template("500.html"), 500
 
     @app.route("/404.html")
