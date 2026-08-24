@@ -30,7 +30,7 @@ _LOG_FILE_PATH = os.path.join(_SCRATCH_DIR, "server-errors.log")
 _PATH_PATTERN = re.compile(
     r"""
     (?:
-        (?:/[a-zA-Z][a-zA-Z0-9_]{0,31}/)        # filesystem path roots like /home/ /var/ /tmp/ /opt/
+        (?:/[a-zA-Z]{2}[a-zA-Z0-9_]{0,30}/)     # filesystem path roots like /home/ /var/ /tmp/ /opt/
         [^\s:"'<>|()]*                            # rest of the path
         |
         (?:[A-Za-z]:\\[^\s:"'<>|()\\]*\\[^\s:"'<>|()\\]*)  # Windows paths
