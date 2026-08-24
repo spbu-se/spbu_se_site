@@ -82,8 +82,8 @@ def register_static_pages(app: Flask) -> None:
         return render_template("404.html"), 404
 
     @app.errorhandler(500)
-    def internal_error(e):  # noqa: ARG001
-        log.exception("500 on %s", request.url)
+    def internal_error(e):
+        log.error("500 on %s", request.url, exc_info=e)
         return render_template("500.html"), 500
 
     @app.route("/404.html")
