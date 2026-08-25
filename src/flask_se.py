@@ -143,7 +143,12 @@ def _configure_app(app: Flask, config_overrides: dict[str, object] | None) -> No
     # (init_db() creates it too, but the dev server / Docker may connect first).
     Path(SQLITE_DATABASE_PATH).mkdir(parents=True, exist_ok=True)
     app.config["SQLALCHEMY_DATABASE_URI"] = SQLITE_DATABASE_URI
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_size": 20,
+        "max_overflow": 30,
+        "pool_pre_ping": True,
+    }
     app.config["SECRET_KEY"] = SECRET_KEY
     app.config["SESSION_COOKIE_NAME"] = "se_session"
 
