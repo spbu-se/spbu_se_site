@@ -591,3 +591,23 @@ open(".tmp/routes.txt", "w").write(str(rs))
 - `@yandex/ymaps3-default-ui-theme` dist (`index.mjs`) — confirmed `YMapDefaultMarker` props (`popup`, `onClick`), the popup toggle runtime (`_togglePopup`, `isOpen`), and the `textContent` string-content gotcha.
 
 **Rule:** for any third-party JS API you wire into production code, verify the surface against the published package (type defs + dist) before writing the integration — grep the `.d.ts`/dist, not the README.
+
+## Decode SQLAlchemy base-36 error codes from the `exc` source, not the sanitized URL
+
+**When:** 2026-08-25, the 15h production 500 incident on `/theses.html` + `/news.html`.
+
+**Root cause:** the `/logs` message showed `(Background on this error at: https://sqlalche.me/e/20/e3q8)`. `e3q8` was misread as a connection-pool-exhaustion error, and 4 hotfix PRs chased pool sizing/NullPool/consultant-cache before the real error surfaced. `e3q8` is actually the base-36 code for `sqlalchemy.exc.OperationalError` — the DB-level "no such column: users.deleted" schema drift. The real root cause was a model↔DB drift (`users.deleted` added in PR #237) that the deploy webhook's `flask db` step failed to migrate (Alembic removed, webhook not updated), compounded by zero monitoring.
+
+**Lesson:** SQLAlchemy 2.x assigns every exception class a stable base-36 `code` (e.g. `e3q8` = `OperationalError`, `rvf5` = `InterfaceError`). Decode it from the installed `sqlalchemy.exc` source (`grep -r 'code = "' <venv>/sqlalchemy/exc.py`) or `int('e3q8', 36)` — never guess from the URL path. A sanitizer that rewrites the `sqlalche.me/e/20/<code>` path hides exactly the segment that identifies the exception class; prefer keeping the code visible (it is not secret).
+
+**Fix:** the 500 handler now logs `exception type: message` plus a 3-tuple `exc_info`; `/logs` shows the real exception line instead of the generic `InternalServerError`. See `docs/RETROSPECTIVES.md` 2026-08-25 entry.
+
+## Production deploy path ≠ repo-documented path — verify the webhook's actual commands
+
+**When:** 2026-08-25, same incident.
+
+**Root cause:** `docs/RELEASE_CHECKLIST.md` B17 and `TOOLING.md §Auto-migrate` claim `docker/entrypoint.sh` runs `python flask_se.py migrate` on boot — but **production deploys via a server-side webhook** that runs `flask db <subcommand>`. After PR #237 removed Alembic, that webhook command failed ("No such command 'db'") and silently no-op'd; the self-healing `ensure_schema()` was never invoked in production because the Docker entrypoint is not the prod mechanism.
+
+**Lesson:** when the docs describe a boot/init mechanism, confirm it matches the *actual* production deploy path (webhook script, systemd unit, container entrypoint) — grep the deploy workflow's `WEBHOOK_URL` handler semantics, not just the repo's Docker files. Add a release-checklist item that verifies the deployed DB has the model's columns (schema drift check) after every release.
+
+**Fix:** run `ensure_schema()` at app boot regardless of deploy mechanism (gated by `SE_AUTO_MIGRATE`, fault-tolerant), and register a `flask db` CLI group that delegates to `ensure_schema()` so legacy webhook commands keep working.

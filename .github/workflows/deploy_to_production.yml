@@ -79,6 +79,24 @@ jobs:
             -d "{\"tag\":\"${TAG}\",\"sha\":\"${SHA}\"}" \
             "${WEBHOOK_URL}"
 
+      # Post-deploy smoke test (guardrail from the 2026-08-25 15h outage:
+      # the deploy "succeeded" while /theses.html & /news.html returned 500
+      # because a model↔DB drift went unmigrated and unmonitored). Fails the
+      # release if any key route is not 200 after the webhook returns.
+      - name: Post-deploy smoke test (key routes return 200)
+        env:
+          PROD_HOST: "https://se.math.spbu.ru"
+        run: |
+          for route in "/" "/theses.html" "/news.html" "/login" "/diplomas/" "/logs"; do
+            code="$(curl --fail --silent --show-error --max-time 60 \
+              -o /dev/null -w "%{http_code}" "${PROD_HOST}${route}")"
+            if [ "$code" != "200" ]; then
+              echo "::error::Smoke test failed: ${PROD_HOST}${route} returned ${code} (expected 200). Deployment is broken."
+              exit 1
+            fi
+            echo "OK ${route} -> ${code}"
+          done
+
   release-gate:
     runs-on: ubuntu-latest
     outputs:
