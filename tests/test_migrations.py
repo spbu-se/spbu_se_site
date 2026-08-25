@@ -175,3 +175,14 @@ class TestSchemaDeltas:
                 )
             }
             assert {"thesis_fts_ai", "thesis_fts_ad", "thesis_fts_au"} <= triggers
+
+    def test_db_cli_group_runs_ensure_schema(self):
+        """Deploy webhook invokes ``flask db upgrade`` — it must not fail with
+        "No such command 'db'" and must repair the schema like ensure_schema."""
+        from flask import current_app
+
+        with _isolated_db(build_legacy=_legacy_users_table):
+            runner = current_app.test_cli_runner()
+            result = runner.invoke(args=["db", "upgrade"])
+            assert result.exit_code == 0, result.output
+            assert "deleted" in _users_columns()

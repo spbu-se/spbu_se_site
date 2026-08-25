@@ -16,6 +16,9 @@ _ws.generate_password_hash = lambda password, method="pbkdf2:sha256": f"mock:{pa
 # Do not start the APScheduler: the module-level app is created on import via
 # create_app(), and conftest must not fire background jobs during the suite.
 os.environ["SE_START_SCHEDULER"] = "0"
+# Do not run boot-time ensure_schema() against the module-level app: the suite
+# builds its own seeded DB templates per fixture.
+os.environ["SE_AUTO_MIGRATE"] = "0"
 
 _db_dir = None
 _db_name = "test.db"
