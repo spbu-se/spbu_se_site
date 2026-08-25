@@ -15,7 +15,7 @@ from flask_se_bachelor import (
     bachelor_software_engineering,
 )
 from flask_se_config import get_hours_since, plural_hours
-from se_models import Posts, Staff
+from se_models import Posts, Staff, db
 
 log = logging.getLogger("flask_se.static")
 
@@ -85,6 +85,17 @@ def register_static_pages(app: Flask) -> None:
     def internal_error(e):
         exc = getattr(e, "original_exception", e)
         log.error("500 on %s", request.url, exc_info=(type(exc), exc, exc.__traceback__))
+        try:
+            pool = db.engine.pool
+            log.info(
+                "Pool status: size=%s overflow=%s checkedin=%s checkedout=%s",
+                pool.size(),
+                pool.overflow(),
+                pool.checkedin(),
+                pool.checkedout(),
+            )
+        except Exception:  # noqa: S110
+            pass
         return render_template("500.html"), 500
 
     @app.route("/404.html")
