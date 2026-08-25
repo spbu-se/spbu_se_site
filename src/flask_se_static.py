@@ -85,9 +85,11 @@ def register_static_pages(app: Flask) -> None:
     def internal_error(e):
         exc = getattr(e, "original_exception", e)
         log.error(
-            "500 on %s pool=%s",
+            "500 on %s pool=%s %s: %s",
             request.url,
             type(db.engine.pool).__name__,
+            type(exc).__name__,
+            exc,
             exc_info=(type(exc), exc, exc.__traceback__),
         )
         return render_template("500.html"), 500
