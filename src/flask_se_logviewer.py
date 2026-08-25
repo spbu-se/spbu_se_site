@@ -4,12 +4,13 @@ import json
 import logging
 import os
 import re
+import tempfile
 import threading
 import time
 from collections import deque
 from html import escape
 
-from flask import Blueprint, g, request
+from flask import Blueprint, abort, g, request
 from flask_login import current_user
 
 from flask_se_rate_limit import is_rate_limited
@@ -24,8 +25,8 @@ _MAX_ENTRIES = 2000
 _buffer: deque[dict[str, str | None]] = deque(maxlen=_MAX_ENTRIES)
 _buffer_lock = threading.Lock()
 
-_SCRATCH_DIR = os.environ.get("SE_SCRATCH_DIR", ".tmp")
-_LOG_FILE_PATH = os.path.join(_SCRATCH_DIR, "server-errors.log")
+_MAX_LOG_BYTES: int = 1_000_000
+_MAX_LOG_FILES: int = 3
 
 _PATH_PATTERN = re.compile(
     r"""
@@ -39,29 +40,93 @@ _PATH_PATTERN = re.compile(
     re.VERBOSE,
 )
 _IP_PATTERN = re.compile(r"(\d{1,3}\.){3}\d{1,3}")
+_IPV6_PATTERN = re.compile(
+    r"(?<![\w])"
+    r"(?:[0-9a-fA-F]{1,4}:(?:[0-9a-fA-F]{0,4}:){0,7}[0-9a-fA-F]{0,4}|::1)"
+    r"(?:%[a-zA-Z0-9_.]+)?"
+    r"(?![\w])"
+)
 _EMAIL_PATTERN = re.compile(r"[\w.+-]+@([\w-]+\.[\w.]+)")
 _HEX_TOKEN_PATTERN = re.compile(r"[a-fA-F0-9]{16,}")
+_BASE64_TOKEN_PATTERN = re.compile(r"[A-Za-z0-9_-]{16,}={0,2}")
+_SQLALCHEMY_URL_PATTERN = re.compile(r"https?://sqlalche\.me/e/\d+/([a-zA-Z0-9]{1,12})")
+
+
+def _resolve_scratch_dir() -> str:
+    return os.environ.get("SE_SCRATCH_DIR") or os.path.join(tempfile.gettempdir(), "se-logs")
+
+
+def _log_file_path() -> str | None:
+    """Resolve the JSONL log path, or None while the feature is disabled.
+
+    Resolution is lazy per call: a default-disabled deployment never creates the
+    scratch dir or the log file, and nothing has to be reset at runtime.
+    """
+    if os.environ.get("SE_LOGS_ENABLED", "0") != "1":
+        return None
+    return os.path.join(_resolve_scratch_dir(), "server-errors.log")
+
+
+def _looks_like_ipv6(candidate: str) -> bool:
+    """Distinguish an IPv6 address from time/ratio fragments like ``10:29:47``."""
+    if "::" in candidate:
+        return True
+    if re.search(r"[a-fA-F]", candidate):
+        return True
+    return candidate.count(":") >= 3
+
+
+def _redact_ipv6(match: re.Match[str]) -> str:
+    return "x:x:x:x:x:x:x:x" if _looks_like_ipv6(match.group(0)) else match.group(0)
+
+
+def _redact_base64_token(match: re.Match[str]) -> str:
+    """Redact only token-shaped strings (digit + mixed case or url-safe chars),
+    never plain words in error text."""
+    token = match.group(0)
+    if re.search(r"\d", token) and (
+        re.search(r"[_-]", token) or (re.search(r"[a-z]", token) and re.search(r"[A-Z]", token))
+    ):
+        return "<token>"
+    return token
 
 
 def _sanitize(text: str) -> str:
-    return _HEX_TOKEN_PATTERN.sub(
-        "<token>",
-        _EMAIL_PATTERN.sub(
-            r"***@\1",
-            _IP_PATTERN.sub(
-                "x.x.x.x",
-                _PATH_PATTERN.sub("<deploy-path>", text),
-            ),
-        ),
-    )
+    text = _SQLALCHEMY_URL_PATTERN.sub(r"sqlalche.me/e/<\1>", text)
+    text = _IPV6_PATTERN.sub(_redact_ipv6, text)
+    text = _IP_PATTERN.sub("x.x.x.x", text)
+    text = _EMAIL_PATTERN.sub(r"***@\1", text)
+    text = _HEX_TOKEN_PATTERN.sub("<token>", text)
+    text = _BASE64_TOKEN_PATTERN.sub(_redact_base64_token, text)
+    return _PATH_PATTERN.sub("<deploy-path>", text)
+
+
+def _rotate_log_file(log_path: str) -> None:
+    """Size-based rotation: server-errors.log -> .1 -> .2, drop oldest."""
+    if not os.path.exists(log_path):
+        return
+    try:
+        if os.path.getsize(log_path) < _MAX_LOG_BYTES:
+            return
+    except OSError:
+        return
+    for index in range(_MAX_LOG_FILES - 1, 0, -1):
+        src = log_path if index == 1 else f"{log_path}.{index - 1}"
+        dst = f"{log_path}.{index}"
+        try:
+            if os.path.exists(src):
+                os.replace(src, dst)
+        except OSError:
+            pass
 
 
 def _read_logs_from_file() -> list[dict[str, str | None]]:
     """Read last 100 log entries from the shared file (cross-worker safe)."""
-    if not os.path.exists(_LOG_FILE_PATH):
+    log_path = _log_file_path()
+    if not log_path or not os.path.exists(log_path):
         return []
     try:
-        with open(_LOG_FILE_PATH, encoding="utf-8") as f:
+        with open(log_path, encoding="utf-8") as f:
             lines = f.readlines()
         entries = []
         for raw_line in reversed(lines):
@@ -84,9 +149,12 @@ def _read_logs_from_file() -> list[dict[str, str | None]]:
 class LogViewerHandler(logging.Handler):
     def __init__(self, level=logging.WARNING) -> None:
         super().__init__(level)
-        os.makedirs(_SCRATCH_DIR, exist_ok=True)
+        os.makedirs(_resolve_scratch_dir(), exist_ok=True)
 
     def emit(self, record: logging.LogRecord) -> None:
+        log_path = _log_file_path()
+        if not log_path:
+            return
         entry = {
             "time": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(record.created)),
             "level": record.levelname,
@@ -97,13 +165,25 @@ class LogViewerHandler(logging.Handler):
         with _buffer_lock:
             _buffer.append(entry)
         try:
-            with open(_LOG_FILE_PATH, "a", encoding="utf-8") as f:
+            _rotate_log_file(log_path)
+            with open(log_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(entry, ensure_ascii=False) + "\n")
         except Exception:  # noqa: S110
             pass
 
 
 def register_log_viewer(app) -> None:
+    """Attach the file-backed error-log handler and the /logs route.
+
+    Opt-in via ``SE_LOGS_ENABLED=1`` (operator guard). Disabled by default: the
+    endpoint is not registered (404), no handler is attached and neither the
+    scratch dir nor the log file is created — the feature neither exposes the
+    route nor wastes disk space unless an operator enables it. Scratch lives in
+    the OS system temp dir (``tempfile.gettempdir()/se-logs``) unless overridden
+    by ``SE_SCRATCH_DIR``.
+    """
+    if _log_file_path() is None:
+        return
     handler = LogViewerHandler()
     handler.setFormatter(
         logging.Formatter(
@@ -122,13 +202,6 @@ def register_log_viewer(app) -> None:
 
 @log_viewer_bp.route("/logs")
 def logs():
-    ip = request.remote_addr or "unknown"
-    if _is_rate_limited(ip):
-        return "", 429
-
-    entries = _read_logs_from_file()
-    latest = entries[0] if entries else (_buffer[-1] if _buffer else None)
-
     try:
         authed = (
             not g.get("_login_disabled", False)
@@ -138,12 +211,32 @@ def logs():
     except Exception:
         authed = False
 
+    # Admin-only by default even when enabled; the public "last error" preview
+    # is an explicit opt-in (SE_LOGS_PUBLIC=1) so it never doubles as an
+    # unauthenticated error oracle.
+    if not authed and os.environ.get("SE_LOGS_PUBLIC", "0") != "1":
+        abort(404)
+
+    ip = request.remote_addr or "unknown"
+    if not authed and _is_rate_limited(ip):
+        return "", 429
+
+    entries = _read_logs_from_file()
+    latest = entries[0] if entries else (_buffer[-1] if _buffer else None)
+
     nonce = getattr(g, "csp_nonce", "")
 
     if authed:
+        _log_admin_view(ip)
         return _render_logs(entries, nonce), 200, {"Content-Type": "text/html; charset=utf-8"}
 
     return _public_preview(latest, nonce), 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
+def _log_admin_view(ip: str) -> None:
+    """Audit trail: record who read the full log, in the same log stream."""
+    user = getattr(current_user, "email", "admin")
+    logging.getLogger("flask_se.security").warning("ADMIN_LOG_VIEWED by %s from %s", user, ip)
 
 
 def _is_rate_limited(ip: str) -> bool:

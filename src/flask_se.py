@@ -359,11 +359,11 @@ def ensure_schema() -> None:
     """Self-heal the SQLite schema to match the models (idempotent, no ops needed).
 
     Fresh DB (no file yet): ``init_db()`` builds it from the models. Existing
-    DB: back it up to ``se_backup_<date>.db``, then ``db.create_all()`` for
-    missing tables plus a per-table ``PRAGMA table_info`` diff that adds every
-    column the model declares and the DB lacks. Column presence is the version
-    marker — there is no ``alembic_version`` table and no version state to
-    drift. Entrypoint runs this unless ``SE_AUTO_MIGRATE=0``.
+    DB: back it up to ``se_backup_<date>.db`` (best-effort), then
+    ``db.create_all()`` for missing tables plus a per-table ``PRAGMA table_info``
+    diff that adds every column the model declares and the DB lacks. Column
+    presence is the version marker — there is no ``alembic_version`` table and no
+    version state to drift. Entrypoint runs this unless ``SE_AUTO_MIGRATE=0``.
     """
     db_file = Path(fsc.SQLITE_DATABASE_PATH, fsc.SQLITE_DATABASE_NAME)
     if not db_file.is_file():
@@ -372,8 +372,15 @@ def ensure_schema() -> None:
         return
 
     backup = Path(fsc.SQLITE_DATABASE_PATH, fsc.SQLITE_DATABASE_BACKUP_NAME)
-    shutil.copyfile(db_file, backup)
-    print(f"[ensure-schema] Backed up DB to {backup.name}")
+    try:
+        shutil.copyfile(db_file, backup)
+        print(f"[ensure-schema] Backed up DB to {backup.name}")
+    except OSError as exc:
+        # Best-effort: the deploy webhook runs the migration with writable DB
+        # dir, but app workers may only read it (prod hit PermissionError here,
+        # which silently disabled the whole self-heal). The migration itself
+        # must not be blocked by a backup we can't write.
+        print(f"[ensure-schema] WARNING: DB backup to {backup.name} failed ({exc}); continuing")
 
     db.create_all()
     _ensure_schema_columns()

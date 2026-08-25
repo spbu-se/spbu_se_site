@@ -21,7 +21,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           failures=""
-          for route in "/" "/theses.html" "/news.html" "/login" "/diplomas/" "/logs"; do
+          for route in "/" "/theses.html" "/news/" "/login.html" "/diplomas/"; do
             code="$(curl --silent --show-error --max-time 60 \
               -o /dev/null -w "%{http_code}" "${PROD_HOST}${route}")"
             if [ "$code" != "200" ]; then
@@ -35,11 +35,17 @@ jobs:
             TITLE="Production probe failed ($(date -u +%Y-%m-%dT%H:%MZ))"
             BODY="Scheduled uptime probe detected non-200 responses from production:"
             # Create-or-update an open issue so the outage is never silent.
-            open_issue="$(gh issue list --state open --search 'in:title "Production probe failed"' --json number --jq '.[0].number')"
+            # --repo is required: this job has no checkout, so `gh` cannot
+            # discover the repository from git and would fail silently.
+            open_issue="$(gh issue list --repo "${{ github.repository }}" \
+              --state open --search 'in:title "Production probe failed"' \
+              --json number --jq '.[0].number' 2>/dev/null || true)"
             if [ -n "$open_issue" ]; then
-              gh issue comment "$open_issue" --body "Repeat failure at $(date -u): $(printf "$failures")"
+              gh issue comment --repo "${{ github.repository }}" "$open_issue" \
+                --body "Repeat failure at $(date -u): $(printf "$failures")"
             else
-              gh issue create --title "$TITLE" --body "$BODY $(printf "$failures") See https://se.math.spbu.ru/logs"
+              gh issue create --repo "${{ github.repository }}" --title "$TITLE" \
+                --body "$BODY $(printf "$failures") See https://se.math.spbu.ru/logs"
             fi
             exit 1
           fi

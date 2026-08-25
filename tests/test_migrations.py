@@ -96,6 +96,21 @@ class TestSchemaDeltas:
             assert {"password_hash", "first_name", "middle_name", "last_name", "role"} <= cols
             assert "deleted" in cols
 
+    def test_backup_failure_does_not_block_repair(self, monkeypatch):
+        """Best-effort backup: a read-only DB dir (prod workers) must not
+        silently disable the self-heal — the migration still runs."""
+        import flask_se_config as fsc
+        from flask_se import ensure_schema
+
+        def _raise(*args, **kwargs):
+            raise OSError
+
+        monkeypatch.setattr("flask_se.shutil.copyfile", _raise)
+        with _isolated_db(build_legacy=_legacy_users_table) as _dir:
+            ensure_schema()
+            assert "deleted" in _users_columns()
+            assert not Path(_dir, fsc.SQLITE_DATABASE_BACKUP_NAME).is_file()
+
     @pytest.mark.parametrize(
         "col,expected_type,not_null,default",
         [

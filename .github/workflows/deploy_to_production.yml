@@ -82,12 +82,15 @@ jobs:
       # Post-deploy smoke test (guardrail from the 2026-08-25 15h outage:
       # the deploy "succeeded" while /theses.html & /news.html returned 500
       # because a model↔DB drift went unmigrated and unmonitored). Fails the
-      # release if any key route is not 200 after the webhook returns.
+      # release if any key route is not 200 after the webhook returns. Route
+      # list must match reality: /news/ (not /news.html), /login.html (not
+      # /login). /logs is opt-in (SE_LOGS_ENABLED) and 404 by default, so it
+      # is not probed.
       - name: Post-deploy smoke test (key routes return 200)
         env:
           PROD_HOST: "https://se.math.spbu.ru"
         run: |
-          for route in "/" "/theses.html" "/news.html" "/login" "/diplomas/" "/logs"; do
+          for route in "/" "/theses.html" "/news/" "/login.html" "/diplomas/"; do
             code="$(curl --fail --silent --show-error --max-time 60 \
               -o /dev/null -w "%{http_code}" "${PROD_HOST}${route}")"
             if [ "$code" != "200" ]; then
