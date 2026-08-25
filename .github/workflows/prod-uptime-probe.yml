@@ -1,0 +1,45 @@
+name: Prod uptime probe
+
+on:
+  schedule:
+    # Every 10 minutes; catches outages between deploys (2026-08-25 incident:
+    # /theses.html & /news.html were 500 for ~15h with no monitor).
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe key production routes
+        env:
+          PROD_HOST: "https://se.math.spbu.ru"
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          failures=""
+          for route in "/" "/theses.html" "/news.html" "/login" "/diplomas/" "/logs"; do
+            code="$(curl --silent --show-error --max-time 60 \
+              -o /dev/null -w "%{http_code}" "${PROD_HOST}${route}")"
+            if [ "$code" != "200" ]; then
+              failures="${failures}${route} -> ${code}\n"
+              echo "::error::PROBE FAIL ${PROD_HOST}${route} -> ${code}"
+            else
+              echo "OK ${route} -> ${code}"
+            fi
+          done
+          if [ -n "$failures" ]; then
+            TITLE="Production probe failed ($(date -u +%Y-%m-%dT%H:%MZ))"
+            BODY="Scheduled uptime probe detected non-200 responses from production:"
+            # Create-or-update an open issue so the outage is never silent.
+            open_issue="$(gh issue list --state open --search 'in:title "Production probe failed"' --json number --jq '.[0].number')"
+            if [ -n "$open_issue" ]; then
+              gh issue comment "$open_issue" --body "Repeat failure at $(date -u): $(printf "$failures")"
+            else
+              gh issue create --title "$TITLE" --body "$BODY $(printf "$failures") See https://se.math.spbu.ru/logs"
+            fi
+            exit 1
+          fi

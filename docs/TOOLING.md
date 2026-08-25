@@ -61,7 +61,14 @@ Prefer `config_overrides` over patching `flask_se_config` module globals. The on
 
 ### Auto-migrate on boot (`SE_AUTO_MIGRATE`)
 
-`docker/entrypoint.sh` runs `python flask_se.py migrate` on every boot (default on; set `SE_AUTO_MIGRATE=0` in compose to opt out and run the same command manually). That calls `flask_se.ensure_schema()`:
+Schema self-heal runs in **two** places so model↔DB drift can never surface as `no such column` 500s:
+
+1. **App boot** — `flask_se.py` calls `ensure_schema()` at import (after `app = create_app()`) when `SE_AUTO_MIGRATE != "0"`. Wrapped in `try/except` so a failure (e.g. SQLite `database is locked` from concurrent gunicorn worker boots) logs and continues instead of crashing the worker. This is the **primary** mechanism and is deploy-agnostic — it runs whether production is webhook-driven, Docker, or bare uWSGI.
+1. **`docker/entrypoint.sh`** — runs `python flask_se.py migrate` on boot (default on; set `SE_AUTO_MIGRATE=0` in compose to opt out and run the same command manually).
+
+`ensure_schema()` is also reachable as `python flask_se.py migrate`, and a **`flask db` CLI group** (`flask db upgrade` / `migrate` / `revision`) delegates to it — the production deploy webhook historically invoked `flask db <subcommand>` (Flask-Migrate convention), and that command failed with "No such command 'db'" after Alembic was removed (2026-08-25 incident: 15h outage because the migration step silently no-op'd). The CLI group keeps legacy webhook commands working.
+
+`ensure_schema()`:
 
 - **Fresh DB** (no `databases/se.db`) → `init_db()` (`db.create_all()` + seed). Models are the schema source of truth — no Alembic.
 - **Existing DB** → backs up `se.db` to `se_backup_<date>.db`, then `ensure_schema()`: `db.create_all()` for missing tables + per-table `PRAGMA table_info` diff against the model, `ALTER TABLE ... ADD COLUMN` for each missing column.
