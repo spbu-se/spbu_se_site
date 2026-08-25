@@ -451,9 +451,20 @@ def _synthesized_default_literal(column, dialect) -> str | None:
 # the CLI group was missing. Run ensure_schema() on every boot so model↔DB drift
 # (e.g. users.deleted added by PR #237) never surfaces as "no such column" 500s.
 # Skip when SE_AUTO_MIGRATE=0 (tests / import pipeline).
+#
+# Fault-tolerant on purpose: gunicorn imports this module in every worker; a
+# concurrent ensure_schema() (backup copy + create_all + FTS rebuild) can hit
+# SQLite "database is locked" under multi-worker boot. The webhook's `flask db
+# upgrade` runs first and performs the migration, so a here failure must never
+# take down the app — log and continue.
 if os.environ.get("SE_AUTO_MIGRATE", "1") != "0":
-    with app.app_context():
-        ensure_schema()
+    try:
+        with app.app_context():
+            ensure_schema()
+    except Exception:
+        import logging as _logging
+
+        _logging.getLogger("flask_se").exception("boot-time ensure_schema failed")
 
 
 if __name__ == "__main__":
