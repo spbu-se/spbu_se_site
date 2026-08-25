@@ -319,6 +319,30 @@ def create_app(
 app = create_app()
 
 
+def _register_db_cli(app: Flask) -> None:
+    """Provide a ``flask db ...`` CLI so the deploy webhook's migration step works.
+
+    The production deploy webhook invokes ``flask db <subcommand>`` (Flask-Migrate
+    convention). Alembic was removed in favor of the self-healing
+    ``ensure_schema()``, so map the common subcommands to it instead of failing
+    with "No such command 'db'".
+    """
+
+    @app.cli.group("db")
+    def db_cli() -> None:
+        """Database schema commands (delegate to ensure_schema)."""
+
+    for name in ("upgrade", "migrate", "revision"):
+
+        @db_cli.command(name)
+        def _db_schema() -> None:  # pyright: ignore[reportUnusedFunction]
+            with app.app_context():
+                ensure_schema()
+
+
+_register_db_cli(app)
+
+
 class EnsureSchemaError(RuntimeError):
     """A schema delta cannot be applied automatically.
 
@@ -420,6 +444,16 @@ def _synthesized_default_literal(column, dialect) -> str | None:
     else:
         return None
     return column.type.literal_processor(dialect)(default)
+
+
+# Boot-time schema self-heal: the deploy webhook's `flask db` step is the only
+# migration trigger, and it silently succeeds without actually migrating when
+# the CLI group was missing. Run ensure_schema() on every boot so model↔DB drift
+# (e.g. users.deleted added by PR #237) never surfaces as "no such column" 500s.
+# Skip when SE_AUTO_MIGRATE=0 (tests / import pipeline).
+if os.environ.get("SE_AUTO_MIGRATE", "1") != "0":
+    with app.app_context():
+        ensure_schema()
 
 
 if __name__ == "__main__":
