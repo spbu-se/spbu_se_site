@@ -44,6 +44,9 @@ _ALLOWED_UPLOAD_EXTENSIONS = {
 _THESES_ROLE_LEVEL = 2
 
 
+_consultant_column_checked = False
+
+
 def _ensure_thesis_consultant_column() -> None:
     """Lazily add the ``consultant`` column to the ``thesis`` table.
 
@@ -51,7 +54,11 @@ def _ensure_thesis_consultant_column() -> None:
     so schema evolution runs in code (same pattern as NotificationLog in
     se_sendmail). No-op once the column exists.
     """
+    global _consultant_column_checked  # noqa: PLW0603
+    if _consultant_column_checked:
+        return
     if any(c["name"] == "consultant" for c in inspect(db.engine).get_columns("thesis")):
+        _consultant_column_checked = True
         return
     try:
         with db.engine.begin() as connection:
@@ -59,6 +66,7 @@ def _ensure_thesis_consultant_column() -> None:
     except OperationalError:
         # Concurrent worker may have added it first.
         pass
+    _consultant_column_checked = True
 
 
 def _require_theses_admin() -> bool:
