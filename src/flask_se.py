@@ -16,6 +16,7 @@ from flask_wtf import CSRFProtect
 from markupsafe import Markup
 from sqlalchemy import Boolean, Float, Integer, Numeric, String, Text, inspect
 from sqlalchemy.dialects.sqlite import dialect as sqlite_dialect
+from sqlalchemy.pool import NullPool
 from sqlalchemy.schema import CreateColumn
 
 import flask_se_config as fsc
@@ -145,9 +146,8 @@ def _configure_app(app: Flask, config_overrides: dict[str, object] | None) -> No
     app.config["SQLALCHEMY_DATABASE_URI"] = SQLITE_DATABASE_URI
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_size": 20,
-        "max_overflow": 30,
         "pool_pre_ping": True,
+        "poolclass": NullPool,
     }
     app.config["SECRET_KEY"] = SECRET_KEY
     app.config["SESSION_COOKIE_NAME"] = "se_session"
