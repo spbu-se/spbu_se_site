@@ -71,10 +71,25 @@ Schema self-heal runs in **two** places so model↔DB drift can never surface as
 `ensure_schema()`:
 
 - **Fresh DB** (no `databases/se.db`) → `init_db()` (`db.create_all()` + seed). Models are the schema source of truth — no Alembic.
-- **Existing DB** → backs up `se.db` to `se_backup_<date>.db`, then `ensure_schema()`: `db.create_all()` for missing tables + per-table `PRAGMA table_info` diff against the model, `ALTER TABLE ... ADD COLUMN` for each missing column.
+- **Existing DB** → backs up `se.db` to `se_backup_<date>.db` (**best-effort**), then `ensure_schema()`: `db.create_all()` for missing tables + per-table `PRAGMA table_info` diff against the model, `ALTER TABLE ... ADD COLUMN` for each missing column. If the backup `shutil.copyfile` fails (e.g. the `databases/` dir is read-only for app workers while the webhook's migration user can write it — a real prod `PermissionError` that silently disabled the whole self-heal), the migration **continues** with a warning; the backup must never block schema repair.
 - **Column-addability**: a missing column is auto-added when nullable OR has a `server_default`; otherwise a constant default is synthesized by type (Boolean→0, Integer→0, Float/Numeric→0.0, String/Text→''); exotic non-nullable types (DateTime) → added nullable with a warning. A missing column with UNIQUE/PK/FK → fail-loud (SQLite cannot `ADD COLUMN` constraints); the developer fixes the model, never ops.
 
 No version table and no ops pre-flight: column-presence IS the version marker, checked against the real DB every boot. `Users.deleted` must keep `server_default=sa.false()` so `ADD COLUMN ... NOT NULL` can backfill rows. See `docs/DESIGN_DECISIONS.md` [2026-08-21] for the full rationale.
+
+### Opt-in error log viewer (`/logs`)
+
+The `/logs` endpoint and its file-backed log handler (`src/flask_se_logviewer.py`) are **disabled by default** — an operator must opt in, otherwise the route 404s, no handler is attached and no file is ever written:
+
+| Env var | Default | Effect |
+| ------- | ------- | ------ |
+| `SE_LOGS_ENABLED` | `0` | `1` registers `/logs` and attaches the JSONL handler. `0`/unset = feature fully off (no endpoint, no file, no root-logger `setLevel` side effect). |
+| `SE_LOGS_PUBLIC` | `0` | When the feature is enabled: `1` shows the anonymous "last error" preview; `0`/unset = anonymous gets 404, only `role >= 5` sees the full table (error-oracle guard). |
+| `SE_SCRATCH_DIR` | system temp | Override the scratch dir. Default is `tempfile.gettempdir()/se-logs` (OS temp — never `.tmp` in the repo, never the app dir); created only when enabled. |
+
+- **File**: `server-errors.log` in the scratch dir, one JSON object per line, WARNING+ from the `flask_se` logger and root. Size-based rotation at 1 MB, keeps `.1`/`.2` (3 files total).
+- **Sanitizer** (applied on write): filesystem paths → `<deploy-path>`, IPv4 → `x.x.x.x`, IPv6 → `x:x:x:x:x:x:x:x` (timestamps like `10:29:47` are kept), emails → `***@domain`, 16+ hex tokens → `<token>`, token-shaped base64 (digit + mixed case or url-safe chars, ≥16 chars) → `<token>`, `https://sqlalche.me/e/<n>/<code>` → `sqlalche.me/e/<code>` (the base-36 error code is kept — it identifies the exception class and is not secret).
+- **Rate limit**: public preview 10 req/min/IP, in-memory **per gunicorn worker** (×workers effective budget, reset on restart). Admin full-log reads are not rate-limited but are gated by `role >= 5` and append an `ADMIN_LOG_VIEWED` audit line to the same stream.
+- **Why opt-in**: default-on both wasted disk space (unbounded file) and exposed an unauthenticated error oracle; `SE_LOGS_ENABLED` gives ops an explicit switch, `SE_LOGS_PUBLIC` keeps even the enabled preview admin-only by default.
 
 ### Per-test temp directories
 

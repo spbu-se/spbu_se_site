@@ -611,3 +611,13 @@ open(".tmp/routes.txt", "w").write(str(rs))
 **Lesson:** when the docs describe a boot/init mechanism, confirm it matches the *actual* production deploy path (webhook script, systemd unit, container entrypoint) — grep the deploy workflow's `WEBHOOK_URL` handler semantics, not just the repo's Docker files. Add a release-checklist item that verifies the deployed DB has the model's columns (schema drift check) after every release.
 
 **Fix:** run `ensure_schema()` at app boot regardless of deploy mechanism (gated by `SE_AUTO_MIGRATE`, fault-tolerant), and register a `flask db` CLI group that delegates to `ensure_schema()` so legacy webhook commands keep working.
+
+## A scheduled probe is the first consumer of its own guardrail — verify route lists against reality
+
+**When:** 2026-08-25, immediately after PR #262 shipped the `Prod uptime probe` and post-deploy smoke guardrails.
+
+**Root cause:** the probe and the deploy smoke test probed `/news.html` and `/login` — neither is a real route (the app serves `/news/` and `/login.html`). The probe fired on its very first scheduled runs: `/news.html` → 301, `/login` → 404, and the `gh issue` steps died with `failed to run git: fatal: not a git repository`. The same wrong route list was baked into the deploy smoke test, so the **next** deploy would have been blocked by the guardrail itself.
+
+**Lesson:** a guardrail that assumes route existence without checking the app's actual routes produces false alarms (probe) and false blocks (deploy smoke). Before merging a workflow that probes URLs, verify every route against the app (`grep -n add_url_rule src/*.py`, or `curl` prod). Also: `gh` subcommands in a job **without `actions/checkout`** cannot discover the repo from git — always pass `--repo "${{ github.repository }}"`.
+
+**Fix:** corrected route lists (`/`, `/theses.html`, `/news/`, `/login.html`, `/diplomas/`), added `--repo` to all `gh` calls, made the issue-list lookup resilient (`2>/dev/null || true`). `/logs` became opt-in (`SE_LOGS_ENABLED`, default off) so it was dropped from the probed list too.
