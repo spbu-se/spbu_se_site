@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 import os
 import smtplib
 from datetime import UTC, datetime, timedelta
@@ -16,6 +17,39 @@ MAIL_DEFAULT_SENDER_STRING = "SE уведомления <sysprog_notification@sp
 
 DIPLOMA_THEMES_JOB_TYPE = "diploma_themes_on_review"
 DIPLOMA_THEMES_SEND_INTERVAL = timedelta(hours=24)
+
+_log = logging.getLogger("flask_se.mail")
+
+
+def send_mail(to: str, subject: str, plain: str, html: str | None = None) -> bool:
+    """Send one e-mail from the notification sender; no-op on staging.
+
+    A single helper for the transient mail paths (notifications, password
+    recovery). Returns False instead of raising so a mail outage never breaks
+    the request that triggered it.
+    """
+    if os.getenv("SE_STAGING") is not None:
+        return False
+    message = MIMEMultipart("alternative")
+    message["Subject"] = subject
+    message["From"] = MAIL_DEFAULT_SENDER
+    message["To"] = to
+    message.attach(MIMEText(plain, "plain"))
+    if html:
+        message.attach(MIMEText(html, "html"))
+    try:
+        server = smtplib.SMTP("mail.spbu.ru", 25)
+        try:
+            server.ehlo()
+            server.login(MAIL_DEFAULT_SENDER, MAIL_PASSWORD)
+            server.sendmail(MAIL_DEFAULT_SENDER, [to], message.as_string())
+        finally:
+            server.quit()
+    except smtplib.SMTPException as exc:
+        _log.warning("send_mail to %s failed: %s", to, exc)
+        return False
+    else:
+        return True
 
 
 def notification_send_mail() -> None:

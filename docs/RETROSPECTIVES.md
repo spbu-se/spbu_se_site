@@ -1893,3 +1893,25 @@ Session: follow-up to the 15h outage — hardened the `/logs` feature that was s
 **Fix**: (1) opt-in `/logs` (`SE_LOGS_ENABLED`/`SE_LOGS_PUBLIC`, system-temp scratch, rotation, audit, richer sanitizer); (2) corrected probe + deploy-smoke route lists and `--repo` on `gh`; (3) best-effort `ensure_schema` backup; (4) docs updated (`TOOLING.md`, `AI_AGENT_EXPERIENCE.md`, `RELEASE_CHECKLIST.md B17`); (5) tests added (`tests/test_logviewer.py` — default-off 404, enabled/public/admin flows, sanitizer units, rotation; `test_backup_failure_does_not_block_repair`).
 
 **State at handoff**: branch `fix/logs-opt-in-hardening` from `upstream/current`. Full suite 1353 passed / 4 skipped / 2 xfailed / 1 xpassed (91.5% coverage); basedpyright clean; ruff clean; actionlint passed on both workflow edits. Next: PR → CI → squash-merge (normal flow), then the prod `/logs` feature stays off until ops sets `SE_LOGS_ENABLED=1`.
+
+### Retrospective — 2026-08-31: login outage root cause (CSRF referrer strictness) + e-mail password recovery (fix/login-csrf-password-recovery)
+
+Session: root-caused the "nobody can log in" incident on `se.math.spbu.ru` and shipped the fix plus the missing e-mail password-recovery feature.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| A whole prior session chased session/SECRET_KEY/caching hypotheses; the real cause was `400 "The referrer header is missing."` | **Ignored error signal** — only the 400 status was read, never the body. Our own `requests`/`curl` probes omit the `Referer` header by default, and Flask-WTF's `WTF_CSRF_SSL_STRICT` (default True) requires it on HTTPS POSTs → every probe 400'd, misread as "systemic" | Read HTTP response bodies before theorizing (extracted to `AI_AGENT_EXPERIENCE.md`); verified on prod: POST without Referer → 400, with Referer → 200 |
+| Real users were hard-locked out of login by a redundant referrer requirement (privacy browsers, extensions, corporate proxies, password-manager autofill, non-browser clients) | **Missing config** — `WTF_CSRF_SSL_STRICT` never overridden; the token check is the actual security boundary, the referrer check added only fragility | `WTF_CSRF_SSL_STRICT = False` (token CSRF stays fully enforced) + `CSRFError` friendly errorhandler; regression tests (`wsgi.url_scheme=https`, no Referer → 200, no token → 400) |
+| The `CSRFError` handler initially 500'd because the error template needs `g.csp_nonce`, set by a before_request that runs *after* CSRFProtect's | **Missing convention** — error handlers must not rely on request-global state populated by before_request handlers that can be short-circuited | Set `g.csp_nonce` inside the errorhandler (caught by a test before shipping) |
+| "Забыли пароль?" button was a dead no-op and `/password_recovery.html` a placeholder → any forgotten password was a permanent lockout (no reset path anywhere) | **Missing template/feature** — the recovery UI never existed; only a stub | Full e-mail recovery: fix the button link, request page + one-time signed reset link (`URLSafeTimedSerializer`, 1 h TTL, rate-limited, uniform replies, no enumeration), reset page sets `pbkdf2:sha256` and logs in; `send_mail()` helper in `se_sendmail.py` (reuses `sysprog_notification@spbu.ru`, `SE_STAGING` gate) |
+| Module-level `RateLimiter` singleton tripped cross-test during recovery tests (5/3600s per test IP) | **Missing config** — tests need isolation from in-memory rate limiters | Patch `PASSWORD_RECOVERY_RATE_LIMITER.allow` per test (extracted to `AI_AGENT_EXPERIENCE.md` + test-writer skill) |
+
+**Pattern recurrence**: NO — each gap is a first occurrence.
+
+**What went well**: root cause located in one decisive probe once the 400 body was read; the VK-vs-e-mail asymmetry was fully explained structurally (only the e-mail path crosses CSRF; VK is a pure-GET redirect chain whose failure mode is a silent bounce); the new tests caught a real handler bug (csp_nonce) before it shipped; prod verified 8/8 → 400 without Referer and 200 with.
+
+**What went wrong**: the previous session's "systemic" conclusion was an artifact of probe tooling (no `Referer`); the 400 body should have been read in the very first investigation hour.
+
+**Fix**: (1) `WTF_CSRF_SSL_STRICT=False` + `CSRFError` handler (`src/flask_se.py`); (2) e-mail password recovery (`flask_se_auth.py`, `se_sendmail.py`, `password_recovery.html`/`password_recovery_reset.html`, login.html button); (3) deploy smoke now POSTs `/login.html` without a Referer and asserts 200; (4) tests (`TestCsrfLogin`, `TestPasswordRecovery` — 8 tests); (5) docs extracted to `AI_AGENT_EXPERIENCE.md`, test-writer skill updated.
+
+**State at handoff**: branch `fix/login-csrf-password-recovery` from `upstream/current`. Full suite 1361 passed / 4 skipped / 2 xfailed / 1 xpassed (91.5% coverage); ruff clean; basedpyright clean; pre-push gate green. Next: PR → CI → squash-merge → GPG-signed tag (by maintainer) → release draft.

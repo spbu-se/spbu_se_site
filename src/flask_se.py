@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import secrets
 import shutil
 import sys
 from datetime import UTC, date
@@ -11,8 +12,9 @@ __all__ = ["app", "db", "scheduler"]
 import markdown as _markdown
 import nh3
 from dateutil import tz
-from flask import Flask, g, request
+from flask import Flask, g, render_template, request
 from flask_wtf import CSRFProtect
+from flask_wtf.csrf import CSRFError
 from markupsafe import Markup
 from sqlalchemy import Boolean, Float, Integer, Numeric, String, Text, inspect
 from sqlalchemy.dialects.sqlite import dialect as sqlite_dialect
@@ -158,6 +160,15 @@ def _configure_app(app: Flask, config_overrides: dict[str, object] | None) -> No
     app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SE_COOKIE_SECURE", "1") == "1"
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
+    # CSRF stays fully enforced via the per-session token in the form, but the
+    # SSL-strict referrer requirement (Flask-WTF default) is disabled. It
+    # rejected any POST whose Referer header was missing (privacy browsers,
+    # extensions, proxies, password-manager autofill, non-browser clients)
+    # with a 400 "The referrer header is missing" — see the 2026-08-31 login
+    # outage. The token comparison is the security boundary; the referrer check
+    # was a redundant fragility that locked real users out of login.
+    app.config["WTF_CSRF_SSL_STRICT"] = False
+
     # Upload/request body limit: 64 MB (thesis PDFs + presentations can be large).
     app.config["MAX_CONTENT_LENGTH"] = 64 * 1024 * 1024
 
@@ -176,6 +187,25 @@ def _init_extensions(app: Flask) -> None:
     # Global CSRF protection. Tests set WTF_CSRF_ENABLED=False in conftest.
     # All POST forms must include {{ csrf_token() }}.
     csrf.init_app(app)
+
+    @app.errorhandler(CSRFError)
+    def _handle_csrf_error(exc: CSRFError):  # pyright: ignore[reportUnusedFunction]
+        """Friendly page for a real CSRF rejection instead of a bare 400.
+
+        The session token still has to match; with referrer strictness off this
+        is rare (stale page, expired token) but must stay navigable — reload the
+        page and retry. CSRFProtect runs before the nonce before_request, so
+        the nonce is set here for both the template and the CSP header.
+        """
+        g.csp_nonce = secrets.token_urlsafe(16)
+        return (
+            render_template(
+                "csrf_error.html",
+                csrf_reason=str(exc.description),
+            ),
+            400,
+        )
+
     db.init_app(app)
     login_manager.init_app(app)
 

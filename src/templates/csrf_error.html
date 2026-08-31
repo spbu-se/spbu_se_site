@@ -1,0 +1,35 @@
+{% extends "base_dark.html" %}
+{% block title %}Сессия истекла{% endblock %}
+{% block description %}Сессия истекла, повторите действие.{% endblock %}
+{% block content %}
+  <section class="slice py-8 bg-dark bg-cover bg-size--cover"
+           style="background-image: url({{ url_for('static', filename='assets/img/main2.jpg') }})">
+    <div class="container pt-5 pt-lg-7 pb-lg-9 pb-7">
+      <div class="row align-items-center justify-content-center">
+        <div class="col-lg-8 text-center">
+          <h1 class="text-white">Сессия истекла</h1>
+          <p class="lead text-white opacity-8">
+            Защитная проверка формы не прошла — возможно, страница была открыта давно. Обновите страницу и попробуйте ещё раз.
+          </p>
+          <div class="mt-5">
+            <a class="btn btn-lg btn-warning" href="{{ url_for('index') }}">
+              <span class="btn-inner--text">На главную</span>
+            </a>
+            <button type="button"
+                    class="btn btn-lg btn-neutral"
+                    onclick="location.reload()">
+              <span class="btn-inner--text">Обновить страницу</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="shape-container shape-position-bottom">
+      <svg xmlns="http://www.w3.org/2000/svg"
+           viewBox="0 0 1000 100"
+           preserveAspectRatio="none">
+        <path d="M 0 0 c 0 0 200 50 500 50 s 500 -50 500 -50 v 101 h -1000 v -100 z"></path>
+      </svg>
+    </div>
+  </section>
+{% endblock %}

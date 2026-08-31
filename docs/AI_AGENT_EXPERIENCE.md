@@ -621,3 +621,33 @@ open(".tmp/routes.txt", "w").write(str(rs))
 **Lesson:** a guardrail that assumes route existence without checking the app's actual routes produces false alarms (probe) and false blocks (deploy smoke). Before merging a workflow that probes URLs, verify every route against the app (`grep -n add_url_rule src/*.py`, or `curl` prod). Also: `gh` subcommands in a job **without `actions/checkout`** cannot discover the repo from git — always pass `--repo "${{ github.repository }}"`.
 
 **Fix:** corrected route lists (`/`, `/theses.html`, `/news/`, `/login.html`, `/diplomas/`), added `--repo` to all `gh` calls, made the issue-list lookup resilient (`2>/dev/null || true`). `/logs` became opt-in (`SE_LOGS_ENABLED`, default off) so it was dropped from the probed list too.
+
+## Read HTTP error bodies before theorizing — the 400 was "referrer header is missing", not the session
+
+**When:** 2026-08-31, the "nobody can log in" incident on `se.math.spbu.ru`.
+
+**Root cause:** a whole investigation session chased session/SECRET_KEY/caching hypotheses because every login POST returned `400` and only the status code was ever examined. Reading the 400 body — `The referrer header is missing.` — immediately identified the real cause: Flask-WTF's `WTF_CSRF_SSL_STRICT` (default `True`) requires a `Referer` header matching the host on any HTTPS POST. `requests`/`curl` send no `Referer` by default, so **our own probe** was the thing failing, and the previous session misread it as a systemic outage. The same POST with `Referer: https://se.math.spbu.ru/login.html` returned 200. Real browsers normally send same-origin referrers (the app sets `Referrer-Policy: strict-origin-when-cross-origin`), but the hard referrer dependency locks out privacy browsers/extensions, corporate proxies, password-manager autofill, and non-browser clients.
+
+**Lesson:** a 400/403/500 status alone is not a diagnosis. Print the response body (and the `Location` header) on the very first probe. Also: `requests.Session` sends no `Referer` by default — a CSRF "rejection" reproduced with `requests`/`curl` may be an artifact of the missing header, not a site bug.
+
+**Fix:** `WTF_CSRF_SSL_STRICT = False` (token-based CSRF is the real boundary; the referrer check was a redundant fragility), plus a `CSRFError` errorhandler that renders a friendly page. Regression gate: the deploy smoke test now POSTs `/login.html` with a valid token and **no Referer** and asserts 200 (a 400 means the referrer regression returned).
+
+## Flask error templates need `g.csp_nonce` — CSRF rejection runs before the nonce before_request
+
+**When:** 2026-08-31, writing the `CSRFError` handler above.
+
+**Root cause:** `CSRFProtect` runs its `before_request` before the app's `_set_csp_nonce` (`register_security_headers`), so when a request is rejected, `g.csp_nonce` is unset. Any error template that extends `base_dark.html` (which renders `<script nonce="{{ csp_nonce() }}">`) then 500s — turning the intended friendly 400 into a crash. The test suite caught it; it would have hit prod on the first real CSRF rejection.
+
+**Lesson:** when a `before_request` that sets request-global state (nonces, feature flags) is registered *after* a middleware-like `before_request` that can short-circuit, error handlers cannot rely on that state. Set the nonce (or any needed `g` value) inside the errorhandler itself so the template and the CSP header agree.
+
+**Fix:** `g.csp_nonce = secrets.token_urlsafe(16)` inside `_handle_csrf_error` before `render_template` — the `after_request` CSP builder reads the same `g.csp_nonce`, so the template nonce matches the header.
+
+## Testing CSRF-protected routes under test client: `wsgi.url_scheme` + patching the rate limiter
+
+**When:** 2026-08-31, regression tests for the CSRF fix and the password-recovery feature.
+
+**Root cause/lessons:**
+
+- The Flask test client defaults to `http`, so `request.is_secure` is `False` and Flask-WTF's SSL-strict referrer check is **skipped** — a test that asserts "POST with no Referer is accepted" would pass even with `WTF_CSRF_SSL_STRICT=True`. To exercise the HTTPS branch, set `client.environ_base = {"wsgi.url_scheme": "https"}` (the test client sends no `Referer` by default, which is exactly the case under test).
+- The module-level `RateLimiter` singletons (`LOGIN_RATE_LIMITER`, `PASSWORD_RECOVERY_RATE_LIMITER`) persist across tests in a process; several recovery POSTs from the same test IP trip the 5/3600s limit and the later tests stop sending mail. Patch the limiter per test: `patch.object(flask_se_auth.PASSWORD_RECOVERY_RATE_LIMITER, "allow", return_value=True)`.
+- `WTF_CSRF_ENABLED` is `False` in conftest; flip it to `True` (and restore in `finally`) for the CSRF-positive tests, mirroring the existing `test_csrf_protects_post_forms` pattern.
