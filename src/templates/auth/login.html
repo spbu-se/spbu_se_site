@@ -35,7 +35,7 @@
               <h6 class="h3 mb-1">Вход</h6>
             </div>
             <span class="clearfix"></span>
-            <form method="post" action="{{ url_for('login_index') }}">
+            <form method="post" action="{{ url_for('login_index') }}" id="login-form">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <div class="form-group">
                 <div class="input-group">
@@ -79,10 +79,7 @@
               </div>
               <div class="row" style="margin-top: 2em">
                 <div class="col-7">
-                  <button type="button" class="btn btn-link" onclick="pass_rec_page_switch()">
-                    Забыли
-                    пароль?
-                  </button>
+                  <a href="{{ url_for('password_recovery') }}" class="btn btn-link">Забыли пароль?</a>
                 </div>
                 <div class="col-5">
                   <button type="submit" class="btn btn-block btn-primary">Войти</button>
@@ -115,10 +112,24 @@
     </div>
   </section>
   <script nonce="{{ csp_nonce() }}">
-function pass_rec_page_switch()
-{
-     location.href = "{{ url_for('password_recovery') }}";
-}
-
+  (function () {
+    var form = document.getElementById("login-form");
+    var email = document.getElementById("input-login");
+    var password = document.getElementById("input-password");
+    if (form && email) {
+      form.addEventListener("submit", function () {
+        // Non-sensitive diagnostics for a user debugging a login failure.
+        console.info("[SE] login form submitted", {
+          email: email.value,
+          hasPassword: password ? password.value.length > 0 : false
+        });
+      });
+    }
+    var errorAlert = document.querySelector(".alert-info");
+    if (errorAlert && errorAlert.textContent.indexOf("указаны неверно") !== -1) {
+      // Server re-rendered this page with the unified failure message.
+      console.info("[SE] login rejected: invalid credentials");
+    }
+  })();
   </script>
 {% endblock %}

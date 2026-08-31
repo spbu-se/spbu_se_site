@@ -29,6 +29,13 @@ class TestCspReport:
                 204,
                 id="valid-json-ct",
             ),
+            pytest.param(
+                "POST",
+                "application/reports+json",
+                {"csp-report": {"document-uri": "/", "violated-directive": "script-src"}},
+                204,
+                id="valid-reports-plus-json-ct",
+            ),
             pytest.param("POST", "text/plain", "not json", 400, id="invalid-ct"),
             pytest.param("POST", "application/csp-report", "not json", 400, id="invalid-json"),
             pytest.param("GET", None, None, 405, id="get-not-allowed"),

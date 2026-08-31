@@ -38,17 +38,20 @@ def send_mail(to: str, subject: str, plain: str, html: str | None = None) -> boo
     if html:
         message.attach(MIMEText(html, "html"))
     try:
-        server = smtplib.SMTP("mail.spbu.ru", 25)
+        server = smtplib.SMTP("mail.spbu.ru", 25, timeout=10)
         try:
             server.ehlo()
             server.login(MAIL_DEFAULT_SENDER, MAIL_PASSWORD)
             server.sendmail(MAIL_DEFAULT_SENDER, [to], message.as_string())
         finally:
             server.quit()
-    except smtplib.SMTPException as exc:
+    except (smtplib.SMTPException, OSError) as exc:
+        # OSError covers socket.timeout / ConnectionRefusedError / EHOSTUNREACH;
+        # without the timeout a dead mail relay would hang the request thread.
         _log.warning("send_mail to %s failed: %s", to, exc)
         return False
     else:
+        _log.info("send_mail to %s sent", to)
         return True
 
 
