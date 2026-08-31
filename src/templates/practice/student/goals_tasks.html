@@ -88,7 +88,7 @@
                             data-trigger="hover"
                             data-placement="top"
                             data-toggle="popoverhover"
-                            onclick="EditGoal(`{{ practice.goal }}`); return false;">
+                            data-edit-goal="{{ practice.goal }}">
                       <i data-feather="edit"></i>
                     </button>
                     <a data-toggle="modal" data-target="#deleteGoalModal" href="#">
@@ -144,7 +144,7 @@
                            class="btn btn-sm btn-primary mt-2"
                            name="edit_goal_button"
                            value="Сохранить">
-                    <a class="btn btn-sm btn-outline-danger mt-2" onclick="ResetGoal();">Отмена</a>
+                    <a class="btn btn-sm btn-outline-danger mt-2" data-reset-goal="true">Отмена</a>
                   </div>
                 </div>
               {% else %}
@@ -236,7 +236,8 @@
                                   data-trigger="hover"
                                   data-placement="top"
                                   data-toggle="popoverhover"
-                                  onclick="EditTask(`{{ task }}`, `{{ task.id }}`); return false;">
+                                  data-edit-task="{{ task }}"
+                                  data-task-id="{{ task.id }}">
                             <i data-feather="edit"></i>
                           </button>
                           <a data-toggle="modal"
@@ -279,9 +280,7 @@
                                 <button type="submit"
                                         class="btn btn-secondary"
                                         value="Да, удалить!"
-                                        onClick="document.getElementById('hiddenDeleteTaskId').value = {{ task.id }}; GoalAndTasksForm.submit(); return false;">
-                                  Да, удалить
-                                </button>
+                                        data-delete-task-id="{{ task.id }}">Да, удалить</button>
                                 <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
                               </div>
                             </div>
@@ -293,7 +292,7 @@
                 </ul>
                 <div id="addTaskButton" class="row">
                   <div class="col">
-                    <a class="btn btn-sm btn-primary" onclick="AddTask()">Добавить задачу</a>
+                    <a class="btn btn-sm btn-primary" data-add-task="true">Добавить задачу</a>
                   </div>
                 </div>
                 <div id="addNewTaskTitle" class="row mt-3 mb-1" style="display: none">
@@ -319,13 +318,13 @@
                            class="btn btn-sm btn-primary mt-2"
                            name="submit_task_button"
                            value="Сохранить">
-                    <a class="btn btn-sm btn-outline-danger mt-2" onclick="resetTask();">Отмена</a>
+                    <a class="btn btn-sm btn-outline-danger mt-2" data-reset-task="true">Отмена</a>
                   </div>
                 </div>
                 <div id="editTaskButtonDiv" class="row" style="display: none">
                   <div class="col d-flex justify-content-between">
-                    <a class="btn btn-sm btn-primary mt-2" onclick="SubmitEditTask();">Изменить</a>
-                    <a class="btn btn-sm btn-outline-danger mt-2" onclick="resetTask();">Отмена</a>
+                    <a class="btn btn-sm btn-primary mt-2" data-submit-edit-task="true">Изменить</a>
+                    <a class="btn btn-sm btn-outline-danger mt-2" data-reset-task="true">Отмена</a>
                   </div>
                 </div>
               {% else %}
@@ -404,5 +403,47 @@
         editingTaskId = 0;
         return false;
     }
+
+    document.querySelectorAll('[data-edit-goal]').forEach(function (button) {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            EditGoal(this.getAttribute("data-edit-goal"));
+        });
+    });
+    document.querySelectorAll('[data-reset-goal="true"]').forEach(function (link) {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            ResetGoal();
+        });
+    });
+    document.querySelectorAll('[data-edit-task]').forEach(function (button) {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            EditTask(this.getAttribute("data-edit-task"), this.getAttribute("data-task-id"));
+        });
+    });
+    document.querySelectorAll('[data-delete-task-id]').forEach(function (button) {
+        button.addEventListener("click", function () {
+            document.getElementById("hiddenDeleteTaskId").value = this.getAttribute("data-delete-task-id");
+        });
+    });
+    document.querySelectorAll('[data-add-task="true"]').forEach(function (link) {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            AddTask();
+        });
+    });
+    document.querySelectorAll('[data-reset-task="true"]').forEach(function (link) {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            resetTask();
+        });
+    });
+    document.querySelectorAll('[data-submit-edit-task="true"]').forEach(function (link) {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            SubmitEditTask();
+        });
+    });
   </script>
 {% endblock %}

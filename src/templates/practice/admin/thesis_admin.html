@@ -5,10 +5,7 @@
     <div class="row mb-2">
       <div class="col">
         <h5 class="mb-0">{{ thesis.title }}</h5>
-        <a href="#"
-           id="editTitleButton"
-           class="text-sm"
-           onclick="editTitle(); return false;">Редактировать тему</a>
+        <a href="#" id="editTitleButton" class="text-sm" data-edit-title="true">Редактировать тему</a>
       </div>
     </div>
     <form method="POST" action="{{ url_for('thesis_admin', id=thesis.id) }}">
@@ -31,8 +28,7 @@
                          class="btn btn-sm btn-primary mt-2"
                          name="submit_edit_title_button"
                          value="Изменить">
-                  <a class="btn btn-sm btn-outline-danger mt-2"
-                     onclick="cancelEditingTask();">Отмена</a>
+                  <a class="btn btn-sm btn-outline-danger mt-2" data-cancel-edit="true">Отмена</a>
                 </div>
               </div>
             </div>
@@ -306,6 +302,20 @@
     function cancelEditingTask() {
         document.getElementById("editTitleButton").style.display = "block";
         document.getElementById("editTitleInput").style.display = "none";
+    }
+
+    var editTitleButton = document.getElementById("editTitleButton");
+    if (editTitleButton) {
+        editTitleButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            editTitle();
+        });
+    }
+    var cancelEditButton = document.querySelector('[data-cancel-edit="true"]');
+    if (cancelEditButton) {
+        cancelEditButton.addEventListener("click", function () {
+            cancelEditingTask();
+        });
     }
   </script>
 {% endblock %}

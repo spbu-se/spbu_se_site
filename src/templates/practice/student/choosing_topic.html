@@ -56,9 +56,7 @@
                   Тип работы: <b>{{ practice.worktype }}</b>
                   <br>
                   {% if not practice.consultant %}
-                    <a href="#"
-                       id="addConsultantButton"
-                       onclick="addConsultant(); return false;">Добавить консультанта</a>
+                    <a href="#" id="addConsultantButton" data-add-consultant="true">Добавить консультанта</a>
                   {% endif %}
                 </p>
                 <div id="addConsultantInput" class="row" style="display: none">
@@ -76,7 +74,7 @@
                                name="add_consultant_button"
                                value="Сохранить">
                         <a class="btn btn-sm btn-outline-danger mt-2"
-                           onclick="cancelAddingConsultant(); return false;">Отмена</a>
+                           data-cancel-consultant="true">Отмена</a>
                       </div>
                     </div>
                   </div>
@@ -182,6 +180,21 @@
         document.getElementById("addConsultantInput").style.display = "none";
         document.getElementById("addConsultantButton").style.display = "block";
         document.getElementById("editAndRefuseButton").style.display = "";
+    }
+
+    var addConsultantButton = document.getElementById("addConsultantButton");
+    if (addConsultantButton) {
+        addConsultantButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            addConsultant();
+        });
+    }
+    var cancelConsultantButton = document.querySelector('[data-cancel-consultant="true"]');
+    if (cancelConsultantButton) {
+        cancelConsultantButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            cancelAddingConsultant();
+        });
     }
   </script>
 {% endblock %}

@@ -87,12 +87,12 @@
                     </div>
                     <div class="col d-flex justify-content-end">
                       <a href=""
-                         onClick="document.getElementById('hiddenReadButtonNew').value = {{ notification.id }}; read_buttons_form_new.submit(); return false;">
+                         data-read-notification="new"
+                         data-notification-id="{{ notification.id }}">
                         <span id="span{{ notification.id }}-new"
                               class="badge btn-secondary"
                               style="display: inline-block"
-                              onmouseover="changeBadge('span{{ notification.id }}-new');"
-                              onmouseout="changeBadgeBack('span{{ notification.id }}-new');">Не прочитано</span>
+                              data-badge-hover="span{{ notification.id }}-new">Не прочитано</span>
                       </a>
                     </div>
                   </div>
@@ -141,12 +141,12 @@
                     {% else %}
                       <div class="col d-flex justify-content-end">
                         <a href=""
-                           onClick="document.getElementById('hiddenReadButtonAll').value = {{ notification.id }}; read_buttons_form_all.submit(); return false;">
+                           data-read-notification="all"
+                           data-notification-id="{{ notification.id }}">
                           <span id="span{{ notification.id }}-all"
                                 class="badge btn-secondary"
                                 style="display: inline-block"
-                                onmouseover="changeBadge('span{{ notification.id }}-all');"
-                                onmouseout="changeBadgeBack('span{{ notification.id }}-all');">Не прочитано</span>
+                                data-badge-hover="span{{ notification.id }}-all">Не прочитано</span>
                         </a>
                       </div>
                     {% endif %}
@@ -179,6 +179,27 @@
     document.querySelectorAll('.badge').forEach(element =>
     {
         element.addEventListener('click', () => { localStorage[position] = window.scrollY });
+    });
+
+    document.querySelectorAll('[data-read-notification]').forEach(link =>
+    {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            const formName = this.getAttribute('data-read-notification') === 'new'
+                ? 'read_buttons_form_new'
+                : 'read_buttons_form_all';
+            const hiddenId = this.getAttribute('data-read-notification') === 'new'
+                ? 'hiddenReadButtonNew'
+                : 'hiddenReadButtonAll';
+            document.getElementById(hiddenId).value = this.getAttribute('data-notification-id');
+            document[formName].submit();
+        });
+    });
+
+    document.querySelectorAll('[data-badge-hover]').forEach(span =>
+    {
+        span.addEventListener('mouseenter', function () { changeBadge(this.getAttribute('data-badge-hover')); });
+        span.addEventListener('mouseleave', function () { changeBadgeBack(this.getAttribute('data-badge-hover')); });
     });
 
     window.addEventListener('load', e =>
