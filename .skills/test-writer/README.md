@@ -173,3 +173,7 @@ def test_no_raw_safe_output(self):
                 bad.append(f"{p.relative_to(root)}:{i}: {line.strip()}")
     assert not bad, "raw |safe without |safe_html:\n" + "\n".join(bad)
 ```
+
+### Structural source guards (CSP, autocomplete, exception swallowing)
+
+Source-scanning guards in `tests/test_template_guards.py` (PR-3, 2026-08-31) enforce policies that a browser-based test can't: no inline `onX=` handlers or `javascript:` hrefs (dead under the strict nonce CSP), `autocomplete` on credential inputs, and no silent `except: pass` unless `# noqa`-annotated. When adding a template feature that needs JS wiring, extend these guards rather than adding per-endpoint assertions — the scan runs in seconds and fails at the source.

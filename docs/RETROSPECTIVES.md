@@ -1915,3 +1915,23 @@ Session: root-caused the "nobody can log in" incident on `se.math.spbu.ru` and s
 **Fix**: (1) `WTF_CSRF_SSL_STRICT=False` + `CSRFError` handler (`src/flask_se.py`); (2) e-mail password recovery (`flask_se_auth.py`, `se_sendmail.py`, `password_recovery.html`/`password_recovery_reset.html`, login.html button); (3) deploy smoke now POSTs `/login.html` without a Referer and asserts 200; (4) tests (`TestCsrfLogin`, `TestPasswordRecovery` — 8 tests); (5) docs extracted to `AI_AGENT_EXPERIENCE.md`, test-writer skill updated.
 
 **State at handoff**: branch `fix/login-csrf-password-recovery` from `upstream/current`. Full suite 1361 passed / 4 skipped / 2 xfailed / 1 xpassed (91.5% coverage); ruff clean; basedpyright clean; pre-push gate green. Next: PR → CI → squash-merge → GPG-signed tag (by maintainer) → release draft.
+
+### Retrospective — 2026-08-31: auth batch (register, recovery, CSP sweep) + release
+
+Three-PR batch (#265 register, #266 recovery+observability, #267 CSP inline-handler sweep + structural guards) from the auth-feedback gathering, plus the v2026.08.27 release and prod verification.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| CI `assets` drift failed on PR-1 (`.custom-checkbox`) and PR-2 (`.d-none`) | Missing in docs — the "template class change → regenerate purged CSS" rule lived only in the dependabot repair section and `scripts/build-assets.mjs` | Added general rule to `docs/TOOLING.md` §Purged/minified assets + one pre-flight line in AGENTS.md; the purge-completeness guard test already catches it locally |
+| `.tooling.md` rebase GPG workaround (`commit.gpgsign false` toggle) did not work — `rebase --continue` still signed and timed out | Missing in docs — documented workaround was unreliable | Replaced with reliable fallbacks in `.tooling.md`: (A) `git commit --no-gpg-sign` on the staged resolution + `git rebase --quit`; (B) `git checkout -B <branch> upstream/current` + `git cherry-pick -n` + `git commit --no-gpg-sign` |
+| djLint "Stashed changes conflicted with hook auto-fixes" recurred on the PR-2 commit | Human error — the rule (run `pre-commit run djlint --all-files` before staging templates) is documented in AGENTS.md + AI_AGENT_EXPERIENCE.md but was skipped once | No new rule — reinforced: run djlint on all files immediately after editing templates, before `git add` |
+| Diagnostic scratch files written to `$env:TEMP` instead of `.tmp/` | Human error — user corrected: never use system temp, local `.tmp/` only (already in AGENTS.md) | Cleaned up; no doc change needed |
+| No project skill loaded during the batch (test-writer, merge-gate) | Didn't load — AGENTS.md says read the matching `.skills/<name>/README.md` manually; the batch flowed through familiar paths | Retro note only; the retrospective skill was loaded for this full retro |
+
+**What went wrong**: The batch itself was clean (all three PRs green, full suites 1361 → 1366 → 1372 → 1376 passed, pre-push gates green, purge guard caught the CSS regressions before merge). The real losses were (1) two CI `assets` failures that the docs could have predicted, (2) one stuck rebase that the documented workaround couldn't unstick, (3) two human-error slips (djLint-before-stage, system-temp scratch).
+
+**Root causes**: Missing in docs (2), human error (2), didn't load skill (1).
+
+**Fix**: TOOLING.md + AGENTS.md asset rule; `.tooling.md` rebase fallback; retro reminder for the two human errors.
+
+**Pattern recurrence**: NO — none of these gaps match a prior retro's gap class. The djLint slip is a repeat of a *documented pitfall* but the fix (normalize-before-stage) is already in place and worked on retry; flagged for escalation to a tool-level guard if it recurs.
