@@ -38,6 +38,15 @@
     <title>
       {% block title %}{% endblock %}
     </title>
+    <!-- Accessibility mode restore (docs/SPBU_REGULATIONS.md §3.1.6):
+         apply `a11y-mode` on <html> before first paint to avoid a flash. -->
+    <script nonce="{{ csp_nonce() }}">
+      (function () {
+        var on = false;
+        try { on = localStorage.getItem('se-a11y-mode') === '1'; } catch (e) {}
+        if (on) { document.documentElement.classList.add('a11y-mode'); }
+      })();
+    </script>
     {% if se_metrica_id and se_consent_granted["statistics"] %}
       <!-- Yandex Metrika -->
       <script type="text/javascript" nonce="{{ csp_nonce() }}">
@@ -62,6 +71,8 @@
     <!-- Page CSS -->
     <link rel="stylesheet"
           href="{{ asset('libs/animate.css/animate.min.css') }}">
+    <!-- Accessibility CSS (docs/SPBU_REGULATIONS.md §3.1.6) -->
+    <link rel="stylesheet" href="{{ asset('css/a11y.css') }}">
     <!-- SE_ON_READY: deferred jquery (see Core JS below) is not loaded when
          content-block inline scripts run; queue callbacks here instead. -->
     <script nonce="{{ csp_nonce() }}">
@@ -379,6 +390,13 @@
                                margin-left:0.75rem;
                                text-decoration:underline;
                                cursor:pointer">Настройка файлов cookie</button>
+                <span class="text-white" style="margin: 0 0.5rem;">·</span>
+                <a href="#"
+                   id="se-a11y-toggle"
+                   role="switch"
+                   aria-checked="false"
+                   class="text-white"
+                   style="text-decoration:underline">Версия для слабовидящих</a>
               </div>
               <div class="copyright text-sm font-weight-bold text-center text-md-left">
                 &copy; <span itemprop="name">Кафедра системного программирования</span>, Математико-механический факультет, СПбГУ, 1996-{{ current_year }}

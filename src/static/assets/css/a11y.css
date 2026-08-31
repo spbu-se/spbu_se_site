@@ -1,0 +1,66 @@
+/* Accessibility mode («Версия для слабовидящих»), Регламент № 11763/1 §3.1.6.
+   Toggled via the `a11y-mode` class on the <html> element (id=se-a11y-toggle
+   link in the footer); the choice persists in localStorage (`se-a11y-mode`).
+   Standalone stylesheet — deliberately NOT part of the quick-website
+   purge/minify pipeline (scripts/build-assets.mjs). See docs/SPBU_REGULATIONS.md. */
+
+/* Scale the rem root so every Bootstrap rem-based size grows. */
+html.a11y-mode {
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+/* Force a high-contrast black-on-white canvas. */
+html.a11y-mode body {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* Readable links, always underlined. */
+html.a11y-mode a,
+html.a11y-mode a:link,
+html.a11y-mode a:visited,
+html.a11y-mode a:hover,
+html.a11y-mode a:focus,
+html.a11y-mode a:active {
+    text-decoration: underline;
+}
+
+html.a11y-mode a {
+    color: #0000ee;
+}
+
+html.a11y-mode a:visited {
+    color: #551a8b;
+}
+
+/* Navbar and footer stay as black bars with white text for contrast
+   (these rules override the link colors above via !important + source order). */
+html.a11y-mode .navbar.navbar-main,
+html.a11y-mode footer {
+    background-color: #000000 !important;
+}
+
+html.a11y-mode .navbar.navbar-main a,
+html.a11y-mode .navbar.navbar-main .nav-link,
+html.a11y-mode footer a,
+html.a11y-mode footer button,
+html.a11y-mode footer span,
+html.a11y-mode footer p {
+    color: #ffffff !important;
+}
+
+/* Muted text must stay legible against the forced white background. */
+html.a11y-mode .text-muted {
+    color: #000000 !important;
+}
+
+/* Visible focus ring for keyboard navigation. */
+html.a11y-mode a:focus,
+html.a11y-mode button:focus,
+html.a11y-mode input:focus,
+html.a11y-mode select:focus,
+html.a11y-mode textarea:focus {
+    outline: 3px solid #0000ee !important;
+    outline-offset: 2px;
+}
