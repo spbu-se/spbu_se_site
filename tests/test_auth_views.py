@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import io
 import json
+import re
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -1233,3 +1234,148 @@ class TestSecurityMedium:
         assert resp.status_code in (200, 302, 404)
         # An unrelated user must be redirected, not shown the verdict.
         assert b"verdict" not in resp.data.lower() or resp.status_code == 302
+
+
+class TestCsrfLogin:
+    """Regression for the 2026-08-31 login outage: Flask-WTF's SSL-strict CSRF
+    rejected any login POST whose Referer header was missing with a 400,
+    locking real users out. The token check stays enforced."""
+
+    def _https_client(self, seeded_client):
+        # Make request.is_secure True so the referrer sub-check would apply;
+        # the test client sends no Referer by default.
+        seeded_client.environ_base = {"wsgi.url_scheme": "https"}
+        return seeded_client
+
+    def test_login_post_without_referrer_is_accepted(self, seeded_client):
+        """A valid-token POST with no Referer must reach the password check."""
+        from flask_se import app
+
+        client = self._https_client(seeded_client)
+        app.config["WTF_CSRF_ENABLED"] = True
+        try:
+            page = client.get("/login.html")
+            m = re.search(r'name="csrf_token" value="([^"]+)"', page.data.decode())
+            assert m, "login page must render a csrf_token"
+            resp = client.post(
+                "/login.html",
+                data={"email": "a.terekhov@spbu.ru", "password": "any", "csrf_token": m.group(1)},
+            )
+            assert resp.status_code in (200, 302), f"got {resp.status_code}, expected not 400"
+            assert resp.status_code != 400
+        finally:
+            app.config["WTF_CSRF_ENABLED"] = False
+
+    def test_login_post_without_csrf_token_still_rejected(self, seeded_client):
+        """CSRF stays enforced: no token -> friendly 400 page, no login."""
+        from flask_se import app
+
+        client = self._https_client(seeded_client)
+        app.config["WTF_CSRF_ENABLED"] = True
+        try:
+            resp = client.post(
+                "/login.html", data={"email": "a.terekhov@spbu.ru", "password": "any"}
+            )
+            assert resp.status_code == 400
+            assert "Сессия истекла" in resp.data.decode()
+        finally:
+            app.config["WTF_CSRF_ENABLED"] = False
+
+
+class TestPasswordRecovery:
+    """E-mail password recovery: request a signed one-time link, reset the
+    password, no account enumeration, rate-limited."""
+
+    @staticmethod
+    def _reset_url(send_mock):
+        args = send_mock.call_args[0]
+        plain = args[2]
+        m = re.search(r"https?://\S+", plain)
+        assert m, "reset link must appear in the mail body"
+        return m.group(0)
+
+    def test_recovery_unknown_email_sends_no_mail(self, seeded_client):
+        import flask_se_auth
+
+        with (
+            patch("flask_se_auth.send_mail") as send,
+            patch.object(flask_se_auth.PASSWORD_RECOVERY_RATE_LIMITER, "allow", return_value=True),
+        ):
+            resp = seeded_client.post("/password_recovery.html", data={"email": "noone@spbu.ru"})
+        assert resp.status_code == 200
+        send.assert_not_called()
+
+    def test_recovery_known_email_sends_mail(self, seeded_client):
+        import flask_se_auth
+
+        with (
+            patch("flask_se_auth.send_mail") as send,
+            patch.object(flask_se_auth.PASSWORD_RECOVERY_RATE_LIMITER, "allow", return_value=True),
+        ):
+            resp = seeded_client.post(
+                "/password_recovery.html", data={"email": "a.terekhov@spbu.ru"}
+            )
+        assert resp.status_code == 200
+        send.assert_called_once()
+
+    def test_recovery_reset_sets_password_and_logs_in(self, seeded_client):
+        import flask_se_auth
+        from flask_se import app as flask_app
+        from se_models import Users
+
+        with (
+            patch("flask_se_auth.send_mail") as send,
+            patch.object(flask_se_auth.PASSWORD_RECOVERY_RATE_LIMITER, "allow", return_value=True),
+        ):
+            seeded_client.post("/password_recovery.html", data={"email": "a.terekhov@spbu.ru"})
+        token = self._reset_url(send).rsplit("/", 1)[-1]
+
+        page = seeded_client.get("/password_recovery/" + token)
+        assert page.status_code == 200
+        assert "Новый пароль" in page.data.decode()
+
+        resp = seeded_client.post(
+            "/password_recovery/" + token,
+            data={"password": "newpass123", "password2": "newpass123"},
+        )
+        assert resp.status_code in (200, 302)
+        with flask_app.app_context():
+            u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
+            assert u.password_hash == "mock:newpass123"
+
+    def test_recovery_reset_password_mismatch(self, seeded_client):
+        import flask_se_auth
+
+        with (
+            patch("flask_se_auth.send_mail") as send,
+            patch.object(flask_se_auth.PASSWORD_RECOVERY_RATE_LIMITER, "allow", return_value=True),
+        ):
+            seeded_client.post("/password_recovery.html", data={"email": "a.terekhov@spbu.ru"})
+        token = self._reset_url(send).rsplit("/", 1)[-1]
+        resp = seeded_client.post(
+            "/password_recovery/" + token,
+            data={"password": "newpass123", "password2": "different"},
+        )
+        assert resp.status_code == 200
+        assert "Пароли не совпадают" in resp.data.decode()
+
+    def test_recovery_reset_short_password_rejected(self, seeded_client):
+        import flask_se_auth
+
+        with (
+            patch("flask_se_auth.send_mail") as send,
+            patch.object(flask_se_auth.PASSWORD_RECOVERY_RATE_LIMITER, "allow", return_value=True),
+        ):
+            seeded_client.post("/password_recovery.html", data={"email": "a.terekhov@spbu.ru"})
+        token = self._reset_url(send).rsplit("/", 1)[-1]
+        resp = seeded_client.post(
+            "/password_recovery/" + token,
+            data={"password": "short", "password2": "short"},
+        )
+        assert resp.status_code == 200
+        assert "8 символов" in resp.data.decode()
+
+    def test_recovery_invalid_token_redirects(self, seeded_client):
+        resp = seeded_client.get("/password_recovery/not-a-token")
+        assert resp.status_code == 302
+        assert "/password_recovery.html" in resp.headers["Location"]

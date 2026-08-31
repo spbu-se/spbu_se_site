@@ -13,7 +13,16 @@ import pathlib
 import cachecontrol
 import google.auth.transport.requests
 import requests
-from flask import flash, redirect, render_template, request, send_file, session, url_for
+from flask import (
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    session,
+    url_for,
+)
 from flask_login import (
     LoginManager,
     current_user,
@@ -23,18 +32,21 @@ from flask_login import (
 )
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from PIL import Image
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from flask_se_config import (
     LOGIN_RATE_LIMITER,
+    PASSWORD_RECOVERY_RATE_LIMITER,
     REGISTER_RATE_LIMITER,
     VK_CLIENT_ID,
     VK_CLIENT_SECRET,
     secure_filename,
 )
 from se_models import Users, db
+from se_sendmail import send_mail
 
 # Global variables
 UPLOAD_FOLDER = "static/images/avatars/"
@@ -322,8 +334,95 @@ def register_basic():
     return render_template("auth/register_basic.html", user=current_user)
 
 
+PASSWORD_RESET_TOKEN_MAX_AGE = 3600  # 1 hour
+
+
+def _make_reset_token(user: Users) -> str:
+    """Signed one-time reset token bound to user id + current e-mail."""
+    return URLSafeTimedSerializer(current_app.config["SECRET_KEY"]).dumps(
+        {"user_id": user.id, "email": user.email}
+    )
+
+
+def _read_reset_token(token: str) -> dict[str, str | int] | None:
+    """Unsign a reset token; returns None when invalid/expired."""
+    try:
+        data = URLSafeTimedSerializer(current_app.config["SECRET_KEY"]).loads(
+            token, max_age=PASSWORD_RESET_TOKEN_MAX_AGE
+        )
+    except (BadSignature, SignatureExpired):
+        return None
+    if not isinstance(data, dict) or "user_id" not in data or "email" not in data:
+        return None
+    return data
+
+
 def password_recovery():
-    return render_template("password_recovery.html")
+    if current_user.is_authenticated:
+        return redirect(url_for("user_profile"))
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        client_ip = request.remote_addr or "unknown"
+        if not PASSWORD_RECOVERY_RATE_LIMITER.allow("recovery:" + client_ip):
+            flash("Слишком много запросов на восстановление. Попробуйте позже.", category="error")
+        else:
+            user = Users.query.filter_by(email=email).first()
+            if user is not None and not user.deleted:
+                reset_url = url_for(
+                    "password_recovery_reset",
+                    token=_make_reset_token(user),
+                    _external=True,
+                )
+                send_mail(
+                    user.email,
+                    "Восстановление пароля — сайт кафедры СПбГУ",
+                    "Для восстановления пароля перейдите по ссылке (действует 1 час):\n"
+                    + reset_url,
+                    (
+                        "<p>Для восстановления пароля перейдите по ссылке "
+                        f'(действует 1 час): <a href="{reset_url}">{reset_url}</a></p>'
+                    ),
+                )
+                logging.getLogger("flask_se.auth").info(
+                    "password recovery link sent for user id=%s", user.id
+                )
+            # Uniform reply: never reveal whether the e-mail is registered.
+            flash(
+                "Если такой адрес зарегистрирован, на него отправлена ссылка для восстановления пароля."
+            )
+        return render_template("password_recovery.html", user=current_user)
+
+    return render_template("password_recovery.html", user=current_user)
+
+
+def password_recovery_reset(token: str):
+    data = _read_reset_token(token)
+    user = None
+    if data is not None:
+        user = Users.query.filter_by(id=data["user_id"]).first()
+        if user is None or user.deleted or user.email != data["email"]:
+            user = None
+
+    if user is None:
+        flash("Ссылка недействительна или истекла. Запросите новую.", category="error")
+        return redirect(url_for("password_recovery"))
+
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        confirm = request.form.get("password2", "")
+        if len(password) < 8:
+            flash("Пароль должен быть не короче 8 символов", category="error")
+        elif password != confirm:
+            flash("Пароли не совпадают", category="error")
+        else:
+            user.password_hash = generate_password_hash(password, method="pbkdf2:sha256")
+            db.session.commit()
+            login_user(user, remember=True)
+            flash("Пароль изменён. Вы вошли в систему.")
+            return redirect(url_for("user_profile"))
+
+    return render_template("password_recovery_reset.html", user=user, token=token)
 
 
 @login_required
@@ -589,6 +688,11 @@ def register_routes(app) -> None:
     app.add_url_rule("/register_basic.html", methods=["GET", "POST"], view_func=register_basic)
     app.add_url_rule(
         "/password_recovery.html", methods=["GET", "POST"], view_func=password_recovery
+    )
+    app.add_url_rule(
+        "/password_recovery/<token>",
+        methods=["GET", "POST"],
+        view_func=password_recovery_reset,
     )
     app.add_url_rule("/profile.html", methods=["GET", "POST"], view_func=user_profile)
     app.add_url_rule("/profile/export.zip", methods=["GET"], view_func=user_export)

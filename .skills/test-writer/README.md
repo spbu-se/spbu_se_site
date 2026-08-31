@@ -97,6 +97,12 @@ def test_with_logged_in_user(self, seeded_client):
 - Use `logged_client` fixture instead of login POST to avoid scrypt hash issues on Python 3.13
 - Assert `resp.status_code` against a set: `{200}` not `200`, to allow easy widening
 
+### CSRF-protected routes (login, POST forms)
+
+- Tests default to `WTF_CSRF_ENABLED=False` (conftest). To assert CSRF behavior, flip `app.config["WTF_CSRF_ENABLED"] = True` and restore in `finally` (see `test_csrf_protects_post_forms`).
+- The test client defaults to HTTP, so Flask-WTF's SSL-strict referrer check is **skipped** (`request.is_secure` is False). Exercise the HTTPS branch with `client.environ_base = {"wsgi.url_scheme": "https"}`; the test client sends no `Referer` by default — which is exactly the no-referrer case under test.
+- Module-level `RateLimiter` singletons (`LOGIN_RATE_LIMITER`, `PASSWORD_RECOVERY_RATE_LIMITER`, `REGISTER_RATE_LIMITER`) persist across tests in a process and throttle repeated POSTs from the same test IP. Patch `.allow` per test: `patch.object(flask_se_auth.PASSWORD_RECOVERY_RATE_LIMITER, "allow", return_value=True)`.
+
 ### Schema/DDL tests: swap the engine per test
 
 For schema-management code (`ensure_schema()`, auto-migrate), tests need their own DB state without touching the fixture DB. Swap the engine the same way `conftest._set_db_uri()` does, and restore it in `finally`:

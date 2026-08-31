@@ -294,3 +294,4 @@ class RateLimiter:
 
 LOGIN_RATE_LIMITER = RateLimiter(limit=10, window_seconds=300)
 REGISTER_RATE_LIMITER = RateLimiter(limit=5, window_seconds=3600)
+PASSWORD_RECOVERY_RATE_LIMITER = RateLimiter(limit=5, window_seconds=3600)

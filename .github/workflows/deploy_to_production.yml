@@ -100,6 +100,35 @@ jobs:
             echo "OK ${route} -> ${code}"
           done
 
+      # Regression gate for the 2026-08-31 login outage: Flask-WTF's SSL-strict
+      # CSRF rejected every login POST whose Referer header was missing with a
+      # 400, locking real users out. POST without a Referer must reach the
+      # password check (200 with wrong creds), never a 400.
+      - name: Post-deploy smoke test (login POST passes CSRF without referrer)
+        env:
+          PROD_HOST: "https://se.math.spbu.ru"
+        run: |
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          curl --fail --silent --show-error --max-time 60 -c "$tmp/cookies.txt" \
+            "${PROD_HOST}/login.html" -o "$tmp/login.html"
+          token="$(sed -n 's/.*name="csrf_token" value="\([^"]*\)".*/\1/p' "$tmp/login.html" | head -1)"
+          if [ -z "$token" ]; then
+            echo "::error::Smoke test failed: no csrf_token on /login.html"
+            exit 1
+          fi
+          code="$(curl --silent --show-error --max-time 60 -b "$tmp/cookies.txt" \
+            -o "$tmp/post.html" -w "%{http_code}" \
+            --data-urlencode "email=smoke-check@example.com" \
+            --data-urlencode "password=wrong-password" \
+            --data-urlencode "csrf_token=${token}" \
+            "${PROD_HOST}/login.html")"
+          if [ "$code" != "200" ]; then
+            echo "::error::Smoke test failed: login POST returned ${code} (expected 200; 400 means a CSRF/referrer regression)."
+            exit 1
+          fi
+          echo "OK login POST (no referrer) -> ${code}"
+
   release-gate:
     runs-on: ubuntu-latest
     outputs:
