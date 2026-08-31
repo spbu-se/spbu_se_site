@@ -125,8 +125,7 @@
                    href="#collapseColumnNames"
                    role="button"
                    aria-expanded="false"
-                   aria-controls="collapseColumnNames"
-                   onclick="ChangeArrow()">
+                   aria-controls="collapseColumnNames">
                   Настроить названия столбцов в таблице
                   <i id="iconUp" data-feather="chevron-up" style="display: none"></i>
                   <i id="iconDown" data-feather="chevron-down"></i>
@@ -262,18 +261,29 @@
     {% endif %}
   </div>
   <script type="text/javascript" nonce="{{ csp_nonce() }}">
-     function ChangeArrow() {
-         let arrow = document.getElementById("arrow-column-name")
+     function ChangeArrow(arrow, expanded) {
          let iconUp = arrow.querySelector('#iconUp');
          let iconDown = arrow.querySelector('#iconDown');
-         if (arrow.getAttribute("aria-expanded") === "false") {
+         if (expanded) {
              iconDown.style.display = "none";
              iconUp.style.display = "inline-block";
          }
-        else {
-            iconUp.style.display = "none";
-            iconDown.style.display = "inline-block";
-        }
-    }
+         else {
+             iconUp.style.display = "none";
+             iconDown.style.display = "inline-block";
+         }
+     }
+     var arrowColumnName = document.getElementById("arrow-column-name");
+     if (arrowColumnName) {
+         var collapseTarget = document.getElementById("collapseColumnNames");
+         if (collapseTarget) {
+             collapseTarget.addEventListener("show.bs.collapse", function () {
+                 ChangeArrow(arrowColumnName, true);
+             });
+             collapseTarget.addEventListener("hidden.bs.collapse", function () {
+                 ChangeArrow(arrowColumnName, false);
+             });
+         }
+     }
   </script>
 {% endblock %}

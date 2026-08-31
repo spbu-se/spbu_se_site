@@ -93,8 +93,7 @@
                               Вы точно хотите удалить <b>отчёт за {{ report.time | datatime_convert }}</b>?
                             </div>
                             <div class="modal-footer">
-                              <a class="btn btn-secondary"
-                                 onClick="document.getElementById('hiddenDeleteButton').value = {{ report.id }}; delete_buttons_form.submit(); return false;">Да, удалить!</a>
+                              <a class="btn btn-secondary" data-delete-report="{{ report.id }}">Да, удалить!</a>
                               <button type="button" class="btn btn-primary" data-dismiss="modal">Нет, оставить</button>
                             </div>
                           </div>
@@ -109,4 +108,15 @@
         {% endif %}
       </form>
     </div>
+    <script nonce="{{ csp_nonce() }}">
+  (function () {
+    document.querySelectorAll('[data-delete-report]').forEach(function (link) {
+      link.addEventListener("click", function (event) {
+        event.preventDefault();
+        document.getElementById("hiddenDeleteButton").value = this.getAttribute("data-delete-report");
+        document.delete_buttons_form.submit();
+      });
+    });
+  })();
+    </script>
   {% endblock %}

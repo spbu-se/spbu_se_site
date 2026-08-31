@@ -116,7 +116,7 @@ def _rotate_log_file(log_path: str) -> None:
         try:
             if os.path.exists(src):
                 os.replace(src, dst)
-        except OSError:
+        except OSError:  # noqa: silent-except  rotate race between workers
             pass
 
 

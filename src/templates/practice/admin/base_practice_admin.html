@@ -16,7 +16,7 @@
               <div class="card-body px-3 py-3">
                 <p class="text-sm mb-0">Направление обучения</p>
                 <div class="form-group">
-                  <select class="custom-select pl-3" onchange="location = this.value;">
+                  <select class="custom-select pl-3" data-nav-select="true">
                     <option {% if not area %}selected{% endif %}
                             value="{{ url_for('choose_area_and_worktype_admin', worktype_id=worktype.id) }}">
                       Выберите направление обучения
@@ -31,7 +31,7 @@
                 </div>
                 <p class="text-sm mb-0">Тип работы</p>
                 <div class="form-group">
-                  <select class="custom-select pl-3" onchange="location = this.value;">
+                  <select class="custom-select pl-3" data-nav-select="true">
                     <option {% if not worktype %}selected{% endif %}
                             value="{{ url_for('choose_area_and_worktype_admin', area_id=area.id) }}">
                       Выберите тип работы
@@ -126,4 +126,16 @@
       </div>
     </div>
   </section>
+  <script nonce="{{ csp_nonce() }}">
+  (function () {
+    var selects = document.querySelectorAll('[data-nav-select="true"]');
+    selects.forEach(function (select) {
+      select.addEventListener("change", function () {
+        if (this.value) {
+          location = this.value;
+        }
+      });
+    });
+  })();
+  </script>
 {% endblock %}

@@ -81,14 +81,8 @@ def notification_send_mail() -> None:
             server.ehlo()
             server.login(MAIL_DEFAULT_SENDER, MAIL_PASSWORD)
 
-        except smtplib.SMTPHeloError:
-            pass
-        except smtplib.SMTPAuthenticationError:
-            pass
-        except smtplib.SMTPNotSupportedError:
-            pass
-        except smtplib.SMTPException:
-            pass
+        except smtplib.SMTPException as exc:
+            _log.warning("notification SMTP handshake failed: %s", exc)
 
         try:
             # Staging must not send real mail, but the notification row is
@@ -98,14 +92,8 @@ def notification_send_mail() -> None:
             db.session.delete(n)
             db.session.commit()
 
-        except smtplib.SMTPRecipientsRefused:
-            pass
-        except smtplib.SMTPDataError:
-            pass
-        except smtplib.SMTPSenderRefused:
-            pass
-        except smtplib.SMTPNotSupportedError:
-            pass
+        except smtplib.SMTPException as exc:
+            _log.warning("notification send to %s failed: %s", user.email, exc)
 
 
 def _ensure_notification_log_table() -> None:
@@ -196,24 +184,12 @@ def notification_send_diploma_themes_on_review() -> None:
         server.ehlo()
         server.login(MAIL_DEFAULT_SENDER, MAIL_PASSWORD)
 
-    except smtplib.SMTPHeloError:
-        pass
-    except smtplib.SMTPAuthenticationError:
-        pass
-    except smtplib.SMTPNotSupportedError:
-        pass
-    except smtplib.SMTPException:
-        pass
+    except smtplib.SMTPException as exc:
+        _log.warning("diploma themes SMTP handshake failed: %s", exc)
 
     try:
         if os.getenv("SE_STAGING") is None:
             server.sendmail(MAIL_DEFAULT_SENDER, recipients, message.as_string())
 
-    except smtplib.SMTPRecipientsRefused:
-        pass
-    except smtplib.SMTPDataError:
-        pass
-    except smtplib.SMTPSenderRefused:
-        pass
-    except smtplib.SMTPNotSupportedError:
-        pass
+    except smtplib.SMTPException as exc:
+        _log.warning("diploma themes send failed: %s", exc)

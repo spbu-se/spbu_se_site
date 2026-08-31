@@ -87,8 +87,7 @@
                    href="#collapse-{{ thesis.id }}"
                    role="button"
                    aria-expanded="false"
-                   aria-controls="collapse-{{ thesis.id }}"
-                   onclick="ChangeArrow({{ thesis.id }})">
+                   aria-controls="collapse-{{ thesis.id }}">
                   <i id="iconUp" data-feather="chevron-up" style="display: none"></i>
                   <i id="iconDown" data-feather="chevron-down"></i>
                 </a>
@@ -184,18 +183,29 @@
     {% endif %}
   </div>
   <script type="text/javascript" nonce="{{ csp_nonce() }}">
-     function ChangeArrow(id) {
-         let arrow = document.getElementById("arrow-" + id)
+     function ChangeArrow(arrow, expanded) {
          let iconUp = arrow.querySelector('#iconUp');
          let iconDown = arrow.querySelector('#iconDown');
-         if (arrow.getAttribute("aria-expanded") === "false") {
+         if (expanded) {
              iconDown.style.display = "none";
              iconUp.style.display = "block";
          }
-        else {
-            iconUp.style.display = "none";
-            iconDown.style.display = "block";
-        }
-    }
+         else {
+             iconUp.style.display = "none";
+             iconDown.style.display = "block";
+         }
+     }
+     document.querySelectorAll('a[data-toggle="collapse"]').forEach(function (arrow) {
+         var collapseTarget = document.querySelector(arrow.getAttribute("href"));
+         if (!collapseTarget) {
+             return;
+         }
+         collapseTarget.addEventListener("show.bs.collapse", function () {
+             ChangeArrow(arrow, true);
+         });
+         collapseTarget.addEventListener("hidden.bs.collapse", function () {
+             ChangeArrow(arrow, false);
+         });
+     });
   </script>
 {% endblock %}
