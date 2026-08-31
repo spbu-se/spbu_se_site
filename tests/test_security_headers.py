@@ -49,7 +49,7 @@ class TestCspAllowlist:
         assert "form-action 'self'" in csp
         assert "frame-ancestors 'self'" in csp
         assert "googletagmanager.com" not in csp
-        assert "topbar.spbu.ru" in csp
+        assert "topbar.spbu.ru" not in csp
         assert "mc.yandex.ru" in csp
         assert "api-maps.yandex.ru" in csp
         assert "maps.googleapis.com" in csp

@@ -30,7 +30,9 @@ release deploys Tier 1 + cache; do not extrapolate from this partial state.
 
 ## Shipped — Tier 1 (PR: perf-assets-tier1)
 
-- 4 base templates: `preconnect`/`dns-prefetch` for GTM + topbar.spbu.ru;
+- 4 base templates: `preconnect`/`dns-prefetch` for GTM + topbar.spbu.ru (GTM
+  lines removed in v2026.08.20; topbar lines removed in v2026.08.31 — the
+  service is dead, `topbar.spbu.ru/loader.js` returns HTTP 410 Gone);
   versioned static URLs via an `asset()` Jinja macro; `feather.min.js` deferred
   with the inline `feather.replace()` moved to a DOMContentLoaded listener.
 - Asset version parametrized: a single `asset(path)` macro (defined in the 4

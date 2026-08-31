@@ -38,8 +38,6 @@
     <title>
       {% block title %}{% endblock %}
     </title>
-    <link rel="preconnect" href="https://topbar.spbu.ru">
-    <link rel="dns-prefetch" href="https://topbar.spbu.ru">
     {% if se_metrica_id and se_consent_granted["statistics"] %}
       <!-- Yandex Metrika -->
       <script type="text/javascript" nonce="{{ csp_nonce() }}">
@@ -137,9 +135,6 @@
         </div>
       </noscript>
     {% endif %}
-    <!-- SPbU topbar (noscript) -->
-    <script type="text/javascript" nonce="{{ csp_nonce() }}"> (function(){ var sc = document.createElement('script'); sc.type = 'text/javascript'; sc.async = true; sc.src = '//topbar.spbu.ru/loader.js'; var ls = document.getElementsByTagName('script')[0]; ls.parentNode.insertBefore(sc, ls); })(); </script>
-    <!-- End SPbU topbar (noscript) -->
     <!-- Header -->
     <header class="header-transparent pt-5" id="header-main">
       <!-- Navbar -->

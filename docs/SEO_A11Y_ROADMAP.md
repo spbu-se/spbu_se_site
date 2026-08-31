@@ -42,15 +42,16 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 ## 3. Deferred ideas (return later — high value)
 
 - WCAG 2.1 AA pass + optional `pytest-axe`/manual gate + `.skills/a11y-audit`.
-- **SRI for external scripts** — deferred: all external scripts (topbar, Yandex Metrica, Maps) are dynamically injected at runtime; SRI cannot verify dynamically created `<script>` elements. Self-hosted assets are already under `'self'` CSP. No action planned.
+- **SRI for external scripts** — deferred: all external scripts (Yandex Metrica, Maps) are dynamically injected at runtime; SRI cannot verify dynamically created `<script>` elements. Self-hosted assets are already under `'self'` CSP. No action planned.
 - **Inline `<style>` nonces** — canceled: `style-src 'unsafe-inline'` is an explicit CSP architecture decision. Only one `<style>` block exists (diplomas/theme.html:12-16); CSS `'unsafe-inline'` is safe under CSP2+ (cannot inject script via CSS alone) and noncing `<style>` would require structural refactoring of the template.
 
 ### CSP + security headers — shipped 2026-08-20 (`feat/security-headers`), strict nonce-CSP follow-up shipped 2026-08-22 (`feat/strict-nonce-csp`)
 
 **Context**: no security headers anywhere today (no Flask `after_request`, none in
 `nginx/default.conf.template`). Prod = Docker nginx → uWSGI. 15 templates carry
-inline `<script>` (SPbU topbar, `feather.replace`, SimpleMDE init, auth/practice
-JS) + 3 with inline `<style>`; external resources from `topbar.spbu.ru`, the
+inline `<script>` (`feather.replace`, SimpleMDE init, auth/practice
+JS) + 3 with inline `<style>`; external resources from `topbar.spbu.ru`
+(removed v2026.08.31 — loader.js returns HTTP 410 Gone), the
 dual-provider maps (Google `maps.googleapis.com`/`*.googleapis.com` or Yandex
 `api-maps.yandex.ru` + tile hosts), and Yandex Metrica (`mc.yandex.ru`, dormant —
 see `docs/PRIVACY_COMPLIANCE.md`). Google Tag Manager was **removed** in

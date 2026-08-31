@@ -15,6 +15,11 @@ from flask import Flask, g
 #  svg-injector.min.js via new Function(); Yandex Metrica; Yandex Maps v3
 #  module loader; Google Maps callback system). Google Tag Manager was
 #  removed in v2026.08.20, so `googletagmanager.com` is deliberately absent.
+# The SPbU topbar was removed in v2026.08.31 — `topbar.spbu.ru/loader.js`
+# returns HTTP 410 Gone (SPbU retired the service) — so `topbar.spbu.ru` is
+# deliberately absent from script-src and connect-src (see
+# docs/SPBU_REGULATIONS.md §3.1.9: only the header link to spbu.ru is
+# mandated, and that is satisfied by the navbar SPbU logo link).
 # Yandex Metrica (`mc.yandex.ru`) is consent-gated (see
 # docs/PRIVACY_COMPLIANCE.md) and only loads on pages where the visitor
 # accepted the `statistics` category. Maps hosts cover the Yandex v3 API
@@ -27,14 +32,14 @@ from flask import Flask, g
 _CSP_BASE = (
     "default-src 'self'; "
     "script-src 'self' 'nonce-{nonce}' 'unsafe-eval' "
-    "https://topbar.spbu.ru https://mc.yandex.ru "
+    "https://mc.yandex.ru "
     "https://api-maps.yandex.ru https://*.maps.yandex.net "
     "https://maps.googleapis.com https://*.googleapis.com; "
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
     "img-src 'self' data: https:; "
     "font-src 'self' data: https://fonts.gstatic.com; "
     "connect-src 'self' "
-    "https://topbar.spbu.ru https://mc.yandex.ru "
+    "https://mc.yandex.ru "
     "https://api-maps.yandex.ru https://*.maps.yandex.net "
     "https://maps.googleapis.com https://*.googleapis.com; "
     "object-src 'none'; "

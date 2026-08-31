@@ -34,7 +34,7 @@ The operator is the Saint Petersburg State University (СПбГУ); the departme
 |---------|--------|-------|------------------|------|
 | Google Tag Manager (`GTM-NGT2J3Z`) | `googletagmanager.com` | **REMOVED v2026.08.20** | page URL, referrer, User-Agent, IP, client identifiers | processor/controller — ran without consent |
 | Yandex Metrica | `mc.yandex.ru` | **Consent-gated** (snippet renders only when a counter id is configured AND the visitor accepted the `statistics` category) | page URL, referrer, UA, IP, optional clickmap | processor — Yandex LLC processes on behalf of the operator |
-| SPbU topbar | `topbar.spbu.ru` | Active on all 4 bases | loads the SPbU header bar; may set SPbU-first-party cookies | first-party component of SPbU |
+| SPbU topbar | `topbar.spbu.ru` | **REMOVED v2026.08.31** | nothing — `topbar.spbu.ru/loader.js` returns HTTP 410 Gone (SPbU retired the service); the Регламент № 11763/1 §3.1.9 header-link mandate is met by the navbar SPbU logo link | first-party component of SPbU (retired) |
 | Yandex Maps v3 / Google Maps | `api-maps.yandex.ru`, `maps.googleapis.com` | **Dormant** (no key — «Источник карты не задан» placeholder) | IP, geolocation context when a map is active | processor |
 | Google / VK OAuth login | `accounts.google.com`, `oauth.vk.com`, `oauth.yandex.ru` | Active | email + identity claims to create/link the account | identity provider |
 
@@ -72,8 +72,9 @@ Strategy for this release: achieve a defensible baseline by **removing the unsaf
 1. **Yandex Metrica wired config-driven and dormant** — counter id from the gitignored `configs/flask_se_metrica.conf` or env `SE_YANDEX_METRICA_ID`, validated as digits-only (`flask_se_config.metrica_id()`). The snippet (`mc.yandex.ru/metrika/tag.js`) renders **only** when an id is provisioned; until the admin adds one the site makes no analytics requests. Even when provisioned, the shipped snippet does **not** enable Webvisor (no session recording).
 1. **CSP plan updated** — `googletagmanager.com` dropped from the `docs/SEO_A11Y_ROADMAP.md` allowlist, `mc.yandex.ru` added.
 1. **Guardrail tests** — `tests/test_analytics.py`: no `googletagmanager`/`GTM-`/`dataLayer` anywhere in `src/templates`, metrica rendered only with an id.
+1. **SPbU topbar removed (v2026.08.31)** — `topbar.spbu.ru/loader.js` had served HTTP 410 Gone since SPbU retired the service; the `topbar.spbu.ru` entries were dropped from CSP (`script-src`, `connect-src`) and the preconnect/dns-prefetch + injector script were removed from the 4 bases (see `docs/SPBU_REGULATIONS.md` §3.1.9).
 
-**Compliance posture after this release**: first-party `se_session` (strictly necessary) + SPbU topbar + dormant maps; no third-party analytics cookies set → defensible under ePrivacy/GDPR for EU visitors and low-risk under 152-ФЗ.
+**Compliance posture after this release**: first-party `se_session` (strictly necessary) + dormant maps; no third-party analytics cookies set → defensible under ePrivacy/GDPR for EU visitors and low-risk under 152-ФЗ.
 
 ## 4. FULL COMPLIANCE IMPLEMENTATION
 
