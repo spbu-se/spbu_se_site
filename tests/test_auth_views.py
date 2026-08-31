@@ -1283,26 +1283,37 @@ class TestCsrfLogin:
 
     def test_login_case_insensitive_email_succeeds(self, seeded_client):
         """get_user_by_email(): login is not blocked by different casing."""
-        resp = seeded_client.post(
-            "/login.html", data={"email": "A.TEREKHOV@spbu.ru", "password": "any"}
-        )
+        import flask_se_auth
+
+        with patch.object(flask_se_auth.LOGIN_RATE_LIMITER, "allow", return_value=True):
+            resp = seeded_client.post(
+                "/login.html", data={"email": "A.TEREKHOV@spbu.ru", "password": "any"}
+            )
         assert resp.status_code in (200, 302)
         assert resp.status_code != 400
 
     def test_login_failure_is_logged(self, seeded_client, caplog):
         import logging
 
-        with caplog.at_level(logging.WARNING, logger="flask_se.auth"):
+        import flask_se_auth
+
+        with (
+            patch.object(flask_se_auth.LOGIN_RATE_LIMITER, "allow", return_value=True),
+            caplog.at_level(logging.WARNING, logger="flask_se.auth"),
+        ):
             seeded_client.post("/login.html", data={"email": "noone@spbu.ru", "password": "x"})
         assert any("login failed" in r.message for r in caplog.records)
 
     def test_login_success_marks_profile(self, seeded_client):
         """Successful login sets a one-shot marker consumed on the profile page."""
-        resp = seeded_client.post(
-            "/login.html",
-            data={"email": "a.terekhov@spbu.ru", "password": "any"},
-            follow_redirects=True,
-        )
+        import flask_se_auth
+
+        with patch.object(flask_se_auth.LOGIN_RATE_LIMITER, "allow", return_value=True):
+            resp = seeded_client.post(
+                "/login.html",
+                data={"email": "a.terekhov@spbu.ru", "password": "any"},
+                follow_redirects=True,
+            )
         assert resp.status_code == 200
         assert 'data-se-just-logged-in="true"' in resp.data.decode()
         # Marker is one-shot: a fresh profile load no longer shows it.
@@ -1442,60 +1453,72 @@ class TestRegisterValidation:
     stores a lowercased e-mail."""
 
     def test_register_requires_consent(self, seeded_client):
-        resp = seeded_client.post(
-            "/register_basic.html",
-            data={
-                "email": "new.consent@spbu.ru",
-                "password": "pass1234",
-                "password2": "pass1234",
-                "first_name": "Иван",
-                "last_name": "Иванов",
-            },
-        )
+        import flask_se_auth
+
+        with patch.object(flask_se_auth.REGISTER_RATE_LIMITER, "allow", return_value=True):
+            resp = seeded_client.post(
+                "/register_basic.html",
+                data={
+                    "email": "new.consent@spbu.ru",
+                    "password": "pass1234",
+                    "password2": "pass1234",
+                    "first_name": "Иван",
+                    "last_name": "Иванов",
+                },
+            )
         assert resp.status_code == 200
         assert "Необходимо согласие" in resp.data.decode()
 
     def test_register_requires_surname(self, seeded_client):
-        resp = seeded_client.post(
-            "/register_basic.html",
-            data={
-                "email": "new.surname@spbu.ru",
-                "password": "pass1234",
-                "password2": "pass1234",
-                "first_name": "Иван",
-                "consent": "on",
-            },
-        )
+        import flask_se_auth
+
+        with patch.object(flask_se_auth.REGISTER_RATE_LIMITER, "allow", return_value=True):
+            resp = seeded_client.post(
+                "/register_basic.html",
+                data={
+                    "email": "new.surname@spbu.ru",
+                    "password": "pass1234",
+                    "password2": "pass1234",
+                    "first_name": "Иван",
+                    "consent": "on",
+                },
+            )
         assert resp.status_code == 200
         assert "Фамилия не может быть пустой" in resp.data.decode()
 
     def test_register_password_mismatch_rejected(self, seeded_client):
-        resp = seeded_client.post(
-            "/register_basic.html",
-            data={
-                "email": "new.mismatch@spbu.ru",
-                "password": "pass1234",
-                "password2": "different",
-                "first_name": "Иван",
-                "last_name": "Иванов",
-                "consent": "on",
-            },
-        )
+        import flask_se_auth
+
+        with patch.object(flask_se_auth.REGISTER_RATE_LIMITER, "allow", return_value=True):
+            resp = seeded_client.post(
+                "/register_basic.html",
+                data={
+                    "email": "new.mismatch@spbu.ru",
+                    "password": "pass1234",
+                    "password2": "different",
+                    "first_name": "Иван",
+                    "last_name": "Иванов",
+                    "consent": "on",
+                },
+            )
         assert resp.status_code == 200
         assert "Пароли не совпадают" in resp.data.decode()
 
     def test_register_success_stores_surname_and_lowercase_email(self, seeded_client):
-        resp = seeded_client.post(
-            "/register_basic.html",
-            data={
-                "email": "New.User@spbu.ru",
-                "password": "pass1234",
-                "password2": "pass1234",
-                "first_name": "Иван",
-                "last_name": "Иванов",
-                "consent": "on",
-            },
-        )
+        import flask_se_auth
+
+        with patch.object(flask_se_auth.REGISTER_RATE_LIMITER, "allow", return_value=True):
+            resp = seeded_client.post(
+                "/register_basic.html",
+                data={
+                    "email": "New.User@spbu.ru",
+                    "password": "pass1234",
+                    "password2": "pass1234",
+                    "first_name": "Иван",
+                    "last_name": "Иванов",
+                    "consent": "on",
+                },
+            )
         assert resp.status_code == 302
         from se_models import Users
 
@@ -1506,16 +1529,19 @@ class TestRegisterValidation:
             assert u.first_name == "Иван"
 
     def test_register_duplicate_email_case_insensitive(self, seeded_client):
-        resp = seeded_client.post(
-            "/register_basic.html",
-            data={
-                "email": "A.TEREKHOV@spbu.ru",
-                "password": "pass1234",
-                "password2": "pass1234",
-                "first_name": "Андрей",
-                "last_name": "Терехов",
-                "consent": "on",
-            },
-        )
+        import flask_se_auth
+
+        with patch.object(flask_se_auth.REGISTER_RATE_LIMITER, "allow", return_value=True):
+            resp = seeded_client.post(
+                "/register_basic.html",
+                data={
+                    "email": "A.TEREKHOV@spbu.ru",
+                    "password": "pass1234",
+                    "password2": "pass1234",
+                    "first_name": "Андрей",
+                    "last_name": "Терехов",
+                    "consent": "on",
+                },
+            )
         assert resp.status_code == 200
         assert "уже зарегистрирован" in resp.data.decode()
