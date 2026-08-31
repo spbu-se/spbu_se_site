@@ -34,6 +34,7 @@ from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from PIL import Image
+from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -288,11 +289,21 @@ def vk_callback():
     return redirect_next_url(fallback=url_for("user_profile"))
 
 
+def get_user_by_email(email: str) -> Users | None:
+    """Case-insensitive e-mail lookup (SQLite `=` is case-sensitive)."""
+    if not email:
+        return None
+    return Users.query.filter(func.lower(Users.email) == func.lower(email)).first()
+
+
 def register_basic():
     if request.method == "POST":
-        email = request.form.get("email", "").strip()
+        email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
+        password2 = request.form.get("password2", "")
         first_name = request.form.get("first_name", "").strip()
+        last_name = request.form.get("last_name", "").strip()
+        consent = "consent" in request.form
 
         client_ip = request.remote_addr or "unknown"
         if not REGISTER_RATE_LIMITER.allow("register:" + client_ip):
@@ -300,10 +311,15 @@ def register_basic():
                 "Слишком много попыток регистрации. Попробуйте позже.",
                 category="error",
             )
+            logging.getLogger("flask_se.auth").warning(
+                "register rate-limited ip=%s email=%s", client_ip, email
+            )
             return render_template("auth/register_basic.html", user=current_user)
 
-        user = Users.query.filter_by(email=email).first()
-        if user:
+        user = get_user_by_email(email)
+        if not consent:
+            flash("Необходимо согласие на обработку персональных данных", category="error")
+        elif user:
             flash(
                 "Такой почтовый адрес уже зарегистрирован.",
                 category="error",
@@ -318,16 +334,24 @@ def register_basic():
                 "Пароль должен быть не короче 8 символов",
                 category="error",
             )
+        elif password != password2:
+            flash("Пароли не совпадают", category="error")
+        elif len(last_name) < 1:
+            flash("Фамилия не может быть пустой", category="error")
         elif len(first_name) < 1:
-            flash("Имя не может быть пустым")
+            flash("Имя не может быть пустым", category="error")
         else:
             new_user = Users(
                 email=email,
                 first_name=first_name,
+                last_name=last_name,
                 password_hash=generate_password_hash(password, method="pbkdf2:sha256"),
             )
             db.session.add(new_user)
             db.session.commit()
+            logging.getLogger("flask_se.auth").info(
+                "registered user id=%s email=%s", new_user.id, email
+            )
             login_user(new_user, remember=True)
             return redirect(url_for("user_profile"))
 

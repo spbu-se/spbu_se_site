@@ -1379,3 +1379,87 @@ class TestPasswordRecovery:
         resp = seeded_client.get("/password_recovery/not-a-token")
         assert resp.status_code == 302
         assert "/password_recovery.html" in resp.headers["Location"]
+
+
+class TestRegisterValidation:
+    """PR-1: registration requires consent + surname + matching passwords and
+    stores a lowercased e-mail."""
+
+    def test_register_requires_consent(self, seeded_client):
+        resp = seeded_client.post(
+            "/register_basic.html",
+            data={
+                "email": "new.consent@spbu.ru",
+                "password": "pass1234",
+                "password2": "pass1234",
+                "first_name": "Иван",
+                "last_name": "Иванов",
+            },
+        )
+        assert resp.status_code == 200
+        assert "Необходимо согласие" in resp.data.decode()
+
+    def test_register_requires_surname(self, seeded_client):
+        resp = seeded_client.post(
+            "/register_basic.html",
+            data={
+                "email": "new.surname@spbu.ru",
+                "password": "pass1234",
+                "password2": "pass1234",
+                "first_name": "Иван",
+                "consent": "on",
+            },
+        )
+        assert resp.status_code == 200
+        assert "Фамилия не может быть пустой" in resp.data.decode()
+
+    def test_register_password_mismatch_rejected(self, seeded_client):
+        resp = seeded_client.post(
+            "/register_basic.html",
+            data={
+                "email": "new.mismatch@spbu.ru",
+                "password": "pass1234",
+                "password2": "different",
+                "first_name": "Иван",
+                "last_name": "Иванов",
+                "consent": "on",
+            },
+        )
+        assert resp.status_code == 200
+        assert "Пароли не совпадают" in resp.data.decode()
+
+    def test_register_success_stores_surname_and_lowercase_email(self, seeded_client):
+        resp = seeded_client.post(
+            "/register_basic.html",
+            data={
+                "email": "New.User@spbu.ru",
+                "password": "pass1234",
+                "password2": "pass1234",
+                "first_name": "Иван",
+                "last_name": "Иванов",
+                "consent": "on",
+            },
+        )
+        assert resp.status_code == 302
+        from se_models import Users
+
+        with seeded_client.application.app_context():
+            u = Users.query.filter_by(email="new.user@spbu.ru").first()
+            assert u is not None
+            assert u.last_name == "Иванов"
+            assert u.first_name == "Иван"
+
+    def test_register_duplicate_email_case_insensitive(self, seeded_client):
+        resp = seeded_client.post(
+            "/register_basic.html",
+            data={
+                "email": "A.TEREKHOV@spbu.ru",
+                "password": "pass1234",
+                "password2": "pass1234",
+                "first_name": "Андрей",
+                "last_name": "Терехов",
+                "consent": "on",
+            },
+        )
+        assert resp.status_code == 200
+        assert "уже зарегистрирован" in resp.data.decode()
