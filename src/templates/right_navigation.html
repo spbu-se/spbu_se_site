@@ -70,8 +70,36 @@
       <li class="nav-item nav-item-spaced dropdown dropdown-animate"
           data-toggle="hover">
         {% if current_user.is_authenticated %}
-          <a href="{{ url_for('user_profile') }}" class="nav-link">Профиль</a>
-          <a href="{{ url_for('logout') }}" class="nav-link">Выход</a>
+          <a class="nav-link"
+             data-toggle="dropdown"
+             href="#"
+             aria-haspopup="true"
+             aria-expanded="false">
+            <i data-feather="user" class="mr-1"></i>Профиль
+            <i data-feather="chevron-down" class="ml-1"></i>
+          </a>
+          <div class="dropdown-menu dropdown-menu-md dropdown-menu-right p-0">
+            <div class="list-group list-group-flush px-lg-4">
+              <a href="{{ url_for('user_profile') }}"
+                 class="list-group-item list-group-item-action"
+                 role="button">
+                <div class="d-flex">
+                  <div class="ml-3">
+                    <small class="text-sm">Личный кабинет</small>
+                  </div>
+                </div>
+              </a>
+              <a href="{{ url_for('logout') }}"
+                 class="list-group-item list-group-item-action"
+                 role="button">
+                <div class="d-flex">
+                  <div class="ml-3">
+                    <small class="text-sm">Выход</small>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
         {% else %}
           <a href="{{ url_for('login_index') }}" class="nav-link">Вход</a>
         {% endif %}
