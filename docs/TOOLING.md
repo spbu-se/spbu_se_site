@@ -26,6 +26,19 @@ uv export --no-dev --no-hashes --format requirements-txt 2>$null | Set-Content r
 
 If `[build-system]` is present, `uv sync` builds the project and creates `*.egg-info/` directories. Add to `.gitignore`.
 
+### Purged/minified assets: regenerate on template class changes
+
+`src/static/assets/css/quick-website.min.css` is **purged against the templates** (`scripts/build-assets.mjs`): any class that no template uses is stripped from the committed CSS. Introducing a **new CSS class in a template** therefore changes the purge output, and the CI `assets` drift job fails until the minified file is regenerated and committed:
+
+```bash
+npm run build     # regenerates quick-website.min.css + quick-website.min.js
+git add src/static/assets/css/quick-website.min.css src/static/assets/js/quick-website.min.js
+```
+
+Hit twice on 2026-08-31: PR-1 added `.custom-checkbox` (consent), PR-2 added `.d-none` (recovery banner) — both tripped the drift job. The purge-completeness guard test (`tests/test_asset_pipeline.py::TestPurgeCompleteness`) fails locally with the same signal, so regenerate before the full-suite run.
+
+Because both PRs touch the same single-line minified file, run `npm run build` **after** rebasing onto the merged base, never before — otherwise the squash-merge conflicts on that one line.
+
 ### First pre-commit run
 
 `uv run pre-commit run --all-files` downloads environments on first run (2-3 min). Pre-warm with:
