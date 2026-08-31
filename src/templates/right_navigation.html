@@ -71,6 +71,7 @@
           data-toggle="hover">
         {% if current_user.is_authenticated %}
           <a href="{{ url_for('user_profile') }}" class="nav-link">Профиль</a>
+          <a href="{{ url_for('logout') }}" class="nav-link">Выход</a>
         {% else %}
           <a href="{{ url_for('login_index') }}" class="nav-link">Вход</a>
         {% endif %}

@@ -3,7 +3,8 @@
 {% block description %}Сессия истекла, повторите действие.{% endblock %}
 {% block content %}
   <section class="slice py-8 bg-dark bg-cover bg-size--cover"
-           style="background-image: url({{ url_for('static', filename='assets/img/main2.jpg') }})">
+           style="background-image: url({{ url_for('static', filename='assets/img/main2.jpg') }})"
+           data-csrf-reason="{{ csrf_reason }}">
     <div class="container pt-5 pt-lg-7 pb-lg-9 pb-7">
       <div class="row align-items-center justify-content-center">
         <div class="col-lg-8 text-center">
@@ -15,9 +16,7 @@
             <a class="btn btn-lg btn-warning" href="{{ url_for('index') }}">
               <span class="btn-inner--text">На главную</span>
             </a>
-            <button type="button"
-                    class="btn btn-lg btn-neutral"
-                    onclick="location.reload()">
+            <button type="button" id="csrf-reload" class="btn btn-lg btn-neutral">
               <span class="btn-inner--text">Обновить страницу</span>
             </button>
           </div>
@@ -32,4 +31,18 @@
       </svg>
     </div>
   </section>
+  <script nonce="{{ csp_nonce() }}">
+  (function () {
+    var section = document.querySelector("[data-csrf-reason]");
+    console.info("[SE] CSRF rejected", {
+      reason: section ? section.getAttribute("data-csrf-reason") : ""
+    });
+    var reload = document.getElementById("csrf-reload");
+    if (reload) {
+      reload.addEventListener("click", function () {
+        location.reload();
+      });
+    }
+  })();
+  </script>
 {% endblock %}

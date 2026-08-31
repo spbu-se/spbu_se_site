@@ -1,7 +1,8 @@
 {% extends 'base_light.html' %}
 {% block title %}Личный кабинет{% endblock %}
 {% block content %}
-  <section class="mt-7 pt-6 bg-section-secondary">
+  <section class="mt-7 pt-6 bg-section-secondary"
+           data-se-just-logged-in="{% if just_logged_in %}true{% endif %}">
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-9">
@@ -202,5 +203,13 @@ fileChosen.addEventListener('change', function(){
     });
 
 })
+</script>
+<script nonce="{{ csp_nonce() }}">
+  (function () {
+    var section = document.querySelector("[data-se-just-logged-in]");
+    if (section && section.getAttribute("data-se-just-logged-in") === "true") {
+      console.info("[SE] login succeeded, welcome");
+    }
+  })();
 </script>
 {% endblock %}

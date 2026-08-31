@@ -12,7 +12,7 @@ __all__ = ["app", "db", "scheduler"]
 import markdown as _markdown
 import nh3
 from dateutil import tz
-from flask import Flask, g, render_template, request
+from flask import Flask, current_app, g, render_template, request
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import CSRFError
 from markupsafe import Markup
@@ -198,6 +198,12 @@ def _init_extensions(app: Flask) -> None:
         the nonce is set here for both the template and the CSP header.
         """
         g.csp_nonce = secrets.token_urlsafe(16)
+        current_app.logger.warning(
+            "CSRF rejected path=%s reason=%s ip=%s",
+            request.path,
+            exc.description,
+            request.remote_addr or "unknown",
+        )
         return (
             render_template(
                 "csrf_error.html",

@@ -1281,6 +1281,34 @@ class TestCsrfLogin:
         finally:
             app.config["WTF_CSRF_ENABLED"] = False
 
+    def test_login_case_insensitive_email_succeeds(self, seeded_client):
+        """get_user_by_email(): login is not blocked by different casing."""
+        resp = seeded_client.post(
+            "/login.html", data={"email": "A.TEREKHOV@spbu.ru", "password": "any"}
+        )
+        assert resp.status_code in (200, 302)
+        assert resp.status_code != 400
+
+    def test_login_failure_is_logged(self, seeded_client, caplog):
+        import logging
+
+        with caplog.at_level(logging.WARNING, logger="flask_se.auth"):
+            seeded_client.post("/login.html", data={"email": "noone@spbu.ru", "password": "x"})
+        assert any("login failed" in r.message for r in caplog.records)
+
+    def test_login_success_marks_profile(self, seeded_client):
+        """Successful login sets a one-shot marker consumed on the profile page."""
+        resp = seeded_client.post(
+            "/login.html",
+            data={"email": "a.terekhov@spbu.ru", "password": "any"},
+            follow_redirects=True,
+        )
+        assert resp.status_code == 200
+        assert 'data-se-just-logged-in="true"' in resp.data.decode()
+        # Marker is one-shot: a fresh profile load no longer shows it.
+        resp2 = seeded_client.get("/profile.html")
+        assert 'data-se-just-logged-in="true"' not in resp2.data.decode()
+
 
 class TestPasswordRecovery:
     """E-mail password recovery: request a signed one-time link, reset the
@@ -1375,10 +1403,38 @@ class TestPasswordRecovery:
         assert resp.status_code == 200
         assert "8 символов" in resp.data.decode()
 
-    def test_recovery_invalid_token_redirects(self, seeded_client):
+    def test_recovery_invalid_token_renders_page(self, seeded_client):
         resp = seeded_client.get("/password_recovery/not-a-token")
-        assert resp.status_code == 302
-        assert "/password_recovery.html" in resp.headers["Location"]
+        assert resp.status_code == 400
+        assert "Ссылка недействительна" in resp.data.decode()
+
+    def test_recovery_case_insensitive_email_sends_mail(self, seeded_client):
+        import flask_se_auth
+
+        with (
+            patch("flask_se_auth.send_mail") as send,
+            patch.object(flask_se_auth.PASSWORD_RECOVERY_RATE_LIMITER, "allow", return_value=True),
+        ):
+            resp = seeded_client.post(
+                "/password_recovery.html", data={"email": "A.TEREKHOV@spbu.ru"}
+            )
+        assert resp.status_code == 200
+        send.assert_called_once()
+
+    def test_recovery_rate_limited_is_logged(self, seeded_client, caplog):
+        import logging
+
+        import flask_se_auth
+
+        with (
+            patch.object(flask_se_auth.PASSWORD_RECOVERY_RATE_LIMITER, "allow", return_value=False),
+            caplog.at_level(logging.WARNING, logger="flask_se.auth"),
+        ):
+            resp = seeded_client.post(
+                "/password_recovery.html", data={"email": "a.terekhov@spbu.ru"}
+            )
+        assert resp.status_code == 200
+        assert any("password recovery rate-limited" in r.message for r in caplog.records)
 
 
 class TestRegisterValidation:

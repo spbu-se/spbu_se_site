@@ -136,18 +136,20 @@ def login_index():
         session.pop("next_url", None)
 
     if request.method == "POST":
-        email = request.form.get("email")
+        email = (request.form.get("email") or "").strip()
         password = request.form.get("password")
 
         client_ip = request.remote_addr or "unknown"
+        auth_log = logging.getLogger("flask_se.auth")
         if not LOGIN_RATE_LIMITER.allow("login:" + client_ip):
+            auth_log.warning("login rate-limited ip=%s email=%s", client_ip, email)
             flash(
                 "Слишком много попыток входа. Попробуйте позже.",
                 category="error",
             )
             return render_template("auth/login.html", user=current_user)
 
-        user = Users.query.filter_by(email=email).first()
+        user = get_user_by_email(email)
         # Unified error message: do not reveal whether the email exists
         # (prevents account enumeration).
         invalid_message = "Пара логин и пароль указаны неверно"
@@ -158,10 +160,10 @@ def login_index():
                 try:
                     password_ok = check_password_hash(password_hash, password)  # pyright: ignore[reportArgumentType]
                 except ValueError:
-                    logging.getLogger("flask_se.auth").exception(
-                        "check_password_hash failed for user %s", email
-                    )
+                    auth_log.exception("check_password_hash failed for user %s", email)
                 if password_ok:
+                    session["just_logged_in"] = True
+                    auth_log.info("login ok ip=%s user=%s", client_ip, user.id)
                     login_user(user, remember=True)
                     return redirect_next_url(fallback=url_for("user_profile"))
                 hs = password_hash.split("$")
@@ -174,8 +176,13 @@ def login_index():
                     ).hexdigest()
                     == hs[2]
                 ):
+                    session["just_logged_in"] = True
+                    auth_log.info("login ok (hmac) ip=%s user=%s", client_ip, user.id)
                     login_user(user, remember=True)
                     return redirect_next_url(fallback=url_for("user_profile"))
+                auth_log.warning(
+                    "login failed ip=%s user=%s reason=bad-password", client_ip, user.id
+                )
                 flash(
                     invalid_message,
                     category="error",
@@ -186,6 +193,7 @@ def login_index():
                 category="error",
             )
             return render_template("auth/login.html", user=current_user)
+        auth_log.warning("login failed ip=%s email=%s reason=no-user", client_ip, email)
         flash(
             invalid_message,
             category="error",
@@ -205,7 +213,7 @@ def vk_login():
         f"client_id={VK_CLIENT_ID}"
         "&display=page"
         f"&redirect_uri={redirect_uri}"
-        "&scope=friends,email&response_type=code&v=5.130"
+        "&scope=email&response_type=code&v=5.130"
         f"&state={state}"
     )
     return redirect(auth_url)
@@ -220,6 +228,9 @@ def vk_callback():
     expected_state = session.pop("vk_state", None)
     returned_state = request.args.get("state")
     if not expected_state or not returned_state or expected_state != returned_state:
+        logging.getLogger("flask_se.auth").warning(
+            "vk_callback state mismatch ip=%s", request.remote_addr or "unknown"
+        )
         return redirect(url_for("login_index"))
 
     # Get access token
@@ -236,6 +247,11 @@ def vk_callback():
     access_token_json = json.loads(response.text)
 
     if "error" in access_token_json:
+        logging.getLogger("flask_se.auth").warning(
+            "vk_callback access_token error=%s ip=%s",
+            access_token_json.get("error"),
+            request.remote_addr or "unknown",
+        )
         return redirect(url_for("index"))
 
     vk_id = access_token_json["user_id"]
@@ -388,17 +404,19 @@ def password_recovery():
     if request.method == "POST":
         email = request.form.get("email", "").strip()
         client_ip = request.remote_addr or "unknown"
+        auth_log = logging.getLogger("flask_se.auth")
         if not PASSWORD_RECOVERY_RATE_LIMITER.allow("recovery:" + client_ip):
+            auth_log.warning("password recovery rate-limited ip=%s", client_ip)
             flash("Слишком много запросов на восстановление. Попробуйте позже.", category="error")
         else:
-            user = Users.query.filter_by(email=email).first()
+            user = get_user_by_email(email)
             if user is not None and not user.deleted:
                 reset_url = url_for(
                     "password_recovery_reset",
                     token=_make_reset_token(user),
                     _external=True,
                 )
-                send_mail(
+                sent = send_mail(
                     user.email,
                     "Восстановление пароля — сайт кафедры СПбГУ",
                     "Для восстановления пароля перейдите по ссылке (действует 1 час):\n"
@@ -408,8 +426,11 @@ def password_recovery():
                         f'(действует 1 час): <a href="{reset_url}">{reset_url}</a></p>'
                     ),
                 )
-                logging.getLogger("flask_se.auth").info(
-                    "password recovery link sent for user id=%s", user.id
+                auth_log.info(
+                    "password recovery request user=%s ip=%s mail=%s",
+                    user.id,
+                    client_ip,
+                    "sent" if sent else "failed",
                 )
             # Uniform reply: never reveal whether the e-mail is registered.
             flash(
@@ -429,8 +450,14 @@ def password_recovery_reset(token: str):
             user = None
 
     if user is None:
-        flash("Ссылка недействительна или истекла. Запросите новую.", category="error")
-        return redirect(url_for("password_recovery"))
+        logging.getLogger("flask_se.auth").warning(
+            "password reset invalid token ip=%s", request.remote_addr or "unknown"
+        )
+        return render_template(
+            "password_recovery_invalid.html",
+            user=current_user,
+            max_age=PASSWORD_RESET_TOKEN_MAX_AGE,
+        ), 400
 
     if request.method == "POST":
         password = request.form.get("password", "")
@@ -442,6 +469,9 @@ def password_recovery_reset(token: str):
         else:
             user.password_hash = generate_password_hash(password, method="pbkdf2:sha256")
             db.session.commit()
+            logging.getLogger("flask_se.auth").info(
+                "password reset ok user=%s ip=%s", user.id, request.remote_addr or "unknown"
+            )
             login_user(user, remember=True)
             flash("Пароль изменён. Вы вошли в систему.")
             return redirect(url_for("user_profile"))
@@ -451,6 +481,9 @@ def password_recovery_reset(token: str):
 
 @login_required
 def logout():
+    logging.getLogger("flask_se.auth").info(
+        "logout user=%s ip=%s", current_user.id, request.remote_addr or "unknown"
+    )
     logout_user()
     return redirect(url_for("index"))
 
@@ -472,7 +505,11 @@ def user_profile():
             user.how_to_contact = how_to_contact
             db.session.commit()
 
-    return render_template("auth/profile.html", user=user)
+    return render_template(
+        "auth/profile.html",
+        user=user,
+        just_logged_in=session.pop("just_logged_in", False),
+    )
 
 
 def _row_to_dict(instance):

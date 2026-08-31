@@ -18,17 +18,23 @@ def _is_rate_limited(ip: str) -> bool:
 def csp_report():
     ip = request.remote_addr or "unknown"
     if _is_rate_limited(ip):
+        current_app.logger.warning("csp-report rejected: rate-limited ip=%s", ip)
         return "", 429
 
     content_type = request.content_type or ""
-    if "application/csp-report" in content_type or "application/json" in content_type:
-        try:
-            report = request.get_json(force=True, silent=True)
-            if report is None:
-                return "", 400
-        except Exception:
+    if (
+        "application/csp-report" in content_type
+        or "application/json" in content_type
+        or "application/reports+json" in content_type
+    ):
+        report = request.get_json(force=True, silent=True)
+        if report is None:
+            current_app.logger.warning("csp-report rejected: empty body ip=%s", ip)
             return "", 400
     else:
+        current_app.logger.warning(
+            "csp-report rejected: unsupported content-type %r ip=%s", content_type, ip
+        )
         return "", 400
 
     current_app.logger.warning("CSP violation: %s", json.dumps(report, ensure_ascii=False))
