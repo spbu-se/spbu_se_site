@@ -1935,3 +1935,20 @@ Three-PR batch (#265 register, #266 recovery+observability, #267 CSP inline-hand
 **Fix**: TOOLING.md + AGENTS.md asset rule; `.tooling.md` rebase fallback; retro reminder for the two human errors.
 
 **Pattern recurrence**: NO — none of these gaps match a prior retro's gap class. The djLint slip is a repeat of a *documented pitfall* but the fix (normalize-before-stage) is already in place and worked on retry; flagged for escalation to a tool-level guard if it recurs.
+
+### Retrospective — 2026-08-31: post-release UX batch (dropdown, topbar removal, a11y, copyright, regulation doc)
+
+Batch `fix/post-release-ux` from post-release feedback + СПбГУ website-regulation (Регламент № 11763/1) audit: profile dropdown guard, profile label/`autocomplete` fix, dead SPbU topbar removal, «Версия для слабовидящих» toggle (§3.1.6), copyright line (§3.1.15), new `docs/SPBU_REGULATIONS.md`, tag-manager deferred (§3.1.12). Committed per-feature (C2..C6) so the same-4-bases changes stay reviewable.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `git fetch --prune origin upstream` (AGENTS.md pre-flight) fails: `fatal: couldn't find remote ref upstream` | Missing in docs — in this repo `upstream` is a second remote (`spbu-se/spbu_se_site`), not a branch ref on `origin`; the documented command only fits a single-remote layout | Retro note: run `git fetch --prune origin` + `git fetch --prune upstream`; propose updating the AGENTS.md pre-flight line if it recurs |
+| `git-history` MCP tools unusable this session (`--is-inside-work-tree` flag rejected / "No session working directory") | Environment quirk — the MCP git server rejects the workspace path here | Fell back to git via bash for all write ops; note for `docs/AI_AGENT_EXPERIENCE.md` if it recurs |
+
+**What went wrong**: No process violations — every commit passed the full pre-commit gate (djlint/dprint/ruff/mdformat), the purge-free `a11y.css` needed no `npm run build`, and the CSP test assertion flip (`topbar.spbu.ru in csp` → `not in csp`) was caught by the existing guardrail. Two tooling frictions instead of gaps in the work itself: the documented fetch command doesn't fit the two-remote layout, and the MCP git tooling was unusable here (bash fallback absorbed it).
+
+**Root causes**: Missing in docs (1), environment quirk (1).
+
+**Fix**: Retro documentation of the two quirks; per-feature commits for multi-feature same-file batches.
+
+**Pattern recurrence**: NO — neither gap matches a prior retro's gap class.

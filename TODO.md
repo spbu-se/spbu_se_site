@@ -15,6 +15,10 @@
 - `OPENCODE_ZEN_API_KEY` secret still needs to be added to enable automated draft-release generation (until then drafts are manual — `docs/GIT_FLOW.md §7`).
 - Bachelor admission data: 2026 campaign figures still needed in `src/flask_se_bachelor.py` (B7, deferred by user decision).
 
+**Postponed (user decision, 2026-08-31):**
+
+- СПбГУ Регламент № 11763/1 §3.1.12 requires a tag-manager container on university sites; the site currently has none (GTM removed v2026.08.20). Revisit placement + consent-gating design together with the `docs/PRIVACY_COMPLIANCE.md` §4 full-compliance plan before re-enabling anything. Tracked in `docs/SPBU_REGULATIONS.md`.
+
 **Security headers + CSP** — shipped 2026-08-20 in `feat/security-headers` (allowlist CSP Option B + nosniff/DENY/referrer/permissions/COOP + HSTS gated on `SE_COOKIE_SECURE`; nginx `server_tokens off`). Strict nonce-CSP remains a documented follow-up (15 inline-script templates + Maps) — see `docs/SEO_A11Y_ROADMAP.md` §CSP.
 
 **HIGH PRIORITY — GDPR/152-ФЗ full compliance (enables Metrica + GTM safely)** — v2026.08.20 shipped the mitigation (GTM removed, Metrica dormant — see `docs/PRIVACY_COMPLIANCE.md` §3); the repo part of the full plan shipped 2026-08-20 in `feat/privacy-compliance` (granular consent banner on all bases gating the analytics snippet, `se_consent` cookie, `/privacy.html` + footer links, `clickmap: false`). Remaining (out-of-repo): provision the Metrica counter (`configs/flask_se_metrica.conf`), set Metrica retention in the dashboard, confirm Roskomnadzor scope + Yandex processing instruction, and legal copy sign-off for the privacy page — tracked in `docs/PRIVACY_COMPLIANCE.md` §4.7/§5.

@@ -147,9 +147,20 @@ When a fix is universally safe (applies the same transformation everywhere witho
 
 **Signal**: If the transformation is equivalent to adding a default (`or 0`, `or ""`, `or []`) or wrapping in a no-op call, it's safe to `replaceAll`. If it changes behavior (adds/removes logic, changes types, renames), match individually.
 
+### 11. SPbU regulation spot-check
+
+After any session touching 5+ source files, re-verify the site still satisfies the СПбГУ website regulation clauses that affect the UI — canonical source `docs/SPBU_REGULATIONS.md`:
+
+- header link to `https://spbu.ru` (§3.1.9) — navbar SPbU logo;
+- accessibility mode or font ≥ 14 pt (§3.1.6) — footer «Версия для слабовидящих» toggle + `a11y.css`;
+- footer copyright format (§3.1.15) — «© Санкт-Петербургский государственный университет, \<год>» present.
+
+**Docs-first**: skills are generated from docs — if a rule here and the doc disagree, fix the doc first, then re-sync this skill.
+
 ## Dependencies
 
 - `rg` (ripgrep) — for fast source scanning
 - Read access to `docs/CODE_ISSUES.md` — bug inventory
 - Read access to `docs/REPO_REVIEW.md` — repo checklist
 - Read access to `docs/TESTING.md` — xfail policy
+- Read access to `docs/SPBU_REGULATIONS.md` — СПбГУ website-regulation compliance posture
