@@ -423,6 +423,7 @@ Every item must pass before staging -> current merge:
 | 15 | **Secrets in logs** | Scan CI output and application logs for leaked keys, tokens, passwords — distinguish ephemeral vs persistent |
 | 16 | **Redirect validation** | Scan for unvalidated `next`-parameter redirects — verify relative URL check or whitelist |
 | 17 | **Deprecation scan** | Check each P4 entry in `docs/CODE_ISSUES.md` against current dependency versions — escalate if now breaking |
+| 18 | **Feature removal sweep** | When a feature is removed/abandoned, sweep the whole surface: its UI in **all** templates (not only the page where it was noticed), routes, config, deps, DB schema, sitemap/og/CSP exclusions, and docs (compliance tables, catalog). Record the decision in `docs/DESIGN_DECISIONS.md`. Pattern origin: Google-SSO removal (2026-07-01) swept only `login.html`, leaving a day-one dead Google button on `register_basic.html` and a fully live backend OAuth path — see `docs/RETROSPECTIVES.md` 2026-08-31 |
 
 ## 5. Dependencies
 

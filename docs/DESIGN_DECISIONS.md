@@ -429,3 +429,29 @@ handlers, `javascript:`/`data:` schemes, `target`/`id`); `rel="noopener noreferr
 data XSS). `nh3.clean` preserves the `tables` extension output. Regression +
 guardrail tests in `tests/test_app.py` and `tests/test_diplomas_deep.py`
 (PR #214).
+
+## [2026-08-31] Google SSO removed from the UI — backend OAuth left live
+
+**Context**: Google SSO was removed from the UI on 2026-07-01 (`bd46f667`
+"Remove Google SSO button") — the `login.html` button was deleted, but the sweep
+stopped there. `register_basic.html` kept offering "Google" with a button that
+had pointed at `url_for('login_index')` (the login page) since the first commit
+(`51217100`) — a day-one stub, never wired to `google_login`. The backend OAuth
+was untouched: `/google_login` + `/google_callback` routes, `GOOGLE_CLIENT_ID`,
+`client_google*.json`, the `google_id` column, and 5 deps (google-auth,
+google-auth-oauthlib, cachecontrol, oauthlib, requests-oauthlib) remain live.
+Reported 2026-08-31: clicking the Google button on the register page just
+redirects to the login page.
+
+**Decision**: remove the Google button from `register_basic.html`, keeping VK as
+the only social option (mirrors `login.html`). Scope = UI only (user decision);
+the backend OAuth routes are left as-is.
+
+**Rationale**: the register-page button was dead UI (never pointed at Google);
+keeping it misled visitors. The backend routes stay reachable by direct URL — a
+documented state, not an accidental zombie.
+
+**Consequences**: `DEVELOPMENT_PROCESS.md §4.5` gains a "Feature removal sweep"
+checklist item (UI in all templates → routes → config → deps → schema →
+sitemap/og/CSP → docs, and record the decision here); `docs/PRIVACY_COMPLIANCE.md`
+§2.2 OAuth row corrected; retro entry added (2026-08-31 batch, PR #270).

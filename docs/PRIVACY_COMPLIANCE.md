@@ -36,7 +36,7 @@ The operator is the Saint Petersburg State University (СПбГУ); the departme
 | Yandex Metrica | `mc.yandex.ru` | **Consent-gated** (snippet renders only when a counter id is configured AND the visitor accepted the `statistics` category) | page URL, referrer, UA, IP, optional clickmap | processor — Yandex LLC processes on behalf of the operator |
 | SPbU topbar | `topbar.spbu.ru` | **REMOVED v2026.08.31** | nothing — `topbar.spbu.ru/loader.js` returns HTTP 410 Gone (SPbU retired the service); the Регламент № 11763/1 §3.1.9 header-link mandate is met by the navbar SPbU logo link | first-party component of SPbU (retired) |
 | Yandex Maps v3 / Google Maps | `api-maps.yandex.ru`, `maps.googleapis.com` | **Dormant** (no key — «Источник карты не задан» placeholder) | IP, geolocation context when a map is active | processor |
-| Google / VK OAuth login | `accounts.google.com`, `oauth.vk.com`, `oauth.yandex.ru` | Active | email + identity claims to create/link the account | identity provider |
+| Google / VK OAuth login | `accounts.google.com`, `oauth.vk.com`, `oauth.yandex.ru` | VK active; Google **removed from UI** (2026-07-01 login button, 2026-08-31 register button) — backend routes `/google_login` + `/google_callback` still live by direct URL (see `docs/DESIGN_DECISIONS.md` [2026-08-31]) | email + identity claims to create/link the account | identity provider |
 
 ### 2.3 Personal-data inventory (what the site itself stores)
 
