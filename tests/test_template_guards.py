@@ -62,6 +62,30 @@ class TestTemplateGuards:
             )
         assert not offenders, f"javascript: hrefs found in {offenders}"
 
+    def test_logout_only_in_dropdown(self):
+        """Logout must be a dropdown item, never an always-visible nav link.
+
+        The 2026-08-31 "Exit under Profile always" regression rendered logout
+        as a bare ``nav-link``; it belongs in the profile dropdown so it is not
+        visible until the user opens the menu.
+        """
+        offenders = []
+        for p in sorted(TEMPLATES_DIR.rglob("*.html")):
+            text = _strip_comments_and_scripts(p.read_text(encoding="utf-8"))
+            for m in re.finditer(r"url_for\(['\"]logout['\"]\)", text):
+                tag_start = text.rfind("<a", 0, m.start())
+                tag_end = text.find(">", m.start())
+                if tag_start < 0 or tag_end < 0:
+                    offenders.append(f"{p.relative_to(ROOT)}:{_line_number(text, m.start())}")
+                    continue
+                tag = text[tag_start:tag_end]
+                if "list-group-item" not in tag:
+                    offenders.append(f"{p.relative_to(ROOT)}:{_line_number(text, m.start())}")
+        assert not offenders, (
+            "Logout must be reachable only from the profile dropdown; an "
+            f"always-visible Exit link regressed. Found: {offenders}"
+        )
+
     def test_autocomplete_on_credential_inputs(self):
         """Password/e-mail/login inputs must declare autocomplete.
 

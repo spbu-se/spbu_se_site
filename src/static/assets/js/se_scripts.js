@@ -867,3 +867,30 @@ $(document).on('click', '.thesis-copy-link', function (e) {
         fallback();
     }
 });
+
+// Accessibility mode («Версия для слабовидящих», docs/SPBU_REGULATIONS.md §3.1.6)
+// The initial class is applied early by a head script to avoid a flash; this
+// handles the footer toggle click and keeps the switch state in sync.
+(function () {
+    const A11Y_KEY = 'se-a11y-mode';
+    const toggle = document.getElementById('se-a11y-toggle');
+
+    function sync(active) {
+        if (toggle) {
+            toggle.setAttribute('aria-checked', active ? 'true' : 'false');
+        }
+    }
+
+    sync(document.documentElement.classList.contains('a11y-mode'));
+
+    if (toggle) {
+        toggle.addEventListener('click', function (event) {
+            event.preventDefault();
+            const active = document.documentElement.classList.toggle('a11y-mode');
+            try {
+                localStorage.setItem(A11Y_KEY, active ? '1' : '0');
+            } catch (e) {}
+            sync(active);
+        });
+    }
+})();

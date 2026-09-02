@@ -67,10 +67,12 @@
                 </div>
                 <div class="col-md-8">
                   <div class="form-group">
-                    <label class="form-control-label">Почта</label>
+                    <label class="form-control-label" for="email">Почта</label>
                     <input class="form-control"
                            type="email"
                            name="email"
+                           id="email"
+                           autocomplete="email"
                            placeholder="А вас не установлен email"
                            {% if user.email %}value="{{ user.email }}"{% endif %}
                            readonly>
@@ -81,30 +83,36 @@
               <div class="row">
                 <div class="col-md-4 pr-0">
                   <div class="form-group">
-                    <label class="form-control-label">Фамилия</label>
+                    <label class="form-control-label" for="last_name">Фамилия</label>
                     <input class="form-control"
                            type="text"
                            name="last_name"
+                           id="last_name"
+                           autocomplete="family-name"
                            placeholder="Ваша фамилия"
                            {% if user.last_name %}value="{{ user.last_name }}"{% endif %}>
                   </div>
                 </div>
                 <div class="col-md-4 pr-0">
                   <div class="form-group">
-                    <label class="form-control-label">Имя</label>
+                    <label class="form-control-label" for="first_name">Имя</label>
                     <input class="form-control"
                            type="text"
                            name="first_name"
+                           id="first_name"
+                           autocomplete="given-name"
                            placeholder="Ваше имя"
                            value="{{ user.first_name }}">
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="form-control-label">Отчество</label>
+                    <label class="form-control-label" for="middle_name">Отчество</label>
                     <input class="form-control"
                            type="text"
                            name="middle_name"
+                           id="middle_name"
+                           autocomplete="additional-name"
                            placeholder="Ваше отчество"
                            {% if user.middle_name %}value="{{ user.middle_name }}"{% endif %}>
                   </div>
@@ -120,10 +128,11 @@
               <div class="row">
                 <div class="col-md-12 pr-0">
                   <div class="form-group">
-                    <label class="form-control-label">Как с вами связаться</label>
+                    <label class="form-control-label" for="how_to_contact">Как с вами связаться</label>
                     <input class="form-control"
                            type="text"
                            name="how_to_contact"
+                           id="how_to_contact"
                            placeholder="лучше в телеграме @Zelenchuk, но можно и на почту ilya@hackerdom.ru"
                            {% if user.how_to_contact %}value="{{ user.how_to_contact }}"{% endif %}>
                   </div>

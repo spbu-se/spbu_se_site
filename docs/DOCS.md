@@ -55,6 +55,7 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 | `PERFORMANCE.md` | Roadmap | Performance baseline, shipped optimizations, deferred ideas, post-deploy re-evaluation | Implementation, architecture | Performance backlog |
 | `RELEASE_CHECKLIST.md` | Release | Pre-release verification: dates, counts, hardcoded values | Release-note generation, versioning rules | Release-time drift items |
 | `PRIVACY_COMPLIANCE.md` | Compliance | GDPR + 152-ФЗ audit, v2026.08.20 mitigation (GTM removal, dormant Metrica), full-compliance implementation plan | Legal advice, site copy | Privacy/analytics compliance posture and backlog |
+| `SPBU_REGULATIONS.md` | Compliance | СПбГУ website regulation (Регламент № 11763/1) clauses → status → decisions (topbar, a11y, copyright, tag-manager) | Privacy/analytics compliance, legal advice | СПбГУ website-regulation compliance posture |
 
 ### Skills directory (.skills/)
 
@@ -93,6 +94,7 @@ Each doc has a knowledge discipline — what goes in, what stays out, how inform
 | `REVERSE_ENGINEERING.md` | RE methodology — cycle description, source types | Cycle steps, Source types | Methodology description: steps numbered, types in tables | Rebuild from patterns in `docs/AI_AGENTS.md` §Skills |
 | `AI_AGENTS.md` | AI-agent-specific — permissions, tool quirks, cross-references, output format conventions, skills architecture, skills catalog, commands | Permission Recommendation, Tool Quirks, Output Format, Communication, Skills (definition, boundaries, delegation, source of truth, extraction triggers, creation, lifecycle, maintenance, directory, vendor stubs, commands) | Permissions: JSON block. Tool Quirks: per-quirk ### subsections with wrong/correct examples. Output Format: compliance rules, timing, prescribed formats. Communication: ask-when-ambiguous rule. Skills: definition, boundaries, delegation chain, source of truth, extraction triggers, creation checklist, lifecycle, maintenance, directory table, vendor stubs, commands | Rebuild from `.opencode/opencode.json` + tool behavior observation |
 | `RELEASE_CHECKLIST.md` | Release guardrail — pre-release drift items, verification steps | A (must-update) + B (check-only) tables | Table: item, file, what, when | Rebuild from `docs/DEVELOPMENT_PROCESS.md` §6 + `src/sitemap.py` + template copyright lines |
+| `SPBU_REGULATIONS.md` | Compliance mapping — clause → status → decision | Clause table + Decisions + Related docs | Status table with a Decision/note column; Decisions section for rationale | Rebuild from the regulation PDFs (`.tmp/spbu-regulation/`) + the git log of UI/compliance commits |
 
 ## 2b. Skills Architecture (moved to `docs/AI_AGENTS.md` §Skills)
 
