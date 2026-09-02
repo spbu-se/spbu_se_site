@@ -58,7 +58,7 @@ jobs:
     environment: deploy_environment
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.tag || github.event.release.tag_name }}
 
@@ -147,7 +147,7 @@ jobs:
       OPENCODE_ZEN_API_KEY: ${{ secrets.OPENCODE_ZEN_API_KEY }}
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install opencode
         run: npm install -g opencode-ai
       - name: Determine previous release tag
