@@ -199,12 +199,10 @@ Not a quality gate — local commits can be imperfect. Using `git commit --no-ve
 
 #### Pre-push (strict, all files, fail-fast)
 
-Checks (in order): requirements format → actionlint → `uv lock --check` → format + lint (mdformat, ruff format `--check`, ruff check on `src/ tests/`, via PowerShell) → basedpyright. Runs on every `git push`.
+Checks (in order): requirements format → actionlint → `uv lock --check` → format + lint (mdformat, ruff format `--check`, ruff check on `src/ tests/`, pylint similarities, vulture, asset-pipeline guard — via `scripts/pre_push_checks.py`) → basedpyright. Runs on every `git push`.
 
 Failure at any step aborts. Format failure skips later checks.
-This is the local quality gate that prevents unformatted or type-unsafe code from reaching staging.
-
-**Platform caveat:** the format+lint step's entry is `powershell -Command "..."` (`.pre-commit-config.yaml` `pre-push-fast-checks`) — Windows-only. On Linux the pre-push hook fails with `Executable 'powershell' not found`; run the equivalent checks manually (see `AGENTS.md` §Pre-push) and log the `--no-verify` in the retrospective.
+This is the local quality gate that prevents unformatted or type-unsafe code from reaching staging. The hook is cross-platform — it runs identically on Linux and PowerShell/Windows.
 
 The pre-push gate exists because the agent has a documented pattern of skipping fast local checks to save seconds, costing minutes in CI round-trips. The fail-fast chain ensures that a format failure wastes at most ~3s instead of triggering a full check cycle.
 

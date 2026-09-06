@@ -61,20 +61,10 @@ See `docs/QUALITY_MANAGEMENT.md §6` for interpretation thresholds.
 Three tiers of quality, from local convenience to production gate. Full mechanics in `docs/DEVELOPMENT_PROCESS.md §0.6`; tier rationale in `docs/QUALITY_MANAGEMENT.md §2`.
 
 - **Pre-commit** (fast, ~1s, changed files only): runs on `git commit`, auto-fixes formatting. Not a quality gate — local commits can be imperfect; `git commit --no-verify` is acceptable if a hook genuinely blocks you for a non-formatting reason.
-- **Pre-push** (strict, all files, fail-fast): runs on `git push`. Checks in order: requirements format → actionlint → `uv lock --check` → format + lint (mdformat, ruff format `--check`, ruff check on `src/ tests/`, via PowerShell) → basedpyright. Failure at any step aborts. This is the real local quality gate.
+- **Pre-push** (strict, all files, fail-fast): runs on `git push`. Checks in order: requirements format → actionlint → `uv lock --check` → format + lint (mdformat, ruff format `--check`, ruff check on `src/ tests/`, pylint similarities, vulture, asset-pipeline guard — via `scripts/pre_push_checks.py`) → basedpyright. Failure at any step aborts. This is the real local quality gate.
 - **CI** (async, ~10min): pytest runs on CI, not pre-push. See `docs/AI_AGENTS.md` §CI discipline for when to check.
 
-**Windows-only pre-push step**: the format+lint step's entry is `powershell -Command "..."` — on Linux it fails with `Executable 'powershell' not found`. Run the equivalent checks manually:
-
-```bash
-uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
-uv run ruff format --check src/ tests/
-uv run ruff check src/ tests/
-uv run pylint --disable=all --enable=similarities src/ tests/
-uv run pytest tests/test_asset_pipeline.py --no-cov --tb=short
-```
-
-Before every `git push`, verify locally: `uv run pre-commit run --all-files --hook-stage pre-push` and fix any failures.
+Before every `git push`, verify locally — the pre-push hook is **cross-platform** (runs identically on Linux and PowerShell/Windows): `uv run pre-commit run --all-files --hook-stage pre-push` and fix any failures.
 
 **Never use `git push --no-verify`** unless the user gives a direct, unbiased instruction.
 An unbiased instruction states the goal without suggesting the method. Every `--no-verify` must be logged in the retrospective as a process violation.

@@ -321,7 +321,7 @@ Wrap-up protocol is in `docs/DEVELOPMENT_PROCESS.md §0.7` — includes DESIGN_D
 
 **Why**: The canonical `current` is a protected production branch; working entirely inside the fork keeps CI + review on the contributor's side and avoids cluttering upstream with WIP branches.
 
-**Gotchas**: Linux pre-push hook is PowerShell-only (`Executable 'powershell' not found`) — run the manual equivalents (ruff/mdformat/basedpyright) then `git push --no-verify` and log it. The `staging` head being shared means a PR body must be updated per phase (`gh api -X PATCH repos/spbu-se/spbu_se_site/pulls/<n> -f body="$(cat body.md)"` — the `gh pr edit` GraphQL path is deprecated).
+**Gotchas**: The `staging` head being shared means a PR body must be updated per phase (`gh api -X PATCH repos/spbu-se/spbu_se_site/pulls/<n> -f body="$(cat body.md)"` — the `gh pr edit` GraphQL path is deprecated).
 
 **Pushing a branch to the canonical repo directly**: the `upstream` remote's push URL is deliberately `no-push-to-upstream`. To update a canonical branch (e.g. repairing a dependabot PR's head) push to the bare URL:
 `git push --force-with-lease=<ref>:<oid> https://github.com/spbu-se/spbu_se_site.git <local>:<remote>`.
