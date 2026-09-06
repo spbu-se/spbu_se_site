@@ -53,12 +53,11 @@ The acceptance gate of the theme pipeline.
 | Details | `GET /admin/reviewdiplomathemes/details/?id=N` | Read-only summary that links on to the edit form |
 | Queue reminders | count e-mail → `/admin/reviewdiplomathemes/` | Scheduled mail points reviewers at the queue |
 
-Remaining gaps (issue #70 umbrella): bulk semester reset (#281) and a
-Company/sources admin CRUD (#282). Resolved: FK dropdowns + queue
-search/status filter (#276); single approved-theme archive/re-open with
-author notification, status-preserving (#280); full edit of approved themes
-including the `levels` multi-select and a status filter on the role ≥ 5
-list (#279).
+Remaining gaps (issue #70 umbrella): a Company/sources admin CRUD (#282).
+Resolved: FK dropdowns + queue search/status filter (#276); single
+approved-theme archive/re-open with author notification, status-preserving
+(#280); full edit of approved themes incl. the `levels` multi-select and a
+status filter on the role ≥ 5 list (#279); bulk semester reset (#281).
 
 ### 2b. Admin theme archive / re-open (role ≥ 5)
 
@@ -66,6 +65,8 @@ list (#279).
 |---|---|---|
 | Archive a theme (e.g. an obsolete or already-selected approved theme) | `POST /admin/diplomathemes/archive/` (id) | `status` → archive (`3`), previous status preserved in `prev_status`; the author is notified by mail (#280) |
 | Re-open | `POST /admin/diplomathemes/reopen/` | restores the preserved status — an approved theme returns straight to the public catalog; legacy archived rows fall back to the queue |
+| Semester reset: archive all non-archived themes in 0/1/2 at once | `POST /admin/diplomathemes/bulk-archive/` | every in-0/1/2 theme → archive, `prev_status` preserved; rejected (`4`) and already-archived themes untouched; one deduped notification per author listing the archived titles (#281) |
+| Semester reset: re-open every archived theme | `POST /admin/diplomathemes/bulk-reopen/` | each archived theme restored to its preserved status (legacy rows → queue); rejected themes never touched (#281) |
 
 ### 3. Practice student flow (choose/edit a practice topic)
 

@@ -4,6 +4,22 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3>{{ name }}</h3>
     <div>
+      {% if bulk_archive_enabled %}
+        <form method="POST"
+              action="{{ url_for(endpoint + '.bulk_archive_view') }}"
+              style="display:inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit"
+                  class="btn btn-sm btn-outline-warning"
+                  data-confirm-archive="true">Архивировать всё (кроме отклонённых)</button>
+        </form>
+        <form method="POST"
+              action="{{ url_for(endpoint + '.bulk_reopen_view') }}"
+              style="display:inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-sm btn-outline-secondary">Вернуть всё из архива</button>
+        </form>
+      {% endif %}
       {% if can_export %}
         <a href="{{ url_for(endpoint + '.export', export_type='csv') }}"
            class="btn btn-outline-secondary btn-sm">Export CSV</a>

@@ -47,6 +47,21 @@ def _notify_theme_archived(theme) -> None:
     )
 
 
+def _notify_themes_archived(author_id: int, titles: list[str]) -> None:
+    """One notification per author listing every theme archived in a bulk run."""
+    if not titles:
+        return
+    single = len(titles) == 1
+    add_mail_notification(
+        author_id,
+        "[SE site] Ваша тема архивирована" if single else "[SE site] Ваши темы архивированы",
+        render_template(
+            NotificationTemplates.DIPLOMA_THEMES_ARCHIVED.value,
+            title=", ".join(titles),
+        ),
+    )
+
+
 def _accessible(level):
     return current_user.is_authenticated and current_user.role >= level
 
@@ -176,6 +191,7 @@ class SeAdminModelViewNews(RestrictedCrudView):
 
 class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
     archive_enabled = True
+    bulk_archive_enabled = True
     form_exclude_columns = ("prev_status",)
     form_multi_select_relationships = ("levels",)
     list_filter_columns = ("status",)
@@ -246,6 +262,18 @@ class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
             view_func=self.reopen_view,
             methods=["POST"],
         )
+        app.add_url_rule(
+            f"/admin/{endpoint}/bulk-archive/",
+            endpoint=f"{endpoint}.bulk_archive_view",
+            view_func=self.bulk_archive_view,
+            methods=["POST"],
+        )
+        app.add_url_rule(
+            f"/admin/{endpoint}/bulk-reopen/",
+            endpoint=f"{endpoint}.bulk_reopen_view",
+            view_func=self.bulk_reopen_view,
+            methods=["POST"],
+        )
 
     def archive_view(self):
         r = self._check_access()
@@ -272,6 +300,28 @@ class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
             abort(404)
         if _theme_reopened(theme):
             db.session.commit()
+        return redirect(url_for(f"{self.endpoint}.index_view"))
+
+    def bulk_archive_view(self):
+        r = self._check_access()
+        if r:
+            return r
+        changed_by_author = {}
+        for theme in self.model.query.all():
+            if theme.status in (0, 1, 2) and _theme_archived(theme):
+                changed_by_author.setdefault(theme.author_id, []).append(theme.title)
+        for author_id, titles in changed_by_author.items():
+            _notify_themes_archived(author_id, titles)
+        db.session.commit()
+        return redirect(url_for(f"{self.endpoint}.index_view"))
+
+    def bulk_reopen_view(self):
+        r = self._check_access()
+        if r:
+            return r
+        for theme in self.model.query.all():
+            _theme_reopened(theme)
+        db.session.commit()
         return redirect(url_for(f"{self.endpoint}.index_view"))
 
 

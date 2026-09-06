@@ -48,6 +48,7 @@ class CrudView:
     form_exclude_columns = ()
     form_multi_select_relationships = ()
     archive_enabled = False
+    bulk_archive_enabled = False
     archive_status_field = "status"
     archived_value = 3
 
@@ -261,6 +262,7 @@ class CrudView:
             filters=filters,
             filter_qs=filter_qs,
             archive_enabled=self.archive_enabled,
+            bulk_archive_enabled=self.bulk_archive_enabled,
             archive_status_field=self.archive_status_field,
             archived_value=self.archived_value,
         )

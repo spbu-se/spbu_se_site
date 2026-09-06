@@ -227,6 +227,8 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/admin/diplomathemes/` | Diploma themes CRUD. Access: role >= 5. Full edit of any status incl. `levels` multi-select and FK dropdowns; list status filter `?status=` (0-4, incl. archive) |
 | `/admin/diplomathemes/archive/` | POST archive one theme (status → 3, previous status preserved in `prev_status`); author notified by mail when the theme was in 0/1/2. Access: role >= 5 |
 | `/admin/diplomathemes/reopen/` | POST restore an archived theme to its preserved status (legacy rows without `prev_status` → 0). Access: role >= 5 |
+| `/admin/diplomathemes/bulk-archive/` | POST archive all themes in status 0/1/2 (`prev_status` preserved); rejected and already-archived untouched; one deduped notification per author. Access: role >= 5 |
+| `/admin/diplomathemes/bulk-reopen/` | POST restore every archived theme to its preserved status (legacy rows → 0). Access: role >= 5 |
 | `/admin/reviewdiplomathemes/` | Review/moderate diploma themes (queue of `status < 2`). Access: role >= 3. Rows/title link into the review form (restored #275); text search (`?search=`) over title/description/requirements and a status filter (`?status=`) added #276; FK fields on the edit form render as dropdowns (generic CrudView behavior). Details at `/admin/reviewdiplomathemes/details/?id=N`, edit form at `/admin/reviewdiplomathemes/edit/?id=N` (role >= 3) |
 | `/admin/currentthesis/` | Current theses CRUD. Access: role >= 5 |
 
