@@ -1998,3 +1998,24 @@ Follow-up to the #274/#275 review-queue fix. Audited every old-site (Flask-Admin
 
 - `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
 - `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).
+
+### Retrospective — 2026-09-06: business workflows elevated to a doctrine value + BUSINESS_FEATURES map (docs/business-values)
+
+User-directed process change (value decision — user domain): the theme-review UX regression (#274) exposed that user-facing business workflows had no first-class status and no canonical map. The user re-scoped Project Doctrine Layer 2 to nine ordered priorities — business workflows are the product (#1), security & compliance first-class, good UX is a feature, maintainability & code quality, docs consistency — alongside the existing Zero bugs / Robust / Clean history / Low effort. New canonical `docs/BUSINESS_FEATURES.md` maps role journeys → entry routes → UX contract → parity guards (theme propose/review/accept mapped from the #274/#277 audit; practice and thesis-review reachability; coverage-status table for unmapped areas).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| A business workflow (#274) regressed and was only caught by a user complaint | No doctrine value and no canonical artifact declared the theme review/accept journeys as the product; no parity guard existed | Layer-2 priority #1 + `BUSINESS_FEATURES.md` with maintenance discipline (route/UI changes update the map; removals need a DESIGN_DECISIONS entry); parity tests `test_theme_route_parity.py`/`test_admin_review_ux.py` make the mapped journeys executable. Enforcement deliberately doc-only for now (user decision 2026-09-06) — escalate to a CI smoke gate if a journey regresses again |
+
+**What went wrong**: No process violations. Skill files read: `.skills/docs-audit`, `.skills/retrospective-analysis`. Doctrine Layer-2 row additions keep the previously referenced priority names (Zero bugs, Robust, Clean history, Low effort) so existing cross-references in `GIT_FLOW.md` and skills remain valid; rows are renumbered and referenced by name, not number.
+
+**Root causes**: Missing convention (1 — no business-journey value/map existed), user value decision (1 — doctrine scope set by user).
+
+**Fix**: Doctrine re-scoped to 9 values; `docs/BUSINESS_FEATURES.md` created and registered in `docs/DOCS.md` (catalog + disciplines) and `README.md`.
+
+**Pattern recurrence**: NO.
+
+**Process violations**:
+
+- `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
+- `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).

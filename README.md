@@ -123,6 +123,7 @@ se-site/
 | [docs/AI_AGENT_EXPERIENCE.md](docs/AI_AGENT_EXPERIENCE.md) | Agent-collected debugging trails and dead ends |
 | [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | API endpoint reference |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Module design and data flow |
+| [docs/BUSINESS_FEATURES.md](docs/BUSINESS_FEATURES.md) | User-facing workflow map and business value |
 | [docs/CODE_ISSUES.md](docs/CODE_ISSUES.md) | Known production bug inventory |
 | [docs/DESIGN_DECISIONS.md](docs/DESIGN_DECISIONS.md) | Technology and framework decisions |
 | [docs/DEVELOPMENT_PROCESS.md](docs/DEVELOPMENT_PROCESS.md) | Development workflow, conventions, testing |

@@ -41,6 +41,7 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 | `ARCHITECTURE.md` | Code design | Module map, data flow, conventions | Technology choices, schema | Module responsibilities, design rationale |
 | `API_REFERENCE.md` | Routes | All endpoints, methods, view functions | Models, architecture | Route registry |
 | `SCHEMA.md` | Database | Tables, fields, relationships | Endpoints, architecture | DB schema |
+| `BUSINESS_FEATURES.md` | Business | User-facing feature journeys per role: entry routes, UX contract, business value, parity-test guards | Endpoint registry, implementation | User workflows as business asset |
 | `REQUIREMENTS.md` | Features | Feature specs, user roles, navigation | Implementation, schema | Feature definition |
 | `TESTING.md` | Testing | Discipline, targets, xfail policy, long-term gaps | Fixture patterns, methodology | Testing strategy |
 | `TOOLING.md` | Tools | Portable tooling knowledge | Local quirks, project errors | Cross-platform tool patterns |
@@ -86,6 +87,7 @@ Each doc has a knowledge discipline — what goes in, what stays out, how inform
 | `AI_AGENT_EXPERIENCE.md` | Agent experience — debugging trails, dead ends, workarounds | Per-symptom H2 sections | Symptom→Attempts→Root cause→Fix table with commands | Recovery from `docs/AI_AGENTS.md` + retro entries |
 | `API_REFERENCE.md` | Routes — all endpoints, methods, view functions | Grouped by feature area (News, Theses, Practice, etc.) | Table: route, methods, params, returns, auth requirement | Rebuild from source code (`flask_se_*.py` route decorators) |
 | `SCHEMA.md` | Database — tables, fields, relationships | Grouped by model area | Table: column, type, constraints, FK target, notes | Rebuild from `se_models.py` SQLAlchemy definitions |
+| `BUSINESS_FEATURES.md` | Business asset map — user-facing journeys per role with entry routes, UX contract, business value, parity guards | Role journeys, UX contract, coverage status | Route registry (API_REFERENCE), feature specs (REQUIREMENTS), module map (ARCHITECTURE) | Rebuild from `API_REFERENCE.md` + journey templates + parity tests |
 | `REQUIREMENTS.md` | Feature specs — user roles, navigation, feature descriptions | Per-feature sections | User story → acceptance criteria → notes | Rebuild from templates + user interviews |
 | `TESTING.md` | Testing strategy — discipline, targets, xfail policy, gaps | §1-6 numbered (Discipline, Coverage Targets, Execution, xfail, Gaps, Exclusions) | Tables for targets/xfails/gaps. § follows Why→What→How | Rebuild from `conftest.py`, test files, `pyproject.toml` coverage config |
 | `TOOLING.md` | Portable tooling knowledge — cross-platform quirks per tool | Tool-name H2 sections (uv, pytest, SQLAlchemy, pre-commit, GitHub CLI, PowerShell, Python, Ruff, etc.) | Tool section: heading → "correct/wrong" code blocks with explanation. No process rules, only mechanics | Rebuild from `.pre-commit-config.yaml`, `pyproject.toml`, CI workflow files |
