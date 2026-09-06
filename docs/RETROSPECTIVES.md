@@ -1976,3 +1976,25 @@ User complaint: on the admin review queue `/admin/reviewdiplomathemes/` the per-
 
 - `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
 - `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).
+
+### Retrospective — 2026-09-06: theme workflow path-map audit — API_REFERENCE sync + route parity tests (test/theme-route-parity)
+
+Follow-up to the #274/#275 review-queue fix. Audited every old-site (Flask-Admin era) URL for the theme report/review/accept workflows (DiplomaThemes, `/review/*` thesis review, `/practice/*` student flows) against HEAD. Result: **no route was removed or renamed**; the only deltas are HTTP-method narrowings on state-changing routes (delete/archive/unarchive, `/review/delete`, `become_thesis_reviewer_confirm`) plus the admin-queue surface (fixed #275, remaining FK-select/search gaps tracked in #276, filed this session).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `docs/API_REFERENCE.md` §Thesis Review listed stale methods (`become_thesis_reviewer_confirm` GET, `/review/review` GET, `/review/delete` as GET/POST mismatch) | Missing convention — route-method changes landed without updating the route registry (code→doc drift, the reverse of §0.1 doc-first) | Corrected the rows; added per-section "Legacy" notes + a §Legacy method changes table encoding the old→new map. Encoded the drift guard as a route-parity test rather than a new process rule (avoid over-engineering) |
+| Parity test initially asserted 405 on POST-only GET routes; actual response is 404 | Wrong assumption — Werkzeug's 405 is shadowed by the site catch-all GET rule `/<path:filename>`, which matches first and renders the 404 page. Only the red test + a route-map probe surfaced the truth | Test now asserts 404 with the catch-all rationale documented; `API_REFERENCE.md` Legacy rows corrected to "404 page" instead of "405". Validation-before-documentation (mirrors security-audit's verify-before-fix) |
+
+**What went wrong**: No process violations. Two skill files read this session (`.skills/docs-audit`, `.skills/retrospective-analysis`). Retro run *before* the PR (docs-change session, §0.7).
+
+**Root causes**: Missing convention (1, doc registry drift — guard now a parity test), assumption-not-verified (1, caught red-first).
+
+**Fix**: `docs/API_REFERENCE.md` legacy map + method corrections; `tests/test_theme_route_parity.py` (11 cases) locks public/author/reviewer/practice reachability and the dead-GET contract; follow-up issue #276 filed for the review-edit FK-select/search gaps.
+
+**Pattern recurrence**: NO.
+
+**Process violations**:
+
+- `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
+- `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).

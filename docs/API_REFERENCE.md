@@ -116,6 +116,14 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/diplomas/archive_theme` | POST | `archive_theme` | Archive own theme |
 | `/diplomas/unarchive_theme` | POST | `unarchive_theme` | Unarchive own theme |
 
+> **Legacy**: in the Flask-Admin era (pre-PR #11) `delete_theme.html`,
+> `archive_theme`, and `unarchive_theme` accepted any method (the author pages
+> linked to them with plain GET anchors). They are POST-only since
+> (state-changing, CSRF/POST policy); a GET never reaches them — the site
+> catch-all rule `/<path:filename>` matches first and returns the 404 page.
+> The flows still work via the POST forms in `theme.html`/`user_themes.html`.
+> See the §Legacy method changes table at the end.
+
 ## Thesis Review
 
 | Route | Method | View Function | Description |
@@ -125,12 +133,19 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/review/submit` | GET, POST | `submit_thesis_on_review` | Submit thesis for review |
 | `/review/edit` | GET, POST | `edit_thesis_on_review` | Edit submitted thesis |
 | `/review/delete` | POST | `delete_thesis_on_review` | Delete own submission |
-| `/review/review` | GET | `review_thesis_on_review` | Enter review form |
+| `/review/review` | GET, POST | `review_thesis_on_review` | Enter/submit review form |
 | `/review/reviewed` | GET, POST | `review_submit_review` | Submit completed review |
 | `/review/review_result` | GET | `review_result_thesis_on_review` | View review result |
 | `/review/fetch_thesis_on_review` | GET | `fetch_thesis_on_review` | AJAX filtered list |
 | `/review/become_thesis_reviewer` | GET | `review_become_thesis_reviewer_ask` | Reviewer signup |
-| `/review/become_thesis_reviewer_confirm` | GET | `review_become_thesis_reviewer_confirm` | Confirm signup |
+| `/review/become_thesis_reviewer_confirm` | POST | `review_become_thesis_reviewer_confirm` | Confirm reviewer signup |
+
+> **Legacy**: in the Flask-Admin era (pre-PR #11) `delete` and
+> `become_thesis_reviewer_confirm` accepted GET (plain links). They are
+> POST-only since (state-changing, CSRF/POST policy); a GET never reaches them
+> — the site catch-all rule `/<path:filename>` matches first and returns the
+> 404 page. `/review/review` additionally accepts POST (form submission). See
+> the §Legacy method changes table at the end.
 
 ## Internships
 
@@ -210,8 +225,30 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/admin/summerschool/` | Summer school projects CRUD. Access: role >= 5 |
 | `/admin/news/` | News CRUD. Access: role >= 5 |
 | `/admin/diplomathemes/` | Diploma themes CRUD. Access: role >= 5 |
-| `/admin/reviewdiplomathemes/` | Review/moderate diploma themes. Access: role >= 3 |
+| `/admin/reviewdiplomathemes/` | Review/moderate diploma themes (queue of `status < 2`). Access: role >= 3. Rows/title link into the review form (restored in #275); details view at `/admin/reviewdiplomathemes/details/?id=N` (role >= 3), edit form at `/admin/reviewdiplomathemes/edit/?id=N` (role >= 3). Remaining gaps tracked in #276 |
 | `/admin/currentthesis/` | Current theses CRUD. Access: role >= 5 |
+
+## Legacy method changes (Flask-Admin era → current)
+
+The theme-reporting and review/acceptance URL paths themselves did not change
+with PR #11 (Flask-Admin → custom `CrudView`); only HTTP methods and the
+admin-review interaction surface changed. Every row is locked by
+`tests/test_theme_route_parity.py`.
+
+| Route | Old (Flask-Admin era) | Current | Why |
+|---|---|---|---|
+| `/diplomas/delete_theme.html` | any method (GET anchor) | POST | State change under CSRF/POST policy — GET now returns the 404 page (catch-all `/<path:filename>` shadows Werkzeug's 405) |
+| `/diplomas/archive_theme` | any method (GET anchor) | POST | Same |
+| `/diplomas/unarchive_theme` | any method (GET anchor) | POST | Same |
+| `/review/delete` | GET | POST | Same |
+| `/review/become_thesis_reviewer_confirm` | GET | POST | Same |
+| `/review/review` | GET | GET, POST | Form submission added (not a removal) |
+| `/admin/reviewdiplomathemes/` | Flask-Admin list (`?search`/filters/`page_size`) | CrudView table (`page_size`/`sort` only) | Navigation fixed in #275; search/filter + FK dropdowns on the edit form tracked in #276 |
+
+All other theme paths — the `/diplomas/` propose/edit pages, the `/practice/*`
+student/staff/admin flows (incl. `choosing_topic/`, `edit_theme/`), and the
+`/review/` dashboard/submit/edit/reviewed/result pages — are method- and
+path-identical between the old and current site.
 
 ## Error Handling
 
