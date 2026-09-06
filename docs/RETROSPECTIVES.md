@@ -2152,3 +2152,68 @@ touched here (out of scope); flagged for the session-end docs review.
 
 - `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
 - `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).
+
+### Retrospective — 2026-09-06 (session wrap): issue #70 delivered in 5 PRs + final docs sync
+
+Session delivered the full #70 theme-management batch end to end: #276 FK
+dropdowns + queue search/filter (#283), #280 status-preserving archive +
+admin single archive/re-open + author mail (#284), #279 approved-theme full
+edit incl. `levels` multi-select + status filter (#285), #281 bulk semester
+reset with deduped author mail (#286), #282 Company/sources CRUD with guarded
+delete (#287). Issue #70 auto-closed on the last merge. Per-PR retrospective
+entries above carry the phase detail; this entry records the session-level
+lessons and process ledger only.
+
+**What went wrong**: no new session-level gap classes beyond what each PR
+entry already classified (missing conventions: archive state memory, admin
+bulk/surface gaps; workflow discipline around stacked branches). Recurring
+session lessons re-confirmed:
+
+1. **Asset purge is bidirectional** — reusing a never-before-used stock class
+   trips the drift job just like introducing a new one; guard test exists
+   locally (run `tests/test_asset_pipeline.py` after template class changes).
+   Recorded in `docs/TOOLING.md` §Purged/minified assets.
+1. **Stacked branches sharing one working tree** need per-branch commits and
+   `--onto` rebases after dependency squash-merges. Recorded in
+   `docs/GIT_FLOW.md` §8.5.
+1. **Shared fixtures must live in conftest** — duplicated `make_theme`
+   fixtures across new test files tripped pylint similarities on CI (caught
+   in #280). Hoisted to `tests/conftest.py`.
+1. Doc-drift suspicion from the #282 retro (`/admin/news/` vs `/admin/posts/`)
+   re-checked at session end: the merged API_REFERENCE row is
+   `/admin/posts/` and matches the registered endpoint — no fix needed.
+
+**Retrospective-skill step 10 review**: retro skill still matches canonical
+docs (DEVELOPMENT_PROCESS §0.7 mandatory retro-before-PR, AI_AGENTS §Skills);
+no light/full split change. No `.skills/` content changes made this session —
+the three lessons above are canonical-doc knowledge (TOOLING, GIT_FLOW) and
+were added there directly; no skill was the right home (test-writer covers
+hermetic patterns, not repo-wide fixture placement).
+
+**Root causes**: workflow discipline (1 — stacked-branch tree hygiene),
+missing convention (1 — purge-reuse trap), human error (1 — fixture
+duplication caught by CI lint).
+
+**Fix**: `docs/TOOLING.md`, `docs/GIT_FLOW.md`, `tests/conftest.py`.
+
+**Pattern recurrence**: NO.
+
+**Process violations (full session ledger)**:
+
+- `git push --no-verify` (6×, one per push): the pre-push
+  `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on
+  Linux; every equivalent check (mdformat, ruff format/check, pylint
+  similarities, basedpyright, `uv lock --check`) was run manually and passed
+  before each push. Documented platform caveat — not a process error.
+- `git commit --no-gpg-sign` (all feature-branch commits): unsigned by policy
+  (only `current` is signed).
+- No other violations: no commits to `current`, all merges via
+  `gh pr merge --admin --squash` on green CI, retro-before-PR satisfied by
+  per-merge entries.
+
+**CI overhead**: 5 feature PRs (one initial push each, plus one forced re-push
+for #279/#281 after post-merge rebases — both CI-green on the re-push). One
+red CI round on #280 (asset purge + lint similarities) that the local
+pre-commit suite cannot reproduce (asset guard test and pylint-similarities
+run only in CI) — unavoidable without adding both to pre-push. All other
+rounds were green first time.

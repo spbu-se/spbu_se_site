@@ -37,6 +37,8 @@ git add src/static/assets/css/quick-website.min.css src/static/assets/js/quick-w
 
 Hit twice on 2026-08-31: PR-1 added `.custom-checkbox` (consent), PR-2 added `.d-none` (recovery banner) — both tripped the drift job. The purge-completeness guard test (`tests/test_asset_pipeline.py::TestPurgeCompleteness`) fails locally with the same signal, so regenerate before the full-suite run.
 
+The reverse trap hit on 2026-09-06 (#280): reusing a **stock Bootstrap class that no template had used yet** (`btn-outline-success`) also fails the drift job — the purge strips rules whose *class appears nowhere in templates*, even if it ships with Bootstrap. Two safe options: reuse only classes already present in the committed templates/CSS (grep the min css or a template for the class first), or regenerate via `npm run build`. After any template CSS-class change, run the purge guard locally (`uv run pytest tests/test_asset_pipeline.py`) — it reproduces the CI `assets`+`test` signal in seconds.
+
 Because both PRs touch the same single-line minified file, run `npm run build` **after** rebasing onto the merged base, never before — otherwise the squash-merge conflicts on that one line.
 
 ### First pre-commit run
