@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from flask import abort, redirect, render_template, request, session, url_for
+from flask import abort, flash, redirect, render_template, request, session, url_for
 from flask_login import current_user
 from wtforms import SelectField, TextAreaField
 
 from flask_se_crud import CrudView
 from se_models import (
     DiplomaThemes,
+    Reviewer,
     Users,
     add_mail_notification,
     db,
@@ -434,6 +435,40 @@ class SeAdminModelViewReviewDiplomaThemes(CrudView):
                         comment=model.comment,
                     ),
                 )
+
+
+class SeAdminModelViewCompany(RestrictedCrudView):
+    link_column = "name"
+    column_display_pk = True
+    search_fields = ("name",)
+    column_list = ("id", "name", "logo_uri", "status")
+    column_labels = {
+        "name": "Компания",
+        "logo_uri": "Логотип (uri)",
+        "status": "Статус",
+    }
+
+    def delete_view(self):
+        r = self._check_access()
+        if r:
+            return r
+        company_id = request.form.get("id", type=int)
+        company = self._get_obj(company_id) if company_id else None
+        if company is None:
+            abort(404)
+        referenced = DiplomaThemes.query.filter_by(company_id=company.id).first() is not None
+        referenced = (
+            referenced or Reviewer.query.filter_by(company_id=company.id).first() is not None
+        )
+        if referenced:
+            flash(
+                "Компания используется темами или рецензентами — удаление заблокировано.",
+                "danger",
+            )
+            return redirect(url_for(f"{self.endpoint}.index_view"))
+        db.session.delete(company)
+        db.session.commit()
+        return redirect(url_for(f"{self.endpoint}.index_view"))
 
 
 class SeAdminModelViewCurrentThesis(RestrictedCrudView):
