@@ -14,6 +14,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 
 ## Pre-flight checklist
 
+- **Plan-first** — before any work in a task run, update the session plan state: todo list + `.unfinished.plan.md` (date/time, focus, branch, base hash, dirty files, done/remaining, key decisions). Refresh at checkpoints, complete at the end. Mandatory in long gated/batched runs — it keeps the user informed, the agent focused, and the session crash-safe. See `docs/DEVELOPMENT_PROCESS.md` §0.7.
 - `git fetch --prune origin` then `git fetch --prune upstream` — two remotes (`origin` = fork, `upstream` = canonical). The single-command form `git fetch --prune origin upstream` fails with "couldn't find remote ref upstream"
 - Create a branch BEFORE any work: `git checkout -b <prefix>/<short-desc> upstream/current`
   Prefixes: feat/, fix/, refactor/, docs/, test/, chore/, ci/
@@ -83,6 +84,8 @@ An unbiased instruction states the goal without suggesting the method. Every `--
 PRs are squash-merged into `current` via `gh pr merge --admin --squash`. Never push directly to `current`.
 CI must be green before merging (see `docs/AI_AGENTS.md` §CI discipline).
 
+- **Post-merge deploy verification** — after any `gh pr merge`, confirm the deploy actually landed: the latest deployment on the upstream repo's `deploy_environment` must point at the merged SHA with `state == success`. Deploys are fire-and-report — a failed CD webhook (2026-09-06: five merges deployed 404) silently leaves staging behind until an ops re-run. Command + details: `docs/TOOLING.md` §Staging environment.
+
 ### First-time setup
 
 ```powershell
@@ -106,6 +109,7 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 - **GPG keylocker** — if `git config commit.gpgsign` is true, use `git commit --no-gpg-sign` on all branches (only `current` gets signed commits)
 - **Config-secret path vs contents** — secrets live in config files, and the code reads their **contents** via `flask_se_config.read_secret_from_file()`. Never treat a config file's *path* as the secret (that was CVE-class bug: `SECRET_KEY` was a path string → forgeable sessions). CSRF is globally enforced (`CSRFProtect`): any new POST form must include `{{ csrf_token() }}`, and new state-changing actions must be POST, not GET
 - **Generated/temp files** — all scratch and generated files must live in `.tmp/` (gitignored): session notes, log captures, route-map dumps, release-note drafts. Never leave them at the repo root. See `docs/DOCS.md` §3.
+- **Staging** — URL and semantics live in `docs/TOOLING.md` §Staging environment (single source, may change). Staging mirrors `current` via CD webhook; its DB is not guaranteed prod-like; live rate limiters apply. **Never define Flask routes under `/staging/*`** — the deploy host's nginx intercepts that prefix and it never reaches Flask.
 
 ## Process improvement
 

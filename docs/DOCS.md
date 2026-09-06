@@ -66,6 +66,10 @@ For skills catalog, vendor stubs, and commands, see `docs/AI_AGENTS.md` §Skills
 
 Each doc has a knowledge discipline — what goes in, what stays out, how information is structured. This section serves as the template for recreating any doc from scratch when only `DEVELOPMENT_PROCESS.md` is available.
 
+### General-form rule (writing discipline)
+
+Prefer the **general form over concrete values whenever unbiased**: "the upstream repo" instead of a full repo path, "the deploy host / deploy URL" instead of a live URL — unless the concrete value is itself the single source that readers must resolve to. A live URL or environment token belongs in exactly **one canonical location** (e.g. the staging URL in `docs/TOOLING.md` §Staging environment) and other docs reference it by name. Executable commands that legitimately require a concrete token stay single-sourced (one occurrence), never duplicated per file — duplicating concrete values is what makes docs drift and makes a change (like a staging URL rotation) touch many lines.
+
 ### Root docs
 
 | Doc | Discipline | Typical sections | Section anatomy | Recovery if missing |

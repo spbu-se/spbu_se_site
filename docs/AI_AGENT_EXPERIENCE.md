@@ -651,3 +651,11 @@ open(".tmp/routes.txt", "w").write(str(rs))
 - The Flask test client defaults to `http`, so `request.is_secure` is `False` and Flask-WTF's SSL-strict referrer check is **skipped** — a test that asserts "POST with no Referer is accepted" would pass even with `WTF_CSRF_SSL_STRICT=True`. To exercise the HTTPS branch, set `client.environ_base = {"wsgi.url_scheme": "https"}` (the test client sends no `Referer` by default, which is exactly the case under test).
 - The module-level `RateLimiter` singletons (`LOGIN_RATE_LIMITER`, `PASSWORD_RECOVERY_RATE_LIMITER`) persist across tests in a process; several recovery POSTs from the same test IP trip the 5/3600s limit and the later tests stop sending mail. Patch the limiter per test: `patch.object(flask_se_auth.PASSWORD_RECOVERY_RATE_LIMITER, "allow", return_value=True)`.
 - `WTF_CSRF_ENABLED` is `False` in conftest; flip it to `True` (and restore in `finally`) for the CSRF-positive tests, mirroring the existing `test_csrf_protects_post_forms` pattern.
+
+## CD silently failed for 5 merges — deploys are fire-and-report
+
+**When:** 2026-09-06. Five squash-merges into `current` produced deployments to the staging `deploy_environment` that all failed with `curl: (22) 404` on the deploy-host webhook — none of the code was ever staged. Detection happened only when deployment statuses were inspected; there is no alert, and CI stays green because CD is a separate, non-gating workflow.
+
+**Root cause:** staging webhook endpoint returned 404 (ops-side; new staging env). Not code — a re-run of the failed job (not a new commit) fixed it.
+
+**Lesson:** after any merge to `current`, verify the latest deployment equals the merged SHA with `state == success` before continuing. Command + staging notes: `docs/TOOLING.md` §Staging environment.
