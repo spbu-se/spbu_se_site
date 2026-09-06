@@ -272,6 +272,10 @@ Every new file type should have an `.editorconfig` entry. Keep `.editorconfig` i
 
 The exact commands for each step are in `AGENTS.md` §Pre-flight checklist and `docs/GIT_FLOW.md` §1.2 (Rules — branch from staging).
 
+### Plan-state discipline (run start + checkpoints)
+
+Plan-state updates are a **mandatory part of agentic development**, not an end-of-session nicety: at the **start of any task run** and at **each checkpoint**, refresh the session plan state — todo list + `.unfinished.plan.md` (date/time, focus, branch, base hash, dirty files, done/remaining, key decisions; the file is written out at session end, §Session end step 7). Mandatory in long gated/batched runs because the plan (1) **keeps the user informed** — state is always readable, never reconstructed at the end; (2) **keeps the agent focused** — it is the contract that gates and retro analysis read; (3) **keeps the session crash-safe** — sessions do crash, and `.unfinished.plan.md` is the exact recovery handoff read at the next Session start.
+
 ### Session end — wrap-up protocol
 
 **Why**: Knowledge must persist across sessions. Every session produces new decisions, dead ends, and metric changes — these must be captured before they are lost.

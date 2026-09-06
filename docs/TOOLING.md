@@ -617,6 +617,17 @@ See `docs/QUALITY_MANAGEMENT.md` for quality philosophy and policy.
 
 See `docs/DOCS.md §6` for the project's encoding declaration policy.
 
+## Staging environment
+
+- **Staging URL** (single source — a change touches exactly one line): `https://se.math.spbu.ru/staging/` — served by the deploy host under the `/staging/` path prefix of the production hostname. **May change**; if a stale link is suspected, ask ops.
+- **Deploy mechanics**: every push to `current` triggers the CD webhook (`.github/workflows/deploy_to_staging.yml`). GitHub deployments for environment `deploy_environment` on the upstream repo are the source of truth — a merge is NOT deployed until the latest deployment points at the merged SHA with `state == success`:
+  ```
+  gh api "repos/spbu-se/spbu_se_site/deployments?per_page=1" --jq '.[0] | "\(.sha) \(.created_at)"'
+  ```
+- **nginx `/staging/` prefix is reserved (ops rule)**: the deploy host's nginx intercepts `/staging/*` and routes it to the staging backend; **Flask routes must never be defined under `/staging/`** — they never reach uWSGI/Flask. Use another prefix if a staging-scoped route is ever needed.
+- **DB is not guaranteed prod-like**: a fresh boot self-seeds demo users with random passwords (`init_db`); a prod-like restore is an ops decision. Live rate limiters apply (10 login attempts / 5 min per IP, 5 registrations / hour per IP).
+- **Smoke** (mirror `docs/RELEASE_CHECKLIST.md` B17): `curl -s -o /dev/null -w "%{http_code}"` on `/staging/` and key routes must be 200.
+
 ## Static asset build pipeline (npm)
 
 The production theme assets are built from committed sources and the outputs are
