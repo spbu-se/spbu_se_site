@@ -323,3 +323,20 @@ CI, retro-before-PR per PR.
 | 1-5 | Initial feature PRs (#283-#287) | No | PR CI is the merge gate |
 | 6 | #280 fix round (asset-purge class + pylint similarities) | Partially | Local pre-commit cannot reproduce CI-only `test_asset_pipeline` + pylint-similarities; now added to AGENTS manual pre-push list |
 | 7-8 | #279/#281 forced re-pushes after post-merge rebases | No | Rebase onto freshly merged `current` is required before the dependent PR's final CI |
+
+## Deferred — opencode commands extraction (future sessions)
+
+Recorded 2026-09-06 after the #70 batch. Rationale: several multi-step
+routines repeated this session map naturally to `.opencode/commands/`
+(register per `docs/AI_AGENTS.md` §Commands). No command files created this
+session (user decision — the re-sync rule itself ships without a command).
+Pick ≤1 per future session, verify non-overlap with `pause.md`/`finalize.md`,
+ship as a small `chore/` PR with a retro.
+
+| Candidate command | Purpose | Frequency / harm-if-skipped |
+|---|---|---|
+| `/upstream-resync` | Fetch both remotes; diff vs last-known OID; list changed AGENTS/docs/CI files → read+apply+summarize | Every mid-session refresh; silent knowledge drift otherwise (backs DEV_PROCESS §0.6) |
+| `/feature-pr` | Scaffold a phase: branch from current, gates, granular commit, retro, PR | Every feature task |
+| `/ci-wait-merge` | Poll PR checks → admin squash merge → sync current/origin → `--onto`-rebase dependents | Every merge; today done by hand with poll sleeps |
+| `/linux-pre-push` | Run the AGENTS Linux manual pre-push equivalents (incl. asset guard + pylint similarities) in one step | Every Linux push |
+| `/retro-entry` | Scaffold a per-PR retro entry from a commit/diff list | Every PR; reduces boilerplate, enforces structure |
