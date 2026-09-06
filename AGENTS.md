@@ -21,8 +21,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Verify current branch is NOT `current`: `git branch --show-current`
 - Check `upstream/current` CI — `gh run list --repo spbu-se/spbu_se_site --branch current --limit 1 --json conclusion` — if red, stop and fix first
 - **Read the skill README for this task** — identify which task/skill matches (e.g., `retrospective-analysis`, `test-writer`, `merge-gate`) and read `.skills/<name>/README.md` before starting. Confirm by stating which skill READMEs were read.
-- Before using `2>&1`, flatten ErrorRecords with `| ForEach-Object { "$_" }` or suppress stderr with `2>($null)` — see `docs/TOOLING.md` §PowerShell
-- Before writing piped/chained commands, read `docs/TOOLING.md` §PowerShell
+- Before PowerShell piped/chained commands or `2>&1`, read `docs/TOOLING.md` §PowerShell (flatten ErrorRecords with `| ForEach-Object { "$_" }`, or suppress stderr with `2>($null)`)
 - Before editing any doc, re-read its first 5 lines (scope/aim header). Verify your changes match that scope. If existing content doesn't match, flag it.
 - After any command that produces error output or non-zero exit, ask: "Was this expected?" If unexpected, stop and investigate.
 - **Timeout recovery**: if a command times out, READ the partial output — calc ETA from progress rate → retry ONCE with right timeout. See `docs/AI_AGENT_EXPERIENCE.md` for the failure pattern.
@@ -30,6 +29,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Before merging a pushed feature branch: CI won't trigger on the branch. Create a PR first, wait for CI green, then squash-merge via `gh pr merge --squash --delete-branch`
 - Before merging any dependabot PR: verify its head is a descendant of the base branch (`git diff --stat upstream/current..<head>` must show only the intended files — GH PR metadata is cached and can underreport the real delta). Dep bumps that feed the asset pipeline (`esbuild`, `terser`, `purgecss`) must also regenerate the committed min outputs (`npm run build`). Repair recipe: `docs/TOOLING.md` §Dependabot PR repair; CI gate: `.github/workflows/dependabot-gate.yml`
 - **Multi-PR sessions**: branch each PR from `upstream/current` — never from a sibling PR's branch (stacking + squash-merge rewrites hashes → merge conflicts). Only stack on a real code dependency and rebase dependents onto `upstream/current` after each merge. Each PR carries only its own retro; never drop merged retros when resolving conflicts. Parallel PRs that append to the same docs (`RETROSPECTIVES.md`, `PERFORMANCE.md`) conflict at the shared tail — merge sequentially and resolve by keeping all entries. See `docs/GIT_FLOW.md §8.5`.
+- **Mid-session upstream re-sync** (user- or self-triggered, NOT init/warmup): after fetch/pull/switch, diff + re-scan the changed AGENTS/docs/CI-script deltas, APPLY them to this session, and summarize to the user (a Rescan summary). Fetching without applying loses knowledge. Steps: `docs/DEVELOPMENT_PROCESS.md` §0.6 (Upstream re-sync).
 - Before merge: verify TODO.md has no completed items that belong in commit messages instead
 - Before deleting any branch (local or remote): prove it is merged via `gh pr list --repo <owner>/<repo> --state merged --json number,headRefName` — squash-merged branches are never ancestors of `staging`/`current`, so `git branch --merged` and `-d` can't detect them; forced `-D` is justified only by merged-PR evidence. See `docs/AI_AGENT_EXPERIENCE.md`.
 - **Session retrospective is mandatory before any PR** — run `.skills/retrospective-analysis` and append the entry to `docs/RETROSPECTIVES.md` before opening the PR. If a PR was opened without it, add the retro as the last commit and update the PR description. See `docs/DEVELOPMENT_PROCESS.md` §0.7.
@@ -37,7 +37,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - When running tests: never use `-q` — always run with `--tb=long` and capture the full output to a log (`2>&1 | tee .tmp/<run>.log`). Never truncate test/tool output (`Select-Object -Last/-First`, `head`/`tail`) — search the captured log with `rg`/grep instead. See `docs/TESTING.md` §3a.
 - Proactively use `git-history_git_wrapup_instructions` at session start (orientation snapshot), mid-session (checkpoint against acceptance criteria), and pre-merge (readiness gate) — not just at the end. See `docs/DEVELOPMENT_PROCESS.md` §0.7 (Session lifecycle — wrap-up protocol).
 - Before staging templates/HTML or Python: run the auto-fix hooks on ALL files first (`pre-commit run djlint --all-files` for templates, `uv run ruff format src/` for Python) — these hooks reformat more than the staged set and abort with "Stashed changes conflicted with hook auto-fixes" if staged edits differ. See `docs/AI_AGENT_EXPERIENCE.md` §djLint / §ruff-format.
-- If a template change introduces a **new CSS class**, regenerate the purged/minified assets (`npm run build`) or the CI `assets` drift job fails — do it AFTER rebasing onto merged `current`, never before (single-line min file conflicts on squash-merge). See `docs/TOOLING.md` §Purged/minified assets.
+- If a template change touches any CSS class — a **new** class OR a stock class no template used yet (the purge strips both; `btn-outline-success` was purged, #280) — the committed purged/minified assets must match or CI `assets`/`test_asset_pipeline` fail. Regenerate (`npm run build`) or reuse only classes present in the committed CSS; local guard: `uv run pytest tests/test_asset_pipeline.py`. Nuance + rebase-onto-merged rule: `docs/TOOLING.md` §Purged/minified assets.
 - Verify the active branch before committing — `git branch --show-current` must be the intended feature branch, never `current`/`staging`. If work was committed to the wrong branch, recover via `git cherry-pick -n` + `git commit --no-gpg-sign` (see `.tooling.md` §cherry-pick).
 - Before creating any PR: include `Closes #<n>` / `References #<n>` per fixed/referenced issue in the body (one per line). See `docs/AI_AGENTS.md` §PR description.
 - Always learn, never forget — encode patterns before session ends
@@ -69,6 +69,8 @@ Three tiers of quality, from local convenience to production gate. Full mechanic
 uv run mdformat --check docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/
 uv run ruff format --check src/ tests/
 uv run ruff check src/ tests/
+uv run pylint --disable=all --enable=similarities src/ tests/
+uv run pytest tests/test_asset_pipeline.py --no-cov --tb=short
 ```
 
 Before every `git push`, verify locally: `uv run pre-commit run --all-files --hook-stage pre-push` and fix any failures.

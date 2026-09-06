@@ -182,6 +182,7 @@ The retrospective itself is a tool. Every time it runs, check if it revealed a g
 - **Did the retrospective itself violate any process rules?** (creating standalone files instead of appending, skipping skill loading, committing without testing, etc.) The retrospective must model the behavior it enforces.
 - **Did the session include user imperatives that should be encoded as permanent rules?** (e.g., "do X instead of Y", "always Z when W") — each imperative is a training signal. Encode in the relevant canonical doc or skill before session closes. Do not treat as one-time instruction.
 - **Did any rule I wrote during this session govern my own behavior?** If yes, add a retrieval cue at the decision boundary (pre-flight step, AGENTS.md checklist, trigger in relevant skill) — doc-only rules are invisible when the decision point arrives.
+- **Did this session refresh from upstream after the initial sync?** If yes — was a Rescan summary produced and reported to the user (`docs/DEVELOPMENT_PROCESS.md` §0.6 Upstream re-sync)? A silent refresh that never applied upstream AGENTS/docs/CI changes to the running session is a missed-knowledge gap.
 
 #### 8a. Session efficiency audit
 

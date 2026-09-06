@@ -7,7 +7,6 @@
 **Deferred feature issues (upstream, keep open):**
 
 - #87 practice reports read/unread status (bold seen reports; expand last; markdown support)
-- #70 admin theme management (reject + comment, archive w/ notifications, edit approved themes, theme sources CRUD)
 - #67 theme lifecycle for coursework themes
 
 **Config/input-gated:**
@@ -286,3 +285,58 @@ module validates records, resolves lookups by name/code, and never calls
 |-----|--------|---------------|
 | `doc/` vs `docs/` split — both directories tracked with overlapping content | Duplicate docs, stale references, CI only checks `docs/` | **Resolved** — `doc/` directory removed; stale refs in README.md and .skills/flask-test-patterns/README.md fixed in sweep |
 | Auto-branch commit triggered keylocker (GPG signoff) | Automation delay, user distraction | Fixed: `--no-gpg-sign` now in AGENTS.md pre-flight + commit instructions |
+
+## Batch run 2026-09-06 — issue #70 batch (#276, #280, #279, #281, #282)
+
+**Timing: estimated as ~2.5 h (unattended #70 plan), but ~05:00:00 wall clock elapsed** (approximate — spans the planning Q&A and five merged PRs with parallel CI waits)
+
+- **#70 closed** (auto-closed by the last merge) — removed from the "Deferred
+  feature issues" list above; theme-management batch fully shipped:
+  - #276 FK dropdowns + review-queue search/status filter → PR #283
+  - #280 status-preserving archive; admin single archive/re-open + author
+    mail (`prev_status`) → PR #284
+  - #279 full edit of approved themes incl. `levels` multi-select; status
+    filter → PR #285
+  - #281 bulk semester reset — archive/re-open all with deduped author mail →
+    PR #286
+  - #282 Company (theme source) admin CRUD with guarded delete → PR #287
+- Docs sync + session wrap PR #288: TOOLING purge-reuse trap, GIT_FLOW §8.5
+  stacked-tree discipline, RETROSPECTIVES navigation contract + wrap retro,
+  BUSINESS_FEATURES 2b/2c coverage rows, AGENTS anti-red-CI pre-push checks,
+  TESTING §Shared fixtures, `.skills/test-writer` conftest note.
+- New guards for future sessions: admin archive/semester-reset journeys
+  covered by `tests/test_archive_status_preserve.py`,
+  `tests/test_bulk_archive.py`, `tests/test_company_crud.py`.
+
+### Process violations
+
+Every `--no-verify`/`--no-gpg-sign` usage above (in the merged retros) was
+the documented PowerShell-only-hook / unsigned-feature-branch platform caveat;
+all equivalent checks ran manually and passed. No other violations — no direct
+commits to `current`, all merges via `gh pr merge --admin --squash` on green
+CI, retro-before-PR per PR.
+
+### CI overhead
+
+| Push | Trigger | Avoidable? | Reason |
+|------|---------|-----------|--------|
+| 1-5 | Initial feature PRs (#283-#287) | No | PR CI is the merge gate |
+| 6 | #280 fix round (asset-purge class + pylint similarities) | Partially | Local pre-commit cannot reproduce CI-only `test_asset_pipeline` + pylint-similarities; now added to AGENTS manual pre-push list |
+| 7-8 | #279/#281 forced re-pushes after post-merge rebases | No | Rebase onto freshly merged `current` is required before the dependent PR's final CI |
+
+## Deferred — opencode commands extraction (future sessions)
+
+Recorded 2026-09-06 after the #70 batch. Rationale: several multi-step
+routines repeated this session map naturally to `.opencode/commands/`
+(register per `docs/AI_AGENTS.md` §Commands). No command files created this
+session (user decision — the re-sync rule itself ships without a command).
+Pick ≤1 per future session, verify non-overlap with `pause.md`/`finalize.md`,
+ship as a small `chore/` PR with a retro.
+
+| Candidate command | Purpose | Frequency / harm-if-skipped |
+|---|---|---|
+| `/upstream-resync` | Fetch both remotes; diff vs last-known OID; list changed AGENTS/docs/CI files → read+apply+summarize | Every mid-session refresh; silent knowledge drift otherwise (backs DEV_PROCESS §0.6) |
+| `/feature-pr` | Scaffold a phase: branch from current, gates, granular commit, retro, PR | Every feature task |
+| `/ci-wait-merge` | Poll PR checks → admin squash merge → sync current/origin → `--onto`-rebase dependents | Every merge; today done by hand with poll sleeps |
+| `/linux-pre-push` | Run the AGENTS Linux manual pre-push equivalents (incl. asset guard + pylint similarities) in one step | Every Linux push |
+| `/retro-entry` | Scaffold a per-PR retro entry from a commit/diff list | Every PR; reduces boilerplate, enforces structure |

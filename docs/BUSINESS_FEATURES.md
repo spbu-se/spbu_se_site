@@ -22,6 +22,8 @@ Prior to 2026-09-06 the site had no canonical statement of *which user journeys 
 | Journey | Status | Guarded by |
 |---|---|---|
 | Theme proposal → review → accept (DiplomaThemes) | Mapped (2026-09-06, from the #274/#277 audit) | `test_theme_route_parity.py`, `test_admin_review_ux.py` |
+| Admin theme archive/re-open incl. bulk semester reset (2b, role ≥ 5) | Mapped (2026-09-06, #280/#281) | `test_archive_status_preserve.py`, `test_bulk_archive.py` |
+| Company (theme source) admin CRUD (2c, role ≥ 5) | Mapped (2026-09-06, #282) | `test_company_crud.py` |
 | Thesis (ВКР) peer review (`/review/*`) | Mapped (reachability) | `test_theme_route_parity.py` |
 | Practice student flow (choose/edit topic, reports) | Mapped (reachability) | `test_theme_route_parity.py` |
 | News, internships, thesis archive, auth/profile | Not yet mapped | — |

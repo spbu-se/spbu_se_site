@@ -169,6 +169,21 @@ Before proposing merge to current:
 1. Ensure `requirements.txt` matches lockfile. See `docs/GIT_FLOW.md §8` for the command.
 1. Scan `docs/CODE_ISSUES.md` for stale [OPEN] entries — any bug whose fix was already committed but status not updated to [FIXED]. Update before merging.
 
+### Upstream re-sync (active session)
+
+Triggered when the user asks to refresh/sync from upstream **or** the agent
+self-initiates a `fetch`/`pull`/branch switch mid-session — **not** session
+init or warmup. Fetching alone is not enough: upstream changes carry
+prescriptive and descriptive knowledge that must reach the running session
+before work continues.
+
+1. Sync as usual (two-remote fetch — `AGENTS.md` §Pre-flight; `GIT_FLOW.md §8.5`).
+1. Map the incoming changes: `git log <last-known-oid>..origin/<branch> --oneline` and `git diff --stat <last-known-oid>..origin/<branch>` (merges from other contributors, dep bumps, CI/workflow edits).
+1. Re-scan the changed files, reading **deltas, not just names**: prescriptive (`AGENTS.md`, `CLAUDE.md`, `.pre-commit-config.yaml`, `.github/workflows/*` CI scripts, `pyproject.toml`), descriptive docs (`docs/*.md`, canonical and in-scope), and tests.
+1. **Apply** new/updated rules to the running session before continuing — updated quality gates, hook behavior, commands, and conventions take effect immediately.
+1. Re-analyze code/test deltas to understand external changes (features/refactors beyond this build host).
+1. Report a **Rescan summary** to the user: changed files, rules now in effect, and their impact on the current task.
+
 ### Pre-staging validation
 
 Before staging after bulk doc edits, run the `mdformat` command that CI will use — not just `--check`. This catches missing files and path errors early. See `docs/DOCS.md §7.1` for the command.
@@ -274,6 +289,7 @@ The exact commands for each step are in `AGENTS.md` §Pre-flight checklist and `
    - Process rules → `docs/DEVELOPMENT_PROCESS.md`
    - Pre-flight items → `AGENTS.md`
 1. **Run the session retrospective — mandatory before any PR** — load the `retrospective-analysis` skill (light or full) and append the entry to `docs/RETROSPECTIVES.md` before opening a PR. If a PR was opened without it, add the retro as the last commit and update the PR description. This replaces the old "retro is not part of wrap-up" rule — every shipped session gets a retro entry. See `docs/RETROSPECTIVES.md`.
+1. **Upstream re-sync check** — did this session refresh from upstream after the initial sync? If yes, a **Rescan summary** must have been produced and reported to the user (see §0.6 Upstream re-sync). A silent refresh that never applied the upstream doc/CI changes to the session is a missed-knowledge gap.
 1. Write `.unfinished.plan.md` with date/time, focus task, branch, last commit hash, dirty files, completed and remaining steps, undocumented decisions.
 1. If on a feature branch with unfinished code: commit WIP, create `_UNFINISHED.md` as the final commit. `_UNFINISHED.md` is always the last commit — stripped automatically by squash-merge. `.unfinished.plan.md` is never committed (see `.gitignore`).
 1. Verify working tree is clean.
