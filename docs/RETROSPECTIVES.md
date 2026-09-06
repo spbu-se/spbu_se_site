@@ -2091,6 +2091,32 @@ rebases).
 `tests/test_diplomathemes_full_edit.py`, docs (`API_REFERENCE.md`,
 `BUSINESS_FEATURES.md`).
 
+### Retrospective — 2026-09-06: bulk semester reset — archive/re-open all with deduped author mail (#281, part of #70)
+
+`POST /admin/diplomathemes/bulk-archive/` archives every theme in 0/1/2
+(`prev_status` preserved via the #280 helpers), leaving rejected (`4`) and
+already-archived themes untouched, and sends one deduped notification per
+author listing the archived titles. `POST /admin/diplomathemes/bulk-reopen/`
+restores each archived theme to its preserved status (legacy rows → queue).
+Both reuse `_theme_archived`/`_theme_reopened`/notification helpers — no new
+archive logic, only bulk iteration + per-author grouping.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| No "new semester" action existed; an admin had to archive themes one-by-one | #70 scope; single-archive (#280) was the per-row primitive | Bulk routes + toolbar buttons on the role ≥ 5 `diplomathemes` list, reuse of the status-preserving helpers |
+
+**What went wrong**: No process violations. Note for CI discipline: a "0
+tests collected" panic mid-session was just my own branch confusion —
+`test_diplomathemes_full_edit.py` lives only on the stacked #279 branch
+(unmerged), so path-not-found turned into a silent 0-item run. Lesson:
+check `git branch --show-current` and the file list before assuming a test
+collector regression.
+
+**Root causes**: Missing convention (1 — no bulk primitive existed).
+
+**Fix**: `src/flask_se_admin.py`, `src/flask_se_crud.py` (bulk flag),
+`src/templates/admin/list.html`, `tests/test_bulk_archive.py` (5 cases), docs.
+
 **Pattern recurrence**: NO.
 
 **Process violations**:
