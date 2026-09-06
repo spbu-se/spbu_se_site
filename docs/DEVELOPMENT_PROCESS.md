@@ -47,10 +47,15 @@ Four layers guide every decision. A lower layer never violates a higher one.
 
 | Priority | Meaning |
 |----------|---------|
-| 1. Zero bugs | Any behavior deviating from documented specs blocks feature work |
-| 2. Robust | CI gates, staging flow, pre-commit, test coverage — safety over convenience |
-| 3. Clean history | Linear git, squash-merges, conventional commits, no stale branches |
-| 4. Low effort | Automate, simple solutions, fast feedback — remove friction from all aims |
+| 1. Business workflows are the product | The user-facing feature journeys (propose a theme → review → accept → status → re-edit) ARE the site's value, not the code. Every role's journey must keep working end-to-end. The map of journeys lives in `docs/BUSINESS_FEATURES.md`; any route/UI change must keep that map and its parity tests truthful |
+| 2. Security & compliance | First-class values, never traded for convenience or speed. Posture, decisions, and backlog: `docs/PRIVACY_COMPLIANCE.md`, `docs/SPBU_REGULATIONS.md` |
+| 3. Good UX is a feature | Usability and accessibility are part of "working": a flow the user cannot reach or finish is a bug (#274: theme editing was unreachable behind a dead, non-clickable review table) |
+| 4. Zero bugs | Any behavior deviating from documented specs blocks feature work |
+| 5. Maintainability & code quality | The codebase is a long-term asset (Layer 1.II): readable, simple, typed, tested — never a throwaway |
+| 6. Docs consistency | Docs are code. Registries (`API_REFERENCE.md`, `DOCS.md`, `BUSINESS_FEATURES.md`) must match executable sources; route-parity tests keep the maps honest |
+| 7. Robust | CI gates, staging flow, pre-commit, test coverage — safety over convenience |
+| 8. Clean history | Linear git, squash-merges, conventional commits, no stale branches |
+| 9. Low effort | Automate, simple solutions, fast feedback — remove friction from all aims |
 
 ### Layer 3 — Operational Heuristics (cross-cutting, all apply simultaneously)
 
