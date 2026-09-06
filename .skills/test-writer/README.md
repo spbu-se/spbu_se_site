@@ -26,6 +26,8 @@ Write hermetic pytest tests with coverage, mocking, and tempfile fixtures.
 | `seeded_client` | function | Pre-seeded DB (users, staff, areas, worktypes, etc.) |
 | `logged_client` | function | Seeded DB + logged-in as `a.terekhov@spbu.ru` |
 
+Shared role/entity fixtures (`make_theme`, `admin_client`, `reviewer_client`, …) are defined **once** in `tests/conftest.py` — never copy a fixture into a new test module (duplicates trip the CI pylint-similarities check R0801). Canonical policy: `docs/TESTING.md` §1 "Shared fixtures live in conftest".
+
 ### Test Helpers
 
 ```python

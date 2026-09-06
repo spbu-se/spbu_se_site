@@ -27,6 +27,10 @@ Every test batch must consider and test:
 
 Where edge cases emerge during testing, improve process documentation: what was missed and how to catch it next time.
 
+### Shared fixtures live in conftest
+
+When several test modules need the same setup (a role, a theme row, an entity), define the fixture **once** in `tests/conftest.py` and request it per module. Duplicating a fixture across files trips the CI pylint-similarities check (R0801; run `uv run pylint --disable=all --enable=similarities src/ tests/`) — hit 2026-09-06 with three copies of `make_theme` in the #70 test files (#280).
+
 ## 2. Coverage Targets
 
 | Scope | Target | Note |

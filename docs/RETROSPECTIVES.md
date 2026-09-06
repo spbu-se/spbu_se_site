@@ -8,6 +8,14 @@ Covers: all retrospective entries from prior sessions. Does not cover: git workf
 
 > **Every PR must carry a retrospective entry** — run `.skills/retrospective-analysis` and append to this file before opening any PR. If a PR was opened without one, add the retro as the last commit and update the PR description. See `docs/DEVELOPMENT_PROCESS.md §0.7`.
 
+## How to use this file (navigation contract)
+
+- Entries append chronologically; **always write a new entry at the tail** — never insert into or delete the history.
+- To see the most recent retros: read the **last ~50 lines** of this file.
+- To find an entry by title/date: `rg -n '^### Retrospective —' docs/RETROSPECTIVES.md` lists every heading with its line address (read a specific one via `sed -n '<line>,+25p'` or the Read tool offset).
+- Total entry count: `rg -c '^### Retrospective —' docs/RETROSPECTIVES.md`.
+- Entry headers are self-describing (`### Retrospective — <date>: <title>`); grep by keyword works directly on them.
+
 ### Retrospective — 2026-07-04: cross-doc duplication, CI mismatch, over-engineering recurrence
 
 This session touched 22 files across docs, tests, config, and skills. Gaps found:
