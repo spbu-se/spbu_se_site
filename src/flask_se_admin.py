@@ -195,6 +195,9 @@ class SeAdminModelViewReviewDiplomaThemes(CrudView):
     can_create = False
     role_level = REVIEW_ROLE_LEVEL
     link_column = "title"
+    search_fields = ("title", "description", "requirements")
+    list_filter_columns = ("status",)
+    list_filter_choices = {"status": [(0, "На проверке"), (1, "Требуется доработка")]}
     column_list = ("status", "comment", "title", "description", "requirements", "levels", "company")
     column_labels = {
         "comment": "Комментарий (что нужно исправить, если требуется доработка, или почему тема отклонена)",
@@ -205,7 +208,14 @@ class SeAdminModelViewReviewDiplomaThemes(CrudView):
         "company": "Кто представляет тему",
         "levels": "Уровень темы",
         "consultant": "Консультант",
+        "consultant_id": "Консультант",
         "author": "Автор темы (кто предложил)",
+        "author_id": "Автор темы (кто предложил)",
+        "supervisor": "Научный руководитель учебных практик",
+        "supervisor_id": "Научный руководитель учебных практик",
+        "supervisor_thesis": "Научный руководитель ВКР",
+        "supervisor_thesis_id": "Научный руководитель ВКР",
+        "company_id": "Кто представляет тему",
     }
     column_choices = {"status": [(0, "На проверке"), (1, "Требуется доработка"), (2, "Одобрена")]}
     form_overrides = {

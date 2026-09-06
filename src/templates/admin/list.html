@@ -14,6 +14,39 @@
       {% endif %}
     </div>
   </div>
+  {% if searchable or filters %}
+    <form method="get"
+          action="{{ url_for(endpoint + '.index_view') }}"
+          class="row g-2 mb-3">
+      {% if searchable %}
+        <div class="col-auto">
+          <input class="form-control"
+                 type="search"
+                 name="search"
+                 value="{{ search or '' }}"
+                 placeholder="Поиск">
+        </div>
+      {% endif %}
+      {% for f in filters %}
+        <div class="col-auto">
+          <select class="form-control" name="{{ f.key }}">
+            <option value="">{{ f.label }}: все</option>
+            {% for val, text in f.choices %}
+              <option value="{{ val }}" {{ 'selected' if f.current == val }}>{{ text }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endfor %}
+      <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary btn-sm">Фильтр</button>
+        {% if filter_qs %}
+          <a href="{{ url_for(endpoint + '.index_view') }}"
+             class="btn btn-outline-danger btn-sm">Сброс</a>
+        {% endif %}
+      </div>
+    </form>
+  {% endif %}
   {% set link_col = link_column if link_column and link_column in columns else None %}
   {% set has_link_col = link_col is not none %}
   <table class="table table-striped table-hover">
@@ -26,7 +59,7 @@
             {% if col in choices %}
               {{ label }}
             {% else %}
-              <a href="?sort={{ col }}&desc={{ 0 if sort == col and not desc else 1 }}">{{ label }}</a>
+              <a href="?sort={{ col }}&desc={{ 0 if sort == col and not desc else 1 }}{% if filter_qs %}&{{ filter_qs }}{% endif %}">{{ label }}</a>
             {% endif %}
           </th>
         {% endfor %}
@@ -85,7 +118,7 @@
       {% for p in range(1, total_pages + 1) %}
         <li class="page-item {{ 'active' if p == page }}">
           <a class="page-link"
-             href="?page={{ p }}&sort={{ sort }}&desc={{ desc }}">{{ p }}</a>
+             href="?page={{ p }}&sort={{ sort }}&desc={{ desc }}{% if filter_qs %}&{{ filter_qs }}{% endif %}">{{ p }}</a>
         </li>
       {% endfor %}
     </ul>
@@ -101,7 +134,7 @@
           return;
         }
         var tag = event.target && event.target.tagName;
-        if (tag === "A" || tag === "BUTTON" || tag === "INPUT" || tag === "FORM" || tag === "SELECT" || tag === "TEXTAREA") {
+        if (tag === "A" || tag === "BUTTON" || tag === "INPUT" || tag === "FORM" || tag === "SELECT" || tag === "TEXTAREA" || tag === "LABEL") {
           return;
         }
         var href = row.getAttribute("data-href");
