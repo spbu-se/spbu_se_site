@@ -14,7 +14,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 
 ## Pre-flight checklist
 
-- `git fetch --prune origin upstream`
+- `git fetch --prune origin` then `git fetch --prune upstream` — two remotes (`origin` = fork, `upstream` = canonical). The single-command form `git fetch --prune origin upstream` fails with "couldn't find remote ref upstream"
 - Create a branch BEFORE any work: `git checkout -b <prefix>/<short-desc> upstream/current`
   Prefixes: feat/, fix/, refactor/, docs/, test/, chore/, ci/
   (see `docs/GIT_FLOW.md` §1.1). Never commit directly to `current`.
@@ -34,7 +34,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Before deleting any branch (local or remote): prove it is merged via `gh pr list --repo <owner>/<repo> --state merged --json number,headRefName` — squash-merged branches are never ancestors of `staging`/`current`, so `git branch --merged` and `-d` can't detect them; forced `-D` is justified only by merged-PR evidence. See `docs/AI_AGENT_EXPERIENCE.md`.
 - **Session retrospective is mandatory before any PR** — run `.skills/retrospective-analysis` and append the entry to `docs/RETROSPECTIVES.md` before opening the PR. If a PR was opened without it, add the retro as the last commit and update the PR description. See `docs/DEVELOPMENT_PROCESS.md` §0.7.
 - Before any session summary or handoff: scan `docs/AI_AGENTS.md` §Output Format for the prescribed format — comply with timing, state, and section structure
-- When running tests: default to `--tb=long` for full diagnostics on first run. Only use `-q` for the final green confirmation when zero failures are expected. Never truncate a diagnostic run's output (`Select-Object -Last/-First`, `head`/`tail`) — let the full log be captured and search the captured file instead. See `docs/TESTING.md` §3a.
+- When running tests: never use `-q` — always run with `--tb=long` and capture the full output to a log (`2>&1 | tee .tmp/<run>.log`). Never truncate test/tool output (`Select-Object -Last/-First`, `head`/`tail`) — search the captured log with `rg`/grep instead. See `docs/TESTING.md` §3a.
 - Proactively use `git-history_git_wrapup_instructions` at session start (orientation snapshot), mid-session (checkpoint against acceptance criteria), and pre-merge (readiness gate) — not just at the end. See `docs/DEVELOPMENT_PROCESS.md` §0.7 (Session lifecycle — wrap-up protocol).
 - Before staging templates/HTML or Python: run the auto-fix hooks on ALL files first (`pre-commit run djlint --all-files` for templates, `uv run ruff format src/` for Python) — these hooks reformat more than the staged set and abort with "Stashed changes conflicted with hook auto-fixes" if staged edits differ. See `docs/AI_AGENT_EXPERIENCE.md` §djLint / §ruff-format.
 - If a template change introduces a **new CSS class**, regenerate the purged/minified assets (`npm run build`) or the CI `assets` drift job fails — do it AFTER rebasing onto merged `current`, never before (single-line min file conflicts on squash-merge). See `docs/TOOLING.md` §Purged/minified assets.
@@ -48,7 +48,7 @@ Always query live, never hardcode:
 
 | Metric | Command | Duration |
 |--------|---------|----------|
-| Test count + xfails | `pytest --tb=no -q` | ~7 min |
+| Test count + xfails | `pytest --tb=long 2>&1 \| tee .tmp/pytest.log` | ~7 min |
 | Coverage | `pytest --cov=src --cov-report=term-missing` | ~8 min |
 | CI status | `gh run list --repo spbu-se/spbu_se_site --branch current --limit 1 --json conclusion` | ~2s |
 | pyright ignores | `basedpyright src/` | ~30s |

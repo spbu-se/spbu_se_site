@@ -181,7 +181,7 @@ This works because Flask-Login reads `session["_user_id"]` on every request to l
 
 `pytest` reads `[tool.pytest.ini_options]` from `pyproject.toml` directly — no separate `pytest.ini` or `setup.cfg` needed.
 
-`addopts` enables coverage (`--cov=src --cov-report=term-missing --cov-fail-under=80 -n auto`). For targeted subset runs (a single file or `-k` filter), the `fail-under=80` gate fails on partial coverage — pass `--no-cov` to check only pass/fail (the full-suite reference run is the only one that must meet the 80% gate): `uv run pytest tests/test_app.py --no-cov -q`.
+`addopts` enables coverage (`--cov=src --cov-report=term-missing --cov-fail-under=80 -n auto`). For targeted subset runs (a single file or `-k` filter), the `fail-under=80` gate fails on partial coverage — pass `--no-cov` to check only pass/fail (the full-suite reference run is the only one that must meet the 80% gate): `uv run pytest tests/test_app.py --no-cov 2>&1 | tee .tmp/test_app.log`.
 
 ## pre-commit
 
