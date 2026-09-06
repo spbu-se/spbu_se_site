@@ -344,8 +344,10 @@ def archive_theme():
     if theme.author.id != current_user.id:
         return redirect(url_for("diplomas_index"))
 
-    theme.status = 3
-    db.session.commit()
+    if theme.status != 3:
+        theme.prev_status = theme.status
+        theme.status = 3
+        db.session.commit()
 
     return redirect(url_for("get_theme", id=theme.id))
 
@@ -362,8 +364,10 @@ def unarchive_theme():
     if theme.author.id != current_user.id:
         return redirect(url_for("diplomas_index"))
 
-    theme.status = 0
-    db.session.commit()
+    if theme.status == 3:
+        theme.status = theme.prev_status if theme.prev_status is not None else 0
+        theme.prev_status = None
+        db.session.commit()
 
     return redirect(url_for("get_theme", id=theme.id))
 

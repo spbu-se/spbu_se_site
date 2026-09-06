@@ -782,6 +782,10 @@ class DiplomaThemes(db.Model):
     supervisor_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     supervisor_thesis_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     consultant_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    prev_status = db.Column(
+        db.Integer,
+        nullable=True,
+    )  # status before archive (3); None if never archived or re-opened
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

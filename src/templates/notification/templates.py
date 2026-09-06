@@ -11,3 +11,4 @@ class NotificationTemplates(Enum):
     THESIS_WAS_ARCHIVED_BY_ADMIN = "notification/thesis_was_archived_by_admin.html"
     DIPLOMA_THEMES_REJECTED = "notification/diploma_themes_rejected.html"
     DIPLOMA_THEMES_NEED_UPDATE = "notification/diploma_themes_need_update.html"
+    DIPLOMA_THEMES_ARCHIVED = "notification/diploma_themes_archived.html"

@@ -107,6 +107,25 @@
                         data-confirm-delete="true">Delete</button>
               </form>
             {% endif %}
+            {% if archive_enabled %}
+              {% if (item | attr(archive_status_field)) == archived_value %}
+                <form method="POST"
+                      action="{{ url_for(endpoint + '.reopen_view') }}"
+                      style="display:inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="id" value="{{ item | attr(pk) }}">
+                  <button type="submit" class="btn btn-sm btn-outline-success">Вернуть</button>
+                </form>
+              {% else %}
+                <form method="POST"
+                      action="{{ url_for(endpoint + '.archive_view') }}"
+                      style="display:inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="id" value="{{ item | attr(pk) }}">
+                  <button type="submit" class="btn btn-sm btn-outline-secondary">В архив</button>
+                </form>
+              {% endif %}
+            {% endif %}
           </td>
         </tr>
       {% endfor %}
