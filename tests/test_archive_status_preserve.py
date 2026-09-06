@@ -1,26 +1,4 @@
 # -*- coding: utf-8 -*-
-import pytest
-
-
-@pytest.fixture
-def make_theme():
-    def _make(status, title="Archive Theme", company_id=None):
-        from se_models import DiplomaThemes, db
-
-        dt = DiplomaThemes(
-            title=title,
-            description="Desc",
-            requirements="Req",
-            author_id=1,
-            consultant_id=1,
-            company_id=company_id,
-            status=status,
-        )
-        db.session.add(dt)
-        db.session.commit()
-        return dt.id
-
-    return _make
 
 
 def _get_theme(theme_id):
