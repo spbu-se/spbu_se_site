@@ -53,11 +53,10 @@ The acceptance gate of the theme pipeline.
 | Details | `GET /admin/reviewdiplomathemes/details/?id=N` | Read-only summary that links on to the edit form |
 | Queue reminders | count e-mail → `/admin/reviewdiplomathemes/` | Scheduled mail points reviewers at the queue |
 
-Remaining gaps (issue #70 umbrella): a Company/sources admin CRUD (#282).
-Resolved: FK dropdowns + queue search/status filter (#276); single
-approved-theme archive/re-open with author notification, status-preserving
-(#280); full edit of approved themes incl. the `levels` multi-select and a
-status filter on the role ≥ 5 list (#279); bulk semester reset (#281).
+All issue #70 sub-issues resolved — FK dropdowns + queue search/status filter
+(#276), status-preserving single archive/re-open with author mail (#280),
+full edit of approved themes incl. `levels` multi-select and status filter
+(#279), bulk semester reset (#281), Company/sources admin CRUD (#282).
 
 ### 2b. Admin theme archive / re-open (role ≥ 5)
 
@@ -67,6 +66,13 @@ status filter on the role ≥ 5 list (#279); bulk semester reset (#281).
 | Re-open | `POST /admin/diplomathemes/reopen/` | restores the preserved status — an approved theme returns straight to the public catalog; legacy archived rows fall back to the queue |
 | Semester reset: archive all non-archived themes in 0/1/2 at once | `POST /admin/diplomathemes/bulk-archive/` | every in-0/1/2 theme → archive, `prev_status` preserved; rejected (`4`) and already-archived themes untouched; one deduped notification per author listing the archived titles (#281) |
 | Semester reset: re-open every archived theme | `POST /admin/diplomathemes/bulk-reopen/` | each archived theme restored to its preserved status (legacy rows → queue); rejected themes never touched (#281) |
+
+### 2c. Company (theme source) admin (role ≥ 5)
+
+| Step | Entry route | Useful result (UX contract) |
+|---|---|---|
+| Manage companies shown as theme sources | `/admin/companies/` | Full CRUD (name, logo uri, status); list search by name (#282) |
+| Delete | `POST /admin/companies/delete/` (id) | Deletion is blocked with an error message while a company is still referenced by a theme or a reviewer — no orphan FKs (#282) |
 
 ### 3. Practice student flow (choose/edit a practice topic)
 

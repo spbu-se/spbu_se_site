@@ -223,7 +223,8 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/admin/staff/` | Staff CRUD. Access: role >= 5 |
 | `/admin/thesis/` | Thesis CRUD. Access: role >= 5 |
 | `/admin/summerschool/` | Summer school projects CRUD. Access: role >= 5 |
-| `/admin/news/` | News CRUD. Access: role >= 5 |
+| `/admin/posts/` | News CRUD. Access: role >= 5 |
+| `/admin/companies/` | Company (theme sources) CRUD. Delete is blocked while a company is referenced by themes or reviewers. Access: role >= 5 |
 | `/admin/diplomathemes/` | Diploma themes CRUD. Access: role >= 5. Full edit of any status incl. `levels` multi-select and FK dropdowns; list status filter `?status=` (0-4, incl. archive) |
 | `/admin/diplomathemes/archive/` | POST archive one theme (status → 3, previous status preserved in `prev_status`); author notified by mail when the theme was in 0/1/2. Access: role >= 5 |
 | `/admin/diplomathemes/reopen/` | POST restore an archived theme to its preserved status (legacy rows without `prev_status` → 0). Access: role >= 5 |

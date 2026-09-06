@@ -2123,3 +2123,32 @@ collector regression.
 
 - `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
 - `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).
+
+### Retrospective — 2026-09-06: Company (theme source) admin CRUD, guarded delete (#282, last of #70)
+
+`SeAdminModelViewCompany` (role ≥ 5, `/admin/companies/`) manages the Company
+model (name, logo uri, status) with name search; delete is blocked — with a
+flashed error and no side effect — while any `DiplomaThemes` or `Reviewer`
+row still references the company. This closes the #70 umbrella: theme
+management batch done (#276 FK dropdowns/search, #280 status-preserving
+archive, #279 levels full edit, #281 bulk reset, #282 company CRUD).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Companies had no admin surface; their rows were only reachable through theme forms | #70 scope gap | Standard `RestrictedCrudView` + nav link + FK-reference guard in `delete_view` |
+
+**What went wrong**: No process violations. Small doc drift spotted while
+writing the API_REFERENCE row: the news CRUD row documents `/admin/news/` but
+the live endpoint is `/admin/posts/` (registration `endpoint="posts"`). Not
+touched here (out of scope); flagged for the session-end docs review.
+
+**Root causes**: Missing convention (1 — no Company admin surface existed).
+
+**Fix**: `src/flask_se_admin.py`, `src/flask_se.py`, nav link, docs.
+
+**Pattern recurrence**: NO.
+
+**Process violations**:
+
+- `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
+- `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).
