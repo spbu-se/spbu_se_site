@@ -2063,3 +2063,37 @@ Backbone for the #70 archive work. `DiplomaThemes.prev_status` stores the pre-ar
 
 - `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
 - `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).
+
+### Retrospective — 2026-09-06: full edit of approved themes incl. levels multi-select + status filter (#279, part of #70)
+
+CrudView gained `form_multi_select_relationships`: a declared many-to-many
+relationship key renders as a `SelectMultipleField` over its target rows, and
+`_populate_obj` reconciles the collection on save (no duplicates, order kept by
+the secondary-table ordering). `SeAdminModelViewDiplomaThemes` enables `levels`
+and a `?status=` filter (0/1/2/3/4 incl. archive) so approved/rejected/archived
+themes are reachable and fully editable at role ≥ 5; the review-queue view
+(`status < 2`) stays minimal (no levels field) — per-view opt-in only.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `levels` (many-to-many) was not editable in any admin form; approved themes were not filterable in the CRUD list | CrudView form builder only handled scalar columns; list had no status filter | `form_multi_select_relationships` + reconcile-on-save; status filter via the #276 list-filter contract |
+| Workflow lesson (stacked branches): a CI fix and a new feature landed mixed in one working tree | Pushed a PR, then continued the next stacked branch in the same tree | Split commits by branch (asset-safe class + conftest fixture to #280; feature to #279), then rebased #279 onto #280's head — clean stacked PR diffs |
+
+**What went wrong**: No process violations. Lessons recorded: keep "asset-safe"
+classes (btn-outline-success was purged → caught by CI test_asset_pipeline);
+hoist shared test fixtures into conftest (pylint similarities); when stacking
+branches, commit per-branch before continuing (uncommitted mixed sets block
+rebases).
+
+**Root causes**: Missing convention (1 — relationship forms unsupported), assumption-not-verified (1 — CSS class present locally but purged; CI caught).
+
+**Fix**: `src/flask_se_crud.py`, `src/flask_se_admin.py`,
+`tests/test_diplomathemes_full_edit.py`, docs (`API_REFERENCE.md`,
+`BUSINESS_FEATURES.md`).
+
+**Pattern recurrence**: NO.
+
+**Process violations**:
+
+- `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
+- `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).

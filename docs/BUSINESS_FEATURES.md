@@ -53,11 +53,12 @@ The acceptance gate of the theme pipeline.
 | Details | `GET /admin/reviewdiplomathemes/details/?id=N` | Read-only summary that links on to the edit form |
 | Queue reminders | count e-mail → `/admin/reviewdiplomathemes/` | Scheduled mail points reviewers at the queue |
 
-Remaining gaps (issue #70 umbrella): full edit of approved themes incl. `levels`
-multi-select (#279), bulk semester reset (#281), and a Company/sources admin
-CRUD (#282). Resolved: FK dropdowns + queue search/status filter (#276),
-single approved-theme archive/re-open with author notification,
-status-preserving (#280).
+Remaining gaps (issue #70 umbrella): bulk semester reset (#281) and a
+Company/sources admin CRUD (#282). Resolved: FK dropdowns + queue
+search/status filter (#276); single approved-theme archive/re-open with
+author notification, status-preserving (#280); full edit of approved themes
+including the `levels` multi-select and a status filter on the role ≥ 5
+list (#279).
 
 ### 2b. Admin theme archive / re-open (role ≥ 5)
 

@@ -177,6 +177,17 @@ class SeAdminModelViewNews(RestrictedCrudView):
 class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
     archive_enabled = True
     form_exclude_columns = ("prev_status",)
+    form_multi_select_relationships = ("levels",)
+    list_filter_columns = ("status",)
+    list_filter_choices = {
+        "status": [
+            (0, "На проверке"),
+            (1, "Требуется доработка"),
+            (2, "Одобрена"),
+            (3, "В архиве"),
+            (4, "Отклонена"),
+        ],
+    }
     column_labels = {
         "supervisor_thesis": "Научный руководитель ВКР",
         "supervisor": "Научный руководитель учебных практик",
