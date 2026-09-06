@@ -14,7 +14,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 
 ## Pre-flight checklist
 
-- **Plan-first** — before any work in a task run, update the session plan state: todo list + `.unfinished.plan.md` (date/time, focus, branch, base hash, dirty files, done/remaining, key decisions). Refresh at checkpoints, complete at the end. Mechanics + rationale: `docs/DEVELOPMENT_PROCESS.md` §0.7.
+- **Plan-first** — before any work in a task run, update the session plan state: todo list + `.unfinished.plan.md` (date/time, focus, branch, base hash, dirty files, done/remaining, key decisions). **Refresh after every commit, after every test/gate run, and before every push/PR/merge milestone**; complete at the end. Mechanics + rationale: `docs/DEVELOPMENT_PROCESS.md` §0.7.
 - `git fetch --prune origin` then `git fetch --prune upstream` — two remotes (`origin` = fork, `upstream` = canonical). The single-command form `git fetch --prune origin upstream` fails with "couldn't find remote ref upstream"
 - Create a branch BEFORE any work: `git checkout -b <prefix>/<short-desc> upstream/current`
   Prefixes: feat/, fix/, refactor/, docs/, test/, chore/, ci/
