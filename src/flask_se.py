@@ -25,6 +25,7 @@ import flask_se_config as fsc
 import flask_se_theses
 from flask_se_admin import (
     AdminIndexView,
+    SeAdminModelViewCompany,
     SeAdminModelViewCurrentThesis,
     SeAdminModelViewDiplomaThemes,
     SeAdminModelViewNews,
@@ -70,6 +71,7 @@ from flask_se_static import (
 from flask_se_summer_schools import register_routes as register_summer_schools_routes
 from flask_se_theses import register_routes as register_theses_routes
 from se_models import (
+    Company,
     CurrentThesis,
     DiplomaThemes,
     Posts,
@@ -273,6 +275,7 @@ def _init_admin_views(app: Flask) -> None:
     SeAdminModelViewNews(app, Posts, endpoint="posts")
     SeAdminModelViewDiplomaThemes(app, DiplomaThemes, endpoint="diplomathemes")
     SeAdminModelViewReviewDiplomaThemes(app, DiplomaThemes, endpoint="reviewdiplomathemes")
+    SeAdminModelViewCompany(app, Company, endpoint="companies")
     SeAdminModelViewCurrentThesis(app, CurrentThesis, endpoint="currentthesis")
 
 
