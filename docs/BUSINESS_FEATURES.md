@@ -48,12 +48,14 @@ The acceptance gate of the theme pipeline.
 
 | Step | Entry route | Useful result (UX contract) |
 |---|---|---|
-| Open queue | `GET /admin/reviewdiplomathemes/` | Table of themes with `status < 2`, each theme reachable from its title/row (**restored #275**) |
-| Review a theme | `GET/POST /admin/reviewdiplomathemes/edit/?id=N` | Form to edit the theme and set status: "на проверке" / "требуется доработка" / "одобрена" / "отклонена" + comment; reject/redo mails the author |
+| Open queue | `GET /admin/reviewdiplomathemes/?search=&status=` | Table of themes with `status < 2`, each theme reachable from its title/row (**restored #275**); text search + status filter (**added #276**) |
+| Review a theme | `GET/POST /admin/reviewdiplomathemes/edit/?id=N` | Form to edit the theme and set status: "на проверке" / "требуется доработка" / "одобрена" / "отклонена" + comment; reject/redo mails the author. FK fields (author/consultant/supervisors/company) are dropdowns, not raw id inputs (**#276**) |
 | Details | `GET /admin/reviewdiplomathemes/details/?id=N` | Read-only summary that links on to the edit form |
 | Queue reminders | count e-mail → `/admin/reviewdiplomathemes/` | Scheduled mail points reviewers at the queue |
 
-Known gaps (tracked, issue #276): FK fields render as raw-id inputs instead of dropdowns; search/filters are absent. Not regressions of reachability — editing works.
+Remaining gaps (issue #70 umbrella): full edit of approved themes incl. `levels`
+multi-select, per-theme/bulk archive with author notifications, and a
+Company/sources admin CRUD — tracked as #279/#280/#281/#282.
 
 ### 3. Practice student flow (choose/edit a practice topic)
 
