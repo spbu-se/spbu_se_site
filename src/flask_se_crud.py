@@ -44,6 +44,10 @@ class CrudView:
     search_fields = ()
     list_filter_columns = ()
     list_filter_choices = None
+    form_exclude_columns = ()
+    archive_enabled = False
+    archive_status_field = "status"
+    archived_value = 3
 
     def __init__(self, app, model, endpoint, name=None):
         self.model = model
@@ -108,8 +112,8 @@ class CrudView:
         mapper = inspect(self.model)
         all_cols = [c.key for c in mapper.columns if c.key != mapper.primary_key[0].key]
         if self.form_columns:
-            return self.form_columns
-        return all_cols
+            return list(self.form_columns)
+        return [c for c in all_cols if c not in (self.form_exclude_columns or ())]
 
     def _get_pk(self):
         return inspect(self.model).primary_key[0].key
@@ -254,6 +258,9 @@ class CrudView:
             searchable=bool(self.search_fields),
             filters=filters,
             filter_qs=filter_qs,
+            archive_enabled=self.archive_enabled,
+            archive_status_field=self.archive_status_field,
+            archived_value=self.archived_value,
         )
 
     def create_view(self):

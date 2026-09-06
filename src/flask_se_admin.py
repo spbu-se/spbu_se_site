@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from flask import redirect, render_template, session, url_for
+from flask import abort, redirect, render_template, request, session, url_for
 from flask_login import current_user
 from wtforms import SelectField, TextAreaField
 
@@ -9,12 +9,42 @@ from se_models import (
     DiplomaThemes,
     Users,
     add_mail_notification,
+    db,
 )
 from templates.notification.templates import NotificationTemplates
 
 ADMIN_ROLE_LEVEL = 5
 REVIEW_ROLE_LEVEL = 3
 THESIS_ROLE_LEVEL = 2
+
+
+def _theme_archived(theme) -> bool:
+    """Move a theme to the archive preserving its previous status. No-op if already archived."""
+    if theme.status == 3:
+        return False
+    theme.prev_status = theme.status
+    theme.status = 3
+    return True
+
+
+def _theme_reopened(theme) -> bool:
+    """Restore an archived theme to its preserved status. No-op if not archived."""
+    if theme.status != 3:
+        return False
+    theme.status = theme.prev_status if theme.prev_status is not None else 0
+    theme.prev_status = None
+    return True
+
+
+def _notify_theme_archived(theme) -> None:
+    add_mail_notification(
+        theme.author_id,
+        "[SE site] Ваша тема архивирована",
+        render_template(
+            NotificationTemplates.DIPLOMA_THEMES_ARCHIVED.value,
+            title=theme.title,
+        ),
+    )
 
 
 def _accessible(level):
@@ -145,6 +175,8 @@ class SeAdminModelViewNews(RestrictedCrudView):
 
 
 class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
+    archive_enabled = True
+    form_exclude_columns = ("prev_status",)
     column_labels = {
         "supervisor_thesis": "Научный руководитель ВКР",
         "supervisor": "Научный руководитель учебных практик",
@@ -189,12 +221,55 @@ class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
         "requirements": {"rows": 4, "style": "width: 100%;"},
     }
 
+    def __init__(self, app, model, endpoint, name=None):
+        super().__init__(app, model, endpoint, name)
+        app.add_url_rule(
+            f"/admin/{endpoint}/archive/",
+            endpoint=f"{endpoint}.archive_view",
+            view_func=self.archive_view,
+            methods=["POST"],
+        )
+        app.add_url_rule(
+            f"/admin/{endpoint}/reopen/",
+            endpoint=f"{endpoint}.reopen_view",
+            view_func=self.reopen_view,
+            methods=["POST"],
+        )
+
+    def archive_view(self):
+        r = self._check_access()
+        if r:
+            return r
+        theme_id = request.form.get("id", type=int)
+        theme = self._get_obj(theme_id) if theme_id else None
+        if theme is None:
+            abort(404)
+        previous = theme.status
+        if _theme_archived(theme):
+            if previous in (0, 1, 2):
+                _notify_theme_archived(theme)
+            db.session.commit()
+        return redirect(url_for(f"{self.endpoint}.index_view"))
+
+    def reopen_view(self):
+        r = self._check_access()
+        if r:
+            return r
+        theme_id = request.form.get("id", type=int)
+        theme = self._get_obj(theme_id) if theme_id else None
+        if theme is None:
+            abort(404)
+        if _theme_reopened(theme):
+            db.session.commit()
+        return redirect(url_for(f"{self.endpoint}.index_view"))
+
 
 class SeAdminModelViewReviewDiplomaThemes(CrudView):
     can_delete = False
     can_create = False
     role_level = REVIEW_ROLE_LEVEL
     link_column = "title"
+    form_exclude_columns = ("prev_status",)
     search_fields = ("title", "description", "requirements")
     list_filter_columns = ("status",)
     list_filter_choices = {"status": [(0, "На проверке"), (1, "Требуется доработка")]}

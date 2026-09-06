@@ -38,7 +38,7 @@ Authenticated user turns a research/industry idea into a catalog theme.
 | My themes | `GET /diplomas/user_themes.html` | List of own themes with status and the reviewer's `comment`; empty state redirects to the catalog |
 | View a theme | `GET /diplomas/theme.html?id=N` | Public theme card; the author additionally sees edit/delete/archive controls on their own themes |
 | Edit own theme | `GET/POST /diplomas/edit_theme.html?theme_id=N` | Author edits title/description/requirements/level/company; a save re-submits the theme (status → "на проверке") |
-| Delete / archive / unarchive own theme | `POST /diplomas/delete_theme.html`, `archive_theme`, `unarchive_theme` | State change only via POST (CSRF policy). **Legacy GET links are dead** — a GET returns the 404 page (catch-all); see `API_REFERENCE.md` §Legacy method changes |
+| Delete / archive / unarchive own theme | `POST /diplomas/delete_theme.html`, `archive_theme`, `unarchive_theme` | State change only via POST (CSRF policy). **Legacy GET links are dead** — a GET returns the 404 page (catch-all); see `API_REFERENCE.md` §Legacy method changes. Archive is **status-preserving** (#280): unarchive returns an approved theme straight to the catalog (`status 2`), never resets it to the review queue |
 
 Author-facing e-mails ("тема отклонена" / "необходимо доработать") link to `user_themes.html`.
 
@@ -54,8 +54,17 @@ The acceptance gate of the theme pipeline.
 | Queue reminders | count e-mail → `/admin/reviewdiplomathemes/` | Scheduled mail points reviewers at the queue |
 
 Remaining gaps (issue #70 umbrella): full edit of approved themes incl. `levels`
-multi-select, per-theme/bulk archive with author notifications, and a
-Company/sources admin CRUD — tracked as #279/#280/#281/#282.
+multi-select (#279), bulk semester reset (#281), and a Company/sources admin
+CRUD (#282). Resolved: FK dropdowns + queue search/status filter (#276),
+single approved-theme archive/re-open with author notification,
+status-preserving (#280).
+
+### 2b. Admin theme archive / re-open (role ≥ 5)
+
+| Step | Entry route | Useful result (UX contract) |
+|---|---|---|
+| Archive a theme (e.g. an obsolete or already-selected approved theme) | `POST /admin/diplomathemes/archive/` (id) | `status` → archive (`3`), previous status preserved in `prev_status`; the author is notified by mail (#280) |
+| Re-open | `POST /admin/diplomathemes/reopen/` | restores the preserved status — an approved theme returns straight to the public catalog; legacy archived rows fall back to the queue |
 
 ### 3. Practice student flow (choose/edit a practice topic)
 

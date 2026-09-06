@@ -208,6 +208,31 @@ def reviewer_client(seeded_client):
 
 
 @pytest.fixture
+def make_theme():
+    """Create a DiplomaThemes row; returns its id. Levels given as raw ids."""
+
+    def _make(title="Theme", status=2, levels=(), company_id=None, author_id=1, consultant_id=1):
+        from se_models import DiplomaThemes, ThemesLevel, db
+
+        dt = DiplomaThemes(
+            title=title,
+            description="Desc",
+            requirements="Req",
+            author_id=author_id,
+            consultant_id=consultant_id,
+            company_id=company_id,
+            status=status,
+        )
+        if levels:
+            dt.levels = [ThemesLevel.query.filter_by(id=level_id).first() for level_id in levels]
+        db.session.add(dt)
+        db.session.commit()
+        return dt.id
+
+    return _make
+
+
+@pytest.fixture
 def practice_thesis(logged_client):
     """Seeded client + a CurrentThesis belonging to the logged-in user."""
     _setup_current_thesis_with_report()

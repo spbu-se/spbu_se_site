@@ -2041,3 +2041,25 @@ Delivered under the approved #70 batch plan. `_build_form` gained an opt-in-per-
 
 - `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
 - `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).
+
+### Retrospective — 2026-09-06: status-preserving archive; single approved archive/re-open + author notification (#280, part of #70)
+
+Backbone for the #70 archive work. `DiplomaThemes.prev_status` stores the pre-archive status; any archive (`status`→3) preserves it, and re-open restores it (legacy `status=3` rows fall back to 0). Author `unarchive_theme` now returns an approved theme straight to the public catalog instead of resetting it to the review queue — matching the user rule "approved themes are fine for students; never lose approved/rejected meaning". Admin role ≥ 5 gets per-row Archive/Re-open on the `diplomathemes` list (`POST /admin/diplomathemes/archive|reopen/`), with a new `DIPLOMA_THEMES_ARCHIVED` notification mail when an in-0/1/2 theme is archived. `prev_status` is excluded from all edit forms (`form_exclude_columns`) so normal saves can never clobber it. Column self-heals on boot via `ensure_schema` (`ALTER TABLE ADD COLUMN`), covered by the migrations suite.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Archive destroyed state: author unarchive hard-reset status to 0, losing approved/rejected meaning | Original design had no memory of the pre-archive status (`flask_se_diplomas.py` wrote `0` on unarchive) | `prev_status` column + shared `_theme_archived/_theme_reopened` helpers + notifications; new `tests/test_archive_status_preserve.py` (7 cases) |
+| Bug hit during dev: `_get_form_columns` exclusion comprehension iterated string keys as column objects (`AttributeError 'str' object has no attribute 'key'`) | Careless rewrite of the exclusion filter | Fixed to filter the string list; caught by the new render test |
+
+**What went wrong**: No process violations. Async workflow per user guidance: push after local green, CI verified in parallel with next phase work; commits granular.
+
+**Root causes**: Missing convention (1 — archive needed state memory), assumption-not-verified (1 — code bug, red test caught it).
+
+**Fix**: `src/se_models.py`, `src/flask_se_diplomas.py`, `src/flask_se_admin.py`, `src/flask_se_crud.py` (`form_exclude_columns`, archive context flags), `src/templates/admin/list.html`, notification template, tests, docs.
+
+**Pattern recurrence**: NO.
+
+**Process violations**:
+
+- `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
+- `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).
