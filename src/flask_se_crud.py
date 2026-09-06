@@ -13,6 +13,7 @@ from wtforms import (
     HiddenField,
     IntegerField,
     SelectField,
+    SelectMultipleField,
     StringField,
     SubmitField,
     TextAreaField,
@@ -45,6 +46,7 @@ class CrudView:
     list_filter_columns = ()
     list_filter_choices = None
     form_exclude_columns = ()
+    form_multi_select_relationships = ()
     archive_enabled = False
     archive_status_field = "status"
     archived_value = 3
@@ -382,6 +384,9 @@ class CrudView:
             for name in self.form_extra_fields:
                 if name not in form_cols:
                     form_cols.append(name)
+        for name in self.form_multi_select_relationships or ():
+            if name not in form_cols:
+                form_cols.append(name)
 
         for col_key in form_cols:
             spec = self._field_spec(mapper, col_key, obj)
@@ -393,8 +398,32 @@ class CrudView:
         _AdminForm.submit = SubmitField("Save")
         return _AdminForm(request.form if request.method == "POST" else None)
 
+    def _multi_relationship_spec(self, mapper, col_key, obj):
+        """Build a ``SelectMultipleField`` spec for a many-to-many form field."""
+        if col_key not in (self.form_multi_select_relationships or ()):
+            return None
+        if col_key in mapper.columns:
+            return None
+        multi_rel = mapper.relationships.get(col_key)
+        if multi_rel is None:
+            return None
+        target = multi_rel.mapper.class_
+        choices = [(str(row.id), self._fk_row_label(row)) for row in target.query.all()]
+        choices.sort(key=lambda pair: pair[1].lower())
+        current_ids = [row.id for row in (getattr(obj, col_key, []) or [])] if obj else []
+        return SelectMultipleField, {
+            "label": (self.column_labels or {}).get(col_key, col_key),
+            "default": current_ids,
+            "coerce": int,
+            "choices": choices,
+        }
+
     def _field_spec(self, mapper, col_key, obj):
         """Return ``(field_cls, kwargs)`` for a form column, or ``None`` to skip."""
+        multi = self._multi_relationship_spec(mapper, col_key, obj)
+        if multi is not None:
+            return multi
+
         col = mapper.columns.get(col_key)
         default = getattr(obj, col_key, None) if obj else None
 
@@ -453,6 +482,18 @@ class CrudView:
                 col = mapper.columns.get(col_key)
                 if col is not None:
                     setattr(obj, col_key, val)
+        for col_key in self.form_multi_select_relationships or ():
+            if not hasattr(form, col_key):
+                continue
+            ids = getattr(form, col_key).data or []
+            rel = mapper.relationships.get(col_key)
+            if rel is None:
+                continue
+            target = rel.mapper.class_
+            if ids:
+                setattr(obj, col_key, list(target.query.filter(target.id.in_(ids)).all()))
+            else:
+                setattr(obj, col_key, [])
 
     def on_form_prefill(self, obj, obj_id):
         pass
