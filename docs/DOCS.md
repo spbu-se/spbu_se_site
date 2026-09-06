@@ -70,6 +70,14 @@ Each doc has a knowledge discipline — what goes in, what stays out, how inform
 
 Prefer the **general form over concrete values whenever unbiased**: "the upstream repo" instead of a full repo path, "the deploy host / deploy URL" instead of a live URL — unless the concrete value is itself the single source that readers must resolve to. A live URL or environment token belongs in exactly **one canonical location** (e.g. the staging URL in `docs/TOOLING.md` §Staging environment) and other docs reference it by name. Executable commands that legitimately require a concrete token stay single-sourced (one occurrence), never duplicated per file — duplicating concrete values is what makes docs drift and makes a change (like a staging URL rotation) touch many lines.
 
+### Lean-instruction-doc & consistency doctrine (AGENTS.md / CLAUDE.md)
+
+`AGENTS.md` is a **lean when/what index**, not a knowledge base: only triggers, hooks, and guardrails an agent acts on at a decision point. **Why lives in the referenced canonical doc**, never inline. Every AGENTS line must be *derivable* from docs — it is a retrieval cue plus a pointer, and if its content is not derivable from a canonical doc it is a **fault**: relocate the unique knowledge to its canonical home, then reduce the line to a cue + pointer.
+
+Consistency is **two-way**: **(i)** AGENTS content not derivable from docs = fault; **(ii)** a prescriptive rule in docs without an AGENTS retrieval cue at its decision boundary = fault (add the cue). Either direction failing is a process fault (see `AGENTS.md` Process improvement).
+
+AGENTS leanness and the two-way contract are enforced by an **occasional docs-drift re-audit** (full re-read + trim) — run alongside the mandatory `retrospective-analysis` §5b bloat audit at docs-branch finalization. When a new rule is to be remembered, first find its best canonical home (single source, general form) — never stash memory as AGENTS prose.
+
 ### Root docs
 
 | Doc | Discipline | Typical sections | Section anatomy | Recovery if missing |
