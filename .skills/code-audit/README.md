@@ -67,7 +67,8 @@ Nothing is silently dropped. Every status change is logged.
 Check for xpassed tests (expected to fail but now passing):
 
 ```bash
-uv run pytest -n 2 --tb=no -q 2>&1 | Select-String "xpassed"
+uv run pytest -n 2 --tb=long 2>&1 | tee .tmp/xpass.log
+rg -n "xpassed" .tmp/xpass.log
 ```
 
 For each xpassed test:

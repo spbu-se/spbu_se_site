@@ -10,6 +10,37 @@
       </tr>
     {% endfor %}
   </table>
-  <a href="{{ url_for(endpoint + '.index_view') }}"
-     class="btn btn-outline-secondary">Back to list</a>
+  <div>
+    <a href="{{ url_for(endpoint + '.index_view') }}"
+       class="btn btn-outline-secondary">Back to list</a>
+    {% if can_edit %}
+      <a href="{{ url_for(endpoint + '.edit_view', id=obj | attr(pk) ) }}"
+         class="btn btn-outline-warning">Edit</a>
+    {% endif %}
+    {% if can_delete %}
+      <form method="POST"
+            action="{{ url_for(endpoint + '.delete_view') }}"
+            style="display:inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="id" value="{{ obj | attr(pk) }}">
+        <button type="submit"
+                class="btn btn-outline-danger"
+                data-confirm-delete="true">Delete</button>
+      </form>
+    {% endif %}
+  </div>
+  {% if can_delete %}
+    <script nonce="{{ csp_nonce() }}">
+    (function () {
+      var button = document.querySelector('[data-confirm-delete="true"]');
+      if (button) {
+        button.addEventListener("click", function (event) {
+          if (!confirm("Delete?")) {
+            event.preventDefault();
+          }
+        });
+      }
+    })();
+    </script>
+  {% endif %}
 {% endblock %}

@@ -1953,3 +1953,26 @@ Batch `fix/post-release-ux` from post-release feedback + СПбГУ website-regu
 **Fix**: Retro documentation of the two quirks; per-feature commits for multi-feature same-file batches; feature-removal sweep checklist added to `DEVELOPMENT_PROCESS.md §4.5` + decision recorded in `docs/DESIGN_DECISIONS.md`.
 
 **Pattern recurrence**: NO — neither gap matches a prior retro's gap class.
+
+### Retrospective — 2026-09-06: review-queue UX regression — theme editing page lost (issue #274)
+
+User complaint: on the admin review queue `/admin/reviewdiplomathemes/` the per-theme editing page seemed gone — the queue was a dead, non-clickable table ("Вместо страницы редактирования темы практики появляется вот такая таблица, и она некликабельна"). Root cause: PR #11 (`41e8463`, 2026-07-13) replaced Flask-Admin with the generic custom `CrudView`; the queue's list then rendered theme titles as plain text reachable only through a small Actions-Edit button, and the details page was a read-only dead-end (`templates/admin/list.html`, `details.html`). The edit route and form still worked (covered by `tests/test_admin_deep.py`) — the loss was navigation/affordance.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Theme titles and rows in the admin queue not clickable since #11 | Missing convention — the Flask-Admin→CrudView rewrite (#11) never restored row/edit affordances to the generic templates | Opt-in `link_column`: review view links its title cell and the whole row (nonce-safe delegated listener + no-JS anchor fallback) to the review/edit page; details page gained Edit/Delete when permitted. New `tests/test_admin_review_ux.py` (5 cases, reviewer role 3 + admin). Issue filed (#274), regression test written red→green |
+| Early session test runs used `pytest -q` and truncated output streams | Missing convention — instruction files still taught `-q`/`tail` for the "final green" case (AGENTS.md, `docs/TESTING.md §3a`, `docs/TOOLING.md`, `code-audit`, `test-writer`) until the user made it an explicit imperative | User rule encoded in the canonical docs: never `pytest -q`; every run `--tb=long` and captured via `2>&1 \| tee .tmp/<run>.log`; output never truncated with `head`/`tail`/`Select-*` — search the captured log instead. Updated AGENTS.md, `docs/TESTING.md §3a`, `docs/TOOLING.md`, `.skills/code-audit`, `.skills/test-writer` |
+| Pre-push hook fails on Linux at the PowerShell fast-checks step | Platform caveat (documented in AGENTS.md / `DEVELOPMENT_PROCESS.md §0.6`) | Ran every equivalent check manually (requirements format, `uv lock --check`, actionlint, mdformat, ruff format/check, pylint similarities, vulture, basedpyright — all green); `git push --no-verify` logged in Process violations below |
+
+**What went wrong**: No process violations beyond the expected Linux pre-push caveat. Reproduction-first scoping worked: the regression was confirmed in a red test before any fix, and the scope decision (restore affordances generically, opt-in per view) stayed minimal — no new CSS classes (no asset rebuild), no new dependencies, CSP-safe.
+
+**Root causes**: Missing convention (2), platform caveat (1, documented).
+
+**Fix**: `link_column` affordance restored on the review queue + details-page actions; test coverage for reviewer/admin navigation; user's log/no-`-q` imperative encoded in canonical docs.
+
+**Pattern recurrence**: NO.
+
+**Process violations**:
+
+- `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
+- `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).

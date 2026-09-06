@@ -194,6 +194,7 @@ class SeAdminModelViewReviewDiplomaThemes(CrudView):
     can_delete = False
     can_create = False
     role_level = REVIEW_ROLE_LEVEL
+    link_column = "title"
     column_list = ("status", "comment", "title", "description", "requirements", "levels", "company")
     column_labels = {
         "comment": "Комментарий (что нужно исправить, если требуется доработка, или почему тема отклонена)",

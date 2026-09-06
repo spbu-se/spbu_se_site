@@ -37,6 +37,7 @@ class CrudView:
     form_widget_args = None
     form_extra_fields = None
     column_display_pk = False
+    link_column = None
 
     def __init__(self, app, model, endpoint, name=None):
         self.model = model
@@ -144,6 +145,7 @@ class CrudView:
             choices=choices,
             column_formatters=self.column_formatters or {},
             column_display_pk=self.column_display_pk,
+            link_column=self.link_column,
             pk=pk,
             endpoint=self.endpoint,
             name=self.name,
@@ -212,13 +214,17 @@ class CrudView:
             abort(404)
         columns = self._get_columns()
         labels = self.column_labels or {}
+        pk = self._get_pk()
         return render_template(
             "admin/details.html",
             obj=obj,
             columns=columns,
             labels=labels,
+            pk=pk,
             endpoint=self.endpoint,
             name=self.name,
+            can_edit=self.can_edit,
+            can_delete=self.can_delete,
         )
 
     def action_view(self):

@@ -156,7 +156,7 @@ If the filter marks output safe (`Markup`), also assert the XSS guard separately
 
 ### Targeted subset runs: use `--no-cov`
 
-`pyproject.toml` `addopts` sets `--cov-fail-under=80`. A targeted run (`pytest tests/test_x.py`) fails the coverage gate at ~40% and masks pass/fail. Add `--no-cov` for red/green iteration: `uv run pytest tests/test_app.py --no-cov -q`. Only the full-suite reference run must meet the 80% gate.
+`pyproject.toml` `addopts` sets `--cov-fail-under=80`. A targeted run (`pytest tests/test_x.py`) fails the coverage gate at ~40% and masks pass/fail. Add `--no-cov` for red/green iteration (never `-q`; log the run): `uv run pytest tests/test_app.py --no-cov 2>&1 | tee .tmp/test_app.log`. Only the full-suite reference run must meet the 80% gate.
 
 ### Template-output guardrail
 

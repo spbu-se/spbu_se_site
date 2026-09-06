@@ -14,6 +14,8 @@
       {% endif %}
     </div>
   </div>
+  {% set link_col = link_column if link_column and link_column in columns else None %}
+  {% set has_link_col = link_col is not none %}
   <table class="table table-striped table-hover">
     <thead>
       <tr>
@@ -33,11 +35,14 @@
     </thead>
     <tbody>
       {% for item in items %}
-        <tr>
+        {% set row_target = url_for(endpoint + '.edit_view', id=item | attr(pk)) if can_edit else url_for(endpoint + '.details_view', id=item | attr(pk)) %}
+        <tr {% if has_link_col %}data-href="{{ row_target }}"{% endif %}>
           {% if column_display_pk %}<td>{{ item | attr(pk) }}</td>{% endif %}
           {% for col in columns %}
             <td>
-              {% if col in column_formatters %}
+              {% if col == link_col %}
+                <a href="{{ row_target }}">{{ item | attr(col) }}</a>
+              {% elif col in column_formatters %}
                 {{ column_formatters[col](item) }}
               {% elif col in choices %}
                 {% set val = item | attr(col) %}
@@ -85,8 +90,27 @@
       {% endfor %}
     </ul>
   </nav>
+  {% if has_link_col %}<style nonce="{{ csp_nonce() }}">tr[data-href] { cursor: pointer; }</style>{% endif %}
   <script nonce="{{ csp_nonce() }}">
   (function () {
+    {% if has_link_col %}
+    var rowLinks = document.querySelectorAll("tr[data-href]");
+    rowLinks.forEach(function (row) {
+      row.addEventListener("click", function (event) {
+        if (event.button !== 0) {
+          return;
+        }
+        var tag = event.target && event.target.tagName;
+        if (tag === "A" || tag === "BUTTON" || tag === "INPUT" || tag === "FORM" || tag === "SELECT" || tag === "TEXTAREA") {
+          return;
+        }
+        var href = row.getAttribute("data-href");
+        if (href) {
+          window.location.href = href;
+        }
+      });
+    });
+    {% endif %}
     var buttons = document.querySelectorAll('[data-confirm-delete="true"]');
     buttons.forEach(function (button) {
       button.addEventListener("click", function (event) {
