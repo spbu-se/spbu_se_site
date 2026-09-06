@@ -225,7 +225,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 | `/admin/summerschool/` | Summer school projects CRUD. Access: role >= 5 |
 | `/admin/news/` | News CRUD. Access: role >= 5 |
 | `/admin/diplomathemes/` | Diploma themes CRUD. Access: role >= 5 |
-| `/admin/reviewdiplomathemes/` | Review/moderate diploma themes (queue of `status < 2`). Access: role >= 3. Rows/title link into the review form (restored in #275); details view at `/admin/reviewdiplomathemes/details/?id=N` (role >= 3), edit form at `/admin/reviewdiplomathemes/edit/?id=N` (role >= 3). Remaining gaps tracked in #276 |
+| `/admin/reviewdiplomathemes/` | Review/moderate diploma themes (queue of `status < 2`). Access: role >= 3. Rows/title link into the review form (restored #275); text search (`?search=`) over title/description/requirements and a status filter (`?status=`) added #276; FK fields on the edit form render as dropdowns (generic CrudView behavior). Details at `/admin/reviewdiplomathemes/details/?id=N`, edit form at `/admin/reviewdiplomathemes/edit/?id=N` (role >= 3) |
 | `/admin/currentthesis/` | Current theses CRUD. Access: role >= 5 |
 
 ## Legacy method changes (Flask-Admin era → current)
@@ -243,7 +243,7 @@ admin-review interaction surface changed. Every row is locked by
 | `/review/delete` | GET | POST | Same |
 | `/review/become_thesis_reviewer_confirm` | GET | POST | Same |
 | `/review/review` | GET | GET, POST | Form submission added (not a removal) |
-| `/admin/reviewdiplomathemes/` | Flask-Admin list (`?search`/filters/`page_size`) | CrudView table (`page_size`/`sort` only) | Navigation fixed in #275; search/filter + FK dropdowns on the edit form tracked in #276 |
+| `/admin/reviewdiplomathemes/` | Flask-Admin list (`?search`/filters/`page_size`) | CrudView table: `?search` (text) + `?status=` filter + `page_size`/`sort` | Navigation fixed in #275; text search + status filter restored in #276; FK fields are dropdowns instead of raw ids (#276) |
 
 All other theme paths — the `/diplomas/` propose/edit pages, the `/practice/*`
 student/staff/admin flows (incl. `choosing_topic/`, `edit_theme/`), and the

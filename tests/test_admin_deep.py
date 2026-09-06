@@ -85,9 +85,8 @@ class TestAdminDeep:
                 "requirements": "Req",
                 "status": status,
                 "comment": comment,
-                "author": "1",
-                "supervisor": "1",
-                "consultant": "1",
+                "author_id": "1",
+                "consultant_id": "1",
             },
         )
         assert resp.status_code == 302

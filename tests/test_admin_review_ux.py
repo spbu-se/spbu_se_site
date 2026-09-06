@@ -5,19 +5,6 @@ import pytest
 
 
 @pytest.fixture
-def reviewer_client(seeded_client):
-    """Seeded client logged in as a theme reviewer (role 3 = REVIEW_ROLE_LEVEL)."""
-    from se_models import Users, db
-
-    u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
-    u.role = 3
-    db.session.commit()
-    with seeded_client.session_transaction() as sess:
-        sess["_user_id"] = str(u.id)
-    return seeded_client
-
-
-@pytest.fixture
 def queued_theme(seeded_client):
     """A DiplomaThemes row awaiting review (status 0, so it shows in the queue)."""
     from se_models import DiplomaThemes, db

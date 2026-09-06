@@ -2019,3 +2019,25 @@ User-directed process change (value decision — user domain): the theme-review 
 
 - `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
 - `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).
+
+### Retrospective — 2026-09-06: generic admin FK dropdowns + review-queue search/status filter (fix #276, part of #70)
+
+Delivered under the approved #70 batch plan. `_build_form` gained an opt-in-per-view-independent generic FK rule: any scalar FK column renders as `SelectField(coerce=int)` with choices from its relationship target (label = person name or `name/title/email`), nullable FKs get a "—" option, non-null FKs get `InputRequired` (closing a latent empty-submit `IntegrityError` 500), and the current value is always re-included even if orphaned. Queue list gained server-rendered `?search=` (title/description/requirements) ∩ `status<2` plus a `?status=` filter, with filtered `count`/pagination and query preservation across sort/page links — no JS, no new CSS classes (no asset-purge burden).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| FK columns were raw integer inputs (labels like `author_id`); queue had no search/filters after Flask-Admin was replaced (#11) | Generic CrudView form builder treated every non-pk column uniformly; list view had no filter contract | Relationship-driven `SelectField` building + per-view `search_fields`/`list_filter_columns`/`list_filter_choices`; regression tests `tests/test_admin_fk_dropdowns.py` (8 cases) + generic render coverage via existing `test_admin_create_views_load` |
+| Old admin status-change test posted inert keys (`author/supervisor/consultant`) that silently matched nothing | Test predated the CrudView form field names (scalar `*_id` keys) | Test updated to the real POST contract (`author_id`, `consultant_id`) — the contract regression was caught by the suite, not in production |
+
+**What went wrong**: No process violations. Unattended-mode feature-PR variant applied: granular commits, CI-green before merge, retro before PR. Ruff findings (C901 complexity, PERF401) fixed by extracting `_field_spec`/`_fk_row_label` helpers.
+
+**Root causes**: Missing convention (2 — form-builder FK handling and a list filter contract never existed post-#11), assumption-not-verified (1 — form field-name contract, caught red).
+
+**Fix**: `src/flask_se_crud.py`, `src/flask_se_admin.py`, `src/templates/admin/list.html`, tests, docs (`API_REFERENCE.md`, `BUSINESS_FEATURES.md`).
+
+**Pattern recurrence**: NO.
+
+**Process violations**:
+
+- `git push --no-verify` (expected): pre-push `pre-push-fast-checks` hook entry is PowerShell-only and cannot run on Linux; every equivalent check was run manually and passed. Documented platform caveat — not a process error.
+- `git commit --no-gpg-sign`: feature branch commits are unsigned by policy (only `current` is signed).

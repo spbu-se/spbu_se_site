@@ -3,18 +3,21 @@
 import csv
 import io
 from contextlib import suppress
+from urllib.parse import urlencode
 
 from flask import Response, abort, redirect, render_template, request, url_for
 from flask_wtf import FlaskForm
-from sqlalchemy import inspect
+from sqlalchemy import inspect, or_
 from wtforms import (
     BooleanField,
     HiddenField,
     IntegerField,
+    SelectField,
     StringField,
     SubmitField,
     TextAreaField,
 )
+from wtforms.validators import InputRequired
 
 from se_models import db
 
@@ -38,6 +41,9 @@ class CrudView:
     form_extra_fields = None
     column_display_pk = False
     link_column = None
+    search_fields = ()
+    list_filter_columns = ()
+    list_filter_choices = None
 
     def __init__(self, app, model, endpoint, name=None):
         self.model = model
@@ -118,12 +124,81 @@ class CrudView:
     def _count_query(self):
         return self._list_query()
 
+    def _fk_relationship(self, mapper, col):
+        return next((r for r in mapper.relationships if col in r.local_columns), None)
+
+    def _fk_choices(self, col_key, relationship, obj):
+        """Build ``(id, label)`` choices for a to-one relationship field."""
+        target = relationship.mapper.class_
+        labels = [(row.id, self._fk_row_label(row)) for row in target.query.all()]
+        labels.sort(key=lambda pair: pair[1].lower())
+
+        current = getattr(obj, col_key, None) if obj is not None else None
+        ids = {pair[0] for pair in labels}
+        if current is not None and current not in ids:
+            labels.insert(0, (current, f"#{current} (не найден)"))
+        return labels
+
+    def _fk_row_label(self, row):
+        last = getattr(row, "last_name", None)
+        if last:
+            parts = [last]
+            parts.extend(
+                value[0] + "."
+                for value in (getattr(row, "first_name", None), getattr(row, "middle_name", None))
+                if value
+            )
+            return " ".join(parts)
+        for attr in ("name", "title", "email", "login", "level"):
+            value = getattr(row, attr, None)
+            if value:
+                return str(value)
+        return f"#{getattr(row, 'id', '?')}"
+
+    def _filter_choices(self, col_key):
+        choices = None
+        if self.list_filter_choices and col_key in self.list_filter_choices:
+            choices = self.list_filter_choices[col_key]
+        elif self.column_choices and col_key in self.column_choices:
+            choices = self.column_choices[col_key]
+        if choices:
+            return [(str(value), label) for value, label in choices]
+        return [(str(value), str(value)) for value in self._distinct_values(col_key)]
+
+    def _distinct_values(self, col_key):
+        query = self._list_query()
+        try:
+            return sorted(
+                {row[0] for row in query.with_entities(getattr(self.model, col_key)).all()}
+            )
+        except Exception:
+            return []
+
     def index_view(self):
         page = request.args.get("page", 1, type=int)
         page_size = min(request.args.get("page_size", 20, type=int) or 20, 200)
         sort = request.args.get("sort", self._get_pk(), type=str)
         desc = request.args.get("desc", 0, type=int)
+        search = (request.args.get("search") or "").strip()
+
         query = self._list_query()
+        if search and self.search_fields:
+            like = f"%{search}%"
+            query = query.filter(
+                or_(*[getattr(self.model, field).ilike(like) for field in self.search_fields])
+            )
+
+        active_filters = {}
+        for col_key in self.list_filter_columns or ():
+            raw = request.args.get(col_key)
+            if raw not in (None, ""):
+                active_filters[col_key] = raw
+                try:
+                    value = int(raw)
+                except ValueError:
+                    value = raw
+                query = query.filter(getattr(self.model, col_key) == value)
+
         sort_col = getattr(self.model, sort, None)
         order = None
         if sort_col is not None:
@@ -137,6 +212,23 @@ class CrudView:
         labels = self.column_labels or {}
         choices = self.column_choices or {}
         pk = self._get_pk()
+
+        filter_params = {}
+        if search:
+            filter_params["search"] = search
+        filter_params.update(active_filters)
+        filter_qs = urlencode(filter_params)
+
+        filters = [
+            {
+                "key": col_key,
+                "label": labels.get(col_key, col_key),
+                "choices": self._filter_choices(col_key),
+                "current": active_filters.get(col_key, ""),
+            }
+            for col_key in (self.list_filter_columns or ())
+        ]
+
         return render_template(
             "admin/list.html",
             items=items,
@@ -158,6 +250,10 @@ class CrudView:
             can_export=self.can_export,
             sort=sort,
             desc=desc,
+            search=search,
+            searchable=bool(self.search_fields),
+            filters=filters,
+            filter_qs=filter_qs,
         )
 
     def create_view(self):
@@ -281,40 +377,66 @@ class CrudView:
                     form_cols.append(name)
 
         for col_key in form_cols:
-            col = mapper.columns.get(col_key)
-            default = getattr(obj, col_key, None) if obj else None
-            label = (self.column_labels or {}).get(col_key, col_key)
-
-            if self.form_overrides and col_key in self.form_overrides:
-                field_cls = self.form_overrides[col_key]
-            elif col is None:
+            spec = self._field_spec(mapper, col_key, obj)
+            if spec is None:
                 continue
-            elif isinstance(col.type, db.Text if hasattr(db, "Text") else type(None)):
-                field_cls = TextAreaField
-            elif isinstance(col.type, db.Integer if hasattr(db, "Integer") else type(None)):
-                field_cls = IntegerField
-            elif isinstance(col.type, db.Boolean if hasattr(db, "Boolean") else type(None)):
-                field_cls = BooleanField
-            elif isinstance(col.type, db.String if hasattr(db, "String") else type(None)):
-                field_cls = StringField
-            else:
-                field_cls = StringField
-
-            kwargs = {"label": label, "default": default}
-
-            if self.form_args and col_key in self.form_args:
-                kwargs.update(self.form_args[col_key])
-
-            if self.form_widget_args and col_key in self.form_widget_args:
-                kwargs["render_kw"] = self.form_widget_args[col_key]
-
-            if col is not None and not col.nullable and col_key != pk and not col.default:
-                pass
-
+            field_cls, kwargs = spec
             setattr(_AdminForm, col_key, field_cls(**kwargs))
 
         _AdminForm.submit = SubmitField("Save")
         return _AdminForm(request.form if request.method == "POST" else None)
+
+    def _field_spec(self, mapper, col_key, obj):
+        """Return ``(field_cls, kwargs)`` for a form column, or ``None`` to skip."""
+        col = mapper.columns.get(col_key)
+        default = getattr(obj, col_key, None) if obj else None
+
+        relationship = None
+        if col is not None and col.foreign_keys and col_key != self._get_pk():
+            relationship = self._fk_relationship(mapper, col)
+        label = (self.column_labels or {}).get(
+            col_key,
+            getattr(relationship, "key", col_key) if relationship else col_key,
+        )
+
+        if self.form_overrides and col_key in self.form_overrides:
+            field_cls = self.form_overrides[col_key]
+        elif relationship is not None:
+            field_cls = SelectField
+        elif col is None:
+            return None
+        elif isinstance(col.type, db.Text if hasattr(db, "Text") else type(None)):
+            field_cls = TextAreaField
+        elif isinstance(col.type, db.Integer if hasattr(db, "Integer") else type(None)):
+            field_cls = IntegerField
+        elif isinstance(col.type, db.Boolean if hasattr(db, "Boolean") else type(None)):
+            field_cls = BooleanField
+        elif isinstance(col.type, db.String if hasattr(db, "String") else type(None)):
+            field_cls = StringField
+        else:
+            field_cls = StringField
+
+        kwargs = {"label": label, "default": default}
+
+        if relationship is not None:
+            choices = self._fk_choices(col_key, relationship, obj)
+            if not col.nullable:
+                choices = [(str(value), text) for value, text in choices]
+                kwargs["validators"] = [InputRequired()]
+            else:
+                choices = [("", "—"), *[(str(value), text) for value, text in choices]]
+            if default is None:
+                kwargs["default"] = ""
+            kwargs["coerce"] = lambda value: int(value) if value not in (None, "") else None
+            kwargs["choices"] = choices
+
+        if self.form_args and col_key in self.form_args:
+            kwargs.update(self.form_args[col_key])
+
+        if self.form_widget_args and col_key in self.form_widget_args:
+            kwargs["render_kw"] = self.form_widget_args[col_key]
+
+        return field_cls, kwargs
 
     def _populate_obj(self, obj, form):
         mapper = inspect(self.model)
