@@ -147,6 +147,7 @@ allowed-confusables = [
 max-complexity = 15
 
 [tool.ruff.lint.per-file-ignores]
+"scripts/pre_push_checks.py" = ["S603"] # static, hardcoded command list — no untrusted input
 "tests/conftest.py" = ["E402", "S101", "ARG"]
 "tests/*.py" = ["N801", "PT006", "PT007", "S101", "S108", "S105", "S102", "PLC0415", "ARG"]
 "src/flask_se_admin.py" = ["RUF012"]

@@ -28,7 +28,7 @@ Four tiers, from local convenience to production gate:
 | Tier | What | Gate type | Execution time | Authority |
 |------|------|-----------|----------------|-----------|
 | Pre-commit | Formatters, auto-fix | Polish, skip allowed | ~1s | None — convenience |
-| Pre-push | Requirements, actionlint, uv lock, format, lint, types | Early feedback | ~33s (Windows); Linux: run manually, hook is PowerShell-only | Informational — CI overrides |
+| Pre-push | Requirements, actionlint, uv lock, format, lint, types | Early feedback | ~35s (cross-platform) | Informational — CI overrides |
 | CI | Full test suite, format, types | Authority | ~3min | Source of truth |
 | Offline review | Complexity, dead code, security | Deep analysis | Variable | Advisory — user decides |
 
@@ -36,7 +36,7 @@ Four tiers, from local convenience to production gate:
 
 **Pre-commit as polish**: Formatting noise distracts code review from logic. Auto-fix catches it at the last possible moment before commit. If the hook fails, the user can `--no-verify` — formatting is not a quality gate, it's convenience.
 
-**Pre-push as early feedback**: A format or type error caught at push time costs ~33s (Windows). The same error caught by CI costs ~3min plus a full round-trip. The fail-fast chain ensures format failure aborts before later checks — no wasted time. Pre-push is a courtesy to the developer, not an authority. **Platform note:** the format+lint step is PowerShell-only (`.pre-commit-config.yaml` `pre-push-fast-checks`); on Linux the hook errors out, so run the equivalent checks manually (see `AGENTS.md` §Pre-push) and log the `--no-verify` in the retrospective.
+**Pre-push as early feedback**: A format or type error caught at push time costs ~35s. The same error caught by CI costs ~3min plus a full round-trip. The fail-fast chain ensures format failure aborts before later checks — no wasted time. Pre-push is a courtesy to the developer, not an authority. The hook is cross-platform — it runs identically on Linux and PowerShell/Windows.
 
 **CI as authority**: The test suite decides whether code ships. Pre-commit and pre-push are fallible — CI is not. Every check that matters must be in CI. Checks in pre-push that are not in CI are advisory only.
 
