@@ -455,3 +455,35 @@ documented state, not an accidental zombie.
 checklist item (UI in all templates → routes → config → deps → schema →
 sitemap/og/CSP → docs, and record the decision here); `docs/PRIVACY_COMPLIANCE.md`
 §2.2 OAuth row corrected; retro entry added (2026-08-31 batch, PR #270).
+
+## [2026-09-07] One-off Semgrep deep scan caught a real XSS regression the guardrail missed
+
+**Context**: a rare idiom in `summer_school.html` rendered four project fields
+(`description`, `repo`, `demos`, `advisors`) through a bare `| safe` filter
+(with a space), bypassing the render-time `nh3` sanitization policy
+(see [2026-08-15]). The in-repo `TestRawHtmlGuardrail` should have caught it
+but matched only the literal substring `|safe` and skipped `| safe`. A one-off
+local Semgrep scan (`uvx semgrep scan --config p/python --config p/security-audit --config p/owasp-top-ten --oss-only`, run as cleanup
+discipline over `src tests e2e scripts`) surfaced it among 69 findings.
+
+**Decision**: (1) fix the four fields to `safe_html` and harden the guardrail
+to tokenize `{{ }}` expressions and reject a standalone `safe` filter token,
+spaced or not (PR #303); (2) follow up with a hardening pass on the remaining
+actionable `var-in-script-tag` sites — `tojson` for the Yandex Metrica id in
+the 4 base templates and for `thesis.title` in the three practice/admin
+`document.title` assignments — plus an http→https editorial cleanup of
+non-vendor template links; (3) do **not** bulk-edit the ~65 false-positive
+findings (generic `html-templates` rules vs Jinja autoescape + strict
+nonce-CSP + sanitizing filters) and do not wire Semgrep into CI (cost +
+noise).
+
+**Rationale**: deep, occasionally-run scans are cleanup discipline — they catch
+what naive structural guards rot past. Verified-real findings are rare but
+cheap to fix; the FP mass must be triaged against the stack's actual posture,
+not silenced by edits. `tojson` (Flask's HTML-safe JSON) is the correct
+in-script encoding; vendored third-party files stay untouched.
+
+**Consequences**: `docs/TOOLING.md` gains an "Occasional deep scans (cleanup
+discipline)" section with the repeatable command and triage rules; guardrail
+test now catches spaced/standalone `safe`; retro entry added (2026-09-07,
+PR #303/#305).

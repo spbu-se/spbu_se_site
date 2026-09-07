@@ -627,6 +627,36 @@ See `docs/QUALITY_MANAGEMENT.md` for quality philosophy and policy.
 | ~~`bandit`~~ | ~~Python security scanner~~ | Replaced by ruff S rules (2026-07) | ruff `"S"` in `[tool.ruff.lint] select` covers the same surface (hardcoded secrets, debug configs, `eval()`) + more. See `pyproject.toml`. |
 | `codespell` | Spelling in source | Manual / CI (non-blocking) | Captures typos that survive code review — was in pre-commit, removed as not cleanup |
 
+### Occasional deep scans (cleanup discipline)
+
+Not a standing gate — Semgrep is run ad-hoc as cleanup discipline when a
+broader net than the committed linters is wanted (see the success story in
+`docs/DESIGN_DECISIONS.md` [2026-09-07]). It caught a real XSS regression
+the naive in-repo guardrail had missed. Run on demand, triage carefully,
+batch genuine fixes into one PR:
+
+```bash
+mkdir -p .tmp/semgrep
+uvx semgrep scan --config p/python --config p/security-audit \
+  --config p/owasp-top-ten --metrics=off --oss-only \
+  src tests e2e scripts 2>&1 | tee .tmp/semgrep/scan.log
+```
+
+- `--config auto` requires metrics; use the explicit OSS packs above for an
+  offline/OSS run. `uvx` avoids adding a permanent dependency.
+- **Triage, don't bulk-edit**: the generic `html-templates`/`html` rules
+  (`var-in-href`, `var-in-script-tag`, `unquoted-attribute-var`) are
+  false-positive-heavy against this stack's posture (Jinja autoescape,
+  strict nonce-CSP, render-time `nh3` sanitization behind the only allowed
+  output filters). Verify a hit against that posture before changing code;
+  `tojson` (not quoting) is the correct encoding for values inside inline
+  `<script>` blocks. `safe_html`/`markdown` filter uses are by design.
+- **Vendor files are excluded**: `src/static/assets/libs/*` demo pages are
+  third-party; do not edit them to silence a rule.
+- Expected benign families on this codebase: `flask-url-for-external-true`
+  (absolute mail links), `logger-credential-disclosure` (function-context FP),
+  `plaintext-http-link` (content/email URLs).
+
 ### Encoding declaration policy
 
 See `docs/DOCS.md §6` for the project's encoding declaration policy.

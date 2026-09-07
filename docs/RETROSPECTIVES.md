@@ -2547,3 +2547,25 @@ AGENTS↔docs cue fault caught by this audit. Rule reinforced: new AGENTS/doc
 pointers must reference real headings (audit step folded into F's retro).
 
 **Deviations (process)**: none.
+
+### Retrospective — 2026-09-07 (chore/semgrep-hardening): tojson in-script hardening + http cleanup
+
+Follow-up to the Semgrep finding PR (#303), per user decision to scope a
+single hardening PR + document the cleanup discipline. Code: Yandex Metrica
+id `ym({{ se_metrica_id }}, ...)` → `|tojson` in the 4 base templates;
+`document.title = "{{ thesis.title }}";` → `{{ thesis.title|tojson }}` in
+reports_staff/thesis_staff/thesis_admin (thesis title is user-submitted;
+`tojson`'s HTML-safe JSON is the correct in-script encoding, autoescape's
+entity-escaping only yields JS-string mojibake there). http→https editorial
+on 4 non-vendor template/email links (t.me, se.math.spbu.ru, my.spbu.ru);
+vendored `typed.js` demo excluded per decision (documented). Docs: TOOLING
+"Occasional deep scans (cleanup discipline)" section (command, triage vs
+autoescape/nonce-CSP posture, vendor exclusion, expected-benign families);
+DESIGN_DECISIONS [2026-09-07] success-story entry. No AGENTS cue (docs-only,
+user decision).
+
+**Process note**: triage discipline paid off — of the 13 `var-in-script-tag`
+hits only these needed real edits; the Maps `tojson` blocks and config-only
+values were already hardened or non-user. Full suite green before push.
+
+**Deviations (process)**: none.

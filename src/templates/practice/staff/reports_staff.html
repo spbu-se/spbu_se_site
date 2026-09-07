@@ -121,7 +121,7 @@
     <script nonce="{{ csp_nonce() }}">
     seReady(function()
     {
-        document.title = "{{ thesis.title }}";
+        document.title = {{ thesis.title|tojson }};
     });
     </script>
   {% endblock %}
