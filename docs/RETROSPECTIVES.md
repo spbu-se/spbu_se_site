@@ -2312,3 +2312,34 @@ lockfile resolution pointer); ROLE_FEATURE_MATRIX retrieval cue added in
 AGENTS/README so the new doc is discoverable.
 
 **Deviations (process)**: none.
+
+### Retrospective — 2026-09-07 (refactor/conftest-shared-builders): role fixtures on seed accounts
+
+P3 of the local-env batch. `admin_client`/`reviewer_client` previously set
+`a.terekhov.role = 5/3` in each test DB after seeding — a post-seed mutation
+that never exercised the real accounts. Now every role fixture logs in as the
+corresponding `se_seed_data` account (`admin@se.dev` 5, `review@se.dev` 3,
+plus new `thesis_client` role 2 and `user_client` role 0) via one `_login_as`
+helper. `tests/test_seed_accounts.py` locks the contract (seed role + Staff
+per account; the `/admin/users/` role-5 and `/admin/reviewdiplomathemes/`
+role-3 gates). The role gate drop-in swap passed with zero test changes —
+existing tests treat admin/reviewer as generic role holders.
+
+Also ships `docs/ROLE_FEATURE_MATRIX.md`, which P1's commit forgot to stage
+while the merged P2 docs already referenced it (a dangling cross-reference on
+`current`); found via `git status` during the P3 branch step.
+
+**Env quirk discovered**: the module-level `app` singleton cannot serve two
+seeded DB copies simultaneously — logging in as account B on the *same* test
+client after account A does not take effect (first session wins; second
+login's cookie is overwritten by later requests). Root cause not chased: the
+existing architecture is one client per test (one engine swap per fixture), and
+the matrix test now follows it. Recorded so a future refactor toward a proper
+app-factory-per-test layout knows why multi-client tests are avoided.
+
+**Process notes**: P1's matrix doc omission is the "missing in commit" variant —
+caught by `git status` on an unrelated branch, fixed immediately. Upstream
+drift (#291, pre-push `-n 0`) was absorbed by rebasing #293 (RETROSPECTIVES
+conflict, both entries kept) rather than stacking; leased force-push used.
+**Deviations (process)**: none intentional — one accidental `-q` in a test-run
+command (rule: never `-q`; logs still full) noted for the batch summary.
