@@ -38,7 +38,7 @@ The site runs at `http://127.0.0.1:5000`.
 
 ## Configuration
 
-Create these files in `src/configs/` (never committed):
+Create these files in `src/configs/` (never committed; `*.conf.example` templates are committed):
 
 | File | Purpose |
 |------|---------|
@@ -47,6 +47,20 @@ Create these files in `src/configs/` (never committed):
 | `flask_se_practice_yandex_secret.conf` | Yandex OAuth for practice file storage |
 | `flask_se_vk_secret.conf` | VK OAuth client secret |
 | `flask_se_thesis.conf` | Thesis upload API key (`SECRET_KEY_THESIS`) |
+
+## Local prod-like run
+
+`init_db` seeds deterministic role accounts (`src/se_seed_data.py`) so every
+permission surface is reachable by logging in as one of them — password `1`:
+
+`user@se.dev` (role 0), `thesis@se.dev` (role 2), `review@se.dev` (role 3),
+`staff@se.dev` (staff), `admin@se.dev` (role 5). Surface map + flows:
+`docs/ROLE_FEATURE_MATRIX.md`.
+
+Optional dev-only env toggles (never set in prod): `SE_MAIL_DEV_DIR=.tmp/mail`
+captures mail as `.eml` files instead of SMTP (recovery-link flows work
+locally), `SE_SECRET_KEY=<value>` pins the session key across restarts,
+`SE_DISABLE_RATE_LIMITS=1` lifts login/register throttling.
 
 ## Commands
 
