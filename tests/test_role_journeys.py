@@ -16,6 +16,7 @@ import os
 import re
 import subprocess
 import sys
+from itertools import count
 from pathlib import Path
 
 import pytest
@@ -23,6 +24,22 @@ import pytest
 import se_seed_data
 
 _ACCOUNT_EMAILS = [a["email"] for a in se_seed_data.ROLE_ACCOUNTS + se_seed_data.STAFF_ACCOUNTS]
+
+# The per-IP login/register/recovery limiters are process-global, and many
+# suite tests share the default 127.0.0.1 client address. Each journey request
+# uses a unique REMOTE_ADDR so the count stays within window limits regardless
+# of xdist worker scheduling.
+_client_ip = count(1)
+
+
+def _req(client, method, path, data=None):
+    ip = next(_client_ip)
+    return client.open(
+        path,
+        method=method,
+        data=data,
+        environ_base={"REMOTE_ADDR": f"10.250.{ip // 250}.{ip % 250 + 1}"},
+    )
 
 
 def test_real_password_hash_roundtrip():
@@ -67,11 +84,7 @@ def test_seed_accounts_store_dev_password(seeded_client):
 @pytest.mark.parametrize("email", _ACCOUNT_EMAILS)
 def test_login_as_each_seed_account(seeded_client, email):
     """Real POST login succeeds for every seeded account with password '1'."""
-    resp = seeded_client.post(
-        "/login.html",
-        data={"email": email, "password": "1"},
-        follow_redirects=False,
-    )
+    resp = _req(seeded_client, "POST", "/login.html", {"email": email, "password": "1"})
     assert resp.status_code == 302, f"{email} login failed"
     assert "/profile.html" in resp.headers.get("Location", "")
 
@@ -80,10 +93,7 @@ def test_password_recovery_flow_via_mail_capture(seeded_client, monkeypatch, tmp
     """Recovery e-mail is captured locally and its link completes a reset."""
     monkeypatch.setenv("SE_MAIL_DEV_DIR", str(tmp_path))
 
-    resp = seeded_client.post(
-        "/password_recovery.html",
-        data={"email": "user@se.dev"},
-    )
+    resp = _req(seeded_client, "POST", "/password_recovery.html", {"email": "user@se.dev"})
     assert resp.status_code == 200
 
     mails = list(tmp_path.glob("*.eml"))
@@ -93,12 +103,14 @@ def test_password_recovery_flow_via_mail_capture(seeded_client, monkeypatch, tmp
     assert match is not None
     token = match.group(1)
 
-    reset_page = seeded_client.get(f"/password_recovery/{token}")
+    reset_page = _req(seeded_client, "GET", f"/password_recovery/{token}")
     assert reset_page.status_code == 200
 
-    reset = seeded_client.post(
+    reset = _req(
+        seeded_client,
+        "POST",
         f"/password_recovery/{token}",
-        data={"password": "new-pass-123", "password2": "new-pass-123"},
+        {"password": "new-pass-123", "password2": "new-pass-123"},
     )
     assert reset.status_code == 302
     assert "/profile.html" in reset.headers.get("Location", "")
@@ -106,9 +118,11 @@ def test_password_recovery_flow_via_mail_capture(seeded_client, monkeypatch, tmp
 
 def test_register_then_login(client):
     """Self-registration creates a usable account that logs in afterwards."""
-    register = client.post(
+    register = _req(
+        client,
+        "POST",
         "/register_basic.html",
-        data={
+        {
             "email": "new@se.dev",
             "password": "register-pass",
             "password2": "register-pass",
@@ -120,9 +134,11 @@ def test_register_then_login(client):
     assert register.status_code == 302
     assert "/profile.html" in register.headers.get("Location", "")
 
-    logout = client.get("/logout")
+    logout = _req(client, "GET", "/logout")
     assert logout.status_code == 302
 
-    login = client.post("/login.html", data={"email": "new@se.dev", "password": "register-pass"})
+    login = _req(
+        client, "POST", "/login.html", {"email": "new@se.dev", "password": "register-pass"}
+    )
     assert login.status_code == 302
     assert "/profile.html" in login.headers.get("Location", "")
