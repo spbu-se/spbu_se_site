@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
+import se_seed_data
 from se_models import (
     AreasOfStudy,
     Courses,
@@ -98,8 +99,15 @@ def test_init_db_idempotent(seeded):
 @pytest.mark.parametrize(
     "model,count",
     [
-        (Users, 29),
-        (Staff, 29),
+        (Users, 29 + len(se_seed_data.ROLE_ACCOUNTS) + len(se_seed_data.STAFF_ACCOUNTS)),
+        (
+            Staff,
+            29
+            + sum(
+                bool(account.get("staff"))
+                for account in se_seed_data.ROLE_ACCOUNTS + se_seed_data.STAFF_ACCOUNTS
+            ),
+        ),
         (Worktype, 10),
         (Courses, 7),
         (Curriculum, 199),

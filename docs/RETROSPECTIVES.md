@@ -2264,3 +2264,13 @@ Session: made the pre-push gate run identically on Linux and PowerShell/Windows.
 **What went well**: unify-on-one-gate-set (asset guard previously existed only in the Linux manual list → now both OS); wrapper preserves the PS `if($?)` fail-fast that pre-commit alone doesn't provide; scoped S603 per-file-ignore for the static command list; live Linux self-proof before push.
 
 **Deviation (process fault — recorded per plan-first rule)**: plan state (`todowrite` + `.unfinished.plan.md`) was left stale between Commit A and Commit B — the user spotted unfinished commit tasks. Root cause: no named trigger between commits. Fix shipped in this session: AGENTS plan-first cue now lists explicit firing points (after every commit/test/gate run, before push/PR/merge), DEV_PROCESS §0.7 names concrete checkpoints. This retro is itself written as the last commit with the todo refreshed immediately after each commit.
+
+### Retrospective — 2026-09-07 (feat/se-seed-data): deterministic role accounts, first PR of the local-env batch
+
+Batch split into 5 stacked-from-tip PRs (P1..P5) after the plan review; P1 delivers the seed-data module. `src/se_seed_data.py` holds synthetic role-labeled accounts (admin/review/thesis/user/staff@se.dev, password `1`, pbkdf2) applied by `init_db()` with models injected (avoids a circular import with `se_models`), plus Staff rows where the surface is Staff-gated rather than role-gated (practice staff/admin — code-verified in the matrix pass). `docs/ROLE_FEATURE_MATRIX.md` records the code-derived permission model (role 0/2/3/5 tiers + the orthogonal Staff gate; roles 1/4 unused). Seed-count test now derives expectations from `se_seed_data` instead of magic numbers.
+
+**What went well**: matrix pass before writing data (surfaces verified in code, not guessed); SSOT accounts mean later fixture/role-journey/e2e PRs reuse the same logins; full suite (~1 min local) run at each step caught the only data-dependent failures (Users/Staff counts).
+
+**Deviations (process)**: none — todo/plan refreshed per commit.
+
+**Environment discovery (not a code defect)**: 3 thesis-approve tests failed on every local run with `OSError Errno 18 Invalid cross-device link` — the upload scratch dir pointed at `tempfile.mkdtemp` (/tmp, possibly tmpfs) while the move target was repo `./static`. Proven unrelated to the PR by stashing (baseline reproduced). Fixed by rooting `SE_THESIS_UPLOAD_ROOT` under repo `.tmp` so source and target share a filesystem — also makes local runs CI-faithful. Lesson: when a test moves files across directories, keep scratch and target on the same device or the environment decides pass/fail.
