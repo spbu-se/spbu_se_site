@@ -4,6 +4,10 @@ Runs the same ordered checks on Linux and PowerShell/Windows. One script (not
 separate hooks) because pre-commit continues after a failing always_run hook —
 this keeps the explicit fail-fast chain that the former `powershell -Command
 "…; if ($?) { … }"` entry provided.
+
+The asset-pipeline step runs pytest with `-n 0` because spawning xdist workers
+fails (OOM / bootstrap EOFError) on memory-constrained Windows machines under
+the default worker count.
 """
 
 from __future__ import annotations
@@ -42,7 +46,16 @@ CHECKS: list[tuple[str, list[str]]] = [
     ),
     (
         "asset-pipeline guard",
-        ["uv", "run", "pytest", "tests/test_asset_pipeline.py", "--no-cov", "--tb=short"],
+        [
+            "uv",
+            "run",
+            "pytest",
+            "tests/test_asset_pipeline.py",
+            "--no-cov",
+            "--tb=short",
+            "-n",
+            "0",
+        ],
     ),
 ]
 

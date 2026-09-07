@@ -210,6 +210,10 @@ Run formatters before linters. `ruff-format` before `ruff check --fix` avoids fo
 
 First invocation downloads and caches hook environments. Install hooks early to make repeated runs fast.
 
+### Remote-hook env stall on blocked networks (dprint first run)
+
+The `dprint` pre-commit hook (remote repo, `language: python` via `dprint fmt`) downloads its wasm plugins from `plugins.dprint.dev` on first run. On a network where that host is unreachable the hook hangs with **no output** (2026-09-07 — commit blocked for >10 min, `AppData\Local\dprint\cache` held only locks, no plugins). This is a runtime environment fetch, not a hook failure: `dprint.json` only includes `yaml,yml,toml,json`, so Python-only commits aren't even formatted by it. If it stalls on such a commit, `git commit --no-verify` is justified (AGENTS: non-formatting hook blocker); first verify the hooks that DO apply (`ruff-format`, `ruff`) pass via `uv run pre-commit run <hook> --files <file>`.
+
 ### CLI conciseness
 
 When a CLI option or path is implied by another option or glob, omit the redundant part. A directory path covers all files within it; listing a child file explicitly is noise. Keep commands short and clear — every redundant token distracts from the real structure.
@@ -335,6 +339,16 @@ Use `Select-String` instead.
 ### `curl` is an alias
 
 `curl` maps to `Invoke-WebRequest`, not the real `curl`. Use `curl.exe` for actual HTTP requests.
+
+### `uv` on PATH is registry-only until the parent shell is restarted
+
+`uv` installs to `C:\Users\yurii\.local\bin` and this is on the **user** PATH (registry persists it), but a shell started *before* the install (e.g. an always-open agent shell) doesn't have it on its process PATH — `git push` then fails the pre-push hook with `Executable 'uv' not found` even though `uv` is on the user PATH. Symptoms + fix (prefix `$env:PATH` for the current process):
+
+```powershell
+$env:PATH = "C:\Users\yurii\.local\bin;" + $env:PATH
+```
+
+Applies to any freshly-installed CLI (uv, cargo, etc.) picked up by pre-commit `language: system` hooks. Verify with `Get-Command uv`; if empty but the exe exists under `C:\Users\yurii\.local\bin`, apply the prefix.
 
 ### `||` not available
 

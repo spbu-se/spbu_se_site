@@ -2274,3 +2274,19 @@ Batch split into 5 stacked-from-tip PRs (P1..P5) after the plan review; P1 deliv
 **Deviations (process)**: none — todo/plan refreshed per commit.
 
 **Environment discovery (not a code defect)**: 3 thesis-approve tests failed on every local run with `OSError Errno 18 Invalid cross-device link` — the upload scratch dir pointed at `tempfile.mkdtemp` (/tmp, possibly tmpfs) while the move target was repo `./static`. Proven unrelated to the PR by stashing (baseline reproduced). Fixed by rooting `SE_THESIS_UPLOAD_ROOT` under repo `.tmp` so source and target share a filesystem — also makes local runs CI-faithful. Lesson: when a test moves files across directories, keep scratch and target on the same device or the environment decides pass/fail.
+
+### Retrospective — 2026-09-07 (fix/pre-push-asset-guard-serial): Windows OOM in the new cross-platform pre-push gate
+
+Session: after re-syncing `current` to `081b6de` (which shipped the PowerShell-free pre-push gate #290), the new `scripts/pre_push_checks.py` asset-pipeline step crashed on this Windows machine with an `EOFError` during xdist worker bootstrap (`created: 20/20 workers` → OOM). Root cause: `-n 0` was missing, so pytest-xdist spawned 20 workers; serial `-n 0` passed in ~2s. Fixed by adding `-n 0` to the asset-pipeline pytest invocation + docstring rationale. Verified: full pre-push hook green; PR #291 opened, retro added as the last commit on the branch.
+
+**What went wrong**: the gate was authored and self-proven on Linux (where 20 workers is fine); Windows worker count floored at OOM. The AGENTS "timeout recovery — read the partial output" rule caught it: the INTERNALERROR EOFError at bootstrap pointed to worker spawn, not a test failure.
+
+**Root cause**: missing-config gap — `pre_push_checks.py` did not pin worker count for the asset-pipeline test, assuming the default is safe on all platforms.
+
+**Fix**: `-n 0` in the asset-pipeline step (deterministic, fast: 8 tests in ~2s). Cross-platform gate now runs identically on both OSes.
+
+**Process notes / env quirk**: `git commit` hangs on the **dprint** pre-commit hook — its first run fetches wasm plugins from `plugins.dprint.dev` (stalled on this network; `AppData\Local\dprint\cache` held locks but no plugins). dprint's config (`dprint.json`) only includes `yaml,yml,toml,json`, so a `.py`-only commit isn't even processed by it. Used `git commit --no-verify` (AGENTS permits for a non-formatting hook blocker); ruff-format/ruff (the hooks that apply to Python) were verified green first. Recorded in `docs/TOOLING.md` §pre-commit.
+
+**Process notes / env quirk 2**: the pre-push hook failed with `Executable 'uv' not found` from a fresh shell — `uv` is on the *user* PATH (registry) but not the current process PATH (parent shell predates install). Fix: prefix `$env:PATH` with `C:\Users\yurii\.local\bin` in the invocation. Recorded in `docs/TOOLING.md` §PowerShell.
+
+**Plan-first deviation (self-flag)**: PR #291 was opened before this retro entry was written; per AGENTS the retro is added as the last commit and the PR description updated — the routine for this session's PRs uses that recovery path deliberately (retro landed as the final commit on the branch).
