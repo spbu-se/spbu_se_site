@@ -97,6 +97,43 @@ Bypasses staging for production-blocking bugs only. After merge, log debt in `TO
 [HOTFIX_DEBT] Review origin of hotfix/<name>, then backfill docs, expand test coverage, and verify the fix is complete
 ```
 
+### 2.3a Only signed, verifiable commits and tags on `current`
+
+**Rule**: every commit and tag that lands on `current` must be **signed and
+verifiable** — a commit whose GitHub verification is not `true`/`valid` is a
+process violation and must be investigated before anything else is merged on
+top of it.
+
+**Why**: unsigned history on a production branch cannot be attributed or
+re-verified, and a single unverified commit hides a broken merge lane. One
+lane produces verified commits automatically; the other must not be used
+without a signature.
+
+- **Standard lane (PR squash-merge)**: `gh pr merge <n> --squash` — the merge
+  commit is created and signed by GitHub (committer `GitHub`), so
+  verification is `true`/`valid` automatically. This is the only lane for
+  regular work.
+- **Emergency lane (hotfix direct push, §2.3)**: permitted for
+  production-blocking fixes only, and the pushed commits **must be signed
+  with a key registered to the committer's GitHub account** so GitHub marks
+  them Verified:
+  ```bash
+  git commit -S          # GPG or SSH signing key uploaded to GitHub
+  git tag -s v<version>  # release tags are signed too
+  ```
+  An unsigned hotfix commit on `current` is a process violation even though
+  the emergency was legitimate.
+- **Post-merge check** (mirror of the deploy check, `docs/TOOLING.md`
+  §Signed-commit verification): after every merge assert the head commit
+  verifies; an unverified result means a direct push or rebase-merge leaked
+  into `current`.
+
+**Counter-example**: `446e39f` ("chore: sync uv.lock for dependabot pip group
+bump", 2026-09-02) is the newest unsigned commit on `current` — a locally
+committed lock sync that bypassed the squash lane. The 268 older unsigned
+commits in history predate this rule and are left as-is (never rewrite public
+history); the rule is going-forward.
+
 ### 2.4 Staging is permanent
 
 Staging is never deleted. It is the integration branch where all features converge before the quality gate to `current`.

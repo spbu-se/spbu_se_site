@@ -638,6 +638,13 @@ See `docs/DOCS.md §6` for the project's encoding declaration policy.
   ```
   gh api "repos/spbu-se/spbu_se_site/deployments?per_page=1" --jq '.[0] | "\(.sha) \(.created_at)"'
   ```
+- **Signed-commit verification**: `current` accepts only signed, verifiable commits (see `docs/GIT_FLOW.md` §2.3a). After any merge, assert the head commit verifies before proceeding — an unverified result means a direct push or rebase-merge leaked into `current` (counter-example `446e39f`, 2026-09-02):
+  ```
+  gh api "repos/spbu-se/spbu_se_site/commits/<sha>" --jq '.commit.verification | "\(.verified) \(.reason)"'
+  # must print: true valid
+  ```
+  PR squash-merges verify automatically (GitHub-signed); the hotfix direct
+  lane must use `git commit -S` with a GitHub-registered key.
 - **nginx `/staging/` prefix is reserved (ops rule)**: the deploy host's nginx intercepts `/staging/*` and routes it to the staging backend; **Flask routes must never be defined under `/staging/`** — they never reach uWSGI/Flask. Use another prefix if a staging-scoped route is ever needed.
 - **DB is not guaranteed prod-like**: a fresh boot self-seeds demo users with random passwords (`init_db`); a prod-like restore is an ops decision. Live rate limiters apply (10 login attempts / 5 min per IP, 5 registrations / hour per IP).
 - **Smoke** (mirror `docs/RELEASE_CHECKLIST.md` B17): `curl -s -o /dev/null -w "%{http_code}"` on `/staging/` and key routes must be 200.

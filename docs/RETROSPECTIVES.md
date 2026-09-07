@@ -2456,3 +2456,26 @@ stash → ff → rebase → pop. Rule reinforced: keep the C branch's edits
 committed or stashed before syncing `current`.
 
 **Deviations (process)**: none.
+
+### Retrospective — 2026-09-07 (chore/docs-signing-doctrine): signed-commits doctrine + rule-lifecycle meta-rule
+
+User directive (general rule): **only signed, verifiable commits and tags to
+`current`/`main`** — squash-merge is the standard lane; the hotfix direct-push
+lane (§2.3) stays permitted for production-blocking fixes but the pushed
+commits MUST be signed with a GitHub-registered key (verifiable), and tags
+must be signed. AGENTS.md carries the retrieval cue + post-merge verification
+check; GIT_FLOW.md §2.3a documents the two lanes with the `446e39f`
+counter-example (newest unsigned commit, 2026-09-02, a direct uv.lock sync);
+TOOLING.md gains the `verification.verified == true` assert command.
+Also recorded the rule-lifecycle meta-rule ("rules apply by default from
+issuance; only explicit deferral changes that; default apply ASAP").
+
+**API-enforcement attempt**: enabling GitHub "Require signed commits" on
+`current` via `PUT .../protection/required_signatures` returned **404** (not
+supported via REST for this repo plan); a full-object protection PUT was
+rejected by schema validation and deliberately not force-crafted against the
+live production branch. Enforcement therefore rests on the doc rule + the
+post-merge verification check; the platform UI toggle (admin) remains the
+hard-enforcement lever and is flagged as a follow-up.
+
+**Deviations (process)**: none.

@@ -78,6 +78,7 @@ PRs are squash-merged into `current` via `gh pr merge --admin --squash`. Never p
 CI must be green before merging (see `docs/AI_AGENTS.md` §CI discipline).
 
 - **Post-merge deploy verification** — after any `gh pr merge`, confirm the deploy actually landed: the latest deployment on the upstream repo's `deploy_environment` must point at the merged SHA with `state == success`. Deploys are fire-and-report. Command + incident: `docs/TOOLING.md` §Staging environment.
+- **Signed commits only on `current`** — only signed, GitHub-verifiable commits and tags land on `current`: squash-merge is the standard lane (GitHub-signed, auto-verified); the hotfix direct-push lane (§2.3a in `docs/GIT_FLOW.md`) requires `git commit -S` with a GitHub-registered key — never unsigned. After every merge assert verification `true`/`valid` (`docs/TOOLING.md` §Signed-commit verification); an unverified result stops the flow.
 
 ### First-time setup
 
@@ -110,6 +111,7 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 
 ## Process improvement
 
+- **Rules apply by default from the moment they are issued** — a directive from the user is in force immediately, without prompting or confirmation; only an explicit deferral of the application date changes that. When timing is genuinely ambiguous the agent may ask, but the recommended default is **apply ASAP**.
 - **Root-cause analysis** — when something goes wrong, fix the root cause, not the symptom (a surface fix repeats). Trace past the surface error to one of: **missing hook** (no trigger/checklist exists — add one), **missing in docs** (knowledge wasn't recorded — write it down), **forgot to search** (add a "check docs" step), **ignored error signal** (tool produced `fatal:` but execution continued — add an "On tool error" hook).
 - **Gaps escalate** — 1st occurrence: document (canonical doc); 2nd: automate (CI check or pre-commit hook); 3rd+: tool config (linter rule, structural guard).
 - **Safe updates** (when removing/changing documented content) — (1) would removing this change agent behavior? if yes, keep it; (2) is the claim provably wrong? only then delete/correct — verify against executable sources (config, workflow, code); (3) does it enforce a docs/structure contract? keep structural-convention rules even when the wording looks generic. Rationale must never be deleted — relocate it, don't drop it.
