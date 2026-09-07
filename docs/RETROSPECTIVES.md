@@ -2290,3 +2290,25 @@ Session: after re-syncing `current` to `081b6de` (which shipped the PowerShell-f
 **Process notes / env quirk 2**: the pre-push hook failed with `Executable 'uv' not found` from a fresh shell — `uv` is on the *user* PATH (registry) but not the current process PATH (parent shell predates install). Fix: prefix `$env:PATH` with `C:\Users\yurii\.local\bin` in the invocation. Recorded in `docs/TOOLING.md` §PowerShell.
 
 **Plan-first deviation (self-flag)**: PR #291 was opened before this retro entry was written; per AGENTS the retro is added as the last commit and the PR description updated — the routine for this session's PRs uses that recovery path deliberately (retro landed as the final commit on the branch).
+
+### Retrospective — 2026-09-07 (feat/local-env-config): dev toggles + dependency policy
+
+P2 of the local-env batch. Three default-off dev toggles behind explicit env
+wiring: `SE_MAIL_DEV_DIR` (write `.eml` instead of SMTP across all three mail
+paths so recovery/notification flows are testable locally; `SE_STAGING` still
+wins), `SE_SECRET_KEY` (deterministic session key; file/random fallback
+unchanged), `SE_DISABLE_RATE_LIMITS=1` (`RateLimiter(limit=None)` allows all;
+numeric limits unchanged so brute-force protection semantics stay testable).
+Committed `src/configs/*.conf.example` templates for all seven per-host
+configs. Dependency policy documented: requirements.txt is a prod +
+serviceability guard only — `serviceability.yml` is the last pip consumer and
+exists to prove the prod file installs; `ci.yml`/`ci-staging.yml` run `uv sync`. AGENTS previously claimed "CI runs pip install -r on every push …
+regenerate before pushing" — stale for ci.yml (uv) and wrong for dev-only dep
+bumps; replaced with the runtime-set-only rule.
+
+**What went well**: guarded reads at import time keep prod semantics identical;
+tests prove each toggle; AGENTS↔docs consistency (cue bullet + TOOLING §Universal
+lockfile resolution pointer); ROLE_FEATURE_MATRIX retrieval cue added in
+AGENTS/README so the new doc is discoverable.
+
+**Deviations (process)**: none.
