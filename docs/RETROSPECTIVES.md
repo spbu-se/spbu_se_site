@@ -2479,3 +2479,23 @@ post-merge verification check; the platform UI toggle (admin) remains the
 hard-enforcement lever and is flagged as a follow-up.
 
 **Deviations (process)**: none.
+
+### Retrospective — 2026-09-07 (chore/cleanup-115): #115 triage + extract_text tidy
+
+Audited issue #115 against current `current` (it referenced an old `2b19c6e`
+snapshot). Per-point verdicts: **Dockerfile** — all 5 points already done
+(`python:3.9-slim`, `PYTHONDONTWRITEBYTECODE=1`, `pip --no-cache-dir`,
+`rm -f /app/requirements.txt` after build, `COPY` only); **compose nginx** —
+already pinned `nginx:1.27-alpine`; **nginx env-templating** and **Kaniko
+build automation** — won't-do now (fixed config is intentional; automation is
+out of current scope); **OAuth** — client secrets live in config files
+(`VK_CLIENT_SECRET` from config), `GOOGLE_CLIENT_ID` is a public identifier,
+and `state` is used per RFC 6749 §10.12 (random → session → compare), so the
+stale complaints are obsolete; no token `print`s remain. The one valid point
+was the `extract_text.py` extension check — applied `endswith()` in place of
+the `rfind()` slice.
+
+Closing #115 with the resolution table; the single genuine code fix ships in
+this PR.
+
+**Deviations (process)**: none.
