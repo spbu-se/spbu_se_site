@@ -25,27 +25,18 @@ import se_seed_data
 _ACCOUNT_EMAILS = [a["email"] for a in se_seed_data.ROLE_ACCOUNTS + se_seed_data.STAFF_ACCOUNTS]
 
 
-def test_seed_passwords_verify_against_real_hash(tmp_path):
-    """Seeded password hashes really equal DEV_PASSWORD (no test mocks involved)."""
+def test_real_password_hash_roundtrip():
+    """Werkzeug (unmocked) can verify a pbkdf2 hash of DEV_PASSWORD.
+
+    Runs in a fresh process: the tests/conftest check_password_hash mock
+    accepts everything, so the real implementation is verified here.
+    """
     src = str(Path(__file__).resolve().parent.parent / "src")
-    db_dir = tmp_path / "db"
     script = (
-        "import os\n"
-        f"import flask_se_config as c\n"
-        f"db_dir = {str(db_dir)!r}\n"
-        f"os.makedirs(db_dir, exist_ok=True)\n"
-        f"c.SQLITE_DATABASE_NAME = 'j.db'\n"
-        f"c.SQLITE_DATABASE_PATH = db_dir\n"
-        "from flask_se import app, db\n"
-        "from se_models import init_db, Users\n"
-        "from werkzeug.security import check_password_hash\n"
-        "with app.app_context():\n"
-        "    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_dir + '/j.db'\n"
-        "    db.create_all()\n"
-        "    init_db()\n"
-        "    for acc in __import__('se_seed_data').ROLE_ACCOUNTS:\n"
-        "        u = Users.query.filter_by(email=acc['email']).first()\n"
-        "        assert u and check_password_hash(u.password_hash, '1')\n"
+        "from werkzeug.security import check_password_hash, generate_password_hash\n"
+        "h = generate_password_hash('1', method='pbkdf2:sha256')\n"
+        "assert h != '1'\n"
+        "assert check_password_hash(h, '1')\n"
         "print('OK')\n"
     )
     result = subprocess.run(  # noqa: S603 — static local script, no untrusted input
@@ -57,6 +48,20 @@ def test_seed_passwords_verify_against_real_hash(tmp_path):
     )
     assert result.returncode == 0, result.stderr
     assert "OK" in result.stdout
+
+
+def test_seed_accounts_store_dev_password(seeded_client):
+    """Seeded accounts carry the DEV_PASSWORD-derived hash.
+
+    In this process hashing is mocked to ``mock:<password>``, which still
+    proves the seed passed DEV_PASSWORD to the generator.
+    """
+    from se_models import Users
+
+    for email in _ACCOUNT_EMAILS:
+        user = Users.query.filter_by(email=email).first()
+        assert user is not None
+        assert user.password_hash == f"mock:{se_seed_data.DEV_PASSWORD}"
 
 
 @pytest.mark.parametrize("email", _ACCOUNT_EMAILS)
