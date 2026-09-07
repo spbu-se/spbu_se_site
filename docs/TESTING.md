@@ -61,6 +61,39 @@ Pre-push mandatory: tests pass, lint clean, format clean.
 
 Reference: `docs/DEVELOPMENT_PROCESS.md` §Project Doctrine Layer 3 — "Save attempts, not screen space."
 
+### 3b. CI-cost review — reason before you buy CI time
+
+CI time is a shared, queue-blocking budget. A change that materially increases
+it must carry its reasoning and a "good enough" compromise before merge.
+Trigger (any):
+
+- a new always-on CI job, or
+- roughly doubling a job's median runtime, or
+- adding ≳2 min to a job's median runtime.
+
+When triggered: state the added cost, the coverage gained, and the cheapest
+compromise that keeps the signal (budget cap on cases, path filter so
+irrelevant PRs skip the job, cache of heavy setup like Playwright browsers,
+reduced scope with full coverage local-only). Worked example — the `e2e`
+browser suite: 3 journeys, path-filtered job, Playwright browser cache.
+
+### 3c. e2e live-browser suite (top-level `e2e/`)
+
+Real-server browser journeys over the seeded deterministic environment
+(`se_seed_data` accounts, password `1`; no test mocks — real werkzeug hashing,
+CSRF, rate limiters). `e2e/conftest.py` builds a fresh seeded DB under `.tmp`
+and serves the real `app` through werkzeug on an ephemeral port; Playwright
+Chromium drives 2-3 canonical journeys (auth gate redirect, seed-admin login +
+admin surface, self-registration). Excluded from the default suite
+(`testpaths = ["tests"]`, `e2e` marker) — run explicitly:
+
+```console
+uv run pytest e2e -m e2e --no-cov -n 0
+```
+
+Runs on CI only in the path-filtered `e2e` job (`ci.yml`), never in the
+`test`/serviceability jobs.
+
 ## 4. xfail Policy
 
 Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_ISSUES.md` blocker entry. xfails are re-reviewed every 3 months or after refactoring the affected module — whichever comes first.

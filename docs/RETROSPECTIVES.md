@@ -2383,3 +2383,31 @@ validation deferred to the next PR on the merged base; (3) the S603
 an inline `noqa` justification.
 
 > > > > > > > 271688b (docs: retro — P4 role-journey HTTP suite)
+
+### Retrospective — 2026-09-07 (test/e2e-playwright): live-browser e2e over the seeded app + CI-cost policy
+
+P5, the final PR of the local-env batch. A top-level `e2e/` Playwright suite
+drives a real headless Chromium against the *real* seeded app — fresh DB under
+`.tmp`, werkzeug on an ephemeral port, no test mocks (real pbkdf2 hashing,
+CSRF, rate limiters). Three canonical journeys: the anonymous admin-gate
+redirect to login, seed-`admin@se.dev` login landing on an admin surface, and
+a full self-registration to the profile. Excluded from the default suite
+(`testpaths=["tests"]`, `e2e` marker); runs via `uv run pytest e2e -m e2e --no-cov -n 0`.
+
+**CI-cost compromise**: per the user directive "a change that significantly
+increases CI time must have its reasoning reviewed for a good-enough
+solution", the e2e job is **path-filtered** (`e2e/**`, `src/**`,
+`pyproject.toml`, `uv.lock`) with **Playwright browsers cached**, and is
+advisory (not a required check — the required set is lint + serviceability).
+This is the first application of the new **CI-cost review** policy recorded in
+`docs/TESTING.md` §3b (trigger: new always-on job / ~doubling a job's median /
++≳2 min median ⇒ documented reasoning + compromise) with AGENTS cues.
+
+**What went well**: real-server suite found genuine form-behaviour details the
+WSGI-client tests can't (a `custom-control-input` checkbox must be toggled via
+its label, and Flask-Admin user-list pagination hides seeded accounts from page
+one — both assertions adjusted to stable strings). Playwright installed as a uv
+**dev-only** dep; `requirements.txt` untouched per the dep policy.
+
+**Deviations (process)**: none beyond the session's already-recorded `-q` slip
+and the #296 CI-dispatch miss (both documented in the P4 retro).

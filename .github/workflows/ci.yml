@@ -68,3 +68,41 @@ jobs:
       - run: uv sync
 
       - run: uv run pytest
+
+  e2e-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      e2e: ${{ steps.filter.outputs.e2e }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            e2e:
+              - 'e2e/**'
+              - 'src/**'
+              - 'pyproject.toml'
+              - 'uv.lock'
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: e2e-changes
+    if: needs.e2e-changes.outputs.e2e == 'true'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-suffix: "current"
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-chromium-${{ runner.os }}-1.62.0
+      - run: uv sync
+      - run: uv run playwright install chromium
+      - run: uv run pytest e2e -m e2e --no-cov -n 0 --tb=short
