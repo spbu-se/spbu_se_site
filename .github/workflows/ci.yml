@@ -99,7 +99,7 @@ jobs:
           enable-cache: true
           cache-suffix: "current"
       - name: Cache Playwright browsers
-        uses: actions/cache@v7
+        uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: ms-playwright-chromium-${{ runner.os }}-1.62.0
