@@ -16,14 +16,14 @@ Covers: release-time drift items (dates, counts, hardcoded values), verification
 | # | File | What to update | When |
 |---|------|----------------|------|
 | A1 | `src/templates/summer_school.html` | Title/description year must match the `school` dict for the served year | When a new summer-school year is added in `src/flask_se_summer_schools.py` |
-| A2 | `docs/TESTING.md` §4a reference-run line | Test count/coverage of the latest full green run | When the suite size/counts change (feature-driven), not per release — B13 records it |
+| A2 | Reference-run block in `docs/TESTING.md` §4 (xfail Policy) | Test count/coverage of the latest full green run | When the suite size/counts change (feature-driven), not per release — B13 records it |
 | A3 | `docs/SEO_A11Y_ROADMAP.md` §5 | Mark shipped PRs as done | After each SEO/agent PR merges |
 
 ## B. Check-only (verify; fix only if broken)
 
 | # | Item | Check |
 |---|------|-------|
-| B1 | `requirements.txt` vs `uv.lock` | Regenerate if deps changed: `uv export --no-dev --no-hashes > requirements.txt` (`docs/DEVELOPMENT_PROCESS.md` §Definition of Done). CI fails on mismatch |
+| B1 | `requirements.txt` vs `uv.lock` | Regenerate if deps changed: `uv export --no-dev --no-hashes > requirements.txt` (`docs/DEVELOPMENT_PROCESS.md` §4.5 Code Review Checklist). CI fails on mismatch |
 | B2 | `.github/workflows/` (ci.yml, deploy_to_production.yml) | `actionlint` passes; `deploy_to_production.yml` deploys on `release: published` (not tag push); its `verify-signature` job gates deploy on a GPG-verified tag and its `release` job still runs with `mkdir -p .tmp` present |
 | B3 | `src/static/assets/img/og/` (10 files) + `apple-touch-icon.png` | **D7 guardrail**: if the site design changed since generation, re-run `uv run python .tmp/gen_og_images.py` — stale previews degrade social shares silently (see `docs/DESIGN_DECISIONS.md` [2026-08-13]) |
 | B5 | `Dockerfile` / `docker-compose.yml` | Update only if Python dependencies changed (`docs/DEVELOPMENT_PROCESS.md` §6) |

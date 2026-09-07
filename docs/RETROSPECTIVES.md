@@ -1380,7 +1380,7 @@ Changes analyzed: the 7 PRs merged since `v2026.08.14` (#213–#219: markdown/sa
 - Branch `chore/release-prep-v2026.08.15` (from `upstream/current` `0905a12`). §A fixes applied (sitemap lastmod, TESTING reference), retro appended.
 - Next: generate `.tmp/release-notes.md`, push, open PR; after merge + CI green → tag `v2026.08.15`, push to `upstream`, create draft release, publish (triggers deploy).
 
-### Retrospective ? 2026-08-15: Tier 1 performance (PR feat/perf-assets-tier1)
+### Retrospective — 2026-08-15: Tier 1 performance (PR feat/perf-assets-tier1)
 
 Changes analyzed: 4 commits ? versioned static assets + preconnect + defer feather in the 4 base templates, SimpleMDE moved out of the base_light global, hero JPEG recompression, performance roadmap docs.
 
