@@ -55,7 +55,7 @@
         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
         (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-        ym({{ se_metrica_id }}, "init", { clickmap: false, trackLinks: true, accurateTrackBounce: true });
+        ym({{ se_metrica_id|tojson }}, "init", { clickmap: false, trackLinks: true, accurateTrackBounce: true });
       </script>
     {% endif %}
     <!-- Favicon -->

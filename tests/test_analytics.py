@@ -131,11 +131,11 @@ class TestRenderedPages:
         _consent(seeded_client)
         body = seeded_client.get("/").get_data(as_text=True)
         assert METRICA_URL in body
-        assert 'ym(48234321, "init"' in body
+        assert 'ym("48234321", "init"' in body
         assert "https://mc.yandex.ru/watch/48234321" in body
 
     def test_news_page_renders_metrica_with_id_and_consent(self, seeded_client, metrica_set):
         _consent(seeded_client)
         body = seeded_client.get("/news/").get_data(as_text=True)
         assert METRICA_URL in body
-        assert "ym(48234321" in body
+        assert 'ym("48234321"' in body
