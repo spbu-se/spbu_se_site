@@ -103,6 +103,18 @@ Reference run (2026-08-21, `pytest --tb=no -q -rxX`): **1402 passed, 4 skipped, 
 
 Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass is non-fatal): intermittent CI failures that happen to pass on this machine. Tracked in §4a's intermittent CI table. Check xpass count by capturing the run to a log (`uv run pytest --tb=long 2>&1 | tee .tmp/xpass.log`) and searching the log for `xpassed`.
 
+## 5b. Role-journey suite (`tests/test_role_journeys.py`)
+
+Cross-cutting HTTP journeys over the seeded deterministic environment
+(`src/se_seed_data.py`, accounts in `docs/ROLE_FEATURE_MATRIX.md`): real POST
+login as every seeded account (password `1`), password recovery end-to-end via
+the local `.eml` mail capture (`SE_MAIL_DEV_DIR`), and self-registration. They
+complement the per-module deep suites by exercising the auth lifecycle against
+the actual seed — run with the default suite, coverage-included. Password
+*verification* against the real hash (the in-process `check_password_hash`
+mock always returns true) lives in a subprocess test, and the live browser
+suites (top-level `e2e/`) cover the unmocked path.
+
 ## 6. Long-Term Testing Gaps
 
 Architectural issues that limit test coverage and require production code changes to resolve:
