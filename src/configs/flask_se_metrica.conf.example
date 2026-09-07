@@ -1,0 +1,2 @@
+# Copy to flask_se_metrica.conf (gitignored) and replace the value. Dev value may be anything;
+# the code falls back to a random key when the file is absent.
