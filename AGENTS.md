@@ -49,10 +49,13 @@ Always query live, never hardcode:
 
 | Metric | Command | Duration |
 |--------|---------|----------|
-| Test count + xfails | `pytest --tb=long 2>&1 \| tee .tmp/pytest.log` | ~7 min |
-| Coverage | `pytest --cov=src --cov-report=term-missing` | ~8 min |
+| Test count + xfails | `pytest --tb=long 2>&1 \| tee .tmp/pytest.log` | ~1 min |
+| Coverage | `pytest --cov=src --cov-report=term-missing` | ~1 min |
 | CI status | `gh run list --repo spbu-se/spbu_se_site --branch current --limit 1 --json conclusion` | ~2s |
 | pyright ignores | `basedpyright src/` | ~30s |
+
+Local durations (measured 2026-09-07 on the Linux dev box; the CI `test` job
+runs the full suite in ~1.5-2 min). Always query live, never hardcode results.
 
 See `docs/QUALITY_MANAGEMENT.md §6` for interpretation thresholds.
 

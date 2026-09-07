@@ -2425,3 +2425,16 @@ from the route; record the pattern: any per-IP rate-limiter test must isolate
 its client address from the suite-wide `127.0.0.1`.
 
 **Deviations (process)**: none.
+
+### Retrospective — 2026-09-07 (chore/docs-metrics-correction): AGENTS live-metrics durations were ~7x stale
+
+The AGENTS live-metrics table quoted ~7 min (pytest) / ~8 min (coverage).
+Measured 2026-09-07 on the Linux dev box: full suite ~43s, coverage run ~37s;
+the CI `test` job runs the full suite in ~1.5-2 min. Corrected rows + added a
+"measured on 2026-09-07" provenance note. Lesson: a metrics table with no
+measurement date drifts silently — it should carry "always query live" plus a
+last-measured marker (now present). Safe-update rule applied: claim was
+provably wrong against live runs, so replaced, with rationale retained in the
+note rather than deleted.
+
+**Deviations (process)**: none.
