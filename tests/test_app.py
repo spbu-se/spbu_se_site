@@ -119,15 +119,19 @@ class TestSafeHtmlFilter:
 class TestRawHtmlGuardrail:
     def test_no_raw_safe_output(self):
         """Every raw-HTML output in templates must go through the sanitizing
-        ``safe_html`` filter — a bare ``|safe`` is an XSS regression risk."""
+        ``safe_html`` filter — a bare ``|safe`` (with or without spaces) is an
+        XSS regression risk."""
+        import re
         from pathlib import Path
 
         root = Path(__file__).resolve().parent.parent / "src" / "templates"
         bad = []
         for p in root.rglob("*.html"):
             for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
-                if "|safe" in line and "|safe_html" not in line:
-                    bad.append(f"{p.relative_to(root)}:{i}: {line.strip()}")
+                for seg in re.findall(r"\{\{.*?\}\}", line):
+                    filters = [tok.strip() for tok in seg[2:-2].split("|")[1:]]
+                    if "safe" in filters:
+                        bad.append(f"{p.relative_to(root)}:{i}: {line.strip()}")
         assert not bad, "raw |safe without |safe_html:\n" + "\n".join(bad)
 
 

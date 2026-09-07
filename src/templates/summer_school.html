@@ -47,22 +47,22 @@
               <div class="card-body pt-0">
                 {% if proj.description %}
                   <h6 class="h6 mb-0">Описание</h6>
-                  {{ proj.description | safe }}
+                  {{ proj.description | safe_html }}
                 {% endif %}
                 {% if proj.repo %}
                   <h6 class="h6 mb-0">Репозиторий</h6>
-                  <p class="text-sm mb-0">{{ proj.repo | safe }}</p>
+                  <p class="text-sm mb-0">{{ proj.repo | safe_html }}</p>
                 {% endif %}
                 {% if proj.demos %}
                   <h6 class="h6 mb-0">Демо</h6>
-                  <p class="text-sm mb-0">{{ proj.demos | safe }}</p>
+                  <p class="text-sm mb-0">{{ proj.demos | safe_html }}</p>
                 {% endif %}
                 {% if proj.requirements %}
                   <h6 class="h6 mt-4 mb-0">Требования к кандидату</h6>
                   <p class="text-sm">{{ proj.requirements }}</p>
                 {% endif %}
                 <h6 class="h6 mt-4 mb-0">Руководители</h6>
-                <p class="text-sm">{{ proj.advisors | safe }}</p>
+                <p class="text-sm">{{ proj.advisors | safe_html }}</p>
               </div>
             </div>
           </div>
