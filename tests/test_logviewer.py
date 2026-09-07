@@ -67,7 +67,11 @@ class TestEnabled:
     def test_anonymous_preview_when_public_on(self, tmp_path):
         with _enabled_logs(tmp_path, public=True) as app:
             logging.getLogger("flask_se").warning("boom https://sqlalche.me/e/20/e3q8")
-            resp = app.test_client().get("/logs")
+            # Unique client IP: the anonymous-preview window (is_rate_limited in
+            # flask_se_logviewer) is process-global and keyed on REMOTE_ADDR, so a
+            # default 127.0.0.1 can already be exhausted by earlier worker traffic
+            # under xdist (intermittent CI 429 on an otherwise deterministic test).
+            resp = app.test_client().get("/logs", environ_base={"REMOTE_ADDR": "10.0.0.42"})
             assert resp.status_code == 200
             body = resp.get_data(as_text=True)
             assert "boom" in body

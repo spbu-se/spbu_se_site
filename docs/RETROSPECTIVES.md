@@ -2411,3 +2411,17 @@ one — both assertions adjusted to stable strings). Playwright installed as a u
 
 **Deviations (process)**: none beyond the session's already-recorded `-q` slip
 and the #296 CI-dispatch miss (both documented in the P4 retro).
+
+### Retrospective — 2026-09-07 (fix/test/logviewer-429-flake): deterministic anonymous-preview IP
+
+`test_anonymous_preview_when_public_on` intermittently 429'd on CI only. The
+anonymous-preview window is a process-global, per-`REMOTE_ADDR` limiter
+(`is_rate_limited`, `flask_se_logviewer.py`); under xdist, enough earlier
+worker traffic on the default `127.0.0.1` exhausted the window before this one
+deterministic GET. Fix: the request now uses its own `10.0.0.42` client IP via
+`environ_base` — no production change, mirrors the role-journey fix from P4.
+Flake bit us on two PR CI runs before the cause (shared IP keying) was read
+from the route; record the pattern: any per-IP rate-limiter test must isolate
+its client address from the suite-wide `127.0.0.1`.
+
+**Deviations (process)**: none.
