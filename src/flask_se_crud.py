@@ -294,8 +294,8 @@ class CrudView:
         self.on_form_prefill(obj, obj_id)
         form = self._build_form(obj)
         if form.validate_on_submit():
-            self.on_model_change(form, obj, False)
             self._populate_obj(obj, form)
+            self.on_model_change(form, obj, False)
             db.session.commit()
             return redirect(url_for(f"{self.endpoint}.index_view"))
         return render_template(
