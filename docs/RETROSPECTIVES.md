@@ -2438,3 +2438,21 @@ provably wrong against live runs, so replaced, with rationale retained in the
 note rather than deleted.
 
 **Deviations (process)**: none.
+
+### Retrospective — 2026-09-07 (chore/record-demo-directive): AGENTS demo-run rule
+
+Encoded the developer-facing demo behavior the user specified: when asked to
+show/run/demo the site, start the local demo server asynchronously (seed once
+via `init`, then launch), open the browser at `http://127.0.0.1:5000`
+asynchronously via the platform launcher (`xdg-open`/`Start-Process`), and
+present the accounts table (email / password `1` / role description from
+`docs/ROLE_FEATURE_MATRIX.md`). May double as a pre-PR smoke gate when
+interactive; never in non-interactive auto-batch mode. Stays repo-scoped
+(user directive: not a global rule).
+
+**Process note**: the uncommitted edit briefly blocked a fast-forward merge
+when B's AGENTS change hit the same file mid-batch — recovered via
+stash → ff → rebase → pop. Rule reinforced: keep the C branch's edits
+committed or stashed before syncing `current`.
+
+**Deviations (process)**: none.
