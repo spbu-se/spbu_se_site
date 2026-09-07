@@ -2499,3 +2499,28 @@ Closing #115 with the resolution table; the single genuine code fix ships in
 this PR.
 
 **Deviations (process)**: none.
+
+### Retrospective — 2026-09-07 (chore/semgrep-fixes): Semgrep deep scan findings
+
+Ran Semgrep OSS (`p/python` + `p/security-audit` + `p/owasp-top-ten`;
+`--config auto` refused with `--metrics=off`) over `src tests e2e scripts` —
+69 findings, logs in `.tmp/semgrep/`. Triage: the bulk (template families
+`var-in-href` 21, `var-in-script-tag` 13, `unquoted-attribute-var` 9,
+`plaintext-http-link` 7) are false positives for this stack (Jinja autoescape
+on, `tojson`, strict nonce-CSP); `flask-url-for-external-true` (5) is expected
+(mail links); `logger-credential-disclosure` (3) logs only ip/error, no
+credentials. **One genuine finding**: `template-unescaped-with-safe` (9)
+included four `summer_school.html` project fields using a bare `| safe` (with
+space) that bypassed the repo's render-time nh3 policy — the existing
+`TestRawHtmlGuardrail` only matched `|safe` without space and skipped
+`| safe`. Fixed to `safe_html` and hardened the guardrail to tokenize
+`{{ }}` filters. Decision: no blanket template refactor (would churn on
+false positives); CI semgrep not wired (cost + noise — revisit only with a
+targeted rule set).
+
+**Process lessons**: (1) `--config auto` requires metrics — use explicit OSS
+packs offline; (2) semgrep JSON schema here: result `.path` is a string
+(not `.path.file`), snippets live in `.extra`; (3) naive substring guards rot
+— the spaced `| safe` variant had silently drifted past CI.
+
+**Deviations (process)**: none.
