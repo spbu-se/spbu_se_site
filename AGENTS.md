@@ -89,6 +89,8 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 - **scrypt unsupported on Python 3.13** — conftest.py mocks `check_password_hash` at module level
 - **APScheduler gated off in tests** — conftest sets `SE_START_SCHEDULER=0` before importing `flask_se` (replaces the old `scheduler.shutdown()`). Production leaves it unset → jobs run.
 - **Login bypass fixture** — `logged_client` injects `session["_user_id"]` instead of POST login (avoids scrypt)
+- **e2e browser suite is separate** — top-level `e2e/` (real server, no mocks), excluded from the default `tests` suite; run `uv run pytest e2e -m e2e --no-cov -n 0`. CI runs it only in the path-filtered, browser-cached `e2e` job — never in `test`/serviceability jobs. See `docs/TESTING.md` §3c.
+- **CI-cost review** — before adding/expanding a CI job or test tier that materially increases CI time (new always-on job, ~doubling a job's median, or +≳2 min median), state the reasoning and pick a good-enough compromise (budget/path-filter/cache/scope). See `docs/TESTING.md` §3b.
 
 ## Environment quirks
 

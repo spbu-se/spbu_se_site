@@ -42,12 +42,16 @@ dev = [
     "ftfy>=6.3.1",
     "pylint>=4.0.6",
     "vulture>=2.16",
+    "playwright>=1.62.0",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--cov=src --cov-report=term-missing --cov-fail-under=80 -n auto --durations=10"
 filterwarnings = ["ignore::ResourceWarning"]
+markers = [
+    "e2e: live-browser journeys under e2e/ (run via `pytest e2e -m e2e --no-cov -n 0`)",
+]
 
 [tool.coverage.run]
 context = "test"
@@ -150,6 +154,8 @@ max-complexity = 15
 "scripts/pre_push_checks.py" = ["S603"] # static, hardcoded command list — no untrusted input
 "tests/conftest.py" = ["E402", "S101", "ARG"]
 "tests/*.py" = ["N801", "PT006", "PT007", "S101", "S108", "S105", "S102", "PLC0415", "ARG"]
+"e2e/conftest.py" = ["E402", "S105", "ARG"]
+"e2e/*.py" = ["S101", "S105", "ARG"]
 "src/flask_se_admin.py" = ["RUF012"]
 "src/flask_se_practice.py" = ["C901"]
 "src/flask_se_practice_admin.py" = ["C901"]
