@@ -17,6 +17,7 @@ from flask_se_config import (
     get_hours_since,
     post_ranking_score,
 )
+from se_seed_data import apply_seed
 
 convention = {
     "ix": "ix_%(column_0_label)s",
@@ -3084,6 +3085,8 @@ def init_db() -> None:
 
         db.session.add(t)
         db.session.commit()
+
+    apply_seed(db, Users, Staff, generate_password_hash)
 
     # Create FTS5 virtual table for Thesis full-text search
     db.session.execute(db.text("DROP TABLE IF EXISTS thesis_fts"))
