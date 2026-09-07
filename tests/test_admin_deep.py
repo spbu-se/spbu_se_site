@@ -99,3 +99,58 @@ class TestAdminDeep:
     def test_unauth_redirects_to_login(self, seeded_client, name, path):
         resp = seeded_client.get(path)
         assert resp.status_code in (301, 302, 401, 403)
+
+
+class TestAdminReviewStatusChangeNotifications:
+    """Regression: status-change mails must fire on edit (populate before on_model_change)."""
+
+    @pytest.mark.parametrize(
+        "status,expected_title",
+        [
+            ("4", "[SE site] Ваша тема отклонена"),
+            ("1", "[SE site] Требуется доработка для Вашей темы"),
+        ],
+    )
+    def test_status_change_creates_notification(
+        self, admin_client, make_theme, status, expected_title
+    ):
+        from se_models import Notification
+
+        theme_id = make_theme(status=0)
+        admin_client.get(f"/admin/reviewdiplomathemes/edit/?id={theme_id}")
+        resp = admin_client.post(
+            f"/admin/reviewdiplomathemes/edit/?id={theme_id}",
+            data={
+                "title": "Test Theme for Review",
+                "description": "Test description",
+                "requirements": "Req",
+                "status": status,
+                "comment": "Review comment",
+                "author_id": "1",
+                "consultant_id": "1",
+            },
+        )
+        assert resp.status_code == 302
+        notifications = Notification.query.filter_by(recipient=1).all()
+        assert len(notifications) == 1, "status change must mail the theme author"
+        assert notifications[0].title == expected_title
+
+    def test_unchanged_status_creates_no_notification(self, admin_client, make_theme):
+        from se_models import Notification
+
+        theme_id = make_theme(status=0)
+        admin_client.get(f"/admin/reviewdiplomathemes/edit/?id={theme_id}")
+        resp = admin_client.post(
+            f"/admin/reviewdiplomathemes/edit/?id={theme_id}",
+            data={
+                "title": "Test Theme for Review",
+                "description": "Test description",
+                "requirements": "Req",
+                "status": "0",
+                "comment": "No change",
+                "author_id": "1",
+                "consultant_id": "1",
+            },
+        )
+        assert resp.status_code == 302
+        assert Notification.query.filter_by(recipient=1).count() == 0
