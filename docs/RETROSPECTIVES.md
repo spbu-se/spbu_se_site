@@ -2343,3 +2343,13 @@ drift (#291, pre-push `-n 0`) was absorbed by rebasing #293 (RETROSPECTIVES
 conflict, both entries kept) rather than stacking; leased force-push used.
 **Deviations (process)**: none intentional — one accidental `-q` in a test-run
 command (rule: never `-q`; logs still full) noted for the batch summary.
+
+### Retrospective — 2026-09-07 (fix/theme-notification-status-change): status-change mails never fired on theme review
+
+Session: fixed the live defect where rejecting a diploma theme (status 4) or marking it for revision (status 1) from the review queue produced no notification mail to the author. Root cause: `CrudView.edit_view()` in `src/flask_se_crud.py` called `on_model_change(form, obj, False)` BEFORE `_populate_obj(obj, form)` — so `model.status` still held the pre-edit value when `SeAdminModelViewReviewDiplomaThemes.on_model_change` compared it to `session["previous_status"]` (captured by `on_form_prefill`), and the `status != previous_status` guard never fired. Restored the Flask-Admin contract (populate first), and verified `create_view()` doesn't call the hook and no other view overrides `on_model_change`.
+
+**What went well**: regression tests written against the exact reported behavior before the fix was verified — ran the new `TestAdminReviewStatusChangeNotifications` class against the buggy ordering (2 failed with "status change must mail the theme author"), then against the fix (green), proving the tests actually catch the defect. Used `make_theme` ids instead of the hardcoded `id=1` the older `test_admin_review_status_change` relied on, and asserted the exact `Notification` titles from the templates rather than just a 302.
+
+**Deviations (process)**: none for the product work — retro written before opening the PR this time (recovery routine from PR #291 not needed). One earlier edit accidentally duplicated/mis-scoped the file tail after `test_admin_index_shows_thesis_key`; caught by re-reading the file and rewriting the tail cleanly — a case for re-reading the full diff after structural edits before staging.
+
+**Environment notes**: pytest serial `-n 0` required (20 parallel workers OOM on this Windows box — same env discovery as PR #291); `uv` PATH prefix `C:\Users\yurii\.local\bin`; `git commit --no-verify` used again because the dprint pre-commit hook stalls on this network (documented in TOOLING.md) — stage hooks that apply to `.py` (ruff-format/ruff/trailing-whitespace/end-of-file-fixer) were verified green first. Full pre-push gate (cross-platform) green before push.
