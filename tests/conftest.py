@@ -172,6 +172,21 @@ def seeded_client(_seeded_db_path):
     shutil.rmtree(_dir, ignore_errors=True)
 
 
+def _login_as(seeded_client, email: str):
+    """Seed-account login via session injection (avoids scrypt on 3.13).
+
+    Uses the deterministic role accounts from ``se_seed_data`` so the role comes
+    from the seed, not from a post-seed mutation.
+    """
+    from se_models import Users
+
+    u = Users.query.filter_by(email=email).first()
+    assert u is not None, f"missing seeded account {email}"
+    with seeded_client.session_transaction() as sess:
+        sess["_user_id"] = str(u.id)
+    return u, seeded_client
+
+
 @pytest.fixture
 def logged_client(seeded_client):
     """Seeded client with logged-in test user. Bypasses login to avoid scrypt hash issues on 3.13."""
@@ -185,27 +200,29 @@ def logged_client(seeded_client):
 
 @pytest.fixture
 def admin_client(seeded_client):
-    """Seeded client logged in as the admin user (role >= 5)."""
-    from se_models import Users, db
-
-    u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
-    u.role = 5
-    db.session.commit()
-    with seeded_client.session_transaction() as sess:
-        sess["_user_id"] = str(u.id)
+    """Seeded client logged in as the seeded admin account (admin@se.dev, role 5)."""
+    _login_as(seeded_client, "admin@se.dev")
     return seeded_client
 
 
 @pytest.fixture
 def reviewer_client(seeded_client):
-    """Seeded client logged in as a theme reviewer (role 3 = REVIEW_ROLE_LEVEL)."""
-    from se_models import Users, db
+    """Seeded client logged in as the seeded reviewer (review@se.dev, role 3)."""
+    _login_as(seeded_client, "review@se.dev")
+    return seeded_client
 
-    u = Users.query.filter_by(email="a.terekhov@spbu.ru").first()
-    u.role = 3
-    db.session.commit()
-    with seeded_client.session_transaction() as sess:
-        sess["_user_id"] = str(u.id)
+
+@pytest.fixture
+def thesis_client(seeded_client):
+    """Seeded client logged in as the seeded thesis author (thesis@se.dev, role 2)."""
+    _login_as(seeded_client, "thesis@se.dev")
+    return seeded_client
+
+
+@pytest.fixture
+def user_client(seeded_client):
+    """Seeded client logged in as a plain user (user@se.dev, role 0)."""
+    _login_as(seeded_client, "user@se.dev")
     return seeded_client
 
 
