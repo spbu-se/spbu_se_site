@@ -72,7 +72,7 @@ Strategy for this release: achieve a defensible baseline by **removing the unsaf
 1. **Yandex Metrica wired config-driven and dormant** — counter id from the gitignored `configs/flask_se_metrica.conf` or env `SE_YANDEX_METRICA_ID`, validated as digits-only (`flask_se_config.metrica_id()`). The snippet (`mc.yandex.ru/metrika/tag.js`) renders **only** when an id is provisioned; until the admin adds one the site makes no analytics requests. Even when provisioned, the shipped snippet does **not** enable Webvisor (no session recording).
 1. **CSP plan updated** — `googletagmanager.com` dropped from the `docs/SEO_A11Y_ROADMAP.md` allowlist, `mc.yandex.ru` added.
 1. **Guardrail tests** — `tests/test_analytics.py`: no `googletagmanager`/`GTM-`/`dataLayer` anywhere in `src/templates`, metrica rendered only with an id.
-1. **SPbU topbar removed (v2026.08.31)** — `topbar.spbu.ru/loader.js` had served HTTP 410 Gone since SPbU retired the service; the `topbar.spbu.ru` entries were dropped from CSP (`script-src`, `connect-src`) and the preconnect/dns-prefetch + injector script were removed from the 4 bases (see `docs/SPBU_REGULATIONS.md` §3.1.9).
+1. **SPbU topbar removed (v2026.08.31)** — `topbar.spbu.ru/loader.js` had served HTTP 410 Gone since SPbU retired the service; the `topbar.spbu.ru` entries were dropped from CSP (`script-src`, `connect-src`) and the preconnect/dns-prefetch + injector script were removed from the 4 bases (SPbU clause 3.1.9 — `docs/SPBU_REGULATIONS.md`).
 
 **Compliance posture after this release**: first-party `se_session` (strictly necessary) + dormant maps; no third-party analytics cookies set → defensible under ePrivacy/GDPR for EU visitors and low-risk under 152-ФЗ.
 

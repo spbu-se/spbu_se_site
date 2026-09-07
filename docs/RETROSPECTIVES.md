@@ -1380,7 +1380,7 @@ Changes analyzed: the 7 PRs merged since `v2026.08.14` (#213–#219: markdown/sa
 - Branch `chore/release-prep-v2026.08.15` (from `upstream/current` `0905a12`). §A fixes applied (sitemap lastmod, TESTING reference), retro appended.
 - Next: generate `.tmp/release-notes.md`, push, open PR; after merge + CI green → tag `v2026.08.15`, push to `upstream`, create draft release, publish (triggers deploy).
 
-### Retrospective ? 2026-08-15: Tier 1 performance (PR feat/perf-assets-tier1)
+### Retrospective — 2026-08-15: Tier 1 performance (PR feat/perf-assets-tier1)
 
 Changes analyzed: 4 commits ? versioned static assets + preconnect + defer feather in the 4 base templates, SimpleMDE moved out of the base_light global, hero JPEG recompression, performance roadmap docs.
 
@@ -2522,5 +2522,28 @@ targeted rule set).
 packs offline; (2) semgrep JSON schema here: result `.path` is a string
 (not `.path.file`), snippets live in `.extra`; (3) naive substring guards rot
 — the spaced `| safe` variant had silently drifted past CI.
+
+**Deviations (process)**: none.
+
+### Retrospective — 2026-09-07 (chore/docs-drift-fixes): forced docs-drift review
+
+Post-batch forced strong docs-drift audit (AGENTS↔docs, `docs/DOCS.md` §2a).
+Method: subagent crawled every link/anchor + batched GraphQL state check over
+all 110 `#NNN` references. Results: zero dangling files and zero dead
+issue/PR references (only `#67`/`#87` open, both deliberately deferred in
+TODO). Actionable faults fixed here: the new TOOLING "Signed-commit
+verification" § was a bullet, not a heading, so AGENTS/GIT_FLOW pointers
+couldn't resolve → promoted to `###`; stale `§4a` / `§Definition of Done`
+pointers re-anchored (xfail numbering renumbered earlier); SPBU clause
+pointer was a table-row, reworded; one RETROSPECTIVES heading broke the
+`### Retrospective —` navigation contract (`? ` delimiter); TODO carried a
+shipped item (strict nonce-CSP, 2026-08-22) as open plus a stale milestone
+tag. Left intentionally: historical snapshot prose (2026-08-20 changelog
+resolution notes), the gitignored/generated `docs/REPO_REVIEW.md` pointer
+in CLAUDE/README, and `.tooling.md` §cherry-pick cue.
+
+**Process lesson**: the E-PR added a "§" pointer to a plain bullet — an
+AGENTS↔docs cue fault caught by this audit. Rule reinforced: new AGENTS/doc
+pointers must reference real headings (audit step folded into F's retro).
 
 **Deviations (process)**: none.
