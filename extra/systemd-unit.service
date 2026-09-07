@@ -1,0 +1,16 @@
+[Unit]
+Description=SE site web application
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+EnvironmentFile=-/srv/spbu_se_site/env
+WorkingDirectory=/srv/spbu_se_site/repo/src
+ExecStart=/srv/spbu_se_site/venv/bin/gunicorn --access-logfile=- -b 127.0.0.1:4545 wsgi:app
+StandardOutput=append:/var/log/uwsgi/flask_se.log
+StandardError=append:/var/log/uwsgi/flask_se.log
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
