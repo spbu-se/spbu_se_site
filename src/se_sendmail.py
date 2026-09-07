@@ -2,10 +2,12 @@
 
 import logging
 import os
+import re
 import smtplib
 from datetime import UTC, datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from pathlib import Path
 
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -21,6 +23,24 @@ DIPLOMA_THEMES_SEND_INTERVAL = timedelta(hours=24)
 _log = logging.getLogger("flask_se.mail")
 
 
+def _write_dev_mail(dev_dir: str, to: str, subject: str, plain: str, html: str | None) -> bool:
+    """Write a message as a readable .eml file for local development.
+
+    Enables password-recovery and notification flows end-to-end without a mail
+    relay. Each write is unique per microsecond+recipient so repeated sends to
+    the same address do not collide.
+    """
+    folder = Path(dev_dir)
+    folder.mkdir(parents=True, exist_ok=True)
+    safe_to = re.sub(r"[^A-Za-z0-9._@-]", "_", to)
+    path = folder / f"{safe_to}-{datetime.now().strftime('%Y%m%d%H%M%S%f')}.eml"
+    body = f"To: {to}\nSubject: {subject}\n\n{plain}\n"
+    if html:
+        body += f"\n[html]\n{html}\n"
+    path.write_text(body, encoding="utf-8")
+    return True
+
+
 def send_mail(to: str, subject: str, plain: str, html: str | None = None) -> bool:
     """Send one e-mail from the notification sender; no-op on staging.
 
@@ -30,6 +50,9 @@ def send_mail(to: str, subject: str, plain: str, html: str | None = None) -> boo
     """
     if os.getenv("SE_STAGING") is not None:
         return False
+    dev_dir = os.getenv("SE_MAIL_DEV_DIR")
+    if dev_dir:
+        return _write_dev_mail(dev_dir, to, subject, plain, html)
     message = MIMEMultipart("alternative")
     message["Subject"] = subject
     message["From"] = MAIL_DEFAULT_SENDER
@@ -74,6 +97,13 @@ def notification_send_mail() -> None:
 
         message.attach(part1)
         message.attach(part2)
+
+        dev_dir = os.getenv("SE_MAIL_DEV_DIR")
+        if dev_dir:
+            _write_dev_mail(dev_dir, user.email, n.title, n.content, None)
+            db.session.delete(n)
+            db.session.commit()
+            continue
 
         server = smtplib.SMTP("mail.spbu.ru", 25)
 
@@ -177,6 +207,11 @@ def notification_send_diploma_themes_on_review() -> None:
     part2 = MIMEText(data, "html")
     message.attach(part1)
     message.attach(part2)
+
+    dev_dir = os.getenv("SE_MAIL_DEV_DIR")
+    if dev_dir:
+        _write_dev_mail(dev_dir, "ilya@hackerdom.ru", message["Subject"], data, data)
+        return
 
     server = smtplib.SMTP("mail.spbu.ru", 25)
 

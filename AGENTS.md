@@ -94,12 +94,13 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 
 - **Main branch**: `current` (not `main`)
 - **Config files** (never committed): `flask_se_secret.conf`, `flask_se_mail.conf`, `flask_se_practice_yandex_secret.conf`, `flask_se_vk_secret.conf`, `flask_se_thesis.conf`
-- **requirements.txt staleness** — CI runs `pip install -r` on every push. Must match `uv.lock`. Always regenerate before pushing
+- **requirements.txt is a prod + serviceability artifact only** — dev/test tooling runs on `uv` (`ci.yml`, `ci-staging.yml` use `uv sync`; only `serviceability.yml` pip-installs `requirements.txt` to prove the prod file works, and the prod Docker/webhook path uses it). Dev dependencies (pytest, ruff, playwright, …) live **only in uv's dev group**, never in `requirements.txt`. Regenerate (`uv export --no-dev --no-hashes`) only when the *runtime* set in `uv.lock` changes, not for dev-only bumps. See `docs/TOOLING.md` §Universal lockfile resolution.
 - **Line endings** — `.gitattributes` normalizes all text to LF (`* text=auto eol=lf`), so checkouts are LF on Windows too; mdformat behaves identically locally and in CI
 - **GPG keylocker** — if `git config commit.gpgsign` is true, use `git commit --no-gpg-sign` on all branches (only `current` gets signed commits)
 - **Config-secret path vs contents** — secrets live in config files, and the code reads their **contents** via `flask_se_config.read_secret_from_file()`. Never treat a config file's *path* as the secret (that was CVE-class bug: `SECRET_KEY` was a path string → forgeable sessions). CSRF is globally enforced (`CSRFProtect`): any new POST form must include `{{ csrf_token() }}`, and new state-changing actions must be POST, not GET
 - **Generated/temp files** — all scratch and generated files must live in `.tmp/` (gitignored): session notes, log captures, route-map dumps, release-note drafts. Never leave them at the repo root. See `docs/DOCS.md` §3.
 - **Staging** — URL and semantics live in `docs/TOOLING.md` §Staging environment (single source, may change). Staging mirrors `current` via CD webhook; its DB is not guaranteed prod-like; live rate limiters apply. **Never define Flask routes under `/staging/*`** — the deploy host's nginx intercepts that prefix and it never reaches Flask.
+- **Local prod-like env** — `init_db` seeds deterministic role accounts (`src/se_seed_data.py`, password `1`, see `docs/ROLE_FEATURE_MATRIX.md`). Optional dev-only toggles (all default-off, never set in prod): `SE_MAIL_DEV_DIR` captures mail as `.eml` files instead of SMTP; `SE_SECRET_KEY` pins the session key across restarts; `SE_DISABLE_RATE_LIMITS=1` lifts login/register throttling for repeated-login suites. Config templates live in `src/configs/*.conf.example` (real `*.conf` files stay gitignored).
 
 ## Process improvement
 

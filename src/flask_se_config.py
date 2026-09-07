@@ -34,7 +34,7 @@ def read_secret_from_file(filepath: str, *, fallback_len: int = 24) -> str:
     return os.urandom(fallback_len).hex()
 
 
-SECRET_KEY = read_secret_from_file(SECRET_KEY_FILE)
+SECRET_KEY = os.environ.get("SE_SECRET_KEY") or read_secret_from_file(SECRET_KEY_FILE)
 MAIL_PASSWORD_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_mail.conf")
 VK_CLIENT_ID = "8051225"
 VK_SECRET_FILE = os.path.join(pathlib.Path(__file__).parent, "configs/flask_se_vk_secret.conf")
@@ -276,12 +276,14 @@ class RateLimiter:
     multi-process deployments, which is acceptable defense-in-depth.
     """
 
-    def __init__(self, *, limit: int, window_seconds: int):
+    def __init__(self, *, limit: int | None, window_seconds: int):
         self.limit = limit
         self.window_seconds = window_seconds
         self._hits: dict[str, list[float]] = {}
 
     def allow(self, key: str, now: float | None = None) -> bool:
+        if self.limit is None:
+            return True
         now = now if now is not None else time.monotonic()
         hits = self._hits.setdefault(key, [])
         cutoff = now - self.window_seconds
@@ -292,6 +294,18 @@ class RateLimiter:
         return True
 
 
-LOGIN_RATE_LIMITER = RateLimiter(limit=10, window_seconds=300)
-REGISTER_RATE_LIMITER = RateLimiter(limit=5, window_seconds=3600)
-PASSWORD_RECOVERY_RATE_LIMITER = RateLimiter(limit=5, window_seconds=3600)
+# SE_DISABLE_RATE_LIMITS=1 keeps login/register/recovery unthrottled — the
+# local role-journey and e2e suites log in repeatedly from one address.
+_RATE_LIMITS_ENABLED = os.environ.get("SE_DISABLE_RATE_LIMITS") != "1"
+LOGIN_RATE_LIMITER = RateLimiter(
+    limit=10 if _RATE_LIMITS_ENABLED else None,
+    window_seconds=300,
+)
+REGISTER_RATE_LIMITER = RateLimiter(
+    limit=5 if _RATE_LIMITS_ENABLED else None,
+    window_seconds=3600,
+)
+PASSWORD_RECOVERY_RATE_LIMITER = RateLimiter(
+    limit=5 if _RATE_LIMITS_ENABLED else None,
+    window_seconds=3600,
+)
