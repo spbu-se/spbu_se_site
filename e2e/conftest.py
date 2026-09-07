@@ -37,8 +37,13 @@ os.environ["SE_THESIS_SECRET"] = "e2e-thesis-secret"
 
 import flask_se_config as _fsc
 
-_fsc.SQLITE_DATABASE_NAME = "e2e.db"
+_db_name = "e2e.db"
+_fsc.SQLITE_DATABASE_NAME = _db_name
 _fsc.SQLITE_DATABASE_PATH = _db_dir.as_posix()
+# SQLITE_DATABASE_URI is a module constant computed at fsc import time; re-point
+# it before flask_se imports it, or the app keeps the stale databases/se.db URI
+# whose directory does not exist on CI ("unable to open database file").
+_fsc.SQLITE_DATABASE_URI = "sqlite:///" + (_db_dir / _db_name).as_posix()
 
 import pytest
 from werkzeug.serving import make_server
