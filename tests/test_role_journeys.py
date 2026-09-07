@@ -25,23 +25,26 @@ import se_seed_data
 _ACCOUNT_EMAILS = [a["email"] for a in se_seed_data.ROLE_ACCOUNTS + se_seed_data.STAFF_ACCOUNTS]
 
 
-def test_seed_passwords_verify_against_real_hash():
+def test_seed_passwords_verify_against_real_hash(tmp_path):
     """Seeded password hashes really equal DEV_PASSWORD (no test mocks involved)."""
     src = str(Path(__file__).resolve().parent.parent / "src")
+    db_dir = tmp_path / "db"
     script = (
-        "import os,tempfile,sqlite3\n"
-        "import flask_se_config as c\n"
-        "c.SQLITE_DATABASE_NAME='j.db'\n"
-        "c.SQLITE_DATABASE_PATH=tempfile.mkdtemp()\n"
+        "import os\n"
+        f"import flask_se_config as c\n"
+        f"db_dir = {str(db_dir)!r}\n"
+        f"os.makedirs(db_dir, exist_ok=True)\n"
+        f"c.SQLITE_DATABASE_NAME = 'j.db'\n"
+        f"c.SQLITE_DATABASE_PATH = db_dir\n"
         "from flask_se import app, db\n"
         "from se_models import init_db, Users\n"
         "from werkzeug.security import check_password_hash\n"
         "with app.app_context():\n"
-        "    app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///'+c.SQLITE_DATABASE_PATH+'/j.db'\n"
+        "    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_dir + '/j.db'\n"
         "    db.create_all()\n"
         "    init_db()\n"
         "    for acc in __import__('se_seed_data').ROLE_ACCOUNTS:\n"
-        "        u=Users.query.filter_by(email=acc['email']).first()\n"
+        "        u = Users.query.filter_by(email=acc['email']).first()\n"
         "        assert u and check_password_hash(u.password_hash, '1')\n"
         "print('OK')\n"
     )
