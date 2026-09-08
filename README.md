@@ -16,10 +16,14 @@
 - Python 3.9+ (production via pip), 3.13 (development via uv)
 - SQLite (zero-config)
 - uv (for development)
+- git-lfs (materializes LFS-tracked binaries, see Setup below)
 
 ## Setup
 
 ```bash
+# Once per machine: configure Git LFS (smudge/filter drivers)
+git lfs install
+
 git clone <repo-url>
 cd spbu_se_site
 
@@ -33,6 +37,10 @@ uv sync
 uv run python src/flask_se.py init
 uv run python src/flask_se.py
 ```
+
+LFS-tracked files (`src/static/thesis/**`, `src/static/files/**`) materialize
+automatically on clone/checkout via the `git lfs install` filter. If you
+cloned before enabling LFS, run `git lfs pull` once to fetch them.
 
 The site runs at `http://127.0.0.1:5000`.
 

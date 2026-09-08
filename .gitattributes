@@ -1,2 +1,8 @@
 # Normalize to LF for consistent formatting checks across platforms
 * text=auto eol=lf
+
+# Git LFS — path-scoped. Large binary content the site serves/stores:
+# thesis uploads (texts/slides/reviews) and the shared static uploads dir.
+# Vendored libs, *.min.* build artifacts, and small images stay plain blobs.
+src/static/thesis/** filter=lfs diff=lfs merge=lfs -text
+src/static/files/**  filter=lfs diff=lfs merge=lfs -text
