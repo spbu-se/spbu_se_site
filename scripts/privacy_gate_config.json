@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "description": "Single source of truth for the developer-host privacy gates. Consumers: scripts/gen_gitleaks_config.py (renders .gitleaks.toml), scripts/check_dev_privacy.py (filename blocklist + local-path scan), pre-commit + pre-push wiring, docs. Edit here, regenerate .gitleaks.toml, never hand-edit mirrors.",
+  "scope": {
+    "exclude_path_prefixes": [
+      "src/static/thesis/"
+    ],
+    "vendored_prefixes": [
+      "src/static/assets/libs/",
+      "src/static/libs/"
+    ],
+    "minified_suffixes": [
+      ".min.css",
+      ".min.js"
+    ],
+    "theme_main_files": [
+      "src/static/assets/css/quick-website.css",
+      "src/static/assets/js/quick-website.js"
+    ]
+  },
+  "dev_paths": {
+    "flag_patterns": [
+      "/(home|Users)/[A-Za-z0-9_.-]+",
+      "C:\\\\Users\\\\[A-Za-z0-9_.-]+"
+    ],
+    "allowed_user_components": [
+      "ubuntu",
+      "www-data",
+      "root",
+      "<user>",
+      "<username>",
+      "..."
+    ],
+    "allowed_path_prefixes": [
+      "/home/ubuntu/",
+      "/home/ubuntu",
+      "/home/www-data/",
+      "/app/",
+      "/var/",
+      "/opt/",
+      "/srv/",
+      "/tmp/",
+      "/etc/",
+      "/usr/"
+    ],
+    "allowed_idioms": [
+      "C:\\\\fakepath\\\\"
+    ]
+  },
+  "artifacts": {
+    "blocked_extensions": [
+      ".conf",
+      ".key",
+      ".pem",
+      ".p12",
+      ".pfx",
+      ".crt",
+      ".csr",
+      ".db",
+      ".sqlite",
+      ".sqlite3",
+      ".eml",
+      ".env",
+      ".pcap",
+      ".pcapng"
+    ],
+    "blocked_name_fragments": [
+      "credential",
+      "secret",
+      "backup",
+      "dump"
+    ],
+    "allow_suffixes": [
+      ".conf.example",
+      ".example"
+    ]
+  }
+}

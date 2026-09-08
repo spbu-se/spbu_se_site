@@ -1,0 +1,20 @@
+title = "se-site gitleaks config (generated from scripts/privacy_gate_config.json)"
+
+[extend]
+useDefault = true
+
+# Allowlist paths are derived from the SSOT scan-scope. Minified artifacts and
+# vendored libraries are excluded here (their sources are scanned); thesis is
+# public content by decision. Per-finding exceptions use inline `gitleaks:allow`
+# comments in code — keep this list directory-level only.
+[allowlist]
+paths = [
+    'src\\/static\\/thesis\\/',
+    'src\\/static\\/assets\\/libs\\/',
+    'src\\/static\\/libs\\/',
+    'src\\/static\\/assets\\/css\\/quick-website\\.css',
+    'src\\/static\\/assets\\/js\\/quick-website\\.js',
+    '(?i).*\\.min\\.css$',
+    '(?i).*\\.min\\.js$',
+]
+regexes = []
