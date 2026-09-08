@@ -342,13 +342,13 @@ Use `Select-String` instead.
 
 ### `uv` on PATH is registry-only until the parent shell is restarted
 
-`uv` installs to `C:\Users\yurii\.local\bin` and this is on the **user** PATH (registry persists it), but a shell started *before* the install (e.g. an always-open agent shell) doesn't have it on its process PATH — `git push` then fails the pre-push hook with `Executable 'uv' not found` even though `uv` is on the user PATH. Symptoms + fix (prefix `$env:PATH` for the current process):
+`uv` installs to `C:\Users\<user>\.local\bin` and this is on the **user** PATH (registry persists it), but a shell started *before* the install (e.g. an always-open agent shell) doesn't have it on its process PATH — `git push` then fails the pre-push hook with `Executable 'uv' not found` even though `uv` is on the user PATH. Symptoms + fix (prefix `$env:PATH` for the current process):
 
 ```powershell
-$env:PATH = "C:\Users\yurii\.local\bin;" + $env:PATH
+$env:PATH = "C:\Users\<user>\.local\bin;" + $env:PATH
 ```
 
-Applies to any freshly-installed CLI (uv, cargo, etc.) picked up by pre-commit `language: system` hooks. Verify with `Get-Command uv`; if empty but the exe exists under `C:\Users\yurii\.local\bin`, apply the prefix.
+Applies to any freshly-installed CLI (uv, cargo, etc.) picked up by pre-commit `language: system` hooks. Verify with `Get-Command uv`; if empty but the exe exists under `C:\Users\<user>\.local\bin`, apply the prefix.
 
 ### `||` not available
 
@@ -656,6 +656,38 @@ uvx semgrep scan --config p/python --config p/security-audit \
 - Expected benign families on this codebase: `flask-url-for-external-true`
   (absolute mail links), `logger-credential-disclosure` (function-context FP),
   `plaintext-http-link` (content/email URLs).
+
+### Developer-host privacy gates
+
+Protects the **developer host** (not just production): secrets, credentials,
+config files, data dumps, and developer-host absolute paths must never reach
+git/GitHub. Single source of truth for every rule: `scripts/privacy_gate_config.json`
+(SSOT) — edit it, never hand-edit the mirrors:
+
+- `scripts/gen_gitleaks_config.py` renders `.gitleaks.toml` from the SSOT;
+  regenerate after any SSOT change (`uv run python scripts/gen_gitleaks_config.py`),
+  pre-push asserts it is up to date (`--check`).
+- `scripts/check_dev_privacy.py` enforces the filename blocklist (config/key/
+  db/eml/env/credential/backup classes, `*.example` allowed) and the
+  local-path scan (developer usernames in `/home/…`, `/Users/…`, `C:\Users\…`;
+  deploy/container forms `/srv/`, `/var/`, `/opt/`, `/app/`, `/home/ubuntu`,
+  `www-data`, `root` are allowlisted).
+
+Where each runs:
+
+| Gate | Runtime | What |
+|---|---|---|
+| `dev-privacy-staged` | pre-commit | filename blocklist + local-path regex over staged files (fast) |
+| `gitleaks` (outgoing) | pre-push | `gitleaks detect --log-opts origin..HEAD` over the branch's outgoing commits (the gitleaks mirror hardwires `detect`, so secrets are caught at push, not commit) |
+| `dev-privacy full-tree` + `gitleaks config drift` | pre-push (`pre_push_checks.py`) | full tracked-tree artifact/path scan + `.gitleaks.toml` freshness |
+
+Scope: every authored file (src/tests/e2e/scripts/.github/\*\*/docs/\*.md) is
+scanned. Excluded by decision: `src/static/thesis/**` (public content), and by
+generation logic: `*.min.{css,js}` and vendored `libs/` (their sources are
+scanned). The Go toolchain is needed once for the gitleaks pre-commit hook
+(`uv run pre-commit install`). Per-finding exceptions use inline
+`gitleaks:allow` comments in code; directory-level allowlists live only in the
+SSOT-generated `.gitleaks.toml`.
 
 ### Encoding declaration policy
 

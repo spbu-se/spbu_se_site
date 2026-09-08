@@ -45,6 +45,14 @@ CHECKS: list[tuple[str, list[str]]] = [
         ["uv", "run", "vulture", "src/", "--min-confidence", "100", "--ignore-names", "is_created"],
     ),
     (
+        "gitleaks config drift (SSOT)",
+        ["uv", "run", "python", "scripts/gen_gitleaks_config.py", "--check"],
+    ),
+    (
+        "dev-privacy full-tree (artifacts + local paths)",
+        ["uv", "run", "python", "scripts/check_dev_privacy.py", "--all"],
+    ),
+    (
         "asset-pipeline guard",
         [
             "uv",

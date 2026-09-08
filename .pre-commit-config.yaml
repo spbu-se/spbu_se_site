@@ -69,6 +69,28 @@ repos:
       - id: actionlint
         stages: [pre-push]
 
+  # --- Developer-host privacy gates (SSOT: scripts/privacy_gate_config.json) ---
+  # gitleaks mirror hardwires `detect`, so secret scanning runs on the outgoing
+  # commit range at pre-push; staged-content discipline is the python guard
+  # below (fast). Pre-commit id `gitleaks` is added last so pre-commit installs
+  # it (Go toolchain required on first run).
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+        name: gitleaks (outgoing origin..HEAD)
+        args: [--log-opts, origin..HEAD]
+        pass_filenames: false
+        stages: [pre-push]
+
+  - repo: local
+    hooks:
+      - id: dev-privacy-staged
+        name: "pre-commit: dev artifacts + local paths (staged)"
+        entry: uv run python scripts/check_dev_privacy.py
+        language: system
+        stages: [pre-commit]
+
   # --- Pre-push hooks ---
   - repo: local
     hooks:

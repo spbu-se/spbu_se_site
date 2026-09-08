@@ -2287,7 +2287,7 @@ Session: after re-syncing `current` to `081b6de` (which shipped the PowerShell-f
 
 **Process notes / env quirk**: `git commit` hangs on the **dprint** pre-commit hook — its first run fetches wasm plugins from `plugins.dprint.dev` (stalled on this network; `AppData\Local\dprint\cache` held locks but no plugins). dprint's config (`dprint.json`) only includes `yaml,yml,toml,json`, so a `.py`-only commit isn't even processed by it. Used `git commit --no-verify` (AGENTS permits for a non-formatting hook blocker); ruff-format/ruff (the hooks that apply to Python) were verified green first. Recorded in `docs/TOOLING.md` §pre-commit.
 
-**Process notes / env quirk 2**: the pre-push hook failed with `Executable 'uv' not found` from a fresh shell — `uv` is on the *user* PATH (registry) but not the current process PATH (parent shell predates install). Fix: prefix `$env:PATH` with `C:\Users\yurii\.local\bin` in the invocation. Recorded in `docs/TOOLING.md` §PowerShell.
+**Process notes / env quirk 2**: the pre-push hook failed with `Executable 'uv' not found` from a fresh shell — `uv` is on the *user* PATH (registry) but not the current process PATH (parent shell predates install). Fix: prefix `$env:PATH` with `C:\Users\<user>\.local\bin` in the invocation. Recorded in `docs/TOOLING.md` §PowerShell.
 
 **Plan-first deviation (self-flag)**: PR #291 was opened before this retro entry was written; per AGENTS the retro is added as the last commit and the PR description updated — the routine for this session's PRs uses that recovery path deliberately (retro landed as the final commit on the branch).
 
@@ -2354,7 +2354,7 @@ Session: fixed the live defect where rejecting a diploma theme (status 4) or mar
 
 **Deviations (process)**: none for the product work — retro written before opening the PR this time (recovery routine from PR #291 not needed). One earlier edit accidentally duplicated/mis-scoped the file tail after `test_admin_index_shows_thesis_key`; caught by re-reading the file and rewriting the tail cleanly — a case for re-reading the full diff after structural edits before staging.
 
-**Environment notes**: pytest serial `-n 0` required (20 parallel workers OOM on this Windows box — same env discovery as PR #291); `uv` PATH prefix `C:\Users\yurii\.local\bin`; `git commit --no-verify` used again because the dprint pre-commit hook stalls on this network (documented in TOOLING.md) — stage hooks that apply to `.py` (ruff-format/ruff/trailing-whitespace/end-of-file-fixer) were verified green first. Full pre-push gate (cross-platform) green before push.
+**Environment notes**: pytest serial `-n 0` required (20 parallel workers OOM on this Windows box — same env discovery as PR #291); `uv` PATH prefix `C:\Users\<user>\.local\bin`; `git commit --no-verify` used again because the dprint pre-commit hook stalls on this network (documented in TOOLING.md) — stage hooks that apply to `.py` (ruff-format/ruff/trailing-whitespace/end-of-file-fixer) were verified green first. Full pre-push gate (cross-platform) green before push.
 
 ### Retrospective — 2026-09-07 (test/role-journey-http): cross-cutting auth journeys over the seeded env
 
@@ -2567,5 +2567,27 @@ user decision).
 **Process note**: triage discipline paid off — of the 13 `var-in-script-tag`
 hits only these needed real edits; the Maps `tojson` blocks and config-only
 values were already hardened or non-user. Full suite green before push.
+
+**Deviations (process)**: none.
+
+### Retrospective — 2026-09-07 (chore/dev-host-privacy-gates): developer-host privacy gates + first leaks found
+
+User directive: keep the developer host safe — strict gate before push, some
+gate + discipline before commit, no privacy leaks; use both gitleaks and
+detect-secrets for the initial audit, SSOT for configs. Implemented SSOT
+`scripts/privacy_gate_config.json` driving (a) `.gitleaks.toml` via
+`gen_gitleaks_config.py` (drift-guarded in pre-push), (b) `check_dev_privacy.py`
+(filename blocklist + developer-local-path scan) at pre-commit (staged) and
+pre-push (full tree), (c) gitleaks `detect --log-opts origin..HEAD` at
+pre-push. gitleaks mirror hardwires `detect`, so commit-stage secrets are
+covered by the python guard and the strict scan runs at push — design note.
+Scope: all authored files incl docs/.md/CI; excludes thesis (public by
+decision) and generated `*.min.*` + vendored libs (sources scanned). The
+full-tree gate immediately found real historical leaks — dev-host Windows
+profile paths (a real username under `C:\Users\<user>`) in TOOLING.md PowerShell
+notes and two RETROSPECTIVES entries — redacted to the `C:\Users\<user>`
+placeholder in this PR. Mid-session upstream re-sync:
+`1807907` added `extra/deploy.sh` + `extra/systemd-unit.service` (prod paths
+`/srv/spbu_se_site`, `/var/log`, `www-data` — folded into the allowlist).
 
 **Deviations (process)**: none.
