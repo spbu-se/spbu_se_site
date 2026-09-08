@@ -2591,3 +2591,22 @@ placeholder in this PR. Mid-session upstream re-sync:
 `/srv/spbu_se_site`, `/var/log`, `www-data` — folded into the allowlist).
 
 **Deviations (process)**: none.
+
+### Retrospective — 2026-09-07 (fix/upload-secret-redact): Phase-B audit cleanup
+
+Full-history + full-tree audit (gitleaks 1050 commits, detect-secrets, local-
+path) surfaced three real classes. (1) Google Maps API key
+`AIzaSyA74…PcSWjgUMe9AdmLy3-ruPKLs` — hardcoded in base templates/docs in 5
+historical commits, absent from current tree (maps moved to config, site now
+on Yandex). History-rewrite candidate. (2) A literal 32-hex `secret_key`
+(`9d1fe6c7…b3ca84`) in `src/static/files/upload.py` — **present in current
+tree**: an example upload payload that carried a real-looking thesis-upload
+API token. Replaced here with a placeholder; the token should be rotated if it
+ever matched a configured value. History-rewrite candidate. (3) Dev-host
+Windows username paths in TOOLING/RETROSPECTIVES history (current redacted in
+#306). History-rewrite candidate. Remaining hits are false positives or
+by-design (test-only secrets, vendor, CSRF literal, env examples). Cleanup PR
+for upload.py token; history-rewrite decisions deferred to the user per the
+"report first, decide after" protocol.
+
+**Deviations (process)**: none.

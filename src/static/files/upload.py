@@ -39,7 +39,7 @@ thesis_info = {
     "source_uri": "https://github.com/artemlunev2000/winter-road-detection",
     "supervisor": "Литвинов",
     "publish_year": 2022,
-    "secret_key": "9d1fe6c77d53465cc50afc7d57b3ca84",
+    "secret_key": "<replace-with-thesis-upload-secret>",
 }
 
 # Текст работы
