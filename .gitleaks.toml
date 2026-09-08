@@ -9,12 +9,14 @@ useDefault = true
 # comments in code — keep this list directory-level only.
 [allowlist]
 paths = [
-    'src\\/static\\/thesis\\/',
-    'src\\/static\\/assets\\/libs\\/',
-    'src\\/static\\/libs\\/',
-    'src\\/static\\/assets\\/css\\/quick-website\\.css',
-    'src\\/static\\/assets\\/js\\/quick-website\\.js',
-    '(?i).*\\.min\\.css$',
-    '(?i).*\\.min\\.js$',
+  'src\\/static\\/thesis\\/',
+  'src\\/static\\/assets\\/libs\\/',
+  'src\\/static\\/libs\\/',
+  'src\\/static\\/assets\\/css\\/quick-website\\.css',
+  'src\\/static\\/assets\\/js\\/quick-website\\.js',
+  '(?i).*\\.min\\.css$',
+  '(?i).*\\.min\\.js$',
+
 ]
-regexes = []
+regexes = [
+]

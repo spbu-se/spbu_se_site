@@ -22,7 +22,8 @@
     ".opencode/package-lock.json",
     "**/node_modules/**",
     "template-project/**",
-    "src/static/assets/libs/**"
+    "src/static/assets/libs/**",
+    ".gitleaks.toml"
   ],
   "plugins": [
     "https://plugins.dprint.dev/g-plane/pretty_yaml-v0.6.0.wasm",
