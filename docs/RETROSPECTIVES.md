@@ -2656,3 +2656,13 @@ fallback list missed domain columns and Staff names live on the linked `Users`, 
 **Deviations (process)**: none. Deferred: encode the session's user imperatives (conservative-vs-smart
 two-track fix strategy; full-auto Playwright UI-check discipline; warmup `playwright-cli` fallback)
 into AGENTS + canonical docs with the PR-B/PR-C doc batch rather than growing AGENTS past its bloat guard here.
+
+### Retrospective — 2026-09-10: se_constants groundwork (PR-B)
+
+Behavior-neutral `src/se_constants.py` (diploma/current-thesis/review status options,
+science degrees) + content tests, as the base for the PR-C refactor that replaces
+the fragmented literals.
+
+No gaps: scope kept to sets already verified against the PR-A surfaces; reserved-sentinel
+capture deferred to PR-C where the literal fragments are actually being replaced (avoids
+fabricating constants for code paths not yet audited this session). No deviations.
