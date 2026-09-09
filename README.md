@@ -94,11 +94,14 @@ Production uses `current` branch with uWSGI behind nginx.
 ### Docker quickstart
 
 ```bash
+git lfs install && git lfs pull   # materialize LFS-tracked content first
 docker compose up --build
 ```
 
 The entrypoint (`docker/entrypoint.sh`) initializes the SQLite database
-automatically on first boot, so no manual `cp`/`init` step is needed.
+automatically on first boot, so no manual `cp`/`init` step is needed. The
+build copies the local checkout into the image and fails loudly if LFS-tracked
+files (`src/static/thesis/**`, `src/static/files/**`) are still pointers.
 
 ## Релизы
 
