@@ -112,6 +112,8 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 
 ## Process improvement
 
+- **Fix vs design strategy** — fix-only work gets the safe conservative change (+ "we can design a better solution" when relevant); any design discussion offers BOTH a conservative and an architectural (senior-dev) track and recommends one; "simple/fast fix" → conservative only, "smart fix" → architectural (still product-safe, tested, browser-verified). See `docs/AI_AGENTS.md` §Session strategy.
+- **UI verification in full-auto batches** — any change touching rendered UI is verified against the local demo via Playwright before merge; warmup fallback when no MCP: ask the user to install `playwright-cli` or set it up via `playwright-cli install --skills`. See `docs/AI_AGENTS.md` §UI verification.
 - **Rules apply by default from the moment they are issued** — a directive from the user is in force immediately, without prompting or confirmation; only an explicit deferral of the application date changes that. When timing is genuinely ambiguous the agent may ask, but the recommended default is **apply ASAP**.
 - **Root-cause analysis** — when something goes wrong, fix the root cause, not the symptom (a surface fix repeats). Trace past the surface error to one of: **missing hook** (no trigger/checklist exists — add one), **missing in docs** (knowledge wasn't recorded — write it down), **forgot to search** (add a "check docs" step), **ignored error signal** (tool produced `fatal:` but execution continued — add an "On tool error" hook).
 - **Gaps escalate** — 1st occurrence: document (canonical doc); 2nd: automate (CI check or pre-commit hook); 3rd+: tool config (linter rule, structural guard).

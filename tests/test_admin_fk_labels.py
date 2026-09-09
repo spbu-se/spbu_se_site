@@ -27,6 +27,13 @@ class TestCurrentThesisFkLabels:
             "staff options must be Фамилия И.О. labels"
         )
 
+    def test_duplicate_areas_are_disambiguated(self, admin_client):
+        html = admin_client.get("/admin/currentthesis/new/").get_data(as_text=True)
+        block = _select_block(html, "area_id")
+        assert "Программная инженерия (бак)" in block
+        assert "Программная инженерия (маг)" in block
+        assert "Технологии программирования" in block
+
 
 class TestCurrentThesisStatusSelect:
     def test_status_is_a_select_with_both_choices(self, admin_client):

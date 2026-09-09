@@ -20,6 +20,7 @@ from wtforms import (
 )
 from wtforms.validators import InputRequired
 
+from se_constants import area_display_name
 from se_models import db
 
 
@@ -165,6 +166,9 @@ class CrudView:
         "Фамилия И.О."; lookup tables fall back to their single display column
         (area/type/name/level/…). ``#<id>`` only for rows with no label source.
         """
+        area_val = getattr(row, "area", None)
+        if area_val:
+            return area_display_name(getattr(row, "id", None), str(area_val))
         name = self._fk_row_name(row)
         if name:
             return name
@@ -562,18 +566,22 @@ class CrudView:
     def on_model_change(self, form, model, is_created):
         pass
 
-    def extend_form_choices(self, _col_key, _obj):
+    def extend_form_choices(self, col_key, obj):
         """Return extra ``(value, label)`` pairs to append to a SelectField.
 
         Called per form column during build when an object is being edited;
         lets a view add context-dependent options (e.g. preserve an internal
         state value during edit without offering it for new rows).
         """
+        if col_key is None or obj is None:  # pragma: no cover - both always set
+            return
         return
 
-    def form_change_error(self, _obj, _form):
+    def form_change_error(self, obj, form):
         """Return an error message to block an edit, or ``None`` to allow it.
 
         Runs after validation, before the form is applied to the object.
         """
+        if obj is None or form is None:  # pragma: no cover - both always set
+            return
         return

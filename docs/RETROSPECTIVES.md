@@ -2666,3 +2666,20 @@ the fragmented literals.
 No gaps: scope kept to sets already verified against the PR-A surfaces; reserved-sentinel
 capture deferred to PR-C where the literal fragments are actually being replaced (avoids
 fabricating constants for code paths not yet audited this session). No deviations.
+
+### Retrospective — 2026-09-10: dropdown SSOT refactor + area disambiguation (PR-C)
+
+Single-source refactor over the PR-A/B groundwork: admin diploma/review/current-thesis status
+sets and staff degrees now read from `se_constants`; duplicate-area options render with a
+`(бак)`/`(маг)` disambiguator (`area_display_name`, id-keyed override with stale-name guard)
+across admin FK dropdowns, review forms and practice selects; `id > 1` area sentinel replaced
+by `AREA_DEFAULT_ID`. Debt + decisions recorded (DESIGN_DECISIONS, TODO).
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| User directives (fix-strategy two-track; full-auto Playwright UI-check; warmup `playwright-cli` fallback) were live but not yet mirrored in docs | Deferred encoding from PR-A to keep AGENTS under its bloat guard | Mirrored in `docs/AI_AGENTS.md` §Session strategy / §UI verification with AGENTS retrieval cues — no AGENTS bloat |
+| Practice-admin sidebar area lists still render the plain duplicated names | Scope boundary: object-list navigation, not a dropdown | Recorded as follow-up in DESIGN_DECISIONS consequences |
+| pyright LSP override check vs ruff ARG002 pulled base hook parameter names in opposite directions | Underscore-prefixed base params break override name matching | Base hooks keep public param names and reference them (with a dead-branch guard) — both linters satisfied |
+
+**Deviations (process)**: none. Local full-suite theses flake (6, env-only) verified again on
+this base; CI green authoritative.

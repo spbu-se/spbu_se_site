@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from se_constants import (
+    AREA_PROGRAM_OVERRIDES,
     CURRENT_THESIS_STATUS_OPTIONS,
     DIPLOMA_THEME_ARCHIVED,
     DIPLOMA_THEME_EDITABLE_STATUS_OPTIONS,
     DIPLOMA_THEME_STATUS_OPTIONS,
     REVIEW_DIPLOMA_STATUS_OPTIONS,
     SCIENCE_DEGREE_OPTIONS,
+    area_display_name,
 )
 
 
@@ -58,3 +60,24 @@ class TestImportSafety:
         import se_constants
 
         assert se_constants.DIPLOMA_THEME_ARCHIVED == 3
+
+
+class TestAreaDisplayName:
+    """The seeded duplicate-area pair gets a stable disambiguating suffix."""
+
+    def test_bachelor_and_master_overrides(self):
+        assert area_display_name(3, "Программная инженерия") == "Программная инженерия (бак)"
+        assert area_display_name(7, "Программная инженерия") == "Программная инженерия (маг)"
+
+    def test_unlisted_rows_stay_plain(self):
+        assert area_display_name(2, "Технологии программирования") == "Технологии программирования"
+        assert area_display_name(99, "Новое направление") == "Новое направление"
+
+    def test_stale_override_falls_back_when_name_changed(self):
+        assert area_display_name(3, "Другое имя") == "Другое имя"
+        assert area_display_name(7, None if False else "Переименовано") == "Переименовано"
+
+    def test_override_map_shape_is_valid(self):
+        for area_id, (name, suffix) in AREA_PROGRAM_OVERRIDES.items():
+            assert isinstance(area_id, int)
+            assert name and suffix and name != suffix

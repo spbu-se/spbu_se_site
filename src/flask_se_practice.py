@@ -44,6 +44,7 @@ from flask_se_practice_config import (
     allowed_file,
     get_filename,
 )
+from se_constants import AREA_DEFAULT_ID, area_display_name
 from se_forms import ChooseTopic, CurrentWorktypeArea, UserAddReport
 from se_models import (
     AreasOfStudy,
@@ -144,8 +145,10 @@ def practice_new_thesis():
     form = CurrentWorktypeArea()
     area_choices: list[tuple[int, str]] = [(0, "Выберите направление")]
     area_choices.extend(
-        (area.id, area.area)
-        for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by("id").all()
+        (area.id, area_display_name(area.id, area.area))
+        for area in AreasOfStudy.query.filter(AreasOfStudy.id > AREA_DEFAULT_ID)
+        .order_by("id")
+        .all()
     )
     form.area.choices = area_choices
 
@@ -766,10 +769,15 @@ def practice_data_for_practice(current_thesis):
             return redirect(url_for("practice_index"))
 
     form = CurrentWorktypeArea()
-    area_choices = [(current_thesis.area_id, current_thesis.area.area)]
+    area_choices = [
+        (
+            current_thesis.area_id,
+            area_display_name(current_thesis.area_id, current_thesis.area.area),
+        )
+    ]
     area_choices.extend(
-        (area.id, area.area)
-        for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1)
+        (area.id, area_display_name(area.id, area.area))
+        for area in AreasOfStudy.query.filter(AreasOfStudy.id > AREA_DEFAULT_ID)
         .filter(AreasOfStudy.id != current_thesis.area.id)
         .order_by("id")
         .all()
