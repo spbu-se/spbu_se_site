@@ -5,7 +5,7 @@ import io
 from contextlib import suppress
 from urllib.parse import urlencode
 
-from flask import Response, abort, redirect, render_template, request, url_for
+from flask import Response, abort, flash, redirect, render_template, request, url_for
 from flask_wtf import FlaskForm
 from sqlalchemy import inspect, or_
 from wtforms import (
@@ -140,6 +140,18 @@ class CrudView:
         labels = [(row.id, self._fk_row_label(row)) for row in target.query.all()]
         labels.sort(key=lambda pair: pair[1].lower())
 
+        # Disambiguate duplicate labels (e.g. identical full names in Users) so
+        # every option stays distinguishable; append the account/email qualifier.
+        seen = {}
+        for _, text in labels:
+            seen[text] = seen.get(text, 0) + 1
+        if any(count > 1 for count in seen.values()):
+            qualifiers = {row.id: self._fk_row_qualifier(row) for row in target.query.all()}
+            labels = [
+                (value, f"{text} ({qualifiers[value]})" if seen[text] > 1 else text)
+                for value, text in labels
+            ]
+
         current = getattr(obj, col_key, None) if obj is not None else None
         ids = {pair[0] for pair in labels}
         if current is not None and current not in ids:
@@ -147,20 +159,54 @@ class CrudView:
         return labels
 
     def _fk_row_label(self, row):
-        last = getattr(row, "last_name", None)
-        if last:
-            parts = [last]
-            parts.extend(
-                value[0] + "."
-                for value in (getattr(row, "first_name", None), getattr(row, "middle_name", None))
-                if value
-            )
-            return " ".join(parts)
-        for attr in ("name", "title", "email", "login", "level"):
+        """Human label for an FK target row.
+
+        Name-bearing rows (Users, Staff linked to a Users account) render as
+        "Фамилия И.О."; lookup tables fall back to their single display column
+        (area/type/name/level/…). ``#<id>`` only for rows with no label source.
+        """
+        name = self._fk_row_name(row)
+        if name:
+            return name
+        for attr in (
+            "area",
+            "type",
+            "name",
+            "title",
+            "level",
+            "code",
+            "official_email",
+            "email",
+            "login",
+        ):
             value = getattr(row, attr, None)
             if value:
                 return str(value)
         return f"#{getattr(row, 'id', '?')}"
+
+    def _fk_row_name(self, row):
+        source = row if getattr(row, "last_name", None) else getattr(row, "user", None)
+        if source is None:
+            return None
+        last = getattr(source, "last_name", None)
+        if not last:
+            return None
+        parts = [last]
+        parts.extend(
+            value[0] + "."
+            for value in (getattr(source, "first_name", None), getattr(source, "middle_name", None))
+            if value
+        )
+        return " ".join(parts)
+
+    def _fk_row_qualifier(self, row):
+        """Short account qualifier used when two FK options share a label."""
+        user = getattr(row, "user", None)
+        for attr in ("official_email", "email", "login", "code"):
+            value = getattr(user if user is not None else row, attr, None)
+            if value:
+                return str(value)
+        return f"id {getattr(row, 'id', '?')}"
 
     def _filter_choices(self, col_key):
         choices = None
@@ -294,10 +340,14 @@ class CrudView:
         self.on_form_prefill(obj, obj_id)
         form = self._build_form(obj)
         if form.validate_on_submit():
-            self._populate_obj(obj, form)
-            self.on_model_change(form, obj, False)
-            db.session.commit()
-            return redirect(url_for(f"{self.endpoint}.index_view"))
+            reason = self.form_change_error(obj, form)
+            if reason:
+                flash(reason, "danger")
+            else:
+                self._populate_obj(obj, form)
+                self.on_model_change(form, obj, False)
+                db.session.commit()
+                return redirect(url_for(f"{self.endpoint}.index_view"))
         return render_template(
             "admin/form.html", form=form, endpoint=self.endpoint, name=self.name, is_edit=True
         )
@@ -474,7 +524,16 @@ class CrudView:
         if self.form_widget_args and col_key in self.form_widget_args:
             kwargs["render_kw"] = self.form_widget_args[col_key]
 
+        self._apply_extra_form_choices(kwargs, field_cls, col_key, obj)
+
         return field_cls, kwargs
+
+    def _apply_extra_form_choices(self, kwargs, field_cls, col_key, obj):
+        if obj is None or field_cls is not SelectField:
+            return
+        extra = self.extend_form_choices(col_key, obj)
+        if extra:
+            kwargs["choices"] = [*(kwargs.get("choices") or []), *extra]
 
     def _populate_obj(self, obj, form):
         mapper = inspect(self.model)
@@ -502,3 +561,19 @@ class CrudView:
 
     def on_model_change(self, form, model, is_created):
         pass
+
+    def extend_form_choices(self, _col_key, _obj):
+        """Return extra ``(value, label)`` pairs to append to a SelectField.
+
+        Called per form column during build when an object is being edited;
+        lets a view add context-dependent options (e.g. preserve an internal
+        state value during edit without offering it for new rows).
+        """
+        return
+
+    def form_change_error(self, _obj, _form):
+        """Return an error message to block an edit, or ``None`` to allow it.
+
+        Runs after validation, before the form is applied to the object.
+        """
+        return

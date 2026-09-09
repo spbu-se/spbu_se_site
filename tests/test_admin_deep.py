@@ -29,14 +29,7 @@ class TestAdminDeep:
         "name,path",
         [
             ("users", "/admin/users/"),
-            pytest.param(
-                "staff",
-                "/admin/staff/",
-                marks=pytest.mark.xfail(
-                    strict=True,
-                    reason="Flask-Admin 2.2.0 create_view() cls arg incompatible with Jinja2/Werkzeug",
-                ),
-            ),
+            ("staff", "/admin/staff/"),
             ("thesis", "/admin/thesis/"),
             ("summerschool", "/admin/summerschool/"),
             ("news", "/admin/posts/"),
@@ -51,15 +44,7 @@ class TestAdminDeep:
         "name,path,edit_id",
         [
             ("users", "/admin/users/", 1),
-            pytest.param(
-                "staff",
-                "/admin/staff/",
-                1,
-                marks=pytest.mark.xfail(
-                    strict=True,
-                    reason="Flask-Admin 2.2.0 edit_view() cls arg incompatible with Jinja2/Werkzeug",
-                ),
-            ),
+            ("staff", "/admin/staff/", 1),
             ("diplomathemes", "/admin/diplomathemes/", 1),
             ("currentthesis", "/admin/currentthesis/", 1),
         ],

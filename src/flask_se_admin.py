@@ -145,6 +145,7 @@ class SeAdminModelViewUsers(RestrictedCrudView):
 class SeAdminModelViewStaff(RestrictedCrudView):
     column_list = ("user", "official_email", "position", "science_degree", "still_working")
     form_columns = ("official_email", "position", "science_degree", "still_working")
+    form_overrides = {"science_degree": SelectField}
     form_args = {
         "science_degree": {
             "choices": [
@@ -154,6 +155,7 @@ class SeAdminModelViewStaff(RestrictedCrudView):
                 ("к.ф.-м.н.", "к.ф.-м.н."),
                 ("к.т.н.", "к.т.н."),
             ],
+            "coerce": str,
         },
     }
 
@@ -223,6 +225,7 @@ class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
             (0, "На проверке"),
             (1, "Требуется доработка"),
             (2, "Одобрена"),
+            (3, "В архиве"),
             (4, "Отклонена"),
         ],
     }
@@ -324,6 +327,26 @@ class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
             _theme_reopened(theme)
         db.session.commit()
         return redirect(url_for(f"{self.endpoint}.index_view"))
+
+    def extend_form_choices(self, col_key, obj):
+        """Preserve status 3 (В архиве) as a selectable value while editing an
+        already-archived theme; new/non-archived rows never offer it."""
+        if col_key == "status" and getattr(obj, "status", None) == 3:
+            return [(3, "В архиве")]
+        return None
+
+    def form_change_error(self, obj, form):
+        """Archival transitions belong to the dedicated archive/reopen actions
+        (they own ``prev_status``). The form must never reach or leave status 3."""
+        if not hasattr(form, "status"):
+            return None
+        old = getattr(obj, "status", None)
+        new = form.status.data
+        if old == 3 and new != 3:
+            return "Нельзя снять тему с архива через форму — используйте «Вернуть из архива»."
+        if old != 3 and new == 3:
+            return "Нельзя архивировать тему через форму — используйте «В архив»."
+        return None
 
 
 class SeAdminModelViewReviewDiplomaThemes(CrudView):
@@ -491,3 +514,10 @@ class SeAdminModelViewCurrentThesis(RestrictedCrudView):
         "status": "Статус",
     }
     column_choices = {"status": [(1, "Текущая работа"), (2, "Завершенная работа")]}
+    form_overrides = {"status": SelectField}
+    form_args = {
+        "status": {
+            "choices": [(1, "Текущая работа"), (2, "Завершенная работа")],
+            "coerce": int,
+        },
+    }
