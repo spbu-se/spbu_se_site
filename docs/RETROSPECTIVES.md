@@ -2640,3 +2640,19 @@ host (`~/se-site-backups/pre-lfs-secrets-2026-09-07/`), never pushed. The
 combined migration rewrite resumes only on an explicit maintainer prompt.
 
 **Deviations (process)**: none.
+
+### Retrospective — 2026-09-10: admin FK dropdown labels + diploma/current-thesis status selects (PR-A)
+
+Fix batch for the «научный руководитель» dropdown rendering as `#N`. Root cause: `_fk_row_label`
+fallback list missed domain columns and Staff names live on the linked `Users`, not on Staff.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| WTForms `SelectField` `default` in `form_args` would clobber the stored value on every edit (science_degree, diploma status, current-thesis status) — caught in the design-iteration round before commit | Missing knowledge — kwargs `default` only applies when no object value reaches the field | Never set `default` in `form_args` for obj-backed selects; archived-value preservation solved by appending the option on edit (`extend_form_choices`) |
+| Initially added «В архиве»(3) as a free edit-form choice | Fix scoped to the visible dropdown symptom without tracing the `prev_status` archive invariant | Re-designed to display-only (filter/column) + dynamic option for archived rows + `form_change_error` guard: archive/reopen stay action-owned (`_theme_archived`/`_theme_reopened`); guard tests added |
+| Staff create/edit `xfail(strict)` markers flipped to XPASS-fail once the science_degree SelectField fix made the views actually work | xfail-drift pattern | Un-xfailed the staff params in `test_admin_deep.py` after live 200-verification |
+| 6 `test_theses_deep` failures on the local full suite (`-n 0`, 'Invalid secret key') | Local-vs-CI divergence — reproduce identically with src stashed on pristine `de462f9`; upstream CI green at the same SHA (documented conftest two-instance quirk) | Verified not branch-caused by stash test; rely on CI as authoritative, do not block |
+
+**Deviations (process)**: none. Deferred: encode the session's user imperatives (conservative-vs-smart
+two-track fix strategy; full-auto Playwright UI-check discipline; warmup `playwright-cli` fallback)
+into AGENTS + canonical docs with the PR-B/PR-C doc batch rather than growing AGENTS past its bloat guard here.
