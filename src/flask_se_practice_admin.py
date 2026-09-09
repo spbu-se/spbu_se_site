@@ -43,6 +43,7 @@ from flask_se_practice_config import (
 )
 from flask_se_practice_table import edit_table
 from flask_se_practice_yandex_disk import handle_yandex_table, yandex_code
+from se_constants import AREA_DEFAULT_ID
 from se_forms import ChooseCourseAndYear
 from se_models import (
     AreasOfStudy,
@@ -214,7 +215,9 @@ def index_admin():
                 )
                 return redirect(url_for("index_admin", area_id=area.id, worktype_id=worktype.id))
 
-    list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
+    list_of_areas = (
+        AreasOfStudy.query.filter(AreasOfStudy.id > AREA_DEFAULT_ID).order_by(AreasOfStudy.id).all()
+    )
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     list_of_thesises = (
         CurrentThesis.query.filter_by(area_id=area_id)
@@ -337,7 +340,9 @@ def thesis_admin():
             current_thesis.status = 1
             db.session.commit()
 
-    list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
+    list_of_areas = (
+        AreasOfStudy.query.filter(AreasOfStudy.id > AREA_DEFAULT_ID).order_by(AreasOfStudy.id).all()
+    )
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     not_deleted_tasks = [task for task in current_thesis.tasks if not task.deleted]
     session["previous_page"] = PracticeAdminPage.THESIS.value
@@ -496,7 +501,9 @@ def archive_thesis():
         flash("Работа перенесена в архив!", category="success")
         return redirect(url_for("thesis_admin", id=current_thesis.id))
 
-    list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
+    list_of_areas = (
+        AreasOfStudy.query.filter(AreasOfStudy.id > AREA_DEFAULT_ID).order_by(AreasOfStudy.id).all()
+    )
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     course_and_year_form = ChooseCourseAndYear()
     course_choices: list[tuple[int, str]] = [(0, "Выберите направление")]
@@ -531,7 +538,9 @@ def finished_thesises_admin():
         .all()
     )
 
-    list_of_areas = AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by(AreasOfStudy.id).all()
+    list_of_areas = (
+        AreasOfStudy.query.filter(AreasOfStudy.id > AREA_DEFAULT_ID).order_by(AreasOfStudy.id).all()
+    )
     list_of_work_types = Worktype.query.filter(Worktype.id > 2).all()
     session["previous_page"] = PracticeAdminPage.FINISHED_THESISES.value
     return render_template(

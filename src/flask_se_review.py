@@ -11,6 +11,7 @@ from transliterate import translit
 
 from flask_se_auth import login_required
 from flask_se_config import get_thesis_type_id_string, secure_filename
+from se_constants import AREA_DEFAULT_ID, area_display_name
 from se_forms import AddThesisOnReview, EditThesisOnReview, ThesisReviewFilter
 from se_models import (
     AreasOfStudy,
@@ -93,7 +94,10 @@ def thesis_review_index():
     )  # pyright: ignore[reportAttributeAccessIssue]
 
     form.areasofstudy.choices = sorted(
-        [(area.id, area.area) for area in AreasOfStudy.query.distinct().all()],
+        [
+            (area.id, area_display_name(area.id, area.area))
+            for area in AreasOfStudy.query.distinct().all()
+        ],
         key=lambda tup: tup[0],
     )  # pyright: ignore[reportAttributeAccessIssue]
 
@@ -211,8 +215,8 @@ def submit_thesis_on_review():
 
     area_choices = [(0, "Направление обучения")]
     area_choices += [
-        (area.id, area.area)
-        for area in AreasOfStudy.query.filter(AreasOfStudy.id > 1).distinct().all()
+        (area.id, area_display_name(area.id, area.area))
+        for area in AreasOfStudy.query.filter(AreasOfStudy.id > AREA_DEFAULT_ID).distinct().all()
     ]
     area_choices.sort(key=lambda tup: tup[0])
     form.area.choices = area_choices  # pyright: ignore[reportAttributeAccessIssue]
@@ -320,7 +324,8 @@ def edit_thesis_on_review():
         for g in ThesisOnReviewWorktype.query.filter(ThesisOnReviewWorktype.id > 1).order_by("id")
     ]
     edit_thesis_onreview.area.choices = [
-        (g.id, g.area) for g in AreasOfStudy.query.filter(AreasOfStudy.id > 1).order_by("id")
+        (g.id, area_display_name(g.id, g.area))
+        for g in AreasOfStudy.query.filter(AreasOfStudy.id > AREA_DEFAULT_ID).order_by("id")
     ]
 
     edit_thesis_onreview.type.default = int(thesis_review.thesis_on_review_type_id)

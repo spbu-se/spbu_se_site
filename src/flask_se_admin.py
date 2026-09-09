@@ -5,6 +5,15 @@ from flask_login import current_user
 from wtforms import SelectField, TextAreaField
 
 from flask_se_crud import CrudView
+from se_constants import (
+    CURRENT_THESIS_STATUS_OPTIONS,
+    DIPLOMA_THEME_ARCHIVED,
+    DIPLOMA_THEME_EDITABLE_STATUS_OPTIONS,
+    DIPLOMA_THEME_STATUS_OPTIONS,
+    REVIEW_DIPLOMA_OPEN_STATUS_OPTIONS,
+    REVIEW_DIPLOMA_STATUS_OPTIONS,
+    SCIENCE_DEGREE_OPTIONS,
+)
 from se_models import (
     DiplomaThemes,
     Reviewer,
@@ -148,13 +157,7 @@ class SeAdminModelViewStaff(RestrictedCrudView):
     form_overrides = {"science_degree": SelectField}
     form_args = {
         "science_degree": {
-            "choices": [
-                ("", ""),
-                ("д.ф.-м.н.", "д.ф.-м.н."),
-                ("д.т.н.", "д.т.н."),
-                ("к.ф.-м.н.", "к.ф.-м.н."),
-                ("к.т.н.", "к.т.н."),
-            ],
+            "choices": [("", ""), *((d, d) for d in SCIENCE_DEGREE_OPTIONS)],
             "coerce": str,
         },
     }
@@ -198,15 +201,7 @@ class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
     form_exclude_columns = ("prev_status",)
     form_multi_select_relationships = ("levels",)
     list_filter_columns = ("status",)
-    list_filter_choices = {
-        "status": [
-            (0, "На проверке"),
-            (1, "Требуется доработка"),
-            (2, "Одобрена"),
-            (3, "В архиве"),
-            (4, "Отклонена"),
-        ],
-    }
+    list_filter_choices = {"status": list(DIPLOMA_THEME_STATUS_OPTIONS)}
     column_labels = {
         "supervisor_thesis": "Научный руководитель ВКР",
         "supervisor": "Научный руководитель учебных практик",
@@ -220,15 +215,7 @@ class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
         "consultant": "Консультант",
         "author": "Автор темы (кто предложил)",
     }
-    column_choices = {
-        "status": [
-            (0, "На проверке"),
-            (1, "Требуется доработка"),
-            (2, "Одобрена"),
-            (3, "В архиве"),
-            (4, "Отклонена"),
-        ],
-    }
+    column_choices = {"status": list(DIPLOMA_THEME_STATUS_OPTIONS)}
     form_overrides = {
         "description": TextAreaField,
         "requirements": TextAreaField,
@@ -237,12 +224,7 @@ class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
     }
     form_args = {
         "status": {
-            "choices": [
-                (0, "На проверке"),
-                (1, "Требуется доработка"),
-                (2, "Одобрена"),
-                (4, "Отклонена"),
-            ],
+            "choices": list(DIPLOMA_THEME_EDITABLE_STATUS_OPTIONS),
             "coerce": int,
         },
     }
@@ -329,22 +311,25 @@ class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
         return redirect(url_for(f"{self.endpoint}.index_view"))
 
     def extend_form_choices(self, col_key, obj):
-        """Preserve status 3 (В архиве) as a selectable value while editing an
-        already-archived theme; new/non-archived rows never offer it."""
-        if col_key == "status" and getattr(obj, "status", None) == 3:
-            return [(3, "В архиве")]
+        """Preserve the archive status while editing an already-archived
+        theme; new/non-archived rows never offer it."""
+        if col_key == "status" and getattr(obj, "status", None) == DIPLOMA_THEME_ARCHIVED:
+            return [
+                (DIPLOMA_THEME_ARCHIVED, dict(DIPLOMA_THEME_STATUS_OPTIONS)[DIPLOMA_THEME_ARCHIVED])
+            ]
         return None
 
     def form_change_error(self, obj, form):
         """Archival transitions belong to the dedicated archive/reopen actions
-        (they own ``prev_status``). The form must never reach or leave status 3."""
+        (they own ``prev_status``). The form must never reach or leave the
+        archive status."""
         if not hasattr(form, "status"):
             return None
         old = getattr(obj, "status", None)
         new = form.status.data
-        if old == 3 and new != 3:
+        if old == DIPLOMA_THEME_ARCHIVED and new != DIPLOMA_THEME_ARCHIVED:
             return "Нельзя снять тему с архива через форму — используйте «Вернуть из архива»."
-        if old != 3 and new == 3:
+        if old != DIPLOMA_THEME_ARCHIVED and new == DIPLOMA_THEME_ARCHIVED:
             return "Нельзя архивировать тему через форму — используйте «В архив»."
         return None
 
@@ -357,7 +342,7 @@ class SeAdminModelViewReviewDiplomaThemes(CrudView):
     form_exclude_columns = ("prev_status",)
     search_fields = ("title", "description", "requirements")
     list_filter_columns = ("status",)
-    list_filter_choices = {"status": [(0, "На проверке"), (1, "Требуется доработка")]}
+    list_filter_choices = {"status": list(REVIEW_DIPLOMA_OPEN_STATUS_OPTIONS)}
     column_list = ("status", "comment", "title", "description", "requirements", "levels", "company")
     column_labels = {
         "comment": "Комментарий (что нужно исправить, если требуется доработка, или почему тема отклонена)",
@@ -377,7 +362,7 @@ class SeAdminModelViewReviewDiplomaThemes(CrudView):
         "supervisor_thesis_id": "Научный руководитель ВКР",
         "company_id": "Кто представляет тему",
     }
-    column_choices = {"status": [(0, "На проверке"), (1, "Требуется доработка"), (2, "Одобрена")]}
+    column_choices = {"status": list(REVIEW_DIPLOMA_STATUS_OPTIONS)}
     form_overrides = {
         "description": TextAreaField,
         "requirements": TextAreaField,
@@ -386,12 +371,7 @@ class SeAdminModelViewReviewDiplomaThemes(CrudView):
     }
     form_args = {
         "status": {
-            "choices": [
-                (0, "На проверке"),
-                (1, "Требуется доработка"),
-                (2, "Одобрена"),
-                (4, "Отклонена"),
-            ],
+            "choices": list(DIPLOMA_THEME_EDITABLE_STATUS_OPTIONS),
             "coerce": int,
         },
     }
@@ -513,11 +493,11 @@ class SeAdminModelViewCurrentThesis(RestrictedCrudView):
         "deleted": "Удалена",
         "status": "Статус",
     }
-    column_choices = {"status": [(1, "Текущая работа"), (2, "Завершенная работа")]}
+    column_choices = {"status": list(CURRENT_THESIS_STATUS_OPTIONS)}
     form_overrides = {"status": SelectField}
     form_args = {
         "status": {
-            "choices": [(1, "Текущая работа"), (2, "Завершенная работа")],
+            "choices": list(CURRENT_THESIS_STATUS_OPTIONS),
             "coerce": int,
         },
     }

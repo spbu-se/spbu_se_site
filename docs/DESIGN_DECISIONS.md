@@ -487,3 +487,21 @@ in-script encoding; vendored third-party files stay untouched.
 discipline)" section with the repeatable command and triage rules; guardrail
 test now catches spaced/standalone `safe`; retro entry added (2026-09-07,
 PR #303/#305).
+
+## [2026-09-10] Duplicate-area disambiguation is display-only (code-level), DB untouched
+
+**Context**: two seeded `AreasOfStudy` rows share the name "Программная инженерия"
+(bachelor/master), so every area dropdown shows two identical options. Rather than
+normalize the data, display is disambiguated in code: `se_constants.AREA_PROGRAM_OVERRIDES`
+maps ids `3`/`7` to suffixes `(бак)`/`(маг)`, applied by `area_display_name()` in every
+area-option builder (admin CRUD FK dropdowns, review submit/edit forms, practice selects)
+and by the CRUD FK labeler. No DB writes, ids and FKs untouched, other rows unaffected.
+
+**Rationale**: a safe additive migration was deferred ("not touching existing data");
+the id-keyed override is applied only while the row still carries the expected plain name
+(stale-mapping guard), falling back to plain/generic disambiguation otherwise.
+
+**Consequences / tech debt**: code-level override for a data-modeling defect. Normalize
+later via an additive `AreasOfStudy.code` column (backfill the two rows) or a reviewed row
+merge; `area_display_name()` then degenerates to the plain label and the override map is
+deleted. Nav-sidebar area lists in practice-admin still render plain names (follow-up).

@@ -302,3 +302,24 @@ Proposal format:
 1. **Alternative** — a simpler approach without a new tool
 
 The user decides whether to adopt. No tool is added without approval.
+
+## Session strategy and UI verification discipline
+
+### Fix vs design strategy (user directive 2026-09-10)
+
+- **Fix-only work** → the safe conservative change: smallest diff, lowest regression
+  risk, verified; when a cleaner design exists, say "we can design a better solution".
+- **In any design discussion** → always offer two tracks and recommend one:
+  (1) **conservative** — minimal, fast, low regression surface; (2) **senior-dev /
+  architectural** — structural (SSOT, invariants at the data boundary), product-safe,
+  with tests and browser verification. Never present a single biased option.
+- **"Simple/fast fix"** → conservative only. **"Smart fix"/"go smart"** → the
+  architectural track (may carry technical debt notes to be documented).
+
+### UI verification in full-auto batches (user directive 2026-09-10)
+
+- Any change that touches rendered UI must be verified against the **local demo**
+  via **Playwright** before merge (quality-management discipline).
+- Session warmup: if Playwright would help and no MCP is configured, **ask the user to
+  install `playwright-cli`** (or set it up locally and learn it via
+  `playwright-cli install --skills` / `playwright-cli --help`) — never proceed UI-blind.
