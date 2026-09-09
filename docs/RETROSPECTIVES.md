@@ -2610,3 +2610,33 @@ for upload.py token; history-rewrite decisions deferred to the user per the
 "report first, decide after" protocol.
 
 **Deviations (process)**: none.
+
+### Retrospective — 2026-09-08 (chore/lfs-rewrite-prep): repo prep for combined LFS migration + history rewrite
+
+Prep only — **the LFS-with-rewrite migration is deferred** (no `lfs migrate`,
+no filter-repo, no force-push; existing binaries stay plain blobs). Scope:
+(1) `.gitattributes` adds path-scoped Git LFS for `src/static/thesis/**` and
+`src/static/files/**` (thesis PDFs/PPTs/reviews, PracticesGuide.pdf). No
+extension wildcards; vendored libs, `*.min.*` artifacts, and small images
+stay plain blobs. Merging this makes the repo LFS-*capable* for NEW files
+under those paths; CI intentionally untouched (no job reads the LFS binaries).
+(2) `extra/deploy.sh` (prod webhook example) hardened to survive a published-
+history rewrite: the unconditional `git rebase origin/current` is replaced by
+an ancestry check — normal fast-forward deploys keep the rebase path; on
+divergence (rewrite detected) it resets to `origin/current` and gc-prunes the
+superseded pre-rewrite objects. Fetch now uses `--tags --force` (force-moved
+release tags) and LFS is enabled (`git lfs install --local` + `git lfs fetch`)
+before checkout so prod materializes content, not pointers. Ops confirmed:
+git-lfs installed on the deploy host, no local commits ever live on the server
+(hard reset safe), no other constraints. (3) README: `git-lfs` prerequisite,
+`git lfs install` in Setup with a `git lfs pull` note for pre-LFS clones, and
+Docker quickstart LFS note. (4) Dockerfile: base image `python:3.9-slim` →
+`python:3.12-slim` (CI already proves 3.12) plus a build-time guard that
+fails loudly if LFS pointers were copied into the image instead of content.
+(5) AGENTS: Git LFS `Environment quirks` bullet (fresh-clone cue, closes the
+first-run docs drift; TOOLING/DEVELOPMENT_PROCESS audited clean — no edit).
+A local pre-rewrite archive (xz) + manifest + checksum is kept on the build
+host (`~/se-site-backups/pre-lfs-secrets-2026-09-07/`), never pushed. The
+combined migration rewrite resumes only on an explicit maintainer prompt.
+
+**Deviations (process)**: none.

@@ -16,10 +16,14 @@
 - Python 3.9+ (production via pip), 3.13 (development via uv)
 - SQLite (zero-config)
 - uv (for development)
+- git-lfs (materializes LFS-tracked binaries, see Setup below)
 
 ## Setup
 
 ```bash
+# Once per machine: configure Git LFS (smudge/filter drivers)
+git lfs install
+
 git clone <repo-url>
 cd spbu_se_site
 
@@ -33,6 +37,10 @@ uv sync
 uv run python src/flask_se.py init
 uv run python src/flask_se.py
 ```
+
+LFS-tracked files (`src/static/thesis/**`, `src/static/files/**`) materialize
+automatically on clone/checkout via the `git lfs install` filter. If you
+cloned before enabling LFS, run `git lfs pull` once to fetch them.
 
 The site runs at `http://127.0.0.1:5000`.
 
@@ -86,11 +94,14 @@ Production uses `current` branch with uWSGI behind nginx.
 ### Docker quickstart
 
 ```bash
+git lfs install && git lfs pull   # materialize LFS-tracked content first
 docker compose up --build
 ```
 
 The entrypoint (`docker/entrypoint.sh`) initializes the SQLite database
-automatically on first boot, so no manual `cp`/`init` step is needed.
+automatically on first boot, so no manual `cp`/`init` step is needed. The
+build copies the local checkout into the image and fails loudly if LFS-tracked
+files (`src/static/thesis/**`, `src/static/files/**`) are still pointers.
 
 ## Релизы
 

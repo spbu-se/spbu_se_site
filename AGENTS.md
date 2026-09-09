@@ -99,6 +99,7 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 ## Environment quirks
 
 - **Main branch**: `current` (not `main`)
+- **Git LFS** — `src/static/thesis/**` and `src/static/files/**` are LFS-tracked: a fresh clone needs `git lfs install` (+ `git lfs pull` for pre-LFS clones) or those files check out as pointers. Without it, local demo/docker builds silently lack thesis PDFs/PPTs/PracticesGuide. See README §Setup.
 - **Config files** (never committed): `flask_se_secret.conf`, `flask_se_mail.conf`, `flask_se_practice_yandex_secret.conf`, `flask_se_vk_secret.conf`, `flask_se_thesis.conf`
 - **requirements.txt is a prod + serviceability artifact only** — dev/test tooling runs on `uv` (`ci.yml`, `ci-staging.yml` use `uv sync`; only `serviceability.yml` pip-installs `requirements.txt` to prove the prod file works, and the prod Docker/webhook path uses it). Dev dependencies (pytest, ruff, playwright, …) live **only in uv's dev group**, never in `requirements.txt`. Regenerate (`uv export --no-dev --no-hashes`) only when the *runtime* set in `uv.lock` changes, not for dev-only bumps. See `docs/TOOLING.md` §Universal lockfile resolution.
 - **Line endings** — `.gitattributes` normalizes all text to LF (`* text=auto eol=lf`), so checkouts are LF on Windows too; mdformat behaves identically locally and in CI
