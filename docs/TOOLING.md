@@ -4,6 +4,8 @@
 
 Covers: portable cross-platform tool patterns (uv, pytest, SQLAlchemy, pre-commit, GitHub CLI, PowerShell, Python, Ruff, etc.). Does not cover: host-local quirks — see `.tooling.md`.
 
+MCP/agent-tool selection and security policy live in `docs/MCP.md`; this doc covers only the mechanics of the CLIs it references.
+
 ## uv
 
 ### Universal lockfile resolution

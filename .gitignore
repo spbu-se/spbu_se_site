@@ -156,3 +156,7 @@ _flask_freezed/
 
 # Local SQLite development database
 .local_development.db
+
+# AI-agent browser artifacts (see docs/MCP.md)
+.playwright-mcp/
+.playwright-cli/
