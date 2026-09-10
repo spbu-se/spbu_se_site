@@ -64,8 +64,9 @@ See `docs/QUALITY_MANAGEMENT.md §6` for interpretation thresholds.
 Three tiers of quality, from local convenience to production gate. Full mechanics in `docs/DEVELOPMENT_PROCESS.md §0.6`; tier rationale in `docs/QUALITY_MANAGEMENT.md §2`.
 
 - **Pre-commit** (fast, ~1s, changed files only): runs on `git commit`, auto-fixes formatting. Not a quality gate — local commits can be imperfect; `git commit --no-verify` is acceptable if a hook genuinely blocks you for a non-formatting reason.
-- **Pre-push** (strict, all files, fail-fast): runs on `git push`. Checks in order: requirements format → actionlint → `uv lock --check` → format + lint (mdformat, ruff format `--check`, ruff check on `src/ tests/`, pylint similarities, vulture, asset-pipeline guard — via `scripts/pre_push_checks.py`) → basedpyright. Failure at any step aborts. This is the real local quality gate.
+- **Pre-push** (strict, all files, fail-fast): runs on `git push`. Checks in order: actionlint → `uv lock --check` → format + lint (mdformat, ruff format `--check`, ruff check on `src/ tests/`, pylint similarities, vulture, asset-pipeline guard — via `scripts/pre_push_checks.py`) → basedpyright. Failure at any step aborts. This is the real local quality gate.
 - **CI** (async, ~10min): pytest runs on CI, not pre-push. See `docs/AI_AGENTS.md` §CI discipline for when to check.
+- **Security first** — security outranks features: triage GitHub alerts (Dependabot / code scanning / secret scanning) in a **dedicated PR** (never bundled with a feature or cleanup), and land security cleanup **before** any release. Release gate: `docs/RELEASE_CHECKLIST.md` B4; workflow: `docs/DEVELOPMENT_PROCESS.md §4.6`.
 
 Before every `git push`, verify locally — the pre-push hook is **cross-platform** (runs identically on Linux and PowerShell/Windows): `uv run pre-commit run --all-files --hook-stage pre-push` and fix any failures.
 

@@ -81,6 +81,28 @@ def _safe_extension(filename: str | None) -> str:
     return ""
 
 
+class _UnsafeUploadPathError(ValueError):
+    """An upload path component is invalid or escapes the upload root."""
+
+
+def _safe_upload_path(*parts: str) -> str:
+    """Join components under ``THESIS_UPLOAD_ROOT``, rejecting path traversal.
+
+    ``secure_filename``/``_safe_extension`` already strip separators, but CodeQL
+    does not model them as sanitizers. This explicit containment check is both a
+    hard guarantee and a static-analysis-recognizable sanitizer: every component
+    must be a bare basename and the resolved target must stay under the root.
+    """
+    root = os.path.realpath(THESIS_UPLOAD_ROOT)
+    for part in parts:
+        if not part or part in {".", ".."} or part != os.path.basename(part):
+            raise _UnsafeUploadPathError
+    target = os.path.realpath(os.path.join(root, *parts))
+    if target != root and not target.startswith(root + os.sep):
+        raise _UnsafeUploadPathError
+    return target
+
+
 def _safe_uri(uri: str | None) -> bool:
     """True if a stored file URI is a plain filename (no path separators)."""
     if not uri:
@@ -471,9 +493,9 @@ def post_theses():
         return jsonify(status=error_status, string="Work already exists: " + str(thesis_filename))
 
     # Save file to TMP
-    thesis_text.save(os.path.join(THESIS_UPLOAD_ROOT, "texts", thesis_filename))
+    thesis_text.save(_safe_upload_path("texts", thesis_filename))
 
-    text = get_text(os.path.join(THESIS_UPLOAD_ROOT, "texts", thesis_filename))
+    text = get_text(_safe_upload_path("texts", thesis_filename))
 
     if presentation:
         presentation_filename = author_en
@@ -482,7 +504,7 @@ def post_theses():
 
         presentation_filename = presentation_filename + _safe_extension(presentation.filename)
 
-        presentation.save(os.path.join(THESIS_UPLOAD_ROOT, "slides", presentation_filename))
+        presentation.save(_safe_upload_path("slides", presentation_filename))
 
     if supervisor_review:
         supervisor_review_filename = author_en
@@ -495,9 +517,7 @@ def post_theses():
             supervisor_review.filename,
         )
 
-        supervisor_review.save(
-            os.path.join(THESIS_UPLOAD_ROOT, "reviews", supervisor_review_filename)
-        )
+        supervisor_review.save(_safe_upload_path("reviews", supervisor_review_filename))
 
     if reviewer_review:
         reviewer_review_filename = author_en
@@ -510,7 +530,7 @@ def post_theses():
             reviewer_review.filename,
         )
 
-        reviewer_review.save(os.path.join(THESIS_UPLOAD_ROOT, "reviews", reviewer_review_filename))
+        reviewer_review.save(_safe_upload_path("reviews", reviewer_review_filename))
 
     if source_uri:
         t = Thesis(
