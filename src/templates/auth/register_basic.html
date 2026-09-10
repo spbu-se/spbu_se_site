@@ -117,6 +117,14 @@
                   </label>
                 </div>
               </div>
+              {% if se_smartcaptcha_enabled %}
+                <div class="form-group">
+                  <div class="smart-captcha" data-sitekey="{{ se_smartcaptcha_sitekey }}"></div>
+                </div>
+                <script src="https://smartcaptcha.yandexcloud.net/captcha.js"
+                        defer
+                        nonce="{{ csp_nonce() }}"></script>
+              {% endif %}
               <div class="mt-4">
                 <button type="submit"
                         id="register-submit"

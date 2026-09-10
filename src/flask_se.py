@@ -47,6 +47,8 @@ from flask_se_config import (
     maps_config,
     metrica_id,
     site_deploy_date,
+    smartcaptcha_enabled,
+    smartcaptcha_sitekey,
 )
 from flask_se_csp_report import register_csp_report
 from flask_se_diplomas import register_routes as register_diplomas_routes
@@ -239,6 +241,8 @@ def _init_extensions(app: Flask) -> None:
             "se_consent_categories": se_consent_categories,
             "se_consent_granted": se_consent_granted,
             "se_consent_decided": bool(raw_consent),
+            "se_smartcaptcha_enabled": smartcaptcha_enabled(),
+            "se_smartcaptcha_sitekey": smartcaptcha_sitekey(),
             "csp_nonce": lambda: g.csp_nonce,
         }
 
