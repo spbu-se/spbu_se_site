@@ -48,7 +48,7 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 ### CSP + security headers — shipped 2026-08-20 (`feat/security-headers`), strict nonce-CSP follow-up shipped 2026-08-22 (`feat/strict-nonce-csp`)
 
 **Context**: no security headers anywhere today (no Flask `after_request`, none in
-`nginx/default.conf.template`). Prod = Docker nginx → uWSGI. 15 templates carry
+`nginx/default.conf.template`). Prod = nginx → gunicorn. 15 templates carry
 inline `<script>` (`feather.replace`, SimpleMDE init, auth/practice
 JS) + 3 with inline `<style>`; external resources from `topbar.spbu.ru`
 (removed v2026.08.31 — loader.js returns HTTP 410 Gone), the

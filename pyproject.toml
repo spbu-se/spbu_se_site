@@ -2,7 +2,7 @@
 name = "se-site"
 version = "0.1.0"
 description = "SPbSU System Programming Department website"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
     "beautifulsoup4~=4.15.0",
     "CacheControl==0.14.4",

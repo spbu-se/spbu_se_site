@@ -176,10 +176,10 @@ Home (/)
 
 ## 5. Deployment
 
-- **Web server**: nginx (reverse proxy) -> uWSGI -> Flask
-- **Application server**: uWSGI (4 processes, 2 threads, socket :8080)
+- **Web server**: nginx (reverse proxy) -> gunicorn -> Flask
+- **Application server**: gunicorn (`wsgi:app`, bound `127.0.0.1:4545` per `extra/systemd-unit.service`)
 - **Database**: SQLite (`se.db`)
 - **Static content**: served directly by nginx
 - **Static site generation**: Frozen-Flask for full static export
-- **Containerization**: Docker (Flask container + nginx container)
+- **Deployment**: uv-managed venv (`uv sync --frozen --no-dev`) + systemd unit + CD webhook (`extra/deploy.sh`)
 - **File storage**: Local filesystem under `src/static/`

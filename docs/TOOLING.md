@@ -10,19 +10,7 @@ MCP/agent-tool selection and security policy live in `docs/MCP.md`; this doc cov
 
 ### Universal lockfile resolution
 
-`uv lock` resolves for ALL platforms by default. If a dependency is source-only and can't build on one platform, `uv lock` fails even with platform markers. **Remove such deps from pyproject.toml entirely** and install separately (e.g., in Dockerfile).
-
-### Cross-platform export differences
-
-`uv export` output differs between platforms — wheel comment hashes for platform-specific packages (e.g., `msgpack`, `cachecontrol`) vary. CI checks that `diff` the exported output against a committed file are inherently fragile.
-
-### Windows PowerShell encoding trap
-
-`uv export > requirements.txt` in PowerShell defaults to UTF-16 LE encoding, corrupting the file for pip. Always use:
-
-```powershell
-uv export --no-dev --no-hashes --format requirements-txt 2>$null | Set-Content requirements.txt -Encoding utf8
-```
+`uv lock` resolves for ALL platforms by default. If a dependency is source-only and can't build on one platform, `uv lock` fails even with platform markers. **Remove such deps from pyproject.toml entirely** and install separately (keep them out of the locked project deps).
 
 ### Build artifacts
 
@@ -63,7 +51,7 @@ uv run pre-commit install --install-hooks
 
 **When:** `uwsgi` is in `pyproject.toml` dependencies on Windows.
 **Cause:** uWSGI is source-only, uses Unix-only `os.uname()`.
-**Fix:** Remove from pyproject; install via `RUN pip install uwsgi` in Dockerfile only.
+**Fix:** Keep source-only, Unix-only tools out of `pyproject.toml`; prod uses `gunicorn` (a normal dependency), so no separate install is needed.
 
 ## pytest + SQLAlchemy
 
@@ -80,10 +68,9 @@ Prefer `config_overrides` over patching `flask_se_config` module globals. The on
 
 ### Auto-migrate on boot (`SE_AUTO_MIGRATE`)
 
-Schema self-heal runs in **two** places so model↔DB drift can never surface as `no such column` 500s:
+Schema self-heal runs at **app boot** so model↔DB drift can never surface as `no such column` 500s:
 
-1. **App boot** — `flask_se.py` calls `ensure_schema()` at import (after `app = create_app()`) when `SE_AUTO_MIGRATE != "0"`. Wrapped in `try/except` so a failure (e.g. SQLite `database is locked` from concurrent gunicorn worker boots) logs and continues instead of crashing the worker. This is the **primary** mechanism and is deploy-agnostic — it runs whether production is webhook-driven, Docker, or bare uWSGI.
-1. **`docker/entrypoint.sh`** — runs `python flask_se.py migrate` on boot (default on; set `SE_AUTO_MIGRATE=0` in compose to opt out and run the same command manually).
+1. **App boot** — `flask_se.py` calls `ensure_schema()` at import (after `app = create_app()`) when `SE_AUTO_MIGRATE != "0"`. Wrapped in `try/except` so a failure (e.g. SQLite `database is locked` from concurrent gunicorn worker boots) logs and continues instead of crashing the worker. It is deploy-agnostic — it runs whether production is webhook-driven or bare.
 
 `ensure_schema()` is also reachable as `python flask_se.py migrate`, and a **`flask db` CLI group** (`flask db upgrade` / `migrate` / `revision`) delegates to it — the production deploy webhook historically invoked `flask db <subcommand>` (Flask-Migrate convention), and that command failed with "No such command 'db'" after Alembic was removed (2026-08-25 incident: 15h outage because the migration step silently no-op'd). The CLI group keeps legacy webhook commands working.
 
@@ -461,7 +448,7 @@ Importing from `pip._vendor` is fragile — it depends on pip being installed an
 
 ### Generated artifact diff fragility
 
-`diff` on generated files (requirements.txt, lockfiles) across platforms is unreliable. Comments and platform-specific hashes differ. Prefer CI checks that tolerate minor variations, or run the generation step in CI to verify consistency.
+`diff` on generated lockfiles across platforms is unreliable. Comments and platform-specific hashes differ. Prefer CI checks that tolerate minor variations, or run the generation step in CI to verify consistency.
 
 ### Coverage exclusions
 
@@ -569,24 +556,18 @@ Prefer the dedicated `read`/`grep` tools (they decode UTF-8 correctly) for real 
 
 `$(command)` in PowerShell captures stdout as an **array of strings** (one per line). When passed to a function expecting a `string` (like `WriteAllText`), PowerShell joins the array with **spaces** — collapsing all lines into one.
 
-This corrupts files like `requirements.txt` that must retain line breaks:
+This corrupts any generated file whose content must retain line breaks:
 
 ```powershell
 # WRONG — collapses to single line
-[System.IO.File]::WriteAllText("requirements.txt", $(uv export --no-dev --no-hashes), [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText("out.txt", $(some-command), [System.Text.UTF8Encoding]::new($false))
 
 # CORRECT — capture as array, join explicitly
-$lines = uv export --no-dev --no-hashes 2>($null)
-[System.IO.File]::WriteAllText("requirements.txt", ($lines -join "`r`n"), [System.Text.UTF8Encoding]::new($false))
+$lines = some-command 2>($null)
+[System.IO.File]::WriteAllText("out.txt", ($lines -join "`r`n"), [System.Text.UTF8Encoding]::new($false))
 ```
 
 This quirk does NOT apply when the output is a single line (no `\n` in the captured text). Always verify multi-line output with `($content).GetType()` before passing to a string parameter.
-
-### pip install: "UnicodeDecodeError: 'utf-16-le'"
-
-**When:** `pip install -r requirements.txt` on Linux CI.
-**Cause:** `requirements.txt` written with UTF-8 BOM on Windows.
-**Fix:** Use `[System.IO.File]::WriteAllText()` with `UTF8Encoding($false)` to omit BOM.
 
 ### mdformat doesn't show file path on UnicodeDecodeError
 
@@ -617,7 +598,6 @@ See `docs/QUALITY_MANAGEMENT.md` for quality philosophy and policy.
 | `djlint` | HTML/Jinja formatter | Pre-commit | `--reformat` | ✅ |
 | `commitlint` | Commit message format | Pre-commit (commit-msg stage) | Conventional commits | ✅ |
 | `actionlint` | GHA workflow validator | Pre-push | Default config | ✅ |
-| `packaging.Requirement` | requirements.txt syntax validation | Pre-push | `encoding='utf-8-sig'`, skip `-e` lines | ✅ |
 | `uv lock --check` | Lockfile consistency | Pre-push | Default | ✅ |
 | `pytest` | Test suite | CI | `-n auto` (xdist) | ✅ |
 | `coverage` | Code coverage | CI (via pytest) | `--cov=src --cov-fail-under=80` | ✅ |

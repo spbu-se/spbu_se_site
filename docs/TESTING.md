@@ -92,7 +92,7 @@ uv run pytest e2e -m e2e --no-cov -n 0
 ```
 
 Runs on CI only in the path-filtered `e2e` job (`ci.yml`), never in the
-`test`/serviceability jobs.
+`test` job.
 
 ## 4. xfail Policy
 

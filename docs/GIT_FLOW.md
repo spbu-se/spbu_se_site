@@ -293,12 +293,12 @@ gh run watch <run-id>
 
 ### 8.3 Pre-merge refresh
 
-**Why**: `requirements.txt` is the production install source — if it doesn't match the lockfile, CI fails and blocks the merge. Checking before proposing saves a CI cycle and avoids a blocking failure at the gate.
+**Why**: `uv.lock` is the deploy lock — if it drifts from `pyproject.toml`, `uv sync --frozen` fails and blocks deploy. Pre-push and CI check parity, so verifying locally saves a cycle.
 
-**What**: Before proposing merge to current, ensure `requirements.txt` matches the lockfile.
+**What**: Before proposing merge to current, confirm the lock is in sync.
 
 ```bash
-uv export --no-dev --no-hashes > requirements.txt
+uv lock --check
 ```
 
 ### 8.4 PR gate for feature branches
