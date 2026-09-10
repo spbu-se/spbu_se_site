@@ -2,8 +2,8 @@
 
 <!-- encoding: utf-8 -->
 
-Covers: AI-agent-specific knowledge: tool permissions, quirks, workarounds, typical issues, output format conventions for all agent-generated reports, summaries, and responses, skills architecture (creation, usage, maintenance), and skills catalog with vendor stubs and commands.
-Does not cover: process workflow (see `docs/DEVELOPMENT_PROCESS.md`), commands (see `AGENTS.md`).
+Covers: AI-agent-specific knowledge: tool permissions, quirks, workarounds, typical issues, MCP/agent-tool selection and routing, output format conventions for all agent-generated reports, summaries, and responses, skills architecture (creation, usage, maintenance), and skills catalog with vendor stubs and commands.
+Does not cover: process workflow (see `docs/DEVELOPMENT_PROCESS.md`), commands (see `AGENTS.md`), MCP policy and catalog — see `docs/MCP.md`.
 
 ## Permission Recommendation
 
@@ -49,6 +49,14 @@ When the glob tool's `path` parameter points to a parent directory, patterns lik
 ```
 
 This applies to the opencode glob tool on all platforms. Other AI tools (Claude Code, Cursor) may have different behavior — their glob implementations are independent.
+
+## MCP Servers
+
+Canonical policy, catalog, and the CLI/scripts-vs-MCP decision framework: `docs/MCP.md`.
+
+- Browser/UI verification defaults to **`playwright-cli` + skills**; Playwright **MCP** is optional (exploratory/stateful loops only).
+- Prefer repo scripts and CLIs for anything deterministic, CI-schedulable, or one-off; adopt MCP only for interactive, stateful, or auth/pagination-heavy remote work.
+- Never commit MCP config or tokens; use user-global config with `{env:VAR}` interpolation; never run MCP in CI.
 
 ## Output Format
 
@@ -142,6 +150,8 @@ Closes #<issue-number>
 ## Communication with user
 
 If "why" is not obvious or could be ambiguous given the user's known decisions, ask before proceeding.
+
+When asking a confirmation or multiple-choice question, always state a recommendation for each option (e.g. "recommended", "I lean X") with a one-line why — never present bare options. (User directive 2026-09-10.)
 
 ## Skills
 

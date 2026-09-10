@@ -2683,3 +2683,24 @@ by `AREA_DEFAULT_ID`. Debt + decisions recorded (DESIGN_DECISIONS, TODO).
 
 **Deviations (process)**: none. Local full-suite theses flake (6, env-only) verified again on
 this base; CI green authoritative.
+
+### Retrospective — 2026-09-10: MCP knowledge doc (`docs/MCP.md`) + agent-tooling policy
+
+New canonical `docs/MCP.md` (CLI/scripts vs CLI+skills vs MCP decision framework,
+tiered catalog with what/why/how and what-not/why-not, security + token-economy rules,
+config stance), subordinate to `docs/AI_AGENTS.md`; catalog/discipline rows added to
+`docs/DOCS.md`, one AGENTS retrieval cue, one `docs/TOOLING.md` pointer, and browser
+artifacts (`.playwright-mcp/`, `.playwright-cli/`) gitignored. User decisions encoded:
+`playwright-cli` + skills is the default browser lane (MCP for exploratory loops);
+agent-agnostic in-repo MCP config deferred. A second user directive — always state a
+recommendation on each confirmation question — was encoded in `docs/AI_AGENTS.md`
+§Communication.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Nearly removed the `REPO_REVIEW.md` row from the `DOCS.md` catalog as "stale" (file absent from `docs/`) | Treated a missing file as rot without checking it is a gitignored/generated artifact (`.gitignore:146`, `.skills/repo-review`) | Caught by the pre-flight doc-scope re-read + `git check-ignore`; row kept. Lesson: before removing a reference to a "missing" file, check whether it is generated/gitignored |
+| User imperative (recommendation required on every question) arrived mid-session without a canonical home | No existing rule covered confirmation-question phrasing | Encoded in `docs/AI_AGENTS.md` §Communication (user directive 2026-09-10) |
+
+**Deviations (process)**: none. The new doc was created on a `docs/` branch with a
+catalog + §2a discipline row, so the doc-health checks (missing catalog entry, scope
+header) are satisfied by construction.
