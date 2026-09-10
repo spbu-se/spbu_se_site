@@ -2755,6 +2755,7 @@ on a repeat "send recovery e-mail" press.
 | Failed request still showed green success | Feedback was shown before the request resolved and the result was only logged | Failure now replaces the alert with an error state |
 | Inconsistent alert markup across ~18 templates | No shared component; each template re-implemented flashes | `src/templates/_flash.html` macro + one auto-dismiss handler in `se_scripts.js` (phased rollout) |
 | UI verification passed despite the confusing behaviour | The UI-verification discipline checked rendering, not *confusion* (persistence, duplicate ambiguity, false success) | Added the "Confusing-behaviour check" to `docs/AI_AGENTS.md`; e2e regression test in `e2e/test_auth_journeys.py` |
+| CI `assets` failed after a template-only change | Removing `.d-none` from the recovery banner purged it from the min CSS; the local purge guard checks only the forward direction and missed it | Documented the removal case in `AGENTS.md` + `docs/TOOLING.md §Purged/minified assets`; `npm run build` + commit the min CSS |
 
 **Deviations (process)**: none. Browser-verified on the local demo + a new
 `e2e/test_auth_journeys.py` case (appear → close → repeat is distinct → auto-hide).
