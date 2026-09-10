@@ -2724,3 +2724,21 @@ hook, `_ActiveStaffSupervisorMixin`, and create/edit validation.
 
 **Deviations (process)**: none. Local full suite 1481 passed / 4 skipped / 1 xpassed at
 91.6% coverage; the 6 `test_theses_deep` env flakes did not surface this run.
+
+### Retrospective — 2026-09-10: registration hardening (validation + config-gated SmartCaptcha)
+
+Trigger: a scanner had stored SSTI/SSRF/blind-XSS probe payloads as a `Users`
+name, visible in the prod supervisor dropdown. Analysis confirmed stored data,
+not code execution (autoescape, no SSTI/exec/raw-SQL sinks, parameterized ORM,
+CSRF, nonce-CSP). Fix set: strict server-side name/e-mail validation (SSOT
+`se_validation.py`, wired into register/profile/VK/Google) + Yandex SmartCaptcha
+gated on both sitekey and secret, so no keys = unchanged behavior.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Prod fix (#313) assumed deployed everywhere | Confused the `deploy_environment` GitHub deployments (used by both CD workflows) with prod; prod only ships on signed `v*.*.*` releases and was 8 days behind | Documented the topology in the ops report (`prod = v2026.09.02`); a single signed release will ship #313 + hardening |
+| E-mail verification pulled in scope would have locked out staging | `send_mail` no-ops under `SE_STAGING`, so verification links never send there; VK signup verification needs its own design | Deferred e-mail verification; recorded blockers |
+| Captcha would break dev/tests if always-on | Enforcement had to be optional | Config-gated on both keys; disabled path covered by tests and a local Playwright pass |
+
+**Deviations (process)**: none. UX-visible change (registration form + profile
+validation) verified locally via demo + Playwright from the user's viewpoint.

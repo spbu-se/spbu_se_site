@@ -109,6 +109,9 @@ flask_se_maps.conf
 /**/flask_se_metrica.conf
 */src/flask_se_metrica.conf
 flask_se_metrica.conf
+/**/flask_se_smartcaptcha.conf
+*/src/flask_se_smartcaptcha.conf
+flask_se_smartcaptcha.conf
 
 # Do not track __pycache__
 **/__pycache__/

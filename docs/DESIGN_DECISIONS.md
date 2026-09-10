@@ -529,3 +529,38 @@ silently rewritten.
 **Consequences**: `CrudView` gains the `form_fk_query` hook and now calls
 `form_change_error` on create as well as edit; `flask_se_static.py`/`flask_se_bachelor.py`
 staff lists share `Staff.active_query()`. Tests: `tests/test_admin_supervisor_eligibility.py`.
+
+## [2026-09-10] Registration hardening: strict name/e-mail validation + config-gated SmartCaptcha
+
+**Context**: an automated scanner stored SSTI/SSRF/blind-XSS probe payloads (the
+`bxss.me` set) as `Users` first/last names, which then surfaced in admin FK
+dropdowns. Ingress: `/register_basic.html` and `/profile.html` accepted any
+1+ character name, and the e-mail was only length-checked; SQLite does not
+enforce `VARCHAR(255)`, so a multi-KB name was stored.
+
+**Decision**:
+
+- `se_validation.py` is the single source of truth: `validate_person_name`
+  (Unicode letters + ` -.'`, ≤100 chars, rejects control chars, `<>`, quotes,
+  braces and shell metacharacters), `validate_email` (regex, ≤254), and
+  `clean_person_name` for external providers.
+- Applied in `register_basic`, `user_profile`, and the VK/Google imports
+  (OAuth names are sanitized, not rejected).
+- Yandex SmartCaptcha on registration, gated on **both** a public `SITEKEY` and
+  a private `SECRET` (env or gitignored `configs/flask_se_smartcaptcha.conf`).
+  Neither set → no CAPTCHA (dev/tests/un-provisioned hosts unchanged); both set
+  → server-side verify that fails closed without ever raising. CSP adds
+  `smartcaptcha.yandexcloud.net` to `script-src`/`connect-src` and adds `frame-src`.
+
+**Rationale**: the charset rule is the actual block (payloads carry quotes,
+newlines and `<>`); CAPTCHA raises the cost of automated signups. Config-gating
+means one deploy works in every environment — ops enable it by provisioning
+keys, no code change or release.
+
+**Consequences / tech debt**: e-mail verification (and the linked TTL cleanup of
+unverified accounts) is **deferred** — it needs a better staging-mail flow
+(`send_mail` no-ops under `SE_STAGING`) and a VK-signup design. The app-level
+rate limiter is in-memory per worker, so an nginx `limit_req` on
+`/register_basic.html` is still recommended (ops). Investigation/cleanup of the
+existing prod rows is covered by the ops report in `.tmp/`. Tests:
+`tests/test_registration_validation.py`, `tests/test_smartcaptcha.py`.

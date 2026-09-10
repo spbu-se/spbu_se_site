@@ -124,6 +124,51 @@ def metrica_id() -> str:
     return ""
 
 
+# Yandex SmartCaptcha. Both a public sitekey (renders the widget in the
+# browser) and a private secret (server-side verification) are required for
+# registration CAPTCHA to activate. Env vars win; otherwise a gitignored
+# ``configs/flask_se_smartcaptcha.conf`` with ``SITEKEY=``/``SECRET=`` lines is
+# read. With neither provisioned the site behaves exactly as before (no
+# CAPTCHA), so dev, tests and un-provisioned hosts are unaffected.
+SMARTCAPTCHA_KEY_FILE = os.path.join(
+    pathlib.Path(__file__).parent, "configs/flask_se_smartcaptcha.conf"
+)
+SMARTCAPTCHA_SITEKEY_ENV = "SE_SMARTCAPTCHA_SITEKEY"
+SMARTCAPTCHA_SECRET_ENV = "SE_SMARTCAPTCHA_SECRET"  # noqa: S105  (env var name, not a secret)
+SMARTCAPTCHA_VALIDATE_URL = "https://smartcaptcha.yandexcloud.net/validate"
+
+
+def _read_smartcaptcha_config() -> dict[str, str]:
+    if not os.path.exists(SMARTCAPTCHA_KEY_FILE):
+        return {}
+    with open(SMARTCAPTCHA_KEY_FILE) as file:
+        lines = [line.strip() for line in file]
+    result: dict[str, str] = {}
+    for line in lines:
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        result[key.strip().upper()] = value.strip()
+    return result
+
+
+def smartcaptcha_sitekey() -> str:
+    """Public SmartCaptcha sitekey (env ``SE_SMARTCAPTCHA_SITEKEY`` wins)."""
+    keys = _read_smartcaptcha_config()
+    return os.environ.get(SMARTCAPTCHA_SITEKEY_ENV) or keys.get("SITEKEY", "")
+
+
+def smartcaptcha_secret() -> str:
+    """Private SmartCaptcha secret (env ``SE_SMARTCAPTCHA_SECRET`` wins)."""
+    keys = _read_smartcaptcha_config()
+    return os.environ.get(SMARTCAPTCHA_SECRET_ENV) or keys.get("SECRET", "")
+
+
+def smartcaptcha_enabled() -> bool:
+    """True only when both the sitekey and the secret are provisioned."""
+    return bool(smartcaptcha_sitekey() and smartcaptcha_secret())
+
+
 # Consent-cookie name. The value is a comma-separated list of granted
 # categories (e.g. ``essential,statistics``), written by JS and read by Flask
 # so analytics snippets render only after explicit acceptance.

@@ -4,6 +4,19 @@
   <section class="mt-7 pt-6 bg-section-secondary"
            data-se-just-logged-in="{% if just_logged_in %}true{% endif %}">
     <div class="container">
+      {% with messages = get_flashed_messages(category_filter=["error"]) %}
+        {% if messages %}
+          <div class="row justify-content-center">
+            <div class="col-lg-9">
+              {% for message in messages %}
+                <div class="alert alert-info" role="alert">
+                  <strong>Ошибка!</strong> {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% endwith %}
       <div class="row justify-content-center">
         <div class="col-lg-9">
           <div class="row align-items-center">

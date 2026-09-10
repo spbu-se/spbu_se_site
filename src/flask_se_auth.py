@@ -42,12 +42,16 @@ from flask_se_config import (
     LOGIN_RATE_LIMITER,
     PASSWORD_RECOVERY_RATE_LIMITER,
     REGISTER_RATE_LIMITER,
+    SMARTCAPTCHA_VALIDATE_URL,
     VK_CLIENT_ID,
     VK_CLIENT_SECRET,
     secure_filename,
+    smartcaptcha_enabled,
+    smartcaptcha_secret,
 )
 from se_models import Users, db
 from se_sendmail import send_mail
+from se_validation import clean_person_name, validate_email, validate_person_name
 
 # Global variables
 UPLOAD_FOLDER = "static/images/avatars/"
@@ -285,8 +289,10 @@ def vk_callback():
                         f.write(avatar)
 
             new_user = Users(
-                last_name=vk_user["response"][0]["last_name"],
-                first_name=vk_user["response"][0]["first_name"],
+                last_name=clean_person_name(vk_user["response"][0]["last_name"]),
+                first_name=clean_person_name(
+                    vk_user["response"][0]["first_name"], fallback="Пользователь"
+                ),
                 avatar_uri=avatar_uri,
                 email=vk_email,
                 vk_id=vk_id,
@@ -312,6 +318,34 @@ def get_user_by_email(email: str) -> Users | None:
     return Users.query.filter(func.lower(Users.email) == func.lower(email)).first()
 
 
+def _check_smartcaptcha() -> str | None:
+    """Verify the SmartCaptcha token; return an error message or ``None``.
+
+    No-op when SmartCaptcha is not provisioned (dev/tests/un-configured hosts).
+    Fails closed when enabled, and never raises on a network/JSON error.
+    """
+    if not smartcaptcha_enabled():
+        return None
+    client_ip = request.remote_addr or "unknown"
+    token = request.form.get("smart-token", "")
+    if not token:
+        return "Пожалуйста, подтвердите, что вы не робот."
+    try:
+        response = requests.post(
+            SMARTCAPTCHA_VALIDATE_URL,
+            data={"secret": smartcaptcha_secret(), "token": token, "ip": client_ip},
+            timeout=10,
+        )
+        result = response.json()
+    except (requests.RequestException, ValueError):
+        logging.getLogger("flask_se.auth").warning("smartcaptcha verify error ip=%s", client_ip)
+        return "Не удалось проверить капчу, попробуйте ещё раз."
+    if result.get("status") != "ok":
+        logging.getLogger("flask_se.auth").warning("smartcaptcha rejected ip=%s", client_ip)
+        return "Проверка «я не робот» не пройдена."
+    return None
+
+
 def register_basic():
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -333,6 +367,13 @@ def register_basic():
             return render_template("auth/register_basic.html", user=current_user)
 
         user = get_user_by_email(email)
+        email_error = validate_email(email)
+        last_error = validate_person_name(
+            last_name, field="Фамилия", empty_error="Фамилия не может быть пустой"
+        )
+        first_error = validate_person_name(
+            first_name, field="Имя", empty_error="Имя не может быть пустым"
+        )
         if not consent:
             flash("Необходимо согласие на обработку персональных данных", category="error")
         elif user:
@@ -340,11 +381,8 @@ def register_basic():
                 "Такой почтовый адрес уже зарегистрирован.",
                 category="error",
             )
-        elif len(email) < 5:
-            flash(
-                "Почтовый адрес должен быть больше чем 5 символов",
-                category="error",
-            )
+        elif email_error:
+            flash(email_error, category="error")
         elif len(password) < 8:
             flash(
                 "Пароль должен быть не короче 8 символов",
@@ -352,24 +390,28 @@ def register_basic():
             )
         elif password != password2:
             flash("Пароли не совпадают", category="error")
-        elif len(last_name) < 1:
-            flash("Фамилия не может быть пустой", category="error")
-        elif len(first_name) < 1:
-            flash("Имя не может быть пустым", category="error")
+        elif last_error:
+            flash(last_error, category="error")
+        elif first_error:
+            flash(first_error, category="error")
         else:
-            new_user = Users(
-                email=email,
-                first_name=first_name,
-                last_name=last_name,
-                password_hash=generate_password_hash(password, method="pbkdf2:sha256"),
-            )
-            db.session.add(new_user)
-            db.session.commit()
-            logging.getLogger("flask_se.auth").info(
-                "registered user id=%s email=%s", new_user.id, email
-            )
-            login_user(new_user, remember=True)
-            return redirect(url_for("user_profile"))
+            captcha_error = _check_smartcaptcha()
+            if captcha_error:
+                flash(captcha_error, category="error")
+            else:
+                new_user = Users(
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name,
+                    password_hash=generate_password_hash(password, method="pbkdf2:sha256"),
+                )
+                db.session.add(new_user)
+                db.session.commit()
+                logging.getLogger("flask_se.auth").info(
+                    "registered user id=%s email=%s", new_user.id, email
+                )
+                login_user(new_user, remember=True)
+                return redirect(url_for("user_profile"))
 
     return render_template("auth/register_basic.html", user=current_user)
 
@@ -498,12 +540,26 @@ def user_profile():
         middle_name = request.form.get("middle_name", "").strip()
         how_to_contact = request.form.get("how_to_contact", "").strip()
 
-        if user and first_name:
-            user.first_name = first_name
-            user.middle_name = middle_name
-            user.last_name = last_name
-            user.how_to_contact = how_to_contact
-            db.session.commit()
+        last_error = validate_person_name(
+            last_name, field="Фамилия", empty_error="Фамилия не может быть пустой"
+        )
+        first_error = validate_person_name(
+            first_name, field="Имя", empty_error="Имя не может быть пустым"
+        )
+        middle_error = validate_person_name(middle_name, required=False, field="Отчество")
+        if user:
+            if first_error:
+                flash(first_error, category="error")
+            elif last_error:
+                flash(last_error, category="error")
+            elif middle_error:
+                flash(middle_error, category="error")
+            else:
+                user.first_name = first_name
+                user.middle_name = middle_name
+                user.last_name = last_name
+                user.how_to_contact = how_to_contact
+                db.session.commit()
 
     return render_template(
         "auth/profile.html",
@@ -724,8 +780,8 @@ def google_callback():
                         f.write(avatar)
 
             new_user = Users(
-                last_name=id_info.get("family_name"),
-                first_name=id_info.get("given_name"),
+                last_name=clean_person_name(id_info.get("family_name")),
+                first_name=clean_person_name(id_info.get("given_name"), fallback="Пользователь"),
                 avatar_uri=avatar_uri,
                 google_id=id_info.get("sub"),
                 email=id_info.get("email"),

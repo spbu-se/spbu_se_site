@@ -1,0 +1,10 @@
+# Yandex SmartCaptcha keys (https://yandex.cloud/ru/services/smartcaptcha).
+# Copy to flask_se_smartcaptcha.conf (gitignored) and fill both values, or set
+# the env overrides instead (env wins):
+#   SE_SMARTCAPTCHA_SITEKEY=<public sitekey>
+#   SE_SMARTCAPTCHA_SECRET=<private server secret>
+# CAPTCHA stays OFF unless BOTH values are present, so dev/tests and
+# un-provisioned hosts are unaffected. SITEKEY ships to the browser; SECRET is
+# server-side only and must never be committed.
+SITEKEY=
+SECRET=
