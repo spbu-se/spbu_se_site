@@ -2854,3 +2854,25 @@ check, linear parser) over code that merely "looks sanitized".
 explicit direction (normally a separate chore).
 
 **State at handoff**: security PR pending; then tag/release `v2026.09.10`.
+
+### Retrospective — 2026-09-10: pre-release Dependabot-PR gate + closing the security triage
+
+Trigger: user directive — "no open Dependabot PRs" is a must-have pre-release gate unless a
+specific PR is explicitly waived.
+
+**Changes analyzed**: `AGENTS.md` (security bullet), `docs/DEVELOPMENT_PROCESS.md` §4.6 (new
+step), `docs/RELEASE_CHECKLIST.md` B4 (extended); merged Dependabot #321 (uv group: ruff, djlint,
+pylint, basedpyright, pre-commit) and #318 (github-actions); dismissed 3 verified false-positive
+code-scanning warnings (a DOM-navigation warning plus two test-only HTML-strip regexes) so code
+scanning returned to 0 open.
+
+| Gap | Root cause | Fix / escalation |
+| --- | ---------- | ---------------- |
+| Open Dependabot PRs were still present at release time (a stale #319 lingered) | B4 gated security *alerts* only, not open dependency PRs; no rule captured "merge them before tagging" | B4 now requires **zero open Dependabot PRs** (merge each green one, or an explicit user waiver); mirrored in AGENTS + §4.6 |
+| A `pip-dependencies` PR title survived the uv switch | The ecosystem changed but the group name (title/branch/label) did not | Renamed group → `uv-dependencies` in #320; superseded #319 closed |
+| 3 warnings remained after the fixed-in-code alerts cleared | CodeQL re-flags on the new code (the JS navigation sink) and its test-HTML-filter rules fire regardless of `re.I` | Verified false positives, dismissed with recorded reasons per §4.6 |
+
+**Deviations (process)**: none.
+
+**State at handoff**: process PR pending; the release tag `v2026.09.10` must be re-created on the
+new `current` HEAD (post-Dependabot merges) before the draft release.

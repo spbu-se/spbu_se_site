@@ -467,6 +467,11 @@ security cleanup **before** cutting a release. The release gate is
    linear parser instead of a backtracking regex). Add a regression test.
 1. If a fix cannot land immediately, record the accepted risk and the plan; do
    not silently ship an untriaged alert.
+1. **Dependabot PRs are part of the gate**: before tagging a release there must be
+   **zero open Dependabot PRs** — triage and merge each one (they must be green),
+   or get an explicit user waiver for a specific PR (e.g. a bump that breaks
+   something). An open dependency PR at release time means the release ships with
+   a known pending update.
 
 ## 5. Dependencies
 
