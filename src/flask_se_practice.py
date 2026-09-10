@@ -218,8 +218,8 @@ def practice_choosing_topic(current_thesis):
     staff_choices: list[tuple[int, str]] = [(0, "Выберите научного руководителя")]
     staff_choices.extend(
         (supervisor.id, supervisor.user.get_name())
-        for supervisor in Staff.query.join(Users, Staff.user_id == Users.id)
-        .filter(Staff.still_working)
+        for supervisor in Staff.active_query()
+        .join(Users, Staff.user_id == Users.id)
         .order_by(asc(Users.last_name))
         .all()
     )
@@ -278,9 +278,9 @@ def practice_edit_theme(current_thesis):
     form.consultant.data = current_thesis.consultant
     staff_choices.extend(
         (supervisor.id, supervisor.user.get_name())
-        for supervisor in Staff.query.join(Users, Staff.user_id == Users.id)
+        for supervisor in Staff.active_query()
         .filter(Staff.id != current_thesis.supervisor_id)
-        .filter(Staff.still_working)
+        .join(Users, Staff.user_id == Users.id)
         .order_by(asc(Users.last_name))
         .all()
     )

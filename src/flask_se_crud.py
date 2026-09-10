@@ -136,9 +136,17 @@ class CrudView:
         return next((r for r in mapper.relationships if col in r.local_columns), None)
 
     def _fk_choices(self, col_key, relationship, obj):
-        """Build ``(id, label)`` choices for a to-one relationship field."""
+        """Build ``(id, label)`` choices for a to-one relationship field.
+
+        The population is the target's ``form_fk_query`` override (or every row
+        by default). A value on the edited object that falls outside a filtered
+        population is still shown, with its real label, so an existing row is
+        never silently rewritten to ``#<id>``.
+        """
         target = relationship.mapper.class_
-        labels = [(row.id, self._fk_row_label(row)) for row in target.query.all()]
+        query = self.form_fk_query(col_key, relationship)
+        rows = (query if query is not None else target.query).all()
+        labels = [(row.id, self._fk_row_label(row)) for row in rows]
         labels.sort(key=lambda pair: pair[1].lower())
 
         # Disambiguate duplicate labels (e.g. identical full names in Users) so
@@ -147,7 +155,7 @@ class CrudView:
         for _, text in labels:
             seen[text] = seen.get(text, 0) + 1
         if any(count > 1 for count in seen.values()):
-            qualifiers = {row.id: self._fk_row_qualifier(row) for row in target.query.all()}
+            qualifiers = {row.id: self._fk_row_qualifier(row) for row in rows}
             labels = [
                 (value, f"{text} ({qualifiers[value]})" if seen[text] > 1 else text)
                 for value, text in labels
@@ -156,7 +164,13 @@ class CrudView:
         current = getattr(obj, col_key, None) if obj is not None else None
         ids = {pair[0] for pair in labels}
         if current is not None and current not in ids:
-            labels.insert(0, (current, f"#{current} (не найден)"))
+            current_row = target.query.get(current)
+            label = (
+                self._fk_row_label(current_row)
+                if current_row is not None
+                else f"#{current} (не найден)"
+            )
+            labels.insert(0, (current, label))
         return labels
 
     def _fk_row_label(self, row):
@@ -322,13 +336,17 @@ class CrudView:
             abort(404)
         form = self._build_form()
         if form.validate_on_submit():
+            reason = self.form_change_error(None, form)
             obj = self.model() if self.model is not None else None
             if obj is None:
                 abort(500)
-            self._populate_obj(obj, form)
-            db.session.add(obj)
-            db.session.commit()
-            return redirect(url_for(f"{self.endpoint}.index_view"))
+            if reason:
+                flash(reason, "danger")
+            else:
+                self._populate_obj(obj, form)
+                db.session.add(obj)
+                db.session.commit()
+                return redirect(url_for(f"{self.endpoint}.index_view"))
         return render_template(
             "admin/form.html", form=form, endpoint=self.endpoint, name=self.name, is_edit=False
         )
@@ -574,6 +592,18 @@ class CrudView:
         state value during edit without offering it for new rows).
         """
         if col_key is None or obj is None:  # pragma: no cover - both always set
+            return
+        return
+
+    def form_fk_query(self, col_key, relationship):
+        """Return a filtered query for a to-one FK field's target, or ``None``.
+
+        Override in a view to restrict a dropdown's population (e.g. only
+        active staff may be supervisors). A value already stored on the edited
+        row is preserved by ``_fk_choices`` even when it falls outside the
+        filter, so restricting a dropdown never rewrites existing data.
+        """
+        if col_key is None or relationship is None:  # pragma: no cover - both always set
             return
         return
 

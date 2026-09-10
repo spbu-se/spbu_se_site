@@ -2,6 +2,7 @@
 
 from flask import abort, flash, redirect, render_template, request, session, url_for
 from flask_login import current_user
+from sqlalchemy import inspect
 from wtforms import SelectField, TextAreaField
 
 from flask_se_crud import CrudView
@@ -17,6 +18,7 @@ from se_constants import (
 from se_models import (
     DiplomaThemes,
     Reviewer,
+    Staff,
     Users,
     add_mail_notification,
     db,
@@ -195,7 +197,53 @@ class SeAdminModelViewNews(RestrictedCrudView):
     pass
 
 
-class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
+class _ActiveStaffSupervisorMixin(CrudView):
+    """Restrict supervisor FK dropdowns to active staff (SSOT eligibility).
+
+    ``DiplomaThemes`` stores supervisors as ``users.id`` and ``CurrentThesis``
+    as ``staff.id``; eligibility resolves through ``Staff.still_working`` in
+    both cases. A value already stored on an edited row is kept selectable even
+    when it is no longer eligible, and POSTs of ineligible ids are rejected.
+    """
+
+    _supervisor_fk_fields = ("supervisor_id", "supervisor_thesis_id")
+
+    def form_fk_query(self, col_key, relationship):
+        if col_key not in self._supervisor_fk_fields:
+            return None
+        target = relationship.mapper.class_
+        if target is Staff:
+            return Staff.active_query()
+        if target is Users:
+            return Users.eligible_supervisors_query()
+        return None
+
+    def form_change_error(self, obj, form):
+        for col_key in self._supervisor_fk_fields:
+            value = getattr(getattr(form, col_key, None), "data", None)
+            if not value:
+                continue
+            current = getattr(obj, col_key, None) if obj is not None else None
+            if value == current:
+                continue
+            if not self._supervisor_is_eligible(col_key, value):
+                return "Научный руководитель должен быть действующим сотрудником."
+        return None
+
+    def _supervisor_is_eligible(self, col_key, value):
+        mapper = inspect(self.model)
+        if mapper is None:  # pragma: no cover - models are always mapped
+            return True
+        relationship = self._fk_relationship(mapper, mapper.columns[col_key])
+        target = relationship.mapper.class_
+        if target is Staff:
+            return Staff.query.filter_by(id=value, still_working=True).first() is not None
+        if target is Users:
+            return Users.eligible_supervisors_query().filter(Users.id == value).first() is not None
+        return True
+
+
+class SeAdminModelViewDiplomaThemes(_ActiveStaffSupervisorMixin, RestrictedCrudView):
     archive_enabled = True
     bulk_archive_enabled = True
     form_exclude_columns = ("prev_status",)
@@ -323,6 +371,9 @@ class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
         """Archival transitions belong to the dedicated archive/reopen actions
         (they own ``prev_status``). The form must never reach or leave the
         archive status."""
+        supervisor_error = super().form_change_error(obj, form)
+        if supervisor_error:
+            return supervisor_error
         if not hasattr(form, "status"):
             return None
         old = getattr(obj, "status", None)
@@ -334,7 +385,7 @@ class SeAdminModelViewDiplomaThemes(RestrictedCrudView):
         return None
 
 
-class SeAdminModelViewReviewDiplomaThemes(CrudView):
+class SeAdminModelViewReviewDiplomaThemes(_ActiveStaffSupervisorMixin, CrudView):
     can_delete = False
     can_create = False
     role_level = REVIEW_ROLE_LEVEL
@@ -474,7 +525,8 @@ class SeAdminModelViewCompany(RestrictedCrudView):
         return redirect(url_for(f"{self.endpoint}.index_view"))
 
 
-class SeAdminModelViewCurrentThesis(RestrictedCrudView):
+class SeAdminModelViewCurrentThesis(_ActiveStaffSupervisorMixin, RestrictedCrudView):
+    _supervisor_fk_fields = ("supervisor_id",)
     column_list = (
         "title",
         "user_id",

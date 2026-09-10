@@ -135,7 +135,7 @@ def bachelor_admission():
 
     records = Thesis.query.filter_by(recomended=True)
     theses = records.order_by(func.random()).limit(4).all() if records.count() else []
-    staff = Staff.query.filter_by(still_working=True).limit(6).all()
+    staff = Staff.active_query().limit(6).all()
     return render_template(
         "bachelor_admission.html",
         students=students,
