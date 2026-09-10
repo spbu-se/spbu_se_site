@@ -41,6 +41,8 @@ Hit twice on 2026-08-31: PR-1 added `.custom-checkbox` (consent), PR-2 added `.d
 
 The reverse trap hit on 2026-09-06 (#280): reusing a **stock Bootstrap class that no template had used yet** (`btn-outline-success`) also fails the drift job — the purge strips rules whose *class appears nowhere in templates*, even if it ships with Bootstrap. Two safe options: reuse only classes already present in the committed templates/CSS (grep the min css or a template for the class first), or regenerate via `npm run build`. After any template CSS-class change, run the purge guard locally (`uv run pytest tests/test_asset_pipeline.py`) — it reproduces the CI `assets`+`test` signal in seconds.
 
+**Removing the last template usage also purges the class** (2026-09-10, #315): dropping `.d-none` from the recovery banner stripped it from the min CSS. The local purge guard checks only the *forward* direction (every template class exists in the CSS), so it does **not** catch removals — the CI `assets` drift job does. For add **or** remove edits to template classes, run `npm run build` and commit both min files; do not rely on the local guard alone.
+
 Because both PRs touch the same single-line minified file, run `npm run build` **after** rebasing onto the merged base, never before — otherwise the squash-merge conflicts on that one line.
 
 ### First pre-commit run

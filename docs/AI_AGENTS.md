@@ -333,3 +333,20 @@ The user decides whether to adopt. No tool is added without approval.
 - Session warmup: if Playwright would help and no MCP is configured, **ask the user to
   install `playwright-cli`** (or set it up locally and learn it via
   `playwright-cli install --skills` / `playwright-cli --help`) — never proceed UI-blind.
+
+### Confusing-behaviour check for user feedback (user directive 2026-09-10)
+
+Before shipping any notification/flash/feedback change, verify each item and fix the gaps:
+
+- **Dismissible** — every message has a close control.
+- **Success/info auto-dismisses** (default 5s via the shared `_flash.html` partial);
+  warnings/errors persist until acknowledged — or the persistence is deliberate and stated.
+- **Repeated actions are distinguishable** — pressing an action again must produce
+  visibly new feedback (fresh message/element, a "повторно" marker, or a button cooldown),
+  never silently re-showing an identical box.
+- **No false success** — a failed request must never render as a success message.
+- **Announced** — `role="status"`/`aria-live="polite"` for success, `role="alert"` for
+  errors; a11y-mode and `prefers-reduced-motion` respected, no-JS result still readable.
+
+Rationale and the canonical pattern: `docs/SEO_A11Y_ROADMAP.md §7`. Render flashes only
+through the shared partial — do not hand-roll per-template alert markup.

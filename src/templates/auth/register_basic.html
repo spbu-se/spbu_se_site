@@ -1,22 +1,11 @@
 {% extends 'base_light.html' %}
 {% block title %}Регистрация{% endblock %}
 {% block description %}Регистрация на сайте кафедры Системного программирования СПбГУ.{% endblock %}
+{% from "_flash.html" import flash_messages %}
 {% block content %}
   <section class="slice mt-6 pt-5">
     <div class="container">
-      <div class="row row-grid align-items-center justify-content-center pt-4">
-        <div class="col-9">
-          {% with errors = get_flashed_messages(category_filter=["error"]) %}
-            {% if errors %}
-              {%- for message in errors %}
-                <div class="alert alert-info" role="alert">
-                  <strong>Ошибка!</strong> {{ message }}
-                </div>
-              {% endfor -%}
-            {% endif %}
-          {% endwith %}
-        </div>
-      </div>
+      {{ flash_messages() }}
       <div class="row row-grid align-items-center">
         <!--текст слева-->
         <div class="col-12 col-md-6 col-lg-7 order-md-1 pr-md-5">

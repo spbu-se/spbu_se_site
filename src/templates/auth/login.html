@@ -3,25 +3,11 @@
 {% block description %}
   Вход в личный кабинет кафедры Системного программирования СПбГУ: практики, ВКР, стажировки, рецензирование.
 {% endblock %}
+{% from "_flash.html" import flash_messages %}
 {% block content %}
   <section class="slice mt-6 pt-5">
     <div class="container">
-      {% with errors = get_flashed_messages(category_filter=["error"]) %}
-        {% if errors %}
-          <div class="row row-grid align-items-center justify-content-center pt-4">
-            <div class="col-12">
-              {%- for message in errors %}
-                <div class="alert alert-info" role="alert">
-                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                  {{ message }}
-                </div>
-              {% endfor -%}
-            </div>
-          </div>
-        {% endif %}
-      {% endwith %}
+      {{ flash_messages() }}
       <div class="row row-grid align-items-center pt-4">
         <!--текст слева-->
         <div class="col-12 col-md-6 col-lg-7 order-md-1 pr-md-5">

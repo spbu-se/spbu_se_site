@@ -157,3 +157,16 @@ PRs are stacked: each new PR branches from the previous PR's branch; merged one-
 ## 6. FAQ structured data decision
 
 The FAQ page (`frequently_asked_questions.html`) already carries complete, valid `FAQPage` microdata (19 Q&A pairs via `itemprop="mainEntity"`). It was **not** converted to JSON-LD: converting adds duplication risk with no SEO gain since the microdata already produces the rich result. JSON-LD was added only where no structured data existed (Organization, WebSite+SearchAction, Course, BreadcrumbList). Revisit if the FAQ markup is ever refactored.
+
+## 7. UX feedback pattern (flash messages)
+
+**Context**: feedback was hand-rolled in ~18 templates with inconsistent behaviour. The password-recovery success banner (`src/templates/password_recovery.html`) was the worst case: shown optimistically before the request resolved, never auto-hidden, no close button, and identical on every press — so a user pressing "send link" again could not tell a new send from the old one (user report, 2026-09-10).
+
+**Decision**: render server-side feedback only through the shared `src/templates/_flash.html` macro (`flash_messages()`), and let one script own the behaviour:
+
+- Categories map to house style: `error` → blue `alert-info` + "Ошибка!" prefix (persistent, `role="alert"`); `success`/`message` → green `alert-success` (`role="status"`, `aria-live="polite"`, auto-dismiss 5s).
+- Auto-dismiss: `data-autodismiss="<ms>"` on the alert, handled by `se_scripts.js` — timer pauses on hover/focus and respects `prefers-reduced-motion`.
+- No-JS fallback stays intact: alerts are server-rendered (unlike `$.notify`, which needs jQuery and JS).
+- Action feedback that must not reload the page (recovery submit) rebuilds a fresh alert per attempt and marks repeats — see `password_recovery.html`.
+
+`bootstrap-notify` (`$.notify`) is loaded but reserved for demo markup; real feedback does not depend on it. Checklist for verifying any feedback change: `docs/AI_AGENTS.md §Confusing-behaviour check`.
