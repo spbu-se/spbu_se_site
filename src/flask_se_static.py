@@ -147,7 +147,7 @@ def register_content_pages(app: Flask) -> None:
 
     @app.route("/department/staff.html")
     def department_staff():
-        records = Staff.query.filter_by(still_working=True).all()
+        records = Staff.active_query().all()
         staff = []
 
         for s in records:

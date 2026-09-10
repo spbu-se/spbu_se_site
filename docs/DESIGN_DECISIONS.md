@@ -505,3 +505,27 @@ the id-keyed override is applied only while the row still carries the expected p
 later via an additive `AreasOfStudy.code` column (backfill the two rows) or a reviewed row
 merge; `area_display_name()` then degenerates to the plain label and the override map is
 deleted. Nav-sidebar area lists in practice-admin still render plain names (follow-up).
+
+## [2026-09-10] Supervisor eligibility is a single-source query (active staff), enforced in dropdowns + validation
+
+**Context**: `DiplomaThemes.supervisor_id`/`supervisor_thesis_id` are FKs to `users.id`,
+so the generic `CrudView` FK dropdown listed every account (students, reviewers, deleted);
+`CurrentThesis.supervisor_id` (FK to `staff.id`) listed inactive staff. The student-facing
+supervisor picker already restricted to `Staff.still_working`, so the rule existed but was
+duplicated (or absent) elsewhere.
+
+**Decision**: one eligibility rule — `Staff.active_query()` (`still_working`) and its
+user-level counterpart `Users.eligible_supervisors_query()` (active staff users) — used by
+the admin FK dropdowns (new `CrudView.form_fk_query` hook + `_ActiveStaffSupervisorMixin`),
+server-side `form_change_error` validation (reject a *change* to an ineligible id, allow
+keeping an existing one), and the student supervisor pickers plus the static/bachelor staff
+lists. `author_id` and `consultant_id` stay open — a consultant may be non-staff.
+
+**Rationale**: reusing one query keeps the rule from drifting across surfaces, and
+filtering the dropdown alone would still allow a crafted POST. An already-stored supervisor
+who is no longer eligible is preserved (shown by name), so existing/finished rows are never
+silently rewritten.
+
+**Consequences**: `CrudView` gains the `form_fk_query` hook and now calls
+`form_change_error` on create as well as edit; `flask_se_static.py`/`flask_se_bachelor.py`
+staff lists share `Staff.active_query()`. Tests: `tests/test_admin_supervisor_eligibility.py`.

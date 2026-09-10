@@ -115,6 +115,15 @@ class Staff(db.Model):
     )
     current_thesises = db.relationship("CurrentThesis", backref=db.backref("supervisor"))
 
+    @classmethod
+    def active_query(cls):
+        """Staff rows eligible to supervise: still working at the department.
+
+        Single source of truth for supervisor eligibility — used by the
+        student-facing supervisor pickers and the admin FK dropdowns/validation.
+        """
+        return cls.query.filter(cls.still_working.is_(True))
+
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
@@ -205,6 +214,20 @@ class Users(db.Model, UserMixin):
 
     def is_staff(self):
         return Staff.query.filter_by(user_id=self.id).first() is not None
+
+    @classmethod
+    def eligible_supervisors_query(cls):
+        """User accounts that may supervise: those linked to active Staff.
+
+        ``DiplomaThemes.supervisor_id``/``supervisor_thesis_id`` reference
+        ``users.id``, so eligibility is resolved through the linked ``Staff``
+        row using the same rule as :meth:`Staff.active_query`.
+        """
+        return (
+            cls.query.join(Staff, Staff.user_id == cls.id)
+            .filter(Staff.still_working.is_(True))
+            .distinct()
+        )
 
     def __str__(self) -> str:
         full_name = ""

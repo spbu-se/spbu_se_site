@@ -2704,3 +2704,23 @@ recommendation on each confirmation question — was encoded in `docs/AI_AGENTS.
 **Deviations (process)**: none. The new doc was created on a `docs/` branch with a
 catalog + §2a discipline row, so the doc-health checks (missing catalog entry, scope
 header) are satisfied by construction.
+
+### Retrospective — 2026-09-10: supervisor dropdown eligibility SSOT (admin + student pickers)
+
+Prod bug: on `/admin/reviewdiplomathemes/edit/` the «Научный руководитель учебных практик»
+(and ВКР) dropdown listed every user account. Reproduced empirically in the local demo
+before touching code (queue was empty locally, so the same field on `/admin/diplomathemes/`
+was used); DB counts confirmed the population (34 users vs 26 active staff). Root cause:
+`DiplomaThemes.supervisor_id`/`supervisor_thesis_id` are FKs to `users.id` and the generic
+`CrudView._fk_choices` unfiltered `target.query.all()`. Fixed with the SSOT eligibility
+track: `Staff.active_query()` / `Users.eligible_supervisors_query()`, a `CrudView.form_fk_query`
+hook, `_ActiveStaffSupervisorMixin`, and create/edit validation.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| First validation design would have blocked editing a row whose stored supervisor is now inactive | Guarded the value without comparing to the row's current value — would have broken the "finished/existing rows are not rewritten" requirement | `form_change_error` allows `value == obj.current` and rejects only a *change* to an ineligible id; test `test_keeping_existing_inactive_supervisor_is_allowed` |
+| Dropdown filtering alone would not stop a crafted POST of an ineligible id | Defense-in-depth missing; also `create_view` never called `form_change_error` | Added `form_fk_query` + validation, and `CrudView.create_view` now calls `form_change_error(None, form)` on create |
+| `_fk_choices` showed a filtered-out current value as `#<id> (не найден)` | The fallback did not look up the row it had excluded | Fetch the current row from the unfiltered `target.query` and show its real label |
+
+**Deviations (process)**: none. Local full suite 1481 passed / 4 skipped / 1 xpassed at
+91.6% coverage; the 6 `test_theses_deep` env flakes did not surface this run.
