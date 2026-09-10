@@ -38,10 +38,12 @@ else
 fi
 SE_SITE_LASTMOD=$(git describe --dirty --abbrev=6 --tags)
 
-# App configuration
-# Very old versions do not use uv, pure requirements.txt only
+# App configuration.
+# uv.lock present -> uv-managed prod env (no dev deps).
+# The requirements.txt fallback is intentionally kept: it is the fast-rollback
+# path to old tags/commits whose trees predate uv and still carry requirements.txt.
 if [ -f "uv.lock" ]; then
-  UV_PYTHON_INSTALL_DIR=${PWD}/../uv-python UV_PROJECT_ENVIRONMENT=${PWD}/../venv /opt/uv/bin/uv sync --frozen
+  UV_PYTHON_INSTALL_DIR=${PWD}/../uv-python UV_PROJECT_ENVIRONMENT=${PWD}/../venv /opt/uv/bin/uv sync --frozen --no-dev
 else
   ../venv/bin/pip install --upgrade pip
   ../venv/bin/pip install -r requirements.txt

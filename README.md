@@ -13,9 +13,9 @@
 
 ## Prerequisites
 
-- Python 3.9+ (production via pip), 3.13 (development via uv)
+- Python 3.13 (pinned in `.python-version`; uv manages it)
 - SQLite (zero-config)
-- uv (for development)
+- uv (dev, CI, and prod installs)
 - git-lfs (materializes LFS-tracked binaries, see Setup below)
 
 ## Setup
@@ -27,12 +27,6 @@ git lfs install
 git clone <repo-url>
 cd spbu_se_site
 
-# Production
-pip install -r requirements.txt
-python src/flask_se.py init
-python src/flask_se.py
-
-# Development
 uv sync
 uv run python src/flask_se.py init
 uv run python src/flask_se.py
@@ -84,24 +78,12 @@ locally), `SE_SECRET_KEY=<value>` pins the session key across restarts,
 
 ## Deployment
 
-The project includes Docker configuration:
-
-- `Dockerfile` — uWSGI-based Flask container
-- `docker-compose.yml` — Flask + nginx
-
-Production uses `current` branch with uWSGI behind nginx.
-
-### Docker quickstart
-
-```bash
-git lfs install && git lfs pull   # materialize LFS-tracked content first
-docker compose up --build
-```
-
-The entrypoint (`docker/entrypoint.sh`) initializes the SQLite database
-automatically on first boot, so no manual `cp`/`init` step is needed. The
-build copies the local checkout into the image and fails loudly if LFS-tracked
-files (`src/static/thesis/**`, `src/static/files/**`) are still pointers.
+Production runs the `current` branch on the deploy host. A CD webhook checks out
+the released commit and installs dependencies with `uv sync --frozen --no-dev`
+(see `extra/deploy.sh`), then runs gunicorn behind nginx (systemd unit:
+`extra/systemd-unit.service`). Deploys ship only on a published, GPG-signed
+`vYYYY.MM.DD` release — see `docs/GIT_FLOW.md` §Versioning. `pyproject.toml` is
+the dependency source of truth; the committed `uv.lock` is the deploy lock.
 
 ## Релизы
 
@@ -136,8 +118,8 @@ se-site/
 │   └── templates/          # Jinja2 templates (129 files)
 ├── tests/                  # Comprehensive test suite
 ├── docs/                    # Process and architecture documentation
-├── .github/workflows/      # CI/CD pipelines
-└── docker-compose.yml      # Production deployment
+├── extra/                   # Deploy webhook script + systemd unit
+└── .github/workflows/      # CI/CD pipelines
 ```
 
 ## Documentation

@@ -28,7 +28,7 @@ gh api repos/<owner>/<repo>/code-scanning/alerts --jq '.[] | {number, rule: .rul
 gh api repos/<owner>/<repo>/security-advisories --jq '.[] | {ghsa_id, severity, summary}'
 ```
 
-**Stale-alert check**: Dependabot alerts for packages whose manifest version is already patched (e.g. Pillow `<12.3.0` while `pillow==12.3.0` is pinned) are stale — they auto-resolve on the next scan of the default branch. Verify the pinned version in `pyproject.toml`/`requirements.txt` before treating them as real. Do NOT dismiss them; document and move on.
+**Stale-alert check**: Dependabot alerts for packages whose manifest version is already patched (e.g. Pillow `<12.3.0` while `pillow==12.3.0` is pinned) are stale — they auto-resolve on the next scan of the default branch. Verify the pinned version in `pyproject.toml`/`uv.lock` before treating them as real. Do NOT dismiss them; document and move on.
 
 ### 2. Three-parallel-pass deep review
 

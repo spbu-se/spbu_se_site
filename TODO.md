@@ -14,6 +14,10 @@
 - `OPENCODE_ZEN_API_KEY` secret still needs to be added to enable automated draft-release generation (until then drafts are manual — `docs/GIT_FLOW.md §7`).
 - Bachelor admission data: 2026 campaign figures still needed in `src/flask_se_bachelor.py` (B7, deferred by user decision).
 
+**Tech debt (deferred):**
+
+- Find the lowest known working Python: the project is pinned to 3.13 (`.python-version`) after dropping `requirements.txt`/pip. Re-derive the true minimum (`requires-python`) with a compatibility sweep, then re-pin.
+
 **Postponed (user decision, 2026-08-31):**
 
 - СПбГУ Регламент № 11763/1 §3.1.12 requires a tag-manager container on university sites; the site currently has none (GTM removed v2026.08.20). Revisit placement + consent-gating design together with the `docs/PRIVACY_COMPLIANCE.md` §4 full-compliance plan before re-enabling anything. Tracked in `docs/SPBU_REGULATIONS.md`.

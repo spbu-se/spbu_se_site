@@ -147,19 +147,19 @@ for sha in commits:
 
 ## Related PowerShell pitfalls
 
-### `uv export` stderr contamination
+### stderr contamination in generated files
 
-`uv export` prints progress to stderr (`uv : Resolved 115 packages in 3ms`). Shell redirections that merge stderr into stdout (`2>&1`) or use `$(...)` interpolation can embed this garbage into `requirements.txt`.
+Commands like `uv export` print progress to stderr (`uv : Resolved 115 packages in 3ms`). Shell redirections that merge stderr into stdout (`2>&1`) or use `$(...)` interpolation can embed this garbage into the generated file.
 
 ```powershell
 # ❌ WRONG — stderr bleeds into file
-uv export --no-dev --no-hashes > requirements.txt
+some-command --output > out.txt
 
 # ❌ WRONG — $(...) flattens multi-line into single line
-[System.IO.File]::WriteAllText("reqs.txt", $(uv export --no-dev --no-hashes), ...)
+[System.IO.File]::WriteAllText("out.txt", $(some-command --output), ...)
 
 # ✅ CORRECT — use Python to capture stdout cleanly
-uv run python -c "import subprocess; r=subprocess.run(['uv','export','--no-dev','--no-hashes'],capture_output=True,text=True); r.check_returncode(); open('requirements.txt','w',encoding='utf-8',newline='\n').write(r.stdout)"
+uv run python -c "import subprocess; r=subprocess.run(['some-command','--output'],capture_output=True,text=True); r.check_returncode(); open('out.txt','w',encoding='utf-8',newline='\n').write(r.stdout)"
 ```
 
 ### CI `mdformat --check .` traverses vendored `.venv/` and `node_modules/`

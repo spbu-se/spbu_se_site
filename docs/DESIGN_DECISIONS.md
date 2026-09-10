@@ -63,7 +63,27 @@ with no release artifacts or notes.
 - Until the secret is added, draft notes are created manually following the
   skill (the agent acts as the notes generator).
 
+## [2026-09-10] uv-only deploys (SSOT: pyproject.toml, deploy lock: uv.lock)
+
+**Context**: The uv+pip split kept two dependency artifacts in parity (`pyproject.toml`/`uv.lock` plus a generated `requirements.txt`), and the prod webhook already installed via `uv sync --frozen` whenever `uv.lock` was present. Docker was the only remaining consumer of `requirements.txt` and is no longer used in production.
+
+**Decision**: `pyproject.toml` is the single source of truth; the committed `uv.lock` is the deploy lock. Dev, CI, and prod all install with uv; prod runs `uv sync --frozen --no-dev` (`extra/deploy.sh`). `requirements.txt` is removed, together with the Docker artifacts. Python is pinned to 3.13 (`.python-version`).
+
+**Rationale**:
+
+- One artifact to keep in sync (the lock); `uv lock --check` is the parity gate
+- Prod installs the exact locked set with no dev tooling (`--no-dev`)
+- No drift-prone generated file (removes the `uv export` encoding/BOM class of bugs)
+
+**Consequences**:
+
+- `requirements.txt` and the Docker files are deleted; deploys require uv on the host (already the case)
+- `extra/deploy.sh` keeps the pip/`requirements.txt` fallback **only** for fast rollback to pre-uv tags/commits
+- Minimum supported Python raised to 3.13; re-deriving the true lowest known working version is deferred (see `TODO.md`)
+
 ## [2026-07-03] Dual Dep Management: uv (dev) + pip (prod)
+
+**Superseded by**: [2026-09-10] uv-only deploys.
 
 **Context**: Development needs fast dependency resolution and lockfile consistency. Production (Docker, CI on `current`) needs minimal image size.
 

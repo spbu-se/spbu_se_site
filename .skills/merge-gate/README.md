@@ -37,7 +37,7 @@ Follow `docs/DEVELOPMENT_PROCESS.md` §0.6 (Workflow Discipline → Context comp
 
 #### 1.4 Pre-merge checks
 
-- `requirements.txt` matches `uv.lock` — regenerate if stale
+- `uv.lock` in sync with `pyproject.toml` (`uv lock --check`) — regenerate if stale
 - Run commit checklist: `mdformat`, `ruff`, `basedpyright`, `pytest -n 2`
 - **Verify the session retrospective was run** — every PR must include a
   `docs/RETROSPECTIVES.md` entry (see `docs/DEVELOPMENT_PROCESS.md §0.7`). If the
@@ -101,7 +101,7 @@ Only after phase 2 is acknowledged or no blocking issues remain:
 For staging → current merges (after staging gate is validated):
 
 1. Same phase 1-3 as above
-1. Ensure `requirements.txt` matches lockfile (blocks merge if stale)
+1. Ensure `uv lock --check` passes (lock ↔ pyproject parity)
 1. **Fast-forward merge** with GPG signoff:
    ```bash
    git checkout current

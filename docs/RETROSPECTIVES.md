@@ -2798,3 +2798,29 @@ freshness (`AI_AGENT_EXPERIENCE.md`); supervisor eligibility single-source query
 
 **State at handoff**: PRs #313/#314/#315 merged to `current` and deployed (verified); this hygiene
 PR pending. Open item for the user: the `staging`-branch doc model rewrite.
+
+### Retrospective — 2026-09-10: uv-only cleanup (drop `requirements.txt` + Docker) + pre-release security-triage gate
+
+Trigger: user directive before the `v2026.09.10` release — purge `requirements.txt`, run prod
+purely on `uv sync --frozen`, delete the obsolete Docker artifacts and the `serviceability.yml`
+job, and add "triage GitHub security alerts" as an explicit pre-release gate.
+
+**Changes analyzed**: `pyproject.toml` (`requires-python >=3.13`), `uv.lock` (−465 lines);
+deleted `requirements.txt`, `Dockerfile`, `docker-compose.yml`, `docker/entrypoint.sh`,
+`.dockerignore`, `.github/workflows/serviceability.yml`; `extra/deploy.sh` (`--no-dev` + rollback
+comment, fallback kept), `dependabot.yml` (`pip`→`uv`); docs/skills sweep (`AGENTS.md`, `README.md`,
+`DEVELOPMENT_PROCESS.md`, `GIT_FLOW.md`, `RELEASE_CHECKLIST.md` B1/B4/B5/B17, `TOOLING.md`,
+`DESIGN_DECISIONS.md`, `REQUIREMENTS.md`, `SEO_A11Y_ROADMAP.md`, `TESTING.md`, `AI_AGENTS.md`,
+`merge-gate`, `encoding-audit`, `security-audit`, `TODO.md`).
+
+| Gap | Root cause | Fix / escalation |
+| --- | ---------- | ---------------- |
+| `requirements.txt` survived as a second dependency artifact long after pip consumers were gone | Historical uv+pip split outlived its rationale (only Docker still used it); prod webhook already ran `uv sync --frozen` | `pyproject.toml` + committed `uv.lock` are the sole SSOT; prod runs `uv sync --frozen --no-dev`; the pip fallback stays **only** for rollback to pre-uv tags |
+| Deleting `serviceability.yml` silently invalidated branch-protection required checks (`check (3.11)`, `check (3.12)`) | Workflow deletion is coupled to branch protection, but no checklist linked them | User re-pointed required contexts to `lint`/`assets`/`test`; recorded here so future workflow deletions check protection first |
+| No pre-release security-alert step existed | Release checklist covered drift/test/CI but not security alerts | Added **B4** (Dependabot + code scanning + secret scanning triage); first run found 4 error path-injection (pre-existing) + an O(n²) e-mail regex introduced in #314 → follow-up `fix/security-alert-triage` PR |
+| Stale doc claims (pre-push "requirements format" hook that never existed; Docker in `REQUIREMENTS.md`/`SEO_A11Y_ROADMAP.md`/`README.md`) | Docs described an earlier pip/Docker world; no single sweep on the removal | Swept to the uv/gunicorn reality (`DEVELOPMENT_PROCESS.md` §4.5/§5/§6, `GIT_FLOW.md` §8, `TOOLING.md` export/encoding sections) |
+
+**Deviations (process)**: none.
+
+**State at handoff**: uv-cleanup PR pending; `fix/security-alert-triage` next; then tag/release
+`v2026.09.10`.

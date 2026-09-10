@@ -21,7 +21,6 @@ Recommended permissions (example for OpenCode — adapt to your tool):
       "pytest*": "allow",
       "ruff*": "allow",
       "python src/flask_se*": "allow",
-      "pip install*": "allow",
       "ls*": "allow",
       "mkdir*": "allow"
     },
