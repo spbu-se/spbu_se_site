@@ -1,4 +1,4 @@
-﻿# API Reference — Flask Routes
+# API Reference — Flask Routes
 
 <!-- encoding: utf-8 -->
 

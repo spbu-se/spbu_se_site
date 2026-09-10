@@ -2759,3 +2759,42 @@ on a repeat "send recovery e-mail" press.
 
 **Deviations (process)**: none. Browser-verified on the local demo + a new
 `e2e/test_auth_journeys.py` case (appear → close → repeat is distinct → auto-hide).
+
+### Retrospective — 2026-09-10: full session (supervisor filter, registration hardening, notification UX, docs/skills drift)
+
+Trigger: user-requested full retrospective + docs/skills drift sweep after a four-PR session
+(#313 supervisor eligibility, #314 registration hardening, #315 notification UX, and the
+docs/skills hygiene PR this entry ships in).
+
+**Changes analyzed**: 4 merged PRs + this hygiene PR. Source: `se_models.py`/`flask_se_crud.py`/
+`flask_se_admin.py` (#313); `se_validation.py` + `flask_se_config.py`/`flask_se_auth.py` +
+tests (#314); `_flash.html` + `password_recovery.html` + `se_scripts.js` + e2e (#315);
+docs/skills: 7 BOM strips, `TESTING.md`/`QUALITY_MANAGEMENT.md`/`README.md`/`DOCS.md`/
+`AI_AGENT_EXPERIENCE.md`, 3 skill headers, 10 stubs, `AI_AGENTS.md`/`CLAUDE.md` code-audit rows.
+
+| Gap | Root cause | Fix / escalation |
+| --- | ---------- | ---------------- |
+| Skills not loaded during the session; `docs-audit`/`skill-for-skills`/`retrospective-analysis` run only after the user asked | Behavioural gap — AGENTS documents "read the skill README manually", but no cue fires at the drift work; `skill` tool does not surface project skills | Documented as a recurrence; escalate to a retrieval cue if it recurs (see escalation ladder) |
+| 7 `docs/*.md` had a UTF-8 BOM despite `DOCS.md §6.2`; CI green | Missing config — no hook/CI check for BOM; rule was doc-only | Stripped BOM; detection command + fix recorded in `AI_AGENT_EXPERIENCE.md`. 1st occurrence → documented; add `check-byte-order-marker` hook if it recurs |
+| `TESTING.md` reference run 118 tests behind (1402 vs 1520 collected); `QUALITY_MANAGEMENT.md` hardcoded "92 ignores" and a `--branch staging` CI command | Missing freshness guard; metrics hardcoded contrary to the doc's own "never hardcode" rule | Appended a 2026-09-10 reference line; switched prescribed metrics to query-only commands; corrected `--branch current` |
+| README file counts stale (30→37 `.py`, 114→129 templates) | Stale metrics — no refresh trigger | Updated counts |
+| 10 vendor stubs (`.claude`/`.agents`) lacked the canonical `.skills/` pointer | Missing template — stub creation didn't include the pointer; no enforcement | Added `See: \`.skills/<name>/README.md\``to all 10; enforcement note in retro | |`readme-generator`/`repo-review`canonical READMEs began with malformed`## name:`frontmatter;`encoding-audit`had no encoding header | Drift from a frontmatter-generation step; header convention unenforced | Normalized to`# name`+`<!-- encoding: utf-8 -->`+ scope paragraph | |`code-audit`described as 6 concerns/9 sections in`AI_AGENTS.md`/`CLAUDE.md`, actually 11; `SPBU_REGULATIONS.md` absent from its source-of-truth | Skill grew without registry updates (`skill-for-skills`not run) | Updated both registries + source-of-truth table;`9 sections`→`11`| |`merge-gate`cited`DEVELOPMENT_PROCESS.md §0.8`(Skill Conventions) for context compaction, which is`§0.6`| Stale cross-ref | Fixed to §0.6 | |`docs/GIT_FLOW.md §2`and`merge-gate`Phase 3/4 describe a`staging` branch that **does not exist** on either remote; AGENTS/`current`is the live model | Documentation not updated after the branch model changed — a substantive process-doc rewrite, touching signoff/versioning/GitHub sections and many cross-refs | **Deferred and flagged to the user** — needs a dedicated decision + PR, not a hasty partial rewrite (risk of trading one inconsistency for another) | | Removal of the last template usage of`.d-none`purged it from the min CSS; local purge guard misses removals (#315) | Missing config — guard checks only the forward direction |`AGENTS.md`+`docs/TOOLING.md §Purged/minified assets\` updated (shipped in #315) |
+
+**Pattern recurrence**: none of the above was a repeat of a prior retro's exact fix; the
+staging-branch doc drift is a *new* systemic finding, not a recurrence.
+
+**What went well**: incident analysis (scanner payloads) correctly separated stored data from
+code execution; config-gated captcha keeps environments working with no keys; the UI-verification
+discipline caught the recovery-dup confusion and is now encoded as a checklist; live deploy
+verification ran after every merge.
+
+**What went wrong**: the session did not load project skills until prompted; docs/skills drift
+accumulated silently because several checks (BOM, freshness, stub pointers, skill registry) are
+documented but unenforced.
+
+**Best practices encoded this session**: shared `_flash.html` flash renderer + confusing-behaviour
+check (`AI_AGENTS.md`); purge add/remove rule (`AGENTS.md`, `TOOLING.md`); BOM detection + reference-run
+freshness (`AI_AGENT_EXPERIENCE.md`); supervisor eligibility single-source query (`DESIGN_DECISIONS.md`).
+
+**State at handoff**: PRs #313/#314/#315 merged to `current` and deployed (verified); this hygiene
+PR pending. Open item for the user: the `staging`-branch doc model rewrite.

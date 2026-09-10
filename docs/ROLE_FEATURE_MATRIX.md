@@ -2,6 +2,8 @@
 
 <!-- encoding: utf-8 -->
 
+Covers: the permission surfaces per role, the seeded local accounts that exercise them, and the feature availability matrix. Does not cover: feature specs — see `docs/REQUIREMENTS.md`; endpoint details — see `docs/API_REFERENCE.md`.
+
 Deterministic, code-derived map of the permission surfaces on the site and the
 local accounts that exercise them. Every account below is seeded by
 `src/se_seed_data.py` (single source of truth for accounts) with password `1`

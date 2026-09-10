@@ -1,6 +1,6 @@
-<!-- encoding: utf-8 -->
-
 # Code Issues Discovered During Test Coverage
+
+<!-- encoding: utf-8 -->
 
 Known production bugs and security findings, prioritized by severity, with fix status. FIXED entries are removed once their fix is merged — `git history` and `docs/RETROSPECTIVES.md` preserve the details; this file tracks what is still open, pending, or intentionally deferred.
 

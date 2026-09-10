@@ -1,4 +1,4 @@
-﻿# Requirements — SE Site (SPbSU System Programming Department)
+# Requirements — SE Site (SPbSU System Programming Department)
 
 <!-- encoding: utf-8 -->
 

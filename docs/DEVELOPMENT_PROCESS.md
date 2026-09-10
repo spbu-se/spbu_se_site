@@ -1,4 +1,4 @@
-﻿# Development Process
+# Development Process
 
 <!-- encoding: utf-8 -->
 

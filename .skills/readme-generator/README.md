@@ -1,12 +1,8 @@
-______________________________________________________________________
-
-## name: readme-generator description: Generate a polished project-specific README. Load when user says "generate readme", "update readme", "improve readme", "create readme". Works for Web, CLI, and Library projects.
-
 # readme-generator
 
 <!-- encoding: utf-8 -->
 
-Generates a project-specific README by probing the repository structure. Works for Web apps, CLI tools, and Python/Node/Rust libraries.
+Generate a polished project-specific README. Load when the user says "generate readme", "update readme", "improve readme", "create readme". Works for Web, CLI, and Library projects.
 
 ## Workflow
 

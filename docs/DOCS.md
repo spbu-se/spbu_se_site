@@ -43,6 +43,7 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 | `SCHEMA.md` | Database | Tables, fields, relationships | Endpoints, architecture | DB schema |
 | `BUSINESS_FEATURES.md` | Business | User-facing feature journeys per role: entry routes, UX contract, business value, parity-test guards | Endpoint registry, implementation | User workflows as business asset |
 | `REQUIREMENTS.md` | Features | Feature specs, user roles, navigation | Implementation, schema | Feature definition |
+| `ROLE_FEATURE_MATRIX.md` | Roles | Permission surfaces per role, seeded accounts, feature availability | Implementation, endpoint registry | Role/feature matrix |
 | `TESTING.md` | Testing | Discipline, targets, xfail policy, long-term gaps | Fixture patterns, methodology | Testing strategy |
 | `TOOLING.md` | Tools | Portable tooling knowledge | Local quirks, project errors | Cross-platform tool patterns |
 | `CODE_ISSUES.md` | Bugs | Known production bugs | Process gaps | Bug inventory |

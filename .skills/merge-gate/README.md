@@ -129,7 +129,7 @@ If uncertain: skip, include in report as `⚠️ Skipped: <reason>`. Not a fault
 - Read access to `.skills/docs-audit/README.md`
 - Read access to `.skills/code-audit/README.md`
 - Read access to `docs/GIT_FLOW.md` §2 (merge strategy)
-- Read access to `docs/DEVELOPMENT_PROCESS.md` §0.8 (context compaction)
+- Read access to `docs/DEVELOPMENT_PROCESS.md` §0.6 (Context compaction)
 - Read access to `docs/DOCS.md` §5.3 (AI drift check)
 - Read/write access to `TODO.md`, `docs/ARCHITECTURE.md`
 - Git access to merge and push
