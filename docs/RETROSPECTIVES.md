@@ -2742,3 +2742,19 @@ gated on both sitekey and secret, so no keys = unchanged behavior.
 
 **Deviations (process)**: none. UX-visible change (registration form + profile
 validation) verified locally via demo + Playwright from the user's viewpoint.
+
+### Retrospective — 2026-09-10: notification/flash UX (dismiss, auto-hide, distinguishable repeats)
+
+Trigger: user report that the green notification popup on password recovery never
+disappeared, had no close button, and was indistinguishable from the previous one
+on a repeat "send recovery e-mail" press.
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| Recovery banner never hid, no close, identical on repeat | Hand-rolled optimistic banner with no lifecycle; page was `fetch`-intercepted so the server flash never showed | Fresh alert per attempt + "повторно" marker, 5s auto-dismiss, close button, 5s button cooldown |
+| Failed request still showed green success | Feedback was shown before the request resolved and the result was only logged | Failure now replaces the alert with an error state |
+| Inconsistent alert markup across ~18 templates | No shared component; each template re-implemented flashes | `src/templates/_flash.html` macro + one auto-dismiss handler in `se_scripts.js` (phased rollout) |
+| UI verification passed despite the confusing behaviour | The UI-verification discipline checked rendering, not *confusion* (persistence, duplicate ambiguity, false success) | Added the "Confusing-behaviour check" to `docs/AI_AGENTS.md`; e2e regression test in `e2e/test_auth_journeys.py` |
+
+**Deviations (process)**: none. Browser-verified on the local demo + a new
+`e2e/test_auth_journeys.py` case (appear → close → repeat is distinct → auto-hide).

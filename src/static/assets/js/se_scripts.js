@@ -894,3 +894,46 @@ $(document).on('click', '.thesis-copy-link', function (e) {
         });
     }
 })();
+
+// Flash-message auto-dismiss (shared `_flash.html` partial): success/info
+// alerts carry `data-autodismiss` and disappear after that many ms, paused
+// while hovered/focused. Errors/warnings have no attribute and persist until
+// the close button is used (docs/SEO_A11Y_ROADMAP.md §UX feedback).
+(function () {
+    const SELECTOR = '.alert-flash[data-autodismiss]';
+    const reduceMotion = window.matchMedia
+        && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function dismiss(el) {
+        if (el.dataset.dismissed) { return; }
+        el.dataset.dismissed = '1';
+        if (reduceMotion) { el.remove(); return; }
+        el.style.transition = 'opacity .3s ease';
+        el.style.opacity = '0';
+        setTimeout(function () { el.remove(); }, 300);
+    }
+
+    function schedule(el) {
+        const ms = parseInt(el.getAttribute('data-autodismiss'), 10);
+        if (!ms || ms <= 0) { return; }
+        let timer = setTimeout(function () { dismiss(el); }, ms);
+        el.addEventListener('mouseenter', function () { clearTimeout(timer); });
+        el.addEventListener('focusin', function () { clearTimeout(timer); });
+        el.addEventListener('mouseleave', function () {
+            timer = setTimeout(function () { dismiss(el); }, ms);
+        });
+        el.addEventListener('focusout', function () {
+            timer = setTimeout(function () { dismiss(el); }, ms);
+        });
+    }
+
+    function init() {
+        document.querySelectorAll(SELECTOR).forEach(schedule);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();

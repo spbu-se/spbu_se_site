@@ -564,3 +564,32 @@ rate limiter is in-memory per worker, so an nginx `limit_req` on
 `/register_basic.html` is still recommended (ops). Investigation/cleanup of the
 existing prod rows is covered by the ops report in `.tmp/`. Tests:
 `tests/test_registration_validation.py`, `tests/test_smartcaptcha.py`.
+
+## [2026-09-10] Flash messages: one shared partial, auto-dismiss + a11y
+
+**Context**: server feedback was hand-rolled in ~18 templates with divergent
+behaviour (some had a close button, most did not; none auto-dismissed). The
+password-recovery banner was the reported pain: an optimistic green box that
+never hid, had no close control, and looked identical on every press, so a
+second "send link" was indistinguishable from the first.
+
+**Decision**: `src/templates/_flash.html` (`flash_messages()`) is the single
+renderer for server flashes. Categories map to house style (`error` → blue
+`alert-info` + "Ошибка!", persistent, `role="alert"`; `success`/`message` →
+green `alert-success`, `role="status"`/`aria-live="polite"`, auto-dismiss 5s).
+`se_scripts.js` owns dismissal via `data-autodismiss` (pauses on hover/focus,
+honours `prefers-reduced-motion`, no-JS stays readable). The no-reload recovery
+submit rebuilds a fresh alert per attempt (repeat marked "повторно"), cools the
+button for 5s, and replaces the optimistic success with an error on a failed
+request.
+
+**Rationale**: one place to change, identical behaviour everywhere, and the four
+confusion vectors (not dismissible, not auto-hiding, indistinguishable repeats,
+false success) are now structurally impossible for new pages. Inline
+server-rendered alerts were chosen over `$.notify` to keep the no-JS fallback
+and avoid a jQuery dependency.
+
+**Consequences / tech debt**: adoption is phased — auth/password pages first,
+the remaining ~14 templates follow. `bootstrap-notify` (`$.notify`) stays wired
+only to demo buttons. Checklist: `docs/AI_AGENTS.md §Confusing-behaviour check`;
+rationale: `docs/SEO_A11Y_ROADMAP.md §7`.

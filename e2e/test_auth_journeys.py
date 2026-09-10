@@ -53,3 +53,36 @@ def test_register_new_user_reaches_profile(page, live_server):
     assert "/profile.html" in page.url, page.url
     assert "Личный кабинет" in page.content()
     assert email in page.content()
+
+
+@pytest.mark.e2e
+def test_password_recovery_feedback_is_dismissible_and_distinct(page, live_server):
+    """The recovery popup is closable, a repeat is distinguishable, then it auto-hides.
+
+    Regression guard for the confusing UX: a green banner that never hid, had no
+    close button, and looked identical on every press.
+    """
+    page.goto(f"{live_server}/password_recovery.html")
+    page.fill("#recovery-email", "nobody@se.dev")
+    submit = page.locator("#recovery-form button[type=submit]")
+    alerts = page.locator("#recovery-feedback .alert")
+
+    submit.click()
+    alerts.first.wait_for(state="visible")
+    assert "ссылка для восстановления пароля" in alerts.first.inner_text()
+
+    # The close button dismisses immediately.
+    page.locator("#recovery-feedback .alert .close").first.click()
+    alerts.first.wait_for(state="detached")
+
+    # After the cooldown a repeat is allowed and clearly marked as a repeat.
+    page.wait_for_function(
+        "() => !document.querySelector('#recovery-form button[type=submit]').disabled",
+        timeout=8000,
+    )
+    submit.click()
+    alerts.first.wait_for(state="visible")
+    assert "повторно" in alerts.first.inner_text()
+
+    # Success/info auto-dismisses (~5s).
+    alerts.first.wait_for(state="detached", timeout=9000)

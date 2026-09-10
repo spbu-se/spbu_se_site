@@ -1,0 +1,38 @@
+{#
+  Shared flash-message renderer (docs/AI_AGENTS.md §UI verification).
+
+  One source for how server-side feedback is shown, so every page gets the same
+  behaviour: a close button, and auto-dismiss for success/info (5s, paused while
+  the pointer/focus is over it). Errors/warnings persist until dismissed and are
+  announced assertively.
+
+  Categories: ``error`` -> blue ``alert-info`` with an "Ошибка!" prefix
+  (house style); ``success``/``message`` -> green ``alert-success`` (auto-dismiss);
+  anything else -> blue and persistent.
+
+  Usage: ``{% from "_flash.html" import flash_messages %}`` then ``{{ flash_messages() }}``.
+#}
+{% macro flash_messages(container_class='row row-grid align-items-center justify-content-center pt-4') %}
+  {%- with messages = get_flashed_messages(with_categories=true) -%}
+    {%- if messages -%}
+      <div class="{{ container_class }}">
+        <div class="col-12">
+          {%- for category, message in messages -%}
+            {%- set is_success = category in ('success', 'message') -%}
+            <div class="alert {{ 'alert-success' if is_success else 'alert-info' }} alert-flash"
+                 role="{{ 'status' if is_success else 'alert' }}"
+                 aria-live="{{ 'polite' if is_success else 'assertive' }}"
+                 {% if is_success %}data-autodismiss="5000"{% endif %}>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Закрыть">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              {%- if category == 'error' %}<strong>Ошибка!</strong>
+            {% endif -%}
+            {{ message }}
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+{%- endwith -%}
+{% endmacro %}
