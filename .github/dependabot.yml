@@ -4,8 +4,11 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    labels:
+      - "dependencies"
+      - "python:uv"
     groups:
-      pip-dependencies:
+      uv-dependencies:
         patterns:
           - "*" # All dependabot updates are grouped
 
@@ -13,6 +16,9 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    labels:
+      - "dependencies"
+      - "github-actions"
     groups:
       github-actions:
         patterns:

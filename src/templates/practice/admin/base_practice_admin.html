@@ -131,8 +131,16 @@
     var selects = document.querySelectorAll('[data-nav-select="true"]');
     selects.forEach(function (select) {
       select.addEventListener("change", function () {
-        if (this.value) {
-          location = this.value;
+        if (!this.value) {
+          return;
+        }
+        try {
+          var target = new URL(this.value, window.location.origin);
+          if (target.origin === window.location.origin) {
+            window.location.assign(target.pathname + target.search + target.hash);
+          }
+        } catch (e) {
+          // ignore malformed navigation targets
         }
       });
     });

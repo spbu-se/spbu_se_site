@@ -134,6 +134,8 @@ Reference run (2026-08-21, `pytest --tb=no -q -rxX`): **1402 passed, 4 skipped, 
 
 Reference run (2026-09-10, `uv run pytest --tb=long`): **1515 passed, 4 skipped, 1 xpassed** (1520 collected) — registration hardening (`#314`: strict name/e-mail validation + config-gated SmartCaptcha) and notification UX (`#315`: shared `_flash.html`, dismissible/auto-hide feedback).
 
+Reference run (2026-09-10, `uv run pytest --tb=long`): **1517 passed, 4 skipped, 1 xpassed** (1522 collected) — security-alert triage (`fix/security-alert-triage`): `_safe_upload_path` traversal guard (+2), linear e-mail validation (ReDoS fix), case-insensitive test regexes.
+
 ## 5. Xpassed Tests
 
 Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass is non-fatal): intermittent CI failures that happen to pass on this machine. Tracked in the §4 "Current xfails — intermittent CI (strict=False)" table. Check xpass count by capturing the run to a log (`uv run pytest --tb=long 2>&1 | tee .tmp/xpass.log`) and searching the log for `xpassed`.

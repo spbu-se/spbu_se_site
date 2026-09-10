@@ -448,6 +448,26 @@ Every item must pass before staging -> current merge:
 | 17 | **Deprecation scan** | Check each P4 entry in `docs/CODE_ISSUES.md` against current dependency versions — escalate if now breaking |
 | 18 | **Feature removal sweep** | When a feature is removed/abandoned, sweep the whole surface: its UI in **all** templates (not only the page where it was noticed), routes, config, deps, DB schema, sitemap/og/CSP exclusions, and docs (compliance tables, catalog). Record the decision in `docs/DESIGN_DECISIONS.md`. Pattern origin: Google-SSO removal (2026-07-01) swept only `login.html`, leaving a day-one dead Google button on `register_basic.html` and a fully live backend OAuth path — see `docs/RETROSPECTIVES.md` 2026-08-31 |
 
+## 4.6 Security alerts (dedicated PR, before release)
+
+Security is a priority above feature work. Triage and fix GitHub security alerts
+in a **dedicated PR** (never bundled with a feature or a cleanup PR), and land
+security cleanup **before** cutting a release. The release gate is
+`docs/RELEASE_CHECKLIST.md` B4.
+
+1. **Triage** all three alert surfaces on the default branch:
+   - Dependabot: `gh api "repos/<owner>/<repo>/dependabot/alerts?state=open"`
+   - Code scanning: `gh api "repos/<owner>/<repo>/code-scanning/alerts?state=open"`
+   - Secret scanning: `gh api "repos/<owner>/<repo>/secret-scanning/alerts?state=open"`
+1. **Assess** each: real vs false positive; native code vs test-only; new vs
+   pre-existing. Record the disposition (fix, or accept/dismiss with a reason)
+   per `.skills/security-audit/`.
+1. **Fix** in the dedicated PR — prefer a hard, static-analysis-recognizable
+   guarantee over a "looks sanitized" one (e.g. explicit path containment, a
+   linear parser instead of a backtracking regex). Add a regression test.
+1. If a fix cannot land immediately, record the accepted risk and the plan; do
+   not silently ship an untriaged alert.
+
 ## 5. Dependencies
 
 `pyproject.toml` is the dependency source of truth; the committed `uv.lock` is

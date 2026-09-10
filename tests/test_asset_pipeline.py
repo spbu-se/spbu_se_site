@@ -206,8 +206,8 @@ class TestPurgeCompleteness:
             text = p.read_text(encoding="utf-8")
             # Skip inline JS/CSS blocks (their `class="..."` strings are not
             # HTML class attributes) and Jinja expressions.
-            text = re.sub(r"<script\b.*?</script>", " ", text, flags=re.S)
-            text = re.sub(r"<style\b.*?</style>", " ", text, flags=re.S)
+            text = re.sub(r"<script\b.*?</script>", " ", text, flags=re.S | re.I)
+            text = re.sub(r"<style\b.*?</style>", " ", text, flags=re.S | re.I)
             text = re.sub(r"\{\{.*?\}\}|\{%.*?%\}", " ", text, flags=re.S)
             for m in re.finditer(r'class\s*=\s*"([^"]*)"', text):
                 template_classes |= _class_tokens(m.group(1))

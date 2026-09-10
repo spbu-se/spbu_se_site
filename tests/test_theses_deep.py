@@ -449,3 +449,26 @@ class TestThesesFtsWildcardSearch:
         assert_ok(seeded_client, "/fetch_theses?search=фаз*")
         assert_ok(seeded_client, "/fetch_theses?search=*акс*")
         assert_ok(seeded_client, "/fetch_theses?search=д?м")
+
+
+class TestSafeUploadPath:
+    def test_rejects_path_traversal_components(self):
+        from flask_se_theses import _safe_upload_path
+
+        with pytest.raises(ValueError):
+            _safe_upload_path("texts", "../evil.pdf")
+        with pytest.raises(ValueError):
+            _safe_upload_path("..", "evil.pdf")
+        with pytest.raises(ValueError):
+            _safe_upload_path("texts", "")
+        with pytest.raises(ValueError):
+            _safe_upload_path("a/b", "evil.pdf")
+        with pytest.raises(ValueError):
+            _safe_upload_path(".", "evil.pdf")
+
+    def test_accepts_plain_filename_under_root(self):
+        from flask_se_theses import THESIS_UPLOAD_ROOT, _safe_upload_path
+
+        path = _safe_upload_path("texts", "author_2_2024_text.pdf")
+        assert path.startswith(str(Path(THESIS_UPLOAD_ROOT).resolve()))
+        assert path.endswith("author_2_2024_text.pdf")

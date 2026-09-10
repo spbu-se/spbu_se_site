@@ -9,16 +9,12 @@ stored-XSS / SSTI / SSRF probe payloads. It also caps length, which SQLite's
 ``VARCHAR(255)`` does not enforce.
 """
 
-import re
-
 MAX_PERSON_NAME_LENGTH = 100
 MAX_EMAIL_LENGTH = 254
 
 # Letters are accepted per-character via ``str.isalpha()`` (any script), so this
 # set only needs the allowed non-letter characters.
 _ALLOWED_NAME_PUNCT = frozenset(" -.'")
-
-_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 def validate_person_name(
@@ -44,13 +40,27 @@ def validate_person_name(
 
 
 def validate_email(value: str | None) -> str | None:
-    """Return an error message, or ``None`` when ``value`` looks like an e-mail."""
+    """Return an error message, or ``None`` when ``value`` looks like an e-mail.
+
+    Parsed explicitly instead of with a regex: the equivalent backtracking
+    pattern ``^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$`` was flagged as polynomial ReDoS
+    (CodeQL ``py/polynomial-redos``). This version is strictly linear.
+    """
     email = (value or "").strip()
     if len(email) < 5:
         return "Почтовый адрес должен быть больше чем 5 символов"
     if len(email) > MAX_EMAIL_LENGTH:
         return f"Почтовый адрес слишком длинный (максимум {MAX_EMAIL_LENGTH} символов)"
-    if not _EMAIL_RE.fullmatch(email):
+    local, sep, domain = email.partition("@")
+    if (
+        not sep
+        or not local
+        or "@" in domain
+        or any(char.isspace() for char in email)
+        or "." not in domain
+        or domain.startswith(".")
+        or domain.endswith(".")
+    ):
         return "Некорректный почтовый адрес"
     return None
 

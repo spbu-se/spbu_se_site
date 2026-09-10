@@ -7,6 +7,8 @@ the strict nonce-CSP and the HTTPS-only directives' gate on
 `SE_COOKIE_SECURE`, and assert `Cross-Origin-Resource-Policy` stays omitted.
 """
 
+import re
+
 import pytest
 
 import flask_se_headers
@@ -52,7 +54,7 @@ class TestCspAllowlist:
         assert "topbar.spbu.ru" not in csp
         assert "mc.yandex.ru" in csp
         assert "api-maps.yandex.ru" in csp
-        assert "maps.googleapis.com" in csp
+        assert re.search(r"https://maps\.googleapis\.com(?:\s|;|$)", csp)
         assert "report-uri /csp-report" in csp
 
     def test_no_unsafe_inline_in_script_src(self, seeded_client):

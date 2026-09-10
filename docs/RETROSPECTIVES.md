@@ -2824,3 +2824,33 @@ comment, fallback kept), `dependabot.yml` (`pip`→`uv`); docs/skills sweep (`AG
 
 **State at handoff**: uv-cleanup PR pending; `fix/security-alert-triage` next; then tag/release
 `v2026.09.10`.
+
+### Retrospective — 2026-09-10: security-alert triage (code scanning) + Dependabot group rename
+
+Trigger: the pre-release gate (`RELEASE_CHECKLIST.md` B4) — triage GitHub security alerts before
+releasing; the user also reported stale "pip-dependencies" Dependabot PRs left over from the uv
+migration.
+
+**Changes analyzed**: `src/flask_se_theses.py` (`_safe_upload_path` + `_UnsafeUploadPathError`;
+the 5 upload paths are now containment-checked), `src/se_validation.py` (linear e-mail validation,
+no backtracking regex), `src/templates/practice/admin/base_practice_admin.html` (same-origin URL
+guard instead of `location = this.value`), tests (`test_theses_deep.py` +2, case-insensitive regexes
+in `test_template_guards.py`/`test_asset_pipeline.py`, precise CSP regex in `test_security_headers.py`),
+`.github/dependabot.yml` (group `pip-dependencies` → `uv-dependencies` + explicit labels), docs
+(`AGENTS.md` security-first rule, `DEVELOPMENT_PROCESS.md` §4.6, `RELEASE_CHECKLIST.md` B4).
+
+| Gap | Root cause | Fix / escalation |
+| --- | ---------- | ---------------- |
+| 4 error `py/path-injection` alerts open since 2026-08-15 | CodeQL does not model `secure_filename`/`_safe_extension` as sanitizers; no triage step existed | Explicit `realpath` containment (`_safe_upload_path`) + regression tests; triage is now a documented release gate (B4) |
+| ReDoS in our own #314 e-mail regex | Backtracking pattern on unbounded input — the 254-char cap bounded it but did not remove the ambiguity | Linear split-based validation |
+| No security-alert step in the release flow; the gap surfaced only because the user asked | Missing hook — alerts were never pulled into the process | Added B4 + AGENTS "Security first" + §4.6 (dedicated PR, before any release) |
+| Dependabot PR title still "pip-dependencies" after the uv switch | Ecosystem changed but the group name (and its title/branch/label) was left behind | Renamed group → `uv-dependencies` + explicit labels; closed superseded #319 |
+| Dependabot + secret scanning clean | — | no action |
+
+**Best practice encoded**: prefer a static-analysis-recognizable *hard guarantee* (containment
+check, linear parser) over code that merely "looks sanitized".
+
+**Deviations (process)**: the Dependabot config fix is bundled into the security PR at the user's
+explicit direction (normally a separate chore).
+
+**State at handoff**: security PR pending; then tag/release `v2026.09.10`.

@@ -30,7 +30,7 @@ def _strip_comments_and_scripts(text: str) -> str:
         r"<script\b.*?</script>",
         " ",
         re.sub(r"<!--.*?-->", " ", text, flags=re.S),
-        flags=re.S,
+        flags=re.S | re.I,
     )
 
 
