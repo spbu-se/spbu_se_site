@@ -99,11 +99,11 @@ Standard techniques for systematic quality management, each with a dedicated art
 
 | Metric | Prescribed command | Why |
 |--------|-------------------|-----|
-| Test count | `pytest --tb=no -q` | Suite size trend — drift signals missing or broken tests |
-| Coverage % | `pytest --cov=src --cov-report=term-missing` | Coverage target compliance for production modules |
-| xfail count | `pytest --tb=no -q` | Known-failure debt — rising count means new blockers |
-| pyright ignores | `basedpyright src/` | Type debt — 92 remaining, tracked per module |
-| CI status | `gh run list --branch staging --limit 1 --json conclusion` | Gate health — red blocks all work |
+| Test count | `uv run pytest --collect-only` | Suite size trend — drift signals missing or broken tests |
+| Coverage % | `uv run pytest --cov=src --cov-report=term-missing` | Coverage target compliance for production modules |
+| xfail count | `uv run pytest --tb=long 2>&1 \| tee .tmp/pytest.log`, then search the log for `xfailed` | Known-failure debt — rising count means new blockers |
+| pyright ignores | `basedpyright src/` | Type debt, tracked per module (query live — never hardcode) |
+| CI status | `gh run list --repo spbu-se/spbu_se_site --branch current --limit 1 --json conclusion` | Gate health — red blocks all work |
 
 ### When to refresh
 

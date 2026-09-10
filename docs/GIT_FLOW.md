@@ -1,4 +1,4 @@
-﻿# Git Flow
+# Git Flow
 
 <!-- encoding: utf-8 -->
 

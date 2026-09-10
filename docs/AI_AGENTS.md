@@ -1,4 +1,4 @@
-﻿# AI Agent Configuration & Output Conventions
+# AI Agent Configuration & Output Conventions
 
 <!-- encoding: utf-8 -->
 
@@ -208,8 +208,9 @@ Each layer delegates down, never copies up. Skill stubs (`.claude/skills/`, `.ag
 | Doc conventions | `docs/DOCS.md` | `docs-audit` |
 | Bug inventory | `docs/CODE_ISSUES.md` | `code-audit` (reads, appends) |
 | Repo checklist | `docs/REPO_REVIEW.md` | `repo-review` (reads) |
+| Regulatory spot-checks | `docs/SPBU_REGULATIONS.md` | `code-audit` (reads) |
 | Task backlog | `TODO.md` | All audit skills (feed items) |
-| Merge discipline | `docs/GIT_FLOW.md` §2, `docs/DEVELOPMENT_PROCESS.md` §0.8 | `merge-gate` (reads, writes staging branch, TODO.md) |
+| Merge discipline | `docs/GIT_FLOW.md` §2, `docs/DEVELOPMENT_PROCESS.md` §0.6 (Context compaction) | `merge-gate` (reads, writes TODO.md) |
 | Process gap history | `docs/RETROSPECTIVES.md` | `retrospective-analysis` (appends) |
 
 Skills reference docs. Docs never reference skills — a doc must make sense without the skill.
@@ -219,7 +220,7 @@ Skills reference docs. Docs never reference skills — a doc must make sense wit
 A new skill is warranted when:
 
 1. **Section size signal** — a doc section has 8+ rows or grew 50%+ since creation → it has accumulated concerns, time to split
-1. **Process step complexity** — a process step is complex enough that an agent would benefit from a guided walkthrough (e.g., `code-audit` with 9 sections across code, CI, and security)
+1. **Process step complexity** — a process step is complex enough that an agent would benefit from a guided walkthrough (e.g., `code-audit` with 11 sections across code, CI, and security)
 1. **Agent efficiency** — a step is repeated across multiple sessions and skipping it would cause real harm (e.g., merge gate, doc audit)
 
 When splitting, take a full inventory first — map all content that belongs to the split concern, then batch-extract in one operation.
@@ -259,7 +260,7 @@ When updating a skill, any useful info removed from the skill must first exist i
 |------|-------|--------|---------------|
 | `.skills/retrospective-analysis/README.md` | Analysis | Process gap identification and classification | Retrospective workflow |
 | `.skills/docs-audit/README.md` | Docs | Doc health checks: freshness, cross-refs, scope, encoding, SPDX | Doc audit workflow |
-| `.skills/code-audit/README.md` | Code | Code quality and security audit: secrets, redirects, deprecations, crash safety, file safety, test health, bug inventory, repo review | Code audit workflow |
+| `.skills/code-audit/README.md` | Code | Code quality and security audit: secrets, redirects, deprecations, crash safety, file safety, test health, bug inventory, repo review, universal-safe transformations, SPbU regulation spot-check | Code audit workflow |
 | `.skills/security-audit/README.md` | Security | Structured security audit: GitHub security surface (Dependabot/CodeQL/advisories), three-pass deep review (authz/CSRF/OAuth, XSS, SQLi/files), verify-before-fix, dismissal-only-with-proof | Security audit workflow |
 | `.skills/test-writer/README.md` | Testing | Hermetic pytest test patterns | Test writing methodology |
 | `.skills/encoding-audit/README.md` | Encoding | UTF-8 detection and repair on Windows | Encoding fix recipes |

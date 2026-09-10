@@ -119,7 +119,7 @@ files (`src/static/thesis/**`, `src/static/files/**`) are still pointers.
 
 ```
 se-site/
-├── src/                    # Application code (30 .py files)
+├── src/                    # Application code (37 .py files)
 │   ├── flask_se.py         # Application factory + route orchestration
 │   ├── flask_se_scheduler.py  # APScheduler jobs
 │   ├── flask_se_static.py  # Public static pages + legacy redirects
@@ -133,7 +133,7 @@ se-site/
 │   ├── flask_se_review.py  # Thesis review system
 │   ├── flask_se_theses.py  # Thesis search and management
 │   ├── se_models.py        # SQLAlchemy models
-│   └── templates/          # Jinja2 templates (114 files)
+│   └── templates/          # Jinja2 templates (129 files)
 ├── tests/                  # Comprehensive test suite
 ├── docs/                    # Process and architecture documentation
 ├── .github/workflows/      # CI/CD pipelines

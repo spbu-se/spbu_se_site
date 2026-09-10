@@ -1,4 +1,4 @@
-﻿# Architecture
+# Architecture
 
 <!-- encoding: utf-8 -->
 

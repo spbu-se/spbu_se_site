@@ -1,5 +1,7 @@
 # encoding-audit
 
+<!-- encoding: utf-8 -->
+
 Detect and fix non-UTF-8 encoding in source files on Windows. PowerShell encoding trap, detection scripts, git recovery workflow, encoding declaration templates.
 
 Reusable across any Windows dev environment with Python or markdown files that contain non-ASCII text (Cyrillic, Chinese, accented Latin, em-dashes, etc.).

@@ -1,12 +1,8 @@
-______________________________________________________________________
-
-## name: repo-review description: Evaluate repository against docs/REPO_REVIEW.md checklist. Load when user says "review repo", "audit repo", "run repo review".
-
 # repo-review
 
 <!-- encoding: utf-8 -->
 
-Evaluates the repository against the comprehensive checklist in `docs/REPO_REVIEW.md` and creates backlog items for gaps found.
+Evaluate the repository against the `docs/REPO_REVIEW.md` checklist. Load when the user says "review repo", "audit repo", or "run repo review".
 
 ## Usage policy
 

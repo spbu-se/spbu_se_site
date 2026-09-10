@@ -132,6 +132,8 @@ Reference run (2026-08-21, `pytest --tb=no -q -rxX`): **1394 passed, 4 skipped, 
 
 Reference run (2026-08-21, `pytest --tb=no -q -rxX`): **1402 passed, 4 skipped, 3 xfailed, 1 xpassed** — Alembic removed, self-healing `ensure_schema()` shipped: `tests/test_migrations.py::TestSchemaDeltas` (8: fresh-DB init, backup+repair, server_default NOT NULL, synthesized constant defaults, exotic-nullable warning, fail-loud UNIQUE, idempotency, FTS5 index creation).
 
+Reference run (2026-09-10, `uv run pytest --tb=long`): **1515 passed, 4 skipped, 1 xpassed** (1520 collected) — registration hardening (`#314`: strict name/e-mail validation + config-gated SmartCaptcha) and notification UX (`#315`: shared `_flash.html`, dismissible/auto-hide feedback).
+
 ## 5. Xpassed Tests
 
 Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass is non-fatal): intermittent CI failures that happen to pass on this machine. Tracked in the §4 "Current xfails — intermittent CI (strict=False)" table. Check xpass count by capturing the run to a log (`uv run pytest --tb=long 2>&1 | tee .tmp/xpass.log`) and searching the log for `xpassed`.

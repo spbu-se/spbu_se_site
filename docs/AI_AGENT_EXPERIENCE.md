@@ -218,7 +218,7 @@ $lines = uv export --no-dev --no-hashes 2>($null)
 1. `git log --oneline -10` — recent commits
 1. `git branch -a` — remote branches for context
 1. Read `docs/RETROSPECTIVES.md` last entry — state at handoff section
-1. Read `docs/TODO.md` Blocked section — known blockers
+1. Read `TODO.md` Blocked section — known blockers
 1. Read `docs/QUALITY_MANAGEMENT.md §Metrics` — prescribed metric commands
 
 ## Engine disposal after config change
@@ -659,3 +659,33 @@ open(".tmp/routes.txt", "w").write(str(rs))
 **Root cause:** staging webhook endpoint returned 404 (ops-side; new staging env). Not code — a re-run of the failed job (not a new commit) fixed it.
 
 **Lesson:** after any merge to `current`, verify the latest deployment equals the merged SHA with `state == success` before continuing. Command + staging notes: `docs/TOOLING.md` §Staging environment.
+
+## UTF-8 BOM in docs — green CI, still a policy violation
+
+**When:** 2026-09-10 docs/skills drift audit. Seven `docs/*.md` files carried a UTF-8 BOM (`EF BB BF`) before the H1 despite `docs/DOCS.md §6.2` forbidding it; no CI/pre-commit check catches it, so `current` was green.
+
+**Detection (fast, no dependencies):**
+
+```bash
+for f in docs/*.md AGENTS.md CLAUDE.md README.md; do
+  [ "$(head -c3 "$f" | od -An -tx1 | tr -d ' \n')" = "efbbbf" ] && echo "BOM: $f"
+done
+```
+
+**Fix:** strip the first three bytes and rewrite as UTF-8 (no BOM):
+
+```python
+import pathlib
+p = pathlib.Path(path)
+b = p.read_bytes()
+if b.startswith(b"\xef\xbb\xbf"):
+    p.write_bytes(b[3:])
+```
+
+**Lesson:** the encoding policy is documented but unenforced — a BOM is invisible in review and in CI. Re-run the detection loop after any bulk doc import/edit; if it recurs, add a pre-commit hook (`check-byte-order-marker`).
+
+## Documentation "reference run" logs drift silently
+
+**When:** 2026-09-10. `docs/TESTING.md`'s reference-run block still ended at `1402 passed` (2026-08-21) while the suite collected 1520; `docs/QUALITY_MANAGEMENT.md` hardcoded "92 pyright ignores" and a `--branch staging` CI command for a branch (`staging`) that no longer exists.
+
+**Lesson:** append-only metric logs (test counts, coverage, ignore counts) are freshness anchors that other docs inherit (`RELEASE_CHECKLIST.md` A2). Treat every session that changes the suite as requiring the latest line to be appended, and prefer query-only phrasing ("query live, never hardcode") over embedded numbers.

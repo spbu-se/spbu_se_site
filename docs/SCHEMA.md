@@ -1,4 +1,4 @@
-﻿# Schema Reference — Database Model Definitions
+# Schema Reference — Database Model Definitions
 
 <!-- encoding: utf-8 -->
 
