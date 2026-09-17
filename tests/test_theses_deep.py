@@ -2,6 +2,7 @@
 import io
 import json
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 from conftest import _approve_temp_thesis, _make_temp_thesis, _min_pdf, assert_ok
@@ -152,6 +153,20 @@ class TestPostThesesApi:
         data = json.loads(resp.data)
         assert data["status"] == 500
         assert "Invalid secret key" in data["string"]
+
+    def test_post_theses_rate_limited(self, logged_client):
+        import flask_se_theses
+
+        with patch.object(
+            flask_se_theses.POST_THESES_RATE_LIMITER, "allow", side_effect=[True, False]
+        ):
+            resp_ok = logged_client.post("/post_theses", data={})
+            resp_limited = logged_client.post("/post_theses", data={})
+        assert resp_ok.status_code == 200
+        assert json.loads(resp_ok.data)["status"] == 500
+        assert resp_limited.status_code == 200
+        assert json.loads(resp_limited.data)["status"] == 429
+        assert "Rate limit exceeded" in json.loads(resp_limited.data)["string"]
 
     @pytest.mark.parametrize(
         "info_overrides, expected_error",

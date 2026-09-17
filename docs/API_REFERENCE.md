@@ -83,7 +83,7 @@ Covers: all route endpoints, HTTP methods, view function names, descriptions. Do
 |---|---|---|---|
 | `/theses.html` | GET | `theses_search` | Thesis search with filters. **Server-rendered** (cards + pagination in initial HTML; JS progressively enhances filtering). Full-text search uses SQLite FTS5 virtual table `thesis_fts` (columns: name_ru, description, author, text). OG: when `search` param present, og:title = `Результаты поиска: "<query>"`. |
 | `/fetch_theses` | GET | `fetch_theses` | AJAX paginated thesis list fragment (same query as `theses_search`, shared `_query_theses()` helper). Query params: `worktype`, `supervisor`, `consultant` (free-text substring), `course`, `startdate`, `enddate`, `search`, `page` |
-| `/post_theses` | GET, POST | `post_theses` | Upload new thesis |
+| `/post_theses` | GET, POST | `post_theses` | Upload new thesis. Requests are rate-limited to 60 per hour per IP address. |
 | `/theses_tmp.html` | GET | `theses_tmp` | List temp theses for review |
 | `/theses_delete_tmp` | POST | `theses_delete_tmp` | Delete temp thesis |
 | `/theses_add_tmp` | POST | `theses_add_tmp` | Approve/publish temp thesis |

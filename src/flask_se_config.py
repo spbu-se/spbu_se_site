@@ -354,3 +354,7 @@ PASSWORD_RECOVERY_RATE_LIMITER = RateLimiter(
     limit=5 if _RATE_LIMITS_ENABLED else None,
     window_seconds=3600,
 )
+POST_THESES_RATE_LIMITER = RateLimiter(
+    limit=60 if _RATE_LIMITS_ENABLED else None,
+    window_seconds=3600,
+)
