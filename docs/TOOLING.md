@@ -719,3 +719,13 @@ fails if the committed outputs drift.
 **Windows notes**: never edit the bases with `Set-Content`/PowerShell 5.1
 `-Encoding UTF8` (adds a BOM + re-encodes Cyrillic → mojibake). Use
 `[System.IO.File]::WriteAllText($path, $text, (New-Object System.Text.UTF8Encoding($false)))` instead.
+
+## OMO
+
+The `.omo/` boulder system (`.omo/boulder.json` + `.omo/plans/<name>.md`) is an
+**OMO-specific (OhMyOpenCode) dev artifact** — a session-planning enhancement
+that replaces `.unfinished.plan.md` for agents running under OMO. It is not part
+of the general dev process: `AGENTS.md` and `docs/DEVELOPMENT_PROCESS.md` §0.7
+describe `.unfinished.plan.md` as the primary session-planning mechanism and
+stay agent-agnostic. OMO users may substitute the boulder system; everyone else
+uses `.unfinished.plan.md`.
