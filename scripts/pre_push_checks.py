@@ -68,6 +68,23 @@ CHECKS: list[tuple[str, list[str]]] = [
 ]
 
 
+def warn_hardcoded_section_refs() -> None:
+    """Warning-only: hardcoded §N refs in docs/ (too many existing to fail)."""
+    import re
+    from pathlib import Path
+
+    pattern = re.compile(r"§\d+(\.\d+)?")
+    hits: list[str] = []
+    for path in sorted(Path("docs").glob("*.md")):
+        for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if pattern.search(line):
+                hits.append(f"{path}:{lineno}: {line.strip()}")
+    if hits:
+        print(f"[pre-push] WARNING: {len(hits)} hardcoded §N refs in docs/ (non-blocking)")
+        for hit in hits[:10]:
+            print(f"  {hit}")
+
+
 def main() -> int:
     for name, cmd in CHECKS:
         print(f"[pre-push] {name}")
@@ -75,6 +92,7 @@ def main() -> int:
         if result.returncode != 0:
             print(f"[pre-push] FAILED: {name} (exit {result.returncode})", file=sys.stderr)
             return result.returncode
+    warn_hardcoded_section_refs()
     print("[pre-push] all checks passed")
     return 0
 
