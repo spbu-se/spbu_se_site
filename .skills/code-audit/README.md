@@ -9,7 +9,11 @@ Not doc health (see `.skills/docs-audit/`), not process improvement (see `.skill
 
 ## When to load
 
+<<<<<<< HEAD
 - Before merging to `current` (protects users and product)
+=======
+- Before a feature → `current` merge gate (protects users and product)
+>>>>>>> chore: update code-audit/security-audit/merge-gate wording (staging→current)
 - After any session touching 5+ source files (proactive, not reactive)
 - On user request for code audit
 
