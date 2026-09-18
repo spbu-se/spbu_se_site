@@ -581,7 +581,6 @@ def _user_owned_content(user):
         "theses_on_review": user.thesis_on_review_author,
         "reviews": user.reviewer,
         "post_votes": user.all_user_votes,
-        "internships": user.internship_author,
         "current_theses": user.current_thesises,
     }
     return {

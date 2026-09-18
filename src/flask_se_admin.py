@@ -135,7 +135,6 @@ class SeAdminModelViewUsers(RestrictedCrudView):
     column_display_pk = True
     _exclude = [
         "password_hash",
-        "internship_author",
         "current_thesises",
         "diploma_themes_author",
         "diploma_themes_consultant",

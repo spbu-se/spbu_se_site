@@ -54,7 +54,6 @@ from flask_se_config import (
 from flask_se_csp_report import register_csp_report
 from flask_se_diplomas import register_routes as register_diplomas_routes
 from flask_se_headers import register_security_headers
-from flask_se_internships import register_routes as register_internships_routes
 from flask_se_logviewer import register_log_viewer
 from flask_se_news import register_routes as register_news_routes
 from flask_se_practice import register_routes as register_practice_routes
@@ -123,7 +122,7 @@ def render_markdown(text: str) -> Markup:
     Sanitization happens at render time so it covers every current and future
     call site and legacy rows. It is required before marking the output safe:
     python-markdown passes raw HTML through unchanged and the source is
-    user-authored (theme/report/internship content).
+    user-authored (theme/report content).
     """
     return Markup(nh3.clean(_markdown.markdown(text or "", extensions=["tables"])))  # noqa: S704  sanitized immediately before Markup
 
@@ -263,7 +262,6 @@ def _register_routes(app: Flask) -> None:
     register_scholarships_routes(app)
     register_diplomas_routes(app)
     register_review_routes(app)
-    register_internships_routes(app)
     register_practice_routes(app)
     register_practice_staff_routes(app)
     register_practice_admin_routes(app)
