@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # pyright: reportUnusedFunction=false
 # Route view functions registered via decorators inside _register_* helpers;

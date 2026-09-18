@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 """Input validation for user-supplied person names and e-mail addresses.
 

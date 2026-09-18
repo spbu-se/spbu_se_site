@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 """Security-header guardrails (docs/SEO_A11Y_ROADMAP.md §CSP + security headers).
 
