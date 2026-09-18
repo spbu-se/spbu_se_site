@@ -17,7 +17,7 @@
 - [Архив практик и ВКР (полнотекстовый поиск)](https://se.math.spbu.ru/theses.html)
 - [Темы практик и ВКР](https://se.math.spbu.ru/diplomas/)
 - [Рецензирование практик и ВКР](https://se.math.spbu.ru/review/)
-- [Поиск IT-стажировок](https://se.math.spbu.ru/internships/internships_index.html)
+
 - [Стипендии и гранты](https://se.math.spbu.ru/students/scholarships.html)
 - [Новости кафедры](https://se.math.spbu.ru/news/)
 - [Вопросы и ответы](https://se.math.spbu.ru/frequently-asked-questions.html)
