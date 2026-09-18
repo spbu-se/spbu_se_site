@@ -202,7 +202,7 @@ Ask these questions to surface waste and optimization opportunities:
 | **Did any new rule land outside its canonical doc?** | Scope boundary violation — e.g., universal knowledge in `.tooling.md`, process rules in config files |
 | **Could any change harm users or the product?** (Supreme Directive I/II) | Edge cases that aren't bugs but degrade UX, lose data, or incur technical debt |
 | **Did practice conflict with a Strategic Priority in the Project Doctrine?** | E.g., a rule we said was "low-effort" turned out high-effort in this context. Classify as **value contradiction** in step 3 — flag to user, do not fix autonomously. |
-| Did AGENTS.md grow 4+ lines vs branch point? | `git diff --stat origin/staging...HEAD AGENTS.md` — if +4+, run step 5b AI-instruction-file bloat audit |
+| Did AGENTS.md grow 4+ lines vs branch point? | `git diff --stat upstream/current...HEAD AGENTS.md` — if +4+, run step 5b AI-instruction-file bloat audit |
 | Did CLAUDE.md grow vs branch point? | Any new line in CLAUDE.md is suspicious — must delegate to AGENTS.md, never expand |
 | Is this a docs/ branch finalization? | Mandatory — run step 5b bloat audit on both AGENTS.md and CLAUDE.md regardless of delta |
 | What was going another way that we definitely expected? | Identify decisions or commands whose outcome differed from expectation. Each divergence is either a bug, a process gap, or new knowledge. |

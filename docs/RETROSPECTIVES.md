@@ -2876,3 +2876,73 @@ scanning returned to 0 open.
 
 **State at handoff**: process PR pending; the release tag `v2026.09.10` must be re-created on the
 new `current` HEAD (post-Dependabot merges) before the draft release.
+
+### Retrospective — docs-drift-review (2026-09-18)
+
+Trigger: mandatory full retro for a doc-restructuring session (per the skill's
+"After doc restructuring" trigger). The session swept the docs for drift after
+the branch model changed: GIT_FLOW.md rewritten to the single-branch model,
+staging→current references purged from process docs, stale metrics refreshed,
+encoding declarations added, and vendor stubs pointed at their canonical
+`.skills/` sources.
+
+**Changes analyzed**: 56 files — docs (GIT_FLOW.md single-branch rewrite,
+DEVELOPMENT_PROCESS.md staging→current sweep, DOCS.md, TOOLING.md, TESTING.md,
+CODE_ISSUES.md, README.md, TODO.md, OPEN_QUESTIONS.md), config
+(ci-staging.yml dead-workflow comment, deploy_staging.yml rename), tooling
+(5 `.opencode/skills/` stub pointers), source (38 `.py` encoding declarations,
+`upload.py` LFS conversion).
+
+| Gap | Root cause | Fix / escalation |
+| --- | ---------- | ---------------- |
+| Stale metrics: README `.py`/template counts, TODO pyright 114→92 | Hardcoded metrics with no refresh trigger — **4th occurrence** (2026-07-08 ×2, 2026-09-10, now) | Counts updated to reality (37 `.py`, 123 templates, 92 ignores). Structural fix — live-query commands instead of hardcoded counts — still not applied; the 2026-07-08 retro already called for it. Escalate to L1 (CI check or remove hardcoded numbers) — needs user decision |
+| GIT_FLOW.md still described the staging→current two-branch flow | Doc not updated after the branch model changed — explicitly deferred from the 2026-09-10 retro | Rewritten to single-branch model: feature → `current` via PR squash-merge (§2.1), staging marked legacy (§1.3, §2.4), hotfix lane §2.2, signed-commits §2.3. Resolves the deferred 2026-09-10 item |
+| Cross-ref drift: AGENTS.md/TOOLING.md pointed to `§2.3a` after renumbering | Renumbering without a cross-ref sweep — but this session updated refs **in-session** (renumbering-map discipline from the 2026-07-07 retro working) | `§2.3a`→`§2.2`/`§2.3` fixed in AGENTS.md + TOOLING.md; DEVELOPMENT_PROCESS.md verified clean of `§2.3a` |
+| Skills still reference the old staging flow: `docs-audit:11`, `code-audit:10`, `security-audit:12`, `merge-gate` Phase 3/4 | GIT_FLOW.md rewritten but skills not swept — step 10 "were skills updated when docs changed?" = no | `docs-audit` fixed in this retro (loaded skill, §5c). `code-audit`/`security-audit` wording + `merge-gate` Phase 3/4 (full PR-squash-merge rewrite) flagged as follow-up — run `skill-for-skills` after the GIT_FLOW.md rewrite |
+| 5 `.opencode` stubs got `See:` pointers; `encoding-audit` + `flask-test-patterns` still missing | Incomplete stub-pointer fix — **2nd occurrence** of the 2026-09-10 stub-pointer gap (10 `.claude`/`.agents` stubs fixed then, `.opencode` missed) | Pointers added to the 2 remaining stubs in this retro. DOCS.md §8.1 #7 gate exists but is manual — escalate to L2 (CI check) on next occurrence |
+| Boundary violations: GIT_FLOW.md:65, DEVELOPMENT_PROCESS.md:466/508 reference `.skills/<name>/` directly | AI_AGENTS.md §Skills rule "process docs never reference skills or `.skills/` paths" not enforced | Identified, **not fixed** — replace with `docs/AI_AGENTS.md` §Skills cross-references. Flagged for the follow-up docs PR |
+| Encoding gap: 38 `.py` got declarations, the whole `flask_se_practice*.py` family (6 files) missed | **2nd occurrence** of the 2026-07-06 encoding-declaration gap; the `check-encoding` hook was deferred then and never added → new files created without declarations | 6 declarations added in this retro. Completeness command added to `docs-audit` §5. Escalate to L2 (CI/pre-commit encoding check) — the deferred 2026-07-06 hook |
+| Work performed on `current` (uncommitted) instead of a `docs/` branch | Branch-discipline violation — **3rd+ recurrence** (2026-08-11 retro) | Recovered by branching before commit (`docs/docs-drift-review`); rule already in AGENTS.md pre-flight |
+
+**Pattern recurrence**: YES — stale metrics (4th), encoding declarations (2nd),
+stub pointers (2nd), branch-on-current (3rd+). Escalation ladder applies:
+stale metrics + encoding → L1/L2 (tool config / CI check); stub pointers → L2.
+
+**What went well**: the GIT_FLOW.md rewrite resolved the 2026-09-10 deferred
+item; cross-refs were updated in-session (renumbering-map discipline working);
+ci-staging.yml was honestly marked dead instead of silently kept; the deploy
+workflow rename carried its TOOLING.md cross-ref update.
+
+**What went wrong**: three fixes were incomplete (38/44 `.py`, 5/7 stubs, and
+the skills sweep never ran) — the §8a "what ELSE could be affected / verify
+nothing was silently lost" questions were not asked mid-session; boundary
+violations were identified but left in place.
+
+**Deviations (process)**: work was done on `current` (uncommitted) — recovered
+by branching before commit; recorded above as a recurrence.
+
+**Step 8 (self-improve retrospective)**: no ambiguous classifications (step 3);
+target doc `docs/RETROSPECTIVES.md` clear (step 5a); no user corrections this
+session; skills loaded — `retrospective-analysis` (this retro) and `docs-audit`
+(updated §5 with the encoding completeness command, step 5c applied); the retro
+itself appended to RETROSPECTIVES.md, no standalone files — no process
+violation; no upstream refresh this session.
+
+**Step 9 (self-improve the skill)**: the retro skill's own §8a bloat-audit
+question still referenced `origin/staging` — stale after the GIT_FLOW.md
+single-branch rewrite (same class of gap flagged above for
+`code-audit`/`security-audit`/`merge-gate`). Fixed to `upstream/current` in
+this commit.
+
+**Step 10 (review retro skill against docs)**: skill matches
+`DEVELOPMENT_PROCESS.md` §2 (retro = append to RETROSPECTIVES.md) and
+`AI_AGENTS.md` §Skills (boundaries respected — references `docs/AI_AGENTS.md`,
+never process docs; catalog entry accurate). Docs-changed→skill-updated check:
+the GIT_FLOW.md rewrite surfaced the stale `origin/staging` in the retro skill
+§8a — fixed. Light/full split still appropriate — no change proposed.
+
+**State at handoff**: this retro + completed fixes on `docs/docs-drift-review`;
+follow-up items — `skill-for-skills` sweep after the GIT_FLOW.md rewrite
+(`merge-gate` Phase 3/4, `code-audit`/`security-audit` wording), boundary
+violations in GIT_FLOW.md/DEVELOPMENT_PROCESS.md, L1/L2 escalation for stale
+metrics + encoding declarations (user decision).
