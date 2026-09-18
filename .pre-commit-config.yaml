@@ -22,6 +22,13 @@ repos:
         types: [markdown]
         stages: [pre-commit]
 
+      - id: check-encoding
+        name: Check encoding declarations
+        entry: 'bash -c ''! grep -rL "^#.*coding: utf-8" src/ tests/ --include="*.py" --exclude="__init__.py" | grep -q . || (echo "Missing encoding in:"; grep -rL "^#.*coding: utf-8" src/ tests/ --include="*.py" --exclude="__init__.py"; exit 1)'''
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
   - repo: https://github.com/trim21/dprint-pre-commit
     rev: v0.55.1.4
     hooks:

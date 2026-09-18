@@ -9,7 +9,14 @@ Not doc health (see `.skills/docs-audit/`), not process improvement (see `.skill
 
 ## When to load
 
+\<<\<<\<<< HEAD
+
 - Before merging to `current` (protects users and product)
+  \=======
+- Before a feature → `current` merge gate (protects users and product)
+
+> > > > > > > chore: update code-audit/security-audit/merge-gate wording (staging→current)
+
 - After any session touching 5+ source files (proactive, not reactive)
 - On user request for code audit
 
@@ -28,7 +35,12 @@ If found, classify:
 - **Ephemeral** (regenerated on every restart, e.g., `os.urandom(16).hex()`) → P2 — the pattern trains developers to ignore ERROR output
 - **Persistent** (same value across restarts, committed or configured) → P0 security issue
 
+\<<\<<\<<< HEAD
 Reference: `docs/CODE_ISSUES.md` SECRET_KEY_THESIS entry (removed 2026-09 as FIXED — check if any P0 entries exist).
+
+\=======
+
+> > > > > > > chore: fix code-audit stale ref + add TODO.md to Dependencies
 
 ### 2. Redirect validation
 
@@ -164,6 +176,7 @@ After any session touching 5+ source files, re-verify the site still satisfies t
 
 - `rg` (ripgrep) — for fast source scanning
 - Read access to `docs/CODE_ISSUES.md` — bug inventory
+- Read access to `docs/TODO.md` — backlog
 - Read access to `docs/REPO_REVIEW.md` — repo checklist
 - Read access to `docs/TESTING.md` — xfail policy
 - Read access to `docs/SPBU_REGULATIONS.md` — СПбГУ website-regulation compliance posture

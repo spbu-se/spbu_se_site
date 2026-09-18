@@ -463,7 +463,7 @@ security cleanup **before** cutting a release. The release gate is
    - Secret scanning: `gh api "repos/<owner>/<repo>/secret-scanning/alerts?state=open"`
 1. **Assess** each: real vs false positive; native code vs test-only; new vs
    pre-existing. Record the disposition (fix, or accept/dismiss with a reason)
-   per `.skills/security-audit/`.
+   per `docs/AI_AGENTS.md §Skills`.
 1. **Fix** in the dedicated PR — prefer a hard, static-analysis-recognizable
    guarantee over a "looks sanitized" one (e.g. explicit path containment, a
    linear parser instead of a backtracking regex). Add a regression test.
@@ -505,7 +505,7 @@ Versioning is date-based — every release is tagged `vYYYY.MM.DD` (see
    release commit; §B check-only items are verified. The sitemap lastmod and
    footer copyright are auto-derived (no bump needed — see checklist B14).
 1. Determine the previous release tag: `gh release list --repo spbu-se/spbu_se_site`
-1. Run the `release-notes` skill (`.skills/release-notes/`) to generate
+1. Run the `release-notes` skill (`docs/AI_AGENTS.md §Skills`) to generate
    `.tmp/release-notes.md` — Part 1 plain-English user summary, Part 2 developer
    changelog (dependencies table, major changes, contributors, compare link).
    Drafts live in `.tmp/` (gitignored) — never at the repo root.

@@ -53,6 +53,8 @@ Always query live, never hardcode:
 | Coverage | `pytest --cov=src --cov-report=term-missing` | ~1 min |
 | CI status | `gh run list --repo spbu-se/spbu_se_site --branch current --limit 1 --json conclusion` | ~2s |
 | pyright ignores | `basedpyright src/` | ~30s |
+| Python file count | `ls src/*.py \| wc -l` | ~1s |
+| Template count | `find src/templates -name '*.html' \| wc -l` | ~1s |
 
 Local durations (measured 2026-09-07 on the Linux dev box; the CI `test` job
 runs the full suite in ~1.5-2 min). Always query live, never hardcode results.

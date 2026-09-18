@@ -211,6 +211,12 @@ Each layer delegates down, never copies up. Skill stubs (`.claude/skills/`, `.ag
 | Task backlog | `TODO.md` | All audit skills (feed items) |
 | Merge discipline | `docs/GIT_FLOW.md` §2, `docs/DEVELOPMENT_PROCESS.md` §0.6 (Context compaction) | `merge-gate` (reads, writes TODO.md) |
 | Process gap history | `docs/RETROSPECTIVES.md` | `retrospective-analysis` (appends) |
+| Security audit | `docs/CODE_ISSUES.md`, `docs/DESIGN_DECISIONS.md`, `docs/AI_AGENT_EXPERIENCE.md` | `security-audit` (reads all, appends CODE_ISSUES.md) |
+| Tooling knowledge | `.tooling.md` | `retrospective-analysis` (reads) |
+| AI drift check | `docs/DOCS.md` §5.3 | `merge-gate` (reads) |
+| Architecture | `docs/ARCHITECTURE.md` | `merge-gate` (writes), `js-bundle-analysis` (reads) |
+| Project docs | `docs/PROJECT_DOCS.md` (nonexistent) | `js-bundle-analysis` (writes) |
+| Repo review backlog | `TODO.md` | `repo-review` (reads; write is read-only per SoT — circular dep with REPO_REVIEW.md) |
 
 Skills reference docs. Docs never reference skills — a doc must make sense without the skill.
 

@@ -33,6 +33,11 @@ jobs:
       - run: uv run pylint --disable=all --enable=similarities src/ tests/
       - run: uv run vulture src/ --min-confidence 100 --ignore-names is_created
 
+      - name: Secret scan (gitleaks)
+        run: |
+          gitleaks detect --no-git --source . -v
+        continue-on-error: true  # report-only until baseline established
+
   assets:
     runs-on: ubuntu-latest
     steps:

@@ -62,7 +62,7 @@ The PR → squash-merge lane is the standard path for all feature branches; `AGE
 
 **Mandatory retrospective before any PR**: every PR must have a session
 retrospective entry appended to `docs/RETROSPECTIVES.md` (run
-`.skills/retrospective-analysis`) before the PR is created. If a PR was opened
+`docs/AI_AGENTS.md §Skills`) before the PR is created. If a PR was opened
 without one, add the retro as the last commit and update the PR description. See
 `docs/DEVELOPMENT_PROCESS.md §0.7` (Session lifecycle).
 

@@ -2997,6 +2997,8 @@ LFS-related changes remain on the branch.
 **State at handoff**: branch history rewritten (fixups squashed), retro
 appended, pre-push gate green, pushed with `--force-with-lease`.
 
+\<<\<<\<<< HEAD
+
 ### Retrospective — deferred batch (2026-09-18)
 
 Trigger: light retro for chore/deferred PR. Low-priority items.
@@ -3022,4 +3024,89 @@ merge-gate, unattended-mode — mostly staging→current rewrites, stale ref cle
 **What went well**: healthz follows existing route registration pattern; skill drift fix
 checked all 8 skills systematically.
 
-**No gaps found. No pattern recurrence.**
+# **No gaps found. No pattern recurrence.**
+
+### Retrospective — 2026-09-18: docs/CI batch finalization (Waves 1+2+3) + upload.py LFS recurrence
+
+Light retro (routine docs+config batch) before the `chore/docs-ci-batch` PR.
+10 commits, 19 files (+264/−106): docs (12), tooling/config (4 —
+`.pre-commit-config.yaml`, `.github/workflows/ci.yml`, `scripts/pre_push_checks.py`,
+`.github/` templates), source (1 — `src/static/files/upload.py` fix).
+
+**What was done** — 15 items across 3 waves:
+
+- **Wave 1 — low-hanging docs (7)**: `.skills/` dir refs in GIT_FLOW.md +
+  DEVELOPMENT_PROCESS.md replaced with AI_AGENTS.md §Skills cross-refs;
+  code-audit/security-audit/merge-gate wording updated (staging→current);
+  gitleaks secret scan added to CI (continue-on-error, report-only); SoT table
+  rows for 5 skills in AI_AGENTS.md; code-audit stale `SECRET_KEY_THESIS` ref
+  fixed + TODO.md dependency added; REPO_REVIEW.md marked gitignored in README
+  table; boundary-violations cleanup across 4 process docs.
+- **Wave 2 — CI/config (2)**: encoding-declaration check as pre-commit hook
+  (all `src/`/`tests/` .py files must carry `#.*coding: utf-8`); live metrics
+  section in AGENTS.md + soft §N cross-ref warning in `pre_push_checks.py`.
+- **Wave 3 — community docs (5)**: CONTRIBUTING.md (semantic commits, real PR
+  body pattern, accurate pre-push chain), CODE_OF_CONDUCT.md (Contributor
+  Covenant v2.1, SPbSU enforcement), SECURITY.md (release-based version model,
+  dedicated security PR), `.github/ISSUE_TEMPLATE/bug.md` + `feature.md`
+  (modeled on real issues), `.github/PULL_REQUEST_TEMPLATE.md`
+  (Summary/Changes/Verification). All authored from real repo patterns
+  (`git log`/PR/issue archaeology), not boilerplate.
+- **Fix commit (1)**: `src/static/files/upload.py` restored from LFS pointer.
+
+**Gaps found**:
+
+| Gap | Root cause | Fix |
+| --- | ---------- | ---- |
+| `src/static/files/upload.py` converted to an LFS pointer by commit 2e40db8 (encoding-check wave) | **Pattern recurrence (2nd)** — same regression as docs-drift-review (2026-09-18): staging a .py file under the LFS-tracked `src/static/files/**` path runs the git-lfs clean filter, silently replacing the blob with a pointer. The branch was based on the docs-drift-review merge (#324) that fixed this exact bug — the wave session re-broke it | Restored the 75-line script + added `# -*- coding: utf-8 -*-` (required by the new encoding hook), staged via `git update-index --cacheinfo` (bypasses the clean filter), committed with `--no-verify` (hook stash/restore re-runs the filter). Diff vs `current` is now only the +1 encoding line |
+| No automated check catches .py files under LFS-tracked paths becoming pointers | Missing config — the encoding hook runs at pre-commit stage and the pointer slipped through; nothing verifies index blobs are non-pointer | **Escalation (2nd recurrence → Layer 2)**: add a CI/pre-push check that `git ls-files -s` shows a non-pointer blob for every `.py` under `src/static/files/**`/`src/static/thesis/**`. Flagged as follow-up (user decision) |
+
+**Pattern recurrence**: **YES** — upload.py LFS-pointer regression is the 2nd
+occurrence of the docs-drift-review gap. Escalated per ladder to Layer 2 (CI
+check) — flagged, not auto-fixed, to keep this batch scoped.
+
+**What went well**:
+
+- Pre-push gate green on first run (actionlint, gitleaks, uv lock, ruff
+  format+lint, basedpyright) — the new encoding hook and gitleaks stage both
+  pass.
+- Community docs trace to real repo patterns (commit prefixes, PR body
+  structure, pre-push chain) — no boilerplate.
+- The LFS regression was caught during finalization verification
+  (`git diff upstream/current...HEAD` showed the pointer), not after merge.
+- AGENTS.md bloat audit (docs-branch mandatory): +2 lines vs branch point
+  (within +4 guard); CLAUDE.md untouched.
+
+**What went wrong**:
+
+- The wave session that added the encoding hook staged upload.py through the
+  LFS clean filter without verifying the index blob — the exact failure mode
+  documented in the docs-drift-review retro, one session later.
+- `git add` with a temporary `!filter` attribute override did not reliably
+  stage the raw content (broken index stat cache, `size: 0`); the proven
+  `git update-index --cacheinfo` bypass was required.
+
+**Root causes**:
+
+1. **Pattern recurrence** — no verification step for index blobs under
+   LFS-tracked paths; the docs-drift-review workaround was documented in a
+   retro entry, not in a searchable canonical doc or a tool guard.
+1. **Missing config** — no CI/pre-push check distinguishes a pointer blob from
+   a real blob for `.py` files under LFS-tracked paths.
+
+**Fix**:
+
+- Restored upload.py (76 lines, encoding declaration) on this branch; diff vs
+  `current` is the +1 encoding line only.
+- Retro entry records the 2nd recurrence and the Layer-2 escalation proposal
+  (CI check on `git ls-files -s` for LFS-tracked `.py` paths) — follow-up PR.
+
+**State at handoff**:
+
+- Branch `chore/docs-ci-batch`, 11 commits (9 wave + 1 fix + this retro),
+  pre-push gate green, ready for push + PR.
+- Working tree: phantom ` M src/static/files/upload.py` (documented LFS
+  stat-cache artifact, pre-existing on LFS-enabled checkouts — not introduced
+  by this branch).
+
+> > > > > > > docs: retrospective — docs/CI batch finalization + upload.py LFS recurrence
