@@ -2996,3 +2996,10 @@ LFS-related changes remain on the branch.
 
 **State at handoff**: branch history rewritten (fixups squashed), retro
 appended, pre-push gate green, pushed with `--force-with-lease`.
+
+### Retrospective — deferred batch (2026-09-18)
+
+Trigger: light retro for chore/deferred PR. Low-priority items.
+
+**Changes**: CODEOWNERS, devcontainer, stale-bot, print→logging, §N cleanup, link audit.
+Staging branch archived/frozen — no cleanup.
