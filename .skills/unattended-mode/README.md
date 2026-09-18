@@ -2,6 +2,8 @@
 
 <!-- encoding: utf-8 -->
 
+> **Last updated**: 2026-09-18 — Updated branching and workflow from staging→current two-branch model to single-branch model (feature→current via PR).
+
 Run autonomously — no questions, no interaction. Maximize throughput.
 
 ## When to load
@@ -34,19 +36,18 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 
 ## Branching
 
-- **Always branch from staging** at the very beginning: `git checkout staging && git pull --ff-only origin staging && git checkout -b staging-auto-<UTC-timestamp>`
-- Use this branch for all commits. Never commit to staging directly.
-- `staging-auto-*` branches are **scratch space** — commit freely, no garbage rules. CI runs automatically via `ci-staging.yml` (trigger `staging-auto-*`).
-- These branches are **never merged raw**. Later, the user squash-merges to staging with clean, feature-grouped commits.
-- In non-auto (interactive) mode, merges to staging require GPG signoff.
+- **Always branch from current** at the very beginning: `git checkout current && git pull --ff-only origin current && git checkout -b staging-auto-<UTC-timestamp>`
+- Use this branch for all commits. Never commit to current directly.
+- `staging-auto-*` branches are **scratch space** — commit freely, no garbage rules. CI runs automatically via the auto-branch workflow trigger (see `docs/GIT_FLOW.md` §1.1).
+- These branches are **never merged raw**. Later, the user squash-merges to current with clean, feature-grouped commits via `gh pr merge --squash`.
 - UTC timestamp format: `YYYYMMDDTHHMMSSZ` (e.g., `staging-auto-20260704T150706Z`).
 
-**Feature-PR variant**: when the user explicitly asks to deliver via a GitHub PR (e.g., "review in GH and merge manually"), the approved plan governs — branch `fix/`- or `docs/`-style from `origin/staging`, commit with `--no-gpg-sign`, push to the fork, and open the PR (base `current` for upstream PRs). Do not auto-create a `staging-auto-*` scratch branch in that case. The rest of the rules (granular commits, push to trigger CI, verify CI green after push, retro before PR) apply unchanged.
+**Feature-PR variant**: when the user explicitly asks to deliver via a GitHub PR (e.g., "review in GH and merge manually"), the approved plan governs — branch `fix/`- or `docs/`-style from `origin/current`, commit with `--no-gpg-sign`, push to the fork, and open the PR (base `current` for upstream PRs). Do not auto-create a `staging-auto-*` scratch branch in that case. The rest of the rules (granular commits, push to trigger CI, verify CI green after push, retro before PR) apply unchanged.
 
 ## Workflow
 
 1. Record start time (UTC ISO 8601)
-1. `git checkout staging && git pull --ff-only origin staging`
+1. `git checkout current && git pull --ff-only origin current`
 1. `uv run pre-commit install --install-hooks` — ensure hooks are active before any commits
 1. `git checkout -b staging-auto-<UTC-timestamp>`
 1. Accept approved plan
