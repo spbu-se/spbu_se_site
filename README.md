@@ -115,7 +115,7 @@ se-site/
 │   ├── flask_se_review.py  # Thesis review system
 │   ├── flask_se_theses.py  # Thesis search and management
 │   ├── se_models.py        # SQLAlchemy models
-│   └── templates/          # Jinja2 templates (129 files)
+│   └── templates/          # Jinja2 templates (123 files)
 ├── tests/                  # Comprehensive test suite
 ├── docs/                    # Process and architecture documentation
 ├── extra/                   # Deploy webhook script + systemd unit
