@@ -57,13 +57,9 @@ def test_users_str_middle_name(app_ctx):
 @pytest.mark.parametrize(
     "model_name,kwargs,exp_repr,exp_str",
     [
-        ("InternshipFormat", {"format": "Online"}, None, "Online"),
-        ("InternshipTag", {"tag": "Python"}, None, "Python"),
         ("ThesisOnReviewWorktype", {"type": "Bachelor"}, "Bachelor", None),
         ("Courses", {"name": "Algorithms", "code": "CS101"}, "<'Algorithms'>", None),
         ("PostType", {"name": "Announcement", "type": 2}, None, "Announcement"),
-        ("InternshipFormat", {"format": "Remote"}, "Remote", None),
-        ("InternshipTag", {"tag": "Go"}, "Go", None),
         (
             "ThesisReport",
             {
@@ -75,7 +71,6 @@ def test_users_str_middle_name(app_ctx):
             "Completed X",
             "Completed X",
         ),
-        ("InternshipCompany", {"name": "Acme Corp"}, "Acme Corp", None),
         ("Worktype", {"type": "bachelor"}, "bachelor", "bachelor"),
         ("ThesisOnReviewWorktype", {"type": "Master"}, None, "Master"),
         ("Courses", {"name": "Data Structures", "code": "DS101"}, None, "Data Structures"),
@@ -145,24 +140,6 @@ def test_thesis_task_repr_str(app_ctx):
     db.session.commit()
     assert repr(t) == "Implement feature X"
     assert str(t) == "Implement feature X"
-
-
-def test_internships_repr_str(app_ctx):
-    from se_models import Internships, Users, db
-
-    u = Users(first_name="Author", last_name="User", email="author@test.ru")
-    db.session.add(u)
-    db.session.flush()
-    i = Internships(
-        name_vacancy="Junior Dev",
-        salary="50000",
-        requirements="Python",
-        author_id=u.id,
-    )
-    db.session.add(i)
-    db.session.commit()
-    assert repr(i) == "Junior Dev"
-    assert str(i) == "Junior Dev"
 
 
 def test_diploma_themes_repr_str(app_ctx):

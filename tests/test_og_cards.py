@@ -2,7 +2,7 @@
 import re
 
 import pytest
-from conftest import _make_published_thesis, _seed_internship
+from conftest import _make_published_thesis
 
 
 def _head_html(resp) -> str:
@@ -54,27 +54,6 @@ class TestOgNewsItem:
         assert 'property="og:type" content="article"' in head
         assert 'property="og:title"' in head
         assert 'property="og:description"' in head
-
-
-class TestOgInternship:
-    def test_internship_og_and_canonical(self, seeded_client):
-        internship_id = _seed_internship(
-            seeded_client,
-            company="OG Card Co",
-            vacancy="OG Card Vacancy",
-            description="OG card description",
-            requirements="Some requirements text for the og card",
-        )
-        resp = seeded_client.get(f"/internships/{internship_id}")
-        head = _head_html(resp)
-        assert resp.status_code == 200
-        assert 'property="og:type" content="article"' in head
-        canonical = re.search(r'rel="canonical" href="([^"]+)"', head)
-        assert canonical is not None
-        assert canonical.group(1) == f"https://se.math.spbu.ru/internships/{internship_id}"
-        assert "/diplomas/index.html" not in canonical.group(1)
-        assert 'property="og:title" content="OG Card Vacancy"' in head
-        assert 'property="og:description" content="OG card description"' in head
 
 
 class TestOgDiplomaTheme:
@@ -195,7 +174,6 @@ PUBLIC_META_PAGES = [
     "/theses.html",
     "/news/",
     "/diplomas/",
-    "/internships/internships_index.html",
     "/review/",
     "/summer_school_list.html",
     "/summer_school_2021.html",

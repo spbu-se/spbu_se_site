@@ -278,41 +278,6 @@ def _setup_current_thesis_with_report():
     return ct.id, report.id
 
 
-def _seed_internship(
-    client,
-    *,
-    company="Existing Co",
-    vacancy="Existing Vacancy",
-    description="Desc",
-    requirements="Req",
-) -> int:
-    """Shared internship seeding helper (was duplicated in test_og_cards + test_internships_deep)."""
-    from se_models import InternshipCompany, InternshipFormat, Internships, InternshipTag, db
-
-    company_obj = InternshipCompany(name=company)
-    db.session.add(company_obj)
-    db.session.flush()
-
-    fmt = db.session.get(InternshipFormat, 1)
-    tag = db.session.get(InternshipTag, 1)
-
-    internship = Internships(
-        name_vacancy=vacancy,
-        salary="50000",
-        description=description,
-        location="SPb",
-        company_id=company_obj.id,
-        requirements=requirements,
-        more_inf="https://example.com",
-        author_id=1,
-    )
-    internship.format = [fmt]
-    internship.tag = [tag]
-    db.session.add(internship)
-    db.session.commit()
-    return internship.id
-
-
 def _make_published_thesis(name="Thesis", author="Author"):
     """Shared published-thesis seeding helper (was duplicated in test_og_cards + test_ssr_lists)."""
     from se_models import Thesis, db
@@ -397,8 +362,6 @@ def _assert_seeded_tables():
         Courses,
         Curriculum,
         DiplomaThemes,
-        InternshipFormat,
-        InternshipTag,
         Posts,
         Staff,
         ThemesLevel,
@@ -414,8 +377,6 @@ def _assert_seeded_tables():
     assert Posts.query.count() > 0
     assert ThemesLevel.query.count() > 0
     assert DiplomaThemes.query.count() > 0
-    assert InternshipFormat.query.count() > 0
-    assert InternshipTag.query.count() > 0
     return Curriculum
 
 
