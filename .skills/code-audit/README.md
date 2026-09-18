@@ -7,7 +7,7 @@ Not doc health (see `.skills/docs-audit/`), not process improvement (see `.skill
 
 ## When to load
 
-- Before `staging→current` gate (protects users and product)
+- Before PR merge gate (protects users and product)
 - After any session touching 5+ source files (proactive, not reactive)
 - On user request for code audit
 

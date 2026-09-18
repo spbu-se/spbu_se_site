@@ -2,6 +2,6 @@
 
 Doc health checks: freshness, cross-references, scope discipline, encoding, and structural integrity.
 Not process improvement.
-Load when restructuring docs, before staging→current gate, or when 3+ `.md` files are touched.
+Load when restructuring docs, before PR merge gate, or when 3+ `.md` files are touched.
 
 See: `.skills/docs-audit/README.md`

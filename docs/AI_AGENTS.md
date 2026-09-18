@@ -189,7 +189,7 @@ Rebalancing between light and full is a cost-optimization decision. The default 
 1. **Safety** — a guardrail exists at a higher level (merge-gate, full retro, user review) that catches anything the light mode would miss
 1. **No harm** — the light mode skipping a check cannot hurt users or the product. If there is any doubt, keep full.
 
-The retrospective-analysis skill (§10) reviews whether splits are still appropriate after each full run.
+The retrospective-analysis skill (see "Efficiency modes" under Skills) reviews whether splits are still appropriate after each full run.
 
 ### Delegation chain
 
@@ -284,7 +284,7 @@ Each stub (`SKILL.md`) points to the canonical source in `.skills/<name>/README.
 | File | Purpose |
 |------|---------|
 | `pause.md` | Graceful exit — save session state |
-| `finalize.md` | Run staging→current gate and merge |
+| `finalize.md` | Run PR gate and squash-merge to current |
 
 ## CI discipline
 
