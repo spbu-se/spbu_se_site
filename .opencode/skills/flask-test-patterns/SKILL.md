@@ -7,3 +7,5 @@ ______________________________________________________________________
 description: Copy-paste fixture templates for Flask + SQLAlchemy + pytest with xdist. Auth bypass, Whoosh isolation, file uploads, sendmail mocking, seeded databases.
 
 Canonical source: .skills/flask-test-patterns/README.md
+
+See: `.skills/flask-test-patterns/README.md`
