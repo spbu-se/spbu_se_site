@@ -2,13 +2,15 @@
 
 <!-- encoding: utf-8 -->
 
+> **Last updated**: 2026-09-18 — Rewrote Phase 3/4 from two-branch staging→current model to single-branch feature→current via PR model (GIT_FLOW.md changed).
+
 Pre-merge workflow: audit doc health, audit code quality, compact context, verify CI, and merge with proper commit discipline. Collects all findings first, outputs a summary, then executes.
 Not a replacement for process docs — reads them, follows their rules.
 
 ## When to load
 
 - End of auto-mode batch session (after audit skills)
-- Before manual feature branch merge to staging
+- Before manual feature branch merge via PR to current
 - On user command "finalize session"
 
 ## Workflow
@@ -43,7 +45,7 @@ Follow `docs/DEVELOPMENT_PROCESS.md` §0.6 (Workflow Discipline → Context comp
   `docs/RETROSPECTIVES.md` entry (see `docs/DEVELOPMENT_PROCESS.md §0.7`). If the
   PR was opened without one, run `.skills/retrospective-analysis`, add the entry
   as the last commit, and update the PR description.
-- Check `origin/staging` CI status
+- Check CI status on the target branch
 
 ### Phase 2 — Report
 
@@ -82,35 +84,28 @@ For each finding, indicate:
 
 The user may ask to expand any section for details.
 
-### Phase 3 — Execute (staging gate)
+### Phase 3 — Execute (feature → current via PR)
 
 Only after phase 2 is acknowledged or no blocking issues remain:
 
-1. **Squash-merge** (no GPG — auto branches are throwaway):
+1. **Create a PR** (if not already open):
    ```bash
-   git checkout staging
-   git merge --squash <branch>
-   git commit -m "<type>: <summary>"
-   git push origin staging
+   gh pr create --base current --head <branch> --title "<type>: <summary>"
    ```
-1. **Clean up**: delete local and remote feature branch
+1. **Wait for CI green**:
+   ```bash
+   gh pr checks <number> --watch
+   ```
+   If CI fails, fix on branch, push, retry.
+1. **Squash-merge** (GitHub-signed, auto-verified):
+   ```bash
+   gh pr merge <number> --squash --delete-branch
+   ```
+1. **Clean up**: delete local feature branch
+1. **Post-merge deploy verification**: confirm the deploy landed — the latest
+   deployment on the upstream repo must point at the merged SHA with
+   `state == success`.
 1. **Output merge summary**: commit hash, files changed, merge result
-
-### Phase 4 — Execute (current gate — future)
-
-For staging → current merges (after staging gate is validated):
-
-1. Same phase 1-3 as above
-1. Ensure `uv lock --check` passes (lock ↔ pyproject parity)
-1. **Fast-forward merge** with GPG signoff:
-   ```bash
-   git checkout current
-   git merge --ff-only staging
-   git tag -a v<version> -m "<version>"
-   git push origin current --tags
-   ```
-1. **Clean up**: delete merged local branches, list stale remote branches
-1. **Update `docs/RETROSPECTIVES.md`** if retro occurred
 
 ### Auto-fix rules
 

@@ -2,12 +2,14 @@
 
 <!-- encoding: utf-8 -->
 
+> **Last updated**: 2026-09-18 — Fixed stale CODE_ISSUES.md references (SECRET_KEY_THESIS, P2 redirect entries removed) and updated staging→current gate wording to match single-branch model.
+
 Code quality and security audit: detect secrets in logs, validate redirects, scan deprecations, check crash safety and file safety, maintain bug inventory, and run repo-wide review patterns. Does not fix bugs — reports and saves for future work.
 Not doc health (see `.skills/docs-audit/`), not process improvement (see `.skills/retrospective-analysis/`). For a deep security audit (GitHub security surface + three-pass authz/XSS/SQLi review), load `.skills/security-audit/` instead.
 
 ## When to load
 
-- Before `staging→current` gate (protects users and product)
+- Before merging to `current` (protects users and product)
 - After any session touching 5+ source files (proactive, not reactive)
 - On user request for code audit
 
@@ -26,7 +28,7 @@ If found, classify:
 - **Ephemeral** (regenerated on every restart, e.g., `os.urandom(16).hex()`) → P2 — the pattern trains developers to ignore ERROR output
 - **Persistent** (same value across restarts, committed or configured) → P0 security issue
 
-Reference: `docs/CODE_ISSUES.md` SECRET_KEY_THESIS entry.
+Reference: `docs/CODE_ISSUES.md` SECRET_KEY_THESIS entry (removed 2026-09 as FIXED — check if any P0 entries exist).
 
 ### 2. Redirect validation
 
@@ -39,7 +41,7 @@ rg "redirect_next_url" src/
 
 Verify `next` URL is validated (relative URL check, whitelist, or `url_parse`). If unvalidated, add entry to `docs/CODE_ISSUES.md` if not already tracked.
 
-Reference: `docs/CODE_ISSUES.md` P2 redirect entry.
+Reference: `docs/CODE_ISSUES.md` P2 redirect entry (removed 2026-09 as FIXED — check P2 section for any open redirect issues).
 
 ### 3. Deprecation scanning
 
