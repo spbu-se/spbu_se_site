@@ -5,7 +5,7 @@ import os
 import secrets
 import shutil
 import sys
-from datetime import UTC, date
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 __all__ = ["app", "db", "scheduler"]
@@ -250,10 +250,20 @@ def _init_extensions(app: Flask) -> None:
     app.context_processor(_inject_template_globals)
 
 
+def healthz():  # pyright: ignore[reportUnusedFunction]  # registered via add_url_rule
+    """Liveness probe for uptime monitors.
+
+    Deliberately no DB check and no auth: liveness must not couple to DB
+    health, and probes are unauthenticated.
+    """
+    return {"status": "ok", "timestamp": datetime.now(UTC).isoformat()}, 200
+
+
 def _register_routes(app: Flask) -> None:
     """All app routes, registered by domain module. Endpoint names derive from
     each view function's __name__, so registering via these helpers never
     renames a URL. Adding a route means editing the module that owns it."""
+    app.add_url_rule("/api/healthz", "healthz", healthz)
     register_auth_routes(app)
     register_theses_routes(app)
     # post_theses is an authenticated-by-secret API (external upload script),

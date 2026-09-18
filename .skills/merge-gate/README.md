@@ -2,13 +2,15 @@
 
 <!-- encoding: utf-8 -->
 
+> **Last updated**: 2026-09-18 — Rewrote Phase 3/4 from two-branch staging→current model to single-branch feature→current via PR model (GIT_FLOW.md changed).
+
 Pre-merge workflow: audit doc health, audit code quality, compact context, verify CI, and merge with proper commit discipline. Collects all findings first, outputs a summary, then executes.
 Not a replacement for process docs — reads them, follows their rules.
 
 ## When to load
 
 - End of auto-mode batch session (after audit skills)
-- Before PR merge to current
+- Before manual feature branch merge via PR to current
 - On user command "finalize session"
 
 ## Workflow
@@ -43,6 +45,7 @@ Follow `docs/DEVELOPMENT_PROCESS.md` §0.6 (Workflow Discipline → Context comp
   `docs/RETROSPECTIVES.md` entry (see `docs/DEVELOPMENT_PROCESS.md §0.7`). If the
   PR was opened without one, run `.skills/retrospective-analysis`, add the entry
   as the last commit, and update the PR description.
+- Check CI status on the target branch
 
 ### Phase 2 — Report
 
@@ -81,21 +84,28 @@ For each finding, indicate:
 
 The user may ask to expand any section for details.
 
-### Phase 3 — Execute (PR gate)
+### Phase 3 — Execute (feature → current via PR)
 
 Only after phase 2 is acknowledged or no blocking issues remain:
 
-1. **Create PR** targeting `current`:
+1. **Create a PR** (if not already open):
    ```bash
    gh pr create --base current --head <branch> --title "<type>: <summary>"
    ```
-1. **Wait for CI**: `gh pr checks <number> --watch`
-1. **Squash-merge** (no GPG — feature branches are throwaway):
+1. **Wait for CI green**:
+   ```bash
+   gh pr checks <number> --watch
+   ```
+   If CI fails, fix on branch, push, retry.
+1. **Squash-merge** (GitHub-signed, auto-verified):
    ```bash
    gh pr merge <number> --squash --delete-branch
    ```
-1. **Verify deploy**: confirm the latest deployment on the upstream repo's deploy env points at the merged SHA with `state == success` (see `docs/TOOLING.md` §Staging environment).
 1. **Clean up**: delete local feature branch
+1. **Post-merge deploy verification**: confirm the deploy landed — the latest
+   deployment on the upstream repo must point at the merged SHA with
+   `state == success`.
+1. **Output merge summary**: commit hash, files changed, merge result
 
 ### Auto-fix rules
 
