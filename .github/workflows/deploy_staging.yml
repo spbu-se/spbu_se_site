@@ -22,6 +22,7 @@ jobs:
         env:
           AUTHKEY: ${{ secrets.XSEAUTH }}
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL_STAGING }}
+          STAGING_URL: ${{ secrets.STAGING_URL }}
         run: |
           # Pin the exact commit so re-runs deploy the same version.
           SHA="${GITHUB_SHA}"
@@ -31,3 +32,20 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{\"sha\":\"${SHA}\"}" \
             "${WEBHOOK_URL}"
+
+      - name: Verify staging is healthy
+        env:
+          STAGING_URL: ${{ secrets.STAGING_URL || 'https://se.math.spbu.ru/staging/' }}
+        run: |
+          echo "Polling ${STAGING_URL} for healthy response..."
+          for i in $(seq 1 12); do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${STAGING_URL}" || echo "000")
+            if [ "${HTTP_CODE}" = "200" ]; then
+              echo "✅ Staging healthy after ${i}x15s=$((i*15))s (HTTP ${HTTP_CODE})"
+              exit 0
+            fi
+            echo "  attempt $i/12: HTTP ${HTTP_CODE} — waiting 15s..."
+            sleep 15
+          done
+          echo "::error::Staging did not return 200 within 3 minutes. Last HTTP code: ${HTTP_CODE}"
+          exit 1
