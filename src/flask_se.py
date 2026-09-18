@@ -412,24 +412,28 @@ def ensure_schema() -> None:
     db_file = Path(fsc.SQLITE_DATABASE_PATH, fsc.SQLITE_DATABASE_NAME)
     if not db_file.is_file():
         init_db()
-        print("[ensure-schema] Fresh DB initialized from models")
+        app.logger.info("[ensure-schema] Fresh DB initialized from models")
         return
 
     backup = Path(fsc.SQLITE_DATABASE_PATH, fsc.SQLITE_DATABASE_BACKUP_NAME)
     try:
         shutil.copyfile(db_file, backup)
-        print(f"[ensure-schema] Backed up DB to {backup.name}")
+        app.logger.info("[ensure-schema] Backed up DB to %s", backup.name)
     except OSError as exc:
         # Best-effort: the deploy webhook runs the migration with writable DB
         # dir, but app workers may only read it (prod hit PermissionError here,
         # which silently disabled the whole self-heal). The migration itself
         # must not be blocked by a backup we can't write.
-        print(f"[ensure-schema] WARNING: DB backup to {backup.name} failed ({exc}); continuing")
+        app.logger.warning(
+            "[ensure-schema] WARNING: DB backup to %s failed (%s); continuing",
+            backup.name,
+            exc,
+        )
 
     db.create_all()
     _ensure_schema_columns()
     ensure_fts5_index()
-    print("[ensure-schema] Schema is up to date")
+    app.logger.info("[ensure-schema] Schema is up to date")
 
 
 def _ensure_schema_columns() -> None:
@@ -466,16 +470,18 @@ def _add_missing_column(conn, dialect, table, column) -> None:
     else:
         literal = _synthesized_default_literal(column, dialect)
         if literal is None:
-            print(
-                f"[ensure-schema] WARNING: {name} is NOT NULL {column.type} with no "
-                "server_default; adding it nullable. Set a server_default in the model."
+            app.logger.warning(
+                "[ensure-schema] %s is NOT NULL %s with no "
+                "server_default; adding it nullable. Set a server_default in the model.",
+                name,
+                column.type,
             )
             clause = f"{column.name} {column.type.compile(dialect=dialect)}"
         else:
             clause = (
                 f"{column.name} {column.type.compile(dialect=dialect)} NOT NULL DEFAULT {literal}"
             )
-    print(f"[ensure-schema] ADD COLUMN {name}")
+    app.logger.info("[ensure-schema] ADD COLUMN %s", name)
     conn.execute(db.text(f"ALTER TABLE {table.name} ADD COLUMN {clause}"))
 
 
