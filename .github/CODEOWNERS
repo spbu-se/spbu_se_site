@@ -1,0 +1,5 @@
+# Default owner
+* @spbu-se/site-maintainers
+
+# CI/CD config
+/.github/workflows/ @spbu-se/site-maintainers

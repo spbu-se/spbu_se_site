@@ -266,7 +266,7 @@ If a tag already exists and must be re-created (e.g. a mis-tag), delete it first
 
 ### 8.1 Branch protection (aspirational)
 
-**Why**: Prevents accidental pushes to `current` and ensures CI quality gates are enforced before production merges. This aligns with [Strategic Priority: Robust] — no bypass of the staging→current gate.
+**Why**: Prevents accidental pushes to `current` and ensures CI quality gates are enforced before production merges. This aligns with [Strategic Priority: Robust] — no bypass of the feature→current gate.
 
 **What**: Protect `current` from direct pushes and enforce status checks. Requires repo admin access.
 
@@ -274,12 +274,12 @@ If a tag already exists and must be re-created (e.g. a mis-tag), delete it first
 
 **Why**: Fast CI feedback reduces debugging cost — catching a failure seconds after push is cheaper than finding it hours later. This aligns with [Strategic Priority: Low effort].
 
-**What**: Before starting new work, verify CI on staging is green. After push, wait for CI completion.
+**What**: Before starting new work, verify CI on `current` is green. After push, wait for CI completion.
 
 **How**:
 
 ```bash
-gh run list --branch staging --json status,conclusion,databaseId
+gh run list --branch current --json status,conclusion,databaseId
 gh run view <run-id> --log-failed
 gh run watch <run-id>
 ```
@@ -296,7 +296,7 @@ uv lock --check
 
 ### 8.4 PR gate for feature branches
 
-See §2.1 — the PR gate is the standard path for all feature branches pushed to remote. Always create a PR before merging to staging.
+See §2.1 — the PR gate is the standard path for all feature branches pushed to remote. Always create a PR before merging to current.
 
 **PR body contract** — the body documents *results and non-obvious decisions*,
 not a file-by-file changelog (recoverable from `git diff`). Cover:

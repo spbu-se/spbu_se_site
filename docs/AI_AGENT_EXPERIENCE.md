@@ -372,9 +372,9 @@ for root, dirs, files in os.walk('src'):
 
 **Attempts:**
 
-1. `uv run pytest --tb=short -q` + `Select-Object -Last` — got counts only, no failure context; violated TESTING.md §3a ("save attempts, not screen space"). User flagged the behavior.
+1. `uv run pytest --tb=short -q` + `Select-Object -Last` — got counts only, no failure context; violated TESTING.md's "Diagnostic discipline — save time, not screen space". User flagged the behavior.
 
-**Fix:** Diagnostic runs use `uv run pytest --tb=long -n 1` with full output captured (the tool auto-writes to a file if too large; search that file with `rg`, never `Select-Object -Last/-First`). `-q` only for the final green confirmation after a clean `--tb=long` run. Rule strengthened in AGENTS.md + TESTING.md §3a.
+**Fix:** Diagnostic runs use `uv run pytest --tb=long -n 1` with full output captured (the tool auto-writes to a file if too large; search that file with `rg`, never `Select-Object -Last/-First`). `-q` only for the final green confirmation after a clean `--tb=long` run. Rule strengthened in AGENTS.md + TESTING.md's "Diagnostic discipline" section.
 
 ## Git commit via MCP tool times out when pre-commit hooks run
 
@@ -382,7 +382,7 @@ for root, dirs, files in os.walk('src'):
 
 **Pattern:** The commit may or may not have landed; `git log --oneline -3` shows it didn't, and files show `MM` (staged + unstaged) because pre-commit auto-fixed formatting on staged files after staging.
 
-**Fix:** Re-stage (`git add -u`) after the failed commit and re-run via shell `git commit --no-gpg-sign -m "..."` (with a 120s timeout). On this repo feature branches use `--no-gpg-sign` per GIT_FLOW §4.
+**Fix:** Re-stage (`git add -u`) after the failed commit and re-run via shell `git commit --no-gpg-sign -m "..."` (with a 120s timeout). On this repo feature branches use `--no-gpg-sign` per GIT_FLOW's "Signoff Policy" section.
 
 ## dprint pre-commit hook hangs downloading WASM plugins (network)
 
@@ -556,7 +556,7 @@ open(".tmp/routes.txt", "w").write(str(rs))
 
 **When:** 2026-08-15, cleanup of merged branches on the canonical repo whose `upstream` remote push URL is deliberately `no-push-to-upstream`.
 
-**Root cause:** `git push upstream --delete <branch>` is impossible by design (push guard, `docs/GIT_FLOW.md §8`); the bare-URL escape hatch works but runs the pre-push gate and needs explicit lease handling.
+**Root cause:** `git push upstream --delete <branch>` is impossible by design (push guard, `docs/GIT_FLOW.md`'s "GitHub Integration" section); the bare-URL escape hatch works but runs the pre-push gate and needs explicit lease handling.
 
 **Fix:** `gh api -X DELETE repos/<owner>/<repo>/git/refs/heads/<branch>` uses the gh token (which already has merge rights) and skips hooks entirely. Deletes the fork's own branches too, when preferred over `git push origin --delete`. 204 = success (no output).
 
@@ -662,7 +662,7 @@ open(".tmp/routes.txt", "w").write(str(rs))
 
 ## UTF-8 BOM in docs — green CI, still a policy violation
 
-**When:** 2026-09-10 docs/skills drift audit. Seven `docs/*.md` files carried a UTF-8 BOM (`EF BB BF`) before the H1 despite `docs/DOCS.md §6.2` forbidding it; no CI/pre-commit check catches it, so `current` was green.
+**When:** 2026-09-10 docs/skills drift audit. Seven `docs/*.md` files carried a UTF-8 BOM (`EF BB BF`) before the H1 despite `docs/DOCS.md`'s "Declarations" under the Encoding Policy forbidding it; no CI/pre-commit check catches it, so `current` was green.
 
 **Detection (fast, no dependencies):**
 

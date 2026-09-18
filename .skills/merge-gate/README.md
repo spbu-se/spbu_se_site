@@ -41,7 +41,7 @@ Follow `docs/DEVELOPMENT_PROCESS.md` §0.6 (Workflow Discipline → Context comp
 
 - `uv.lock` in sync with `pyproject.toml` (`uv lock --check`) — regenerate if stale
 - Run commit checklist: `mdformat`, `ruff`, `basedpyright`, `pytest -n 2`
-- **Verify the session retrospective was run** — every PR must include a
+- Verify the session retrospective was run — every PR must include a
   `docs/RETROSPECTIVES.md` entry (see `docs/DEVELOPMENT_PROCESS.md §0.7`). If the
   PR was opened without one, run `.skills/retrospective-analysis`, add the entry
   as the last commit, and update the PR description.
