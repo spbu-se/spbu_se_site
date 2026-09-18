@@ -512,7 +512,7 @@ Versioning is date-based — every release is tagged `vYYYY.MM.DD` (see
 1. Update version references if any
 1. Build static site if needed: `uv run python src/flask_se.py build`
 1. Confirm the prod install path still works if dependencies changed: `uv sync --frozen --no-dev`
-1. Tag and push to the canonical repo (GPG-signed):
+1. Tag and push to the canonical repo (signed, GPG or SSH):
    ```bash
    git tag -s vYYYY.MM.DD && git push <upstream> vYYYY.MM.DD
    ```

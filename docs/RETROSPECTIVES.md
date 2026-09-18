@@ -3109,4 +3109,26 @@ check) — flagged, not auto-fixed, to keep this batch scoped.
   stat-cache artifact, pre-existing on LFS-enabled checkouts — not introduced
   by this branch).
 
-> > > > > > > docs: retrospective — docs/CI batch finalization + upload.py LFS recurrence
+### Retrospective — tag signing + release process gap (2026-09-18)
+
+Trigger: user discovered tag v2026.09.18 was SSH-signed (not GPG) and release
+checklist was skipped. Full retro per user request.
+
+**Changes analyzed**: tag v2026.09.18 creation, 0 committed files.
+
+| Gap | Root cause | Fix |
+|-----|------------|------|
+| Tag is SSH-signed, docs prescribe GPG | User's git config has `gpg.format = ssh` — `git tag -s` produces SSH signatures silently. GitHub API returns `verified: true` for both GPG and SSH, but docs say "GPG" exclusively | Update GIT_FLOW.md §7 + RELEASE_CHECKLIST.md B11/B15 + DEVELOPMENT_PROCESS.md §6 to say "signed tag (GPG or SSH)", not "GPG-signed" |
+| Release checklist not run before tagging | No automated pre-tag gate — checklist is manual doc, easy to skip | Add pre-tag guardrail to AGENTS.md pre-flight + RELEASE_CHECKLIST.md header |
+| No draft release created | Tag was pushed without creating the GitHub release draft per DEVELOPMENT_PROCESS.md §6 steps 8-9 | Add to pre-tag procedure: "after tag, create draft release" |
+| Tag created mid-session without formal process | GIT_FLOW.md §7: "created only when a release is actually shipped, not on every merge." Process was followed but timing was off (tagged after 4 PRs merged, which IS a valid release boundary) | Document that tagging is appropriate after a batch of PRs, but must follow checklist |
+
+**Pattern recurrence**: NO — this is a first occurrence of this specific gap.
+However, related gaps (process docs not followed) have recurred in other
+contexts. Escalate to Layer 2: add CI check for tag-signing format.
+
+**What went well**: GitHub's API verifies SSH signatures identically to GPG —
+the deploy gate would have passed. The docs are wrong, not the CI.
+
+**What went wrong**: Release checklist not consulted before tagging. Tag was
+pushed before creating the draft release.
