@@ -8,7 +8,7 @@ Not process improvement (see `.skills/retrospective-analysis/`).
 ## When to load
 
 - After doc restructuring or content moves between docs
-- Before a staging→current gate (as part of finalization)
+- Before a merge gate (as part of finalization)
 - When a session touches 3+ `.md` files
 - On user request for doc audit
 
@@ -46,7 +46,9 @@ Is every tool rule described in both doc AND enforced in config? → remove from
 
 - Every source file (`.py`, `.md`, `.yaml`, `.json`, `.toml`, `.cfg`) has an encoding declaration — see `docs/DOCS.md` §6.2
 - No UTF-8 BOM (EF BB BF) in any file — CI catches this, but verify locally before push
-- Count Python files with `# -*- coding: utf-8 -*-` declaration
+- Count Python files with `# -*- coding: utf-8 -*-` declaration — verify completeness, not just count:
+  `for f in $(git ls-files '*.py'); do head -1 "$f" | grep -q 'coding' || echo "MISSING: $f"; done`
+  (2026-09-18: a sweep fixed 38 of 44 `.py` files and missed the whole `flask_se_practice*.py` family — always run the completeness check after a bulk encoding fix)
 - Count markdown files with `<!-- encoding: utf-8 -->` declaration
 
 ### 6. SPDX / licensing

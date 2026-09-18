@@ -46,6 +46,34 @@
   (flatpickr/notify), content-hash `?v=`, Lighthouse budget — see
   `docs/PERFORMANCE.md`.
 
+## Repo Review Backlog
+
+Audit 2026-09-18 per `.skills/repo-review/README.md` against
+`docs/REPO_REVIEW.md` (10 phases, read-only). No score committed — actionable
+items only. Items already tracked elsewhere are marked with a pointer.
+
+| # | Phase | Item | Priority | Effort |
+|---|-------|------|----------|--------|
+| 1 | 1 Legal | Add `CONTRIBUTING.md` — standalone contributor guide linking `docs/GIT_FLOW.md` + `docs/DEVELOPMENT_PROCESS.md` (README "Contributing" section exists, file doesn't) | M | S |
+| 2 | 1 Legal | Add `CODE_OF_CONDUCT.md` | M | S |
+| 3 | 1 Legal | Add `.github/ISSUE_TEMPLATE/` — bug report + feature request templates | M | S |
+| 4 | 1/5 Security | Add `SECURITY.md` — vulnerability reporting policy (also Phase 5 gap) | **H** | S |
+| 5 | 1 Legal | Add `.github/PULL_REQUEST_TEMPLATE.md` — encode the `Closes #n` / retro conventions from `AGENTS.md` | L | S |
+| 6 | 2 Arch | Resolve `docs/REPO_REVIEW.md` gitignore inconsistency — file is gitignored (`.gitignore` line 149) yet listed in the README documentation table; either un-ignore + commit the checklist or drop the README row | M | S |
+| 7 | 4 Testing | Add tests for `se_internship_forms.py` (0% coverage) — already tracked in Module Coverage table above; close the gap | M | M |
+| 8 | 4 Testing | Decide fate of coverage-omitted modules `src/wsgi.py`, `src/extract_text.py`, `src/static/files/*` — cover or document why omitted | L | M |
+| 9 | 5 Security | Add gitleaks secret scan to CI — currently pre-push local hook only; CI has dependency-review but no secret scan | **H** | S |
+| 10 | 6 CI | Consolidate `ci-staging.yml` lint steps with `ci.yml` (duplicated ruff/mdformat/basedpyright/pylint/vulture block — drift risk) | L | S |
+| 11 | 7 CD | Zero-downtime deploy — `extra/deploy.sh` runs `systemctl stop` before deploy (downtime window); evaluate rolling restart (gunicorn `--reload`-style or systemd `ExecReload`) | M | M |
+| 12 | 8 Community | Add `CODEOWNERS` | L | S |
+| 13 | 8 Community | Add `.devcontainer` config | L | M |
+| 14 | 8 Community | Add stale-bot config (`.github/stale.yml` or stale workflow) | L | S |
+| 15 | 8 Community | Consolidate dependabot (`uv`) + renovate (`pep621`/`uv`) overlap — both manage Python deps; pick one or split scopes explicitly | L | S |
+| 16 | 9 Observability | Add `/healthz` (or equivalent) endpoint — uptime probe currently curls real routes; a dedicated health route would decouple liveness from content | M | S |
+| 17 | 9 Observability | Replace `print()` in `src/flask_se.py` `ensure-schema` (lines 414-477) with `logging` | L | S |
+| 18 | 9 Observability | systemd unit: explicit `TimeoutStartSec`/`TimeoutStopSec` (defaults may hang restarts on slow DB upgrade) | L | S |
+| 19 | 10 Performance | Manual performance review — **requires human review** per skill policy; reference `docs/PERFORMANCE.md` (LCP 1.5s, CrUX green, asset pipeline 595 KB → ~140 KB) | M | — |
+
 ## Batch run 2026-07-08 — session 5 (auto mode: CI stability + P0-P4 sweep)
 
 **Timing: estimated as 4h, but 1:27**
@@ -101,7 +129,7 @@
 - Installed pylint, ran `--enable=duplicate-code` — 86 findings (mostly Alembic migrations, expected)
 - Fixed 19 pyright ignores: 2× reportConstantRedefinition, 1× reportReturnType, 3× reportGeneralTypeIssues, 13× findAll→find_all
 - Pre-push gate: all 5 checks green
-- 114 `# pyright: ignore` remain as documented tech debt
+- 92 `# pyright: ignore` remain as documented tech debt
 
 ### Process violations
 
@@ -254,19 +282,20 @@ None.
 | `se_internship_forms.py` | 0% | Untested |
 | **TOTAL** | **92.26%** (reference 2026-08-15) | |
 
-## Technical Debt — remaining `# pyright: ignore` (114 total)
+## Technical Debt — remaining `# pyright: ignore` (92 total)
 
 | Category | Count | Description | Fixable? |
 |----------|-------|-------------|----------|
-| `reportAttributeAccessIssue` | 53 | SQLAlchemy dynamic attrs/backrefs, Flask-Admin framework attrs | Framework-level, low value |
 | `reportCallIssue` | 41 | SQLAlchemy model constructors — `**kwargs` insufficient for basedpyright | Add explicit typed `__init__` params |
-| `reportAssignmentType` | 8 | Flask-Admin `column_labels`, `column_choices`, `form_args` dict generics | Framework-level |
+| `reportAttributeAccessIssue` | 34 | SQLAlchemy dynamic attrs/backrefs, Flask-Admin framework attrs | Framework-level, low value |
 | `reportArgumentType` | 7 | pandas/YaDisk parameter types | Framework bridge |
+| `reportUnusedFunction` | 4 | Flask callbacks/helpers flagged as unused | Trivial fix |
 | `reportOptionalMemberAccess` | 2 | BeautifulSoup Tag.get() optionality | Framework bridge |
-| `reportIncompatibleMethodOverride` | 2 | Flask-Admin method signature mismatch | Framework-level |
+| `reportInvalidCast` | 2 | `cast()` on SQLAlchemy relationship attrs | Trivial fix |
+| `reportUnusedImport` | 1 | Re-exported import in flask_se.py | Trivial fix |
 | `reportGeneralTypeIssues` | 1 | Dict value union not narrowable | Trivial fix |
 
-**By file:** flask_se_review.py (30), flask_se_admin.py (24), flask_se_internships.py (17), flask_se_theses.py (9), others (29)
+**By file:** flask_se_review.py (30), flask_se_internships.py (19), flask_se_theses.py (6), flask_se_practice_table.py (5), flask_se_practice_admin.py (5), flask_se_diplomas.py (5), others (22)
 
 ## Known bugs found in batch run
 

@@ -12,44 +12,50 @@ Covers: branching, merge strategy, commit discipline, rebase policy, signoff pol
 
 | Prefix | Purpose | Merges to | Lifecycle |
 |--------|---------|-----------|-----------|
-| `feat/` | New features | staging | Delete after squash-merge |
-| `fix/` | Bug fixes | staging | Delete after squash-merge |
-| `refactor/` | No behavior change | staging | Delete after squash-merge |
-| `docs/` | Documentation | staging | Delete after squash-merge |
-| `test/` | Test-only | staging | Delete after squash-merge |
-| `hotfix/` | Emergency production bug or broken CI | current (direct) | Delete after merge + sync to staging |
-| `ci/` | CI workflow changes | staging | Delete after squash-merge |
-| `chore/` | Maintenance, deps, build config | staging | Delete after squash-merge |
-| `staging-auto-*` | Auto-mode scratch space | staging (squash) | Squash-merged with clean feature-grouped commits |
+| `feat/` | New features | current | Delete after squash-merge |
+| `fix/` | Bug fixes | current | Delete after squash-merge |
+| `refactor/` | No behavior change | current | Delete after squash-merge |
+| `docs/` | Documentation | current | Delete after squash-merge |
+| `test/` | Test-only | current | Delete after squash-merge |
+| `hotfix/` | Emergency production bug or broken CI | current (direct) | Delete after merge |
+| `ci/` | CI workflow changes | current | Delete after squash-merge |
+| `chore/` | Maintenance, deps, build config | current | Delete after squash-merge |
+| `staging-auto-*` | Auto-mode scratch space | current (squash) | Squash-merged with clean feature-grouped commits |
 | `experiment/` | Throwaway ideas | never | `git branch -D` |
 
 ### 1.2 Rules
 
-- **Branch from staging** — always. Exception: `hotfix/` branches from `current`.
+- **Branch from `upstream/current`** — always. `hotfix/` branches from `current` too, but merges via the direct lane (§2.2) instead of a PR.
 - **Dirty tree guard** — before `git checkout -b`, commit or stash all working tree changes. Uncommitted edits silently leak into the wrong commits.
-- **Auto-branch naming** — in unattended mode: `git checkout -b staging-auto-<UTC-timestamp> origin/staging`.
+- **Auto-branch naming** — in unattended mode: `git checkout -b staging-auto-<UTC-timestamp> origin/current`.
+
+### 1.3 Legacy staging
+
+Prior to 2026-09 this project used a two-branch model (feature → staging → current). `origin/staging` still exists with 79 orphan commits. No new work branches from staging.
 
 ## 2. Merge Strategy
 
-### 2.1 Feature → staging
+### 2.1 Feature → current
 
-**Why**: Squash-merge keeps staging history linear and readable — one commit per feature, easy to review and revert. This aligns with [Strategic Priority: Low effort] and [Strategic Priority: Clean history].
+**Why**: Squash-merge keeps `current` history linear and readable — one commit per feature, easy to review and revert. This aligns with [Strategic Priority: Low effort] and [Strategic Priority: Clean history].
 
 **How**:
 
 ```bash
-git checkout staging
-git merge --squash <branch>
-git commit -m "feat: <summary>"
+gh pr create --base current --head <branch> --title "<summary>"
+gh pr checks <number> --watch
+gh pr merge <number> --squash --delete-branch
 ```
+
+The PR → squash-merge lane is the standard path for all feature branches; `AGENTS.md` (pre-flight checklist) documents the same flow — create a PR, wait for CI green, then squash-merge via `gh pr merge --squash --delete-branch`.
 
 **Exception for `experiment/`**: never merged. Delete with `git branch -D experiment/<name>`.
 
-**Quality gate — pre-push**: Before proposing squash-merge, ensure the branch's pre-push hooks passed cleanly. The pre-push gate is the minimum bar for staging — if a branch cannot pass pre-push, it should not be merged.
+**Quality gate — pre-push**: Before proposing squash-merge, ensure the branch's pre-push hooks passed cleanly. The pre-push gate is the minimum bar for `current` — if a branch cannot pass pre-push, it should not be merged.
 
-**Quality gate — CI (PR gate)**: Feature branches (`feat/`, `fix/`, `refactor/`, `docs/`, `test/`, `ci/`, `chore/`) do not trigger the `CI (staging)` workflow. Before merging any pushed feature branch to staging:
+**Quality gate — CI (PR gate)**: Feature branches (`feat/`, `fix/`, `refactor/`, `docs/`, `test/`, `ci/`, `chore/`) do not trigger CI on their own branch — the `ci.yml` workflow runs on pushes to `current` and on PRs targeting `current`. Before merging any pushed feature branch:
 
-1. Create a PR: `gh pr create --base staging --head <branch> --title "<summary>"`
+1. Create a PR: `gh pr create --base current --head <branch> --title "<summary>"`
 1. Wait for CI: `gh pr checks <number> --watch`
 1. If CI fails, fix on branch, push, retry
 1. Only when green, merge: `gh pr merge <number> --squash --delete-branch`
@@ -62,20 +68,9 @@ without one, add the retro as the last commit and update the PR description. See
 
 **Exception**: `staging-auto-*` branches skip the PR gate — their name pattern already matches the CI workflow trigger.
 
-**Never continue on a squash-merged branch without explicit user instruction**. After `git merge --squash` to staging, the branch is consumed. Any further work must either start a new branch or be explicitly approved — squash-merge creates a different commit tree, and git cannot cleanly merge subsequent changes.
+**Never continue on a squash-merged branch without explicit user instruction**. After `gh pr merge --squash` to `current`, the branch is consumed. Any further work must either start a new branch or be explicitly approved — squash-merge creates a different commit tree, and git cannot cleanly merge subsequent changes.
 
-### 2.2 Staging → current
-
-**Why**: Fast-forward merge guarantees `current` is always an ancestor of `staging` — history stays linear, no merge bubbles. If they diverge, something went wrong and must be investigated before proceeding. This aligns with [Strategic Priority: Robust].
-
-**How**:
-
-```bash
-git checkout current
-git merge --ff-only staging
-```
-
-### 2.3 Hotfix → current (direct lane)
+### 2.2 Hotfix → current (direct lane)
 
 **Why**: Production-blocking bugs must reach production immediately — aligns with [Strategic Priority: Zero bugs]. The debt log documents the quality tradeoff: speed now, backfill later.
 
@@ -87,17 +82,15 @@ git checkout -b hotfix/<name> current
 git checkout current
 git merge hotfix/<name>
 git tag v<version>
-git checkout staging
-git merge current
 ```
 
-Bypasses staging for production-blocking bugs only. After merge, log debt in `TODO.md`:
+Bypasses the PR lane for production-blocking bugs only. After merge, log debt in `TODO.md`:
 
 ```
 [HOTFIX_DEBT] Review origin of hotfix/<name>, then backfill docs, expand test coverage, and verify the fix is complete
 ```
 
-### 2.3a Only signed, verifiable commits and tags on `current`
+### 2.3 Only signed, verifiable commits and tags on `current`
 
 **Rule**: every commit and tag that lands on `current` must be **signed and
 verifiable** — a commit whose GitHub verification is not `true`/`valid` is a
@@ -113,7 +106,7 @@ without a signature.
   commit is created and signed by GitHub (committer `GitHub`), so
   verification is `true`/`valid` automatically. This is the only lane for
   regular work.
-- **Emergency lane (hotfix direct push, §2.3)**: permitted for
+- **Emergency lane (hotfix direct push, §2.2)**: permitted for
   production-blocking fixes only, and the pushed commits **must be signed
   with a key registered to the committer's GitHub account** so GitHub marks
   them Verified:
@@ -134,11 +127,11 @@ committed lock sync that bypassed the squash lane. The 268 older unsigned
 commits in history predate this rule and are left as-is (never rewrite public
 history); the rule is going-forward.
 
-### 2.4 Staging is permanent
+### 2.4 Staging is legacy
 
-Staging is never deleted. It is the integration branch where all features converge before the quality gate to `current`.
+Staging is never deleted, but it is no longer used. It was the integration branch in the two-branch model (feature → staging → current); since 2026-09 the project is single-branch — features merge straight to `current` via PR squash-merge (§2.1). `origin/staging` still exists with 79 orphan commits; no new work branches from it and no merges target it.
 
-**Quality gate**: Feature → staging (tests pass). Staging → current (full verification via `docs/DEVELOPMENT_PROCESS.md §4.5`).
+**Quality gate**: Feature → current (tests pass via PR CI; full verification per `docs/DEVELOPMENT_PROCESS.md §4.5`).
 
 ## 3. Commit Discipline
 

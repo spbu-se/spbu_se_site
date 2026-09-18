@@ -26,6 +26,7 @@ All findings from the 2026-08-01 sweep (#187), the 2026-08-02 full audit (#193, 
 
 ### Open / intentional
 
+- **CodeQL #188 (clear-text logging of sensitive information, `src/flask_se_theses.py:446`)** — open, severity high, created 2026-09-18. The flagged line stringifies request parameters (`type_id`, `course_id`) into error responses; triage whether any logged value is genuinely sensitive before fixing or dismissing.
 - **Practice admin vs staff role separation** — both use the same `user_is_staff` guard by design; staff are the operators. Deferred; revisit if a curator-only role is needed.
 - Dependabot surface (checked 2026-08-19): **0 open alerts** — 19 fixed, 14 dismissed. The Pillow + Flask alerts are resolved (manifests already at Pillow 12.3.0 / Flask 3.1.3); the esbuild moderate alert #34 was closed by the 0.24.2 → 0.28.1 bump (PR #228).
 

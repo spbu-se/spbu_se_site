@@ -100,7 +100,7 @@ When docs describe code that does not yet exist:
 
 Before any implementation: enter **planning phase** (read-only analysis). Always:
 
-1. Check CI status — if `origin/staging` is red, stop and fix first
+1. Check CI status — if `upstream/current` CI is red, stop and fix first
 1. Apply the priority ladder: CI failures -> PRs -> backlog -> icebox
 1. Present findings and top candidate tasks to the user, each with effort estimate (S/M/L) and brief rationale
 1. User reviews, adjusts, approves
@@ -154,7 +154,7 @@ Write tests from docs → implement → format → test → commit.
 
 ### Enforcement self-check
 
-Before staging→current gate, audit each decision from this session:
+Before the merge gate, audit each decision from this session:
 
 - Can it be automated? → tool config (layer 1)
 - Can it be CI-checked? → add a workflow step (layer 2)
@@ -184,9 +184,9 @@ before work continues.
 1. Re-analyze code/test deltas to understand external changes (features/refactors beyond this build host).
 1. Report a **Rescan summary** to the user: changed files, rules now in effect, and their impact on the current task.
 
-### Pre-staging validation
+### Pre-merge validation
 
-Before staging after bulk doc edits, run the `mdformat` command that CI will use — not just `--check`. This catches missing files and path errors early. See `docs/DOCS.md §7.1` for the command.
+Before merging after bulk doc edits, run the `mdformat` command that CI will use — not just `--check`. This catches missing files and path errors early. See `docs/DOCS.md §7.1` for the command.
 
 ### Pre-push discipline
 
@@ -202,7 +202,7 @@ Not a quality gate — local commits can be imperfect. Using `git commit --no-ve
 Checks (in order): requirements format → actionlint → `uv lock --check` → format + lint (mdformat, ruff format `--check`, ruff check on `src/ tests/`, pylint similarities, vulture, asset-pipeline guard — via `scripts/pre_push_checks.py`) → basedpyright. Runs on every `git push`.
 
 Failure at any step aborts. Format failure skips later checks.
-This is the local quality gate that prevents unformatted or type-unsafe code from reaching staging. The hook is cross-platform — it runs identically on Linux and PowerShell/Windows.
+This is the local quality gate that prevents unformatted or type-unsafe code from reaching `current`. The hook is cross-platform — it runs identically on Linux and PowerShell/Windows.
 
 The pre-push gate exists because the agent has a documented pattern of skipping fast local checks to save seconds, costing minutes in CI round-trips. The fail-fast chain ensures that a format failure wastes at most ~3s instead of triggering a full check cycle.
 
@@ -215,9 +215,9 @@ An agent may propose `git push --no-verify` only when:
 
 pytest runs on CI, not in pre-push. See `docs/AI_AGENTS.md` §CI discipline for when to check CI status.
 
-#### Staging merge
+#### Merge to `current`
 
-Every push to staging should be publishable. The pre-push gate is the minimum bar for staging. CI must be green before merging to staging.
+Every PR merged to `current` should be publishable. The pre-push gate is the minimum bar. CI must be green before merging (see `docs/GIT_FLOW.md` §2.1).
 
 ### Context compaction
 
@@ -236,7 +236,7 @@ Before compacting context or ending session:
 
 ### Process docs during code work
 
-Do not update process documentation while implementing features or fixing bugs on a feature branch. Instead, gather observations and suggest improvements. Process doc changes happen during staging→current gate or on dedicated `docs/` branches.
+Do not update process documentation while implementing features or fixing bugs on a feature branch. Instead, gather observations and suggest improvements. Process doc changes happen on dedicated `docs/` branches.
 
 **Exception**: if the architecture-first or doc-first cycle was violated (code before doc), add a `TODO.md` debt entry mid-sprint — this is a violation record, not a doc change.
 
@@ -264,15 +264,17 @@ Every new file type should have an `.editorconfig` entry. Keep `.editorconfig` i
 
 1. Sync with remote and check for lingering work from the last session
 1. Read `.unfinished.plan.md` to understand what was interrupted
-1. Sync staging and verify it is not ahead of current unexpectedly
+1. Sync with upstream and verify `upstream/current` is not unexpectedly ahead of `origin/current`
 1. Verify pre-commit hooks pass before touching any code
-1. Branch from staging
+1. Branch from `upstream/current`
 
-The exact commands for each step are in `AGENTS.md` §Pre-flight checklist and `docs/GIT_FLOW.md` §1.2 (Rules — branch from staging).
+The exact commands for each step are in `AGENTS.md` §Pre-flight checklist and `docs/GIT_FLOW.md` §1.2 (Rules — branch from `upstream/current`).
 
 ### Plan-state discipline (run start + checkpoints)
 
-Plan-state updates are a **mandatory part of agentic development**, not an end-of-session nicety: at the **start of any task run** and at named **checkpoints**, refresh the session plan state — todo list + `.unfinished.plan.md` (date/time, focus, branch, base hash, dirty files, done/remaining, key decisions; the file is written out at session end, §Session end step 7). Concrete checkpoints: **run start, after every commit, after every test or gate run, before opening a PR, before every squash-merge, and at session end** — a plan left stale between commits is the exact miss this rule prevents (2026-09-06: `todowrite` drifted while PR work progressed). Mandatory in long gated/batched runs because the plan (1) **keeps the user informed** — state is always readable, never reconstructed at the end; (2) **keeps the agent focused** — it is the contract that gates and retro analysis read; (3) **keeps the session crash-safe** — sessions do crash, and `.unfinished.plan.md` is the exact recovery handoff read at the next Session start.
+Plan-state updates are a **mandatory part of agentic development**, not an end-of-session nicety: at the **start of any task run** and at named **checkpoints**, refresh the session plan state — todo list + `.unfinished.plan.md` (date/time, focus, branch, base hash, dirty files, done/remaining, key decisions; the file is written out at session end, §Session end step 8). Concrete checkpoints: **run start, after every commit, after every test or gate run, before opening a PR, before every squash-merge, and at session end** — a plan left stale between commits is the exact miss this rule prevents (2026-09-06: `todowrite` drifted while PR work progressed). Mandatory in long gated/batched runs because the plan (1) **keeps the user informed** — state is always readable, never reconstructed at the end; (2) **keeps the agent focused** — it is the contract that gates and retro analysis read; (3) **keeps the session crash-safe** — sessions do crash, and `.unfinished.plan.md` is the exact recovery handoff read at the next Session start.
+
+**OMO-specific**: agents running under OhMyOpenCode may use the `.omo/` boulder system (`.omo/boulder.json` + `.omo/plans/<name>.md`) instead of `.unfinished.plan.md` — see `docs/TOOLING.md` §OMO. The dev process docs stay agent-agnostic; `.unfinished.plan.md` is the general mechanism.
 
 ### Session end — wrap-up protocol
 
@@ -296,14 +298,14 @@ Plan-state updates are a **mandatory part of agentic development**, not an end-o
 1. If on a feature branch with unfinished code: commit WIP, create `_UNFINISHED.md` as the final commit. `_UNFINISHED.md` is always the last commit — stripped automatically by squash-merge. `.unfinished.plan.md` is never committed (see `.gitignore`).
 1. Verify working tree is clean.
 
-### Staging green rule
+### CI green rule
 
-**Why**: Broken CI hides regressions from everyone. A red staging blocks all work until fixed.
+**Why**: Broken CI hides regressions from everyone. A red `upstream/current` CI blocks all work until fixed.
 
 **What**:
 
-- CI on `origin/staging` must be green at all times
-- Never commit to `staging` directly — all work goes to feature branches (or `staging-auto-*` in batch mode)
+- CI on `upstream/current` must be green at all times
+- Never commit to `current` directly — all work goes to feature branches
 - Before every push: tests, lint, format, pre-commit, secrets check — all must pass
 - After every push: wait for CI, fix immediately if red
 
@@ -424,7 +426,7 @@ Never use `mdformat .` — on Windows it traverses `.venv/` which contains vendo
 
 ## 4.5 Code Review Checklist
 
-Every item must pass before staging -> current merge:
+Every item must pass before merge to `current`:
 
 | # | Check | What to verify |
 |---|---|---|
@@ -543,8 +545,8 @@ Acknowledged process improvement ideas that are not yet implemented. These are p
 | # | Topic | Description |
 |---|-------|-------------|
 | 1 | **Recovery procedures** | Document `git reflog`, `git revert`, `git reset` guidance for recovery from bad merges or lost commits |
-| 2 | **Conflict resolution strategy** | Define how to handle merge conflicts in staging and during staging→current merge |
-| 3 | **Push cadence** | Rule for when to push branches to remote (after every commit? only at staging merge?) |
+| 2 | **Conflict resolution strategy** | Define how to handle merge conflicts during squash-merge to `current` |
+| 3 | **Push cadence** | Rule for when to push branches to remote (after every commit? only before PR?) |
 | 4 | **Definition of Done** | Rename §3.5 checklist to "Definition of Done" for clarity, add any missing items |
 | 5 | **CI pipeline documentation** | Document what runs in CI (same as pre-commit + tests? additional steps?) |
 | 6 | **.editorconfig sync** | Auto-detect new file types and add editorconfig entries |

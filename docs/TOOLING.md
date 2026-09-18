@@ -680,14 +680,14 @@ See `docs/DOCS.md §6` for the project's encoding declaration policy.
 ## Staging environment
 
 - **Staging URL** (single source — a change touches exactly one line): `https://se.math.spbu.ru/staging/` — served by the deploy host under the `/staging/` path prefix of the production hostname. **May change**; if a stale link is suspected, ask ops.
-- **Deploy mechanics**: every push to `current` triggers the CD webhook (`.github/workflows/deploy_to_staging.yml`). GitHub deployments for environment `deploy_environment` on the upstream repo are the source of truth — a merge is NOT deployed until the latest deployment points at the merged SHA with `state == success`:
+- **Deploy mechanics**: every push to `current` triggers the CD webhook (`.github/workflows/deploy_staging.yml`). GitHub deployments for environment `deploy_environment` on the upstream repo are the source of truth — a merge is NOT deployed until the latest deployment points at the merged SHA with `state == success`:
   ```
   gh api "repos/spbu-se/spbu_se_site/deployments?per_page=1" --jq '.[0] | "\(.sha) \(.created_at)"'
   ```
 
 ### Signed-commit verification
 
-`current` accepts only signed, verifiable commits (see `docs/GIT_FLOW.md` §2.3a). After any merge, assert the head commit verifies before proceeding — an unverified result means a direct push or rebase-merge leaked into `current` (counter-example `446e39f`, 2026-09-02):
+`current` accepts only signed, verifiable commits (see `docs/GIT_FLOW.md` §2.3). After any merge, assert the head commit verifies before proceeding — an unverified result means a direct push or rebase-merge leaked into `current` (counter-example `446e39f`, 2026-09-02):
 
 ```
 gh api "repos/spbu-se/spbu_se_site/commits/<sha>" --jq '.commit.verification | "\(.verified) \(.reason)"'
@@ -719,3 +719,13 @@ fails if the committed outputs drift.
 **Windows notes**: never edit the bases with `Set-Content`/PowerShell 5.1
 `-Encoding UTF8` (adds a BOM + re-encodes Cyrillic → mojibake). Use
 `[System.IO.File]::WriteAllText($path, $text, (New-Object System.Text.UTF8Encoding($false)))` instead.
+
+## OMO
+
+The `.omo/` boulder system (`.omo/boulder.json` + `.omo/plans/<name>.md`) is an
+**OMO-specific (OhMyOpenCode) dev artifact** — a session-planning enhancement
+that replaces `.unfinished.plan.md` for agents running under OMO. It is not part
+of the general dev process: `AGENTS.md` and `docs/DEVELOPMENT_PROCESS.md` §0.7
+describe `.unfinished.plan.md` as the primary session-planning mechanism and
+stay agent-agnostic. OMO users may substitute the boulder system; everyone else
+uses `.unfinished.plan.md`.

@@ -1,3 +1,6 @@
+# Dead on upstream: the canonical repo (spbu-se/spbu_se_site) has no `staging` branch.
+# This workflow only triggers on the fork (origin) when someone pushes to staging there.
+# All feature work merges to `current` via PR; main CI is ci.yml.
 name: CI (staging + auto)
 
 on:

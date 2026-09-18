@@ -39,7 +39,7 @@ When several test modules need the same setup (a role, a theme row, an entity), 
 | New modules | 50% line coverage | Before first commit to staging |
 | Excluded | `wsgi.py`, `extract_text.py` | One-shot importers/entrypoints — not exercised in normal operation |
 
-Coverage is checked at staging→current gate. Steps below 90% block the merge.
+Coverage is checked at the merge gate. Steps below 90% block the merge.
 
 ## 3. Test Execution Strategy
 

@@ -14,10 +14,10 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 
 ## Pre-flight checklist
 
-- **Plan-first** — before any work in a task run, update the session plan state: todo list + `.unfinished.plan.md` (date/time, focus, branch, base hash, dirty files, done/remaining, key decisions). **Refresh after every commit, after every test/gate run, and before every push/PR/merge milestone**; complete at the end. Mechanics + rationale: `docs/DEVELOPMENT_PROCESS.md` §0.7.
+- **Plan-first** — before any work in a task run, update the session plan state: todo list + `.unfinished.plan.md` (date/time, focus, branch, base hash, dirty files, done/remaining, key decisions). **Refresh after every commit, after every test/gate run, and before every push/PR/merge milestone**; complete at the end. Mechanics + rationale: `docs/DEVELOPMENT_PROCESS.md` §0.7. (If using OMO, the `.omo/` boulder system replaces `.unfinished.plan.md` — see `docs/TOOLING.md` §OMO.)
 - `git fetch --prune origin` then `git fetch --prune upstream` — two remotes (`origin` = fork, `upstream` = canonical). The single-command form `git fetch --prune origin upstream` fails with "couldn't find remote ref upstream"
 - Create a branch BEFORE any work: `git checkout -b <prefix>/<short-desc> upstream/current`
-  Prefixes: feat/, fix/, refactor/, docs/, test/, chore/, ci/
+  Prefixes: feat/, fix/, refactor/, docs/, test/, chore/, ci/, hotfix/, experiment/
   (see `docs/GIT_FLOW.md` §1.1). Never commit directly to `current`.
 - Verify current branch is NOT `current`: `git branch --show-current`
 - Check `upstream/current` CI — `gh run list --repo spbu-se/spbu_se_site --branch current --limit 1 --json conclusion` — if red, stop and fix first
@@ -79,7 +79,7 @@ PRs are squash-merged into `current` via `gh pr merge --admin --squash`. Never p
 CI must be green before merging (see `docs/AI_AGENTS.md` §CI discipline).
 
 - **Post-merge deploy verification** — after any `gh pr merge`, confirm the deploy actually landed: the latest deployment on the upstream repo's `deploy_environment` must point at the merged SHA with `state == success`. Deploys are fire-and-report. Command + incident: `docs/TOOLING.md` §Staging environment.
-- **Signed commits only on `current`** — only signed, GitHub-verifiable commits and tags land on `current`: squash-merge is the standard lane (GitHub-signed, auto-verified); the hotfix direct-push lane (§2.3a in `docs/GIT_FLOW.md`) requires `git commit -S` with a GitHub-registered key — never unsigned. After every merge assert verification `true`/`valid` (`docs/TOOLING.md` §Signed-commit verification); an unverified result stops the flow.
+- **Signed commits only on `current`** — only signed, GitHub-verifiable commits and tags land on `current`: squash-merge is the standard lane (GitHub-signed, auto-verified); the hotfix direct-push lane (§2.2 in `docs/GIT_FLOW.md`) requires `git commit -S` with a GitHub-registered key — never unsigned. After every merge assert verification `true`/`valid` (`docs/TOOLING.md` §Signed-commit verification); an unverified result stops the flow.
 
 ### First-time setup
 
