@@ -21,6 +21,7 @@ STATIC_LASTMOD = site_deploy_date()
 # management pages, AJAX fragments, and 301 legacy redirects.
 SITEMAP_SKIP_PAGES = {
     "/nooffer",
+    "/api/healthz",
     "/fetch_theses",
     "/Sitemap.xml",
     "/sitemap.xml",
