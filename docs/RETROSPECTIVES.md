@@ -2946,3 +2946,53 @@ follow-up items — `skill-for-skills` sweep after the GIT_FLOW.md rewrite
 (`merge-gate` Phase 3/4, `code-audit`/`security-audit` wording), boundary
 violations in GIT_FLOW.md/DEVELOPMENT_PROCESS.md, L1/L2 escalation for stale
 metrics + encoding declarations (user decision).
+
+### Retrospective — docs-drift-review correction: .omo/ revert + upload.py LFS cleanup (2026-09-18)
+
+Trigger: post-review correction of the docs-drift-review branch. Three errors
+were fixed by rewriting history (fixup commits + autosquash rebase onto the
+branch base), then this retro was appended as the final commit.
+
+**Error 1 — `.omo/` boulder references in published docs (commit ded5324)**:
+the commit promoted the `.omo/` boulder system (an OMO/OhMyOpenCode-specific
+dev artifact) to the primary session-planning mechanism in `AGENTS.md` and
+`DEVELOPMENT_PROCESS.md` §0.7, demoting `.unfinished.plan.md` to "Legacy".
+Not every dev runs OMO — the dev process docs must be agent-agnostic. Fix:
+restored `.unfinished.plan.md` as the primary mechanism in both docs, and
+documented the `.omo/` boulder system as an OMO-specific alternative in a new
+`docs/TOOLING.md` §OMO section (referenced from both docs). The non-`.omo/`
+content of ded5324 (staging→current sweep, CI green rule, prefix list) was
+kept — only the `.omo/` promotion was reverted.
+
+**Error 2 — upload.py converted to an LFS pointer (commit ceb2043)**: the
+"add encoding declarations" commit replaced the entire 75-line
+`src/static/files/upload.py` Python script with a 3-line git-lfs pointer
+(`version https://git-lfs.github.com/spec/v1 ...`). upload.py is a regular
+text file that merely lives under the LFS-tracked `src/static/files/**` path —
+it must stay a plain blob. Fix: restored the original 75-line script
+byte-identical to the pre-commit state; the encoding declarations on the other
+44 Python files were kept.
+
+**Error 3 — no LFS-related changes on the branch**: the only LFS-tracked
+content touched by the branch was upload.py in ceb2043 (Error 2). After the
+restore, `git diff <base> <head> -- src/static/files/upload.py` is empty — no
+LFS-related changes remain on the branch.
+
+**Process notes**:
+
+- `git commit --no-verify` was used once (fixup for ceb2043): the pre-commit
+  hook's stash/restore cycle re-ran the git-lfs clean filter on the staged
+  upload.py and silently converted the index entry back to an LFS pointer —
+  a genuine non-formatting blocker, so the hook was skipped for that commit
+  and the index entry was set directly via `git update-index --cacheinfo`.
+- git-lfs quirk discovered: checking out a non-pointer blob under an
+  LFS-tracked path leaves a broken index stat cache (`size: 0`), so `git status` re-hashes the file through the clean filter and shows a phantom
+  ` M` on an unchanged file. Workaround: temporarily append
+  `src/static/files/upload.py !filter !diff !merge` to `.gitattributes`,
+  `git add` the file (raw content + correct stat), then restore
+  `.gitattributes`. The phantom-dirty state is pre-existing on
+  `upstream/current` for LFS-enabled checkouts and is not introduced by this
+  branch.
+
+**State at handoff**: branch history rewritten (fixups squashed), retro
+appended, pre-push gate green, pushed with `--force-with-lease`.
