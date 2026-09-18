@@ -17,7 +17,12 @@ from sqlalchemy.exc import OperationalError
 from transliterate import translit
 
 from flask_se_auth import login_required
-from flask_se_config import SECRET_KEY_THESIS, secure_filename, type_id_string
+from flask_se_config import (
+    POST_THESES_RATE_LIMITER,
+    SECRET_KEY_THESIS,
+    secure_filename,
+    type_id_string,
+)
 from flask_se_practice_config import _paginate
 from se_forms import ThesisFilter
 from se_models import Courses, Staff, Thesis, Users, Worktype, db, thesis_fts_search
@@ -386,6 +391,9 @@ def thesis_card():
 
 
 def post_theses():
+    if not POST_THESES_RATE_LIMITER.allow(request.remote_addr or "unknown"):
+        return jsonify(status=429, string="Rate limit exceeded. Please try again later.")
+
     error_status = 500
     success_status = 0
     thesis_text = None
@@ -432,6 +440,11 @@ def post_theses():
         return jsonify(status=error_status, string="Missing required field in thesis_info")
 
     if secret_key != SECRET_KEY_THESIS:
+        logging.getLogger("flask_se.theses").warning(
+            "post_theses invalid secret key ip=%s key_prefix=%s",
+            request.remote_addr or "unknown",
+            (secret_key or "")[:4],
+        )
         return jsonify(status=error_status, string="Invalid secret key: " + str(secret_key))
 
     if not _safe_extension(thesis_text.filename):

@@ -170,6 +170,68 @@ class TestAuth:
             assert data.get("client_id") == VK_CLIENT_ID
             assert data.get("client_secret") == VK_CLIENT_SECRET
 
+    @patch("requests.get")
+    def test_vk_callback_missing_email(self, mock_get, seeded_client):
+        token_resp = MagicMock()
+        token_resp.text = json.dumps(
+            {
+                "access_token": "test_token",
+                "user_id": 99999,
+            }
+        )
+        user_resp = MagicMock()
+        user_resp.text = json.dumps(
+            {
+                "response": [{"first_name": "VK", "last_name": "User"}],
+            }
+        )
+        mock_get.return_value = user_resp
+
+        import requests
+
+        with patch.object(requests, "post") as mock_post:
+            mock_post.return_value = token_resp
+            with seeded_client.session_transaction() as sess:
+                sess["vk_state"] = "teststate"
+            resp = seeded_client.get("/vk_callback?code=test&state=teststate")
+        assert resp.status_code == 302
+
+        from se_models import Users
+
+        user = Users.query.filter_by(vk_id=99999).first()
+        assert user is not None
+        assert user.email is None
+
+    @patch("requests.get")
+    def test_vk_callback_uses_bearer_header(self, mock_get, seeded_client):
+        token_resp = MagicMock()
+        token_resp.text = json.dumps(
+            {
+                "access_token": "test_token",
+                "user_id": 12345,
+                "email": "vkuser@spbu.ru",
+            }
+        )
+        user_resp = MagicMock()
+        user_resp.text = json.dumps(
+            {
+                "response": [{"first_name": "VK", "last_name": "User"}],
+            }
+        )
+        mock_get.return_value = user_resp
+
+        import requests
+
+        with patch.object(requests, "post") as mock_post:
+            mock_post.return_value = token_resp
+            with seeded_client.session_transaction() as sess:
+                sess["vk_state"] = "teststate"
+            resp = seeded_client.get("/vk_callback?code=testcode&state=teststate")
+        assert resp.status_code in (200, 302)
+        auth_header = mock_get.call_args[1]["headers"]["Authorization"]
+        assert auth_header.startswith("Bearer ")
+        assert auth_header == "Bearer test_token"
+
     def test_google_login_redirect(self, seeded_client):
         assert_ok(seeded_client, "/google_login", code={200, 302})
 

@@ -260,15 +260,13 @@ def vk_callback():
 
     vk_id = access_token_json["user_id"]
     access_token = access_token_json["access_token"]
-    vk_email = access_token_json["email"]
+    vk_email = access_token_json.get("email")
 
     # Get user name
     response = requests.get(
-        "https://api.vk.com/method/users.get?user_ids="
-        + str(vk_id)
-        + "&fields=photo_100&access_token="
-        + str(access_token)
-        + "&v=5.130",
+        "https://api.vk.com/method/users.get",
+        params={"user_ids": vk_id, "fields": "photo_100", "v": "5.130"},
+        headers={"Authorization": f"Bearer {access_token}"},
         timeout=10,
     )
     vk_user = json.loads(response.text)
