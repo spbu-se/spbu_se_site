@@ -2996,3 +2996,23 @@ LFS-related changes remain on the branch.
 
 **State at handoff**: branch history rewritten (fixups squashed), retro
 appended, pre-push gate green, pushed with `--force-with-lease`.
+
+### Retrospective — healthz + skill drift (2026-09-18)
+
+Trigger: light retro for feat/healthz-skills PR. Two independent items.
+
+**Changes analyzed**: 2 commits, 11 files (src/flask_se.py, tests/test_healthz.py, sitemap.py,
+.skills/code-audit/README.md, .skills/docs-audit/README.md, .skills/merge-gate/README.md,
+.skills/unattended-mode/README.md)
+
+**Item 1 — /api/healthz endpoint**: new Flask route returning `{"status": "ok", "timestamp"}`
+200, no auth/DB. Sitemap exclusion added. 3 tests covering 200, JSON shape, no-auth.
+
+**Item 2 — skill drift fix**: 8 skills reviewed, 4 needed changes (code-audit, docs-audit,
+merge-gate, unattended-mode — mostly staging→current rewrites, stale ref cleanup).
+4 skills already current (gh-todo-sync, release-notes, retrospective-analysis, test-writer).
+
+**What went well**: healthz follows existing route registration pattern; skill drift fix
+checked all 8 skills systematically.
+
+**No gaps found. No pattern recurrence.**
