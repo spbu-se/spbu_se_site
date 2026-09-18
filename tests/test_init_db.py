@@ -7,8 +7,6 @@ from se_models import (
     Courses,
     Curriculum,
     DiplomaThemes,
-    InternshipFormat,
-    InternshipTag,
     Notification,
     Posts,
     Staff,
@@ -32,8 +30,6 @@ MODEL_TESTS = [
     (Courses,),
     (Posts,),
     (ThemesLevel,),
-    (InternshipFormat,),
-    (InternshipTag,),
     (DiplomaThemes,),
 ]
 

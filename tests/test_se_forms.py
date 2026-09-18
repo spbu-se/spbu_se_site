@@ -235,46 +235,6 @@ class TestLecture:
         assert isinstance(getattr(f, field), SelectField)
 
 
-class TestAddInternship:
-    @pytest.mark.parametrize("field", ["requirements", "description"])
-    def test_field_is_textarea(self, field):
-        from se_forms import AddInternship
-
-        f = AddInternship()
-        field_obj = getattr(f, field)
-        assert isinstance(field_obj, StringField)
-        assert isinstance(field_obj.widget, TextArea)
-
-    def test_field_company_is_select(self):
-        from se_forms import AddInternship
-
-        f = AddInternship()
-        assert isinstance(f.company, SelectField)
-
-    @pytest.mark.parametrize("field", ["name_vacancy", "salary", "location", "more_inf", "tag"])
-    def test_field_is_string(self, field):
-        from se_forms import AddInternship
-
-        f = AddInternship()
-        assert isinstance(getattr(f, field), StringField)
-
-    def test_field_format_is_multicheckbox(self):
-        from se_forms import AddInternship
-
-        f = AddInternship()
-        assert isinstance(f.format, SelectMultipleField)
-        assert f.format.coerce is int
-
-
-class TestInternshipsFilter:
-    @pytest.mark.parametrize("field", ["format", "company", "language", "tag"])
-    def test_field_is_select(self, field):
-        from se_forms import InternshipsFilter
-
-        f = InternshipsFilter()
-        assert isinstance(getattr(f, field), SelectField)
-
-
 class TestCurrentWorktypeArea:
     @pytest.mark.parametrize("field", ["worktype", "area"])
     def test_field_is_select(self, field):

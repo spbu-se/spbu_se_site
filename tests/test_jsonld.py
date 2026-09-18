@@ -68,19 +68,6 @@ class TestBreadcrumbJsonLd:
             data["itemListElement"][-1]["item"] == "https://se.math.spbu.ru/news/item.html?post=1"
         )
 
-    def test_internship_breadcrumb(self, seeded_client):
-        from se_models import Internships
-
-        internship = Internships.query.first()
-        if internship is None:
-            pytest.skip("no internships seeded")
-        resp = seeded_client.get(f"/internships/{internship.id}")
-        data = _assert_type(_jsonld_blocks(resp), "BreadcrumbList")
-        assert (
-            data["itemListElement"][-1]["item"]
-            == f"https://se.math.spbu.ru/internships/{internship.id}"
-        )
-
     def test_thesis_card_breadcrumb(self, seeded_client):
         from se_models import Thesis
 

@@ -33,7 +33,6 @@ LEGACY_REDIRECTS = {
     "/staff.html": "department_staff",
     "/faq": "frequently_asked_questions",
     "/scholarships": "scholarships",
-    "/internships": "internships_index",
     "/practice/student/index.html": "practice_index",
     "/summer_school.html": "summer_school_list",
     "/master_software-engineering.html": "master_software_engineering",

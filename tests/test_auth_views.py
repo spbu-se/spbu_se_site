@@ -274,7 +274,6 @@ class TestLoginRequiredRedirects:
             "/news/delete",
             "/diplomas/add_theme.html",
             "/diplomas/user_themes.html",
-            "/internships/add",
             "/practice",
         ],
     )
@@ -453,8 +452,6 @@ class TestPublicPages:
             "/diplomas/",
             "/diplomas/index.html",
             "/diplomas/fetch_themes",
-            "/internships/internships_index.html",
-            "/internships/fetch_internships",
             "/login.html",
             "/register_basic.html",
             "/review/",
@@ -719,66 +716,6 @@ class TestThesesLoggedIn:
     )
     def test_thesis_routes(self, admin_client, path):
         assert_ok(admin_client, path, code={200, 302, 404})
-
-
-class TestInternships:
-    @pytest.mark.parametrize(
-        "path,methods,code",
-        [
-            ("/internships/internships_index.html", {"GET"}, {200}),
-            ("/internships/99999", {"GET"}, {200, 302}),
-            ("/internships/add", {"GET"}, {200, 302}),
-            ("/internships/1/delete", {"POST"}, {200, 302, 404}),
-            ("/internships/1/update", {"GET"}, {200, 302, 404}),
-        ],
-    )
-    def test_internships_routes(self, seeded_client, path, methods, code):
-        assert_ok(seeded_client, path, methods=methods, code=code)
-
-
-class TestInternshipsBehavior:
-    def test_internship_add_submit(self, logged_client):
-        resp = logged_client.post(
-            "/internships/add",
-            data={
-                "company": "Test Corp",
-                "title": "Test Internship",
-                "description": "A test position",
-            },
-        )
-        assert resp.status_code in (200, 302)
-
-    def test_internship_detail(self, seeded_client):
-        assert_ok(seeded_client, "/internships/1", code={200, 302, 404})
-
-    def test_internship_update_submit(self, logged_client):
-        resp = logged_client.post(
-            "/internships/1/update",
-            data={
-                "company": "Updated Corp",
-                "title": "Updated Title",
-            },
-        )
-        assert resp.status_code in (200, 302, 404)
-
-    def test_internship_delete(self, logged_client):
-        assert_ok(logged_client, "/internships/1/delete", methods={"POST"}, code={200, 302, 404})
-
-    @pytest.mark.parametrize("query", ["", "?tag=python", "?format=1"])
-    def test_internship_fetch(self, seeded_client, query):
-        assert_ok(seeded_client, f"/internships/fetch_internships{query}")
-
-
-class TestInternshipsLoggedIn:
-    @pytest.mark.parametrize(
-        "path",
-        [
-            "/internships/add",
-            "/internships/1/update",
-        ],
-    )
-    def test_internship_routes(self, logged_client, path):
-        assert_ok(logged_client, path, code={200, 302})
 
 
 class TestDiplomas:
@@ -1067,15 +1004,6 @@ class TestSecurityCritical:
         body = resp.get_data(as_text=True)
         assert "alert(1)" not in body
         assert "<script>alert" not in body.lower()
-
-    def test_delete_internship_requires_login(self, seeded_client):
-        """H1: anonymous users must not delete internships."""
-        resp = seeded_client.post("/internships/1/delete")
-        assert resp.status_code in (302, 404)
-
-    def test_delete_internship_logged_in(self, logged_client):
-        """H1: authenticated users may delete internships."""
-        assert_ok(logged_client, "/internships/1/delete", methods={"POST"}, code={200, 302, 404})
 
     def test_theses_tmp_requires_login(self, seeded_client):
         """H2: anonymous users must not list/approve/delete temp theses."""
