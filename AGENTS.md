@@ -21,6 +21,11 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
   (see `docs/GIT_FLOW.md` §1.1). Never commit directly to `current`.
 - Verify current branch is NOT `current`: `git branch --show-current`
 - Check `upstream/current` CI — `gh run list --repo spbu-se/spbu_se_site --branch current --limit 1 --json conclusion` — if red, stop and fix first
+- **Pre-tag gate** — before `git tag -s v*`, verify:
+  1. `gpg.format` is set (`git config --global gpg.format`) — must not be empty
+  1. Signing key exists (`git config --global user.signingkey`) — must not be empty
+  1. Release checklist run (`docs/RELEASE_CHECKLIST.md` §A + §B)
+  1. Draft release exists after tag push (`gh release list --repo spbu-se/spbu_se_site`)
 - **Read the skill README for this task** — identify which task/skill matches (e.g., `retrospective-analysis`, `test-writer`, `merge-gate`) and read `.skills/<name>/README.md` before starting. Confirm by stating which skill READMEs were read.
 - Before PowerShell piped/chained commands or `2>&1`, read `docs/TOOLING.md` §PowerShell (flatten ErrorRecords with `| ForEach-Object { "$_" }`, or suppress stderr with `2>($null)`)
 - Before editing any doc, re-read its first 5 lines (scope/aim header). Verify your changes match that scope. If existing content doesn't match, flag it.

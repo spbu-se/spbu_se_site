@@ -243,7 +243,7 @@ on every merge to `current`.
 **Release flow** (see `docs/DEVELOPMENT_PROCESS.md` §Release):
 
 ```bash
-git tag -s vYYYY.MM.DD           # GPG-signed tag at current
+git tag -s vYYYY.MM.DD           # signed tag (GPG or SSH) at current
 git push <upstream> vYYYY.MM.DD  # pushes to the canonical repo
 ```
 
