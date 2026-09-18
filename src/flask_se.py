@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 import os
 import secrets
 import shutil
@@ -91,6 +92,8 @@ from se_sendmail import (
     notification_send_mail,
 )
 from sitemap import register_sitemap
+
+_log = logging.getLogger(__name__)
 
 # Extension singletons: init_app() is called inside create_app() so the same
 # objects can back multiple app instances (production WSGI + tests).
@@ -255,7 +258,12 @@ def healthz():  # pyright: ignore[reportUnusedFunction]  # registered via add_ur
     Deliberately no DB check and no auth: liveness must not couple to DB
     health, and probes are unauthenticated.
     """
-    return {"status": "ok", "timestamp": datetime.now(UTC).isoformat()}, 200
+    return {
+        "status": "ok",
+        "timestamp": datetime.now(UTC).isoformat(),
+        "python": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+        "os": f"{os.uname().sysname} {os.uname().release} ({os.uname().machine})",
+    }, 200
 
 
 def _register_routes(app: Flask) -> None:
@@ -420,19 +428,19 @@ def ensure_schema() -> None:
     db_file = Path(fsc.SQLITE_DATABASE_PATH, fsc.SQLITE_DATABASE_NAME)
     if not db_file.is_file():
         init_db()
-        app.logger.info("[ensure-schema] Fresh DB initialized from models")
+        _log.info("[ensure-schema] Fresh DB initialized from models")
         return
 
     backup = Path(fsc.SQLITE_DATABASE_PATH, fsc.SQLITE_DATABASE_BACKUP_NAME)
     try:
         shutil.copyfile(db_file, backup)
-        app.logger.info("[ensure-schema] Backed up DB to %s", backup.name)
+        _log.info("[ensure-schema] Backed up DB to %s", backup.name)
     except OSError as exc:
         # Best-effort: the deploy webhook runs the migration with writable DB
         # dir, but app workers may only read it (prod hit PermissionError here,
         # which silently disabled the whole self-heal). The migration itself
         # must not be blocked by a backup we can't write.
-        app.logger.warning(
+        _log.warning(
             "[ensure-schema] WARNING: DB backup to %s failed (%s); continuing",
             backup.name,
             exc,
@@ -441,7 +449,7 @@ def ensure_schema() -> None:
     db.create_all()
     _ensure_schema_columns()
     ensure_fts5_index()
-    app.logger.info("[ensure-schema] Schema is up to date")
+    _log.info("[ensure-schema] Schema is up to date")
 
 
 def _ensure_schema_columns() -> None:
@@ -478,7 +486,7 @@ def _add_missing_column(conn, dialect, table, column) -> None:
     else:
         literal = _synthesized_default_literal(column, dialect)
         if literal is None:
-            app.logger.warning(
+            _log.warning(
                 "[ensure-schema] %s is NOT NULL %s with no "
                 "server_default; adding it nullable. Set a server_default in the model.",
                 name,
@@ -489,7 +497,7 @@ def _add_missing_column(conn, dialect, table, column) -> None:
             clause = (
                 f"{column.name} {column.type.compile(dialect=dialect)} NOT NULL DEFAULT {literal}"
             )
-    app.logger.info("[ensure-schema] ADD COLUMN %s", name)
+    _log.info("[ensure-schema] ADD COLUMN %s", name)
     conn.execute(db.text(f"ALTER TABLE {table.name} ADD COLUMN {clause}"))
 
 
@@ -527,9 +535,7 @@ if os.environ.get("SE_AUTO_MIGRATE", "1") != "0":
         with app.app_context():
             ensure_schema()
     except Exception:
-        import logging as _logging
-
-        _logging.getLogger("flask_se").exception("boot-time ensure_schema failed")
+        _log.exception("boot-time ensure_schema failed")
 
 
 if __name__ == "__main__":

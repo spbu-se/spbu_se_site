@@ -13,9 +13,11 @@ class TestHealthz:
     def test_healthz_returns_json(self, client):
         resp = client.get("/api/healthz")
         data = json.loads(resp.data)
-        assert "status" in data
         assert data["status"] == "ok"
         assert "timestamp" in data
+        assert "python" in data
+        assert data["python"].count(".") >= 2  # major.minor.micro
+        assert "os" in data
 
     def test_healthz_no_auth_required(self, seeded_client):
         """Anonymous users can access healthz."""
