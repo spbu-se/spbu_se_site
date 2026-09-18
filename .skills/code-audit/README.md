@@ -9,11 +9,14 @@ Not doc health (see `.skills/docs-audit/`), not process improvement (see `.skill
 
 ## When to load
 
-<<<<<<< HEAD
+\<<\<<\<<< HEAD
+
 - Before merging to `current` (protects users and product)
-=======
+  \=======
 - Before a feature → `current` merge gate (protects users and product)
->>>>>>> chore: update code-audit/security-audit/merge-gate wording (staging→current)
+
+> > > > > > > chore: update code-audit/security-audit/merge-gate wording (staging→current)
+
 - After any session touching 5+ source files (proactive, not reactive)
 - On user request for code audit
 
@@ -32,11 +35,13 @@ If found, classify:
 - **Ephemeral** (regenerated on every restart, e.g., `os.urandom(16).hex()`) → P2 — the pattern trains developers to ignore ERROR output
 - **Persistent** (same value across restarts, committed or configured) → P0 security issue
 
-<<<<<<< HEAD
+\<<\<<\<<< HEAD
 Reference: `docs/CODE_ISSUES.md` SECRET_KEY_THESIS entry (removed 2026-09 as FIXED — check if any P0 entries exist).
 
-=======
->>>>>>> chore: fix code-audit stale ref + add TODO.md to Dependencies
+\=======
+
+> > > > > > > chore: fix code-audit stale ref + add TODO.md to Dependencies
+
 ### 2. Redirect validation
 
 Scan source for unvalidated `next`-parameter redirects:

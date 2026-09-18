@@ -9,11 +9,13 @@ Not a general code-quality audit (see `.skills/code-audit/`), not doc health (se
 ## When to load
 
 - On user request for a security review / audit
-<<<<<<< HEAD
+  \<<\<<\<<< HEAD
 - Before a release or merge gate with security implications
-=======
+  \=======
 - Before a release or feature → `current` merge gate with security implications
->>>>>>> chore: update code-audit/security-audit/merge-gate wording (staging→current)
+
+> > > > > > > chore: update code-audit/security-audit/merge-gate wording (staging→current)
+
 - After any session that touched authentication, authorization, file uploads, or rendering of user HTML
 - When triaging Dependabot, CodeQL, or security-advisory alerts
 

@@ -10,11 +10,13 @@ Not a replacement for process docs — reads them, follows their rules.
 ## When to load
 
 - End of auto-mode batch session (after audit skills)
-<<<<<<< HEAD
+  \<<\<<\<<< HEAD
 - Before manual feature branch merge via PR to current
-=======
+  \=======
 - Before manual feature branch merge to `current` via PR
->>>>>>> chore: update code-audit/security-audit/merge-gate wording (staging→current)
+
+> > > > > > > chore: update code-audit/security-audit/merge-gate wording (staging→current)
+
 - On user command "finalize session"
 
 ## Workflow
@@ -49,11 +51,12 @@ Follow `docs/DEVELOPMENT_PROCESS.md` §0.6 (Workflow Discipline → Context comp
   `docs/RETROSPECTIVES.md` entry (see `docs/DEVELOPMENT_PROCESS.md §0.7`). If the
   PR was opened without one, run `.skills/retrospective-analysis`, add the entry
   as the last commit, and update the PR description.
-<<<<<<< HEAD
+  \<<\<<\<<< HEAD
 - Check CI status on the target branch
-=======
+  \=======
 - Check PR CI status: `gh pr checks <number> --watch`
->>>>>>> chore: update code-audit/security-audit/merge-gate wording (staging→current)
+
+> > > > > > > chore: update code-audit/security-audit/merge-gate wording (staging→current)
 
 ### Phase 2 — Report
 
@@ -92,7 +95,8 @@ For each finding, indicate:
 
 The user may ask to expand any section for details.
 
-<<<<<<< HEAD
+\<<\<<\<<< HEAD
+
 ### Phase 3 — Execute (feature → current via PR)
 
 Only after phase 2 is acknowledged or no blocking issues remain:
@@ -106,7 +110,8 @@ Only after phase 2 is acknowledged or no blocking issues remain:
    gh pr checks <number> --watch
    ```
    If CI fails, fix on branch, push, retry.
-=======
+   \=======
+
 ### Phase 3 — Execute (current gate)
 
 Only after phase 2 is acknowledged or no blocking issues remain:
@@ -116,19 +121,22 @@ Only after phase 2 is acknowledged or no blocking issues remain:
    gh pr create --base current --head <branch> --title "<summary>"
    ```
 1. **Wait for CI green**: `gh pr checks <number> --watch`
->>>>>>> chore: update code-audit/security-audit/merge-gate wording (staging→current)
+
+> > > > > > > chore: update code-audit/security-audit/merge-gate wording (staging→current)
+
 1. **Squash-merge** (GitHub-signed, auto-verified):
    ```bash
    gh pr merge <number> --squash --delete-branch
    ```
 1. **Clean up**: delete local feature branch
-<<<<<<< HEAD
+   \<<\<<\<<< HEAD
 1. **Post-merge deploy verification**: confirm the deploy landed — the latest
    deployment on the upstream repo must point at the merged SHA with
    `state == success`.
 1. **Output merge summary**: commit hash, files changed, merge result
 
-=======
+\=======
+
 1. **Output merge summary**: commit hash, files changed, merge result
 
 ### Phase 4 — Post-merge verification
@@ -137,7 +145,8 @@ Only after phase 2 is acknowledged or no blocking issues remain:
 1. Ensure `uv lock --check` passes (lock ↔ pyproject parity)
 1. **Update `docs/RETROSPECTIVES.md`** if retro occurred
 
->>>>>>> chore: update code-audit/security-audit/merge-gate wording (staging→current)
+> > > > > > > chore: update code-audit/security-audit/merge-gate wording (staging→current)
+
 ### Auto-fix rules
 
 | Pattern | Auto-fix? | Method |
