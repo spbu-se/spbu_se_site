@@ -2997,7 +2997,8 @@ LFS-related changes remain on the branch.
 **State at handoff**: branch history rewritten (fixups squashed), retro
 appended, pre-push gate green, pushed with `--force-with-lease`.
 
-<<<<<<< HEAD
+\<<\<<\<<< HEAD
+
 ### Retrospective — deferred batch (2026-09-18)
 
 Trigger: light retro for chore/deferred PR. Low-priority items.
@@ -3023,8 +3024,8 @@ merge-gate, unattended-mode — mostly staging→current rewrites, stale ref cle
 **What went well**: healthz follows existing route registration pattern; skill drift fix
 checked all 8 skills systematically.
 
-**No gaps found. No pattern recurrence.**
-=======
+# **No gaps found. No pattern recurrence.**
+
 ### Retrospective — 2026-09-18: docs/CI batch finalization (Waves 1+2+3) + upload.py LFS recurrence
 
 Light retro (routine docs+config batch) before the `chore/docs-ci-batch` PR.
@@ -3107,4 +3108,5 @@ check) — flagged, not auto-fixed, to keep this batch scoped.
 - Working tree: phantom ` M src/static/files/upload.py` (documented LFS
   stat-cache artifact, pre-existing on LFS-enabled checkouts — not introduced
   by this branch).
->>>>>>> docs: retrospective — docs/CI batch finalization + upload.py LFS recurrence
+
+> > > > > > > docs: retrospective — docs/CI batch finalization + upload.py LFS recurrence
