@@ -126,6 +126,8 @@ se-site/
 
 | File | Purpose |
 |------|---------|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute: branching, commits, PRs, gates |
+| [SECURITY.md](SECURITY.md) | Security policy and vulnerability reporting |
 | [docs/AI_AGENTS.md](docs/AI_AGENTS.md) | AI tooling config, output format conventions |
 | [docs/AI_AGENT_EXPERIENCE.md](docs/AI_AGENT_EXPERIENCE.md) | Agent-collected debugging trails and dead ends |
 | [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | API endpoint reference |
@@ -149,6 +151,7 @@ se-site/
 
 ## Contributing
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow.
 See [docs/GIT_FLOW.md](docs/GIT_FLOW.md) for branching model and commit conventions.
 See [docs/DEVELOPMENT_PROCESS.md](docs/DEVELOPMENT_PROCESS.md) for full development workflow.
 
