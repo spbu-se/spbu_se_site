@@ -10,11 +10,6 @@ cd /srv/spbu_se_site/repo
 # rewritten (secret/LFS purge); plain fetch would keep stale tag -> old SHA.
 GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.version GIT_CONFIG_VALUE_0=HTTP/1.1 \
   git fetch --tags --force origin
-# LFS: configure the smudge filter BEFORE any checkout so LFS-tracked files
-# (thesis PDFs/PPTs, PracticesGuide.pdf) materialize as content, not pointers.
-git lfs install --local
-GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.version GIT_CONFIG_VALUE_0=HTTP/1.1 \
-  git lfs fetch
 
 # Bring the deploy checkout to origin/current. After a published-history
 # rewrite (filter-repo / LFS migration, all SHAs replaced) the local history
