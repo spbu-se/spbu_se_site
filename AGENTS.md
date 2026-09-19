@@ -37,10 +37,12 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
   1. Or on explicit user order (must acknowledge the bypass risk aloud)
   1. After merge, verify CI on `current` — if CI is red, fix immediately
   1. Never `--admin` before CI starts — waiting costs minutes, fixing a broken current costs hours
-<<<<<<< HEAD
->>>>>>> d23b9cb (docs: add person-names guard to pre-push gate + AGENTS.md rule)
-=======
->>>>>>> upstream/current
+     \<<\<<\<<< HEAD
+
+> > > > > > > d23b9cb (docs: add person-names guard to pre-push gate + AGENTS.md rule)
+> > > > > > > \=======
+> > > > > > > upstream/current
+
 - **Read the skill README for this task** — identify which task/skill matches (e.g., `retrospective-analysis`, `test-writer`, `merge-gate`) and read `.skills/<name>/README.md` before starting. Confirm by stating which skill READMEs were read.
 - Before PowerShell piped/chained commands or `2>&1`, read `docs/TOOLING.md` §PowerShell (flatten ErrorRecords with `| ForEach-Object { "$_" }`, or suppress stderr with `2>($null)`)
 - Before editing any doc, re-read its first 5 lines (scope/aim header). Verify your changes match that scope. If existing content doesn't match, flag it.
