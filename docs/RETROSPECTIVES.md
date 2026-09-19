@@ -3217,3 +3217,29 @@ is a pre-push hook candidate for a future PR.
 session — tag position, signature format, email match, staging health,
 conflict markers, person names, orphan SHAs. Each is now caught by an
 automated check, not a manual checklist item.
+
+### Retrospective — PR #337 alumni page (2026-09-19)
+
+**Trigger**: post-release cleanup — alumni page, curriculum links, SimpleMDE
+fix, yearly checklist. Caught multiple process violations during CI rounds.
+
+**Mistakes & root causes**:
+
+| Mistake | Root cause | Fix |
+|---------|------------|-----|
+| Created PR without UI/UX testing | No pre-PR Playwright gate; relied on CI alone | **Add to AGENTS.md**: visual QA via Playwright is a pre-merge gate (not just CI) |
+| Search didn't work (script in `footer_scripts` block that doesn't exist in `base_dark.html`) | Forgot `base_dark.html` doesn't have that block; assumed it existed from other templates | **Add to AGENTS.md**: verify template blocks exist in the base template when using `{{ super() }}` in child blocks |
+| FA subset missing new icons | Added FA icons but didn't regenerate subset | Already gated by CI (test passes); root cause was skipping `npm run build` |
+| Inline event handlers used first (CSP violation) | Didn't check the existing CSP test before writing | Already gated by CI; but should be caught earlier by a local pre-push run |
+| CSS build mismatch local vs CI | Rebuilt CSS but CI version differed due to toolchain differences | Fix: add safelist entries instead of relying on build-diff |
+
+**What went well**: Playwright MCP enabled mid-session allowed real visual QA
+before the final commits. All bugs caught before merge, not after.
+
+**Process improvements needed**:
+
+| Guardrail | Layer | Status |
+|-----------|-------|--------|
+| Pre-PR Playwright screenshot + search test | Pre-push / manual | **Proposed** — add to AGENTS.md pre-flight |
+| Template block verification | Pre-commit / knowledge | **Proposed** — check child `{% block %}` exists in parent chain |
+| `npm run build` as part of feature branch prep | Pre-push | **Proposed** — add to pre-push checklist or let CI `assets` catch it (current) |
