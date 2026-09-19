@@ -80,7 +80,7 @@ For each section/step in the skill, check the corresponding canonical doc (from 
 
 | Skill | Principle | Issue | Fix |
 |-------|-----------|-------|-----|
-| code-audit | Boundaries | Referenced in docs/DEVELOPMENT_PROCESS.md §4.5 | Must move ref to AI_AGENTS.md |
+| code-audit | Boundaries | Referenced in [[DEVELOPMENT_PROCESS.md#Code-Review-Checklist]] | Must move ref to AI_AGENTS.md |
 | ... | ... | ... | ... |
 
 ### Skills in good standing: <N>
@@ -116,6 +116,6 @@ All non-auto-fix items must be reported in retrospective. The retrospective must
 
 - Read access to `docs/AI_AGENTS.md` §Skills (all subsections)
 - Read access to `CLAUDE.md` (skill table)
-- Read access to `docs/DOCS.md` §8.1 (integrity checks)
+- Read access to `[[DOCS.md#Gate-Checklist]]`
 - Read access to all `.skills/<name>/README.md` files
 - Read access to `git log` (to check doc change dates)

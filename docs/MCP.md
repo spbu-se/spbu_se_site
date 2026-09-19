@@ -45,7 +45,7 @@ Trust criteria, in order: vendor-backed or well-maintained? minimal scopes / rea
 | **Playwright CLI** (`@playwright/cli`) | **Default browser verification** | Token-efficient, skill-based, sessions, console/network/tracing; no page data forced into context | `npm install -g @playwright/cli@latest` then `playwright-cli install --skills`; named sessions via `-s=`, headless by default (`--headed` to watch) |
 | **Playwright MCP** (`@playwright/mcp`) | Optional exploratory | Persistent state, rich introspection, self-healing/iterative loops | `npx @playwright/mcp@latest`; reserve for sessions where continuous browser context beats the token cost |
 
-Browser artifacts (`.playwright-cli/`, `.playwright-mcp/`) are generated files — keep them out of the tree (see §5).
+Browser artifacts (`.playwright-cli/`, `.playwright-mcp/`) are generated files — keep them out of the tree (see [[#Configuration-Stance]]).
 
 ### 3.2 Recommended (Tier 1)
 
@@ -92,7 +92,7 @@ Browser artifacts (`.playwright-cli/`, `.playwright-mcp/`) are generated files �
 
 - **Agent-agnostic snippets, not committed configs.** Document how to configure a server; the developer applies it to their own agent. In-repo, agent-agnostic MCP config is **deferred** until a concrete shared need appears (user decision 2026-09-10).
 - **OpenCode specifics** (adapt to your tool): MCP servers live under the `mcp` key; each entry needs `"type": "local"` or `"type": "remote"`; a local `command` is a single array (executable + args); the env key is `environment` (not `env`); set `"oauth": false` when passing a PAT in an `Authorization` header.
-- **Generated artifacts** belong in `.tmp/` (gitignored): `.playwright-cli/`, `.playwright-mcp/`. `.local_development.db` is the MCP database exception documented in `docs/DOCS.md` §3.2a.
+- **Generated artifacts** belong in `.tmp/` (gitignored): `.playwright-cli/`, `.playwright-mcp/`. `.local_development.db` is the MCP database exception documented in `[[DOCS.md#GeneratedTemporary-Files-live-in-tmp]]`.
 
 ## 6. Process — Adding or Changing an MCP
 

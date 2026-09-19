@@ -166,7 +166,7 @@ Before the merge gate, audit each decision from this session:
 
 Before proposing merge to current:
 
-1. Run `uv lock --check` (lock in sync with `pyproject.toml`). See `docs/GIT_FLOW.md §8`.
+1. Run `uv lock --check` (lock in sync with `pyproject.toml`). See `[[GIT_FLOW.md#GitHub-Integration]]`.
 1. Scan `docs/CODE_ISSUES.md` for stale [OPEN] entries — any bug whose fix was already committed but status not updated to [FIXED]. Update before merging.
 
 ### Upstream re-sync (active session)
@@ -177,7 +177,7 @@ init or warmup. Fetching alone is not enough: upstream changes carry
 prescriptive and descriptive knowledge that must reach the running session
 before work continues.
 
-1. Sync as usual (two-remote fetch — `AGENTS.md` §Pre-flight; `GIT_FLOW.md §8.5`).
+1. Sync as usual (two-remote fetch — `AGENTS.md` §Pre-flight; `[[GIT_FLOW.md#Fork-workflow]]`).
 1. Map the incoming changes: `git log <last-known-oid>..origin/<branch> --oneline` and `git diff --stat <last-known-oid>..origin/<branch>` (merges from other contributors, dep bumps, CI/workflow edits).
 1. Re-scan the changed files, reading **deltas, not just names**: prescriptive (`AGENTS.md`, `CLAUDE.md`, `.pre-commit-config.yaml`, `.github/workflows/*` CI scripts, `pyproject.toml`), descriptive docs (`docs/*.md`, canonical and in-scope), and tests.
 1. **Apply** new/updated rules to the running session before continuing — updated quality gates, hook behavior, commands, and conventions take effect immediately.
@@ -186,7 +186,7 @@ before work continues.
 
 ### Pre-merge validation
 
-Before merging after bulk doc edits, run the `mdformat` command that CI will use — not just `--check`. This catches missing files and path errors early. See `docs/DOCS.md §7.1` for the command.
+Before merging after bulk doc edits, run the `mdformat` command that CI will use — not just `--check`. This catches missing files and path errors early. See `[[DOCS.md#mdformat]]` for the command.
 
 ### Pre-push discipline
 
@@ -217,7 +217,7 @@ pytest runs on CI, not in pre-push. See `docs/AI_AGENTS.md` §CI discipline for 
 
 #### Merge to `current`
 
-Every PR merged to `current` should be publishable. The pre-push gate is the minimum bar. CI must be green before merging (see `docs/GIT_FLOW.md` §2.1).
+Every PR merged to `current` should be publishable. The pre-push gate is the minimum bar. CI must be green before merging (see `[[GIT_FLOW.md#Feature--current]]`).
 
 ### Context compaction
 
@@ -225,7 +225,7 @@ Before compacting context or ending session:
 
 - Update `docs/DESIGN_DECISIONS.md` with new choices
 - Update `TODO.md` (remove completed — implemented work belongs in commit messages, not TODO; reorder backlog)
-- Run AI instructions drift check (see `docs/DOCS.md §5.3`)
+- Run AI instructions drift check (see `[[DOCS.md#AI-Instructions-Drift-Check]]`)
 - Audit cross-references: scan every `.md` file under `docs/` and `.skills/` for hardcoded step numbers. Replace with section-title references.
 - If session involved doc restructuring, propose retrospective as the finalization step (do not run mid-session)
 
@@ -268,13 +268,13 @@ Every new file type should have an `.editorconfig` entry. Keep `.editorconfig` i
 1. Verify pre-commit hooks pass before touching any code
 1. Branch from `upstream/current`
 
-The exact commands for each step are in `AGENTS.md` §Pre-flight checklist and `docs/GIT_FLOW.md` §1.2 (Rules — branch from `upstream/current`).
+The exact commands for each step are in `AGENTS.md` §Pre-flight checklist and `[[GIT_FLOW.md#Rules]]` (branch from `upstream/current`).
 
 ### Plan-state discipline (run start + checkpoints)
 
-Plan-state updates are a **mandatory part of agentic development**, not an end-of-session nicety: at the **start of any task run** and at named **checkpoints**, refresh the session plan state — todo list + `.unfinished.plan.md` (date/time, focus, branch, base hash, dirty files, done/remaining, key decisions; the file is written out at session end, §Session end step 8). Concrete checkpoints: **run start, after every commit, after every test or gate run, before opening a PR, before every squash-merge, and at session end** — a plan left stale between commits is the exact miss this rule prevents (2026-09-06: `todowrite` drifted while PR work progressed). Mandatory in long gated/batched runs because the plan (1) **keeps the user informed** — state is always readable, never reconstructed at the end; (2) **keeps the agent focused** — it is the contract that gates and retro analysis read; (3) **keeps the session crash-safe** — sessions do crash, and `.unfinished.plan.md` is the exact recovery handoff read at the next Session start.
+Plan-state updates are a **mandatory part of agentic development**, not an end-of-session nicety: at the **start of any task run** and at named **checkpoints**, refresh the session plan state — todo list + `.unfinished.plan.md` (date/time, focus, branch, base hash, dirty files, done/remaining, key decisions; the file is written out at [[#Session-end--wrap-up-protocol|session end, step 8]]). Concrete checkpoints: **run start, after every commit, after every test or gate run, before opening a PR, before every squash-merge, and at session end** — a plan left stale between commits is the exact miss this rule prevents (2026-09-06: `todowrite` drifted while PR work progressed). Mandatory in long gated/batched runs because the plan (1) **keeps the user informed** — state is always readable, never reconstructed at the end; (2) **keeps the agent focused** — it is the contract that gates and retro analysis read; (3) **keeps the session crash-safe** — sessions do crash, and `.unfinished.plan.md` is the exact recovery handoff read at the next Session start.
 
-**OMO-specific**: agents running under OhMyOpenCode may use the `.omo/` boulder system (`.omo/boulder.json` + `.omo/plans/<name>.md`) instead of `.unfinished.plan.md` — see `docs/TOOLING.md` §OMO. The dev process docs stay agent-agnostic; `.unfinished.plan.md` is the general mechanism.
+**OMO-specific**: agents running under OhMyOpenCode may use the `.omo/` boulder system (`.omo/boulder.json` + `.omo/plans/<name>.md`) instead of `.unfinished.plan.md` — see `[[TOOLING.md#OMO]]`. The dev process docs stay agent-agnostic; `.unfinished.plan.md` is the general mechanism.
 
 ### Session end — wrap-up protocol
 
@@ -293,7 +293,7 @@ Plan-state updates are a **mandatory part of agentic development**, not an end-o
    - Process rules → `docs/DEVELOPMENT_PROCESS.md`
    - Pre-flight items → `AGENTS.md`
 1. **Run the session retrospective — mandatory before any PR** — load the `retrospective-analysis` skill (light or full) and append the entry to `docs/RETROSPECTIVES.md` before opening a PR. If a PR was opened without it, add the retro as the last commit and update the PR description. This replaces the old "retro is not part of wrap-up" rule — every shipped session gets a retro entry. See `docs/RETROSPECTIVES.md`.
-1. **Upstream re-sync check** — did this session refresh from upstream after the initial sync? If yes, a **Rescan summary** must have been produced and reported to the user (see §0.6 Upstream re-sync). A silent refresh that never applied the upstream doc/CI changes to the session is a missed-knowledge gap.
+1. **Upstream re-sync check** — did this session refresh from upstream after the initial sync? If yes, a **Rescan summary** must have been produced and reported to the user (see [[#Upstream-re-sync]]). A silent refresh that never applied the upstream doc/CI changes to the session is a missed-knowledge gap.
 1. Write `.unfinished.plan.md` with date/time, focus task, branch, last commit hash, dirty files, completed and remaining steps, undocumented decisions.
 1. If on a feature branch with unfinished code: commit WIP, create `_UNFINISHED.md` as the final commit. `_UNFINISHED.md` is always the last commit — stripped automatically by squash-merge. `.unfinished.plan.md` is never committed (see `.gitignore`).
 1. Verify working tree is clean.
@@ -309,7 +309,7 @@ Plan-state updates are a **mandatory part of agentic development**, not an end-o
 - Before every push: tests, lint, format, pre-commit, secrets check — all must pass
 - After every push: wait for CI, fix immediately if red
 
-The full pre-flight checklists are in `AGENTS.md` (Pre-flight checklist). The push command reference is in `docs/GIT_FLOW.md` §8.2 (CI status) and §2.1 (merge strategy).
+The full pre-flight checklists are in `AGENTS.md` (Pre-flight checklist). The push command reference is in `[[GIT_FLOW.md#CI-status]]` and `[[GIT_FLOW.md#Feature--current]]`.
 
 ## 0.8 Skill Conventions
 
@@ -373,7 +373,7 @@ CI fails, creates false confidence and wastes server time.
 
 Sequential steps in a single job use fail-fast (`bash -e` by default) — a failed step aborts the job, masking later results. This is acceptable for local pre-push (fast iteration, fix and retry in seconds).
 
-For CI, use separate jobs with `needs: [...]` + `if: always()` so lint/type failures do not block test execution. Both results are visible in the CI summary. See `docs/QUALITY_MANAGEMENT.md §4` for rationale and pattern.
+For CI, use separate jobs with `needs: [...]` + `if: always()` so lint/type failures do not block test execution. Both results are visible in the CI summary. See `[[QUALITY_MANAGEMENT.md#CI-Discipline]]` for rationale and pattern.
 
 ### Diagnosis: pre-commit hook not catching what CI catches
 
@@ -434,10 +434,10 @@ Every item must pass before merge to `current`:
 | 2 | **Lint** | `ruff` clean |
 | 2a | **Types** (active) | `basedpyright src/` passes, no new `# pyright: ignore[code]` — per-module overrides in pyproject.toml |
 | 3 | **Format** | `ruff format` + `mdformat` applied |
-| 4 | **Edge cases** | `docs/TESTING.md §1` — empty inputs, boundary values, failure modes tested |
+| 4 | **Edge cases** | `[[TESTING.md#Testing-Discipline]]` — empty inputs, boundary values, failure modes tested |
 | 5 | **Error messages** | Actionable, follow existing pattern (field → reason) |
-| 6 | **Docs sync** | `docs/DOCS.md §8` integrity checks applied — H1 → aim → scope on every `.md`, encoding declarations, cross-references resolved |
-| 7 | **AI instructions** | New quirks added? Existing ones still accurate? Verify no unique content — every claim cross-references a canonical doc (`docs/DOCS.md §5`). |
+| 6 | **Docs sync** | `[[DOCS.md#Integrity-Checks]]` applied — H1 → aim → scope on every `.md`, encoding declarations, cross-references resolved |
+| 7 | **AI instructions** | New quirks added? Existing ones still accurate? Verify no unique content — every claim cross-references a canonical doc (`[[DOCS.md#Canonical-Source-Discipline]]`). |
 | 8 | **`uv.lock` in sync** | `uv lock --check` passes; commit `uv.lock` if deps changed |
 | 9 | **Backward compat** | Existing behavior unchanged |
 | 10 | **No secrets** | No hardcoded keys, tokens, or production URLs |

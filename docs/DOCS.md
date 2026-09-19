@@ -259,7 +259,7 @@ Invalid:  step 50                                (same — breaks on renumber)
 
 Wiki-links are resolved by marksman LSP (go-to-definition, find-references, diagnostics). This survives renumbering — heading anchors don't change when sections are reordered.
 
-**Migration**: every `§N` was replaced in the 2026-09-19 docs restructuring. If you see `§[0-9]` in any `.md` file, it's a fault — replace with a wiki-link.
+**Migration**: the 2026-09-19 docs restructuring replaces all `§N` with wiki-links. See the full inventory in `docs/AI_AGENTS.md` §Cross-reference migration status. If you see `§[0-9]` in any `.md` file, it's a fault — replace with a wiki-link.
 
 ### 5.3 AI Instructions Drift Check
 

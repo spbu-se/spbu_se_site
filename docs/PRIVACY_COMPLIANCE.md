@@ -2,7 +2,7 @@
 
 <!-- encoding: utf-8 -->
 
-Audit of how `se.math.spbu.ru` handles cookies, analytics, and personal data under the EU GDPR and Russian federal law 152-ФЗ «О персональных данных»; the mitigations shipped in v2026.08.20+ (Google Tag Manager removed, Yandex Metrica **dormant by decision** — §5 #7 — with a consent gate ready, consent banner, privacy policy, data export and account deletion); and the remaining decisions tracked for the department. Enabling Yandex Metrica later (and GTM, if ever re-introduced) would need the confirmations in §4.5.
+Audit of how `se.math.spbu.ru` handles cookies, analytics, and personal data under the EU GDPR and Russian federal law 152-ФЗ «О персональных данных»; the mitigations shipped in v2026.08.20+ (Google Tag Manager removed, Yandex Metrica **dormant by decision** — [[#Decisions-needed-from-the-department]] #7 — with a consent gate ready, consent banner, privacy policy, data export and account deletion); and the remaining decisions tracked for the department. Enabling Yandex Metrica later (and GTM, if ever re-introduced) would need the confirmations in [[#152-operator-obligations]].
 
 Covers: applicable law, cookie/third-party/personal-data inventory, legal-basis analysis, the disablement shipped in this release, and the ranked implementation plan with acceptance criteria. Does not cover: security headers (see `docs/SEO_A11Y_ROADMAP.md`), legal advice (this document is not counsel), or the accessibility/SEO backlog.
 
@@ -14,7 +14,7 @@ Covers: applicable law, cookie/third-party/personal-data inventory, legal-basis 
 | **GDPR** (EU 2016/679) | Data subjects in the EU/EEA (site is globally reachable) | Art. 6 legal basis, Art. 7 consent, transparency (Art. 13), rights, processor agreements |
 | **ePrivacy Directive** (EU 2002/58/EC as amended) | EU visitors | Cookie/analytics consent separate from GDPR — applies to any non-strictly-necessary cookie (Yandex Metrica sets cookies) |
 
-The operator is the Saint Petersburg State University (СПбГУ); the department (кафедра системного программирования, Математико-механический факультет) runs the site on SPbU infrastructure. Whether a specific process falls under the university charter (152-ФЗ ч. 1 ст. 6 п. 5) vs. requires consent must be confirmed by SPbU's legal office — flagged as a decision in §5.
+The operator is the Saint Petersburg State University (СПбГУ); the department (кафедра системного программирования, Математико-механический факультет) runs the site on SPbU infrastructure. Whether a specific process falls under the university charter (152-ФЗ ч. 1 ст. 6 п. 5) vs. requires consent must be confirmed by SPbU's legal office — flagged as a decision in [[#Decisions-needed-from-the-department]].
 
 ## 2. Current-state audit (baseline: v2026.08.18, before the mitigation)
 
@@ -26,7 +26,7 @@ The operator is the Saint Petersburg State University (СПбГУ); the departme
 | `se_consent` | first-party cookie (SameSite=Lax, `Secure`) + `se_consent_choice` localStorage | Stores the granular consent decision (`essential[,statistics][,marketing]`); written by `js/se_consent.js`, read by Flask to gate analytics | Set after the banner decision; the server renders no optional tracker before it | No — it *is* the consent record (ePrivacy Art. 7/GDPR requires consent to be provable) |
 | `modal_cookies` | localStorage | Remembers the legacy cookie-banner choice | **Removed in the consent-gate PR** (replaced by `se_consent`) | N/A |
 | `_ym_*` cookies (`_ym_uid`, `_ym_d`, `_ym_isad`, …) | third-party (Yandex Metrica) | Visit statistics | **Dormant** — no counter id configured; when provisioned, the snippet renders only for visitors who accepted the `statistics` category | **Yes** (ePrivacy/GDPR) once enabled |
-| `_ga*` / GTM cookies | third-party (Google) | Analytics/marketing via GTM | **Removed in v2026.08.20** | Was required — GTM ran without consent (see §2.5) |
+| `_ga*` / GTM cookies | third-party (Google) | Analytics/marketing via GTM | **Removed in v2026.08.20** | Was required — GTM ran without consent (see [[#Gaps-found-before-the-mitigation]]) |
 
 ### 2.2 Third-party services
 
@@ -42,7 +42,7 @@ The operator is the Saint Petersburg State University (СПбГУ); the departme
 
 | Data | Storage | Purpose | Retention today |
 |------|---------|---------|-----------------|
-| Account: name, email, password hash | `users` table (sqlite) | authentication, personal pages | while the account is active; **purged (login data) on account deletion** — see §4.7 deletion criterion |
+| Account: name, email, password hash | `users` table (sqlite) | authentication, personal pages | while the account is active; **purged (login data) on account deletion** — see [[#Acceptance-criteria]] |
 | Avatar upload | static upload dir | profile display | until account deletion |
 | Practice/VKR submissions: student full name, group, supervisor, work text, reviewer notes | `practice` / `theses` tables | educational process (department duty) | per university archival requirements |
 | Diplomas themes | `diploma_themes` table | educational process | per university archival requirements |
@@ -84,7 +84,7 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 
 - Replace the dark-only `cookiealert` with a **consent banner on all 4 bases** offering granular choices: *essential* (always on), *statistics* (Yandex Metrica), *marketing* (GTM/Google, if re-enabled). Default-off.
 - Store the choice (localStorage + a marker cookie), allow re-decision from the footer, and **gate snippet loading on consent** — do not even load `mc.yandex.ru/metrika/tag.js` until accepted.
-- Banner text links to the privacy policy (§4.4).
+- Banner text links to the privacy policy ([[#Privacy-policy-page]]).
 
 ### 4.2 GTM consent-mode wiring (repo, only if re-introduced)
 
@@ -96,19 +96,19 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 - Keep `webvisor:false` (no session recording), `clickmap` off or lean, IP truncated; set data-retention limits in the Metrica dashboard.
 - Confirm the department holds a Metrica **operator agreement** (Yandex acts as processor under 152-ФЗ) and enable Metrica's consent-integration features so the counter stops for users who decline.
 
-> Shipped snippet defaults: `webvisor` is not enabled and `clickmap: false` (the old snippet's `clickmap: true` was dropped) — matching decision §5 #2 (no Webvisor; clickmap only if explicitly wanted). Retention limits and the Yandex operator agreement remain dashboard/dept actions.
+> Shipped snippet defaults: `webvisor` is not enabled and `clickmap: false` (the old snippet's `clickmap: true` was dropped) — matching decision [[#Decisions-needed-from-the-department]] #2 (no Webvisor; clickmap only if explicitly wanted). Retention limits and the Yandex operator agreement remain dashboard/dept actions.
 
 ### 4.4 Privacy policy page (repo — shipped draft + legal copy by dept)
 
 - New `/privacy.html` (clone the `/n` static-page pattern), footer link on all 4 bases, entry in the sitemap.
-- Content (to be drafted/approved by SPbU legal): operator identity + registered details; categories of data (§2.3); purposes and legal basis (§2.4); cookies list (§2.1); analytics providers and their role (§2.2); retention periods (§2.3 → define); user rights under 152-ФЗ ст. 14 (access, rectification, deletion) and GDPR Art. 15-22; contact for requests; date of last update.
+- Content (to be drafted/approved by SPbU legal): operator identity + registered details; categories of data ([[#Personal-data-inventory]]); purposes and legal basis ([[#Legal-basis-analysis]]); cookies list ([[#Cookies-and-local-storage]]); analytics providers and their role ([[#Third-party-services]]); retention periods ([[#Personal-data-inventory]] → define); user rights under 152-ФЗ ст. 14 (access, rectification, deletion) and GDPR Art. 15-22; contact for requests; date of last update.
 
-> Shipped draft (`src/templates/privacy.html`, route `/privacy.html`, auto-sitemapped) links the official SPbU personal-data policy and the 05.06.2026 Metrica consent doc, names СПбГУ as operator (199034, СПб, Университетская набережная, 7–9), lists data categories/legal basis/cookies, and the rights under 152-ФЗ ст. 14 / GDPR. Final legal copy approval is SPbU legal's (acceptance criterion §4.7).
+> Shipped draft (`src/templates/privacy.html`, route `/privacy.html`, auto-sitemapped) links the official SPbU personal-data policy and the 05.06.2026 Metrica consent doc, names СПбГУ as operator (199034, СПб, Университетская набережная, 7–9), lists data categories/legal basis/cookies, and the rights under 152-ФЗ ст. 14 / GDPR. Final legal copy approval is SPbU legal's (acceptance criterion [[#Acceptance-criteria]]).
 
 ### 4.5 152-ФЗ operator obligations (dept/legal action, tracked here)
 
-- **Operator registration rides SPbU's** — the site is an `spbu.ru` subdomain, so the Roskomnadzor уведомление is SPbU's, not the department's. **Decision §5 #7: SPbU is treated as a registered operator; verify in the public register** (https://pd.rkn.gov.ru/operators-registry/operators/list/, search by ИНН **7801002274** / ФГБОУ ВО «Санкт-Петербургский государственный университет») and record the реестровый номер + lookup date here. SPbU's published framework (Политика № 10120/1 от 22.10.2021 + Согласие на обработку ПД от 05.06.2026) already evidences operation under 152-ФЗ.
-- **Yandex Metrica relationship: confirm, do not create.** No separate поручение на обработку is needed from the department — under 152-ФЗ ст. 6 ч. 3 / ст. 18 that instrument is between the operator (СПбГУ) and the processor (ООО «Яндекс»). The 05.06.2026 SPbU consent doc already names operator = СПбГУ, processor = ООО «Яндекс» (ИНН 7736207543). If Metrica is ever enabled, the counter must run under SPbU's Yandex account/agreement. Per §5 #7 Metrica stays **dormant** — no action required now.
+- **Operator registration rides SPbU's** — the site is an `spbu.ru` subdomain, so the Roskomnadzor уведомление is SPbU's, not the department's. **Decision [[#Decisions-needed-from-the-department]] #7: SPbU is treated as a registered operator; verify in the public register** (https://pd.rkn.gov.ru/operators-registry/operators/list/, search by ИНН **7801002274** / ФГБОУ ВО «Санкт-Петербургский государственный университет») and record the реестровый номер + lookup date here. SPbU's published framework (Политика № 10120/1 от 22.10.2021 + Согласие на обработку ПД от 05.06.2026) already evidences operation under 152-ФЗ.
+- **Yandex Metrica relationship: confirm, do not create.** No separate поручение на обработку is needed from the department — under 152-ФЗ ст. 6 ч. 3 / ст. 18 that instrument is between the operator (СПбГУ) and the processor (ООО «Яндекс»). The 05.06.2026 SPbU consent doc already names operator = СПбГУ, processor = ООО «Яндекс» (ИНН 7736207543). If Metrica is ever enabled, the counter must run under SPbU's Yandex account/agreement. Per [[#Decisions-needed-from-the-department]] #7 Metrica stays **dormant** — no action required now.
 - Cross-border: Metrica = RU storage (OK); Google services = EU/US flows → GDPR SCCs and Roskomnadzor cross-border analysis before re-enabling GTM/Maps.
 - Add a consent statement to forms that collect personal data where no charter basis applies (legal review needed). **Repo-side: notice text shipped** — `src/templates/consent_notice.html` («Отправляя форму, вы соглашаетесь…» + policy link) included on registration, practice, thesis-review, and internship forms; legal review of the wording remains dept/legal action.
 
@@ -122,11 +122,11 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 
 - [x] Consent banner on all bases; analytics snippet loads only after acceptance (asserted by `tests/test_analytics.py` + `tests/test_consent.py`: no `mc.yandex.ru` in DOM before consent).
 - [x] User data export (right of access / portability under 152-ФЗ ст. 14 / GDPR Art. 15, 20) — `/profile/export.zip` streams a ZIP with `account.json` (account data minus `password_hash`) + `content.json` (owned records); asserted by `tests/test_auth_views.py::TestUserExport`.
-- [x] Account deletion (right to be forgotten / GDPR Art. 17) — `/profile/delete` soft-deletes the account (clears email, password hash, OAuth ids, avatar, contact; keeps names for published-content attribution); login blocked on all fronts; published content retained intact. Decision §5 #6 applied; asserted by `tests/test_auth_views.py::TestUserDelete`.
-- [x] Metrica enablement — **DECIDED 2026-08-21 (decision §5 #7): stays dormant = fully compliant** (zero third-party analytics requests, no sign-offs needed). The consent gate + `metrica_id()` wiring stay ready; if the department later enables analytics, the counter must run under SPbU's Yandex account/agreement (§4.5), retention set in the dashboard, Webvisor off, and a post-deploy CSP check done.
-- [x] `/privacy.html` live, linked from all bases, sitemap'd. **Aligned with SPbU documents** — links Политика № 10120/1 от 22.10.2021 + Согласие от 05.06.2026, operator = СПбГУ (address per реквизиты); no separate legal drafting needed. Retention terms shipped (§5 #5 tiered decision).
-- [x] Roskomnadzor — **rides SPbU's operator registration** (site is an `spbu.ru` subdomain). Verify in the public register by ИНН 7801002274 and record the реестровый номер here (§4.5). Yandex processing instruction — **confirm, do not create** (§4.5); not needed while Metrica is dormant.
-- [ ] If GTM re-enabled: consent-mode verified (no tag before consent) + cross-border analysis documented (GTM stays removed per §5 #1).
+- [x] Account deletion (right to be forgotten / GDPR Art. 17) — `/profile/delete` soft-deletes the account (clears email, password hash, OAuth ids, avatar, contact; keeps names for published-content attribution); login blocked on all fronts; published content retained intact. Decision [[#Decisions-needed-from-the-department]] #6 applied; asserted by `tests/test_auth_views.py::TestUserDelete`.
+- [x] Metrica enablement — **DECIDED 2026-08-21 (decision [[#Decisions-needed-from-the-department]] #7): stays dormant = fully compliant** (zero third-party analytics requests, no sign-offs needed). The consent gate + `metrica_id()` wiring stay ready; if the department later enables analytics, the counter must run under SPbU's Yandex account/agreement ([[#152-operator-obligations]]), retention set in the dashboard, Webvisor off, and a post-deploy CSP check done.
+- [x] `/privacy.html` live, linked from all bases, sitemap'd. **Aligned with SPbU documents** — links Политика № 10120/1 от 22.10.2021 + Согласие от 05.06.2026, operator = СПбГУ (address per реквизиты); no separate legal drafting needed. Retention terms shipped ([[#Decisions-needed-from-the-department]] #5 tiered decision).
+- [x] Roskomnadzor — **rides SPbU's operator registration** (site is an `spbu.ru` subdomain). Verify in the public register by ИНН 7801002274 and record the реестровый номер here ([[#152-operator-obligations]]). Yandex processing instruction — **confirm, do not create** ([[#152-operator-obligations]]); not needed while Metrica is dormant.
+- [ ] If GTM re-enabled: consent-mode verified (no tag before consent) + cross-border analysis documented (GTM stays removed per [[#Decisions-needed-from-the-department]] #1).
 - [ ] Legal sign-off (human) recorded in this doc — required only if analytics are ever enabled or copy diverges from SPbU documents (currently aligned).
 
 ## 5. Decisions needed from the department
@@ -139,7 +139,7 @@ Goal: enable Yandex Metrica (and GTM, if the department wants it back) with prop
 | 4 | Privacy-policy copy owner | SPbU legal drafts; department reviews. **2026-08-21: page aligned with SPbU docs** (links the university's own 2021 policy + 05.06.2026 consent, operator = СПбГУ) — no separate drafting needed unless copy diverges | SPbU legal |
 | 5 | Data retention periods for user/practice data | **DECIDED 2026-08-21 — tiered + fixed terms**: `se_session` 24h, `se_consent` 1y, account until deletion, educational records per university archival rules, publications for their lifetime. Shipped in `privacy.html` §Сроки хранения данных. | Department + legal |
 | 6 | Account deletion: policy for removing a user account and its content (right to be forgotten) | **DECIDED 2026-08-21 — fired-employee model**: all published materials (practices, votes, posts, etc.) stay; the account (login, email, password, OAuth links, avatar) is removed. Implemented as soft-delete `/profile/delete` (shipped) — names kept for attribution. | Department + legal |
-| 7 | Should Yandex Metrica analytics be enabled at all? | **DECIDED 2026-08-21 — stay dormant** (fully compliant; zero third-party requests; no RKN/instruction/copy sign-offs needed). If enabled later: counter under SPbU's Yandex account/agreement (§4.5) + dashboard retention + post-deploy CSP check. The consent gate and `metrica_id()` wiring remain ready. | Department |
+| 7 | Should Yandex Metrica analytics be enabled at all? | **DECIDED 2026-08-21 — stay dormant** (fully compliant; zero third-party requests; no RKN/instruction/copy sign-offs needed). If enabled later: counter under SPbU's Yandex account/agreement ([[#152-operator-obligations]]) + dashboard retention + post-deploy CSP check. The consent gate and `metrica_id()` wiring remain ready. | Department |
 
 ## 6. Cross-references
 

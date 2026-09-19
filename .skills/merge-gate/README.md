@@ -27,19 +27,19 @@ Run each step in sequence, collecting findings without stopping. Do not fix mid-
 
 #### 1.1 Load and run `docs-audit`
 
-Walk through `.skills/docs-audit/README.md` §1-6. Collect findings in a temporary accumulator.
+Walk through `.skills/docs-audit/README.md` steps 1-6. Collect findings in a temporary accumulator.
 
 #### 1.2 Load and run `code-audit`
 
-Walk through `.skills/code-audit/README.md` §1-9. Append findings to the same accumulator.
+Walk through `.skills/code-audit/README.md` steps 1-9. Append findings to the same accumulator.
 
 #### 1.3 Context compaction
 
-Follow `docs/DEVELOPMENT_PROCESS.md` §0.6 (Workflow Discipline → Context compaction):
+Follow `[[DEVELOPMENT_PROCESS.md#Context-compaction]]`:
 
 1. Update `docs/DESIGN_DECISIONS.md` with new choices
 1. Update `TODO.md` — remove completed items (move to Resolved), reorder backlog
-1. Run AI instructions drift check (see `docs/DOCS.md §5.3`)
+1. Run AI instructions drift check (see `[[DOCS.md#AI-Instructions-Drift-Check]]`)
 1. Audit cross-references: scan every `.md` file under `docs/` and `.skills/` for hardcoded step numbers. Replace with section-title references.
 1. If session involved doc restructuring or touched 3+ `.md` files, prepare to propose retrospective
 
@@ -48,7 +48,7 @@ Follow `docs/DEVELOPMENT_PROCESS.md` §0.6 (Workflow Discipline → Context comp
 - `uv.lock` in sync with `pyproject.toml` (`uv lock --check`) — regenerate if stale
 - Run commit checklist: `mdformat`, `ruff`, `basedpyright`, `pytest -n 2`
 - Verify the session retrospective was run — every PR must include a
-  `docs/RETROSPECTIVES.md` entry (see `docs/DEVELOPMENT_PROCESS.md §0.7`). If the
+  `docs/RETROSPECTIVES.md` entry (see `[[DEVELOPMENT_PROCESS.md#Session-Lifecycle]]`). If the
   PR was opened without one, run `.skills/retrospective-analysis`, add the entry
   as the last commit, and update the PR description.
   \<<\<<\<<< HEAD
@@ -141,7 +141,7 @@ Only after phase 2 is acknowledged or no blocking issues remain:
 
 ### Phase 4 — Post-merge verification
 
-1. **Verify the deploy landed**: the latest deployment on the upstream repo's `deploy_environment` must point at the merged SHA with `state == success` (see `docs/TOOLING.md` §Staging environment)
+1. **Verify the deploy landed**: the latest deployment on the upstream repo's `deploy_environment` must point at the merged SHA with `state == success` (see `[[TOOLING.md#Staging-environment]]`)
 1. Ensure `uv lock --check` passes (lock ↔ pyproject parity)
 1. **Update `docs/RETROSPECTIVES.md`** if retro occurred
 
@@ -163,8 +163,8 @@ If uncertain: skip, include in report as `⚠️ Skipped: <reason>`. Not a fault
 
 - Read access to `.skills/docs-audit/README.md`
 - Read access to `.skills/code-audit/README.md`
-- Read access to `docs/GIT_FLOW.md` §2 (merge strategy)
-- Read access to `docs/DEVELOPMENT_PROCESS.md` §0.6 (Context compaction)
-- Read access to `docs/DOCS.md` §5.3 (AI drift check)
+- Read access to `[[GIT_FLOW.md#Merge-Strategy]]`
+- Read access to `[[DEVELOPMENT_PROCESS.md#Context-compaction]]`
+- Read access to `[[DOCS.md#AI-Instructions-Drift-Check]]`
 - Read/write access to `TODO.md`, `docs/ARCHITECTURE.md`
 - Git access to merge and push

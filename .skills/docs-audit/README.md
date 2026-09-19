@@ -31,7 +31,7 @@ Is every tool rule described in both doc AND enforced in config? → remove from
 
 ### 3. Scope discipline
 
-- Every `.md` file has a **scope header** (first 5 lines matching `docs/DOCS.md` §3.1 template: title, encoding, scope, covers, does-not-cover)
+- Every `.md` file has a **scope header** (first 5 lines matching `[[DOCS.md#Required-Structure]]` template: title, encoding, scope, covers, does-not-cover)
   - Check each doc specifically for `Covers:` and `Does not cover:` lines — verify no file is missing them
   - If missing, add them matching the doc's actual scope
 - No content violates its doc's stated scope (e.g., encoding commands in a doc about encoding policy, not in a tooling doc)
@@ -46,7 +46,7 @@ Is every tool rule described in both doc AND enforced in config? → remove from
 
 ### 5. Encoding
 
-- Every source file (`.py`, `.md`, `.yaml`, `.json`, `.toml`, `.cfg`) has an encoding declaration — see `docs/DOCS.md` §6.2
+- Every source file (`.py`, `.md`, `.yaml`, `.json`, `.toml`, `.cfg`) has an encoding declaration — see `[[DOCS.md#Declarations]]`
 - No UTF-8 BOM (EF BB BF) in any file — CI catches this, but verify locally before push
 - Count Python files with `# -*- coding: utf-8 -*-` declaration — verify completeness, not just count:
   `for f in $(git ls-files '*.py'); do head -1 "$f" | grep -q 'coding' || echo "MISSING: $f"; done`

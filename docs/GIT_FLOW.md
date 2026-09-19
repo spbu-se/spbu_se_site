@@ -25,7 +25,7 @@ Covers: branching, merge strategy, commit discipline, rebase policy, signoff pol
 
 ### 1.2 Rules
 
-- **Branch from `upstream/current`** — always. `hotfix/` branches from `current` too, but merges via the direct lane (§2.2) instead of a PR.
+- **Branch from `upstream/current`** — always. `hotfix/` branches from `current` too, but merges via the direct lane ([[#Hotfix--current-direct-lane]]) instead of a PR.
 - **Dirty tree guard** — before `git checkout -b`, commit or stash all working tree changes. Uncommitted edits silently leak into the wrong commits.
 - **Auto-branch naming** — in unattended mode: `git checkout -b staging-auto-<UTC-timestamp> origin/current`.
 
@@ -64,7 +64,7 @@ The PR → squash-merge lane is the standard path for all feature branches; `AGE
 retrospective entry appended to `docs/RETROSPECTIVES.md` (run
 `docs/AI_AGENTS.md §Skills`) before the PR is created. If a PR was opened
 without one, add the retro as the last commit and update the PR description. See
-`docs/DEVELOPMENT_PROCESS.md §0.7` (Session lifecycle).
+`[[DEVELOPMENT_PROCESS.md#Session-Lifecycle]]`.
 
 **Exception**: `staging-auto-*` branches skip the PR gate — their name pattern already matches the CI workflow trigger.
 
@@ -122,7 +122,7 @@ without a signature.
   commit is created and signed by GitHub (committer `GitHub`), so
   verification is `true`/`valid` automatically. This is the only lane for
   regular work.
-- **Emergency lane (hotfix direct push, §2.2)**: permitted for
+- **Emergency lane (hotfix direct push, [[#Hotfix--current-direct-lane]])**: permitted for
   production-blocking fixes only, and the pushed commits **must be signed
   with a key registered to the committer's GitHub account** so GitHub marks
   them Verified:
@@ -145,9 +145,9 @@ history); the rule is going-forward.
 
 ### 2.4 Staging is legacy
 
-Staging is never deleted, but it is no longer used. It was the integration branch in the two-branch model (feature → staging → current); since 2026-09 the project is single-branch — features merge straight to `current` via PR squash-merge (§2.1). `origin/staging` still exists with 79 orphan commits; no new work branches from it and no merges target it.
+Staging is never deleted, but it is no longer used. It was the integration branch in the two-branch model (feature → staging → current); since 2026-09 the project is single-branch — features merge straight to `current` via PR squash-merge ([[#Feature--current]]). `origin/staging` still exists with 79 orphan commits; no new work branches from it and no merges target it.
 
-**Quality gate**: Feature → current (tests pass via PR CI; full verification per `docs/DEVELOPMENT_PROCESS.md §4.5`).
+**Quality gate**: Feature → current (tests pass via PR CI; full verification per `[[DEVELOPMENT_PROCESS.md#Code-Review-Checklist]]`).
 
 ## 3. Commit Discipline
 
@@ -312,7 +312,7 @@ uv lock --check
 
 ### 8.4 PR gate for feature branches
 
-See §2.1 — the PR gate is the standard path for all feature branches pushed to remote. Always create a PR before merging to current.
+See [[#Feature--current]] — the PR gate is the standard path for all feature branches pushed to remote. Always create a PR before merging to current.
 
 **PR body contract** — the body documents *results and non-obvious decisions*,
 not a file-by-file changelog (recoverable from `git diff`). Cover:
@@ -327,7 +327,7 @@ not a file-by-file changelog (recoverable from `git diff`). Cover:
 Do NOT list changed files, CI status, or commit hashes — all visible elsewhere.
 The squash-merge body (feature → staging) carries this information forward.
 
-Wrap-up protocol is in `docs/DEVELOPMENT_PROCESS.md §0.7` — includes DESIGN_DECISIONS.md and AI_AGENT_EXPERIENCE.md updates, docs-review for drift, self-improvement check, and the **mandatory session retrospective** (every PR must carry a `docs/RETROSPECTIVES.md` entry; if missing, add it as the last commit and update the PR description).
+Wrap-up protocol is in `[[DEVELOPMENT_PROCESS.md#Session-Lifecycle]]` — includes DESIGN_DECISIONS.md and AI_AGENT_EXPERIENCE.md updates, docs-review for drift, self-improvement check, and the **mandatory session retrospective** (every PR must carry a `docs/RETROSPECTIVES.md` entry; if missing, add it as the last commit and update the PR description).
 
 ### 8.5 Fork workflow (contributions to upstream)
 
@@ -391,6 +391,6 @@ stacked PR auto-closed:
 1. **Stack only on a real dependency** (the next PR needs the previous PR's code), then **rebase the dependent onto `upstream/current` immediately after each upstream merge** (`git rebase --onto upstream/current <old-base> <branch>`; replay only the dependent's own commits) and force-push.
 1. **Commit per branch before switching** when branches share a working tree (stacked development): uncommitted changes follow `git checkout` into whichever branch you switch to, and block the next `git rebase` ("cannot rebase: you have unstaged changes") or leak into the wrong branch's commit. When a CI fix for PR-A and feature code for stacked PR-B sit mixed in one tree, commit each set to its own branch first (`git checkout <A>`, commit A's files, push; `git checkout <B>`, continue).
 1. After a squash-merge of a dependency PR, **rebase dependents with `--onto`** (drop the already-merged ancestor commits) rather than a plain `git rebase current` — a plain rebase tries to re-apply the merged squash content and conflicts.
-1. **Mid-session upstream re-sync → rescan**: any `fetch`/`pull`/switch during an *active* session (not init/warmup) must be followed by the Upstream re-sync rescan — diff vs the last-known OID, re-read changed AGENTS/docs/CI deltas, apply them to the session, and report a Rescan summary to the user. Fetching without applying is a missed-knowledge gap. See `docs/DEVELOPMENT_PROCESS.md` §0.6.
+1. **Mid-session upstream re-sync → rescan**: any `fetch`/`pull`/switch during an *active* session (not init/warmup) must be followed by the Upstream re-sync rescan — diff vs the last-known OID, re-read changed AGENTS/docs/CI deltas, apply them to the session, and report a Rescan summary to the user. Fetching without applying is a missed-knowledge gap. See `[[DEVELOPMENT_PROCESS.md#Upstream-re-sync]]`.
 1. **Each PR carries only its own retro entry**; when resolving RETROSPECTIVES/TESTING conflicts keep upstream's content and append your own — never drop entries already merged upstream (verify with `git diff upstream/current...<branch> docs/RETROSPECTIVES.md`).
 1. After any merge touching the shared docs tail, run `uv run mdformat --check` post-merge (stacked retro merges produce blank-line/EOF artifacts).

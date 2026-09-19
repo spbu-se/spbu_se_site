@@ -38,7 +38,7 @@ User says "execute in auto mode", "go", or "execute" after plan approval.
 
 - **Always branch from current** at the very beginning: `git checkout current && git pull --ff-only origin current && git checkout -b staging-auto-<UTC-timestamp>`
 - Use this branch for all commits. Never commit to current directly.
-- `staging-auto-*` branches are **scratch space** — commit freely, no garbage rules. CI runs automatically via the auto-branch workflow trigger (see `docs/GIT_FLOW.md` §1.1).
+- `staging-auto-*` branches are **scratch space** — commit freely, no garbage rules. CI runs automatically via the auto-branch workflow trigger (see `[[GIT_FLOW.md#Prefixes]]`).
 - These branches are **never merged raw**. Later, the user squash-merges to current with clean, feature-grouped commits via `gh pr merge --squash`.
 - UTC timestamp format: `YYYYMMDDTHHMMSSZ` (e.g., `staging-auto-20260704T150706Z`).
 

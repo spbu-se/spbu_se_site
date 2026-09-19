@@ -24,7 +24,7 @@ Covers: technology stack choices, framework-specific decisions, implementation p
 
 ## [2026-08-08] Date-based versioning + draft releases
 
-**Context**: `docs/GIT_FLOW.md §7` and `docs/DEVELOPMENT_PROCESS.md §6` documented
+**Context**: `[[GIT_FLOW.md#Versioning]]` and `[[DEVELOPMENT_PROCESS.md#Release]]` documented
 SemVer ("determine SemVer bump from commit log"), but the actual release tags
 were always zero-filled dates (`v2025.09.09`, `v2025.07.04`, …) — a silent
 doc-drift. Releases were created manually on GitHub with one-line titles and no
@@ -58,7 +58,7 @@ with no release artifacts or notes.
 
 **Consequences**:
 
-- Release flow documented in `GIT_FLOW.md §7` and `DEVELOPMENT_PROCESS.md §6`;
+- Release flow documented in `[[GIT_FLOW.md#Versioning]]` and `[[DEVELOPMENT_PROCESS.md#Release]]`;
   README gains a "Releases" section.
 - Until the secret is added, draft notes are created manually following the
   skill (the agent acts as the notes generator).
@@ -349,7 +349,7 @@ with no release artifacts or notes.
 
 ## [2026-08-21] Soft-delete account tombstone (fired-employee model)
 
-**Context**: Right-to-be-forgotten (152-ФЗ ст. 14 / GDPR Art. 17). Every owned-content table (`posts`, `theses`, `practice`, `post_votes`, `reviewer`, …) has a NOT NULL `user_id` FK with **no cascade**; a hard delete would break author attribution, `Staff` joins, and admin pages. Department decision (PRIVACY_COMPLIANCE.md §5 #6): "someone fired from the department — the domain account is deleted, but work results stay."
+**Context**: Right-to-be-forgotten (152-ФЗ ст. 14 / GDPR Art. 17). Every owned-content table (`posts`, `theses`, `practice`, `post_votes`, `reviewer`, …) has a NOT NULL `user_id` FK with **no cascade**; a hard delete would break author attribution, `Staff` joins, and admin pages. Department decision ([[PRIVACY_COMPLIANCE.md#Decisions-needed-from-the-department]] #6): "someone fired from the department — the domain account is deleted, but work results stay."
 
 **Decision**: Soft-delete via `Users.deleted` + `/profile/delete` (POST, `@login_required`, CSRF-protected): flag the row, purge identifying login data (`email`, `password_hash`, `vk_id`/`fb_id`/`google_id`, `avatar_uri`, `how_to_contact`, `role`), keep `first_name`/`middle_name`/`last_name` so published-content attribution survives. `load_user()` returns `None` for deleted rows. Content rows are untouched.
 
@@ -417,7 +417,7 @@ where a tag push could ship code that was never released; a tag that is never
 published never reaches production. Draft-on-tag keeps the mandatory human
 review gate from [2026-08-08] intact.
 
-**Consequences**: `GIT_FLOW.md §7`, `DEVELOPMENT_PROCESS.md §6`,
+**Consequences**: `[[GIT_FLOW.md#Versioning]]`, `[[DEVELOPMENT_PROCESS.md#Release]]`,
 `RELEASE_CHECKLIST.md` (B2/B11) updated; the release-notes skill documents that
 publishing triggers the deploy.
 
@@ -471,10 +471,10 @@ the backend OAuth routes are left as-is.
 keeping it misled visitors. The backend routes stay reachable by direct URL — a
 documented state, not an accidental zombie.
 
-**Consequences**: `DEVELOPMENT_PROCESS.md §4.5` gains a "Feature removal sweep"
+**Consequences**: `[[DEVELOPMENT_PROCESS.md#Code-Review-Checklist]]` gains a "Feature removal sweep"
 checklist item (UI in all templates → routes → config → deps → schema →
 sitemap/og/CSP → docs, and record the decision here); `docs/PRIVACY_COMPLIANCE.md`
-§2.2 OAuth row corrected; retro entry added (2026-08-31 batch, PR #270).
+[[PRIVACY_COMPLIANCE.md#Third-party-services]] OAuth row corrected; retro entry added (2026-08-31 batch, PR #270).
 
 ## [2026-09-07] One-off Semgrep deep scan caught a real XSS regression the guardrail missed
 
@@ -612,4 +612,4 @@ and avoid a jQuery dependency.
 **Consequences / tech debt**: adoption is phased — auth/password pages first,
 the remaining ~14 templates follow. `bootstrap-notify` (`$.notify`) stays wired
 only to demo buttons. Checklist: `docs/AI_AGENTS.md §Confusing-behaviour check`;
-rationale: `docs/SEO_A11Y_ROADMAP.md §7`.
+rationale: `[[SEO_A11Y_ROADMAP.md#UX-feedback-pattern]]`.

@@ -111,14 +111,14 @@ For progress reports during a session, follow the same structure: lead with timi
 
 ### PR description (squash-merge)
 
-Use for `gh pr create` descriptions on feature branches merged via `gh pr merge --squash` (see `docs/GIT_FLOW.md §2.1`).
+Use for `gh pr create` descriptions on feature branches merged via `gh pr merge --squash` (see `[[GIT_FLOW.md#Feature--current]]`).
 
 **Issue linkage:** if the PR fixes or closes GitHub issues, say so directly with `Closes #<n>` / `Fixes #<n>` in the body (one per line). GitHub then links the issues to the PR and auto-closes them on merge. Issues only partially addressed should use `References #<n>`.
 
 **Mandatory retrospective:** every PR must include a session retrospective entry
 in `docs/RETROSPECTIVES.md` (run `.skills/retrospective-analysis` before opening
 the PR). If a PR was opened without one, add the retro as the last commit and
-update the PR description to reference it. See `docs/DEVELOPMENT_PROCESS.md §0.7`.
+update the PR description to reference it. See `[[DEVELOPMENT_PROCESS.md#Session-Lifecycle]]`.
 
 ```
 ## Summary
@@ -209,11 +209,11 @@ Each layer delegates down, never copies up. Skill stubs (`.claude/skills/`, `.ag
 | Repo checklist | `docs/REPO_REVIEW.md` | `repo-review` (reads) |
 | Regulatory spot-checks | `docs/SPBU_REGULATIONS.md` | `code-audit` (reads) |
 | Task backlog | `TODO.md` | All audit skills (feed items) |
-| Merge discipline | `docs/GIT_FLOW.md` §2, `docs/DEVELOPMENT_PROCESS.md` §0.6 (Context compaction) | `merge-gate` (reads, writes TODO.md) |
+| Merge discipline | `[[GIT_FLOW.md#Merge-Strategy]]`, `[[DEVELOPMENT_PROCESS.md#Context-compaction]]` | `merge-gate` (reads, writes TODO.md) |
 | Process gap history | `docs/RETROSPECTIVES.md` | `retrospective-analysis` (appends) |
 | Security audit | `docs/CODE_ISSUES.md`, `docs/DESIGN_DECISIONS.md`, `docs/AI_AGENT_EXPERIENCE.md` | `security-audit` (reads all, appends CODE_ISSUES.md) |
 | Tooling knowledge | `.tooling.md` | `retrospective-analysis` (reads) |
-| AI drift check | `docs/DOCS.md` §5.3 | `merge-gate` (reads) |
+| AI drift check | `[[DOCS.md#AI-Instructions-Drift-Check]]` | `merge-gate` (reads) |
 | Architecture | `docs/ARCHITECTURE.md` | `merge-gate` (writes), `js-bundle-analysis` (reads) |
 | Project docs | `docs/PROJECT_DOCS.md` (nonexistent) | `js-bundle-analysis` (writes) |
 | Repo review backlog | `TODO.md` | `repo-review` (reads; write is read-only per SoT — circular dep with REPO_REVIEW.md) |
@@ -294,7 +294,7 @@ Each stub (`SKILL.md`) points to the canonical source in `.skills/<name>/README.
 
 ## CI discipline
 
-Quality management policy (`docs/QUALITY_MANAGEMENT.md` §4) defines why:
+Quality management policy (`[[QUALITY_MANAGEMENT.md#CI-Discipline]]`) defines why:
 CI runs `pytest` asynchronously. Pre-push does not run tests — that's CI's job.
 
 | Trigger | Action |
@@ -308,7 +308,7 @@ CI runs `pytest` asynchronously. Pre-push does not run tests — that's CI's job
 
 ## Tool recommendation proposals
 
-When the agent identifies a quality gap, propose a tool (see `docs/QUALITY_MANAGEMENT.md` §3 for the philosophy).
+When the agent identifies a quality gap, propose a tool (see `[[QUALITY_MANAGEMENT.md#Agent-Recommendation-Protocol]]` for the philosophy).
 
 Proposal format:
 
@@ -354,5 +354,5 @@ Before shipping any notification/flash/feedback change, verify each item and fix
 - **Announced** — `role="status"`/`aria-live="polite"` for success, `role="alert"` for
   errors; a11y-mode and `prefers-reduced-motion` respected, no-JS result still readable.
 
-Rationale and the canonical pattern: `docs/SEO_A11Y_ROADMAP.md §7`. Render flashes only
+Rationale and the canonical pattern: `[[SEO_A11Y_ROADMAP.md#UX-feedback-pattern]]`. Render flashes only
 through the shared partial — do not hand-roll per-template alert markup.
