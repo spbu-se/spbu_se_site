@@ -436,7 +436,7 @@ Every item must pass before merge to `current`:
 | 3 | **Format** | `ruff format` + `mdformat` applied |
 | 4 | **Edge cases** | `[[TESTING.md#Testing-Discipline]]` — empty inputs, boundary values, failure modes tested |
 | 5 | **Error messages** | Actionable, follow existing pattern (field → reason) |
-| 6 | **Docs sync** | `[[DOCS.md#Integrity-Checks]]` applied — H1 → aim → scope on every `.md`, encoding declarations, cross-references resolved |
+| 6 | **Docs sync** | `[[DOCS.md#Integrity]]` applied — H1 → aim → scope on every `.md`, encoding declarations, cross-references resolved |
 | 7 | **AI instructions** | New quirks added? Existing ones still accurate? Verify no unique content — every claim cross-references a canonical doc (`[[DOCS.md#Canonical-Source-Discipline]]`). |
 | 8 | **`uv.lock` in sync** | `uv lock --check` passes; commit `uv.lock` if deps changed |
 | 9 | **Backward compat** | Existing behavior unchanged |

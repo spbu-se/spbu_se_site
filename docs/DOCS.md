@@ -76,7 +76,7 @@ Prefer the **general form over concrete values whenever unbiased**: "the upstrea
 
 All cross-references use **wiki-links** (`[[file#Heading|display text]]`) instead of hardcoded section numbers (`§N`):
 
-- `docs/GIT_FLOW.md §2.1` → `[[GIT_FLOW.md#Merge-to-current]]`
+- `docs/GIT_FLOW.md §2.1` → `[[GIT_FLOW.md#Feature--current]]`
 - `DEVELOPMENT_PROCESS.md §0.6` → `[[DEVELOPMENT_PROCESS.md#Upstream-re-sync]]`
 - `§5 #7` → `[[#Decision-Metrica-dormant]]`
 
@@ -114,7 +114,7 @@ AGENTS leanness and the two-way contract are enforced by an **occasional docs-dr
 | `GIT_FLOW.md` | Git — branching, merge, commit, signoff, versioning | Numbered sections (Branching, Merge Strategy, Commit, Signoff, Rebase, Stale Branches, Versioning, GitHub) | Heading → **Why** (italicized) → **What** (table/rules) → **How** (command blocks). Cross-refs use `[[file#Heading]]` | Rebuild from `[[DEVELOPMENT_PROCESS.md#Version-Control]]` + `.gitignore` + `.pre-commit-config.yaml` |
 | `RETROSPECTIVES.md` | Process gap history — chronological entries | Dated H3 entries per session | Consistent template: Changes analyzed, Gaps found (table), Pattern recurrence, What went well, What went wrong, Root causes, Fix, State at handoff | Rebuild from `git log` and session notes — but Gap table detail is unrecoverable |
 | `ARCHITECTURE.md` | Code design — module map, data flow, conventions | Module map, Data flow, Conventions | Module map: table of module→responsibility. | Rebuild from source code via reverse-engineering |
-| `DESIGN_DECISIONS.md` | Tech decisions — framework/technology choices | Per-decision dated entries | Decision: date→context→decision→rationale→consequences→alternatives | Rebuild from `[[ARCHITECTURE.md#Design-Decisions]]` |
+| `DESIGN_DECISIONS.md` | Tech decisions — framework/technology choices | Per-decision dated entries | Decision: date→context→decision→rationale→consequences→alternatives | Rebuild from `[[DESIGN_DECISIONS.md]]` |
 | `AI_AGENT_EXPERIENCE.md` | Agent experience — debugging trails, dead ends, workarounds | Per-symptom H2 sections | Symptom→Attempts→Root cause→Fix table with commands | Recovery from `[[AI_AGENTS.md]]` + retro entries |
 | `API_REFERENCE.md` | Routes — all endpoints, methods, view functions | Grouped by feature area (News, Theses, Practice, etc.) | Table: route, methods, params, returns, auth requirement | Rebuild from source code (`flask_se_*.py` route decorators) |
 | `SCHEMA.md` | Database — tables, fields, relationships | Grouped by model area | Table: column, type, constraints, FK target, notes | Rebuild from `se_models.py` SQLAlchemy definitions |

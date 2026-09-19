@@ -92,7 +92,7 @@ Browser artifacts (`.playwright-cli/`, `.playwright-mcp/`) are generated files â
 
 - **Agent-agnostic snippets, not committed configs.** Document how to configure a server; the developer applies it to their own agent. In-repo, agent-agnostic MCP config is **deferred** until a concrete shared need appears (user decision 2026-09-10).
 - **OpenCode specifics** (adapt to your tool): MCP servers live under the `mcp` key; each entry needs `"type": "local"` or `"type": "remote"`; a local `command` is a single array (executable + args); the env key is `environment` (not `env`); set `"oauth": false` when passing a PAT in an `Authorization` header.
-- **Generated artifacts** belong in `.tmp/` (gitignored): `.playwright-cli/`, `.playwright-mcp/`. `.local_development.db` is the MCP database exception documented in `[[DOCS.md#GeneratedTemporary-Files-live-in-tmp]]`.
+- **Generated artifacts** belong in `.tmp/` (gitignored): `.playwright-cli/`, `.playwright-mcp/`. `.local_development.db` is the MCP database exception documented in `[[DOCS.md#tmp-directory]]`.
 
 ## 6. Process â€” Adding or Changing an MCP
 
