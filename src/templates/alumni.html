@@ -1,0 +1,70 @@
+{% extends "base_dark.html" %}
+{% block title %}Выпускники кафедры — Кафедра системного программирования СПбГУ{% endblock %}
+{% block canonical_url %}https://se.math.spbu.ru/alumni.html{% endblock %}
+{% block content %}
+<section class="section bg-dark">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="h3 font-weight-bold mb-4 text-white">Выпускники кафедры</h1>
+        <p class="lead mb-4 text-white opacity-8">Список выпускников кафедры системного программирования с 1997 года.</p>
+      </div>
+    </div>
+    <div class="row mb-4">
+      <div class="col-md-6 mb-2 mb-md-0">
+        <input type="text" id="alumni-search" class="form-control" placeholder="Поиск по имени...">
+      </div>
+      <div class="col-md-3">
+        <select id="alumni-year" class="form-control">
+          <option value="all">Все годы</option>
+          {% for g in alumni %}
+          <option value="{{ g.year }}">{{ g.year }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 mt-2 mt-md-0">
+        <span id="alumni-count" class="badge badge-primary badge-lg p-2"></span>
+      </div>
+    </div>
+    {% for g in alumni %}
+    <div class="alumni-group" data-year="{{ g.year }}">
+      <h4 class="font-weight-bold mb-3">{{ g.year }} год ({{ g.names|length }})</h4>
+      <div class="row">
+        {% for name in g.names %}
+        <div class="col-lg-4 col-md-6 mb-1 alumni-name" data-name="{{ name|lower }}">
+          <span class="text-sm">{{ name }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% if not loop.last %}<hr class="my-4">{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</section>
+<script nonce="{{ csp_nonce() }}">
+function filterAlumni() {
+  var q = (document.getElementById('alumni-search').value || '').toLowerCase().trim();
+  var year = document.getElementById('alumni-year').value;
+  var groups = document.querySelectorAll('.alumni-group');
+  var total = 0;
+  groups.forEach(function(g) {
+    var gy = g.getAttribute('data-year');
+    var show = year === 'all' || gy === year;
+    var names = g.querySelectorAll('.alumni-name');
+    var anyVisible = false;
+    names.forEach(function(n) {
+      var match = !q || n.getAttribute('data-name').indexOf(q) > -1;
+      var visible = show && match;
+      n.style.display = visible ? '' : 'none';
+      if (visible) anyVisible = true;
+    });
+    g.style.display = show && anyVisible ? '' : 'none';
+    if (show && anyVisible) total += Array.from(names).filter(function(n) { return n.style.display !== 'none'; }).length;
+  });
+  document.getElementById('alumni-count').textContent = 'Найдено: ' + total;
+}
+document.getElementById('alumni-search').addEventListener('input', filterAlumni);
+document.getElementById('alumni-year').addEventListener('change', filterAlumni);
+filterAlumni();
+</script>
+{% endblock %}
