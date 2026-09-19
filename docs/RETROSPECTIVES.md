@@ -3132,3 +3132,57 @@ the deploy gate would have passed. The docs are wrong, not the CI.
 
 **What went wrong**: Release checklist not consulted before tagging. Tag was
 pushed before creating the draft release.
+
+### Retrospective — full session: tech-debt batch + release (2026-09-18)
+
+**Trigger**: user requested root-cause analysis of 10+ mistakes in a single
+session. Full retro required.
+
+**Changes analyzed**: ~20 PRs across the whole day (docs-drift-review #324,
+internship removal #325, docs/CI batch #326, healthz #327, deferred #328,
+release-process #329, health-check #330, logging #331, LFS revert #332).
+
+**Gaps (classified)**:
+
+| # | Gap | Classification | Root cause | Fix |
+|---|-----|----------------|------------|-----|
+| 1 | Committed `.omo/` refs to process docs | Missing convention | Didn't consider doc audience (non-OMO devs) | Add "audience check" to pre-flight on doc edits |
+| 2 | upload.py LFS corruption (2nd recurrence) | Missing config — LFS not properly understood | Modified LFS-declared file without LFS awareness | Add `git lfs ls-files` warning to pre-commit for staged files |
+| 3 | Checked prod URL instead of staging | Human error — wrong URL | Guessed URL instead of reading docs/TOOLING.md | Add "read doc first" step to pre-flight for ops actions |
+| 4 | SSH-signed tag instead of GPG | Missing config — `gpg.format=ssh` bypasses `git tag -s` silently | Tool config diverges from docs | Pre-tag check: verify `git config gpg.format` is `gpg` |
+| 5 | Release checklist skipped | Human error — rushed process | No automated gate links tagging to checklist | Pre-tag script: `scripts/pre-tag-check.sh` |
+| 6 | Post-deploy staging not verified (5 CD runs) | Missing guardrail — no smoke test in CD | CI workflow only verified webhook POST, not actual health | CD now polls /staging/ every 15s (PR #330) |
+| 7 | Release draft attached to `untagged-*` | Missing convention — tag SHA differed from HEAD | Tag was at old SHA, 4 PRs ahead of it | Verify `git rev-parse tag` matches `upstream/current` before draft |
+| 8 | `app.logger` in boot-time code | Missing convention — non-idiomatic Flask logging | Should have used `logging.getLogger(__name__)` | Fixed in PR #331 |
+| 9 | Retro skipped before some PRs | Human error — rushed PR chain | Manual AGENTS.md check not enforced | Add "retro present?" check to pre-tag script |
+| 10 | Committed to `current` (branch violation) | Human error — didn't verify branch | Pre-flight `git branch --show-current` check skipped | Pre-push hook: reject pushes to `current` |
+
+**Pattern recurrence**: YES. Process-docs-not-followed is a **3rd+ occurrence**
+across this session alone (tagging, branch, retro, staging check, pre-push).
+Escalate to **Layer 1 + Layer 2**: add both pre-flight checklist items AND
+automated CI/hook guardrails.
+
+**Escalation ladder applied**:
+- 1st occurrence (document): most gaps already documented in AGENTS.md
+- 2nd occurrence (automate): CI health check added (PR #330), tag format docs
+  fixed (PR #329), logging fixed (PR #331)
+- **3rd+ occurrence**: need **structural** change — pre-tag script,
+  pre-push branch guard, pre-commit LFS guard
+
+**Root cause**: the project has prescriptive process docs (AGENTS.md,
+DEVELOPMENT_PROCESS.md, GIT_FLOW.md, RELEASE_CHECKLIST.md) but nearly all
+are manual-checklist style. No automated guardrails enforce them. When an
+agent or human is rushing, manual checks get skipped. The result: a cascade
+of process violations in a single session.
+
+**Proposed improvements**:
+
+| Layer | Item | Status |
+|-------|------|--------|
+| 1 — Script | `scripts/pre-tag-check.sh`: verify gpg.format, signingkey, checklist completion, tag position | **Proposed** |
+| 1 — Script | `scripts/verify-deploy.sh`: curl loop against /staging/ | Done (in CD, PR #330) |
+| 2 — Pre-commit | LFS guardrail: warn when staging LFS-declared files | **Proposed** |
+| 2 — Pre-push | Branch-name guard: reject if `branch --show-current == current` | **Proposed** |
+| 2 — CI | CD health check: poll /staging/ after deploy | Done (PR #330) |
+| 3 — Docs | AGENTS.md: reorder critical checks to top of pre-flight | **Proposed** |
+| 3 — Docs | RELEASE_CHECKLIST.md: add tag-SHA-vs-HEAD check | **Proposed** |
