@@ -27,8 +27,6 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
   1. If check passes, run `git tag -s v* -m "Release v*"`
   1. Push tag to upstream
   1. Draft release exists after tag push (`gh release list --repo spbu-se/spbu_se_site`)
-<<<<<<< HEAD
-=======
 - **`--no-verify` discipline** — `git commit --no-verify` bypasses all pre-commit hooks (formatting, encoding checks, secrets scan). Permitted ONLY when a hook is genuinely broken (e.g., LFS stash-bug on unmatched files). When used, MUST manually run:
   - `uv run mdformat --check <all-changed-docs>` immediately after the commit
   - `uv run pre-commit run --all-files --hook-stage pre-push` before the push
@@ -39,7 +37,10 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
   1. Or on explicit user order (must acknowledge the bypass risk aloud)
   1. After merge, verify CI on `current` — if CI is red, fix immediately
   1. Never `--admin` before CI starts — waiting costs minutes, fixing a broken current costs hours
+<<<<<<< HEAD
 >>>>>>> d23b9cb (docs: add person-names guard to pre-push gate + AGENTS.md rule)
+=======
+>>>>>>> upstream/current
 - **Read the skill README for this task** — identify which task/skill matches (e.g., `retrospective-analysis`, `test-writer`, `merge-gate`) and read `.skills/<name>/README.md` before starting. Confirm by stating which skill READMEs were read.
 - Before PowerShell piped/chained commands or `2>&1`, read `docs/TOOLING.md` §PowerShell (flatten ErrorRecords with `| ForEach-Object { "$_" }`, or suppress stderr with `2>($null)`)
 - Before editing any doc, re-read its first 5 lines (scope/aim header). Verify your changes match that scope. If existing content doesn't match, flag it.
