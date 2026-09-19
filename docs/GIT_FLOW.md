@@ -84,7 +84,23 @@ git merge hotfix/<name>
 git tag v<version>
 ```
 
-Bypasses the PR lane for production-blocking bugs only. After merge, log debt in `TODO.md`:
+Bypasses the PR lane for production-blocking bugs only. Can also use `gh pr merge --admin --squash` for cross-fork hotfixes — but **only after CI is green**
+(`gh pr checks <N>` passes lint/test/assets). Never `--admin` before CI
+completes: a broken `current` takes hours to recover.
+
+If pre-commit hooks must be skipped (`--no-verify` for a broken hook), run
+manually immediately after the commit:
+
+```bash
+uv run mdformat --check <all-changed-docs>
+uv run pre-commit run --all-files --hook-stage pre-push
+```
+
+Push only after both pass.
+
+After merge, verify CI on `current` — `gh run list --branch current --limit 1 --json conclusion` must show `success`. If red, fix immediately.
+
+Log debt in `TODO.md`:
 
 ```
 [HOTFIX_DEBT] Review origin of hotfix/<name>, then backfill docs, expand test coverage, and verify the fix is complete
