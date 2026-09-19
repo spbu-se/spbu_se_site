@@ -1,0 +1,37 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // ── Project-level MCP servers ──────────────────────────────────────────────
+  // Merged with ~/.config/opencode/opencode.jsonc at runtime.
+  // All devs using OpenCode on this project get these automatically.
+
+  "mcp": {
+    // Playwright — browser automation, screenshots, visual QA, E2E testing
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "@playwright/mcp@latest"],
+      "enabled": true
+    },
+    // Markdown — semantic doc access: extract sections, list headings,
+    // find code blocks, search across the 153 .md files in this project
+    "markdown": {
+      "type": "local",
+      "command": ["npx", "mcp-server-markdown@latest"],
+      "enabled": true
+    }
+  },
+
+  // ── Project-level language servers ──────────────────────────────────────────
+
+  "lsp": {
+    // marksman — navigate 153+ cross-linked docs, go-to-definition,
+    // find-references, diagnostics for wiki-style [[links]]
+    "marksman": {
+      "enabled": true
+    },
+    // ty — built-in OpenCode LSP (Python), no install needed
+    "ty": {
+      "enabled": true
+    }
+  }
+}
