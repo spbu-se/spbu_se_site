@@ -163,3 +163,4 @@ _flask_freezed/
 # AI-agent browser artifacts (see docs/MCP.md)
 .playwright-mcp/
 .playwright-cli/
+.omo/
