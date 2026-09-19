@@ -41,7 +41,7 @@
             </div>
             <div class="form-group">
               <h6 class="mb-0">
-                Описание (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)
+                Описание (для форматирования используется <a href="https://www.markdownguide.org/basic-syntax/" target="_blank"><i class="fab fa-markdown"></i></a> <a href="#" data-toggle="popover" data-content="**жирный**, *курсив*, `код`, - список, [текст](ссылка)" title="Markdown подсказка"><sup><i class="fas fa-question-circle text-primary"></i></sup></a>)
               </h6>
               {{ form.description(class_="form-control", placeholder=form.description.description, data_toggle="autosize", rows="9") }}
               <script nonce="{{ csp_nonce() }}">
@@ -55,7 +55,7 @@
             </div>
             <div class="form-group">
               <h6 class="mb-0">
-                Требования к студенту (для форматирования используется <a href="https://simplemde.com/markdown-guide" target="_blank">Markdown</a>)
+                Требования к студенту (для форматирования используется <a href="https://www.markdownguide.org/basic-syntax/" target="_blank"><i class="fab fa-markdown"></i></a>)
               </h6>
               {{ form.requirements(class_="form-control", placeholder=form.requirements.description, rows="3") }}
               <script nonce="{{ csp_nonce() }}">

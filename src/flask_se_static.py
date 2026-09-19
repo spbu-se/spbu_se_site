@@ -4,6 +4,7 @@
 # Route view functions registered via decorators inside _register_* helpers;
 # basedpyright cannot see the decorator registration and would flag them unused.
 
+import json
 import logging
 
 from flask import Flask, redirect, render_template, request, url_for
@@ -170,6 +171,12 @@ def register_content_pages(app: Flask) -> None:
     @app.route("/frequently-asked-questions.html")
     def frequently_asked_questions():
         return render_template("frequently_asked_questions.html")
+
+    @app.route("/alumni.html")
+    def alumni():
+        with app.open_resource("static/alumni.json") as f:
+            data = json.load(f)
+        return render_template("alumni.html", alumni=data)
 
     @app.route("/nooffer")
     def nooffer():
