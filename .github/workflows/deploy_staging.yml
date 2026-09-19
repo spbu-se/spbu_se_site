@@ -18,6 +18,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Verify SHA is reachable by the deploy server
+        run: |
+          SHA="${GITHUB_SHA}"
+          git cat-file -e "${SHA}" 2>/dev/null || {
+            echo "::error::Commit ${SHA} does not exist — deploy will fail remotely"
+            exit 1
+          }
+          git fetch origin current --depth=1 2>/dev/null || true
+          if ! git merge-base --is-ancestor "${SHA}" origin/current 2>/dev/null; then
+            echo "::error::Commit ${SHA} is not an ancestor of origin/current"
+            exit 1
+          fi
+          echo "SHA ${SHA:0:10} is valid and reachable"
+
       - name: Run deploy on staging server
         env:
           AUTHKEY: ${{ secrets.XSEAUTH }}

@@ -50,6 +50,8 @@ repos:
       - id: check-json
         exclude: ^src/static/assets/libs/
         stages: [pre-commit]
+      - id: check-merge-conflict
+        stages: [pre-commit]
       - id: check-added-large-files
         stages: [pre-commit]
       - id: check-case-conflict

@@ -65,6 +65,20 @@ CHECKS: list[tuple[str, list[str]]] = [
             "0",
         ],
     ),
+    (
+        "person-names in published docs",
+        ["uv", "run", "python", "scripts/check_person_names.py"],
+    ),
+    (
+        "merge conflict markers",
+        [
+            "uv",
+            "run",
+            "bash",
+            "-c",
+            r'grep -rn "^<<<<<<< .*\|^=======\$\|^>>>>>>> .*" src/ tests/ scripts/ --include="*.py" --include="*.sh" --include="*.yml" --include="*.yaml" --include="*.html" --include="*.css" --include="*.js" 2>/dev/null; [ $? -ge 2 ] && exit 0 || exit $?',
+        ],
+    ),
 ]
 
 

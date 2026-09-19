@@ -62,6 +62,23 @@ jobs:
         with:
           ref: ${{ inputs.tag || github.event.release.tag_name }}
 
+      - name: Verify SHA is reachable by the deploy server
+        run: |
+          SHA="$(git rev-parse HEAD)"
+          # Verify the commit exists in the local clone
+          git cat-file -e "${SHA}" 2>/dev/null || {
+            echo "::error::Commit ${SHA} does not exist — deploy will fail remotely"
+            exit 1
+          }
+          # Verify the commit is an ancestor of current (not a force-pushed orphan)
+          git fetch origin current --depth=1 2>/dev/null || true
+          if ! git merge-base --is-ancestor "${SHA}" origin/current 2>/dev/null; then
+            echo "::error::Commit ${SHA} is not an ancestor of origin/current"
+            echo "::error::The server tracks origin/current and cannot check out orphan SHAs"
+            exit 1
+          fi
+          echo "SHA ${SHA:0:10} is valid and reachable"
+
       - name: Run deploy on production server
         env:
           AUTHKEY: ${{ secrets.XSEAUTH }}

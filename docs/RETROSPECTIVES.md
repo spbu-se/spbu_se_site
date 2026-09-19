@@ -3187,3 +3187,33 @@ of process violations in a single session.
 | 2 — CI | CD health check: poll /staging/ after deploy | Done (PR #330) |
 | 3 — Docs | AGENTS.md: reorder critical checks to top of pre-flight | **Proposed** |
 | 3 — Docs | RELEASE_CHECKLIST.md: add tag-SHA-vs-HEAD check | **Proposed** |
+
+### Retrospective — guardrails batch + release cycle (2026-09-19)
+
+**Trigger**: final guardrail PR (#336) before clean v2026.09.19 release. All
+mistakes from the 2026-09-18 session now have automated prevention.
+
+**Changes in this PR**:
+
+| Guardrail | Layer | Prevents |
+|-----------|-------|----------|
+| `scripts/check_tag.py` — pre-tag script | Script | Tag at wrong SHA, bad gpg.format, email mismatch |
+| AGENTS.md — staging-verified pre-tag gate | Docs | Tagging before staging is healthy |
+| `.pre-commit-config.yaml` — check-merge-conflict | Pre-commit hook | Accidental conflict markers in source files |
+| `scripts/pre_push_checks.py` — merge-conflict grep | Pre-push | Same, second line of defense |
+| `scripts/check_person_names.py` — person-names guard | Pre-push | GitHub @usernames, emails in published docs |
+| Deploy workflows — SHA-reachability check | CI/CD | Webhook sent orphan SHA (fatal: bad object) |
+
+**Root cause of the cascade**: every major mistake in this session shared the
+same pattern — a documented rule existed but was not enforced programmatically.
+When under time pressure (hotfix fastlane), manual checks were skipped.
+
+**Escalation applied**: all proposed items from the 2026-09-18 retro are now
+either Done or replaced by a stronger guardrail. The only remaining proposed
+item is the branch-name guard (`git branch --show-current == current`), which
+is a pre-push hook candidate for a future PR.
+
+**What went well**: the guardrails batch closes every failure mode from the
+session — tag position, signature format, email match, staging health,
+conflict markers, person names, orphan SHAs. Each is now caught by an
+automated check, not a manual checklist item.
