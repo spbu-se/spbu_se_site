@@ -62,7 +62,7 @@ Every `.md` file in the project, its scope, and what it is canonical for.
 
 ### Skills directory (.skills/)
 
-For skills catalog, vendor stubs, and commands, see `docs/AI_AGENTS.md` §Skills.
+For skills catalog, vendor stubs, and commands, see `[[AI_AGENTS.md#Skills]]`.
 
 ## 2a. Document Disciplines
 
@@ -70,7 +70,24 @@ Each doc has a knowledge discipline — what goes in, what stays out, how inform
 
 ### General-form rule (writing discipline)
 
-Prefer the **general form over concrete values whenever unbiased**: "the upstream repo" instead of a full repo path, "the deploy host / deploy URL" instead of a live URL — unless the concrete value is itself the single source that readers must resolve to. A live URL or environment token belongs in exactly **one canonical location** (e.g. the staging URL in `docs/TOOLING.md` §Staging environment) and other docs reference it by name. Executable commands that legitimately require a concrete token stay single-sourced (one occurrence), never duplicated per file — duplicating concrete values is what makes docs drift and makes a change (like a staging URL rotation) touch many lines.
+Prefer the **general form over concrete values whenever unbiased**: "the upstream repo" instead of a full repo path, "the deploy host / deploy URL" instead of a live URL — unless the concrete value is itself the single source that readers must resolve to. A live URL or environment token belongs in exactly **one canonical location** (e.g. the staging URL in `[[TOOLING.md#Staging-environment]]`) and other docs reference it by name. Executable commands that legitimately require a concrete token stay single-sourced (one occurrence), never duplicated per file — duplicating concrete values is what makes docs drift and makes a change (like a staging URL rotation) touch many lines.
+
+### Cross-reference format (discipline)
+
+All cross-references use **wiki-links** (`[[file#Heading|display text]]`) instead of hardcoded section numbers (`§N`):
+
+- `docs/GIT_FLOW.md §2.1` → `[[GIT_FLOW.md#Merge-to-current]]`
+- `DEVELOPMENT_PROCESS.md §0.6` → `[[DEVELOPMENT_PROCESS.md#Upstream-re-sync]]`
+- `§5 #7` → `[[#Decision-Metrica-dormant]]`
+
+**Why**: marksman LSP resolves wiki-links to go-to-definition and diagnostics. Section numbers drift when sections are reordered; heading anchors are stable. MCP `get_section("Upstream re-sync")` works on heading text directly.
+
+**Rules**:
+1. Every heading must be **unique** within its file (marksman and MCP both require this).
+2. Display text can repeat the heading or abbreviate — kept readable.
+3. Same-file refs omit the filename: `[[#Pre-push-gate]]`, not `[[DEVELOPMENT_PROCESS.md#Pre-push-gate]]`.
+4. A pre-push check (`grep -rn '§[0-9]' docs/`) must return zero — any remaining hardcoded section number is a fault.
+5. Headings may keep numbers for visual order (e.g. `## 0.6 Pre-push gate`) — the anchor still resolves as `#06-pre-push-gate`. If you strip the number, the anchor becomes `#pre-push-gate`. Either is valid as long as refs match the heading anchor.
 
 ### Lean-instruction-doc & consistency doctrine (AGENTS.md / CLAUDE.md)
 
@@ -78,7 +95,7 @@ Prefer the **general form over concrete values whenever unbiased**: "the upstrea
 
 Consistency is **two-way**: **(i)** AGENTS content not derivable from docs = fault; **(ii)** a prescriptive rule in docs without an AGENTS retrieval cue at its decision boundary = fault (add the cue). Either direction failing is a process fault (see `AGENTS.md` Process improvement).
 
-AGENTS leanness and the two-way contract are enforced by an **occasional docs-drift re-audit** (full re-read + trim) — run alongside the mandatory `retrospective-analysis` §5b bloat audit at docs-branch finalization. When a new rule is to be remembered, first find its best canonical home (single source, general form) — never stash memory as AGENTS prose.
+AGENTS leanness and the two-way contract are enforced by an **occasional docs-drift re-audit** (full re-read + trim) — run alongside the mandatory `retrospective-analysis` [[#Bloat-audit|bloat audit]] at docs-branch finalization. When a new rule is to be remembered, first find its best canonical home (single source, general form) — never stash memory as AGENTS prose.
 
 ### Root docs
 
@@ -92,30 +109,30 @@ AGENTS leanness and the two-way contract are enforced by an **occasional docs-dr
 
 | Doc | Discipline | Typical sections | Section anatomy | Recovery if missing |
 |-----|-----------|-----------------|-----------------|---------------------|
-| `DOCS.md` | Meta — doc conventions, checks, catalog | §1-9 numbered (Why We Document, Catalog, §2a Disciplines, Creation, Update, Canonical Sources, Encoding, Formatting, Integrity, Anti-Patterns) | Self-describing — defines its own patterns | Rebuild from `docs/DEVELOPMENT_PROCESS.md` §Context Compaction and §Doc-first cycle |
-| `DEVELOPMENT_PROCESS.md` | Process workflow — planning, session lifecycle, code review, disciplines | §0.x workflow steps, §1-6 major areas | §0.x: numbered planning steps. Other §: Why→What→How per section with command blocks | **Cannot be rebuilt** — user-designated exception, all other docs cross-reference here |
-| `GIT_FLOW.md` | Git — branching, merge, commit, signoff, versioning | §1-8 numbered (Branching, Merge Strategy, Commit, Signoff, Rebase, Stale Branches, Versioning, GitHub) | Heading → **Why** (italicized) → **What** (table/rules) → **How** (command blocks) | Rebuild from `docs/DEVELOPMENT_PROCESS.md` §Version Control cross-reference + `.gitignore` + `.pre-commit-config.yaml` |
+| `DOCS.md` | Meta — doc conventions, checks, catalog | Numbered sections (Why We Document, Catalog, Disciplines, Creation, Update, Canonical Sources, Encoding, Formatting, Integrity, Anti-Patterns) | Self-describing — defines its own patterns. Cross-refs use `[[file#Heading]]` | Rebuild from `[[DEVELOPMENT_PROCESS.md#Context-Compaction]]` and `[[DEVELOPMENT_PROCESS.md#Doc-first-cycle]]` |
+| `DEVELOPMENT_PROCESS.md` | Process workflow — planning, session lifecycle, code review, disciplines | Numbered workflow steps + major areas | Numbered planning steps. Headings: Why→What→How with command blocks | **Cannot be rebuilt** — user-designated exception, all other docs cross-reference here |
+| `GIT_FLOW.md` | Git — branching, merge, commit, signoff, versioning | Numbered sections (Branching, Merge Strategy, Commit, Signoff, Rebase, Stale Branches, Versioning, GitHub) | Heading → **Why** (italicized) → **What** (table/rules) → **How** (command blocks). Cross-refs use `[[file#Heading]]` | Rebuild from `[[DEVELOPMENT_PROCESS.md#Version-Control]]` + `.gitignore` + `.pre-commit-config.yaml` |
 | `RETROSPECTIVES.md` | Process gap history — chronological entries | Dated H3 entries per session | Consistent template: Changes analyzed, Gaps found (table), Pattern recurrence, What went well, What went wrong, Root causes, Fix, State at handoff | Rebuild from `git log` and session notes — but Gap table detail is unrecoverable |
 | `ARCHITECTURE.md` | Code design — module map, data flow, conventions | Module map, Data flow, Conventions | Module map: table of module→responsibility. | Rebuild from source code via reverse-engineering |
-| `DESIGN_DECISIONS.md` | Tech decisions — framework/technology choices | Per-decision dated entries | Decision: date→context→decision→rationale→consequences→alternatives | Rebuild from `docs/ARCHITECTURE.md` Design Decisions (moved session 9) |
-| `AI_AGENT_EXPERIENCE.md` | Agent experience — debugging trails, dead ends, workarounds | Per-symptom H2 sections | Symptom→Attempts→Root cause→Fix table with commands | Recovery from `docs/AI_AGENTS.md` + retro entries |
+| `DESIGN_DECISIONS.md` | Tech decisions — framework/technology choices | Per-decision dated entries | Decision: date→context→decision→rationale→consequences→alternatives | Rebuild from `[[ARCHITECTURE.md#Design-Decisions]]` |
+| `AI_AGENT_EXPERIENCE.md` | Agent experience — debugging trails, dead ends, workarounds | Per-symptom H2 sections | Symptom→Attempts→Root cause→Fix table with commands | Recovery from `[[AI_AGENTS.md]]` + retro entries |
 | `API_REFERENCE.md` | Routes — all endpoints, methods, view functions | Grouped by feature area (News, Theses, Practice, etc.) | Table: route, methods, params, returns, auth requirement | Rebuild from source code (`flask_se_*.py` route decorators) |
 | `SCHEMA.md` | Database — tables, fields, relationships | Grouped by model area | Table: column, type, constraints, FK target, notes | Rebuild from `se_models.py` SQLAlchemy definitions |
-| `BUSINESS_FEATURES.md` | Business asset map — user-facing journeys per role with entry routes, UX contract, business value, parity guards | Role journeys, UX contract, coverage status | Route registry (API_REFERENCE), feature specs (REQUIREMENTS), module map (ARCHITECTURE) | Rebuild from `API_REFERENCE.md` + journey templates + parity tests |
+| `BUSINESS_FEATURES.md` | Business asset map — user-facing journeys per role with entry routes, UX contract, business value, parity guards | Role journeys, UX contract, coverage status | Route registry (`[[API_REFERENCE.md]]`), feature specs (`[[REQUIREMENTS.md]]`), module map (`[[ARCHITECTURE.md]]`) | Rebuild from `[[API_REFERENCE.md]]` + journey templates + parity tests |
 | `REQUIREMENTS.md` | Feature specs — user roles, navigation, feature descriptions | Per-feature sections | User story → acceptance criteria → notes | Rebuild from templates + user interviews |
-| `TESTING.md` | Testing strategy — discipline, targets, xfail policy, gaps | §1-6 numbered (Discipline, Coverage Targets, Execution, xfail, Gaps, Exclusions) | Tables for targets/xfails/gaps. § follows Why→What→How | Rebuild from `conftest.py`, test files, `pyproject.toml` coverage config |
+| `TESTING.md` | Testing strategy — discipline, targets, xfail policy, gaps | Numbered sections (Discipline, Coverage Targets, Execution, xfail, Gaps, Exclusions) | Tables for targets/xfails/gaps. Sections follow Why→What→How. Cross-refs use `[[file#Heading]]` | Rebuild from `conftest.py`, test files, `pyproject.toml` coverage config |
 | `TOOLING.md` | Portable tooling knowledge — cross-platform quirks per tool | Tool-name H2 sections (uv, pytest, SQLAlchemy, pre-commit, GitHub CLI, PowerShell, Python, Ruff, etc.) | Tool section: heading → "correct/wrong" code blocks with explanation. No process rules, only mechanics | Rebuild from `.pre-commit-config.yaml`, `pyproject.toml`, CI workflow files |
 | `CODE_ISSUES.md` | Bug inventory — known production bugs | Per-module H2 sections | Table: bug, module, impact, status | Rebuild from `TODO.md` Known bugs + retro entries |
 | `REPO_REVIEW.md` | Audit checklist — repo health evaluation | Numbered phases (Legal, Architecture, Code Quality, etc.) | Phase: checklist items with status column | Rebuild from GitHub repo settings + `.github/` + CI workflows |
-| `REVERSE_ENGINEERING.md` | RE methodology — cycle description, source types | Cycle steps, Source types | Methodology description: steps numbered, types in tables | Rebuild from patterns in `docs/AI_AGENTS.md` §Skills |
-| `AI_AGENTS.md` | AI-agent-specific — permissions, tool quirks, cross-references, output format conventions, skills architecture, skills catalog, commands | Permission Recommendation, Tool Quirks, Output Format, Communication, Skills (definition, boundaries, delegation, source of truth, extraction triggers, creation, lifecycle, maintenance, directory, vendor stubs, commands) | Permissions: JSON block. Tool Quirks: per-quirk ### subsections with wrong/correct examples. Output Format: compliance rules, timing, prescribed formats. Communication: ask-when-ambiguous rule. Skills: definition, boundaries, delegation chain, source of truth, extraction triggers, creation checklist, lifecycle, maintenance, directory table, vendor stubs, commands | Rebuild from `.opencode/opencode.json` + tool behavior observation |
-| `MCP.md` | Agent-tool policy — MCP vs CLI/scripts/CLI+skills, catalog, security, token, config | Principles, Decision Framework, Catalog, Security & Token Rules, Configuration Stance, Process, Related | Tiered tables (Adopted / Recommended / Evaluate / Not recommended); § follows Why→What→How | Rebuild from `docs/AI_AGENTS.md` §MCP Servers + `docs/TOOLING.md` (per-tool CLI mechanics) |
-| `RELEASE_CHECKLIST.md` | Release guardrail — pre-release drift items, verification steps | A (must-update) + B (check-only) tables | Table: item, file, what, when | Rebuild from `docs/DEVELOPMENT_PROCESS.md` §6 + `src/sitemap.py` + template copyright lines |
+| `REVERSE_ENGINEERING.md` | RE methodology — cycle description, source types | Cycle steps, Source types | Methodology description: steps numbered, types in tables | Rebuild from patterns in `[[AI_AGENTS.md#Skills]]` |
+| `AI_AGENTS.md` | AI-agent-specific — permissions, tool quirks, cross-references, output format conventions, skills architecture, skills catalog, commands | Permission Recommendation, Tool Quirks, Output Format, Communication, Skills (definition, boundaries, delegation, source of truth, extraction triggers, creation, lifecycle, maintenance, directory, vendor stubs, commands) | Permissions: JSON block. Tool Quirks: per-quirk H3 subsections with wrong/correct examples. Output Format: compliance rules, timing, prescribed formats. Communication: ask-when-ambiguous rule. Skills: definition, boundaries, delegation chain, source of truth, extraction triggers, creation checklist, lifecycle, maintenance, directory table, vendor stubs, commands | Rebuild from `.opencode/opencode.json` + tool behavior observation |
+| `MCP.md` | Agent-tool policy — MCP vs CLI/scripts/CLI+skills, catalog, security, token, config | Principles, Decision Framework, Catalog, Security & Token Rules, Configuration Stance, Process, Related | Tiered tables (Adopted / Recommended / Evaluate / Not recommended). Cross-refs use `[[file#Heading]]` | Rebuild from `[[AI_AGENTS.md#MCP-Servers]]` + `[[TOOLING.md]]` (per-tool CLI mechanics) |
+| `RELEASE_CHECKLIST.md` | Release guardrail — pre-release drift items, verification steps | A (must-update) + B (check-only) tables | Table: item, file, what, when | Rebuild from `[[DEVELOPMENT_PROCESS.md#Release]]` + `src/sitemap.py` + template copyright lines |
 | `SPBU_REGULATIONS.md` | Compliance mapping — clause → status → decision | Clause table + Decisions + Related docs | Status table with a Decision/note column; Decisions section for rationale | Rebuild from the regulation PDFs (`.tmp/spbu-regulation/`) + the git log of UI/compliance commits |
 
-## 2b. Skills Architecture (moved to `docs/AI_AGENTS.md` §Skills)
+## 2b. Skills Architecture (moved to `[[AI_AGENTS.md#Skills]]`)
 
-For skills architecture — definition, delegation chain, extraction triggers, creation checklist, and lifecycle — see `docs/AI_AGENTS.md` §Skills.
+For skills architecture — definition, delegation chain, extraction triggers, creation checklist, and lifecycle — see `[[AI_AGENTS.md#Skills]]`.
 
 ## 3. Doc Creation Rules
 
@@ -202,9 +219,9 @@ Skills live in `.skills/<name>/README.md` (vendor-agnostic canonical source). Pe
 
 ### 4.1 When to Update
 
-- **Doc changes belong on `docs/` branches or during the merge gate**, not on feature branches. See `docs/DEVELOPMENT_PROCESS.md §0.6`.
+- **Doc changes belong on `docs/` branches or during the merge gate**, not on feature branches. See `[[DEVELOPMENT_PROCESS.md#Upstream-re-sync]]`.
 - **Exception**: architecture-first or doc-first cycle was violated (code before doc) → add a `TODO.md` debt entry mid-sprint. This is a violation record, not a doc change.
-- **Exception**: new findings during implementation (bugs, quirks, workarounds) go to `TOOLING.md` or `AI_AGENT_EXPERIENCE.md` immediately, not at session end. See "Document as you go" in `docs/AI_AGENTS.md` §Skills.
+- **Exception**: new findings during implementation (bugs, quirks, workarounds) go to `TOOLING.md` or `AI_AGENT_EXPERIENCE.md` immediately, not at session end. See "Document as you go" in `[[AI_AGENTS.md#Skills]]`.
 
 ### 4.2 What Not to Update During Feature Work
 
@@ -217,7 +234,7 @@ Before compacting context or ending session:
 1. Update `docs/ARCHITECTURE.md` Design Decisions with new choices
 1. Update `TODO.md` (remove completed, reorder backlog)
 1. **AI instructions drift check**: verify no unique content in AI instructions — every claim must cross-reference a canonical source. If a new quirk is needed, write the full version in the canonical doc first, then extract a condensed cross-reference.
-1. Audit cross-references: scan every `.md` file under `docs/` and `.skills/` for hardcoded step numbers. Replace with section-title references (e.g., `§2 — Task selection priority ladder` instead of `step 50`).
+1. Audit cross-references: scan every `.md` file under `docs/` and `.skills/` for hardcoded `§N` references. Replace with wiki-links: `§2 — Task selection` → `[[#Task-selection]]`.
 
 ## 5. Canonical Source Discipline
 
@@ -231,13 +248,18 @@ Every fact lives in exactly **one** canonical doc. All other locations cross-ref
 
 ### 5.2 Cross-Reference Format
 
-Use descriptive section references, not hardcoded step numbers:
+Use wiki-links (`[[file#Heading]]`) instead of hardcoded section numbers or step numbers:
 
 ```
-See docs/X.md §Section Title
+Valid:    [[GIT_FLOW.md#Merge-strategy]]
+Valid:    [[#Pre-push-gate]]                    (same-file ref, omits filename)
+Invalid:  docs/GIT_FLOW.md §2.1                 (section number — drifts on reorder)
+Invalid:  step 50                                (same — breaks on renumber)
 ```
 
-This survives renumbering. Hardcoded step numbers (e.g., `step 50`) break when sections are reordered.
+Wiki-links are resolved by marksman LSP (go-to-definition, find-references, diagnostics). This survives renumbering — heading anchors don't change when sections are reordered.
+
+**Migration**: every `§N` was replaced in the 2026-09-19 docs restructuring. If you see `§[0-9]` in any `.md` file, it's a fault — replace with a wiki-link.
 
 ### 5.3 AI Instructions Drift Check
 
@@ -269,9 +291,9 @@ For `.md` files without an H1 title (e.g., vendor stubs starting with `___` sepa
 
 On Windows, PowerShell `Set-Content` and `Out-File` default to the system's active ANSI code page (Windows-1252 on en-US Windows), not UTF-8. This corrupts any file containing non-ASCII bytes when the file is expected to be UTF-8.
 
-See `docs/TOOLING.md` §PowerShell encoding for the correct `[System.IO.File]::WriteAllText` pattern and the `$(...)` subexpression trap.
+See `[[TOOLING.md#PowerShell-encoding]]` for the correct `[System.IO.File]::WriteAllText` pattern and the `$(...)` subexpression trap.
 
-This applies to any operation that writes `.py`, `.md`, `.yaml`, `.json`, `.toml`, or `.cfg` files. For detection scripts, git recovery workflow, and fix patterns, see `docs/AI_AGENTS.md` §Skills.
+This applies to any operation that writes `.py`, `.md`, `.yaml`, `.json`, `.toml`, or `.cfg` files. For detection scripts, git recovery workflow, and fix patterns, see `[[AI_AGENTS.md#Skills]]`.
 
 ### 6.4 Verification
 
@@ -285,7 +307,7 @@ Get-ChildItem -Recurse -Include "*.md" | Select-String -Pattern "encoding: utf-8
 
 ### 6.5 Recovery
 
-If the working tree is corrupted by encoding bugs, use `git checkout <clean-sha> -- <file>` to restore from the last clean commit. For recovery workflows, see `docs/AI_AGENTS.md` §Skills.
+If the working tree is corrupted by encoding bugs, use `git checkout <clean-sha> -- <file>` to restore from the last clean commit. For recovery workflows, see `[[AI_AGENTS.md#Skills]]`.
 
 ## 7. Formatting Rules
 
@@ -330,10 +352,10 @@ Run during the merge gate and during retrospectives.
 | # | Check | How | When |
 |---|-------|-----|------|
 | 1 | All `.md` have H1 → aim → scope | Verify every `docs/*.md` has a line starting with "Covers:" | Every gate |
-| 2 | No hardcoded step numbers in process docs | `grep -nP '^\s+\d+\.' docs/DEVELOPMENT_PROCESS.md docs/GIT_FLOW.md` — flag any that aren't in numbered lists; replace with section-title references | Every gate |
+| 2 | No hardcoded `§N` or step numbers in process docs | `grep -rn '§[0-9]' docs/` must return zero. Also `grep -nP '^\s+\d+\.'` on process docs — replace with wiki-links `[[file#Heading]]` | Every gate |
 | 3 | No broken skill paths | Every entry in `CLAUDE.md` skills table must point to an existing `.skills/<name>/README.md` | Every gate |
 | 4 | No TODO.md stale items | Scan TODO.md for entries whose description starts with past-tense verb ("Fixed", "Added", "Created") — likely completed but not removed | Every retro |
-| 5 | All cross-references resolve | For every `see docs/X.md` pattern in committed `.md` files — verify `docs/X.md` exists | Every retro |
+| 5 | All cross-references resolve | For every `[[file]]` or `[[file#heading]]` wiki-link in committed `.md` files — verify the target file and heading exist. Also for legacy `see docs/X.md` patterns | Every retro |
 | 6 | Every doc has encoding declaration | Count `encoding: utf-8` occurrences vs file count under `docs/` and root `.md` files | Every gate |
 | 7 | No path reference rot | Every vendor stub `SKILL.md` must reference an existing canonical path in `.skills/` | Every retro |
 | 8 | No cross-doc duplication | Same rule or fact appearing in 2+ non-trivial docs. Exempt: `AGENTS.md`, `CLAUDE.md`, `README.md` — these are intentional summary extracts | Every 5 merges |
@@ -357,7 +379,7 @@ These checks are currently manual (layer 3 — documented, manually enforced). F
 | #1 H1 → aim → scope | Custom pre-commit hook (Python script) | Manual |
 | #3 Broken skill paths | Custom pre-commit hook (validate paths exist) | Manual |
 | #4 Stale TODO | Custom pre-commit hook (grep past-tense verbs) | Manual |
-| #5 Cross-refs resolve | Custom pre-commit hook (verify `see docs/X.md` links) | Manual |
+| #5 Cross-refs resolve | Custom pre-commit hook (verify `[[file#heading]]` wiki-links + legacy `see docs/X.md` patterns) | Manual |
 | #6 Encoding declarations | CI step counting declarations vs file count | Manual |
 | #13 Stale metrics | CI step verifying test count/coverage against committed values | Manual |
 | #18 UTF-8 BOM check | Pre-commit hook (`file --mime-encoding` check) | Manual |
@@ -368,14 +390,14 @@ Recurring failures identified through retrospective analysis. Each anti-pattern 
 
 | Anti-pattern | Example from retros | Guard |
 |-------------|--------------------|-------|
-| **Scope collision** | Created `doc/` when `docs/` already existed — 8 duplicate files, 60+ stale cross-references | Pre-creation directory audit (§3.3) |
-| **Stale references** | README and cross-references still pointed to `doc/` after rename to `docs/` | Cross-reference scan at every gate (§8.1 #5) |
-| **Facts in AI instructions** | GPG signoff rule duplicated across 4 files (GIT_FLOW.md, TOOLING.md, .tooling.md, CLAUDE.md) instead of one canonical source | Canonical source discipline (§5) |
-| **Step-number drift** | AI_AGENTS.md used hardcoded 1-9 which broke when sections were reordered | Flag hardcoded step numbers (§8.1 #2) |
-| **Completed items as open** | "Fixed P0 bug" still listed in TODO.md as open task | Past-tense detection in TODO.md (§8.1 #4) |
-| **Path reference rot** | Retrospective-analysis skill pointed to `.skills/retrospective-analysis/README.md` which did not exist | Pre-commit or gate check for path existence (§8.1 #3) |
-| **Over-engineering** | Creating skills/docs for problems that don't exist yet — appeared in 3 consecutive retros | "Check existing first" guard in planning phase (docs/DEVELOPMENT_PROCESS.md §0.5) |
-| **Code-only fixes** | Windows SQLite URI fix applied to conftest.py but never documented as a quirk — rediscovered in next session | Extract reusable techniques (see `docs/AI_AGENTS.md` §Skills) |
+| **Scope collision** | Created `doc/` when `docs/` already existed — 8 duplicate files, 60+ stale cross-references | Pre-creation directory audit ([[#Doc-Creation-Rules]]) |
+| **Stale references** | README and cross-references still pointed to `doc/` after rename to `docs/` | Cross-reference scan at every gate ([[#Integrity|§Integrity check #5]]) |
+| **Facts in AI instructions** | GPG signoff rule duplicated across 4 files (GIT_FLOW.md, TOOLING.md, .tooling.md, CLAUDE.md) instead of one canonical source | Canonical source discipline ([[#Canonical-Source-Discipline]]) |
+| **Step-number drift** | AI_AGENTS.md used hardcoded 1-9 which broke when sections were reordered | Flag hardcoded `§N` ([[#Integrity|§Integrity check #2]]) |
+| **Completed items as open** | "Fixed P0 bug" still listed in TODO.md as open task | Past-tense detection in TODO.md ([[#Integrity|§Integrity check #4]]) |
+| **Path reference rot** | Retrospective-analysis skill pointed to `.skills/retrospective-analysis/README.md` which did not exist | Pre-commit or gate check for path existence ([[#Integrity|§Integrity check #3]]) |
+| **Over-engineering** | Creating skills/docs for problems that don't exist yet — appeared in 3 consecutive retros | "Check existing first" guard in planning phase ([[DEVELOPMENT_PROCESS.md#Check-Existing-First]]) |
+| **Code-only fixes** | Windows SQLite URI fix applied to conftest.py but never documented as a quirk — rediscovered in next session | Extract reusable techniques (see [[AI_AGENTS.md#Skills]]) |
 
 ## 10. SPDX / Licensing Policy
 
