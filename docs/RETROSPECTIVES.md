@@ -3163,6 +3163,7 @@ Escalate to **Layer 1 + Layer 2**: add both pre-flight checklist items AND
 automated CI/hook guardrails.
 
 **Escalation ladder applied**:
+
 - 1st occurrence (document): most gaps already documented in AGENTS.md
 - 2nd occurrence (automate): CI health check added (PR #330), tag format docs
   fixed (PR #329), logging fixed (PR #331)
