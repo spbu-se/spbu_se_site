@@ -45,7 +45,7 @@ Trust criteria, in order: vendor-backed or well-maintained? minimal scopes / rea
 | **Playwright CLI** (`@playwright/cli`) | **Default browser verification** | Token-efficient, skill-based, sessions, console/network/tracing; no page data forced into context | `npm install -g @playwright/cli@latest` then `playwright-cli install --skills`; named sessions via `-s=`, headless by default (`--headed` to watch) |
 | **Playwright MCP** (`@playwright/mcp`) | Optional exploratory | Persistent state, rich introspection, self-healing/iterative loops | `npx @playwright/mcp@latest`; reserve for sessions where continuous browser context beats the token cost |
 
-Browser artifacts (`.playwright-cli/`, `.playwright-mcp/`) are generated files — keep them out of the tree (see [[#Configuration-Stance]]).
+Browser artifacts (`.playwright-cli/`, `.playwright-mcp/`) are generated files — keep them out of the tree (see \[[#Configuration-Stance]\]).
 
 ### 3.2 Recommended (Tier 1)
 
