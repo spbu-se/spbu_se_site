@@ -15,50 +15,82 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 ## Pre-flight checklist
 
 - **Plan-first** — before any work in a task run, update the session plan state: todo list + `.unfinished.plan.md` (date/time, focus, branch, base hash, dirty files, done/remaining, key decisions). **Refresh after every commit, after every test/gate run, and before every push/PR/merge milestone**; complete at the end. Mechanics + rationale: `docs/DEVELOPMENT_PROCESS.md` §0.7. (If using OMO, the `.omo/` boulder system replaces `.unfinished.plan.md` — see `docs/TOOLING.md` §OMO.)
+
 - `git fetch --prune origin` then `git fetch --prune upstream` — two remotes (`origin` = fork, `upstream` = canonical). The single-command form `git fetch --prune origin upstream` fails with "couldn't find remote ref upstream"
+
 - Create a branch BEFORE any work: `git checkout -b <prefix>/<short-desc> upstream/current`
   Prefixes: feat/, fix/, refactor/, docs/, test/, chore/, ci/, hotfix/, experiment/
   (see `docs/GIT_FLOW.md` §1.1). Never commit directly to `current`.
+
 - Verify current branch is NOT `current`: `git branch --show-current`
+
 - Check `upstream/current` CI — `gh run list --repo spbu-se/spbu_se_site --branch current --limit 1 --json conclusion` — if red, stop and fix first
+
 - **Pre-tag gate** — before `git tag -s v*`, verify:
+
   1. `uv run python scripts/check_tag.py v*` — verifies HEAD matches upstream/current, gpg.format is `gpg`, signing key exists, email matches key
   1. **Staging has the commit**: the latest CD to staging run for upstream/current HEAD must show `conclusion: success` — `gh run list --repo spbu-se/spbu_se_site --workflow "CD to staging" --branch current --limit 1 --json conclusion --jq '.[0].conclusion'` must be `"success"`
   1. If check passes, run `git tag -s v* -m "Release v*"`
   1. Push tag to upstream
   1. Draft release exists after tag push (`gh release list --repo spbu-se/spbu_se_site`)
+
 - **`--no-verify` discipline** — `git commit --no-verify` bypasses all pre-commit hooks (formatting, encoding checks, secrets scan). Permitted ONLY when a hook is genuinely broken (e.g., LFS stash-bug on unmatched files). When used, MUST manually run:
+
   - `uv run mdformat --check <all-changed-docs>` immediately after the commit
   - `uv run pre-commit run --all-files --hook-stage pre-push` before the push
   - If mdformat fails, fix and amend the commit; do not push unformatted code
+
 - **No person names in published docs** — RETROSPECTIVES.md, release notes, and any doc in the public repo must NOT contain real person names, GitHub usernames, or emails. Pre-push check: `rg '@|^Contributors|.*<.*@.*>'` on changed docs. Use placeholder roles instead ("the user", "site admin", "ops team").
+
 - **`--admin` merge discipline** — `gh pr merge --admin --squash` bypasses all branch protection (CI checks, review requirements). Permitted ONLY:
+
   1. When CI is **already green** on the PR (verify via `gh pr checks <N>` before merge)
   1. Or on explicit user order (must acknowledge the bypass risk aloud)
   1. After merge, verify CI on `current` — if CI is red, fix immediately
   1. Never `--admin` before CI starts — waiting costs minutes, fixing a broken current costs hours
 
 - **Read the skill README for this task** — identify which task/skill matches (e.g., `retrospective-analysis`, `test-writer`, `merge-gate`) and read `.skills/<name>/README.md` before starting. Confirm by stating which skill READMEs were read.
+
 - Before PowerShell piped/chained commands or `2>&1`, read `docs/TOOLING.md` §PowerShell (flatten ErrorRecords with `| ForEach-Object { "$_" }`, or suppress stderr with `2>($null)`)
+
 - Before editing any doc, re-read its first 5 lines (scope/aim header). Verify your changes match that scope. If existing content doesn't match, flag it.
+
 - After any command that produces error output or non-zero exit, ask: "Was this expected?" If unexpected, stop and investigate.
+
 - **Timeout recovery**: if a command times out, READ the partial output — calc ETA from progress rate → retry ONCE with right timeout. See `docs/AI_AGENT_EXPERIENCE.md` for the failure pattern.
+
 - Before merge: verify CI shows test results, not just lint results — inspect the CI run log to confirm pytest actually ran, not just basedpyright
+
 - Before merging a pushed feature branch: CI won't trigger on the branch. Create a PR first, wait for CI green, then squash-merge via `gh pr merge --squash --delete-branch`
+
 - Before merging any dependabot PR: verify its head is a descendant of the base branch (`git diff --stat upstream/current..<head>` must show only intended files). Asset-pipeline dep bumps must regenerate the committed min outputs (`npm run build`). Repair + gate: `docs/TOOLING.md` §Dependabot PR repair.
+
 - **Multi-PR sessions**: branch each PR from `upstream/current` (never from a sibling PR's branch); stack only on a real code dependency and rebase dependents onto `upstream/current` after each merge; each PR carries only its own retro — never drop merged retros. See `docs/GIT_FLOW.md §8.5`.
+
 - **Mid-session upstream re-sync** (user- or self-triggered, NOT init/warmup): after fetch/pull/switch, diff + re-scan the changed AGENTS/docs/CI-script deltas, APPLY them to this session, and report a Rescan summary to the user. Steps: `docs/DEVELOPMENT_PROCESS.md` §0.6 (Upstream re-sync).
+
 - Before merge: verify TODO.md has no completed items that belong in commit messages instead
+
 - Before deleting any branch (local or remote): prove it is merged via `gh pr list --repo <owner>/<repo> --state merged --json number,headRefName` — squash-merged branches are never ancestors of `current`, so `git branch --merged`/`-d` can't detect them; forced `-D` is justified only by merged-PR evidence. See `docs/AI_AGENT_EXPERIENCE.md`.
+
 - **Session retrospective is mandatory before any PR** — run `.skills/retrospective-analysis` and append the entry to `docs/RETROSPECTIVES.md` before opening the PR. If a PR was opened without it, add the retro as the last commit and update the PR description. See `docs/DEVELOPMENT_PROCESS.md` §0.7.
+
 - **Templates/CSS changed → visual QA before merge** — start local demo, screenshot changed pages with Playwright, interact with new filters/forms. CI does not catch layout breaks. See `docs/DEVELOPMENT_PROCESS.md` §0.13.
+
 - Before any session summary or handoff: scan `docs/AI_AGENTS.md` §Output Format for the prescribed format — comply with timing, state, and section structure
+
 - When running tests: never use `-q` — always run with `--tb=long` and capture the full output to a log (`2>&1 | tee .tmp/<run>.log`). Never truncate test/tool output (`Select-Object -Last/-First`, `head`/`tail`) — search the captured log with `rg`/grep instead. See `docs/TESTING.md` §3a.
+
 - Proactively use `git-history_git_wrapup_instructions` at session start (orientation snapshot), mid-session (checkpoint against acceptance criteria), and pre-merge (readiness gate) — not just at the end. See `docs/DEVELOPMENT_PROCESS.md` §0.7 (Session lifecycle — wrap-up protocol).
+
 - Before staging templates/HTML or Python: run the auto-fix hooks on ALL files first (`pre-commit run djlint --all-files` for templates, `uv run ruff format src/` for Python) — these hooks reformat more than the staged set and abort with "Stashed changes conflicted with hook auto-fixes" if staged edits differ. See `docs/AI_AGENT_EXPERIENCE.md` §djLint / §ruff-format.
+
 - If a template change touches any CSS class — a **new** class, a stock class no template used yet, or removing the last usage of a class (the purge strips all three; `btn-outline-success` was purged, #280; `.d-none` on removal, #315) — the committed purged/minified assets must match or CI `assets` fail. The local guard (`uv run pytest tests/test_asset_pipeline.py`) only catches the add direction, not removal, so run `npm run build` and commit both min files for add **or** remove edits; or reuse only classes present in the committed CSS. Nuance + rebase-onto-merged rule: `docs/TOOLING.md` §Purged/minified assets.
+
 - Verify the active branch before committing — `git branch --show-current` must be the intended feature branch, never `current`/`staging`. If work was committed to the wrong branch, recover via `git cherry-pick -n` + `git commit --no-gpg-sign` (see `.tooling.md` §cherry-pick).
+
 - Before creating any PR: include `Closes #<n>` / `References #<n>` per fixed/referenced issue in the body (one per line). See `docs/AI_AGENTS.md` §PR description.
+
 - Always learn, never forget — encode patterns before session ends
 
 ## Live metrics
