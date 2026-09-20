@@ -377,6 +377,37 @@ For CI, use separate jobs with `needs: [...]` + `if: always()` so lint/type fail
 
 ### Diagnosis: pre-commit hook not catching what CI catches
 
+## 0.13 Visual QA Before Merge
+
+Any PR that changes `src/templates/`, `src/static/assets/css/`, or any render
+logic must be visually verified before merge. CI checks syntax but cannot detect
+layout breaks (overlapping text, missing script execution, broken CSS classes).
+
+### Scope: changed pages only
+
+You don't need to screenshot the whole site. Only pages affected by the diff:
+
+- Changed a template → screenshot that template
+- Changed CSS → screenshot one page per affected component
+- Changed a form/filter → interact with it (type, click, verify response)
+
+### How
+
+1. Start the local demo server (use gunicorn, not Flask's reloader):
+   ```bash
+   SE_SECRET_KEY=demo SE_START_SCHEDULER=0 gunicorn -w 1 -b 0.0.0.0:5000 'flask_se:app'
+   ```
+1. Use Playwright to navigate, screenshot, and interact with changed pages.
+1. Verify: rendered output matches your intent. Search works. Forms submit.
+   Layout matches existing page patterns (`slice bg-dark pt-9` for base_dark).
+
+### CI cannot catch this
+
+CI runs `pytest`, `ruff`, `basedpyright`, and `pytest --cov`. None of these
+render a page and check that a filter dropdown actually filters, or that a
+search input dispatches its event. Visual QA is the only gate for behavioral
+correctness of rendered HTML.
+
 If CI fails on a check that pre-commit should have caught:
 
 1. Run the hook manually: `uv run pre-commit run <hook-id> --all-files`

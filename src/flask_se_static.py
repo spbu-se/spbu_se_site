@@ -172,11 +172,15 @@ def register_content_pages(app: Flask) -> None:
     def frequently_asked_questions():
         return render_template("frequently_asked_questions.html")
 
-    @app.route("/alumni.html")
+    @app.route("/alumni")
     def alumni():
         with app.open_resource("static/alumni.json") as f:
             data = json.load(f)
         return render_template("alumni.html", alumni=data)
+
+    @app.route("/alumni.html")
+    def alumni_html():
+        return redirect(url_for("alumni"), 301)
 
     @app.route("/nooffer")
     def nooffer():

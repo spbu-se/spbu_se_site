@@ -1,15 +1,22 @@
 {% extends "base_dark.html" %}
 {% block title %}Выпускники кафедры — Кафедра системного программирования СПбГУ{% endblock %}
-{% block canonical_url %}https://se.math.spbu.ru/alumni.html{% endblock %}
+{% block canonical_url %}https://se.math.spbu.ru/alumni{% endblock %}
 {% block content %}
-<section class="section bg-dark">
-  <div class="container">
-    <div class="row">
-      <div class="col-12">
-        <h1 class="h3 font-weight-bold mb-4 text-white">Выпускники кафедры</h1>
-        <p class="lead mb-4 text-white opacity-8">Список выпускников кафедры системного программирования с 1997 года.</p>
+<section class="slice bg-dark bg-cover bg-size--cover pt-9"
+         style="background-image: url({{ url_for('static', filename='/assets/img/main-back.jpg') }})">
+  <div class="container d-flex align-items-center text-center text-lg-left pt-3 pt-lg-4">
+    <div class="col px-0">
+      <div class="row align-items-center">
+        <div class="col-lg-8 text-center text-lg-left">
+          <h1 class="text-white mb-1">Выпускники кафедры</h1>
+          <p class="lead text-white opacity-8 mb-0">Список выпускников кафедры системного программирования с 1997 года.</p>
+        </div>
       </div>
     </div>
+  </div>
+</section>
+<section class="slice bg-section">
+  <div class="container">
     <div class="row mb-4">
       <div class="col-md-6 mb-2 mb-md-0">
         <input type="text" id="alumni-search" class="form-control" placeholder="Поиск по имени...">
