@@ -6,7 +6,7 @@ Detect and fix non-UTF-8 encoding in source files on Windows. PowerShell encodin
 
 Reusable across any Windows dev environment with Python or markdown files that contain non-ASCII text (Cyrillic, Chinese, accented Latin, em-dashes, etc.).
 
-Does NOT cover project-specific encoding declaration policy (see `docs/DOCS.md §6` for this project's encoding policy and declarations). Does NOT cover configuration formats (TOML, YAML, JSON) that don't support inline encoding declarations.
+Does NOT cover project-specific encoding declaration policy (see `[[DOCS.md#Encoding-Policy]]` for this project's encoding policy and declarations). Does NOT cover configuration formats (TOML, YAML, JSON) that don't support inline encoding declarations.
 
 ## When to load
 
@@ -132,7 +132,7 @@ If the working tree is corrupted and the committed version is also corrupted (be
 git checkout <clean-sha> -- <file>
 ```
 
-Then re-apply any intentional changes that happened BETWEEN the clean commit and now, but using the encoding-safe write method (see §Root cause).
+Then re-apply any intentional changes that happened BETWEEN the clean commit and now, but using the encoding-safe write method (see \[[#Root-cause]\]).
 
 To find clean commits by scanning for valid bytes:
 

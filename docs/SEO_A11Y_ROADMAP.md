@@ -89,7 +89,7 @@ v2026.08.20 (`feat/remove-gtm-add-metrica`).
 1. **`after_request` placement** — `src/flask_se_headers.py`, registered after `_register_static_cache_headers`; applies to downloads/404s too (no freezer build anymore).
 1. **Yandex Maps tile hosts** — `api-maps.yandex.ru` + `*.maps.yandex.net` (module/tile loader) added to script/connect-src; tile *images* are covered by the https-wildcard `img-src`. `maps.googleapis.com`/`*.googleapis.com` kept for the Google provider.
 
-**Delivery**: merged to fork `staging` (PR #19 batch, 2026-08-20); upstream PR from `iakov:staging` (see `docs/GIT_FLOW.md §8.5`).
+**Delivery**: merged to fork `staging` (PR #19 batch, 2026-08-20); upstream PR from `iakov:staging` (see `[[GIT_FLOW.md#Fork-workflow]]`).
 
 **Open questions (resolved)**:
 
@@ -102,7 +102,7 @@ v2026.08.20 (`feat/remove-gtm-add-metrica`).
 1. **`after_request` placement** — `src/flask_se_headers.py` vs adding to `flask_se.py`; must not interfere with `send_file`/download responses or the frozen-static build.
 1. **Yandex Maps tile hosts** — if Yandex is the active provider, the allowlist must also cover its tile/CDN hosts (verified at implementation against the live network requests); `maps.googleapis.com` entries may be dropped if Google is retired.
 
-**Delivery**: shipped via `feat/security-headers` from synced `origin/staging` (see `docs/GIT_FLOW.md §8.5` multi-PR rules).
+**Delivery**: shipped via `feat/security-headers` from synced `origin/staging` (see `[[GIT_FLOW.md#Fork-workflow]]` multi-PR rules).
 
 - Asset hygiene: minified CSS default, `?v=`/fingerprint cache-busting, prune ~2,400 unused `assets/libs/` files.
 - ~~Google Maps key hardcoded in HTML → config/server~~ ✅ done in `perf/maps-lazy`:

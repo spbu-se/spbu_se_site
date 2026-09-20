@@ -138,7 +138,7 @@ Reference run (2026-09-10, `uv run pytest --tb=long`): **1517 passed, 4 skipped,
 
 ## 5. Xpassed Tests
 
-Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass is non-fatal): intermittent CI failures that happen to pass on this machine. Tracked in the §4 "Current xfails — intermittent CI (strict=False)" table. Check xpass count by capturing the run to a log (`uv run pytest --tb=long 2>&1 | tee .tmp/xpass.log`) and searching the log for `xpassed`.
+Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass is non-fatal): intermittent CI failures that happen to pass on this machine. Tracked in the \[[#Current-xfails--intermittent-CI-strictFalse]\] table. Check xpass count by capturing the run to a log (`uv run pytest --tb=long 2>&1 | tee .tmp/xpass.log`) and searching the log for `xpassed`.
 
 ## 5b. Role-journey suite (`tests/test_role_journeys.py`)
 

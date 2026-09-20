@@ -91,7 +91,7 @@ For each xpassed test:
 - Test is accidentally passing (false positive) → flag for investigation
 - Report findings to `TODO.md` backlog
 
-Reference: `docs/TESTING.md` §5.
+Reference: `[[TESTING.md#Xpassed-Tests]]`.
 
 ### 6. Crash safety
 

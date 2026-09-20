@@ -20,7 +20,7 @@ Covers: the assessed clauses and their status, the decisions behind each status.
 | 3.1.5 | Data must be stored on the operator's territory | ✅ compliant | Self-hosted on university infrastructure |
 | 3.1.6 | «Версия для слабовидящих» **or** font size ≥ 14 pt | ✅ implemented | Accessibility-mode toggle shipped v2026.08.31 (`css/a11y.css`, footer link «Версия для слабовидящих», 18 px root font, high-contrast palette) |
 | 3.1.9 | Page header must contain a link to `https://spbu.ru` | ✅ satisfied | Navbar SPbU logo links to `https://spbu.ru/`; the SPbU topbar is **removed** (service dead — `topbar.spbu.ru/loader.js` returns HTTP 410 Gone) |
-| 3.1.12 | Tag-manager container required | ⏸️ **deferred** | Site has none (GTM removed v2026.08.20). User decision 2026-08-31: postpone — revisit with the consent plan in `docs/PRIVACY_COMPLIANCE.md` §4 before re-enabling; tracked in `TODO.md` |
+| 3.1.12 | Tag-manager container required | ⏸️ **deferred** | Site has none (GTM removed v2026.08.20). User decision 2026-08-31: postpone — revisit with the consent plan in `[[PRIVACY_COMPLIANCE.md#FULL-COMPLIANCE-IMPLEMENTATION]]` before re-enabling; tracked in `TODO.md` |
 | 3.1.14 | Consent notice must name the service and operator | ✅ mostly compliant | Consent banner names Yandex Metrica + operator СПбГУ / ООО «Яндекс» |
 | 3.1.15 | Copyright format «© Санкт-Петербургский государственный университет, \<текущий год>» | ✅ implemented | Plan B shipped v2026.08.31: required СПбГУ line added **and** the department line kept (4 base templates) |
 | 3.1.16 | Site must not violate third-party rights / licensing | ✅ compliant | Self-hosted assets; no unlicensed third-party content |
@@ -30,7 +30,7 @@ Covers: the assessed clauses and their status, the decisions behind each status.
 1. **Topbar removed (v2026.08.31)** — the topbar service is retired by СПбГУ (`loader.js` → 410 Gone). §3.1.9 only mandates a header link to spbu.ru, which the navbar logo already provides, so removal is compliant. CSP entries dropped from `script-src`/`connect-src`; preconnect/dns-prefetch + injector removed from all 4 bases.
 1. **Accessibility mode implemented (v2026.08.31)** — chosen over a global font bump so normal visitors keep the current design. Toggle link in the footer (next to cookie settings), state persisted in `localStorage` (`se-a11y-mode`), applied pre-paint by a nonce head script to avoid a flash. See `src/static/assets/css/a11y.css`.
 1. **Copyright plan B (v2026.08.31)** — the required «© Санкт-Петербургский государственный университет, {{ current_year }}» line is added above the existing department line; both use the `{{ current_year }}` template global, so `docs/RELEASE_CHECKLIST.md` A1 note stays accurate.
-1. **Tag manager deferred** — §3.1.12 is the only open gap. It conflicts with the privacy posture (consent-gating analytics is hard to reconcile with a mandated tag-manager container); postponed until the §4 full-compliance plan is designed. See `TODO.md`.
+1. **Tag manager deferred** — §3.1.12 is the only open gap. It conflicts with the privacy posture (consent-gating analytics is hard to reconcile with a mandated tag-manager container); postponed until the \[[PRIVACY_COMPLIANCE.md#FULL-COMPLIANCE-IMPLEMENTATION]\] full-compliance plan is designed. See `TODO.md`.
 
 ## Related docs
 

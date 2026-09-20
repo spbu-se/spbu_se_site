@@ -6,7 +6,7 @@ Analyze a session or merge to identify process gaps, classify root causes, and s
 
 ## When to load
 
-> See `docs/AI_AGENTS.md` §Skills → Efficiency modes for the general principle.
+> See `[[AI_AGENTS.md#Skills]]` → Efficiency modes for the general principle.
 
 ### Light retro
 
@@ -32,7 +32,7 @@ Analyze a session or merge to identify process gaps, classify root causes, and s
 For quick retro after routine merge-gate. Covers only efficiency audit and self-improvement — no gap classification.
 
 1. **Collect changes** — `git log`, categorize files (source/tests/docs/config/tooling)
-1. **Check for gaps** — run step 8a efficiency audit (all questions in §8a). Any "yes" → classify as gap
+1. **Check for gaps** — run step 8a efficiency audit (all questions in \[[#Session-efficiency-audit]\]). Any "yes" → classify as gap
 1. **Store lessons** — append to `docs/RETROSPECTIVES.md` if gaps found
 1. **Self-improve** — run step 9 checklist (mixed-concern? pattern extraction? skill self-check?)
 1. **Generate prevention rules** — for any "yes" in efficiency audit, write rule in canonical doc (step 8b)
@@ -68,15 +68,15 @@ For each change, ask:
 | Gap type | Root cause | Fix action | Also check skill? |
 | ---------------------- | ------------------------------------------ | ---------------------------------------------------- | ------------------------------- |
 | **Missing convention** | No rule described how to do this | Add rule to `docs/DEVELOPMENT_PROCESS.md` | Could this be a `.skills/` workflow? |
-| **Missing template** | No template existed for this artifact type | Add template or checklist (e.g., §0.7) | Could this be a skill README? |
+| **Missing template** | No template existed for this artifact type | Add template or checklist (e.g., \[[DEVELOPMENT_PROCESS.md#Session-Lifecycle]\]) | Could this be a skill README? |
 | **Missing config** | Toolchain didn't catch this | Add linter, pre-commit hook, CI step | No — tool config, not skill |
 | **Human error** | Process was documented but not followed | Add guardrail or automation | Could a skill have prevented this? |
 | **Pattern recurrence** | Same gap appeared in a previous retro | Previous fix was insufficient — revisit and escalate | Was the skill updated last time? |
-| **Value contradiction** | Practice contradicts a Strategic Priority from the Project Doctrine (see `docs/DEVELOPMENT_PROCESS.md` §Process Identity → Project Doctrine) | Flag to user — do NOT fix autonomously. The user decides whether to adjust the value or change the practice. | No — values are user-domain |
+| **Value contradiction** | Practice contradicts a Strategic Priority from the Project Doctrine (see `[[DEVELOPMENT_PROCESS.md#Process-Identity]]` → Project Doctrine) | Flag to user — do NOT fix autonomously. The user decides whether to adjust the value or change the practice. | No — values are user-domain |
 
 ### 4. Check for pattern recurrence
 
-Scan previous retrospective entries in the relevant target document (see §5a). If this gap or a similar one was already fixed, the fix was incomplete — propose a stronger solution.
+Scan previous retrospective entries in the relevant target document (see \[[#Classify-target-document]\]). If this gap or a similar one was already fixed, the fix was incomplete — propose a stronger solution.
 
 **Escalation ladder**: each recurrence requires a minimum layer fix:
 
@@ -145,7 +145,7 @@ Present findings in a structured table:
 
 | Change | Trigger | Root gap | Fix |
 | ------------------------- | ------------- | ------------------- | -------------------- |
-| `docs/XXX.md` | User request | Missing template | Added §0.7 checklist |
+| `docs/XXX.md` | User request | Missing template | Added \[[DEVELOPMENT_PROCESS.md#Session-Lifecycle]\] checklist |
 | `.pre-commit-config.yaml` | Retro finding | No formatting guard | Added mdformat hook |
 
 Include concrete file paths and exact changes needed.
@@ -182,7 +182,7 @@ The retrospective itself is a tool. Every time it runs, check if it revealed a g
 - **Did the retrospective itself violate any process rules?** (creating standalone files instead of appending, skipping skill loading, committing without testing, etc.) The retrospective must model the behavior it enforces.
 - **Did the session include user imperatives that should be encoded as permanent rules?** (e.g., "do X instead of Y", "always Z when W") — each imperative is a training signal. Encode in the relevant canonical doc or skill before session closes. Do not treat as one-time instruction.
 - **Did any rule I wrote during this session govern my own behavior?** If yes, add a retrieval cue at the decision boundary (pre-flight step, AGENTS.md checklist, trigger in relevant skill) — doc-only rules are invisible when the decision point arrives.
-- **Did this session refresh from upstream after the initial sync?** If yes — was a Rescan summary produced and reported to the user (`docs/DEVELOPMENT_PROCESS.md` §0.6 Upstream re-sync)? A silent refresh that never applied upstream AGENTS/docs/CI changes to the running session is a missed-knowledge gap.
+- **Did this session refresh from upstream after the initial sync?** If yes — was a Rescan summary produced and reported to the user (`[[DEVELOPMENT_PROCESS.md#Upstream-re-sync]]`)? A silent refresh that never applied upstream AGENTS/docs/CI changes to the running session is a missed-knowledge gap.
 
 #### 8a. Session efficiency audit
 
@@ -217,16 +217,16 @@ Ask these questions to surface waste and optimization opportunities:
 | **Did you verify the active branch before every commit?** | Commits landed on `current` instead of the intended feature branch (3rd recurrence). `git branch --show-current` before each commit is the cue — if missed, the fix is `git cherry-pick -n` + `git commit --no-gpg-sign`. |
 | **Did a refactor change what a test's xfail marker reports?** | `strict=False` markers on intermittently-failing tests XPASS whenever the flaky path passes — xfail/xpass *counts* drift between runs without any real fix. Re-verify drift is stability, not flakiness, before removing a marker. |
 | **Did a move into functions break a linter/type check that module-level code passed?** | Moving `@app.route`-decorated views into `_register_*` helpers triggered basedpyright `reportUnusedFunction`; moving a re-export triggered ruff F401. Module-level opt-out (`# pyright: reportUnusedFunction=false`) and `__all__` re-export are the fixes. |
-| **Was this retrospective run before the PR?** | Retrospective is now mandatory before every PR (see `docs/DEVELOPMENT_PROCESS.md §0.7`). If the PR went out without one, the retro must be added as the last commit and the PR description updated. |
+| **Was this retrospective run before the PR?** | Retrospective is now mandatory before every PR (see `[[DEVELOPMENT_PROCESS.md#Session-Lifecycle]]`). If the PR went out without one, the retro must be added as the last commit and the PR description updated. |
 
 #### 8b. Generate prevention rules
 
-For every "yes" in §8a, write a concrete prevention rule in the appropriate canonical doc. Examples:
+For every "yes" in \[[#Session-efficiency-audit]\], write a concrete prevention rule in the appropriate canonical doc. Examples:
 
-- "Before staging after bulk doc edits, run `uv run mdformat` with the exact CI command string" → `docs/DEVELOPMENT_PROCESS.md §0.6`
-- "Before editing a section-heavy file, `grep -c '^## '` to detect structural anomalies" → `docs/DOCS.md §8.1`
-- "For section renumbering, write the mapping and validate against `grep '^## '` before editing" → `docs/DOCS.md §8.1`
-- "Before merge or batch finalization: diff AGENTS.md (+4 guard) and CLAUDE.md (any growth) line count against branch point. Run AI-instruction-file bloat audit. CLAUDE.md must delegate, not duplicate." → `docs/DOCS.md §7.1`
+- "Before staging after bulk doc edits, run `uv run mdformat` with the exact CI command string" → `[[DEVELOPMENT_PROCESS.md#Context-compaction]]`
+- "Before editing a section-heavy file, `grep -c '^## '` to detect structural anomalies" → `[[DOCS.md#Gate-Checklist]]`
+- "For section renumbering, write the mapping and validate against `grep '^## '` before editing" → `[[DOCS.md#Gate-Checklist]]`
+- "Before merge or batch finalization: diff AGENTS.md (+4 guard) and CLAUDE.md (any growth) line count against branch point. Run AI-instruction-file bloat audit. CLAUDE.md must delegate, not duplicate." → `[[DOCS.md#mdformat]]`
 
 Append an entry to the `## Self-improvement log` for each new prevention rule generated.
 
@@ -248,9 +248,9 @@ The retrospective skill must model the behavior it enforces. If it asks "did you
 Since the retro skill is derived from docs, every full retro audits the retro skill itself:
 
 1. **Does the retro skill still match its canonical docs?**
-   - `docs/DEVELOPMENT_PROCESS.md` §2 — is procedure defined there?
-   - `docs/AI_AGENTS.md` §Skills — are boundaries and principles followed?
-   - `docs/AI_AGENTS.md` §Skills directory — is catalog entry accurate?
+   - `[[DEVELOPMENT_PROCESS.md#Retrospectives]]` — is procedure defined there?
+   - `[[AI_AGENTS.md#Skills]]` — are boundaries and principles followed?
+   - `[[AI_AGENTS.md#Skills]]` directory — is catalog entry accurate?
 1. **Were docs updated when the skill changed this session?**
    - If a step was added/modified in the skill → was the corresponding canonical doc updated?
    - If not, add the missing info to the doc (skill is derivable, not source)
@@ -283,7 +283,7 @@ CI repeatedly caught `mdformat` issues that pre-commit didn't flag. Root cause: 
 The 2026-07-06 retrospective revealed two gaps in the retrospective process itself:
 
 1. "Custom is faster" bias — relevant skills (`retrospective-analysis`, `test-writer`, `unattended-mode`) existed but were not loaded during the session. The retro never asked "did you load skills?"
-1. The retro itself violated process rules — created standalone `docs/RETROSPECTIVE_*.md` instead of appending to `GIT_FLOW.md` §9. The retro had no self-check for rule compliance.
+1. The retro itself violated process rules — created standalone `docs/RETROSPECTIVE_*.md` instead of appending to `[[GIT_FLOW.md]]`. The retro had no self-check for rule compliance.
 
 **Fix**: Added two new questions to step 8: "Did I load any skills?" and "Did the retrospective itself violate any process rules?" This creates a feedback loop for the retro process itself.
 
@@ -295,7 +295,7 @@ Session restructuring GIT_FLOW.md and creating TESTING.md revealed several effic
 - Duplicate `## pre-commit` section in TOOLING.md caused 3+ failed edit attempts — no pre-flight structural scan
 - Section renumbering required fixing AGENTS.md cross-refs retroactively — no renumbering map written first
 
-**Fix**: Added step 8a (session efficiency audit — 5 questions) and step 8b (generate prevention rules in canonical docs). Added prevention rules to DOCS.md §8.1 (pre-flight structural scan, renumbering map) and DEVELOPMENT_PROCESS.md §0.6 (pre-staging validation step).
+**Fix**: Added step 8a (session efficiency audit — 5 questions) and step 8b (generate prevention rules in canonical docs). Added prevention rules to \[[DOCS.md#Gate-Checklist]\] (pre-flight structural scan, renumbering map) and \[[DEVELOPMENT_PROCESS.md#Context-compaction]\] (pre-staging validation step).
 
 ### [2026-07-06] Add step 5d — extract reusable techniques
 
@@ -441,32 +441,32 @@ Session surfaced several process gaps not covered by existing 8a questions:
 1. **Local-vs-CI tool divergence** — basedpyright `reportInvalidCast` on CI only. No question asked about environment parity.
 1. **Transitive dependency failures** — Flask-Admin `cls` arg traced to Jinja2/Werkzeug version, not code changes. No question asked about dependency version investigation.
 
-**Fix**: Added 6 new rows to §8a covering all gaps. Added "Verify CI shows test results, not just lint results" to AGENTS.md pre-flight checklist.
+**Fix**: Added 6 new rows to \[[#Session-efficiency-audit]\] covering all gaps. Added "Verify CI shows test results, not just lint results" to AGENTS.md pre-flight checklist.
 
-### [2026-08-02] Add hook-conflict and JSON-contract questions to §8a
+### [2026-08-02] Add hook-conflict and JSON-contract questions to \[[#Session-efficiency-audit]\]
 
-2026-08-02 security-audit session surfaced two repeated false starts not covered by §8a:
+2026-08-02 security-audit session surfaced two repeated false starts not covered by \[[#Session-efficiency-audit]\]:
 
 1. **Pre-commit auto-fix hooks conflicting with staged changes** — djLint reformats ALL html files during commit; staged template edits differing from its output caused 2 aborted commits before the normalize-then-stage fix. No question asked about hooks that reformat more than the staged set.
 1. **Endpoint-contract misreads** — news-XSS test asserted on a too-broad marker (failed on legit GTM `<script>` tags); upload-whitelist test expected HTTP 500 while the endpoint returns HTTP 200 + status in a JSON body. No question asked "is the response contract status-based or body-based?"
 
-**Fix**: Added 2 rows to §8a covering both, with the normalize-before-stage workaround and the contract-check rule.
+**Fix**: Added 2 rows to \[[#Session-efficiency-audit]\] covering both, with the normalize-before-stage workaround and the contract-check rule.
 
-### [2026-08-11] Add branch-verification, xfail-drift, and function-move questions to §8a
+### [2026-08-11] Add branch-verification, xfail-drift, and function-move questions to \[[#Session-efficiency-audit]\]
 
-2026-08-11 refactor session (application factory + route decentralization) surfaced three gaps the retro's §8a did not ask about:
+2026-08-11 refactor session (application factory + route decentralization) surfaced three gaps the retro's \[[#Session-efficiency-audit]\] did not ask about:
 
 1. **Branch-discipline violation (3rd recurrence)** — 4 refactor commits landed on `current` instead of the feature branch. The retro had no "did you verify the active branch before committing?" question, so the pattern kept recurring across sessions despite the escalation ladder.
 1. **xfail/xpass count drift** — `post_theses` `strict=False` markers XPASS whenever the flaky CI path passes; counts drifted 5→3 xfailed / 7→9 xpassed between two green full-suite runs. The retro had no prompt to distinguish stability from flakiness before touching markers.
 1. **Move-into-function lint/type breakage** — moving decorated views into helpers triggered basedpyright `reportUnusedFunction`; moving a re-export triggered ruff F401. Both fixed with module-level patterns, but undocumented.
 
-**Fix**: Added 4 rows to §8a (branch-before-commit, xfail-drift, linter-on-move, plus route-map-verification as the prevention technique). Self-improvement log entry added; `.tooling.md` gained the `git cherry-pick --continue` GPG workaround.
+**Fix**: Added 4 rows to \[[#Session-efficiency-audit]\] (branch-before-commit, xfail-drift, linter-on-move, plus route-map-verification as the prevention technique). Self-improvement log entry added; `.tooling.md` gained the `git cherry-pick --continue` GPG workaround.
 
 ### [2026-08-15] Document the light-retro-on-PR → full-retro-on-docs-branch split
 
 The 2026-08-15 session ran a **light retro** as part of the feature PR (#214, mandatory retro-before-PR) and the user *then* requested a **full retro** as a separate docs PR. The light/full split (§When to load) did not cover this sequence — nothing said the full retro may arrive later, in a different PR, referencing the already-merged light entry.
 
-**Fix**: Add this pattern to the light workflow note: if the user later requests a full retro for a session that already has a light entry, write the full entry as the comprehensive record (it may reference the light entry); both entries coexist chronologically in `docs/RETROSPECTIVES.md`. Also: the 2026-08-15 step-10 review confirmed the skill still matches its canonical docs (`DEVELOPMENT_PROCESS.md §0.7`, `AI_AGENTS.md §Skills`) — no structural changes needed.
+**Fix**: Add this pattern to the light workflow note: if the user later requests a full retro for a session that already has a light entry, write the full entry as the comprehensive record (it may reference the light entry); both entries coexist chronologically in `docs/RETROSPECTIVES.md`. Also: the 2026-08-15 step-10 review confirmed the skill still matches its canonical docs (`[[DEVELOPMENT_PROCESS.md#Session-Lifecycle]]`, `[[AI_AGENTS.md#Skills]]`) — no structural changes needed.
 
 ## Dependencies
 
@@ -476,6 +476,6 @@ The 2026-08-15 session ran a **light retro** as part of the feature PR (#214, ma
 - Read access to `docs/DEVELOPMENT_PROCESS.md` — to check process rules
 - Read access to `.tooling.md` — to check mistake journal
 
-### [2026-08-21] Add "consult canonical decisions before choosing an approach" question to §8a
+### [2026-08-21] Add "consult canonical decisions before choosing an approach" question to \[[#Session-efficiency-audit]\]
 
-The auto-migrate batch re-introduced Alembic at boot, contradicting the already-documented `DESIGN_DECISIONS.md` [2026-08-08] "Lazy DDL guard instead of Alembic migrations" decision — a "forgot to search" gap: the canonical decisions doc was never consulted before implementing. The regression was caught in design review, not by the process. Added a §8a row so every retro asks whether the session consulted `docs/DESIGN_DECISIONS.md` + the relevant canonical doc before choosing an architecture/implementation approach.
+The auto-migrate batch re-introduced Alembic at boot, contradicting the already-documented `DESIGN_DECISIONS.md` [2026-08-08] "Lazy DDL guard instead of Alembic migrations" decision — a "forgot to search" gap: the canonical decisions doc was never consulted before implementing. The regression was caught in design review, not by the process. Added a \[[#Session-efficiency-audit]\] row so every retro asks whether the session consulted `[[DESIGN_DECISIONS.md]]` + the relevant canonical doc before choosing an architecture/implementation approach.

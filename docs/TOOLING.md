@@ -467,7 +467,7 @@ omit = ["src/wsgi.py", "src/extract_text.py", "src/static/files/*"]
 
 ## Commit signing
 
-Signoff policy is defined in `docs/GIT_FLOW.md §4`. This doc only adds cross-cutting notes.
+Signoff policy is defined in `[[GIT_FLOW.md#Signoff-Policy]]`. This doc only adds cross-cutting notes.
 
 ### Never touch global git config
 
@@ -675,7 +675,7 @@ SSOT-generated `.gitleaks.toml`.
 
 ### Encoding declaration policy
 
-See `docs/DOCS.md §6` for the project's encoding declaration policy.
+See `[[DOCS.md#Encoding-Policy]]` for the project's encoding declaration policy.
 
 ## Staging environment
 
@@ -687,7 +687,7 @@ See `docs/DOCS.md §6` for the project's encoding declaration policy.
 
 ### Signed-commit verification
 
-`current` accepts only signed, verifiable commits (see `docs/GIT_FLOW.md` §2.3). After any merge, assert the head commit verifies before proceeding — an unverified result means a direct push or rebase-merge leaked into `current` (counter-example `446e39f`, 2026-09-02):
+`current` accepts only signed, verifiable commits (see `[[GIT_FLOW.md#Only-signed-verifiable-commits-and-tags-on-current]]`). After any merge, assert the head commit verifies before proceeding — an unverified result means a direct push or rebase-merge leaked into `current` (counter-example `446e39f`, 2026-09-02):
 
 ```
 gh api "repos/spbu-se/spbu_se_site/commits/<sha>" --jq '.commit.verification | "\(.verified) \(.reason)"'
@@ -725,7 +725,7 @@ fails if the committed outputs drift.
 The `.omo/` boulder system (`.omo/boulder.json` + `.omo/plans/<name>.md`) is an
 **OMO-specific (OhMyOpenCode) dev artifact** — a session-planning enhancement
 that replaces `.unfinished.plan.md` for agents running under OMO. It is not part
-of the general dev process: `AGENTS.md` and `docs/DEVELOPMENT_PROCESS.md` §0.7
+of the general dev process: `AGENTS.md` and `[[DEVELOPMENT_PROCESS.md#Session-Lifecycle]]`
 describe `.unfinished.plan.md` as the primary session-planning mechanism and
 stay agent-agnostic. OMO users may substitute the boulder system; everyone else
 uses `.unfinished.plan.md`.
