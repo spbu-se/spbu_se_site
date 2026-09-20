@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Architecture" tags: ["architecture", "design"] scope: developer
+
 # Architecture
 
 <!-- encoding: utf-8 -->

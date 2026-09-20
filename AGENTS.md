@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Agent Instructions" tags: ["agent", "instructions", "pre-flight"] scope: agent
+
 # SE Site
 
 <!-- encoding: utf-8 -->

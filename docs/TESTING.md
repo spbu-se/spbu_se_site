@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Testing Strategy" tags: ["testing", "quality"] scope: agent
+
 # Testing
 
 <!-- encoding: utf-8 -->
@@ -6,7 +10,7 @@ Testing strategy, coverage targets, xfail policy, and known gaps for the SE Site
 
 Covers: testing discipline, execution strategy, xfail policy, long-term gaps, deliberate exclusions. Does not cover: fixture implementation patterns — see `docs/TOOLING.md`, test-writing methodology and reusable fixture templates — see `docs/AI_AGENTS.md` §Skills, individual bug details — see `docs/CODE_ISSUES.md`, quality philosophy — see `docs/QUALITY_MANAGEMENT.md`.
 
-## 1. Testing Discipline
+## Testing Discipline
 
 ### TDD-First
 
@@ -31,7 +35,7 @@ Where edge cases emerge during testing, improve process documentation: what was 
 
 When several test modules need the same setup (a role, a theme row, an entity), define the fixture **once** in `tests/conftest.py` and request it per module. Duplicating a fixture across files trips the CI pylint-similarities check (R0801; run `uv run pylint --disable=all --enable=similarities src/ tests/`) — hit 2026-09-06 with three copies of `make_theme` in the #70 test files (#280).
 
-## 2. Coverage Targets
+## Coverage Targets
 
 | Scope | Target | Note |
 |-------|--------|------|
@@ -41,7 +45,7 @@ When several test modules need the same setup (a role, a theme row, an entity), 
 
 Coverage is checked at the merge gate. Steps below 90% block the merge.
 
-## 3. Test Execution Strategy
+## Test Execution Strategy
 
 Run the full suite before every push. Parallel-safe at any worker count — the FTS5 index lives inside the session-seeded SQLite DB template, so per-test copies are race-free.
 
@@ -94,7 +98,7 @@ uv run pytest e2e -m e2e --no-cov -n 0
 Runs on CI only in the path-filtered `e2e` job (`ci.yml`), never in the
 `test` job.
 
-## 4. xfail Policy
+## xfail Policy
 
 Every xfailed test must have a documented reason linked to a `TODO.md` or `CODE_ISSUES.md` blocker entry. xfails are re-reviewed every 3 months or after refactoring the affected module — whichever comes first.
 
@@ -136,7 +140,7 @@ Reference run (2026-09-10, `uv run pytest --tb=long`): **1515 passed, 4 skipped,
 
 Reference run (2026-09-10, `uv run pytest --tb=long`): **1517 passed, 4 skipped, 1 xpassed** (1522 collected) — security-alert triage (`fix/security-alert-triage`): `_safe_upload_path` traversal guard (+2), linear e-mail validation (ReDoS fix), case-insensitive test regexes.
 
-## 5. Xpassed Tests
+## Xpassed Tests
 
 Tests that pass locally but have `xfail` markers (all `strict=False`, so xpass is non-fatal): intermittent CI failures that happen to pass on this machine. Tracked in the \[[#Current-xfails--intermittent-CI-strictFalse]\] table. Check xpass count by capturing the run to a log (`uv run pytest --tb=long 2>&1 | tee .tmp/xpass.log`) and searching the log for `xpassed`.
 
@@ -152,7 +156,7 @@ the actual seed — run with the default suite, coverage-included. Password
 mock always returns true) lives in a subprocess test, and the live browser
 suites (top-level `e2e/`) cover the unmocked path.
 
-## 6. Long-Term Testing Gaps
+## Long-Term Testing Gaps
 
 Architectural issues that limit test coverage and require production code changes to resolve:
 
@@ -161,7 +165,7 @@ Architectural issues that limit test coverage and require production code change
 - **OAuth external dependencies**: Full-flow VK and Google OAuth tests require external config files and network access. CI tests use mock stubs — real OAuth flow is only tested manually.
 - **Practice file upload branches**: Cyclomatic complexity in practice route handlers leaves ~30 untested code branches in file upload logic. Adding tests requires multipart fixture infrastructure.
 
-## 7. Deliberate Exclusions
+## Deliberate Exclusions
 
 What we explicitly do not test and why:
 
@@ -172,7 +176,7 @@ What we explicitly do not test and why:
 | Password security (scrypt) | Python 3.13 OpenSSL build lacks scrypt — mocked in all tests | Prod environment has different OpenSSL |
 | UI/visual rendering | No browser testing framework configured | Manual review per release |
 
-## 8. Troubleshooting — Common Test Errors
+## Troubleshooting — Common Test Errors
 
 ### APScheduler: background jobs fire during tests
 

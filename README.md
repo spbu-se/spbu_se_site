@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Project README" tags: ["readme", "overview"] scope: all
+
 # SE Site — SPbSU System Programming Department
 
 <!-- encoding: utf-8 -->

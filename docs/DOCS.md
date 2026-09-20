@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Docs Management" tags: ["docs", "meta", "conventions"] scope: agent
+
 # Docs Management
 
 <!-- encoding: utf-8 -->
@@ -6,7 +10,7 @@ Meta-documentation for the SE Site project: how, why, and where we document thin
 
 Covers: doc creation rules, update rules, canonical source discipline, encoding policy, formatting conventions, integrity checks, document catalog, and recurring anti-patterns. Does not cover: general development process — see `docs/DEVELOPMENT_PROCESS.md`, git workflow — see `docs/GIT_FLOW.md`, tool-specific knowledge — see `docs/TOOLING.md`, technology decisions — see `docs/DESIGN_DECISIONS.md`.
 
-## 1. Why We Document
+## Why We Document
 
 This is an AI-assisted, single-agent project. Documentation is how we persist knowledge across sessions:
 
@@ -15,7 +19,7 @@ This is an AI-assisted, single-agent project. Documentation is how we persist kn
 - Recurring failures (over-engineering, path drift, stale refs) are eliminated by documenting the fix, not just applying it.
 - A documented process is a debuggable process. An undocumented fix is a future bug waiting to be rediscovered.
 
-## 2. Document Catalog
+## Document Catalog
 
 Every `.md` file in the project, its scope, and what it is canonical for.
 
@@ -135,9 +139,9 @@ AGENTS leanness and the two-way contract are enforced by an **occasional docs-dr
 
 For skills architecture — definition, delegation chain, extraction triggers, creation checklist, and lifecycle — see `[[AI_AGENTS.md#Skills]]`.
 
-## 3. Doc Creation Rules
+## Doc Creation Rules
 
-### 3.1 Required Structure
+### Required Structure
 
 Every `.md` file under `docs/` must follow this header structure:
 
@@ -167,7 +171,7 @@ Every section in a process or reference doc should follow this layer order when 
 
 This separation keeps rules scannable (read the What), steps followable (read the How), and philosophy findable (read the Why).
 
-### 3.2 New Artifact Checklist
+### New Artifact Checklist
 
 When creating any new file, directory, or tooling config, run through these four questions:
 
@@ -186,7 +190,7 @@ local folder for temp data). Never leave them at the repo root.
 - **Exceptions** (documented, stay at root): `.unfinished.plan.md` (session scratch, gitignored individually), `.local_development.db` (MCP database), `databases/test.db` (test fixture), `static/` upload dirs (app-managed runtime data — the dirs themselves must stay under `static/`).
 - When a tracked file's contents move to `.tmp/` (e.g. `release-notes.md`), update every reference to the old path: the producing skill, the consuming CI workflow, and the docs.
 
-### 3.3 Pre-Creation Directory Audit
+### Pre-Creation Directory Audit
 
 Before creating any new file or directory, verify nothing similar already exists:
 
@@ -197,7 +201,7 @@ grep -i "<name>" docs/*.md
 
 Read existing content to assess scope overlap. A duplicate is harder to fix than to prevent. This rule exists because we have created duplicates before (`doc/` when `docs/` existed).
 
-### 3.4 Doc-to-Code Sync
+### Doc-to-Code Sync
 
 When docs describe code that does not yet exist:
 
@@ -205,7 +209,7 @@ When docs describe code that does not yet exist:
 1. Implement in a `feat:` or `fix:` commit
 1. Run tests before merging
 
-### 3.5 Skill Convention
+### Skill Convention
 
 Skills live in `.skills/<name>/README.md` (vendor-agnostic canonical source). Per-vendor stubs in `.claude/skills/`, `.opencode/skills/`, `.agents/skills/` point to the canonical skill. The `name` must be lowercase alphanumeric with hyphens and match the directory name.
 
@@ -216,19 +220,19 @@ Skills live in `.skills/<name>/README.md` (vendor-agnostic canonical source). Pe
 1. **Register** — add to `CLAUDE.md` skills table
 1. **Cross-reference** — add to `AGENTS.md` if needed, reference in relevant process docs
 
-## 4. Doc Update Rules
+## Doc Update Rules
 
-### 4.1 When to Update
+### When to Update
 
 - **Doc changes belong on `docs/` branches or during the merge gate**, not on feature branches. See `[[DEVELOPMENT_PROCESS.md#Upstream-re-sync]]`.
 - **Exception**: architecture-first or doc-first cycle was violated (code before doc) → add a `TODO.md` debt entry mid-sprint. This is a violation record, not a doc change.
 - **Exception**: new findings during implementation (bugs, quirks, workarounds) go to `TOOLING.md` or `AI_AGENT_EXPERIENCE.md` immediately, not at session end. See "Document as you go" in `[[AI_AGENTS.md#Skills]]`.
 
-### 4.2 What Not to Update During Feature Work
+### What Not to Update During Feature Work
 
 - Process docs (`docs/GIT_FLOW.md`, `docs/DEVELOPMENT_PROCESS.md`) are sacred — minimize edits unless user explicitly approved. Gather observations and suggest improvements. Process doc changes happen during the merge gate.
 
-### 4.3 Context Compaction (Session End)
+### Context Compaction (Session End)
 
 Before compacting context or ending session:
 
@@ -237,9 +241,9 @@ Before compacting context or ending session:
 1. **AI instructions drift check**: verify no unique content in AI instructions — every claim must cross-reference a canonical source. If a new quirk is needed, write the full version in the canonical doc first, then extract a condensed cross-reference.
 1. Audit cross-references: scan every `.md` file under `docs/` and `.skills/` for hardcoded `§N` references. Replace with wiki-links: `§2 — Task selection` → `[[#Task-selection]]`.
 
-## 5. Canonical Source Discipline
+## Canonical Source Discipline
 
-### 5.1 The Rule
+### The Rule
 
 Every fact lives in exactly **one** canonical doc. All other locations cross-reference back to it.
 
@@ -247,7 +251,7 @@ Every fact lives in exactly **one** canonical doc. All other locations cross-ref
 - **AI instructions are extracts** — they contain condensed cross-references, not original content.
 - **Skills are canonical in `.skills/<name>/README.md`** — vendor stubs are thin wrappers.
 
-### 5.2 Cross-Reference Format
+### Cross-Reference Format
 
 Use wiki-links (`[[file#Heading]]`) instead of hardcoded section numbers or step numbers:
 
@@ -262,7 +266,7 @@ Wiki-links are resolved by marksman LSP (go-to-definition, find-references, diag
 
 **Migration**: the 2026-09-19 docs restructuring replaces all `§N` with wiki-links. See the full inventory in `docs/AI_AGENTS.md` §Cross-reference migration status. If you see `§[0-9]` in any `.md` file, it's a fault — replace with a wiki-link.
 
-### 5.3 AI Instructions Drift Check
+### AI Instructions Drift Check
 
 At every merge gate:
 
@@ -270,13 +274,13 @@ At every merge gate:
 1. If found, write the full version in the appropriate canonical doc, then replace the AI instruction with a condensed cross-reference.
 1. Verify every "See `docs/X.md`" reference resolves to an existing file and section.
 
-## 6. Encoding Policy
+## Encoding Policy
 
-### 6.1 Mandate
+### Mandate
 
 All source files (`.py`, `.md`, `.yaml`, `.json`, `.toml`, `.cfg`) **must be UTF-8**. No exceptions unless explicitly documented.
 
-### 6.2 Declarations
+### Declarations
 
 Every file that supports encoding declarations must declare it at the very beginning:
 
@@ -288,7 +292,7 @@ Every file that supports encoding declarations must declare it at the very begin
 
 For `.md` files without an H1 title (e.g., vendor stubs starting with `___` separators), insert on line 1.
 
-### 6.3 PowerShell Encoding Workaround
+### PowerShell Encoding Workaround
 
 On Windows, PowerShell `Set-Content` and `Out-File` default to the system's active ANSI code page (Windows-1252 on en-US Windows), not UTF-8. This corrupts any file containing non-ASCII bytes when the file is expected to be UTF-8.
 
@@ -296,7 +300,7 @@ See `[[TOOLING.md#PowerShell-encoding]]` for the correct `[System.IO.File]::Writ
 
 This applies to any operation that writes `.py`, `.md`, `.yaml`, `.json`, `.toml`, or `.cfg` files. For detection scripts, git recovery workflow, and fix patterns, see `[[AI_AGENTS.md#Skills]]`.
 
-### 6.4 Verification
+### Verification
 
 ```bash
 # Count Python files with encoding declaration
@@ -306,13 +310,13 @@ Get-ChildItem -Recurse -Include "*.py" | Select-String -Pattern "^# -\*- coding:
 Get-ChildItem -Recurse -Include "*.md" | Select-String -Pattern "encoding: utf-8" | Measure-Object
 ```
 
-### 6.5 Recovery
+### Recovery
 
 If the working tree is corrupted by encoding bugs, use `git checkout <clean-sha> -- <file>` to restore from the last clean commit. For recovery workflows, see `[[AI_AGENTS.md#Skills]]`.
 
-## 7. Formatting Rules
+## Formatting Rules
 
-### 7.1 mdformat
+### mdformat
 
 All `.md` files are formatted via `mdformat` with explicit paths:
 
@@ -329,7 +333,7 @@ Root-level `.md` files are listed explicitly. Each has a reason to live at root:
   behaves identically locally and in CI. Still run `mdformat` (not just
   `--check`) before committing so freshly-edited files are formatted.
 
-### 7.2 CI mdformat Failure Diagnosis
+### mdformat Failure Diagnosis
 
 When CI reports `mdformat --check` failure and the filename is truncated in logs:
 
@@ -344,11 +348,11 @@ $id = gh run list --branch staging --limit 1 --json databaseId --jq ".[0].databa
 gh run view $id --log | Select-String -Pattern "not formatted" -Context 0,1
 ```
 
-## 8. Integrity Checks
+## Integrity Checks
 
 Run during the merge gate and during retrospectives.
 
-### 8.1 Gate Checklist
+### Gate Checklist
 
 | # | Check | How | When |
 |---|-------|-----|------|
@@ -371,7 +375,7 @@ Run during the merge gate and during retrospectives.
 | 17 | Content-scope alignment | For each changed `.md` file, verify no section violates the doc's stated "Covers"/"Does not cover" boundary | Every gate |
 | 18 | No UTF-8 BOM | No `EF BB BF` byte order mark in any source file — CI catches this, verify locally before push | Every gate |
 
-### 8.2 Check Automation Status
+### Check Automation Status
 
 These checks are currently manual (layer 3 — documented, manually enforced). Future automation candidates:
 
@@ -385,7 +389,7 @@ These checks are currently manual (layer 3 — documented, manually enforced). F
 | #13 Stale metrics | CI step verifying test count/coverage against committed values | Manual |
 | #18 UTF-8 BOM check | Pre-commit hook (`file --mime-encoding` check) | Manual |
 
-## 9. Anti-Patterns
+## Anti-Patterns
 
 Recurring failures identified through retrospective analysis. Each anti-pattern has a corresponding guard to prevent recurrence.
 
@@ -400,7 +404,7 @@ Recurring failures identified through retrospective analysis. Each anti-pattern 
 | **Over-engineering** | Creating skills/docs for problems that don't exist yet — appeared in 3 consecutive retros | "Check existing first" guard in planning phase (\[[DEVELOPMENT_PROCESS.md#Check-Existing-First]\]) |
 | **Code-only fixes** | Windows SQLite URI fix applied to conftest.py but never documented as a quirk — rediscovered in next session | Extract reusable techniques (see \[[AI_AGENTS.md#Skills]\]) |
 
-## 10. SPDX / Licensing Policy
+## SPDX / Licensing Policy
 
 Every source file must have an SPDX header matching the project's `LICENSE` file.
 

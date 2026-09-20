@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "AI Agent Instructions" tags: ["agent", "instructions"] scope: agent
+
 # AI Agent Configuration & Output Conventions
 
 <!-- encoding: utf-8 -->

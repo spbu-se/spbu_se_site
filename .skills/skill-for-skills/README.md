@@ -29,14 +29,14 @@ Verify skill-for-skills itself follows every principle before auditing others:
 
 For each skill in the Skills directory table, run:
 
-#### 2.1 Registration audit
+#### Registration audit
 
 - Exists in `docs/AI_AGENTS.md` §Skills directory table?
 - Exists in `CLAUDE.md` skill table with load condition?
 - Stubs exist: `.claude/skills/<name>/SKILL.md` and `.agents/skills/<name>/SKILL.md`?
 - Canonical source `.skills/<name>/README.md` exists?
 
-#### 2.2 Boundaries audit
+#### Boundaries audit
 
 ```
 grep -rn "\.skills/<name>/" docs/ --include "*.md"
@@ -44,20 +44,20 @@ grep -rn "\.skills/<name>/" docs/ --include "*.md"
 
 Any matches in process docs (DEVELOPMENT_PROCESS, DOCS, GIT_FLOW, TESTING, REPO_REVIEW) violate the Boundaries principle — report for delegation to `docs/AI_AGENTS.md`.
 
-#### 2.3 Derivability audit
+#### Derivability audit
 
 For each section/step in the skill, check the corresponding canonical doc (from the Source of truth table in `docs/AI_AGENTS.md` §Skills):
 
 - If a step exists in the skill but not in any canonical doc → it is new knowledge. Report: add to the canonical doc.
 - Exception: skills marked "Canonical For" their workflow in the directory table may define procedure without doc backup.
 
-#### 2.4 Source of truth compliance
+#### Source of truth compliance
 
 - Skill reads only its listed docs from the Source of truth table?
 - Skill writes only its listed docs?
 - If reading/writing unlisted docs, flag for source-of-truth table update.
 
-#### 2.5 Maintenance check
+#### Maintenance check
 
 - Has the canonical doc changed since the skill was last audited? (`git log --oneline <doc>` since skill's last commit)
 - If doc added new rules or sections, does the skill need updating?

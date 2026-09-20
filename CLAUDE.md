@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Skill Registry" tags: ["skills", "registry"] scope: agent
+
 # SE Site
 
 <!-- encoding: utf-8 -->

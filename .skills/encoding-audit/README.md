@@ -62,7 +62,7 @@ Get-ChildItem -Recurse -Include "*.py","*.md" -Exclude "*node_modules*","*.venv*
 
 ## Fix workflow
 
-### 1. Find the committed clean version
+### Find the committed clean version
 
 ```bash
 git log --all --oneline -- <file>      # list commits touching this file
@@ -70,7 +70,7 @@ git log --all --oneline -- <file>      # list commits touching this file
 git log --all --oneline -S "<known-good-text>" -- <file>
 ```
 
-### 2. Restore from clean commit (binary-safe)
+### Restore from clean commit (binary-safe)
 
 ```python
 import subprocess
@@ -79,7 +79,7 @@ with open('<file>', 'wb') as f:
     f.write(result.stdout)
 ```
 
-### 3. Re-apply encoding declaration (Python, not PowerShell)
+### Re-apply encoding declaration (Python, not PowerShell)
 
 ```python
 with open(path, 'r', encoding='utf-8') as f:
@@ -90,7 +90,7 @@ if not content.startswith('# -*- coding'):
         f.write(content)
 ```
 
-### 4. Verify
+### Verify
 
 ```bash
 uv run python -c "exec(open('path.py', encoding='utf-8').read()); print('OK')"

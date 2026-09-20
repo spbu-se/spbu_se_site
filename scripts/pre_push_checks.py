@@ -76,7 +76,7 @@ CHECKS: list[tuple[str, list[str]]] = [
             "run",
             "bash",
             "-c",
-            r'grep -rn "^<<<<<<< .*\|^=======\$\|^>>>>>>> .*" src/ tests/ scripts/ --include="*.py" --include="*.sh" --include="*.yml" --include="*.yaml" --include="*.html" --include="*.css" --include="*.js" 2>/dev/null; [ $? -ge 2 ] && exit 0 || exit $?',
+            r'grep -rn "^<<<<<<< .*\|^=======\$\|^>>>>>>> .*" src/ tests/ scripts/ --include="*.py" --include="*.sh" --include="*.yml" --include="*.yaml" --include="*.html" --include="*.css" --include="*.js" 2>/dev/null; rc=$?; [ $rc -ge 2 ] && exit 0; [ $rc -eq 0 ] && exit 1; exit 0',
         ],
     ),
 ]

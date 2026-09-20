@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Tooling Knowledge" tags: ["tools", "cross-platform"] scope: agent
+
 # TOOLING
 
 <!-- encoding: utf-8 -->

@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Database Schema" tags: ["database", "schema"] scope: developer
+
 # Schema Reference — Database Model Definitions
 
 <!-- encoding: utf-8 -->

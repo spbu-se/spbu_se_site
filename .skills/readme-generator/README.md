@@ -6,7 +6,7 @@ Generate a polished project-specific README. Load when the user says "generate r
 
 ## Workflow
 
-### 0. Licensing rules (agent must follow strictly)
+### Licensing rules (agent must follow strictly)
 
 1. **Never modify LICENSE** — the LICENSE file in the repo root is final. Do not edit, replace, or delete.
 1. **Missing LICENSE?** — do NOT create one. Ask the user to add one. Mention every pushed file needs a license.
@@ -18,7 +18,7 @@ Generate a polished project-specific README. Load when the user says "generate r
    - GPL-3.0: `# SPDX-License-Identifier: GPL-3.0-or-later`
 1. **Auto-attribute** — all content developed for the project inherits the project's license. No additional copyright notice beyond the SPDX header.
 
-### 1. Probe the project
+### Probe the project
 
 Use `uv run python -c` for cross-platform probing (works on Windows, Linux, macOS):
 
@@ -159,7 +159,7 @@ SPDX identifier mapping:
 | MPL | `# SPDX-License-Identifier: MPL-2.0` |
 | other | `# SPDX-License-Identifier: <as-detected>` |
 
-### 2. Build sections by project type
+### Build sections by project type
 
 | Section | Web | CLI | Library | Always |
 |---------|-----|-----|---------|-------|
@@ -178,7 +178,7 @@ SPDX identifier mapping:
 | Troubleshooting | ✓ | ✓ | ✓ | ✓ |
 | License | ✓ | ✓ | ✓ | ✓ |
 
-### 3. Generate markdown
+### Generate markdown
 
 Build the README from probed data. Common section templates:
 
@@ -212,7 +212,7 @@ List actual `.conf` and `.env.example` files found. Reference each.
 **Documentation:**
 Link to each detected `docs/*.md` file with its purpose from the first line.
 
-### 4. Format and present
+### Format and present
 
 Run `mdformat` on the generated content. Present to user in a code block. **Do NOT overwrite README.md** — wait for explicit user approval.
 

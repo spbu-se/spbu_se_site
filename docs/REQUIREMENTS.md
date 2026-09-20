@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Requirements" tags: ["requirements", "features"] scope: developer
+
 # Requirements — SE Site (SPbSU System Programming Department)
 
 <!-- encoding: utf-8 -->
@@ -6,7 +10,7 @@ Full feature specification for the department website. The site serves as an inf
 
 Covers: feature modules, page descriptions, user roles, navigation structure. Does not cover: implementation details, database schema — see `docs/SCHEMA.md`, route documentation — see `docs/API_REFERENCE.md`.
 
-## 1. User Roles
+## User Roles
 
 | Role | Permissions |
 |---|---|
@@ -15,9 +19,9 @@ Covers: feature modules, page descriptions, user roles, navigation structure. Do
 | **Staff** | Supervise practice students, view advisee reports, review theses |
 | **Admin** | Full CRUD via custom admin panel, manage practice, archive theses, moderate diploma themes |
 
-## 2. Feature Modules
+## Feature Modules
 
-### 2.1 Public Information Pages
+### Public Information Pages
 
 Static and semi-static pages describing the department:
 
@@ -29,7 +33,7 @@ Static and semi-static pages describing the department:
 - Sitemap XML for SEO
 - Custom 404 page
 
-### 2.2 Educational Programs
+### Educational Programs
 
 Curriculum information for bachelor and master programs:
 
@@ -37,7 +41,7 @@ Curriculum information for bachelor and master programs:
 - **Master**: Information Systems Administration, Software Engineering
 - Curriculum data managed via DB seed data
 
-### 2.3 News System
+### News System
 
 Community-driven news platform:
 
@@ -48,7 +52,7 @@ Community-driven news platform:
 - Admin can manage all posts via admin panel
 - Homepage shows top 10 active posts
 
-### 2.4 Thesis Archive
+### Thesis Archive
 
 Searchable repository of graduate works (coursework, bachelor, master):
 
@@ -59,7 +63,7 @@ Searchable repository of graduate works (coursework, bachelor, master):
 - Tags for categorization
 - Supervisor and reviewer attribution
 
-### 2.5 Diploma Themes
+### Diploma Themes
 
 Marketplace for diploma thesis topics:
 
@@ -69,7 +73,7 @@ Marketplace for diploma thesis topics:
 - Admin review and moderation
 - Archive/unarchive own themes
 
-### 2.6 Practice System
+### Practice System
 
 Three-tier educational practice management:
 
@@ -97,7 +101,7 @@ Three-tier educational practice management:
 - Export to Excel
 - Yandex Disk upload integration
 
-### 2.7 Thesis Peer Review
+### Thesis Peer Review
 
 External review workflow for thesis quality assessment:
 
@@ -107,7 +111,7 @@ External review workflow for thesis quality assessment:
 - Verdict and overall comment
 - Review result visible to student
 
-### 2.8 Internship Board
+### Internship Board
 
 Job/internship marketplace:
 
@@ -115,7 +119,7 @@ Job/internship marketplace:
 - Add, edit, delete internships (authenticated users)
 - Company profiles with logos
 
-### 2.9 Summer Schools
+### Summer Schools
 
 Archive of summer school projects (2021, 2022, 2024, 2026):
 
@@ -123,11 +127,11 @@ Archive of summer school projects (2021, 2022, 2024, 2026):
 - Individual project pages with description, technology stack, repo links, demos
 - Admin-managed via custom admin interface
 
-### 2.10 Scholarships
+### Scholarships
 
 13 static information pages about available scholarships and grants.
 
-### 2.11 Authentication
+### Authentication
 
 Multi-provider auth system:
 
@@ -138,7 +142,7 @@ Multi-provider auth system:
 - User profile with avatar upload
 - Session management via Flask-Login
 
-## 3. Navigation Structure
+## Navigation Structure
 
 ```
 Home (/)
@@ -166,7 +170,7 @@ Home (/)
   |-- Thesis Review (authenticated)
 ```
 
-## 4. Scheduled Jobs
+## Scheduled Jobs
 
 | Job | Schedule | Description |
 |---|---|---|
@@ -174,7 +178,7 @@ Home (/)
 | SendMailNotification | Every 10 seconds | Process email queue for notifications |
 | SendDiplomaThemesOnReviewNotification | Every 24 hours | Alert moderators about unmoderated themes |
 
-## 5. Deployment
+## Deployment
 
 - **Web server**: nginx (reverse proxy) -> gunicorn -> Flask
 - **Application server**: gunicorn (`wsgi:app`, bound `127.0.0.1:4545` per `extra/systemd-unit.service`)

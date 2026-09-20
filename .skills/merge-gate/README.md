@@ -25,15 +25,15 @@ Not a replacement for process docs — reads them, follows their rules.
 
 Run each step in sequence, collecting findings without stopping. Do not fix mid-audit — collect everything first.
 
-#### 1.1 Load and run `docs-audit`
+#### Load and run `docs-audit`
 
 Walk through `.skills/docs-audit/README.md` steps 1-6. Collect findings in a temporary accumulator.
 
-#### 1.2 Load and run `code-audit`
+#### Load and run `code-audit`
 
 Walk through `.skills/code-audit/README.md` steps 1-9. Append findings to the same accumulator.
 
-#### 1.3 Context compaction
+#### Context compaction
 
 Follow `[[DEVELOPMENT_PROCESS.md#Context-compaction]]`:
 
@@ -43,7 +43,7 @@ Follow `[[DEVELOPMENT_PROCESS.md#Context-compaction]]`:
 1. Audit cross-references: scan every `.md` file under `docs/` and `.skills/` for hardcoded step numbers. Replace with section-title references.
 1. If session involved doc restructuring or touched 3+ `.md` files, prepare to propose retrospective
 
-#### 1.4 Pre-merge checks
+#### Pre-merge checks
 
 - `uv.lock` in sync with `pyproject.toml` (`uv lock --check`) — regenerate if stale
 - Run commit checklist: `mdformat`, `ruff`, `basedpyright`, `pytest -n 2`

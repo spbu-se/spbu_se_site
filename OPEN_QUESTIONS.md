@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Open Questions" tags: ["questions", "decisions"] scope: agent
+
 # OPEN_QUESTIONS
 
 <!-- encoding: utf-8 -->
