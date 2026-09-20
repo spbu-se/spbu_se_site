@@ -132,7 +132,7 @@ If the working tree is corrupted and the committed version is also corrupted (be
 git checkout <clean-sha> -- <file>
 ```
 
-Then re-apply any intentional changes that happened BETWEEN the clean commit and now, but using the encoding-safe write method (see [[#Root-cause]]).
+Then re-apply any intentional changes that happened BETWEEN the clean commit and now, but using the encoding-safe write method (see \[[#Root-cause]\]).
 
 To find clean commits by scanning for valid bytes:
 

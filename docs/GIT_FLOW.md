@@ -25,7 +25,7 @@ Covers: branching, merge strategy, commit discipline, rebase policy, signoff pol
 
 ### 1.2 Rules
 
-- **Branch from `upstream/current`** — always. `hotfix/` branches from `current` too, but merges via the direct lane ([[#Hotfix--current-direct-lane]]) instead of a PR.
+- **Branch from `upstream/current`** — always. `hotfix/` branches from `current` too, but merges via the direct lane (\[[#Hotfix--current-direct-lane]\]) instead of a PR.
 - **Dirty tree guard** — before `git checkout -b`, commit or stash all working tree changes. Uncommitted edits silently leak into the wrong commits.
 - **Auto-branch naming** — in unattended mode: `git checkout -b staging-auto-<UTC-timestamp> origin/current`.
 
@@ -122,7 +122,7 @@ without a signature.
   commit is created and signed by GitHub (committer `GitHub`), so
   verification is `true`/`valid` automatically. This is the only lane for
   regular work.
-- **Emergency lane (hotfix direct push, [[#Hotfix--current-direct-lane]])**: permitted for
+- **Emergency lane (hotfix direct push, \[[#Hotfix--current-direct-lane]\])**: permitted for
   production-blocking fixes only, and the pushed commits **must be signed
   with a key registered to the committer's GitHub account** so GitHub marks
   them Verified:
@@ -145,7 +145,7 @@ history); the rule is going-forward.
 
 ### 2.4 Staging is legacy
 
-Staging is never deleted, but it is no longer used. It was the integration branch in the two-branch model (feature → staging → current); since 2026-09 the project is single-branch — features merge straight to `current` via PR squash-merge ([[#Feature--current]]). `origin/staging` still exists with 79 orphan commits; no new work branches from it and no merges target it.
+Staging is never deleted, but it is no longer used. It was the integration branch in the two-branch model (feature → staging → current); since 2026-09 the project is single-branch — features merge straight to `current` via PR squash-merge (\[[#Feature--current]\]). `origin/staging` still exists with 79 orphan commits; no new work branches from it and no merges target it.
 
 **Quality gate**: Feature → current (tests pass via PR CI; full verification per `[[DEVELOPMENT_PROCESS.md#Code-Review-Checklist]]`).
 
@@ -312,7 +312,7 @@ uv lock --check
 
 ### 8.4 PR gate for feature branches
 
-See [[#Feature--current]] — the PR gate is the standard path for all feature branches pushed to remote. Always create a PR before merging to current.
+See \[[#Feature--current]\] — the PR gate is the standard path for all feature branches pushed to remote. Always create a PR before merging to current.
 
 **PR body contract** — the body documents *results and non-obvious decisions*,
 not a file-by-file changelog (recoverable from `git diff`). Cover:

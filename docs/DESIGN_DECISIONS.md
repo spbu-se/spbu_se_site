@@ -349,7 +349,7 @@ with no release artifacts or notes.
 
 ## [2026-08-21] Soft-delete account tombstone (fired-employee model)
 
-**Context**: Right-to-be-forgotten (152-ФЗ ст. 14 / GDPR Art. 17). Every owned-content table (`posts`, `theses`, `practice`, `post_votes`, `reviewer`, …) has a NOT NULL `user_id` FK with **no cascade**; a hard delete would break author attribution, `Staff` joins, and admin pages. Department decision ([[PRIVACY_COMPLIANCE.md#Decisions-needed-from-the-department]] #6): "someone fired from the department — the domain account is deleted, but work results stay."
+**Context**: Right-to-be-forgotten (152-ФЗ ст. 14 / GDPR Art. 17). Every owned-content table (`posts`, `theses`, `practice`, `post_votes`, `reviewer`, …) has a NOT NULL `user_id` FK with **no cascade**; a hard delete would break author attribution, `Staff` joins, and admin pages. Department decision (\[[PRIVACY_COMPLIANCE.md#Decisions-needed-from-the-department]\] #6): "someone fired from the department — the domain account is deleted, but work results stay."
 
 **Decision**: Soft-delete via `Users.deleted` + `/profile/delete` (POST, `@login_required`, CSRF-protected): flag the row, purge identifying login data (`email`, `password_hash`, `vk_id`/`fb_id`/`google_id`, `avatar_uri`, `how_to_contact`, `role`), keep `first_name`/`middle_name`/`last_name` so published-content attribution survives. `load_user()` returns `None` for deleted rows. Content rows are untouched.
 
@@ -474,7 +474,7 @@ documented state, not an accidental zombie.
 **Consequences**: `[[DEVELOPMENT_PROCESS.md#Code-Review-Checklist]]` gains a "Feature removal sweep"
 checklist item (UI in all templates → routes → config → deps → schema →
 sitemap/og/CSP → docs, and record the decision here); `docs/PRIVACY_COMPLIANCE.md`
-[[PRIVACY_COMPLIANCE.md#Third-party-services]] OAuth row corrected; retro entry added (2026-08-31 batch, PR #270).
+\[[PRIVACY_COMPLIANCE.md#Third-party-services]\] OAuth row corrected; retro entry added (2026-08-31 batch, PR #270).
 
 ## [2026-09-07] One-off Semgrep deep scan caught a real XSS regression the guardrail missed
 

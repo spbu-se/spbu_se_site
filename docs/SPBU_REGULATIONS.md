@@ -30,7 +30,7 @@ Covers: the assessed clauses and their status, the decisions behind each status.
 1. **Topbar removed (v2026.08.31)** — the topbar service is retired by СПбГУ (`loader.js` → 410 Gone). §3.1.9 only mandates a header link to spbu.ru, which the navbar logo already provides, so removal is compliant. CSP entries dropped from `script-src`/`connect-src`; preconnect/dns-prefetch + injector removed from all 4 bases.
 1. **Accessibility mode implemented (v2026.08.31)** — chosen over a global font bump so normal visitors keep the current design. Toggle link in the footer (next to cookie settings), state persisted in `localStorage` (`se-a11y-mode`), applied pre-paint by a nonce head script to avoid a flash. See `src/static/assets/css/a11y.css`.
 1. **Copyright plan B (v2026.08.31)** — the required «© Санкт-Петербургский государственный университет, {{ current_year }}» line is added above the existing department line; both use the `{{ current_year }}` template global, so `docs/RELEASE_CHECKLIST.md` A1 note stays accurate.
-1. **Tag manager deferred** — §3.1.12 is the only open gap. It conflicts with the privacy posture (consent-gating analytics is hard to reconcile with a mandated tag-manager container); postponed until the [[PRIVACY_COMPLIANCE.md#FULL-COMPLIANCE-IMPLEMENTATION]] full-compliance plan is designed. See `TODO.md`.
+1. **Tag manager deferred** — §3.1.12 is the only open gap. It conflicts with the privacy posture (consent-gating analytics is hard to reconcile with a mandated tag-manager container); postponed until the \[[PRIVACY_COMPLIANCE.md#FULL-COMPLIANCE-IMPLEMENTATION]\] full-compliance plan is designed. See `TODO.md`.
 
 ## Related docs
 

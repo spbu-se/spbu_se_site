@@ -83,11 +83,12 @@ All cross-references use **wiki-links** (`[[file#Heading|display text]]`) instea
 **Why**: marksman LSP resolves wiki-links to go-to-definition and diagnostics. Section numbers drift when sections are reordered; heading anchors are stable. MCP `get_section("Upstream re-sync")` works on heading text directly.
 
 **Rules**:
+
 1. Every heading must be **unique** within its file (marksman and MCP both require this).
-2. Display text can repeat the heading or abbreviate — kept readable.
-3. Same-file refs omit the filename: `[[#Pre-push-gate]]`, not `[[DEVELOPMENT_PROCESS.md#Pre-push-gate]]`.
-4. A pre-push check (`grep -rn '§[0-9]' docs/`) must return zero — any remaining hardcoded section number is a fault.
-5. Headings may keep numbers for visual order (e.g. `## 0.6 Pre-push gate`) — the anchor still resolves as `#06-pre-push-gate`. If you strip the number, the anchor becomes `#pre-push-gate`. Either is valid as long as refs match the heading anchor.
+1. Display text can repeat the heading or abbreviate — kept readable.
+1. Same-file refs omit the filename: `[[#Pre-push-gate]]`, not `[[DEVELOPMENT_PROCESS.md#Pre-push-gate]]`.
+1. A pre-push check (`grep -rn '§[0-9]' docs/`) must return zero — any remaining hardcoded section number is a fault.
+1. Headings may keep numbers for visual order (e.g. `## 0.6 Pre-push gate`) — the anchor still resolves as `#06-pre-push-gate`. If you strip the number, the anchor becomes `#pre-push-gate`. Either is valid as long as refs match the heading anchor.
 
 ### Lean-instruction-doc & consistency doctrine (AGENTS.md / CLAUDE.md)
 
@@ -95,7 +96,7 @@ All cross-references use **wiki-links** (`[[file#Heading|display text]]`) instea
 
 Consistency is **two-way**: **(i)** AGENTS content not derivable from docs = fault; **(ii)** a prescriptive rule in docs without an AGENTS retrieval cue at its decision boundary = fault (add the cue). Either direction failing is a process fault (see `AGENTS.md` Process improvement).
 
-AGENTS leanness and the two-way contract are enforced by an **occasional docs-drift re-audit** (full re-read + trim) — run alongside the mandatory `retrospective-analysis` [[#Bloat-audit|bloat audit]] at docs-branch finalization. When a new rule is to be remembered, first find its best canonical home (single source, general form) — never stash memory as AGENTS prose.
+AGENTS leanness and the two-way contract are enforced by an **occasional docs-drift re-audit** (full re-read + trim) — run alongside the mandatory `retrospective-analysis` \[[#Bloat-audit|bloat audit]\] at docs-branch finalization. When a new rule is to be remembered, first find its best canonical home (single source, general form) — never stash memory as AGENTS prose.
 
 ### Root docs
 
@@ -390,14 +391,14 @@ Recurring failures identified through retrospective analysis. Each anti-pattern 
 
 | Anti-pattern | Example from retros | Guard |
 |-------------|--------------------|-------|
-| **Scope collision** | Created `doc/` when `docs/` already existed — 8 duplicate files, 60+ stale cross-references | Pre-creation directory audit ([[#Doc-Creation-Rules]]) |
-| **Stale references** | README and cross-references still pointed to `doc/` after rename to `docs/` | Cross-reference scan at every gate ([[#Integrity|§Integrity check #5]]) |
-| **Facts in AI instructions** | GPG signoff rule duplicated across 4 files (GIT_FLOW.md, TOOLING.md, .tooling.md, CLAUDE.md) instead of one canonical source | Canonical source discipline ([[#Canonical-Source-Discipline]]) |
-| **Step-number drift** | AI_AGENTS.md used hardcoded 1-9 which broke when sections were reordered | Flag hardcoded `§N` ([[#Integrity|§Integrity check #2]]) |
-| **Completed items as open** | "Fixed P0 bug" still listed in TODO.md as open task | Past-tense detection in TODO.md ([[#Integrity|§Integrity check #4]]) |
-| **Path reference rot** | Retrospective-analysis skill pointed to `.skills/retrospective-analysis/README.md` which did not exist | Pre-commit or gate check for path existence ([[#Integrity|§Integrity check #3]]) |
-| **Over-engineering** | Creating skills/docs for problems that don't exist yet — appeared in 3 consecutive retros | "Check existing first" guard in planning phase ([[DEVELOPMENT_PROCESS.md#Check-Existing-First]]) |
-| **Code-only fixes** | Windows SQLite URI fix applied to conftest.py but never documented as a quirk — rediscovered in next session | Extract reusable techniques (see [[AI_AGENTS.md#Skills]]) |
+| **Scope collision** | Created `doc/` when `docs/` already existed — 8 duplicate files, 60+ stale cross-references | Pre-creation directory audit (\[[#Doc-Creation-Rules]\]) |
+| **Stale references** | README and cross-references still pointed to `doc/` after rename to `docs/` | Cross-reference scan at every gate (\[[#Integrity|§Integrity check #5]\]) |
+| **Facts in AI instructions** | GPG signoff rule duplicated across 4 files (GIT_FLOW.md, TOOLING.md, .tooling.md, CLAUDE.md) instead of one canonical source | Canonical source discipline (\[[#Canonical-Source-Discipline]\]) |
+| **Step-number drift** | AI_AGENTS.md used hardcoded 1-9 which broke when sections were reordered | Flag hardcoded `§N` (\[[#Integrity|§Integrity check #2]\]) |
+| **Completed items as open** | "Fixed P0 bug" still listed in TODO.md as open task | Past-tense detection in TODO.md (\[[#Integrity|§Integrity check #4]\]) |
+| **Path reference rot** | Retrospective-analysis skill pointed to `.skills/retrospective-analysis/README.md` which did not exist | Pre-commit or gate check for path existence (\[[#Integrity|§Integrity check #3]\]) |
+| **Over-engineering** | Creating skills/docs for problems that don't exist yet — appeared in 3 consecutive retros | "Check existing first" guard in planning phase (\[[DEVELOPMENT_PROCESS.md#Check-Existing-First]\]) |
+| **Code-only fixes** | Windows SQLite URI fix applied to conftest.py but never documented as a quirk — rediscovered in next session | Extract reusable techniques (see \[[AI_AGENTS.md#Skills]\]) |
 
 ## 10. SPDX / Licensing Policy
 
