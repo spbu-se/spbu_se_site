@@ -22,7 +22,7 @@ Not doc health (see `.skills/docs-audit/`), not process improvement (see `.skill
 
 ## Workflow
 
-### 1. Secrets in logs
+### Secrets in logs
 
 Scan CI output and application logs for values that look like secrets (API keys, tokens, passwords, `urandom` output):
 
@@ -42,7 +42,7 @@ Reference: `docs/CODE_ISSUES.md` SECRET_KEY_THESIS entry (removed 2026-09 as FIX
 
 > > > > > > > chore: fix code-audit stale ref + add TODO.md to Dependencies
 
-### 2. Redirect validation
+### Redirect validation
 
 Scan source for unvalidated `next`-parameter redirects:
 
@@ -55,7 +55,7 @@ Verify `next` URL is validated (relative URL check, whitelist, or `url_parse`). 
 
 Reference: `docs/CODE_ISSUES.md` P2 redirect entry (removed 2026-09 as FIXED — check P2 section for any open redirect issues).
 
-### 3. Deprecation scanning
+### Deprecation scanning
 
 Check each P4 entry in `docs/CODE_ISSUES.md` against current dependency versions:
 
@@ -65,7 +65,7 @@ uv run python -c "import flask_admin; print(flask_admin.__version__)"
 
 If a deprecation is now breaking (e.g., Flask-Admin dropped `db.session`), escalate priority from P4 to P0/P1 and add to `TODO.md` backlog.
 
-### 4. Bug inventory freshness
+### Bug inventory freshness
 
 Walk all `[OPEN]` entries in `docs/CODE_ISSUES.md`. For each:
 
@@ -76,7 +76,7 @@ Walk all `[OPEN]` entries in `docs/CODE_ISSUES.md`. For each:
 
 Nothing is silently dropped. Every status change is logged.
 
-### 5. Test health
+### Test health
 
 Check for xpassed tests (expected to fail but now passing):
 
@@ -93,7 +93,7 @@ For each xpassed test:
 
 Reference: `[[TESTING.md#Xpassed-Tests]]`.
 
-### 6. Crash safety
+### Crash safety
 
 Scan for patterns that cause 500 errors at runtime:
 
@@ -118,7 +118,7 @@ Scan for patterns that cause 500 errors at runtime:
 
 Report findings to `TODO.md` backlog. Reference fixed patterns from session 4 (`flask_se_review.py:215` fix).
 
-### 7. File safety
+### File safety
 
 Scan for file-handling patterns that could hurt users or the product:
 
@@ -132,11 +132,11 @@ Scan for file-handling patterns that could hurt users or the product:
 
 Report all findings to `TODO.md` backlog. Existing mitigations (extension checks in practice routes) are noted but not assumed complete.
 
-### 8. Repo review
+### Repo review
 
 Load and run `docs/REPO_REVIEW.md` checklist. Report any unchecked items not yet addressed. If new findings from sections 1-7 suggest checklist additions, propose them.
 
-### 9. Reporting
+### Reporting
 
 Output a table:
 
@@ -154,7 +154,7 @@ Output a table:
 
 Append new entries to `docs/CODE_ISSUES.md` for findings not yet tracked. Cross-reference `TODO.md` backlog entries to the relevant `CODE_ISSUES.md` item.
 
-### 10. Universal-safe transformations — use replaceAll
+### Universal-safe transformations — use replaceAll
 
 When a fix is universally safe (applies the same transformation everywhere without risk), use `replaceAll` instead of context-matching individual sites.
 
@@ -162,7 +162,7 @@ When a fix is universally safe (applies the same transformation everywhere witho
 
 **Signal**: If the transformation is equivalent to adding a default (`or 0`, `or ""`, `or []`) or wrapping in a no-op call, it's safe to `replaceAll`. If it changes behavior (adds/removes logic, changes types, renames), match individually.
 
-### 11. SPbU regulation spot-check
+### SPbU regulation spot-check
 
 After any session touching 5+ source files, re-verify the site still satisfies the СПбГУ website regulation clauses that affect the UI — canonical source `docs/SPBU_REGULATIONS.md`:
 

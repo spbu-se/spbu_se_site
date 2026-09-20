@@ -43,7 +43,7 @@ If the user later requests a **full retro** for a session that already has a lig
 
 ## Full workflow
 
-### 1. Collect changes
+### Collect changes
 
 ```bash
 git log --oneline --since="<last-merge-or-session-start>"
@@ -51,7 +51,7 @@ git log --oneline --since="<last-merge-or-session-start>"
 
 List all files touched and categorize: source code, tests, docs, config, tooling.
 
-### 2. Trace provenance per change
+### Trace provenance per change
 
 For each change, ask:
 
@@ -63,7 +63,7 @@ For each change, ask:
 | Could this rule have been automated? | It was left at doc-only — **classify as missing config** |
 | Was knowledge imported from another project? | **Check for cross-project leaks** — verify no private references, proprietary names, or source-repo mentions leaked into docs. Document adaptation decisions. |
 
-### 3. Classify the gap
+### Classify the gap
 
 | Gap type | Root cause | Fix action | Also check skill? |
 | ---------------------- | ------------------------------------------ | ---------------------------------------------------- | ------------------------------- |
@@ -74,7 +74,7 @@ For each change, ask:
 | **Pattern recurrence** | Same gap appeared in a previous retro | Previous fix was insufficient — revisit and escalate | Was the skill updated last time? |
 | **Value contradiction** | Practice contradicts a Strategic Priority from the Project Doctrine (see `[[DEVELOPMENT_PROCESS.md#Process-Identity]]` → Project Doctrine) | Flag to user — do NOT fix autonomously. The user decides whether to adjust the value or change the practice. | No — values are user-domain |
 
-### 4. Check for pattern recurrence
+### Check for pattern recurrence
 
 Scan previous retrospective entries in the relevant target document (see \[[#Classify-target-document]\]). If this gap or a similar one was already fixed, the fix was incomplete — propose a stronger solution.
 
@@ -88,7 +88,7 @@ Scan previous retrospective entries in the relevant target document (see \[[#Cla
 
 A fix that stays at the same layer across recurrences is not escalated — it's repeated. The layer must increase with each recurrence.
 
-### 5. Classify target document
+### Classify target document
 
 All retrospective entries go to `docs/RETROSPECTIVES.md`. Depending on the gap's area, the entry may also cross-reference:
 
@@ -139,7 +139,7 @@ Examples of what to extract:
 
 **Check after extraction**: If a future session encounters the same problem, would a `grep` or `AI_AGENT_EXPERIENCE.md` search find the fix? If not, improve the entry's discoverability (better section title, more keywords, cross-reference from related docs).
 
-### 6. Suggest improvements
+### Suggest improvements
 
 Present findings in a structured table:
 
@@ -150,7 +150,7 @@ Present findings in a structured table:
 
 Include concrete file paths and exact changes needed.
 
-### 7. Store lessons
+### Store lessons
 
 Append a structured retrospective entry to `docs/RETROSPECTIVES.md`.
 **Every classified gap must have a corresponding retrospective entry** — even if the fix was already applied directly (code changes, doc updates, config changes). The entry records why the gap existed, not just what was done about it.
@@ -167,7 +167,7 @@ If no existing heading matches, create a new one: `### Retrospective — <title>
 **Fix**: <what was done to prevent recurrence>
 ```
 
-### 8. Self-improve retrospective
+### Self-improve retrospective
 
 The retrospective itself is a tool. Every time it runs, check if it revealed a gap in the retrospective process:
 
@@ -230,7 +230,7 @@ For every "yes" in \[[#Session-efficiency-audit]\], write a concrete prevention 
 
 Append an entry to the `## Self-improvement log` for each new prevention rule generated.
 
-### 9. Self-improve the skill
+### Self-improve the skill
 
 After completing the retrospective, check if the process revealed gaps in THIS skill document:
 
@@ -243,7 +243,7 @@ After completing the retrospective, check if the process revealed gaps in THIS s
 
 The retrospective skill must model the behavior it enforces. If it asks "did you load skills?" it must be loadable. If it asks "did you check existing tools?" it must first check if the `skill` tool itself works.
 
-### 10. Review retro skill against docs
+### Review retro skill against docs
 
 Since the retro skill is derived from docs, every full retro audits the retro skill itself:
 

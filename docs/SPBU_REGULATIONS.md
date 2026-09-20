@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "SPbU Regulations Compliance" tags: ["compliance", "spbu", "regulations"] scope: operator
+
 # SPbU Website Regulations
 
 <!-- encoding: utf-8 -->

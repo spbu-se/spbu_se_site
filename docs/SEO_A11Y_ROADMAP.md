@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "SEO & Accessibility Roadmap" tags: ["seo", "a11y", "roadmap"] scope: developer
+
 # SEO, Crawler/Agent & Accessibility Roadmap
 
 <!-- encoding: utf-8 -->
@@ -6,7 +10,7 @@ Tracks agreed decisions, audit findings, and deferred ideas for making the site 
 
 Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-rendered lists, and deferred accessibility/perf work. Does not cover: the accessibility implementation itself (deferred), architecture — see `docs/ARCHITECTURE.md`, route registry — see `docs/API_REFERENCE.md`.
 
-## 1. Decisions (agreed 2026-08-13)
+## Decisions (agreed 2026-08-13)
 
 | # | Decision | Where |
 |---|----------|-------|
@@ -26,7 +30,7 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 | D14 | Section directory indexes `/bachelor/`, `/master/`, `/department/`, `/students/` → 301 to the section's representative page (directory-traversing agents no longer get 404). | `flask_se_static.py` `LEGACY_REDIRECTS` |
 | D15 | robots.txt keeps `*` allow-all; explicit AI-crawler groups **not** added — a specific `User-agent:` group would override `*` for that bot, so each would need to repeat the sensitive disallow list; `*` already covers AI crawlers. | `src/static/robots.txt` |
 
-## 2. Findings (audit 2026-08-13)
+## Findings (audit 2026-08-13)
 
 - `/theses.html` ships an empty `#ThesisList`; all content via `fetch('fetch_theses?...')` (`se_scripts.js:59,134,182`); same for diplomas themes + thesis-review list.
 - **Verified NON-issue (audit false-positive, corrected 2026-08-13)**: initial audit flagged 4 "empty `<title>`" templates (`nooffer.html`, `scholarships/9.html`, `scholarships/10.html`, `theses_tmp.html`) — all actually render proper titles (multiline blocks). Only `theses_tmp.html` (admin temp-archive page) warrants `noindex` since it is internal-only and already sitemap-excluded.
@@ -39,7 +43,7 @@ Covers: metadata/OG decisions, robots/sitemap policy, JSON-LD/llms.txt, server-r
 - ~~GTM asymmetry: active in `base_light`, commented in `base_dark` (both have noscript iframe).~~ ✅ **Resolved v2026.08.20** (`feat/remove-gtm-add-metrica`): GTM removed from all 4 bases; Yandex Metrica is the only analytics provider, config-driven and dormant until a counter id is provisioned (see `docs/PRIVACY_COMPLIANCE.md`).
 - SSR makes pagination query URLs crawlable — robots disallows `fetch_*`; sitemap stays parameterless.
 
-## 3. Deferred ideas (return later — high value)
+## Deferred ideas (return later — high value)
 
 - WCAG 2.1 AA pass + optional `pytest-axe`/manual gate + `.skills/a11y-audit`.
 - **SRI for external scripts** — deferred: all external scripts (Yandex Metrica, Maps) are dynamically injected at runtime; SRI cannot verify dynamically created `<script>` elements. Self-hosted assets are already under `'self'` CSP. No action planned.
@@ -141,11 +145,11 @@ v2026.08.20 (`feat/remove-gtm-add-metrica`).
 - **EN variant + `hreflang`**: `html lang="ru"` is fixed today; a second language is a
   separate content project.
 
-## 4. Declined
+## Declined
 
 - None outright; everything above is deferred with a return path.
 
-## 5. Execution (each PR carries a mandatory RETROSPECTIVES entry)
+## Execution (each PR carries a mandatory RETROSPECTIVES entry)
 
 1. `feat/meta-audit` — titles, canonical sweep, OG fixes + parity + pre-rendered images, robots.txt, sitemap index, humans.txt. ✅ PR #208
 1. `feat/ssr-lists` — SSR theses/diplomas/thesis-review, JS double-fetch guard, `aria-live`. ✅ PR #209
@@ -154,11 +158,11 @@ v2026.08.20 (`feat/remove-gtm-add-metrica`).
 
 PRs are stacked: each new PR branches from the previous PR's branch; merged one-by-one in completion order.
 
-## 6. FAQ structured data decision
+## FAQ structured data decision
 
 The FAQ page (`frequently_asked_questions.html`) already carries complete, valid `FAQPage` microdata (19 Q&A pairs via `itemprop="mainEntity"`). It was **not** converted to JSON-LD: converting adds duplication risk with no SEO gain since the microdata already produces the rich result. JSON-LD was added only where no structured data existed (Organization, WebSite+SearchAction, Course, BreadcrumbList). Revisit if the FAQ markup is ever refactored.
 
-## 7. UX feedback pattern (flash messages)
+## UX feedback pattern (flash messages)
 
 **Context**: feedback was hand-rolled in ~18 templates with inconsistent behaviour. The password-recovery success banner (`src/templates/password_recovery.html`) was the worst case: shown optimistically before the request resolved, never auto-hidden, no close button, and identical on every press — so a user pressing "send link" again could not tell a new send from the old one (user report, 2026-09-10).
 

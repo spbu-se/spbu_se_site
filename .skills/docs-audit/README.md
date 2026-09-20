@@ -16,12 +16,12 @@ Not process improvement (see `.skills/retrospective-analysis/`).
 
 ## Workflow
 
-### 1. Config parity
+### Config parity
 
 Does every CI check have a matching pre-commit hook or manual step in `AGENTS.md` §Pre-flight checklist?
 Is every tool rule described in both doc AND enforced in config? → remove from doc, cross-reference config file.
 
-### 2. Cross-reference integrity
+### Cross-reference integrity
 
 - Scan all `.md` files for **hardcoded step numbers** (`§N`, `§N.M`, `step N`) → replace with section-title references
 - Check for **same rule in 2+ non-trivial docs** → pick canonical source, replace others with `See X.md §Y`
@@ -29,7 +29,7 @@ Is every tool rule described in both doc AND enforced in config? → remove from
 - Check `docs/DOCS.md` catalog: every `.md` file listed? All listed files still exist on disk?
 - Check **every cross-reference** (`see X.md`) still points to a valid file and section
 
-### 3. Scope discipline
+### Scope discipline
 
 - Every `.md` file has a **scope header** (first 5 lines matching `[[DOCS.md#Required-Structure]]` template: title, encoding, scope, covers, does-not-cover)
   - Check each doc specifically for `Covers:` and `Does not cover:` lines — verify no file is missing them
@@ -37,14 +37,14 @@ Is every tool rule described in both doc AND enforced in config? → remove from
 - No content violates its doc's stated scope (e.g., encoding commands in a doc about encoding policy, not in a tooling doc)
 - New rules placed in the **correct canonical doc**, not the closest one at hand
 
-### 4. Freshness
+### Freshness
 
 - **Hardcoded metrics**: test count, coverage %, file counts — verify against `pytest`, `coverage`, or `ls`
 - **Expired guardrails**: conditional constraints ("do X until Y") — check if condition Y is now met
 - **Stale statuses**: OPEN/FIXED/PENDING markers on bugs — check each against actual codebase state
 - **Documentation table**: any table enumerating project files, docs, or modules — count vs reality on disk
 
-### 5. Encoding
+### Encoding
 
 - Every source file (`.py`, `.md`, `.yaml`, `.json`, `.toml`, `.cfg`) has an encoding declaration — see `[[DOCS.md#Declarations]]`
 - No UTF-8 BOM (EF BB BF) in any file — CI catches this, but verify locally before push
@@ -53,7 +53,7 @@ Is every tool rule described in both doc AND enforced in config? → remove from
   (2026-09-18: a sweep fixed 38 of 44 `.py` files and missed the whole `flask_se_practice*.py` family — always run the completeness check after a bulk encoding fix)
 - Count markdown files with `<!-- encoding: utf-8 -->` declaration
 
-### 6. SPDX / licensing
+### SPDX / licensing
 
 - Every new or modified source file has an SPDX header matching the repo's `LICENSE` file
 - If `LICENSE` is missing, flag it

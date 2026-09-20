@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Development Process" tags: ["process", "workflow", "release"] scope: agent
+
 # Development Process
 
 <!-- encoding: utf-8 -->
@@ -75,7 +79,7 @@ Design decisions about deliberate deviations are recorded in `docs/DESIGN_DECISI
 
 Covers: planning, testing, linting, code review, release, dependencies, session lifecycle, workflow discipline. Does not cover: CLI commands, architecture design, AI tooling, version control — see `docs/GIT_FLOW.md`.
 
-## 0. CLI Quick Reference
+## Quick Reference
 
 ```bash
 uv sync                                       # install dependencies (dev + main)
@@ -88,7 +92,7 @@ uv run ruff format src/                       # format
 uv run python src/flask_se.py build               # build static site (Frozen-Flask)
 ```
 
-## 0.1 Doc-to-Code Sync
+## Doc-to-Code Sync
 
 When docs describe code that does not yet exist:
 
@@ -96,7 +100,7 @@ When docs describe code that does not yet exist:
 1. Implement in a `feat:` or `fix:` commit
 1. Run tests before merging
 
-## 0.5 Planning Phase
+## Planning Phase
 
 Before any implementation: enter **planning phase** (read-only analysis). Always:
 
@@ -116,7 +120,7 @@ Before any implementation: enter **planning phase** (read-only analysis). Always
 
 Planning phase is non-negotiable. Never jump to implementation without prior discussion.
 
-## 0.6 Workflow Discipline
+## Workflow Discipline
 
 ### Architecture first
 
@@ -254,7 +258,7 @@ Do not commit, stash, or proceed without user approval. This overrides all autom
 
 Every new file type should have an `.editorconfig` entry. Keep `.editorconfig` in sync with formatter configs (dprint, ruff).
 
-## 0.7 Session Lifecycle
+## Session Lifecycle
 
 ### Session start
 
@@ -311,22 +315,22 @@ Plan-state updates are a **mandatory part of agentic development**, not an end-o
 
 The full pre-flight checklists are in `AGENTS.md` (Pre-flight checklist). The push command reference is in `[[GIT_FLOW.md#CI-status]]` and `[[GIT_FLOW.md#Feature--current]]`.
 
-## 0.8 Skill Conventions
+## Skill Conventions
 
 Skills live in `.skills/<name>/README.md` (canonical). Per-vendor stubs in `.opencode/skills/`, `.claude/skills/`, `.agents/skills/`.
 Skills architecture (definition, delegation chain, extraction triggers, creation checklist, lifecycle, maintenance) is in `docs/AI_AGENTS.md` §Skills.
 
-## 0.9 New Artifact Checklist
+## New Artifact Checklist
 
 Before creating new files or directories, verify scope and existing overlap.
 
-## 0.10 Tool Source of Truth
+## Tool Source of Truth
 
 Python tools (ruff, pytest, mdformat, pre-commit) are installed via `uv` — managed in `pyproject.toml` `[dependency-groups]`. Non-Python tools (dprint, commitlint) are managed via pre-commit repo hooks. Never install linting/formatting tools globally — always use `uv run`.
 
 To upgrade a Python tool: bump the version in `pyproject.toml` → `uv lock` → commit. No pre-commit config update needed.
 
-## 0.11 Decision Enforcement
+## Decision Enforcement
 
 Every process rule is enforced at one of three layers:
 
@@ -338,7 +342,7 @@ Every process rule is enforced at one of three layers:
 
 When adding a new rule: enforce at the lowest possible layer. Only document (layer 3) what cannot be automated (layers 1-2). Add CI checks (layer 2) to verify layer-1 configs are honored.
 
-## 0.12 Tooling Parity
+## Tooling Parity
 
 Every CI check must have a corresponding local check that behaves identically.
 A CI check with no local equivalent, or a local check that silently passes while
@@ -377,7 +381,7 @@ For CI, use separate jobs with `needs: [...]` + `if: always()` so lint/type fail
 
 ### Diagnosis: pre-commit hook not catching what CI catches
 
-## 0.13 Visual QA Before Merge
+## Visual QA Before Merge
 
 Any PR that changes `src/templates/`, `src/static/assets/css/`, or any render
 logic must be visually verified before merge. CI checks syntax but cannot detect
@@ -416,7 +420,7 @@ If CI fails on a check that pre-commit should have caught:
 1. Does it work on one platform but not another?
 1. Fix the entry point so the local check matches the CI check exactly.
 
-## 0.13 Error triage
+## Error triage
 
 After every command that produces error output or a non-zero exit, ask:
 
@@ -425,23 +429,23 @@ After every command that produces error output or a non-zero exit, ask:
 - If yes (expected) → proceed, the error is a known path
 - If no (unexpected) → stop and investigate. Root cause first, fix second, skip third.
 
-## 0.14 Encoding Policy
+## Encoding Policy
 
 All source files must be UTF-8. Declare encoding at the top of every file.
 
-## 1. Version Control
+## Version Control
 
 See `docs/GIT_FLOW.md` — branching, merge strategy, commit discipline, signoff policy.
 
-## 2. Retrospectives
+## Retrospectives
 
 See `docs/RETROSPECTIVES.md` — historical record of process gaps and fixes.
 
-## 3. Testing
+## Testing
 
 See `docs/TESTING.md` for testing discipline, coverage targets, xfail policy, and long-term gaps.
 
-## 4. Styling & Linting
+## Styling & Linting
 
 ```bash
 ruff check src/
@@ -455,7 +459,7 @@ The mdformat pre-commit hook uses **explicit paths** matching the CI workflow:
 `docs/ AGENTS.md CLAUDE.md README.md TODO.md .skills/ .opencode/commands/ .claude/ .agents/`.
 Never use `mdformat .` — on Windows it traverses `.venv/` which contains vendor `.md` files with non-UTF-8 bytes, causing a silent crash.
 
-## 4.5 Code Review Checklist
+## Code Review Checklist
 
 Every item must pass before merge to `current`:
 
@@ -481,7 +485,7 @@ Every item must pass before merge to `current`:
 | 17 | **Deprecation scan** | Check each P4 entry in `docs/CODE_ISSUES.md` against current dependency versions — escalate if now breaking |
 | 18 | **Feature removal sweep** | When a feature is removed/abandoned, sweep the whole surface: its UI in **all** templates (not only the page where it was noticed), routes, config, deps, DB schema, sitemap/og/CSP exclusions, and docs (compliance tables, catalog). Record the decision in `docs/DESIGN_DECISIONS.md`. Pattern origin: Google-SSO removal (2026-07-01) swept only `login.html`, leaving a day-one dead Google button on `register_basic.html` and a fully live backend OAuth path — see `docs/RETROSPECTIVES.md` 2026-08-31 |
 
-## 4.6 Security alerts (dedicated PR, before release)
+## Security alerts (dedicated PR, before release)
 
 Security is a priority above feature work. Triage and fix GitHub security alerts
 in a **dedicated PR** (never bundled with a feature or a cleanup PR), and land
@@ -506,7 +510,7 @@ security cleanup **before** cutting a release. The release gate is
    something). An open dependency PR at release time means the release ships with
    a known pending update.
 
-## 5. Dependencies
+## Dependencies
 
 `pyproject.toml` is the dependency source of truth; the committed `uv.lock` is
 the deploy lock. Dev, CI, and prod all install with uv (see `docs/DESIGN_DECISIONS.md`
@@ -526,7 +530,7 @@ direct imports of its transitive packages first (removing `flask-migrate`
 silently dropped `flask-sqlalchemy`/`sqlalchemy`, both imported directly;
 `uv sync --frozen` on the prod path now surfaces this at install time).
 
-## 6. Release
+## Release
 
 Versioning is date-based — every release is tagged `vYYYY.MM.DD` (see
 `docs/GIT_FLOW.md` §Versioning). Releasing:
@@ -569,7 +573,7 @@ Versioning is date-based — every release is tagged `vYYYY.MM.DD` (see
 
 For public deployment, consider: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CHANGELOG.md`, `CITATION.cff` (academic citation metadata), `.github/FUNDING.yml` (funding channels).
 
-## 7. Process Improvements Backlog
+## Process Improvements Backlog
 
 Acknowledged process improvement ideas that are not yet implemented. These are process-debt items, not project tasks — they live here rather than `TODO.md`.
 

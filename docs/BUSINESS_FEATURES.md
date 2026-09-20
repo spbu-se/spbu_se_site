@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Business Features" tags: ["business", "features"] scope: developer
+
 # Business Features — User Workflows
 
 <!-- encoding: utf-8 -->
@@ -30,7 +34,7 @@ Prior to 2026-09-06 the site had no canonical statement of *which user journeys 
 
 ## Journeys
 
-### 1. Propose a theme (faculty, external partner, student)
+### Propose a theme (faculty, external partner, student)
 
 Authenticated user turns a research/industry idea into a catalog theme.
 
@@ -44,7 +48,7 @@ Authenticated user turns a research/industry idea into a catalog theme.
 
 Author-facing e-mails ("тема отклонена" / "необходимо доработать") link to `user_themes.html`.
 
-### 2. Review and accept themes (department reviewer, role ≥ 3)
+### Review and accept themes (department reviewer, role ≥ 3)
 
 The acceptance gate of the theme pipeline.
 
@@ -76,7 +80,7 @@ full edit of approved themes incl. `levels` multi-select and status filter
 | Manage companies shown as theme sources | `/admin/companies/` | Full CRUD (name, logo uri, status); list search by name (#282) |
 | Delete | `POST /admin/companies/delete/` (id) | Deletion is blocked with an error message while a company is still referenced by a theme or a reviewer — no orphan FKs (#282) |
 
-### 3. Practice student flow (choose/edit a practice topic)
+### Practice student flow (choose/edit a practice topic)
 
 | Step | Entry route | Useful result (UX contract) |
 |---|---|---|
@@ -85,7 +89,7 @@ full edit of approved themes incl. `levels` multi-select and status filter
 | Edit thesis topic | `GET/POST /practice/edit_theme/` | Student edits the recorded topic |
 | Reports/goals/defense | `GET/POST /practice/{goals_tasks,workflow,add_new_report,preparation_for_defense}/`, `GET /practice/defense/` | Weekly report loop and defense materials |
 
-### 4. Thesis (ВКР) peer review (`/review/*`)
+### Thesis (ВКР) peer review (`/review/*`)
 
 | Step | Entry route | Useful result (UX contract) |
 |---|---|---|

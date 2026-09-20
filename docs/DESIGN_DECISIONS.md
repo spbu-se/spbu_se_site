@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Design Decisions" tags: ["design", "decisions"] scope: developer
+
 # Design Decisions
 
 <!-- encoding: utf-8 -->

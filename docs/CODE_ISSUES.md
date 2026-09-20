@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Code Issues" tags: ["bugs", "issues"] scope: developer
+
 # Code Issues Discovered During Test Coverage
 
 <!-- encoding: utf-8 -->

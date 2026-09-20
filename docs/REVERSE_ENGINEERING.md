@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Reverse Engineering" tags: ["re", "methodology"] scope: agent
+
 # Reverse Engineering
 
 <!-- encoding: utf-8 -->

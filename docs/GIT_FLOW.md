@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Git Flow" tags: ["git", "workflow"] scope: agent
+
 # Git Flow
 
 <!-- encoding: utf-8 -->
@@ -6,9 +10,9 @@ Version control workflow, branching model, commit conventions, and guardrails fo
 
 Covers: branching, merge strategy, commit discipline, rebase policy, signoff policy, versioning. Does not cover: planning phase, development process, code review — see `docs/DEVELOPMENT_PROCESS.md`. Retrospectives — see `docs/RETROSPECTIVES.md`.
 
-## 1. Branching
+## Branching
 
-### 1.1 Prefixes
+### Prefixes
 
 | Prefix | Purpose | Merges to | Lifecycle |
 |--------|---------|-----------|-----------|
@@ -23,19 +27,19 @@ Covers: branching, merge strategy, commit discipline, rebase policy, signoff pol
 | `staging-auto-*` | Auto-mode scratch space | current (squash) | Squash-merged with clean feature-grouped commits |
 | `experiment/` | Throwaway ideas | never | `git branch -D` |
 
-### 1.2 Rules
+### Rules
 
 - **Branch from `upstream/current`** — always. `hotfix/` branches from `current` too, but merges via the direct lane (\[[#Hotfix--current-direct-lane]\]) instead of a PR.
 - **Dirty tree guard** — before `git checkout -b`, commit or stash all working tree changes. Uncommitted edits silently leak into the wrong commits.
 - **Auto-branch naming** — in unattended mode: `git checkout -b staging-auto-<UTC-timestamp> origin/current`.
 
-### 1.3 Legacy staging
+### Legacy staging
 
 Prior to 2026-09 this project used a two-branch model (feature → staging → current). `origin/staging` still exists with 79 orphan commits. No new work branches from staging.
 
-## 2. Merge Strategy
+## Merge Strategy
 
-### 2.1 Feature → current
+### Feature → current
 
 **Why**: Squash-merge keeps `current` history linear and readable — one commit per feature, easy to review and revert. This aligns with [Strategic Priority: Low effort] and [Strategic Priority: Clean history].
 
@@ -70,7 +74,7 @@ without one, add the retro as the last commit and update the PR description. See
 
 **Never continue on a squash-merged branch without explicit user instruction**. After `gh pr merge --squash` to `current`, the branch is consumed. Any further work must either start a new branch or be explicitly approved — squash-merge creates a different commit tree, and git cannot cleanly merge subsequent changes.
 
-### 2.2 Hotfix → current (direct lane)
+### Hotfix → current (direct lane)
 
 **Why**: Production-blocking bugs must reach production immediately — aligns with [Strategic Priority: Zero bugs]. The debt log documents the quality tradeoff: speed now, backfill later.
 
@@ -106,7 +110,7 @@ Log debt in `TODO.md`:
 [HOTFIX_DEBT] Review origin of hotfix/<name>, then backfill docs, expand test coverage, and verify the fix is complete
 ```
 
-### 2.3 Only signed, verifiable commits and tags on `current`
+### Only signed, verifiable commits and tags on `current`
 
 **Rule**: every commit and tag that lands on `current` must be **signed and
 verifiable** — a commit whose GitHub verification is not `true`/`valid` is a
@@ -143,15 +147,15 @@ committed lock sync that bypassed the squash lane. The 268 older unsigned
 commits in history predate this rule and are left as-is (never rewrite public
 history); the rule is going-forward.
 
-### 2.4 Staging is legacy
+### Staging is legacy
 
 Staging is never deleted, but it is no longer used. It was the integration branch in the two-branch model (feature → staging → current); since 2026-09 the project is single-branch — features merge straight to `current` via PR squash-merge (\[[#Feature--current]\]). `origin/staging` still exists with 79 orphan commits; no new work branches from it and no merges target it.
 
 **Quality gate**: Feature → current (tests pass via PR CI; full verification per `[[DEVELOPMENT_PROCESS.md#Code-Review-Checklist]]`).
 
-## 3. Commit Discipline
+## Commit Discipline
 
-### 3.1 Staging discipline
+### Staging discipline
 
 **Why**: Explicit staging prevents accidental commits of build artifacts and generated files — these pollute history and create noise in blame and review. Keeping them out from the start avoids later cleanup cost.
 
@@ -164,7 +168,7 @@ git add <file1> <file2>
 git diff --cached --name-only
 ```
 
-### 3.2 Adding a new tool
+### Adding a new tool
 
 When introducing a linter, formatter, or build tool that produces files:
 
@@ -174,7 +178,7 @@ When introducing a linter, formatter, or build tool that produces files:
 
 **Default pattern**: `git check-ignore <path>` should return a rule. If it doesn't, the artifact is not protected.
 
-### 3.3 Rescue
+### Rescue
 
 **Why**: Accidents happen. A documented rescue pattern saves debugging time and prevents further corruption (like accidentally committing the fix instead of removing the artifact). This aligns with [Strategic Priority: Low effort].
 
@@ -189,7 +193,7 @@ git add .gitignore
 git commit -m "chore: remove <artifact> from tracking"
 ```
 
-### 3.4 Branch prefix → commit type
+### Branch prefix → commit type
 
 | Branch prefix | Commit type |
 |---|---|
@@ -202,7 +206,7 @@ git commit -m "chore: remove <artifact> from tracking"
 | `ci/` | `ci:` |
 | `chore/` | `chore:` |
 
-### 3.5 Linter-only commits
+### Linter-only commits
 
 **Why**: Formatting-only changes are mechanical — they carry no behavioral risk and blocking the author for review wastes time. This aligns with [Strategic Priority: Low effort].
 
@@ -210,7 +214,7 @@ git commit -m "chore: remove <artifact> from tracking"
 
 **How**: After such a commit lands on staging, add its hash to `.git-blame-ignore-revs` (create if missing). Run `git blame --ignore-revs-file .git-blame-ignore-revs` to skip formatting noise.
 
-## 4. Signoff Policy
+## Signoff Policy
 
 | Merge type | Signoff | Why |
 |-----------|---------|-----|
@@ -223,13 +227,13 @@ git commit -m "chore: remove <artifact> from tracking"
 
 **Guardrail**: signoff policy is enforced via per-command flags, not global git config. Never set `commit.gpgsign` globally — automation branches must not trigger keylocker dialogs.
 
-## 5. Rebase Policy
+## Rebase Policy
 
 - **When allowed**: feature branches only, pre-stage only, solo branches only.
 - **How**: use safe force-push (see git documentation for the correct flag — never bare `--force`).
 - **When recommended**: if a stale branch has 10+ commits or 5+ file conflicts, rebasing onto staging before squash-merging turns a single huge conflict resolution into manageable per-commit steps.
 
-## 6. Stale Branch Audit
+## Stale Branch Audit
 
 **Why**: Stale branches accumulate and create confusion — which branches are active? which were abandoned? Cleaning after each merge keeps the branch list trustworthy and reduces cognitive load. This aligns with [Strategic Priority: Low effort].
 
@@ -248,7 +252,7 @@ git branch -r --no-merged origin/current
 git branch -r --no-merged origin/staging
 ```
 
-## 7. Versioning
+## Versioning
 
 Date-based versions: every release is tagged `vYYYY.MM.DD` (zero-filled, e.g.
 `v2025.09.09`, `v2026.08.08`). Date versions are inherently ordered and
@@ -278,15 +282,15 @@ never reaches production.
 If a tag already exists and must be re-created (e.g. a mis-tag), delete it first:
 `git tag -d vYYYY.MM.DD` and `git push <upstream> --delete vYYYY.MM.DD`.
 
-## 8. GitHub Integration
+## GitHub Integration
 
-### 8.1 Branch protection (aspirational)
+### Branch protection (aspirational)
 
 **Why**: Prevents accidental pushes to `current` and ensures CI quality gates are enforced before production merges. This aligns with [Strategic Priority: Robust] — no bypass of the feature→current gate.
 
 **What**: Protect `current` from direct pushes and enforce status checks. Requires repo admin access.
 
-### 8.2 CI status
+### status
 
 **Why**: Fast CI feedback reduces debugging cost — catching a failure seconds after push is cheaper than finding it hours later. This aligns with [Strategic Priority: Low effort].
 
@@ -300,7 +304,7 @@ gh run view <run-id> --log-failed
 gh run watch <run-id>
 ```
 
-### 8.3 Pre-merge refresh
+### Pre-merge refresh
 
 **Why**: `uv.lock` is the deploy lock — if it drifts from `pyproject.toml`, `uv sync --frozen` fails and blocks deploy. Pre-push and CI check parity, so verifying locally saves a cycle.
 
@@ -310,7 +314,7 @@ gh run watch <run-id>
 uv lock --check
 ```
 
-### 8.4 PR gate for feature branches
+### PR gate for feature branches
 
 See \[[#Feature--current]\] — the PR gate is the standard path for all feature branches pushed to remote. Always create a PR before merging to current.
 
@@ -329,7 +333,7 @@ The squash-merge body (feature → staging) carries this information forward.
 
 Wrap-up protocol is in `[[DEVELOPMENT_PROCESS.md#Session-Lifecycle]]` — includes DESIGN_DECISIONS.md and AI_AGENT_EXPERIENCE.md updates, docs-review for drift, self-improvement check, and the **mandatory session retrospective** (every PR must carry a `docs/RETROSPECTIVES.md` entry; if missing, add it as the last commit and update the PR description).
 
-### 8.5 Fork workflow (contributions to upstream)
+### Fork workflow (contributions to upstream)
 
 **When**: Contributing to the canonical repo (`spbu-se/spbu_se_site`) from a fork (`iakov/spbu_se_site`).
 

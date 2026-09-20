@@ -19,7 +19,7 @@ Does NOT cover: project-specific test structure, individual test cases, coverage
 
 ## Fixture patterns
 
-### 1. Flask app factory + config overrides
+### Flask app factory + config overrides
 
 The app uses `create_app(config_overrides=None, start_scheduler=None)` in `flask_se.py`; the module-level `app = create_app()` singleton keeps `from flask_se import app` working. To build a differently-configured instance without import-time monkeypatching:
 
@@ -30,7 +30,7 @@ app = create_app(config_overrides={"SQLALCHEMY_DATABASE_URI": "sqlite:///..."})
 
 Prefer `config_overrides` over patching `flask_se_config` module globals. The one remaining global patch in `tests/conftest.py` (`flask_se_config.SQLITE_DATABASE_*`) exists only because `init_db()` reads those globals directly (backup path), not because of app construction.
 
-### 2. Auth bypass fixture (passwordless login)
+### Auth bypass fixture (passwordless login)
 
 When password hashing is unavailable (e.g., scrypt not in Python 3.13 OpenSSL build) or you want to skip login POST overhead:
 
@@ -48,11 +48,11 @@ def logged_client(seeded_client):
     return seeded_client
 ```
 
-### 3. FTS5 index isolation for xdist
+### FTS5 index isolation for xdist
 
 FTS5 index is inside the SQLite database file — no separate index management needed. Standard `shutil.copy2` of the DB file also copies the FTS5 index. See `conftest.py`'s `_seeded_db_path` fixture for the canonical pattern.
 
-### 4. File upload test patterns
+### File upload test patterns
 
 ```python
 import io
@@ -72,7 +72,7 @@ def test_upload_success(logged_client):
     assert resp.status_code in (200, 302)
 ```
 
-### 5. Sendmail SMTP mocking
+### Sendmail SMTP mocking
 
 ```python
 from unittest.mock import patch, MagicMock
@@ -86,7 +86,7 @@ def test_send_mail_success(mock_smtp, seeded_app_ctx):
     assert mock_instance.sendmail.called
 ```
 
-### 6. Session-scoped seeded database
+### Session-scoped seeded database
 
 To avoid recreating the schema for every test (drops 4+ min to ~1s):
 
@@ -121,7 +121,7 @@ def seeded_client(_seeded_db_path):
 
 On Windows, use `str(Path() / ...)` for SQLite URI paths — `Path.as_posix()` (forward slashes) silently fails and `db.create_all()` raises no error but doesn't create the file.
 
-### 7. APScheduler: env-gated in tests (not shutdown)
+### APScheduler: env-gated in tests (not shutdown)
 
 Since the application-factory refactor, the scheduler never starts in tests because `conftest.py` sets `SE_START_SCHEDULER=0` BEFORE importing `flask_se` (production leaves it unset → jobs run):
 
@@ -133,7 +133,7 @@ from flask_se import app, db
 
 Do not reintroduce `scheduler.shutdown(wait=False)` — the env gate is set before import so the scheduler never starts. If jobs must fire in a test, call `configure_scheduler(jobs, start_scheduler=True)` on the module-level `scheduler` explicitly.
 
-### 8. Route-map verification for refactors
+### Route-map verification for refactors
 
 When moving `add_url_rule` calls (into helpers, blueprints, or modules), prove the route map is preserved before running the full suite — endpoints derive from `view_func.__name__`, so moving calls never renames URLs:
 
@@ -144,7 +144,7 @@ open(".tmp/routes.txt", "w").write(str(rs))  # dump before/after, diff byte-iden
 
 A byte-identical map means zero template/endpoint churn — templates using `url_for('endpoint')` keep working.
 
-### 9. Template-filter output through Jinja (autoescape regression)
+### Template-filter output through Jinja (autoescape regression)
 
 A template filter returning a plain `str` is re-escaped by Jinja autoescape at the call site (`{{ x|markdown }}`), so filter-call unit tests pass while the page shows escaped tags. Test the filter through the app's Jinja environment, and when the filter marks output safe (`Markup`), assert sanitization separately:
 

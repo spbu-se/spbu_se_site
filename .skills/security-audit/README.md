@@ -21,7 +21,7 @@ Not a general code-quality audit (see `.skills/code-audit/`), not doc health (se
 
 ## Workflow
 
-### 1. Survey the GitHub security surface
+### Survey the GitHub security surface
 
 Query live state — never assume:
 
@@ -36,7 +36,7 @@ gh api repos/<owner>/<repo>/security-advisories --jq '.[] | {ghsa_id, severity, 
 
 **Stale-alert check**: Dependabot alerts for packages whose manifest version is already patched (e.g. Pillow `<12.3.0` while `pillow==12.3.0` is pinned) are stale — they auto-resolve on the next scan of the default branch. Verify the pinned version in `pyproject.toml`/`uv.lock` before treating them as real. Do NOT dismiss them; document and move on.
 
-### 2. Three-parallel-pass deep review
+### Three-parallel-pass deep review
 
 Launch three explore agents in parallel, one per concern, with explicit "read-only, report file:line" instructions:
 
@@ -49,7 +49,7 @@ Launch three explore agents in parallel, one per concern, with explicit "read-on
 
 Each agent must return severity (CRITICAL/HIGH/MEDIUM/LOW), file:line, data flow, and a suggested fix — and must NOT modify anything.
 
-### 3. Verify before acting (mandatory)
+### Verify before acting (mandatory)
 
 Every finding that leads to a fix or a dismissal must be proven first:
 
@@ -57,7 +57,7 @@ Every finding that leads to a fix or a dismissal must be proven first:
 - **Empirically test library behavior**: `uv run python -c "...nh3.clean(...)"` before relying on a sanitizer; check `textile.textile` signature for a `sanitize` kwarg (4.x has none at module level).
 - **Check current line numbers**: CodeQL/scanning alerts reference line numbers that drift; an alert's sink may no longer exist.
 
-### 4. Classify and fix in severity order
+### Classify and fix in severity order
 
 1. **CRITICAL** — session forgery, stored XSS on public pages, auth bypass → fix first, with regression tests.
 1. **HIGH** — CSRF, upload validation, secret-in-UI, broken access control → fix second.
@@ -66,7 +66,7 @@ Every finding that leads to a fix or a dismissal must be proven first:
 
 For each fix: add a regression test that reproduces the old behavior (e.g. `TestSecurityCritical`, `TestSecurityMedium` classes), then run the affected suite, then the full suite.
 
-### 5. Dismiss alerts only with proof
+### Dismiss alerts only with proof
 
 | Alert | Dismissal rule |
 |-------|----------------|
@@ -76,7 +76,7 @@ For each fix: add a regression test that reproduces the old behavior (e.g. `Test
 
 Always verify the current line's code before dismissing; a dismissal rationale is only as good as the code it describes.
 
-### 6. Reporting
+### Reporting
 
 Output a table:
 
@@ -86,7 +86,7 @@ Output a table:
 
 Append the full findings to `docs/CODE_ISSUES.md` under a dated "Security audit <date>" section with severity, file:line, and status. Cross-reference new design decisions to `docs/DESIGN_DECISIONS.md` and reusable lessons to `docs/AI_AGENT_EXPERIENCE.md`.
 
-### 7. Phase the delivery
+### Phase the delivery
 
 Prefer small, stackable PRs by severity (critical → high → medium → stale-issue sweep → docs) on a single stacked fork branch. Each phase is independently mergeable and testable; docs land last so `[FIXED]` statuses are accurate.
 

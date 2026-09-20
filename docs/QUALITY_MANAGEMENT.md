@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "Quality Management" tags: ["quality", "process"] scope: agent
+
 # Quality Management
 
 <!-- encoding: utf-8 -->
@@ -6,7 +10,7 @@ Quality philosophy, motivation, and policy for the SE Site project. Connects eve
 
 Covers: quality philosophy, quality tiers motivation, agent recommendation protocol reasoning, CI discipline motivation, quality management artifacts catalog. Does not cover: tool-specific options and configs — see `docs/TOOLING.md`, agent instructions — see `docs/AI_AGENTS.md`, testing discipline — see `docs/TESTING.md`, individual bug tracking — see `docs/CODE_ISSUES.md`.
 
-## 1. Quality Philosophy
+## Quality Philosophy
 
 ### Tools are used excessively for code quality
 
@@ -21,7 +25,7 @@ Quality management traces directly to the two Supreme Directives (`docs/DEVELOPM
 - **Supreme I — Never hurt the user**: Bugs reach users through untested code, unvalidated inputs, unchecked types, unresolved vulnerabilities. Every quality practice below exists to intercept these before they ship.
 - **Supreme II — Never hurt the product**: Test debt, type debt, security debt, complexity debt — each erodes the product's long-term health. Quality practices are investments against this erosion.
 
-## 2. Quality Tiers
+## Quality Tiers
 
 Four tiers, from local convenience to production gate:
 
@@ -42,7 +46,7 @@ Four tiers, from local convenience to production gate:
 
 **Offline review for depth**: Static analysis (complexity, dead code, dependency audit) and manual review (architecture, design) are too slow or too judgment-dependent for CI. They run before L tasks, before refactoring, or on user request.
 
-## 3. Agent Recommendation Protocol
+## Agent Recommendation Protocol
 
 The agent must suggest tools proactively, not reactively. When a gap is identified at any layer:
 
@@ -58,7 +62,7 @@ The exact proposal template and instructions for the agent live in `docs/AI_AGEN
 
 **Why proactive?** Waiting for a gap to recur 3 times before escalating to tooling (the escalation ladder in `docs/RETROSPECTIVES.md`) is wasteful. The first occurrence is enough to ask "does a tool exist for this?" If it does, suggest it. The ladder is for structural enforcement (pre-commit hooks, CI checks) — not for tool discovery.
 
-## 4. CI Discipline
+## Discipline
 
 CI runs tests asynchronously. Deliberate delay between push and result is a feature, not a bug — it lets the developer continue working while the machine validates.
 
@@ -81,7 +85,7 @@ This pattern applies to CI only. Local pre-push uses a sequential fail-fast chai
 
 The exact trigger table with actions lives in `docs/AI_AGENTS.md` §CI discipline.
 
-## 5. Quality Management Artifacts
+## Quality Management Artifacts
 
 Standard techniques for systematic quality management, each with a dedicated artifact:
 
@@ -93,7 +97,7 @@ Standard techniques for systematic quality management, each with a dedicated art
 | `docs/TOOLING.md` §Quality Tool Catalog | All quality tools, exact configs, adoption status | Registry of available tools. Prevents "which tool for this job?" debates. User reviews and approves additions. |
 | `AGENTS.md` §Live metrics | Prescribed commands for live metric queries | Session-start orientation anchor. No hardcoded numbers — always query live. |
 
-## 6. Metrics
+## Metrics
 
 ### What we track
 
@@ -119,7 +123,7 @@ Standard techniques for systematic quality management, each with a dedicated art
 | Coverage | ≥90% | 85-89% | \<85% |
 | CI status | `success` | `neutral` | `failure` |
 
-## 7. See also
+## See also
 
 - `docs/AI_AGENTS.md` — Agent instructions for CI discipline and tool proposals
 - `docs/TOOLING.md` §Quality Tool Catalog — exact tool configurations

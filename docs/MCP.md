@@ -1,3 +1,7 @@
+______________________________________________________________________
+
+## title: "MCP & Agent-Tool Policy" tags: ["tools", "agent", "security"] scope: agent
+
 # MCP Servers & Agent Tooling Policy
 
 <!-- encoding: utf-8 -->
@@ -6,7 +10,7 @@ Selection, security, and token policy for Model Context Protocol (MCP) servers a
 
 Covers: the CLI/scripts-vs-MCP decision, the adopted/recommended/evaluate/avoid catalog with rationale, security and token-economy rules, and the configuration stance. Does not cover: general per-tool CLI mechanics — see `docs/TOOLING.md`; development process — see `docs/DEVELOPMENT_PROCESS.md`; the tool-proposal format — see `docs/AI_AGENTS.md` §Tool recommendation proposals.
 
-## 1. Why This Exists
+## Why This Exists
 
 This project is AI-assisted and mostly non-interactive, so agent tooling must not silently expand the attack surface or the context budget. Three principles decide every adoption:
 
@@ -16,7 +20,7 @@ This project is AI-assisted and mostly non-interactive, so agent tooling must no
 
 **Default lane (user decision 2026-09-10):** browser/UI verification uses **`playwright-cli` + skills**; Playwright **MCP** is reserved for exploratory/stateful loops. See `docs/AI_AGENTS.md` §UI verification.
 
-## 2. Decision Framework — CLI/scripts vs CLI+skills vs MCP
+## Decision Framework — CLI/scripts vs CLI+skills vs MCP
 
 The cheapest tool that does the job deterministically wins. MCP carries a persistent context and trust cost, so it must earn its place.
 
@@ -34,11 +38,11 @@ The cheapest tool that does the job deterministically wins. MCP carries a persis
 
 **Never MCP:** anything that must run in CI, and anything a single well-scoped shell command already does.
 
-## 3. Catalog
+## Catalog
 
 Trust criteria, in order: vendor-backed or well-maintained? minimal scopes / read-only possible? real project need? token cost justified?
 
-### 3.1 Adopted
+### Adopted
 
 | Tool | Lane | Why | How |
 |------|------|-----|-----|
@@ -47,7 +51,7 @@ Trust criteria, in order: vendor-backed or well-maintained? minimal scopes / rea
 
 Browser artifacts (`.playwright-cli/`, `.playwright-mcp/`) are generated files — keep them out of the tree (see \[[#Configuration-Stance]\]).
 
-### 3.2 Recommended (Tier 1)
+### Recommended (Tier 1)
 
 | Tool | What / why | How (scope it) |
 |------|-----------|----------------|
@@ -55,7 +59,7 @@ Browser artifacts (`.playwright-cli/`, `.playwright-mcp/`) are generated files �
 | **GitHub MCP** | PR/issue/CI/Dependabot/security triage — auth + pagination handled | Remote `https://api.githubcopilot.com/mcp/` with `oauth:false` + `Authorization: Bearer {env:GITHUB_PERSONAL_ACCESS_TOKEN}`; scope toolsets via the `X-MCP-Toolsets` header; gate with `"tools": {"github_*": false}` and re-enable per agent. **High token cost** — never enable unscoped |
 | **Semgrep MCP** | Ad-hoc security scan of a working-tree diff | `uvx semgrep-mcp` or `ghcr.io/semgrep/mcp`; the server now lives in `semgrep/semgrep`. Read-only analysis |
 
-### 3.3 Evaluate (Tier 2)
+### Evaluate (Tier 2)
 
 | Tool | Why it might help | Caveat |
 |------|-------------------|--------|
@@ -66,7 +70,7 @@ Browser artifacts (`.playwright-cli/`, `.playwright-mcp/`) are generated files �
 | **SQLite MCP** | Read-only DB exploration | No vendor-backed server (official reference is archived). Prefer `sqlite3` or a repo script; the DB is SQLite+FTS5 |
 | **grep.app** (Vercel) | Search public code for usage examples | Optional; `rg` over local vendored packages is usually enough |
 
-### 3.4 Not Recommended — and Why
+### Not Recommended — and Why
 
 | Tool | Why not |
 |------|---------|
@@ -76,7 +80,7 @@ Browser artifacts (`.playwright-cli/`, `.playwright-mcp/`) are generated files �
 | **PostgreSQL / Redis** MCP | Not in this stack |
 | **pytest / ruff** MCP | No credible vendor-backed server; pytest and ruff are deterministic, CI-schedulable CLI tools — MCP adds cost with no benefit |
 
-## 4. Security & Token Rules
+## Security & Token Rules
 
 **Why:** an MCP server runs arbitrary third-party code with the agent's privileges; a misconfigured one can leak secrets or act unexpectedly.
 
@@ -88,17 +92,17 @@ Browser artifacts (`.playwright-cli/`, `.playwright-mcp/`) are generated files �
 - **No MCP in CI** — MCP is interactive-only; CI uses scripts and CLIs.
 - **Codify after discovery** — turn a one-off MCP flow into a test or script so it survives without the server.
 
-## 5. Configuration Stance
+## Configuration Stance
 
 - **Agent-agnostic snippets, not committed configs.** Document how to configure a server; the developer applies it to their own agent. In-repo, agent-agnostic MCP config is **deferred** until a concrete shared need appears (user decision 2026-09-10).
 - **OpenCode specifics** (adapt to your tool): MCP servers live under the `mcp` key; each entry needs `"type": "local"` or `"type": "remote"`; a local `command` is a single array (executable + args); the env key is `environment` (not `env`); set `"oauth": false` when passing a PAT in an `Authorization` header.
 - **Generated artifacts** belong in `.tmp/` (gitignored): `.playwright-cli/`, `.playwright-mcp/`. `.local_development.db` is the MCP database exception documented in `[[DOCS.md#tmp-directory]]`.
 
-## 6. Process — Adding or Changing an MCP
+## Process — Adding or Changing an MCP
 
 Use the proposal format in `docs/AI_AGENTS.md` §Tool recommendation proposals (problem → where → cost → simpler alternative). An MCP is adopted only with user approval, then recorded here; if it changes agent behavior at a decision point, add a retrieval cue in `AGENTS.md`. Maintain: re-check toolset scope and version pins when a server is updated.
 
-## 7. Related
+## Related
 
 - `docs/AI_AGENTS.md` — AI-agent tool permissions, quirks, skills, and the tool-proposal format.
 - `docs/TOOLING.md` — cross-platform CLI mechanics (`uv`, `pytest`, `gh`, PowerShell).
