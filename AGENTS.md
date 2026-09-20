@@ -37,11 +37,6 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
   1. Or on explicit user order (must acknowledge the bypass risk aloud)
   1. After merge, verify CI on `current` — if CI is red, fix immediately
   1. Never `--admin` before CI starts — waiting costs minutes, fixing a broken current costs hours
-     \<<\<<\<<< HEAD
-
-> > > > > > > d23b9cb (docs: add person-names guard to pre-push gate + AGENTS.md rule)
-> > > > > > > \=======
-> > > > > > > upstream/current
 
 - **Read the skill README for this task** — identify which task/skill matches (e.g., `retrospective-analysis`, `test-writer`, `merge-gate`) and read `.skills/<name>/README.md` before starting. Confirm by stating which skill READMEs were read.
 - Before PowerShell piped/chained commands or `2>&1`, read `docs/TOOLING.md` §PowerShell (flatten ErrorRecords with `| ForEach-Object { "$_" }`, or suppress stderr with `2>($null)`)
@@ -56,6 +51,7 @@ CLAUDE.md defers to this file. This file defers to `docs/`.
 - Before merge: verify TODO.md has no completed items that belong in commit messages instead
 - Before deleting any branch (local or remote): prove it is merged via `gh pr list --repo <owner>/<repo> --state merged --json number,headRefName` — squash-merged branches are never ancestors of `current`, so `git branch --merged`/`-d` can't detect them; forced `-D` is justified only by merged-PR evidence. See `docs/AI_AGENT_EXPERIENCE.md`.
 - **Session retrospective is mandatory before any PR** — run `.skills/retrospective-analysis` and append the entry to `docs/RETROSPECTIVES.md` before opening the PR. If a PR was opened without it, add the retro as the last commit and update the PR description. See `docs/DEVELOPMENT_PROCESS.md` §0.7.
+- **Templates/CSS changed → visual QA before merge** — start local demo, screenshot changed pages with Playwright, interact with new filters/forms. CI does not catch layout breaks. See `docs/DEVELOPMENT_PROCESS.md` §0.13.
 - Before any session summary or handoff: scan `docs/AI_AGENTS.md` §Output Format for the prescribed format — comply with timing, state, and section structure
 - When running tests: never use `-q` — always run with `--tb=long` and capture the full output to a log (`2>&1 | tee .tmp/<run>.log`). Never truncate test/tool output (`Select-Object -Last/-First`, `head`/`tail`) — search the captured log with `rg`/grep instead. See `docs/TESTING.md` §3a.
 - Proactively use `git-history_git_wrapup_instructions` at session start (orientation snapshot), mid-session (checkpoint against acceptance criteria), and pre-merge (readiness gate) — not just at the end. See `docs/DEVELOPMENT_PROCESS.md` §0.7 (Session lifecycle — wrap-up protocol).
