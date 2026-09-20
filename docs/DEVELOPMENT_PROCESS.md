@@ -384,21 +384,25 @@ logic must be visually verified before merge. CI checks syntax but cannot detect
 layout breaks (overlapping text, missing script execution, broken CSS classes).
 
 ### Scope: changed pages only
+
 You don't need to screenshot the whole site. Only pages affected by the diff:
+
 - Changed a template → screenshot that template
 - Changed CSS → screenshot one page per affected component
 - Changed a form/filter → interact with it (type, click, verify response)
 
 ### How
+
 1. Start the local demo server (use gunicorn, not Flask's reloader):
    ```bash
    SE_SECRET_KEY=demo SE_START_SCHEDULER=0 gunicorn -w 1 -b 0.0.0.0:5000 'flask_se:app'
    ```
-2. Use Playwright to navigate, screenshot, and interact with changed pages.
-3. Verify: rendered output matches your intent. Search works. Forms submit.
+1. Use Playwright to navigate, screenshot, and interact with changed pages.
+1. Verify: rendered output matches your intent. Search works. Forms submit.
    Layout matches existing page patterns (`slice bg-dark pt-9` for base_dark).
 
 ### CI cannot catch this
+
 CI runs `pytest`, `ruff`, `basedpyright`, and `pytest --cov`. None of these
 render a page and check that a filter dropdown actually filters, or that a
 search input dispatches its event. Visual QA is the only gate for behavioral
